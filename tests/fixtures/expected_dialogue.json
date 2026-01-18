@@ -1,0 +1,24 @@
+{
+  "sections": [
+    {
+      "number": null,
+      "title": null,
+      "paragraphs": null,
+      "lines": [
+        {
+          "text": "Saga mē hwæt wisdom sīe.",
+          "number": 1,
+          "speaker": "Saturnus",
+          "confidence": null
+        },
+        {
+          "text": "Ic þe secge sōð.",
+          "number": 2,
+          "speaker": "Salomon",
+          "confidence": null
+        }
+      ],
+      "confidence": null
+    }
+  ]
+}
