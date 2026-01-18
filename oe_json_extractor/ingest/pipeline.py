@@ -28,7 +28,7 @@ from .extractors import (
     AnyLLMConfig,
     LLMExtractor,
 )
-from .loaders import SourceLoader, from_tei
+from .loaders import SourceLoader
 from .normalizers import normalize_elements_to_blocks
 
 if TYPE_CHECKING:
@@ -457,7 +457,8 @@ class BaseDocumentIngestor:
         """
         Abstract ingest method to be overridden by subclasses.
         """
-        raise NotImplementedError("Subclasses must implement ingest()")
+        msg = "Subclasses must implement ingest()"
+        raise NotImplementedError(msg)
 
     def _get_preparsed_doc(self, source_path: Path) -> PreParsedDocument:
         """
