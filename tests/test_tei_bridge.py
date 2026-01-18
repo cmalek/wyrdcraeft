@@ -1,14 +1,36 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from oe_json_extractor.ingest.exporters import to_tei
+from oe_json_extractor.ingest.loaders import from_tei
 from oe_json_extractor.models.schema import (
-    OldEnglishText,
-    TextMetadata,
-    Section,
-    Paragraph,
-    Sentence,
     Line,
+    OldEnglishText,
+    Paragraph,
+    Section,
+    Sentence,
+    TextMetadata,
 )
-from oe_json_extractor.ingest.exporters import to_tei, from_tei
+
+
+def test_tei_import_beowulf() -> None:
+    """Test importing Beowulf from TEI XML."""
+    fixture_path = Path(__file__).parent / "fixtures" / "beowulfOE.xml"
+    xml = fixture_path.read_text(encoding="utf-8")
+    doc = from_tei(xml)
+
+    assert doc.metadata.title == "Beowulf : a digital edition"
+    assert doc.content is not None
+    # The Beowulf fixture may have content in lines or nested sections
+    assert doc.content.lines or doc.content.sections
+
+    if doc.content.lines:
+        assert len(doc.content.lines) > 0
+        # Check first line text - the fixture seems to use entities
+        # Ðā cōm of mōre...
+        first_line = doc.content.lines[0].text
+        assert "Ðā" in first_line or "HWÆT" in first_line
 
 
 def test_tei_roundtrip_minimal_prose() -> None:

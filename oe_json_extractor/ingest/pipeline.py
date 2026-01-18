@@ -24,12 +24,11 @@ from ..models import (
 )
 from ..models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
 from ..settings import Settings
-from .exporters import from_tei
 from .extractors import (
     AnyLLMConfig,
     LLMExtractor,
 )
-from .loaders import SourceLoader
+from .loaders import SourceLoader, from_tei
 from .normalizers import normalize_elements_to_blocks
 
 if TYPE_CHECKING:
@@ -527,8 +526,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
             A :class:`~oe_json_extractor.models.OldEnglishText` model.
 
         """
-        xml = Path(source_path).read_text(encoding="utf-8")
-        return from_tei(xml)
+        return SourceLoader().load(source_path)
 
 
 class LLMDocumentIngestor(BaseDocumentIngestor):
@@ -704,7 +702,6 @@ class DocumentIngestor:
         metadata: TextMetadata | None,
         *,
         use_llm: bool = True,
-        prefer_tei: bool = True,
         **kwargs,
     ) -> OldEnglishText:
         """
@@ -716,12 +713,11 @@ class DocumentIngestor:
 
         Keyword Args:
             use_llm: Whether to use LLM extraction.
-            prefer_tei: Whether to prefer TEI XML over other formats.
             kwargs: Additional keyword arguments (ignored).
 
         """
         suffix = source_path.suffix.lower()
-        if prefer_tei and suffix in {".tei", ".xml"}:
+        if suffix in {".tei", ".xml"}:
             return TEIDocumentIngestor().ingest(source_path, metadata, **kwargs)
 
         if use_llm:

@@ -4,8 +4,13 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-import httpx
-from oe_json_extractor.ingest.loaders import SourceLoader
+
+from oe_json_extractor.ingest.loaders import (
+    FileSourceLoader,
+    HTTPSourceLoader,
+    SourceLoader,
+    TEISourceLoader,
+)
 
 
 @pytest.fixture
@@ -13,32 +18,34 @@ def source_loader():
     return SourceLoader()
 
 
-def test_load_from_file_text(tmp_path, source_loader):
+def test_load_from_file_text(tmp_path):
     file_path = tmp_path / "test.txt"
     file_path.write_text("Hello World", encoding="utf-8")
 
+    loader = FileSourceLoader()
     with patch("oe_json_extractor.ingest.loaders.partition_text") as mock_partition:
         mock_partition.return_value = [MagicMock(text="Hello World")]
-        elements = source_loader.load_from_file(file_path)
+        elements = loader.load_from_file(file_path)
         assert len(elements) == 1
         assert elements[0].text == "Hello World"
         mock_partition.assert_called_once_with(filename=str(file_path))
 
 
-def test_load_from_file_unsupported(source_loader):
+def test_load_from_file_unsupported():
+    loader = FileSourceLoader()
     with pytest.raises(ValueError, match="Unsupported source format"):
-        source_loader.load_from_file(Path("test.unknown"))
+        loader.load_from_file(Path("test.unknown"))
 
 
 def test_source_loader_load_file(tmp_path, source_loader):
     file_path = tmp_path / "test.txt"
     file_path.write_text("Hello World", encoding="utf-8")
 
-    with patch.object(SourceLoader, "load_from_file") as mock_load_file:
-        mock_load_file.return_value = [MagicMock(text="Hello World")]
+    with patch.object(FileSourceLoader, "load") as mock_load:
+        mock_load.return_value = [MagicMock(text="Hello World")]
         elements = source_loader.load(file_path)
         assert len(elements) == 1
-        mock_load_file.assert_called_once_with(file_path)
+        mock_load.assert_called_once_with(file_path)
 
 
 def test_source_loader_load_url(source_loader):
@@ -50,7 +57,7 @@ def test_source_loader_load_url(source_loader):
 
     with (
         patch("httpx.Client.get", return_value=mock_response) as mock_get,
-        patch.object(SourceLoader, "load_from_file") as mock_load_file,
+        patch.object(HTTPSourceLoader, "load_from_file") as mock_load_file,
     ):
         mock_load_file.return_value = [MagicMock(text="Hello from URL")]
 
@@ -74,7 +81,7 @@ def test_source_loader_load_url_content_type(source_loader):
 
     with (
         patch("httpx.Client.get", return_value=mock_response) as mock_get,
-        patch.object(SourceLoader, "load_from_file") as mock_load_file,
+        patch.object(HTTPSourceLoader, "load_from_file") as mock_load_file,
     ):
         mock_load_file.return_value = [MagicMock(text="Hello")]
 
@@ -85,3 +92,11 @@ def test_source_loader_load_url_content_type(source_loader):
         args, _ = mock_load_file.call_args
         temp_file_path = args[0]
         assert temp_file_path.suffix == ".html"
+
+
+def test_tei_source_loader_load_tei():
+    tei_content = '<TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader><titleStmt><title>Test</title></titleStmt></teiHeader><body><div><p>Hello</p></div></body></TEI>'
+    loader = TEISourceLoader()
+    doc = loader.load_from_tei(tei_content)
+    assert doc.metadata.title == "Test"
+    assert doc.content.paragraphs[0].sentences[0].text == "Hello"

@@ -41,6 +41,47 @@ wheels = [
 ]
 
 [[package]]
+name = "acdh-handle-pyutils"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/75/aa/cc6bb825de7b00d02d65e2b728b42ccbebd9a57d8f7484f4a599d63ed517/acdh-handle-pyutils-0.4.2.tar.gz", hash = "sha256:e829eddd6ce823547b5f6c0958b9baf676006bf00f36c389937f136c65d72388", size = 4773, upload-time = "2022-09-26T08:22:56.025Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/8a/62d073b60af969d0e1c4d453efff16a759a888928b90e6277ac9cf41569d/acdh_handle_pyutils-0.4.2-py3-none-any.whl", hash = "sha256:50160301dc175bd0563974176785abbab561999f210f2533b4d83f4e175850a0", size = 4729, upload-time = "2022-09-26T08:22:54.762Z" },
+]
+
+[[package]]
+name = "acdh-tei-pyutils"
+version = "1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "acdh-handle-pyutils" },
+    { name = "acdh-xml-pyutils" },
+    { name = "click" },
+    { name = "python-slugify" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/90/b5/7fdadb24c2e5bb410aa56ff8db32156b5c431624062ba233964f82e684b0/acdh_tei_pyutils-1.6.tar.gz", hash = "sha256:387f99bf5248bf0716d6a3e7ce049937a1e8f2754e454bbc84fc9b6cd876b5f0", size = 19338, upload-time = "2024-11-05T08:42:06.044Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/00/98/0fadf37f2ce6d41b19bb1bb121a90af115469e61b71b1adc0343dfee4bef/acdh_tei_pyutils-1.6-py3-none-any.whl", hash = "sha256:94b586bb6c83dc583b7da51fb141fd56afee58f4f842950c7ac85fe01c8ca059", size = 19111, upload-time = "2024-11-05T08:42:04.704Z" },
+]
+
+[[package]]
+name = "acdh-xml-pyutils"
+version = "1.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a7/46/e0315bfb074262505569ea87fca32b892085075ab76aa461206584a35d29/acdh_xml_pyutils-1.1.1.tar.gz", hash = "sha256:59a1008bced83cc5f82f10f488a676bb299dffca839a6755c9ea51df946ea482", size = 7574, upload-time = "2024-03-21T08:20:56.735Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/58/94/cf06a516a9bcc370e2b57fc44cfb341d14e256c3576f931b9a570a88088a/acdh_xml_pyutils-1.1.1-py3-none-any.whl", hash = "sha256:80f1fc6ec2f77d2c6922fd605f568e45984d8dad3902cd67d49abb0a74f47e28", size = 7886, upload-time = "2024-03-21T08:20:55.256Z" },
+]
+
+[[package]]
 name = "aiofiles"
 version = "25.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -592,6 +633,15 @@ wheels = [
 ]
 
 [[package]]
+name = "cssselect"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/0a/c3ea9573b1dc2e151abfe88c7fe0c26d1892fe6ed02d0cdb30f0d57029d5/cssselect-1.3.0.tar.gz", hash = "sha256:57f8a99424cfab289a1b6a816a43075a4b00948c86b4dcf3ef4ee7e15f7ab0c7", size = 42870, upload-time = "2025-03-10T09:30:29.638Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ee/58/257350f7db99b4ae12b614a36256d9cc870d71d9e451e79c2dc3b23d7c3c/cssselect-1.3.0-py3-none-any.whl", hash = "sha256:56d1bf3e198080cc1667e137bc51de9cadfca259f03c2d4e09037b3e01e30f0d", size = 18786, upload-time = "2025-03-10T09:30:28.048Z" },
+]
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -620,6 +670,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/43/fa/6d96a0978d19e17b68d634497769987b16c8f4cd0a7a05048bec693caa6b/decorator-5.2.1.tar.gz", hash = "sha256:65f266143752f734b0a7cc83c46f4618af75b8c5911b00ccb61d0ac9b6da0360", size = 56711, upload-time = "2025-02-24T04:41:34.073Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4e/8c/f3147f5c4b73e7550fe5f9352eaa956ae838d5c51eb58e7a25b9f3e2643b/decorator-5.2.1-py3-none-any.whl", hash = "sha256:d316bb415a2d9e2d2b3abcc4084c6502fc09240e292cd76a76afc106a1c8e04a", size = 9190, upload-time = "2025-02-24T04:41:32.565Z" },
+]
+
+[[package]]
+name = "delb"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cssselect" },
+    { name = "lxml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b2/8a/c9389505bfeeff5d0c0f455218ad0bba5c3f9796e05f59028280f4240cf1/delb-0.5.1.tar.gz", hash = "sha256:5db40e955c18f370cf8840de3bc87b7a8822d248cb4d7c5a737fa14b2f739983", size = 1674099, upload-time = "2025-01-08T22:38:27.565Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9c/40/06bbb3b4e0d3ac01070a43ab633add46a580737b550b556cdd307c521d11/delb-0.5.1-py3-none-any.whl", hash = "sha256:61c6df6cadbdb49b3ee62b76175f68f5f76e7fcbda972820e89a305ee963f667", size = 85789, upload-time = "2025-01-08T22:38:25.605Z" },
 ]
 
 [[package]]
@@ -2049,9 +2112,11 @@ name = "oe-json-extractor"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "acdh-tei-pyutils" },
     { name = "any-llm-sdk", extra = ["gemini", "ollama"] },
     { name = "build" },
     { name = "click" },
+    { name = "delb" },
     { name = "httpx" },
     { name = "langextract" },
     { name = "pydantic" },
@@ -2084,9 +2149,11 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "acdh-tei-pyutils", specifier = ">=1.6" },
     { name = "any-llm-sdk", extras = ["gemini", "ollama", "openai"] },
     { name = "build", specifier = ">=1.2.2.post1" },
     { name = "click", specifier = ">=8.1.7" },
+    { name = "delb", specifier = ">=0.5.1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "langextract", specifier = ">=0.0.0" },
     { name = "pydantic", specifier = ">=2.10.6" },
@@ -3088,6 +3155,18 @@ wheels = [
 ]
 
 [[package]]
+name = "python-slugify"
+version = "8.0.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "text-unidecode" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/87/c7/5e1547c44e31da50a460df93af11a535ace568ef89d7a811069ead340c4a/python-slugify-8.0.4.tar.gz", hash = "sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856", size = 10921, upload-time = "2024-02-08T18:32:45.488Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/62/02da182e544a51a5c3ccf4b03ab79df279f9c60c5e82d5e8bec7ca26ac11/python_slugify-8.0.4-py2.py3-none-any.whl", hash = "sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8", size = 10051, upload-time = "2024-02-08T18:32:43.911Z" },
+]
+
+[[package]]
 name = "pytz"
 version = "2025.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3584,6 +3663,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/0a/d4/2b0cd0fe285e14b36db076e78c93766ff1d529d70408bd1d2a5a84f1d929/tenacity-9.1.2.tar.gz", hash = "sha256:1169d376c297e7de388d18b4481760d478b0e99a777cad3a9c86e556f4b697cb", size = 48036, upload-time = "2025-04-02T08:25:09.966Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e5/30/643397144bfbfec6f6ef821f36f33e57d35946c44a2352d3c9f0ae847619/tenacity-9.1.2-py3-none-any.whl", hash = "sha256:f77bf36710d8b73a50b2dd155c97b870017ad21afe6ab300326b0371b3b05138", size = 28248, upload-time = "2025-04-02T08:25:07.678Z" },
+]
+
+[[package]]
+name = "text-unidecode"
+version = "1.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ab/e2/e9a00f0ccb71718418230718b3d900e71a5d16e701a3dae079a21e9cd8f8/text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93", size = 76885, upload-time = "2019-08-30T21:36:45.405Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a6/a5/c0b6468d3824fe3fde30dbb5e1f687b291608f9473681bbf7dabbf5a87d7/text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8", size = 78154, upload-time = "2019-08-30T21:37:03.543Z" },
 ]
 
 [[package]]
