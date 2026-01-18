@@ -1,0 +1,7 @@
+[project]
+name = "oe-anyllm-qwen-bundle"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = ["pydantic>=2.6","pytest>=8.0","any-llm-sdk[ollama]"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]

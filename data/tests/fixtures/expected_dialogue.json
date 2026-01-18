@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "metadata": {
+    "title": "Fixture Dialogue",
+    "source": "tests/fixtures",
+    "language": "ang"
+  },
+  "content": {
+    "title": null,
+    "number": null,
+    "source_page": null,
+    "confidence": 0.7,
+    "sections": null,
+    "paragraphs": null,
+    "lines": [
+      {
+        "text": "Saturnus cwæð:",
+        "number": 1,
+        "speaker": "Saturnus",
+        "source_page": null,
+        "confidence": 0.7
+      },
+      {
+        "text": "Saga mē hwæt wisdom sīe.",
+        "number": 2,
+        "speaker": "Saturnus",
+        "source_page": null,
+        "confidence": 0.7
+      },
+      {
+        "text": "Salomon cwæð:",
+        "number": 3,
+        "speaker": "Salomon",
+        "source_page": null,
+        "confidence": 0.7
+      },
+      {
+        "text": "Ic þe secge sōð.",
+        "number": 4,
+        "speaker": "Salomon",
+        "source_page": null,
+        "confidence": 0.7
+      }
+    ]
+  }
+}

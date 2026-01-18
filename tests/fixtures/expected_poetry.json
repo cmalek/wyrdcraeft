@@ -1,0 +1,24 @@
+{
+  "sections": [
+    {
+      "number": null,
+      "title": null,
+      "paragraphs": null,
+      "lines": [
+        {
+          "text": "Hwæt! wē Gār-Dena in gēar-dagum",
+          "number": 1,
+          "speaker": null,
+          "confidence": null
+        },
+        {
+          "text": "þēodcyninga þrym gefrūnon",
+          "number": 2,
+          "speaker": null,
+          "confidence": null
+        }
+      ],
+      "confidence": null
+    }
+  ]
+}

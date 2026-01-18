@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "metadata": {
+    "title": "Fixture Verse",
+    "source": "tests/fixtures",
+    "language": "ang"
+  },
+  "content": {
+    "title": null,
+    "number": null,
+    "source_page": null,
+    "confidence": 0.8,
+    "sections": null,
+    "paragraphs": null,
+    "lines": [
+      {
+        "text": "Hwæt! wē Gār-Dena in gēar-dagum",
+        "number": 1,
+        "speaker": null,
+        "source_page": null,
+        "confidence": 0.8
+      },
+      {
+        "text": "þēodcyninga þrym gefrūnon",
+        "number": 2,
+        "speaker": null,
+        "source_page": null,
+        "confidence": 0.8
+      }
+    ]
+  }
+}
