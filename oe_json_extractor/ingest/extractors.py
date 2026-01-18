@@ -1,231 +1,175 @@
 from __future__ import annotations
 
 import json
-import os
+from contextlib import suppress
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import langextract as lx
+from any_llm import completion
 
-from ..models import (
-    OldEnglishText,
-    TextMetadata,
-)
+from ..models import OldEnglishText, TextMetadata
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass(frozen=True)
-class LangExtractConfig:
+class AnyLLMConfig:
+    """Configuration for Python any-llm."""
+
+    #: The provider to use for any-llm.
+    provider: str = "ollama"
+    #: The model ID to use for any-llm.
+    model_id: str = "qwen2.5:14b-instruct"
+    #: The temperature to use for any-llm.
+    temperature: float = 0.0
+    #: The maximum number of tokens to use for any-llm.
+    max_tokens: int = 4096
+    #: The timeout in seconds for any-llm.
+    timeout_s: int = 120
+
+
+class LLMExtractor:
     """
-    Configuration for langextract integration.
-
-    Notes:
-        - For Gemini models, schema constraints are typically supported; keep
-        use_schema_constraints=True.
-        - For OpenAI models, langextract currently requires fence_output=True and
-        use_schema_constraints=False (per upstream documentation).
-
-    """
-
-    #: The model ID to use for langextract.
-    model_id: str = "gemini-2.5-flash"
-    #: The API key to use for langextract.
-    api_key: str | None = None
-    #: The temperature to use for langextract.
-    temperature: float | None = None
-    #: The maximum character buffer to use for langextract.
-    max_char_buffer: int = 1200
-    #: The number of extraction passes to use for langextract.
-    extraction_passes: int = 2
-    #: The maximum number of workers to use for langextract.
-    max_workers: int = 8
-    #: The batch length to use for langextract.
-    batch_length: int = 10
-    #: Whether to show progress for langextract.
-    show_progress: bool = True
-
-
-def _provider_defaults_for_model(model_id: str) -> dict[str, Any]:
-    """
-    Choose conservative defaults based on provider capability.
-
-    Source: langextract README notes that OpenAI requires fencing and no schema
-    constraints.
+    Extractor for Old English text using LLMs.
 
     Args:
-        model_id: The model ID to use for langextract.
-
-    Returns:
-        A dictionary of provider defaults.
+        config: The configuration for any-llm.
 
     """
-    lower = model_id.lower()
-    if lower.startswith(("gpt-", "o1-", "o3-", "o4-")):
-        return {"fence_output": True, "use_schema_constraints": False}
-    return {"fence_output": None, "use_schema_constraints": True}
 
+    def __init__(self, config: AnyLLMConfig | None = None) -> None:
+        """
+        Initialize the extractor.
 
-def _load_prompt(prompt_path: Path) -> str:
-    return prompt_path.read_text(encoding="utf-8").strip()
+        Args:
+            config: The configuration for any-llm.
 
+        """
+        #: The configuration for any-llm.
+        self.config = config or AnyLLMConfig()
 
-def _build_examples_from_fixtures(fixtures_dir: Path) -> list[lx.data.ExampleData]:
-    """
-    Build few-shot examples that define the output schema via attributes.
+    def load(self, prompt_path: Path) -> str:
+        """
+        Load a prompt from a file.
 
-    We use ONE extraction per example:
-    - extraction_class: "oe_document"
-    - extraction_text: the full example text (verbatim) for grounding/alignment
-    - attributes: {"sections": <canonical section list>}
+        Args:
+            prompt_path: The path to the prompt to load.
 
-    Args:
-        fixtures_dir: The directory to load the fixtures from.
+        Returns:
+            The prompt as a string.
 
-    Returns:
-        A list of few-shot examples.
+        """
+        return prompt_path.read_text(encoding="utf-8").strip()
 
-    """
-    expected_files = [
-        ("fixture_prose.txt", "expected_prose.json"),
-        ("fixture_poetry.txt", "expected_poetry.json"),
-        ("fixture_dialogue.txt", "expected_dialogue.json"),
-    ]
+    def prepare(self, prompt: str, text: str) -> list[dict[str, str]]:
+        """
+        Create a list of messages for any-llm.
 
-    examples: list[lx.data.ExampleData] = []
-    for text_name, expected_name in expected_files:
-        text = (fixtures_dir / text_name).read_text(encoding="utf-8").strip()
-        expected = json.loads(
-            (fixtures_dir / expected_name).read_text(encoding="utf-8")
-        )
-        sections = expected["sections"]
+        Args:
+            prompt: The prompt to use.
+            text: The text to use.
 
-        examples.append(
-            lx.data.ExampleData(
-                text=text,
-                extractions=[
-                    lx.data.Extraction(
-                        extraction_class="oe_document",
-                        extraction_text=text,  # verbatim grounding for alignment
-                        attributes={"sections": sections},
-                    )
-                ],
-            )
-        )
-    return examples
+        Returns:
+            A list of messages.
 
+        """
+        return [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": "INPUT TEXT (Old English only):\n\n" + text},
+        ]
 
-def _wrap_sections_as_root_content(sections: list[dict[str, Any]]) -> dict[str, Any]:
-    """
-    Our Pydantic model expects a single root Section (with optional
-    subsections).  Wrap the extracted :paramref:`sections` list as
-    ``root.content.sections``.
+    def parse(self, raw: str) -> dict[str, Any]:
+        """
+        Extract a JSON object from a string. This method is used to parse the
+        output of any-llm.
 
-    Args:
-        sections: The sections to wrap.
+        This does th following:
 
-    Returns:
-        A dictionary of the wrapped sections.
+        - Strips away any markdown or code fences.
+        - Strips away any explanations or comments.
+        - Strips away any metadata.
+        - Strips away any schema version.
+        - Loads the remaining JSON object from the string.
 
-    """
-    return {
-        "title": None,
-        "number": None,
-        "sections": sections,
-        "paragraphs": None,
-        "lines": None,
-        "source_page": None,
-        "confidence": None,
-    }
+        Args:
+            raw: The string to extract the JSON object from.
 
+        Returns:
+            The JSON object as a dictionary.
 
-def run_langextract_to_canonical(
-    *,
-    text: str,
-    metadata: TextMetadata,
-    prompt_path: Path,
-    config: LangExtractConfig | None = None,
-    fixtures_dir: Path | None = None,
-) -> OldEnglishText:
-    """
-    Run langextract over `text` and return a validated
-    :class:`~oe_json_extractor.schema.models.OldEnglishText`.
-
-    This function is intended to be called on reasonably-sized chunks (2-4k
-    tokens / a few KB).  Use your rule-based pre-parser to chunk by section
-    before calling this.
-
-    Requirements:
-        - :envvar:`LANGEXTRACT_API_KEY` env var is used by default if config.api_key
-        is ``None``.
-        - The prompt is loaded from :paramref:`prompt_path`.
-        - Few-shot examples are built from :paramref:`fixtures_dir`; by default,
-        this is the repository test fixtures directory.
-
-    Keyword Args:
-        text: The text to extract from.
-        metadata: The metadata for the text.
-        prompt_path: The path to the prompt to use.
-        config: The configuration for langextract.
-        fixtures_dir: The directory to load the fixtures from.
-
-    Raises:
-        ValueError: If langextract returned no extractions.
-        TypeError: If langextract output missing ``attributes.sections`` list.
-
-    Returns:
-        A validated :class:`~oe_json_extractor.schema.models.OldEnglishText`.
-
-    """
-    cfg = config or LangExtractConfig()
-    api_key = cfg.api_key or os.environ.get("LANGEXTRACT_API_KEY")
-
-    prompt = _load_prompt(prompt_path)
-    if fixtures_dir is None:
-        # Default to the repository test fixtures
-        fixtures_dir = Path(__file__).resolve().parents[3] / "tests" / "fixtures"
-    examples = _build_examples_from_fixtures(fixtures_dir)
-
-    provider_defaults = _provider_defaults_for_model(cfg.model_id)
-
-    result = lx.extract(
-        text_or_documents=text,
-        prompt_description=prompt,
-        examples=examples,
-        model_id=cfg.model_id,
-        api_key=api_key,
-        temperature=cfg.temperature,
-        max_char_buffer=cfg.max_char_buffer,
-        extraction_passes=cfg.extraction_passes,
-        max_workers=cfg.max_workers,
-        batch_length=cfg.batch_length,
-        show_progress=cfg.show_progress,
-        **provider_defaults,
-    )
-
-    # langextract returns an AnnotatedDocument for single text input.
-    extractions = getattr(result, "extractions", None)
-    if not extractions:
-        msg = "langextract returned no extractions"
+        """
+        s = raw.strip()
+        if s.startswith("```"):
+            s = s.split("\n", 1)[1] if "\n" in s else s
+            s = s.rsplit("```", 1)[0].strip()
+        with suppress(json.JSONDecodeError):
+            obj = json.loads(s)
+            if isinstance(obj, dict):
+                return obj
+        start = s.find("{")
+        if start < 0:
+            msg = "No JSON object found in output"
+            raise ValueError(msg)
+        depth = 0
+        in_str = False
+        esc = False
+        for i in range(start, len(s)):
+            ch = s[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":  # escape
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+            elif ch == '"':
+                in_str = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return json.loads(s[start : i + 1])
+        msg = "Could not extract JSON object from output"
         raise ValueError(msg)
 
-    # We expect exactly one oe_document extraction. If multiple, take the first
-    # matching class.
-    chosen = None
-    for ex in extractions:
-        if getattr(ex, "extraction_class", None) == "oe_document":
-            chosen = ex
-            break
-    if chosen is None:
-        chosen = extractions[0]
+    def extract(
+        self,
+        *,
+        text: str,
+        metadata: TextMetadata,
+        prompt_path: Path,
+        prompt_preamble: str | None = None,
+    ) -> OldEnglishText:
+        """
+        Run any-llm over `text` and return a validated
+        :class:`~oe_ingest.schema.models.OldEnglishText`.
 
-    attrs = getattr(chosen, "attributes", None) or {}
-    sections = attrs.get("sections")
-    if not isinstance(sections, list):
-        msg = "langextract output missing attributes.sections list"
-        raise TypeError(msg)
+        Keyword Args:
+            text: The text to extract from.
+            metadata: The metadata for the text.
+            prompt_path: The path to the prompt to use.
+            prompt_preamble: The preamble to use for the prompt.
 
-    doc_payload = {
-        "metadata": metadata.model_dump(mode="json", exclude_none=True),
-        "content": _wrap_sections_as_root_content(sections),
-    }
-    return OldEnglishText.model_validate(doc_payload)
+        Returns:
+            A validated :class:`~oe_ingest.schema.models.OldEnglishText`.
+
+        """
+        prompt = self.load(prompt_path)
+        if prompt_preamble:
+            prompt = prompt_preamble.rstrip() + "\n\n" + prompt
+        raw = completion(
+            model=self.config.model_id,
+            messages=self.prepare(prompt, text),
+            provider=self.config.provider,
+            temperature=self.config.temperature,
+            max_tokens=self.config.max_tokens,
+            timeout=self.config.timeout_s,
+        )
+        if not isinstance(raw, str):
+            raw = str(raw)
+        obj = self.parse(raw)
+        if "metadata" not in obj:
+            obj["metadata"] = metadata.model_dump(mode="json", exclude_none=True)
+        return OldEnglishText.model_validate(obj)

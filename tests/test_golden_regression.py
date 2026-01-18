@@ -5,11 +5,12 @@ import os
 from pathlib import Path
 
 import pytest
-from oe_ingest.ingest.extractors.langextract_runner import (
+
+from oe_json_extractor.ingest.extractors import (
     AnyLLMConfig,
-    run_anyllm_to_canonical,
+    LLMExtractor,
 )
-from oe_ingest.schema.models import OldEnglishText, TextMetadata
+from oe_json_extractor.models import OldEnglishText, TextMetadata
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -68,17 +69,21 @@ def test_live_qwen_matches_golden(
 
     """
     prompt_path = (
-        Path(__file__).resolve().parents[1] / "oe_ingest" / "prompts" / prompt_file
+        Path(__file__).resolve().parents[1]
+        / "oe_json_extractor"
+        / "prompts"
+        / prompt_file
     )
-    doc = run_anyllm_to_canonical(
+    config = AnyLLMConfig(
+        provider=os.environ.get("ANYLLM_PROVIDER", "ollama"),
+        model_id=os.environ.get("ANYLLM_MODEL", "qwen2.5:14b-instruct"),
+        temperature=float(os.environ.get("ANYLLM_TEMPERATURE", "0.0")),
+    )
+    extractor = LLMExtractor(config=config)
+    doc = extractor.extract(
         text=_t(text_file),
         metadata=TextMetadata(title=title, source="tests/fixtures"),
         prompt_path=prompt_path,
-        config=AnyLLMConfig(
-            provider=os.environ.get("ANYLLM_PROVIDER", "ollama"),
-            model_id=os.environ.get("ANYLLM_MODEL", "qwen2.5:14b-instruct"),
-            temperature=float(os.environ.get("ANYLLM_TEMPERATURE", "0.0")),
-        ),
     )
     got = doc.model_dump(mode="json", exclude_none=False)
     expected = _j(expected_file)

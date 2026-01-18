@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-from oe_json_extractor.ingest.pipeline import RawBlock
+from ..models.parsing import RawBlock
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
