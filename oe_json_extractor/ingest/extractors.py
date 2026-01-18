@@ -2,31 +2,11 @@ from __future__ import annotations
 
 import json
 from contextlib import suppress
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from any_llm import completion
 
-from ..models import OldEnglishText, TextMetadata
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-
-@dataclass(frozen=True)
-class AnyLLMConfig:
-    """Configuration for Python any-llm."""
-
-    #: The provider to use for any-llm.
-    provider: str = "ollama"
-    #: The model ID to use for any-llm.
-    model_id: str = "qwen2.5:14b-instruct"
-    #: The temperature to use for any-llm.
-    temperature: float = 0.0
-    #: The maximum number of tokens to use for any-llm.
-    max_tokens: int = 4096
-    #: The timeout in seconds for any-llm.
-    timeout_s: int = 120
+from ..models import AnyLLMConfig, OldEnglishText, TextMetadata
 
 
 class LLMExtractor:
@@ -48,19 +28,6 @@ class LLMExtractor:
         """
         #: The configuration for any-llm.
         self.config = config or AnyLLMConfig()
-
-    def load(self, prompt_path: Path) -> str:
-        """
-        Load a prompt from a file.
-
-        Args:
-            prompt_path: The path to the prompt to load.
-
-        Returns:
-            The prompt as a string.
-
-        """
-        return prompt_path.read_text(encoding="utf-8").strip()
 
     def prepare(self, prompt: str, text: str) -> list[dict[str, str]]:
         """
@@ -139,7 +106,7 @@ class LLMExtractor:
         *,
         text: str,
         metadata: TextMetadata,
-        prompt_path: Path,
+        prompt: str,
         prompt_preamble: str | None = None,
     ) -> OldEnglishText:
         """
@@ -149,14 +116,13 @@ class LLMExtractor:
         Keyword Args:
             text: The text to extract from.
             metadata: The metadata for the text.
-            prompt_path: The path to the prompt to use.
+            prompt: The prompt to use.
             prompt_preamble: The preamble to use for the prompt.
 
         Returns:
             A validated :class:`~oe_ingest.schema.models.OldEnglishText`.
 
         """
-        prompt = self.load(prompt_path)
         if prompt_preamble:
             prompt = prompt_preamble.rstrip() + "\n\n" + prompt
         raw = completion(
@@ -166,6 +132,7 @@ class LLMExtractor:
             temperature=self.config.temperature,
             max_tokens=self.config.max_tokens,
             timeout=self.config.timeout_s,
+            api_key=self.config.api_key,
         )
         if not isinstance(raw, str):
             raw = str(raw)

@@ -16,7 +16,8 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-from oe_json_extractor.exc import ConfigurationError
+from .exc import ConfigurationError
+from .models import AnyLLMConfig
 
 
 class Settings(BaseSettings):
@@ -44,6 +45,19 @@ class Settings(BaseSettings):
     app_version: str = Field(
         default="0.1.0", description="Application version", frozen=True
     )
+
+    # LLM settings
+    llm_model_id: str = Field(
+        default="qwen2.5:14b-instruct", description="LLM model ID"
+    )
+    llm_provider: Literal["ollama", "gemini", "openai"] = Field(
+        default="ollama", description="LLM provider"
+    )
+    llm_temperature: float = Field(default=0.0, description="LLM temperature")
+    llm_max_tokens: int = Field(default=4096, description="LLM max tokens")
+    llm_timeout_s: int = Field(default=120, description="LLM timeout in seconds")
+    openai_api_key: str | None = Field(default=None, description="OpenAI API key")
+    gemini_api_key: str | None = Field(default=None, description="Gemini API key")
 
     # Write-able settings
 
@@ -100,7 +114,10 @@ class Settings(BaseSettings):
             config_paths.append(global_config)
 
         # User home configuration
-        user_config = Path.home() / ".oe_json_extractor.toml"
+        config_dir = Path.home() / ".config"
+        if not config_dir.exists():
+            config_dir.mkdir(parents=True, exist_ok=True)
+        user_config = config_dir / "oe_json_extractor.toml"
         if user_config.exists():
             config_paths.append(user_config)
 
@@ -150,13 +167,16 @@ class Settings(BaseSettings):
                 / "config.toml"
             )
         else:  # Unix-like
-            global_config = Path("/etc/oe_json_extractor/config.toml")
+            global_config = Path("/etc/oe_json_extractor.toml")
 
         if global_config.exists():
             paths.append(global_config)
 
         # User home configuration
-        user_config = Path.home() / ".oe_json_extractor.toml"
+        config_dir = Path.home() / ".config"
+        if not config_dir.exists():
+            config_dir.mkdir(parents=True, exist_ok=True)
+        user_config = config_dir / "oe_json_extractor.toml"
         if user_config.exists():
             paths.append(user_config)
 
@@ -179,3 +199,30 @@ class Settings(BaseSettings):
         if self.default_output_format not in ["table", "json", "text"]:
             msg = f"Invalid output format: {self.default_output_format}"
             raise ConfigurationError(msg)
+
+        # Validate LLM settings
+        if self.llm_provider not in ["ollama", "gemini", "openai"]:
+            msg = f"Invalid LLM provider: {self.llm_provider}"
+            raise ConfigurationError(msg)
+
+        # Validate LLM timeout
+        if self.llm_timeout_s <= 0:
+            msg = "LLM timeout must be greater than 0"
+            raise ConfigurationError(msg)
+
+    @property
+    def llm_config(self) -> AnyLLMConfig:
+        """
+        Get LLM configuration.
+
+        Returns:
+            LLM configuration
+
+        """
+        return AnyLLMConfig(
+            provider=self.llm_provider,
+            model_id=self.llm_model_id,
+            temperature=self.llm_temperature,
+            max_tokens=self.llm_max_tokens,
+            timeout_s=self.llm_timeout_s,
+        )

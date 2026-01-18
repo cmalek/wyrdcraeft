@@ -45,7 +45,18 @@ def mock_settings():
         "quiet_mode": False,
         "log_level": "INFO",
         "log_file": None,
+        "llm_model_id": "qwen2.5:14b-instruct",
+        "llm_provider": "ollama",
+        "llm_temperature": 0.0,
+        "llm_max_tokens": 4096,
+        "llm_timeout_s": 120,
     }
+    mock.llm_config = Mock()
+    mock.llm_config.model_id = "qwen2.5:14b-instruct"
+    mock.llm_config.provider = "ollama"
+    mock.llm_config.temperature = 0.0
+    mock.llm_config.max_tokens = 4096
+    mock.llm_config.timeout_s = 120
     return mock
 
 
@@ -58,3 +69,21 @@ def cli_context(mock_settings, mock_console):
         "console": mock_console,
         "output": "table",
     }
+
+
+def pytest_addoption(parser):
+    """Add custom command line options to pytest."""
+    parser.addoption(
+        "--run-llm", action="store_true", default=False, help="run tests that require LLM"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection to skip LLM tests by default."""
+    if config.getoption("--run-llm"):
+        # --run-llm given in cli: do not skip llm tests
+        return
+    skip_llm = pytest.mark.skip(reason="need --run-llm option to run")
+    for item in items:
+        if "llm" in item.keywords:
+            item.add_marker(skip_llm)

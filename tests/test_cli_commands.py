@@ -45,6 +45,8 @@ class TestCLISettings:
         # Should be valid JSON
         data = json.loads(result.output)
         assert isinstance(data, dict)
+        assert "llm_model_id" in data
+        assert "llm_provider" in data
 
     def test_settings_command_text_output(self, runner):
         """Test the settings command with text output."""

@@ -22,14 +22,15 @@ from ..models import (
     Sentence,
     TextMetadata,
 )
+from ..models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
+from ..settings import Settings
 from .exporters import from_tei
 from .extractors import (
     AnyLLMConfig,
     LLMExtractor,
 )
-from .loaders import load_elements
+from .loaders import SourceLoader
 from .normalizers import normalize_elements_to_blocks
-from ..models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -463,7 +464,7 @@ class BaseDocumentIngestor:
         """
         Common helper to load, normalize, filter, and pre-parse a document.
         """
-        elements = load_elements(source_path)
+        elements = SourceLoader().load(source_path)
         blocks = normalize_elements_to_blocks(elements)
         oe_blocks = OEFilter().filter(blocks)
         return StructureParser().parse(oe_blocks)
@@ -507,10 +508,24 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
     """
 
     def ingest(
-        self, source_path: Path, metadata: TextMetadata | None, **kwargs
+        self,
+        source_path: Path,
+        metadata: TextMetadata | None,  # noqa: ARG002
+        **kwargs,  # noqa: ARG002
     ) -> OldEnglishText:
         """
         Directly ingest TEI XML.
+
+        Args:
+            source_path: The path to the source document.
+            metadata: The metadata for the document.
+
+        Keyword Args:
+            kwargs: Additional keyword arguments (ignored).
+
+        Returns:
+            A :class:`~oe_json_extractor.models.OldEnglishText` model.
+
         """
         xml = Path(source_path).read_text(encoding="utf-8")
         return from_tei(xml)
@@ -521,41 +536,117 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
     Ingestor that uses LLM-based extraction (langextract).
     """
 
+    #: The directory containing the prompts.
+    PROMPT_DIR: Final[Path] = Path(__file__).resolve().parents[1] / "prompts"
+    #: The non-model and non-mode specific prompt that details the output
+    #: schema and general instructions.
+    BASE_PROMPT: Final[str] = PROMPT_DIR / "general.md"
+
+    def model_prompt(
+        self, config: AnyLLMConfig, mode: Literal["verse", "prose"]
+    ) -> str:
+        """
+        Get the model specific prompt for the model.
+
+        Args:
+            config: The configuration for the model.
+            mode: The mode of the prompt: "verse" or "prose".
+
+        Raises:
+            ValueError: If the model is unknown.
+
+        Returns:
+            The model specific prompt.
+
+        """
+        if config.model == "qwen":
+            prompt_file = self.PROMPT_DIR / "qwen" / f"{mode}.md"
+        if config.model == "gemini":
+            prompt_file = self.PROMPT_DIR / "gemini" / f"{mode}.md"
+        if config.model == "openai":
+            prompt_file = self.PROMPT_DIR / "openai" / f"{mode}.md"
+        return prompt_file.read_text(encoding="utf-8").strip()
+
+    def general_prompt(self) -> str:
+        """
+        Get the general prompt.
+        """
+        return self.BASE_PROMPT.read_text(encoding="utf-8").strip()
+
+    def mode_prompt(self, mode: Literal["verse", "prose"]) -> str:
+        """
+        Get the mode specific prompt for the mode.
+
+        Args:
+            mode: The mode of the prompt: "verse" or "prose".
+
+        Returns:
+            The mode specific prompt.
+
+        """
+        prompt_file = self.PROMPT_DIR / f"{mode}.md"
+        return prompt_file.read_text(encoding="utf-8").strip()
+
+    def _build_prompt(
+        self, config: AnyLLMConfig, mode: Literal["verse", "prose"]
+    ) -> str:
+        """
+        Build a prompt for LLM extraction.
+
+        There are three parts to the prompt:
+
+        1. The model specific prompt for the mode: "verse" or "prose"
+        2. The general prompt which defines the output schema
+        3. The mode specific prompt: "verse" or "prose"
+
+        Args:
+            config: The configuration for the model.
+            mode: The mode of the prompt: "verse" or "prose".
+
+        Returns:
+            The full prompt as a string.
+
+        """
+        return (
+            self.model_prompt(config, mode)
+            + "\n\n"
+            + self.general_prompt()
+            + "\n\n"
+            + self.mode_prompt(mode)
+        )
+
     def ingest(
         self,
         source_path: Path,
         metadata: TextMetadata | None,
-        *,
-        default_prompt_name: str = "oe_extract_v1.1.md",
-        model_id: str = "gemini-2.5-flash",
-        **kwargs,
+        **kwargs,  # noqa: ARG002
     ) -> OldEnglishText:
         """
         Ingest using LLM extraction.
+
+        Args:
+            source_path: The path to the source document.
+            metadata: The metadata for the document.
+
+        Keyword Args:
+            kwargs: Additional keyword arguments (ignored).
+
+        Returns:
+            A :class:`~oe_json_extractor.models.OldEnglishText` model.
+
         """
-        if metadata is None:
-            msg = "LLM ingestion requires metadata"
-            raise ValueError(msg)
+        settings = Settings()
+        llm_config = settings.llm_config
         pre = self._get_preparsed_doc(source_path)
 
-        prompts = Path(__file__).resolve().parents[1] / "prompts"
-        default_prompt = prompts / default_prompt_name
-        prose_prompt = prompts / "oe_extract_prose_v1.1.md"
-        verse_prompt = prompts / "oe_extract_verse_v1.1.md"
-
-        cfg = AnyLLMConfig(model_id=model_id)
-        extractor = LLMExtractor(config=cfg)
+        extractor = LLMExtractor(config=llm_config)
         section_nodes: list[Section] = []
 
         for psec in pre.sections:
             chunk_text = "\n\n".join(b.text for b in psec.blocks if b.text.strip())
             if not chunk_text.strip():
                 continue
-
-            prompt_path = verse_prompt if psec.kind == "verse" else prose_prompt
-            if not prompt_path.exists():
-                prompt_path = default_prompt
-
+            prompt = self._build_prompt(llm_config, psec.kind)
             meta = metadata
             if psec.speaker_hint:
                 meta = TextMetadata(
@@ -584,7 +675,7 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             partial = extractor.extract(
                 text=chunk_text,
                 metadata=meta,
-                prompt_path=prompt_path,
+                prompt=prompt,
                 prompt_preamble=preamble,
             )
             if partial.content.sections:
@@ -618,6 +709,16 @@ class DocumentIngestor:
     ) -> OldEnglishText:
         """
         General-purpose ingest entrypoint.
+
+        Args:
+            source_path: The path to the source document.
+            metadata: The metadata for the document.
+
+        Keyword Args:
+            use_llm: Whether to use LLM extraction.
+            prefer_tei: Whether to prefer TEI XML over other formats.
+            kwargs: Additional keyword arguments (ignored).
+
         """
         suffix = source_path.suffix.lower()
         if prefer_tei and suffix in {".tei", ".xml"}:
