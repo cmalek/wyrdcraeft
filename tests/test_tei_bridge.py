@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from oe_json_extractor.ingest.exporters import to_tei
-from oe_json_extractor.ingest.loaders import from_tei
+from oe_json_extractor.ingest.exporters import TEIExporter
+from oe_json_extractor.ingest.loaders import TEISourceLoader
 from oe_json_extractor.models.schema import (
     Line,
     OldEnglishText,
@@ -17,8 +17,7 @@ from oe_json_extractor.models.schema import (
 def test_tei_import_beowulf() -> None:
     """Test importing Beowulf from TEI XML."""
     fixture_path = Path(__file__).parent / "fixtures" / "beowulfOE.xml"
-    xml = fixture_path.read_text(encoding="utf-8")
-    doc = from_tei(xml)
+    doc = TEISourceLoader().load(fixture_path)
 
     assert doc.metadata.title == "Beowulf : a digital edition"
     assert doc.content is not None
@@ -52,8 +51,8 @@ def test_tei_roundtrip_minimal_prose() -> None:
             ],
         ),
     )
-    xml = to_tei(doc)
-    parsed = from_tei(xml)
+    xml = TEIExporter().export(doc)
+    parsed = TEISourceLoader().load_from_tei(xml)
     assert parsed.metadata.title == "T"
     assert parsed.content.sections
     assert parsed.content.sections[0].title == "Cap. I"
@@ -79,8 +78,8 @@ def test_tei_roundtrip_minimal_verse_dialogue() -> None:
             ],
         ),
     )
-    xml = to_tei(doc)
-    parsed = from_tei(xml)
+    xml = TEIExporter().export(doc)
+    parsed = TEISourceLoader().load_from_tei(xml)
     assert parsed.content.sections
     sec = parsed.content.sections[0]
     assert sec.lines

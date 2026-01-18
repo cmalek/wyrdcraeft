@@ -31,7 +31,17 @@ class BaseSourceLoader:
     """Base class for source loaders."""
 
     def load(self, source: str | Path) -> list[Element] | OldEnglishText:
-        """Load elements or canonical text from a source."""
+        """
+        Load elements or canonical text from a source.
+
+        Args:
+            source: The source to load the document from.
+
+        Returns:
+            A list of :class:`~unstructured.documents.elements.Element`
+            or an :class:`~oe_json_extractor.models.OldEnglishText` model.
+
+        """
         raise NotImplementedError
 
     def load_from_file(self, source_path: Path) -> list[Element]:
@@ -65,6 +75,16 @@ class FileSourceLoader(BaseSourceLoader):
     """Loader for local files."""
 
     def load(self, source: str | Path) -> list[Element]:
+        """
+        Load elements from a local file.
+
+        Args:
+            source: The source path load the document from.
+
+        Returns:
+            A list of :class:`~unstructured.documents.elements.Element`.
+
+        """
         return self.load_from_file(Path(source))
 
 
@@ -72,6 +92,16 @@ class HTTPSourceLoader(BaseSourceLoader):
     """Loader for HTTP/HTTPS URLs."""
 
     def load(self, source: str | Path) -> list[Element]:
+        """
+        Load elements from a HTTP/HTTPS URL.
+
+        Args:
+            source: The URL to load the document from.
+
+        Returns:
+            A list of :class:`~unstructured.documents.elements.Element`.
+
+        """
         url = str(source)
         with httpx.Client(follow_redirects=True) as client:
             response = client.get(url)
@@ -102,6 +132,16 @@ class TEISourceLoader(BaseSourceLoader):
     """Loader for TEI XML documents."""
 
     def load(self, source: str | Path) -> OldEnglishText:
+        """
+        Load a TEI XML document.
+
+        Args:
+            source: The source to load the document from.
+
+        Returns:
+            An :class:`~oe_json_extractor.models.OldEnglishText` model.
+
+        """
         source_path = Path(source)
         if source_path.exists():
             xml = source_path.read_text(encoding="utf-8")
@@ -111,7 +151,16 @@ class TEISourceLoader(BaseSourceLoader):
         return self.load_from_tei(xml)
 
     def load_from_tei(self, tei_xml: str) -> OldEnglishText:
-        """Import TEI XML using delb and acdh-tei-pyutils."""
+        """
+        Import TEI XML using delb and acdh-tei-pyutils.
+
+        Args:
+            tei_xml: The TEI XML to import.
+
+        Returns:
+            An :class:`~oe_json_extractor.models.OldEnglishText` model.
+
+        """
         tei_reader = TeiReader(tei_xml)
         ns = tei_reader.ns_tei
         doc = Document(tei_xml)
@@ -122,7 +171,16 @@ class TEISourceLoader(BaseSourceLoader):
         return OldEnglishText(metadata=meta, content=content)
 
     def _extract_metadata(self, tei_reader: TeiReader) -> TextMetadata:
-        """Extract metadata from TEI header."""
+        """
+        Extract metadata from TEI header.
+
+        Args:
+            tei_reader: The TEI reader to extract metadata from.
+
+        Returns:
+            A :class:`~oe_json_extractor.models.TextMetadata` model.
+
+        """
         title_els = tei_reader.any_xpath(".//tei:titleStmt/tei:title")
         author_els = tei_reader.any_xpath(".//tei:titleStmt/tei:author")
         source_els = tei_reader.any_xpath(".//tei:publicationStmt/tei:p")
@@ -140,7 +198,17 @@ class TEISourceLoader(BaseSourceLoader):
         )
 
     def _parse_body(self, doc: Document, ns: dict) -> Section:
-        """Parse the TEI body."""
+        """
+        Parse the TEI body.
+
+        Args:
+            doc: The document to parse the body from.
+            ns: The namespace to use.
+
+        Returns:
+            A :class:`~oe_json_extractor.models.Section` model.
+
+        """
         body_els = doc.xpath("//tei:body", namespaces=ns)
         if not body_els:
             return Section(title=None, number=None)
@@ -150,7 +218,17 @@ class TEISourceLoader(BaseSourceLoader):
         return self._parse_section(body_divs[0] if body_divs else body, ns)
 
     def _parse_section(self, section_node, ns: dict) -> Section:
-        """Parse a <div> into a Section model."""
+        """
+        Parse a <div> into a Section model.
+
+        Args:
+            section_node: The node to parse the section from.
+            ns: The namespace to use.
+
+        Returns:
+            A :class:`~oe_json_extractor.models.Section` model.
+
+        """
         n_attr = section_node.attributes.get("n")
         head_el = section_node.xpath("./tei:head", namespaces=ns)
         sp_attr = section_node.attributes.get("source_page")
@@ -167,7 +245,15 @@ class TEISourceLoader(BaseSourceLoader):
         return sec
 
     def _fill_section_content(self, sec: Section, node, ns: dict) -> None:
-        """Fill paragraphs, lines, and subsections for a section."""
+        """
+        Fill paragraphs, lines, and subsections for a section.
+
+        Args:
+            sec: The section to fill the content for.
+            node: The node to fill the content from.
+            ns: The namespace to use.
+
+        """
         paragraphs = []
         lines = []
 
@@ -198,7 +284,18 @@ class TEISourceLoader(BaseSourceLoader):
     def _parse_paragraph(
         self, p_node, ns: dict, speaker: str | None = None
     ) -> Paragraph:
-        """Parse a <p> element."""
+        """
+        Parse a <p> element.
+
+        Args:
+            p_node: The node to parse the paragraph from.
+            ns: The namespace to use.
+            speaker: The speaker to use.
+
+        Returns:
+            A :class:`~oe_json_extractor.models.Paragraph` model.
+
+        """
         sents = []
         for s in p_node.xpath(".//tei:s", namespaces=ns):
             s_n = s.attributes.get("n")
@@ -228,7 +325,16 @@ class TEISourceLoader(BaseSourceLoader):
     def _handle_sp(
         self, sp_node, paragraphs: list[Paragraph], lines: list[Line], ns: dict
     ) -> None:
-        """Handle <sp> elements containing prose or verse."""
+        """
+        Handle <sp> elements containing prose or verse.
+
+        Args:
+            sp_node: The node to handle the <sp> element from.
+            paragraphs: The list of paragraphs to append the <p> elements to.
+            lines: The list of lines to append the <lg> elements to.
+            ns: The namespace to use.
+
+        """
         who = str(who_attr) if (who_attr := sp_node.attributes.get("who")) else None
         for child in sp_node.xpath("./tei:p | ./tei:lg", namespaces=ns):
             if child.local_name == "p":
@@ -237,7 +343,18 @@ class TEISourceLoader(BaseSourceLoader):
                 lines.extend(self._parse_lg(child, ns, speaker=who))
 
     def _parse_lg(self, lg_node, ns: dict, speaker: str | None = None) -> list[Line]:
-        """Parse an <lg> element into Line models."""
+        """
+        Parse an <lg> element into Line models.
+
+        Args:
+            lg_node: The node to parse the <lg> element from.
+            ns: The namespace to use.
+            speaker: The speaker to use.
+
+        Returns:
+            A list of :class:`~oe_json_extractor.models.Line` models.
+
+        """
         lines = []
         if speaker is None:
             curr = lg_node
@@ -268,7 +385,25 @@ class SourceLoader:
 
     @staticmethod
     def get_loader(source: str | Path) -> BaseSourceLoader:
-        """Factory method to choose the right loader."""
+        """
+        Factory method to choose the right loader from what type of source is
+        provided.
+
+        - If the source is a URL, return an instance of
+          :class:`~oe_json_extractor.ingest.loaders.HTTPSourceLoader`.
+        - If the source is a local file, return an instance of
+          :class:`~oe_json_extractor.ingest.loaders.FileSourceLoader`.
+        - If the source is a TEI XML string, return an instance of
+          :class:`~oe_json_extractor.ingest.loaders.TEISourceLoader`.
+
+        Args:
+            source: The source to load the document from.
+
+        Returns:
+            A subclass of
+            :class:`~oe_json_extractor.ingest.loaders.BaseSourceLoader`.
+
+        """
         source_str = str(source)
         if source_str.startswith(("http://", "https://")):
             return HTTPSourceLoader()
@@ -282,19 +417,16 @@ class SourceLoader:
         return FileSourceLoader()
 
     def load(self, source: str | Path) -> list[Element] | OldEnglishText:
-        """Load from the appropriate source loader."""
+        """
+        Load from the appropriate source loader.
+
+        Args:
+            source: The source to load the document from.
+
+        Returns:
+            A list of :class:`~unstructured.documents.elements.Element`
+            or an :class:`~oe_json_extractor.models.OldEnglishText` model.
+
+        """
         loader = self.get_loader(source)
         return loader.load(source)
-
-    def load_from_file(self, source_path: Path) -> list[Element]:
-        """Legacy access to BaseSourceLoader.load_from_file."""
-        return FileSourceLoader().load_from_file(source_path)
-
-    def load_from_tei(self, tei_xml: str) -> OldEnglishText:
-        """Legacy access to TEISourceLoader.load_from_tei."""
-        return TEISourceLoader().load_from_tei(tei_xml)
-
-
-def from_tei(tei_xml: str) -> OldEnglishText:
-    """Legacy wrapper for TEISourceLoader.load_from_tei."""
-    return TEISourceLoader().load_from_tei(tei_xml)
