@@ -10,7 +10,7 @@ from oe_json_extractor.ingest.extractors import (
     AnyLLMConfig,
     LLMExtractor,
 )
-from oe_json_extractor.models import OldEnglishText, TextMetadata
+from oe_json_extractor.models import OldEnglishText, TextMetadata, Section
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -24,14 +24,11 @@ def _j(name: str) -> dict:
 
 
 def test_goldens_are_schema_valid() -> None:
-    for jf in ["expected_prose.json", "expected_verse.json", "expected_dialogue.json"]:
-        OldEnglishText.model_validate(_j(jf))
+    for jf in ["expected_prose.json", "expected_poetry.json", "expected_dialogue.json"]:
+        Section.model_validate(_j(jf))
 
 
-@pytest.mark.skipif(
-    os.environ.get("RUN_LIVE_LLM") != "1",
-    reason="Set RUN_LIVE_LLM=1 to run live Qwen regression.",
-)
+@pytest.mark.llm
 @pytest.mark.parametrize(
     ("text_file", "expected_file", "prompt_file", "title"),
     [
@@ -42,8 +39,8 @@ def test_goldens_are_schema_valid() -> None:
             "Fixture Prose",
         ),
         (
-            "fixture_verse.txt",
-            "expected_verse.json",
+            "fixture_poetry.txt",
+            "expected_poetry.json",
             "qwen_extract_verse_v1.md",
             "Fixture Verse",
         ),
@@ -83,7 +80,7 @@ def test_live_qwen_matches_golden(
     doc = extractor.extract(
         text=_t(text_file),
         metadata=TextMetadata(title=title, source="tests/fixtures"),
-        prompt_path=prompt_path,
+        prompt=prompt_path.read_text(encoding="utf-8"),
     )
     got = doc.model_dump(mode="json", exclude_none=False)
     expected = _j(expected_file)

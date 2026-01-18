@@ -1,8 +1,5 @@
-from .parsing import (
-    PreParsedDocument,
-    ProvisionalSection,
-    RawBlock,
-)
+from .llm import AnyLLMConfig
+from .parsing import PreParsedDocument, ProvisionalSection, RawBlock
 from .schema import (
     Confidence,
     Line,
@@ -15,6 +12,7 @@ from .schema import (
 )
 
 __all__ = [
+    "AnyLLMConfig",
     "Confidence",
     "Line",
     "Number",

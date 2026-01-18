@@ -45,21 +45,17 @@ class TestConfiguration:
     def test_load_config_with_toml_file(self, mock_home, tmp_path):
         """Test loading configuration with TOML file."""
         # Mock file system calls to simulate a config file existing
-        # Mock file system calls to simulate a config file existing
         mock_home.return_value = tmp_path / "home" / "user"
         mock_home.return_value.mkdir(parents=True, exist_ok=True)
         config_file = mock_home.return_value / ".cmdline_test.toml"
         config_file.write_text('default_output_format = "json"', encoding="utf-8")
 
-        # Test that the Settings class can be instantiated with TOML-like behavior
-        # Since the actual TOML loading is handled by Pydantic internally,
-        # we'll test the configuration precedence and field handling instead
-
-        # Test that we can create settings with values
-        settings = Settings()
-
-        # Verify the values are set correctly
-        assert settings.default_output_format == "json"
+        # Set environment variable to point to the config file
+        with patch.dict("os.environ", {"OE_JSON_EXTRACTOR_CONFIG_FILE": str(config_file)}):
+            # Test that the Settings class can be instantiated with TOML-like behavior
+            settings = Settings()
+            # Verify the values are set correctly
+            assert settings.default_output_format == "json"
 
         # Test that the settings_customise_sources method exists and is callable
         assert hasattr(Settings, "settings_customise_sources")

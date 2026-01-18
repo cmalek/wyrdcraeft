@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from oe_json_extractor.schema.models import (
+from oe_json_extractor.models.schema import (
     OldEnglishText,
     TextMetadata,
     Section,
@@ -8,7 +8,7 @@ from oe_json_extractor.schema.models import (
     Sentence,
     Line,
 )
-from oe_json_extractor.ingest.exporters.tei import to_tei, from_tei
+from oe_json_extractor.ingest.exporters import to_tei, from_tei
 
 
 def test_tei_roundtrip_minimal_prose() -> None:

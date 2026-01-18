@@ -197,7 +197,7 @@ def from_tei(tei_xml: str) -> OldEnglishText:
     author_el = root.find(".//tei:titleStmt/tei:author", ns)
     source_el = root.find(".//tei:publicationStmt/tei:p", ns)
 
-    from oe_json_extractor.schema.models import (  # noqa: PLC0415
+    from ..models import (  # noqa: PLC0415
         OldEnglishText,
         Section,
         TextMetadata,

@@ -86,7 +86,7 @@ def test_canonical_converter_verse(verse_text):
 
 
 @patch("oe_json_extractor.ingest.pipeline.LLMExtractor")
-@patch("oe_json_extractor.ingest.pipeline.load_elements")
+@patch("oe_json_extractor.ingest.pipeline.SourceLoader.load")
 @patch("oe_json_extractor.ingest.pipeline.normalize_elements_to_blocks")
 def test_llm_document_ingestor(mock_normalize, mock_load, mock_extractor_class):
     # Setup mocks
@@ -114,7 +114,10 @@ def test_llm_document_ingestor(mock_normalize, mock_load, mock_extractor_class):
     )
 
     # Run ingest
-    with patch("oe_json_extractor.ingest.pipeline.Path.exists", return_value=True):
+    with (
+        patch("oe_json_extractor.ingest.pipeline.Path.exists", return_value=True),
+        patch("oe_json_extractor.ingest.pipeline.Path.read_text", return_value="Prompt content")
+    ):
         ingestor = LLMDocumentIngestor()
         result = ingestor.ingest(Path("dummy.txt"), meta)
 
@@ -124,7 +127,7 @@ def test_llm_document_ingestor(mock_normalize, mock_load, mock_extractor_class):
     mock_extractor.extract.assert_called_once()
 
 
-@patch("oe_json_extractor.ingest.pipeline.load_elements")
+@patch("oe_json_extractor.ingest.pipeline.SourceLoader.load")
 @patch("oe_json_extractor.ingest.pipeline.normalize_elements_to_blocks")
 def test_document_ingestor_dispatch(mock_normalize, mock_load):
     mock_load.return_value = []
