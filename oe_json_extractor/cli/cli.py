@@ -18,7 +18,7 @@ from rich.table import Table
 
 import oe_json_extractor
 
-from ..ingest.pipeline import DocumentIngestor, ingest_auto
+from ..ingest.pipeline import DocumentIngestor
 from ..models import TextMetadata
 from ..settings import Settings
 from .utils import console, print_error, print_info
@@ -163,7 +163,7 @@ def create_settings(ctx: click.Context):
 @click.option(
     "--use-llm/--no-use-llm",
     is_flag=True,
-    default=True,
+    default=False,
     show_default=True,
     help="Use LLM for extraction",
 )
