@@ -15,6 +15,12 @@ FIX = Path(__file__).parent / "fixtures"
     [
         ("caedmon.txt", "caedmon.json", "Caedmon's Hymn"),
         ("seafarer.txt", "seafarer.json", "The Seafarer"),
+        (
+            "alfred-gregory-pastoral-care.txt",
+            "alfred-gregory-pastoral-care.json",
+            "King Alfred’s Preface to Gregory’s Pastoral Care",
+        ),
+        ("beowulf.txt", "beowulf.json", "Beowulf"),
     ],
 )
 def test_deterministic_ingestion_regression(
