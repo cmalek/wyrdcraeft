@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.5",
+  "metadata": {
+    "title": "King Alfred’s Preface to Gregory’s Pastoral Care",
+    "author": null,
+    "source": "tests/fixtures/alfred-gregory-pastoral-care.txt",
+    "year": null,
+    "language": "Old English",
+    "editor": null,
+    "license": null
+  },
+  "content": {
+    "title": null,
+    "number": null,
+    "sections": [
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": [
+          {
+            "speaker": null,
+            "sentences": [
+              {
+                "text": "ÐĒOS BŌC SCEAL TŌ WIOGORAĊEASTRE.",
+                "number": 1,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ælfred kyning hāteð grētan Wǣrferð biscep his wordum luflīċe ond frēondlīċe.",
+                "number": 2,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond ðē cȳðan hāte ðæt mē cōm swīðe oft on ġemynd hwelċe wiotan iū wǣron ġiond Angelcynn ǣġðer ġe godcundra hāda ġe woruldcundra, [4] ond hū ġesǣliġlica tīda ðā wǣron ġiond Angelcynn, [5] ond hū ðā kyningas ðe ðone onwald hæfdon ðæs folces on ðām dagum Gode ond his ǣrendwrecum hīersumedon, ond hīe ǣġðer ġe hiora sibbe ġe hiora siodo ġe hiora onweald innanbordes ġehīoldon ond ēac ūt hiora ēðel ġerȳmdon, [6] ond hū him ðā spēow ǣġðer ġe mid wīġe ġe mid wīsdōme, [7] ond ēac ðā godcundan hādas hū ġiorne hīe wǣron ǣġðer ġe ymb lāre ġe ymb liornunga ġe ymb ealle ðā ðīowotdōmas ðe hīe Gode dōn scoldon, [8] ond hū man ūtanbordes wīsdōm ond lāre hieder on lond sōhte, [9] ond hū wē hīe nū sceoldon ūte beġietan ġif wē hīe habban sceoldon.",
+                "number": 3,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Swǣ clǣne hīo wæs oðfeallenu on Angelcynne ðæt swīðe fēawa wǣron behionan Humbre ðe hiora ðēninga cūðen understondan on Englisc, oððe furðum ān ǣrendġewrit of Lǣdene on Englisc āreċċean; ond iċ wēne ðætte nōht moniġe beġiondan Humbre nǣren.",
+                "number": 10,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Swǣ fēawa hiora wǣron ðæt iċ furðum ānne ānlēpne ne mæġ ġeðenċean besūðan Temese ðā ðā iċ tō rīċe fēng.",
+                "number": 11,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Gode ælmihtegum sīe ðonc ðætte wē nū ǣniġne onstal habbað lārēowa.",
+                "number": 12,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond for ðon iċ ðē bebīode ðæt ðū dō swǣ iċ ġelīefe ðæt ðū wille, ðæt ðū ðē ðissa woruldðinga tō ðǣm ġeǣmetiġe swǣ ðū oftost mæġe, ðæt ðū ðone wīsdōm ðe ðē God sealde, ðǣr ðǣr ðū hiene befæstan mæġe, befæste.",
+                "number": 13,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ġeðenċ hwelċ wītu ūs ðā becōmon for ðisse worulde, ðā ðā wē hit nōhwæðer ne selfe ne lufodon ne ēac ōðrum monnum ne lēfdon: [15] ðone naman ǣnne wē lufodon ðætte wē Cristne wǣren, ond swīðe fēawa ðā ðēawas.",
+                "number": 14,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ðā iċ ðā ðis eall ġemunde, ðā ġemunde iċ ēac hū iċ ġeseah, ǣr ðǣm ðe hit eall forhergod wǣre ond forbærned, hū ðā ċiriċean ġiond eall Angelcynn stōdon māðma ond bōca ġefylda ond ēac miċel meniġeo Godes ðīowa.",
+                "number": 16,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond ðā swīðe lȳtle fiorme ðāra bōca wiston, for ðǣm ðe hīe hiora nānwuht onġiotan ne meahton for ðǣm ðe hīe nǣron on hiora āgen ġeðīode āwritene; [18] swelċe hīe cwǣden: Ūre ieldran, ðā ðe ðās stōwa ǣr hīoldon, hīe lufodon wīsdōm ond ðurh ðone hīe beġēaton welan ond ūs lǣfdon.",
+                "number": 17,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Hēr mon mæġ ġīet ġesīon hiora swæð, ac wē him ne cunnon æfterspyriġean, ond for ðǣm wē habbað nū ǣġðer forlǣten ġe ðone welan ġe ðone wīsdōm, for ðǣm ðe wē noldon tō ðǣm spore mid ūre mōde onlūtan.",
+                "number": 19,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ðā iċ ðā ðis eall ġemunde, ðā wundrade iċ swīðe swīðe ðāra gōdena wiotona ðe giū wǣron ġiond Angelcynn, ond ðā bēċ ealla befullan ġeliornod hæfdon, ðæt hīe hiora ðā nǣnne dǣl noldon on hiora āgen ġeðīode wendan.",
+                "number": 20,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ac iċ ðā sōna eft mē selfum andwyrde ond cwæð: hīe ne wēndon ðætte ǣfre menn sceolden swǣ reċċelēase weorðan ond sīo lār swǣ oðfeallan.",
+                "number": 21,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "For ðǣre wilnunga hīe hit forlēton, ond woldon ðæt hēr ðȳ māra wīsdōm on londe wǣre ðȳ wē mā ġeðēoda cūðon.",
+                "number": 22,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ðā ġemunde iċ hū sīo ǣ wæs ǣrest on Ebreiscġeðīode funden, ond eft, ðā hīe Crēacas ġeliornodon, ðā wendon hīe hīe on hiora āgen ġeðīode ealle, ond ēac ealle ōðre bēċ.",
+                "number": 23,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond eft Lǣdenware swǣ same, siððan hīe hīe ġeliornodon, hīe hīe wendon ealla ðurh wīse wealhstōdas on hiora āgen ġeðīode.",
+                "number": 24,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond ēac ealla ōðra Cristna ðīoda sumne dǣl hiora on hiora āgen ġeðīode wendon.",
+                "number": 25,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "For ðȳ mē ðynċð betre, ġif īow swǣ ðynċð, ðæt wē ēac suma bēċ, ðā ðe nīedbeðearfosta sīen eallum monnum tō wiotonne, ðæt wē ðā on ðæt ġeðīode wenden ðe wē ealle ġecnāwan mæġen, [27] ond ġedōn swǣ wē swīðe ēaðe magon mid Godes fultume, ġif wē ðā stilnesse habbað, ðæt eall sīo ġioguð ðe nū is on Angelcynne frīora monna, ðāra ðe ðā spēda hæbben ðæt hīe ðǣm befēolan mæġen, sīen tō liornunga oðfæste, ðā hwīle ðe hīe tō nānre ōðerre note ne mæġen, oð ðone first ðe hīe wel cunnen Englisc ġewrit ārǣdan.",
+                "number": 26,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Lǣre mon siððan furður on Lǣdenġeðīode ðā ðe mon furðor lǣran wille ond tō hīeran hāde dōn wille.",
+                "number": 28,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ðā iċ ðā ġemunde hū sīo lār Lǣdenġeðīodes ǣr ðissum āfeallen wæs ġiond Angelcynn, ond ðēah moniġe cūðon Englisc ġewrit ārǣdan, ðā ongan iċ onġemang ōðrum mislicum ond maniġfealdum bisgum ðisses kynerīċes ðā bōc wendan on Englisc ðe is ġenemned on Lǣden Pastoralis ond on Englisc Hierdebōc, [30] hwīlum word be worde, hwīlum andġit of andġiete, swǣ swǣ iċ hīe ġeliornode æt Pleġmunde mīnum ærċebiscepe ond æt Assere mīnum biscepe ond æt Grimbolde mīnum mæsseprīoste ond æt Iohanne mīnum mæsseprēoste.",
+                "number": 29,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Siððan iċ hīe ðā ġeliornod hæfde, swǣ swǣ iċ hīe forstōd, ond swǣ iċ hīe andġitfullicost āreċċean meahte, iċ hīe on Englisc āwende: [32] ond tō ǣlcum biscepstōle on mīnum rīċe wille āne onsendan; ond on ǣlcre bið ān æstel, se bið on fīftegum mancessan.",
+                "number": 31,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond iċ bebīode on Godes naman ðæt nān mon ðone æstel from ðǣre bēċ ne dō, ne ðā bōc from ðǣm mynstre: uncūð hū longe ðǣr swǣ ġelǣrede biscepas sīen, swǣ swǣ nū, Gode ðonc, ġewelhwǣr siendon.",
+                "number": 33,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "For ðȳ iċ wolde ðætte hīe ealneġ æt ðǣre stōwe wǣren, būton se biscep hīe mid him habban wille, oððe hīo hwǣr tō lǣne sīe, oððe hwā ōðre bī wrīte.",
+                "number": 34,
+                "source_page": 1,
+                "confidence": null
+              }
+            ],
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "lines": null,
+        "source_page": 1,
+        "confidence": null
+      },
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": null,
+        "lines": [
+          {
+            "text": "Þis ǣrendġewrit     Āgustīnus",
+            "number": 35,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ofer sealtne sǣ     sūðan brōhte",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  īegbūendum,     swā hit ǣr fore",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ādihtode     Dryhtnes cempa,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "Rōme pāpa.     [36] Ryhtspell moniġ",
+            "number": 5,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  Gregorius     glēawmōd ġindwōd",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ðurh sefan snyttro,     searoðonca hord;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  for ðǣm hē monncynnes     mǣst ġestrīende",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  rodra Wearde,     Rōmwara betest,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "monna mōdwelegost,     mǣrðum ġefrǣġost.",
+            "number": 10,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "Siððan mīn on Englisc     Ælfred kyning",
+            "number": 37,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  āwende worda ġehwelċ,     ond mē his wrīterum",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  sende sūð ond norð,     heht him swelċra mā",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  brenġan bi ðǣre bisene,     ðæt hē his biscepum",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "sendan meahte,     for ðǣm hī his sume ðorfton,",
+            "number": 15,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ðā ðe Lǣdensprǣċe     lǣste cūðon.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "source_page": 1,
+        "confidence": null
+      }
+    ],
+    "paragraphs": null,
+    "lines": null,
+    "source_page": null,
+    "confidence": null
+  }
+}

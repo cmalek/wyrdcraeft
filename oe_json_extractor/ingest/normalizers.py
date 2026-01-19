@@ -29,6 +29,26 @@ MIN_AVG_VERSE_LINE_LENGTH: Final[int] = 60
 MAX_HEADER_WORDS: Final[int] = 6
 
 
+def _is_heading_line(line: str) -> bool:
+    """
+    Test if a line looks like a heading.
+    """
+    t = line.strip()
+    if not t:
+        return False
+    # Roman numeral chapter heading: "I. THE PASSING OF SCYLD." or just "I."
+    if re.match(r"^[IVXLCDM]+\.?(\s+|$)", t):
+        return True
+    # All caps heading: "BEÓWULF."
+    if len(t) >= 3 and t.upper() == t and not any(c.isdigit() for c in t):
+        return True
+    if re.match(r"^(Cap\.|CAP\.|Chapter\b|CHAPTER\b)", t):
+        return True
+    if re.match(r"^(?:A\.D\.|AD)\s*\d{3,4}\b", t):
+        return True
+    return bool(re.match(r"^Her\s+\d{3,4}\b", t))
+
+
 def _is_verse_line(line: str, *, max_len: int = 80) -> bool:
     """
     Heuristic: short, line-broken, non-empty lines
@@ -36,6 +56,10 @@ def _is_verse_line(line: str, *, max_len: int = 80) -> bool:
     """
     stripped = line.strip()
     if not stripped:
+        return False
+
+    # Headings are not verse
+    if _is_heading_line(line):
         return False
 
     # Ignore pure numbering lines like "[12]" or standalone "5", "10".
@@ -143,23 +167,42 @@ def split_prose_and_verse_runs(
     while i < len(lines):
         line = lines[i]
 
-        # Look ahead to detect verse runs
-        if _is_verse_line(line):
+        # Explicitly split on headings
+        if _is_heading_line(line):
+            flush()
+            blocks.append(
+                RawBlock(
+                    text=line,
+                    category=category,
+                    kind="prose",
+                    page=page,
+                )
+            )
+            i += 1
+            continue
+
+        # Look ahead to detect verse runs (can start with verse OR a line number)
+        if _is_verse_line(line) or _is_number_line(line):
             run_lines = [line]
+            has_verse = _is_verse_line(line)
             j = i + 1
 
             while j < len(lines):
+                if _is_heading_line(lines[j]):
+                    break
                 if _is_verse_line(lines[j]) or _is_number_line(lines[j]):
+                    if _is_verse_line(lines[j]):
+                        has_verse = True
                     run_lines.append(lines[j])
                     j += 1
                 else:
                     break
 
             # Require at least :data:`NUM_VERSE_LINES` consecutive verse-like
-            # lines and an average line length of less than
-            # :data:`MIN_AVG_VERSE_LINE_LENGTH` characters to be considered
-            # verse.
-            if len(run_lines) >= NUM_VERSE_LINES:
+            # lines (including markers), at least one actual verse line,
+            # and an average line length of less than
+            # :data:`MIN_AVG_VERSE_LINE_LENGTH` characters.
+            if has_verse and len(run_lines) >= NUM_VERSE_LINES:
                 # Filter out number lines for avg length calculation
                 content_lines = [ln for ln in run_lines if not _is_number_line(ln)]
                 if content_lines:
