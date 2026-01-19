@@ -250,8 +250,8 @@ class OEFilter:
         Filter out blocks that do not look like Old English.
 
         A block is kept if at least one non-empty line within the block
-        looks like Old English OR is a heading. This avoids rejecting 
-        long verse blocks that contain a small amount of editorial or 
+        looks like Old English OR is a heading. This avoids rejecting
+        long verse blocks that contain a small amount of editorial or
         Modern English text (e.g. titles in <pre> blocks).
         """
         kept: list[RawBlock] = []
