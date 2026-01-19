@@ -117,6 +117,41 @@ OLD_ENGLISH_ENDINGS: Final[set[str]] = {
     "don",
     "odon",
 }
+#: Roman to Arabic numeral mapping.
+ROMAN_NUMBER_MAP: dict[str, int] = {
+    "m": 1000,
+    "d": 500,
+    "c": 100,
+    "l": 50,
+    "x": 10,
+    "v": 5,
+    "i": 1,
+}
+
+
+def roman_to_arabic(source: str) -> int:
+    """
+    Convert a roman numeral string to an arabic integer.
+
+    Args:
+        source: The roman numeral string (e.g. "XIV").
+
+    Returns:
+        The arabic integer value.
+    """
+    n = [ROMAN_NUMBER_MAP[i] for i in source.lower() if i in ROMAN_NUMBER_MAP]
+    if not n:
+        return 0
+    return sum([i if i >= n[min(j + 1, len(n) - 1)] else -i for j, i in enumerate(n)])
+
+
+def is_roman_numeral(source: str) -> bool:
+    """
+    Check if a string is a roman numeral.
+    """
+    return bool(re.fullmatch(r"[IVXLCDMivxlcdm]+", source))
+
+
 #: The regular expression to match speaker hints.
 SPEAKER_RE: Final[re.Pattern[str]] = re.compile(
     r"^\s*([A-ZÆÞÐ][A-Za-zÆÞÐæþð\-]+)\s+(?:cwæ(?:ð|þ)|cwæð|andswarode|andswarode\b|sæde|sprec|andcwæ(?:ð|þ))\b",
@@ -139,6 +174,7 @@ class OEFilter:
 
     def __init__(self):
         self.oe_mode = False
+        self._parser = StructureParser()
 
     def looks_like_old_english(self, text: str) -> bool:
         """
@@ -214,9 +250,9 @@ class OEFilter:
         Filter out blocks that do not look like Old English.
 
         A block is kept if at least one non-empty line within the block
-        looks like Old English. This avoids rejecting long verse blocks
-        that contain a small amount of editorial or Modern English text
-        (e.g. titles in <pre> blocks).
+        looks like Old English OR is a heading. This avoids rejecting 
+        long verse blocks that contain a small amount of editorial or 
+        Modern English text (e.g. titles in <pre> blocks).
         """
         kept: list[RawBlock] = []
 
@@ -225,7 +261,10 @@ class OEFilter:
             if not lines:
                 continue
 
-            if any(self.looks_like_old_english(ln) for ln in lines):
+            if any(
+                self.looks_like_old_english(ln) or self._parser.is_heading(ln)
+                for ln in lines
+            ):
                 kept.append(b)
 
         return kept
@@ -283,7 +322,11 @@ class StructureParser:
         t = text.strip()
         if not t:
             return False
-        if re.fullmatch(r"(?:[IVXLCDM]+)\.?", t):
+        # Roman numeral chapter heading: "I. THE PASSING OF SCYLD." or just "I."
+        if re.match(r"^[IVXLCDM]+\.?(\s+|$)", t):
+            return True
+        # All caps heading: "BEÓWULF."
+        if re.fullmatch(r"[A-ZÆÞÐ\s\-]{3,}\.?", t):
             return True
         if re.match(r"^(Cap\.|CAP\.|Chapter\b|CHAPTER\b)", t):
             return True
@@ -312,15 +355,30 @@ class StructureParser:
         m = re.match(r"^Her\s+(\d{3,4})\b", t)
         if m:
             return int(m.group(1)), None
-        # Match a roman numeral chapter heading.
+
+        # Match a roman numeral chapter heading with optional title.
+        m = re.match(r"^([IVXLCDM]+)\.?\s+(.*)$", t)
+        if m:
+            return roman_to_arabic(m.group(1)), m.group(2).strip()
+
+        # Match a standalone roman numeral chapter heading.
         if re.fullmatch(r"(?:[IVXLCDM]+)\.?", t):
-            return t.rstrip("."), None
+            return roman_to_arabic(t.rstrip(".")), None
+
         # Match a roman numeral chapter heading, including the 'Cap.' prefix.
         m = re.match(r"^Cap\.\s*([IVXLCDM]+|\d+)\b\s*(.*)$", t)
         if m:
-            n = int(m.group(1)) if m.group(1).isdigit() else m.group(1)
+            val = m.group(1)
+            if val.isdigit():
+                n = int(val)
+            elif is_roman_numeral(val):
+                n = roman_to_arabic(val)
+            else:
+                n = val
             return n, m.group(2) or None
-        return None, t[:200]
+
+        # Otherwise treat the whole thing as a title
+        return None, t.rstrip(".")
 
     def parse(self, blocks: list[RawBlock]) -> PreParsedDocument:
         """
@@ -490,12 +548,17 @@ class CanonicalConverter:
                     sents: list[Sentence] = []
                     for s in self.split_sentences(b.text):
                         marker, cleaned_text = self.extract_marker(s)
+                        if marker and marker.isdigit():
+                            final_marker = int(marker)
+                        elif marker and is_roman_numeral(marker):
+                            final_marker = roman_to_arabic(marker)
+                        else:
+                            final_marker = marker
+
                         sents.append(
                             Sentence(
                                 text=cleaned_text,
-                                number=int(marker)
-                                if marker and marker.isdigit()
-                                else marker,
+                                number=final_marker,
                                 source_page=b.page,
                             )
                         )
@@ -535,14 +598,19 @@ class CanonicalConverter:
                         effective_marker = marker or pending_marker
                         pending_marker = None  # Reset
 
+                        if effective_marker and effective_marker.isdigit():
+                            final_number = int(effective_marker)
+                        elif effective_marker and is_roman_numeral(effective_marker):
+                            final_number = roman_to_arabic(effective_marker)
+                        else:
+                            final_number = None
+
                         # For verse, we want to keep leading whitespace of the cleaned text
                         # if the marker was removed.
                         lines.append(
                             Line(
                                 text=cleaned_text.rstrip(),
-                                number=int(effective_marker)
-                                if effective_marker and effective_marker.isdigit()
-                                else None,
+                                number=final_number,
                                 speaker=psec.speaker_hint,
                                 source_page=b.page,
                             )
