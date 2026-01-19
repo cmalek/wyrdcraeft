@@ -134,12 +134,8 @@ class Section(BaseModel):
     @model_validator(mode="after")
     def _no_mixed_prose_and_verse(self) -> Section:
         """
-        Validate that a section does not contain both prose and verse.  This
-        means that a section cannot contain both paragraphs and lines.
-
-        Returns:
-            The section.
-
+        Validate that a section does not contain both prose and verse.
+        Also ensure that if lines are present, paragraphs are null and vice versa.
         """
         if self.paragraphs and self.lines:
             msg = (

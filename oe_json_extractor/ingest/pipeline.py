@@ -71,6 +71,51 @@ OLD_ENGLISH_TOKENS: Final[set[str]] = {
     "þu",
     "þe",
     "ic",
+    "se",
+    "þā",
+    "þām",
+    "hwæt",
+    "wæs",
+    "wǣron",
+    "hē",
+    "ne",
+    "fela",
+    "ymb",
+    "hine",
+    "mid",
+    "ofer",
+    "mon",
+    "sum",
+    "ānne",
+    "bi",
+    "beforan",
+    "būtan",
+    "foran",
+    "fram",
+    "innan",
+    "neah",
+    "toweard",
+    "utan",
+    "monig",
+    "manig",
+    "ilca",
+    "ylca",
+    "eal",
+    "eall",
+    "nan",
+}
+#: Old English inflectional endings
+OLD_ENGLISH_ENDINGS: Final[set[str]] = {
+    "um",
+    "an",
+    "ena",
+    "as",
+    "on",
+    "að",
+    "eþ",
+    "edon",
+    "don",
+    "odon",
 }
 #: The regular expression to match speaker hints.
 SPEAKER_RE: Final[re.Pattern[str]] = re.compile(
@@ -88,6 +133,9 @@ class OEFilter:
     Logic for filtering Old English text from raw blocks.
     """
 
+    def __init__(self):
+        self.oe_mode = False
+
     def looks_like_old_english(self, text: str) -> bool:
         """
         Test if a block of text looks like Old English.
@@ -100,18 +148,60 @@ class OEFilter:
 
         """
         lowered = text.lower()
-        if len(lowered) < MIN_LENGTH_FOR_OE_DETECTION:
+        # Remove diacritics for token matching
+        unmarked = (
+            lowered.replace("ā", "a")
+            .replace("ē", "e")
+            .replace("ī", "i")
+            .replace("ō", "o")
+            .replace("ū", "u")
+            .replace("ȳ", "y")
+            .replace("ġ", "g")
+            .replace("ċ", "c")
+        )
+
+        if len(lowered) < MIN_LENGTH_FOR_OE_DETECTION and not self.oe_mode:
             return False
 
         score = 0
-        for ch in OLD_ENGLISH_MARKER_CHARS:
+        # Heavily weight special characters
+        for ch in ("þ", "ð", "æ"):
+            score += lowered.count(ch) * 4
+        # Other markers
+        for ch in ("ā", "ē", "ī", "ō", "ū", "ȳ", "ġ", "ċ"):
             score += lowered.count(ch) * 2
-        for token in ("þæt", "ond", "seo", "þa", "þe", "ic", "he", "hie", "we", "ge"):
-            if token in lowered:
+
+        # Token matching
+        words = re.findall(r"\w+", lowered)
+        unmarked_words = re.findall(r"\w+", unmarked)
+
+        for token in OLD_ENGLISH_TOKENS:
+            if token in words or token in unmarked_words:
+                score += 3
+
+        # Ending matching
+        for ending in OLD_ENGLISH_ENDINGS:
+            if any(w.endswith(ending) for w in words):
                 score += 2
-        for token in ("the ", "and ", "that ", "with ", "from "):
+
+        # Negative markers for Modern English
+        for token in ("the ", "that ", "with ", "from "):
             if token in lowered:
-                score -= 3
+                score -= 4
+
+        # Thresholds
+        strong_oe_threshold = 6
+        exit_oe_threshold = -2
+
+        if score >= strong_oe_threshold:
+            self.oe_mode = True
+            return True
+
+        if self.oe_mode:
+            if score <= exit_oe_threshold:
+                self.oe_mode = False
+                return False
+            return True
 
         return score >= MIN_SCORE_FOR_OE_DETECTION
 
@@ -119,14 +209,22 @@ class OEFilter:
         """
         Filter out blocks that do not look like Old English.
 
-        Args:
-            blocks: The blocks to filter.
-
-        Returns:
-            A list of blocks that look like Old English.
-
+        A block is kept if at least one non-empty line within the block
+        looks like Old English. This avoids rejecting long verse blocks
+        that contain a small amount of editorial or Modern English text
+        (e.g. titles in <pre> blocks).
         """
-        return [b for b in blocks if self.looks_like_old_english(b.text)]
+        kept: list[RawBlock] = []
+
+        for b in blocks:
+            lines = [ln for ln in b.text.splitlines() if ln.strip()]
+            if not lines:
+                continue
+
+            if any(self.looks_like_old_english(ln) for ln in lines):
+                kept.append(b)
+
+        return kept
 
 
 # ---------- Phase 3: Mixed-mode + speaker-aware structural pre-parse ----------
@@ -306,7 +404,7 @@ class StructureParser:
                 ProvisionalSection(
                     title=None,
                     number=None,
-                    kind=self.get_kind(blocks[0].text),
+                    kind=blocks[0].kind,
                     blocks=blocks,
                     page=blocks[0].page,
                     speaker_hint=self.detect_speaker(blocks[0].text),
@@ -379,7 +477,7 @@ class CanonicalConverter:
                 line_no = 1
                 for b in psec.blocks:
                     for ln in b.text.splitlines():
-                        _ln = ln.strip()
+                        _ln = ln.rstrip()
                         if not _ln:
                             continue
                         lines.append(
@@ -489,11 +587,14 @@ class BaseDocumentIngestor:
         """
         if progress_callback:
             progress_callback(0, 100, "Loading source document")
-        elements, raw_text = SourceLoader().load(source_path)
+        elements = SourceLoader().load(source_path)
+        raw_text = (
+            source_path.read_text(encoding="utf-8") if source_path.exists() else ""
+        )
 
         if progress_callback:
             progress_callback(25, 100, "Normalizing text blocks")
-        blocks = normalize_elements_to_blocks(elements, raw_text)
+        blocks = normalize_elements_to_blocks(elements, raw_text=raw_text)
 
         if progress_callback:
             progress_callback(50, 100, "Filtering Old English content")
@@ -576,7 +677,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
         """
         if progress_callback:
             progress_callback(0, 1, "Starting TEI ingestion")
-        result, _ = SourceLoader().load(source_path)
+        result = SourceLoader().load(source_path)
         if progress_callback:
             progress_callback(1, 1, "TEI ingestion complete")
         return result
@@ -658,13 +759,23 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             The full prompt as a string.
 
         """
-        return (
-            self.model_prompt(config, mode)
-            + "\n\n"
-            + self.general_prompt()
-            + "\n\n"
-            + self.mode_prompt(mode)
-        )
+        general = self.general_prompt()
+        if mode == "verse":
+            # Remove Paragraph and Sentence schemas to prevent the LLM from using them
+            general = re.sub(
+                r"---.*PARAGRAPH SCHEMA.*?---", "---", general, flags=re.DOTALL
+            )
+            general = re.sub(
+                r"---.*SENTENCE SCHEMA.*?---", "---", general, flags=re.DOTALL
+            )
+            # Remove prose rules from Section schema
+            general = general.replace("- paragraphs (prose)\n", "")
+            general = general.replace(
+                "- Never populate more than one of: sections, paragraphs, lines.",
+                "- NEVER populate paragraphs or sentences; ONLY use lines.",
+            )
+
+        return self.model_prompt(config, mode) + "\n\n" + general + "\n\n" + self.mode_prompt(mode)
 
     def ingest(
         self,
@@ -711,7 +822,11 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                     i, total_sections, f"Extracting chunk {i + 1}/{total_sections}"
                 )
 
-            chunk_text = "\n\n".join(b.text for b in psec.blocks if b.text.strip())
+            if psec.kind == "verse":
+                chunk_text = "\n".join(b.text for b in psec.blocks if b.text.strip())
+            else:
+                chunk_text = "\n\n".join(b.text for b in psec.blocks if b.text.strip())
+
             if not chunk_text.strip():
                 continue
             prompt = self._build_prompt(llm_config, psec.kind)
@@ -740,12 +855,49 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                     "when assigning speakers.\n"
                 )
 
+            if psec.kind == "verse":
+                verse_preamble = (
+                    "VERSE EXTRACTION MODE (EXTREMELY STRICT):\n"
+                    "- Input text is line-broken Old English poetry.\n"
+                    "- Each physical line MUST become EXACTLY one 'Line' object.\n"
+                    "- DO NOT split lines at periods, semicolons, or gaps.\n"
+                    "- DO NOT merge lines into paragraphs or sentences.\n"
+                    "- PRESERVE all internal spaces (the caesura). If a line has 6 spaces, keep 6 spaces.\n"
+                    "- PRESERVE all leading spaces/indentation.\n"
+                    "- IGNORE all grammatical rules; follow physical line breaks ONLY.\n"
+                    "- The number of 'Line' objects in your JSON MUST match the number of lines in the input.\n"
+                )
+                preamble = (preamble or "") + verse_preamble
+
             partial = extractor.extract(
                 text=chunk_text,
                 metadata=meta,
                 prompt=prompt,
                 prompt_preamble=preamble,
             )
+
+            # SAFETY NET: If we are in verse mode but the LLM returned paragraphs/sentences,
+            # force-convert them back to lines using the original physical line breaks.
+            if psec.kind == "verse" and partial.content.paragraphs:
+                # Re-extract lines from chunk_text directly
+                lines: list[Line] = []
+                for j, ln in enumerate(chunk_text.splitlines(), 1):
+                    _ln = ln.rstrip()
+                    if not _ln:
+                        continue
+                    # Try to see if the LLM found a speaker for this chunk
+                    speaker = partial.content.paragraphs[0].speaker if partial.content.paragraphs else None
+                    lines.append(
+                        Line(
+                            text=_ln,
+                            number=j,
+                            speaker=speaker,
+                            source_page=psec.page,
+                        )
+                    )
+                partial.content.paragraphs = None
+                partial.content.lines = lines
+
             # If the LLM returned a section with content, use it.
             # If it returned a section with subsections, use those.
             if partial.content.sections:

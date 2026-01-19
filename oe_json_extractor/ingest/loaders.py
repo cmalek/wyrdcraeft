@@ -6,7 +6,11 @@ from typing import TYPE_CHECKING, Final
 
 import httpx
 from acdh_tei_pyutils.tei import TeiReader
+
+# Additional imports for preformatted HTML handling
+from bs4 import BeautifulSoup
 from delb import Document
+from unstructured.documents.elements import ElementMetadata, Text
 from unstructured.partition.html import partition_html
 from unstructured.partition.pdf import partition_pdf
 from unstructured.partition.text import partition_text
@@ -67,7 +71,22 @@ class BaseSourceLoader:
                 include_metadata=True,
             )
         if suffix in {".txt", ".text"}:
-            return partition_text(filename=str(source_path), include_metadata=True)
+            # For text files, we want to preserve whitespace as much as possible.
+            # unstructured's partition_text often collapses lines and whitespace.
+            # We'll read it directly and return it as a single element for
+            # downstream processing.
+            try:
+                content = source_path.read_text(encoding="utf-8")
+                return [
+                    Text(
+                        text=content,
+                        metadata=ElementMetadata(
+                            filename=str(source_path), page_number=1
+                        ),
+                    )
+                ]
+            except (IOError, UnicodeDecodeError):
+                return partition_text(filename=str(source_path), include_metadata=True)
         msg = f"Unsupported source format: {suffix}"
         raise ValueError(msg)
 
@@ -108,6 +127,10 @@ class HTTPSourceLoader(BaseSourceLoader):
             response = client.get(url)
             response.raise_for_status()
 
+            html = response.text
+            if "<pre" in html.lower():
+                return self._load_html_preformatted(html)
+
             suffix = Path(url).suffix.lower()
             if not suffix:
                 content_type = response.headers.get("Content-Type", "")
@@ -127,6 +150,28 @@ class HTTPSourceLoader(BaseSourceLoader):
             finally:
                 if tmp_path.exists():
                     tmp_path.unlink()
+
+    def _load_html_preformatted(self, html: str) -> list[Element]:
+        """
+        Load preformatted HTML (<pre>) blocks as text elements.
+
+        This bypasses unstructured for sources (e.g. Sacred Texts)
+        that encode the primary content inside <pre> tags.
+        """
+        soup = BeautifulSoup(html, "html.parser")
+        pres = soup.find_all("pre")
+
+        elements: list[Element] = []
+        for pre in pres:
+            text = pre.get_text("\n")
+            if text and text.strip():
+                elements.append(
+                    Text(
+                        text=text,
+                        metadata=ElementMetadata(source="html-pre"),
+                    )
+                )
+        return elements
 
 
 class TEISourceLoader(BaseSourceLoader):

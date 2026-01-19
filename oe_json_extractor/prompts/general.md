@@ -33,6 +33,13 @@ IMPORTANT PHILOLOGICAL RULES (NON-NEGOTIABLE):
 - Do NOT include markdown, code fences, commentary, or explanations.
 - The output must parse cleanly with Python json.loads.
 
+9. Separation of lines (Verse only)
+- In Old English poetry, line breaks are structural and meaningful.
+- Each physical line in the source MUST be treated as a single Line unit.
+- Internal punctuation (periods, semicolons) in the middle of a line (the caesura) MUST NOT be used as a reason to split a line.
+- DO NOT collapse multiple whitespaces. Internal gaps (caesuras) MUST be preserved exactly.
+- Preserve the exact number of lines from the input.
+
 ---
 
 TOP-LEVEL JSON SCHEMA:
