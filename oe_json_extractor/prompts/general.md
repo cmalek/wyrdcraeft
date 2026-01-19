@@ -160,3 +160,27 @@ FINAL CHECKLIST (BEFORE OUTPUT):
 - All text is preserved exactly as in the source.
 - No structural information appears inside text fields.
 - No content or structure has been invented.
+
+---
+
+NUMBER MARKERS (IMPORTANT):
+
+Many editions use inline numbering markers like:
+  [12]  (12)  12)  12.  I.  i.  11]
+These are structural markers, not part of Old English text.
+
+Rule:
+- If a sentence/line begins with a numbering marker, extract it into the `number` field.
+- Remove ONLY the marker from the beginning of the text.
+- Preserve the remaining text EXACTLY.
+
+Recognize these patterns at the start of a sentence/line (leading whitespace allowed):
+- [digits]   e.g. [12]
+- digits]    e.g. 11]
+- (digits)   e.g. (12)
+- digits.    e.g. 12.
+- digits)    e.g. 12)
+- Roman numerals with optional trailing punctuation, e.g. I. i)
+
+If no explicit marker is present, set number=null.
+Do NOT invent numbering.

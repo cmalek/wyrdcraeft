@@ -200,15 +200,36 @@ class Settings(BaseSettings):
             msg = f"Invalid output format: {self.default_output_format}"
             raise ConfigurationError(msg)
 
-        # Validate LLM settings
-        if self.llm_provider not in ["ollama", "gemini", "openai"]:
-            msg = f"Invalid LLM provider: {self.llm_provider}"
-            raise ConfigurationError(msg)
+        try:
+            self.llm_provider = self.get_model_provider(self.llm_model_id)
+        except ValueError as e:
+            raise ConfigurationError(str(e)) from e
 
         # Validate LLM timeout
         if self.llm_timeout_s <= 0:
             msg = "LLM timeout must be greater than 0"
             raise ConfigurationError(msg)
+
+    def get_model_provider(self, model_id: str) -> str:
+        """
+        Get the provider for a model ID.
+
+        Raises:
+            ValueError: If the model ID is not supported.
+
+        Returns:
+            The provider for the model ID.
+
+        """
+        if model_id.startswith("qwen"):
+            return "ollama"
+        if model_id.startswith("gemini"):
+            return "gemini"
+        if model_id.startswith(("gpt-", "o1", "o3")):
+            return "openai"
+        msg = f"Unsupported model: {model_id}: Supported models are: "
+        "qwen*, gemini*, gpt-*, o1*, o3*"
+        raise ValueError(msg)
 
     @property
     def llm_config(self) -> AnyLLMConfig:

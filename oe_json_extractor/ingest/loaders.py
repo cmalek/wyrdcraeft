@@ -57,16 +57,17 @@ class BaseSourceLoader:
         """
         suffix = source_path.suffix.lower()
 
-        if suffix in {".html", ".htm"}:
-            return partition_html(filename=str(source_path))
+        if suffix in {".html", ".htm", ".php"}:
+            return partition_html(filename=str(source_path), include_metadata=True)
         if suffix == ".pdf":
             return partition_pdf(
                 filename=str(source_path),
                 extract_images_in_pdf=False,
                 infer_table_structure=False,
+                include_metadata=True,
             )
         if suffix in {".txt", ".text"}:
-            return partition_text(filename=str(source_path))
+            return partition_text(filename=str(source_path), include_metadata=True)
         msg = f"Unsupported source format: {suffix}"
         raise ValueError(msg)
 

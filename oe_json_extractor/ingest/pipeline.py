@@ -11,6 +11,7 @@ End-to-end ingestion pipeline with:
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Literal
 
@@ -33,6 +34,8 @@ from .normalizers import normalize_elements_to_blocks
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+ProgressCallback = Callable[[int, int, str | None], None]
 
 
 # -----------------------------------------------------------------------------
@@ -69,11 +72,6 @@ OLD_ENGLISH_TOKENS: Final[set[str]] = {
     "þe",
     "ic",
 }
-#: The minimum number of lines in a verse block to be considered verse.
-NUM_VERSE_LINES: Final[int] = 2
-#: The minimum average length of a line in a verse block to
-#: be considered verse.
-MIN_AVG_VERSE_LINE_LENGTH: Final[int] = 60
 #: The regular expression to match speaker hints.
 SPEAKER_RE: Final[re.Pattern[str]] = re.compile(
     r"^\s*([A-ZÆÞÐ][A-Za-zÆÞÐæþð\-]+)\s+(?:cwæ(?:ð|þ)|cwæð|andswarode|andswarode\b|sæde|sprec|andcwæ(?:ð|þ))\b",
@@ -222,24 +220,6 @@ class StructureParser:
             return n, m.group(2) or None
         return None, t[:200]
 
-    def get_kind(self, text: str) -> Literal["prose", "verse"]:
-        """
-        Determine the kind of a block of text.
-
-        Args:
-            text: The text to determine the kind of.
-
-        Returns:
-            The kind of the block of text.
-
-        """
-        lines = [ln for ln in text.splitlines() if ln.strip()]
-        if len(lines) >= NUM_VERSE_LINES:
-            avg = sum(len(ln) for ln in lines) / len(lines)
-            if avg <= MIN_AVG_VERSE_LINE_LENGTH:
-                return "verse"
-        return "prose"
-
     def parse(self, blocks: list[RawBlock]) -> PreParsedDocument:
         """
         Build provisional sections from raw blocks and return as
@@ -283,7 +263,7 @@ class StructureParser:
             run_speaker: str | None = None
 
             for b in blocks_for_heading:
-                k = self.get_kind(b.text)
+                k = b.kind
                 sp = self.detect_speaker(b.text)
 
                 if run_kind is None:
@@ -345,12 +325,31 @@ class CanonicalConverter:
     """
 
     def split_sentences(self, text: str) -> list[str]:
-        """Split a paragraph of text into sentences."""
+        """
+        Split a paragraph of text into sentences.
+
+        Args:
+            text: The text to split into sentences.
+
+        Returns:
+            A list of sentences.
+
+        """
         parts = re.split(r"(?<=[\.\?\!])\s+", text.strip())
         return [p.strip() for p in parts if p.strip()]
 
     def build(self, meta: TextMetadata, doc: PreParsedDocument) -> OldEnglishText:
-        """Build a canonical document from a pre-parsed document."""
+        """
+        Build a canonical document from a pre-parsed document.
+
+        Args:
+            meta: The metadata for the document.
+            doc: The pre-parsed document.
+
+        Returns:
+            A canonical document.
+
+        """
         root = Section(
             title=None, number=None, sections=[], paragraphs=None, lines=None
         )
@@ -406,7 +405,16 @@ class CanonicalConverter:
         return OldEnglishText(metadata=meta, content=root)
 
     def _aggregate_confidence(self, sec: Section) -> float | None:
-        """Aggregate confidence for a section."""
+        """
+        Aggregate confidence for a section.
+
+        Args:
+            sec: The section to aggregate confidence for.
+
+        Returns:
+            The aggregated confidence.
+
+        """
         vals: list[float] = []
         if sec.confidence is not None:
             vals.append(float(sec.confidence))
@@ -431,7 +439,16 @@ class CanonicalConverter:
         return min(vals) if vals else None
 
     def propagate_confidence(self, doc: OldEnglishText) -> OldEnglishText:
-        """Propagate confidence for a document."""
+        """
+        Propagate confidence for a document.
+
+        Args:
+            doc: The document to propagate confidence for.
+
+        Returns:
+            The document with confidence propagated.
+
+        """
 
         def walk(sec: Section) -> None:
             if sec.sections:
@@ -452,7 +469,11 @@ class BaseDocumentIngestor:
     """
 
     def ingest(
-        self, source_path: Path, metadata: TextMetadata | None, **kwargs
+        self,
+        source_path: Path,
+        metadata: TextMetadata | None,
+        progress_callback: ProgressCallback | None = None,
+        **kwargs,
     ) -> OldEnglishText:
         """
         Abstract ingest method to be overridden by subclasses.
@@ -460,14 +481,31 @@ class BaseDocumentIngestor:
         msg = "Subclasses must implement ingest()"
         raise NotImplementedError(msg)
 
-    def _get_preparsed_doc(self, source_path: Path) -> PreParsedDocument:
+    def _get_preparsed_doc(
+        self, source_path: Path, progress_callback: ProgressCallback | None = None
+    ) -> PreParsedDocument:
         """
         Common helper to load, normalize, filter, and pre-parse a document.
         """
-        elements = SourceLoader().load(source_path)
-        blocks = normalize_elements_to_blocks(elements)
+        if progress_callback:
+            progress_callback(0, 100, "Loading source document")
+        elements, raw_text = SourceLoader().load(source_path)
+
+        if progress_callback:
+            progress_callback(25, 100, "Normalizing text blocks")
+        blocks = normalize_elements_to_blocks(elements, raw_text)
+
+        if progress_callback:
+            progress_callback(50, 100, "Filtering Old English content")
         oe_blocks = OEFilter().filter(blocks)
-        return StructureParser().parse(oe_blocks)
+
+        if progress_callback:
+            progress_callback(75, 100, "Parsing document structure")
+        result = StructureParser().parse(oe_blocks)
+
+        if progress_callback:
+            progress_callback(100, 100, "Pre-parsing complete")
+        return result
 
 
 class HeuristicDocumentIngestor(BaseDocumentIngestor):
@@ -479,6 +517,7 @@ class HeuristicDocumentIngestor(BaseDocumentIngestor):
         self,
         source_path: Path,
         metadata: TextMetadata | None,
+        progress_callback: ProgressCallback | None = None,
         **kwargs,  # noqa: ARG002
     ) -> OldEnglishText:
         """
@@ -487,6 +526,7 @@ class HeuristicDocumentIngestor(BaseDocumentIngestor):
         Args:
             source_path: The path to the source document.
             metadata: The metadata for the document.
+            progress_callback: Optional callback for progress reporting.
 
         Keyword Args:
             kwargs: Additional keyword arguments (ignored).
@@ -495,11 +535,16 @@ class HeuristicDocumentIngestor(BaseDocumentIngestor):
             A :class:`~oe_json_extractor.models.OldEnglishText` model.
 
         """
+        if progress_callback:
+            progress_callback(0, 1, "Starting heuristic ingestion")
         if metadata is None:
             msg = "Heuristic ingestion requires metadata"
             raise ValueError(msg)
-        pre = self._get_preparsed_doc(source_path)
-        return CanonicalConverter().build(metadata, pre)
+        pre = self._get_preparsed_doc(source_path, progress_callback=progress_callback)
+        result = CanonicalConverter().build(metadata, pre)
+        if progress_callback:
+            progress_callback(1, 1, "Heuristic ingestion complete")
+        return result
 
 
 class TEIDocumentIngestor(BaseDocumentIngestor):
@@ -511,6 +556,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
         self,
         source_path: Path,
         metadata: TextMetadata | None,  # noqa: ARG002
+        progress_callback: ProgressCallback | None = None,
         **kwargs,  # noqa: ARG002
     ) -> OldEnglishText:
         """
@@ -519,6 +565,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
         Args:
             source_path: The path to the source document.
             metadata: The metadata for the document.
+            progress_callback: Optional callback for progress reporting.
 
         Keyword Args:
             kwargs: Additional keyword arguments (ignored).
@@ -527,7 +574,12 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
             A :class:`~oe_json_extractor.models.OldEnglishText` model.
 
         """
-        return SourceLoader().load(source_path)
+        if progress_callback:
+            progress_callback(0, 1, "Starting TEI ingestion")
+        result, _ = SourceLoader().load(source_path)
+        if progress_callback:
+            progress_callback(1, 1, "TEI ingestion complete")
+        return result
 
 
 class LLMDocumentIngestor(BaseDocumentIngestor):
@@ -559,11 +611,11 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
 
         """
         if config.model == "qwen":
-            prompt_file = self.PROMPT_DIR / "qwen" / f"{mode}.md"
+            prompt_file = self.PROMPT_DIR / "models" / "qwen" / f"{mode}.md"
         if config.model == "gemini":
-            prompt_file = self.PROMPT_DIR / "gemini" / f"{mode}.md"
+            prompt_file = self.PROMPT_DIR / "models" / "gemini" / f"{mode}.md"
         if config.model == "openai":
-            prompt_file = self.PROMPT_DIR / "openai" / f"{mode}.md"
+            prompt_file = self.PROMPT_DIR / "models" / "openai" / f"{mode}.md"
         return prompt_file.read_text(encoding="utf-8").strip()
 
     def general_prompt(self) -> str:
@@ -618,6 +670,8 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
         self,
         source_path: Path,
         metadata: TextMetadata | None,
+        progress_callback: ProgressCallback | None = None,
+        llm_config: AnyLLMConfig | None = None,
         **kwargs,  # noqa: ARG002
     ) -> OldEnglishText:
         """
@@ -626,6 +680,8 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
         Args:
             source_path: The path to the source document.
             metadata: The metadata for the document.
+            progress_callback: Optional callback for progress reporting.
+            llm_config: Optional LLM configuration to use.
 
         Keyword Args:
             kwargs: Additional keyword arguments (ignored).
@@ -634,14 +690,27 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             A :class:`~oe_json_extractor.models.OldEnglishText` model.
 
         """
-        settings = Settings()
-        llm_config = settings.llm_config
-        pre = self._get_preparsed_doc(source_path)
+        if llm_config is None:
+            settings = Settings()
+            llm_config = settings.llm_config
+
+        pre = self._get_preparsed_doc(source_path, progress_callback=progress_callback)
 
         extractor = LLMExtractor(config=llm_config)
         section_nodes: list[Section] = []
 
-        for psec in pre.sections:
+        total_sections = len(pre.sections)
+        if progress_callback:
+            progress_callback(
+                0, total_sections, f"Found {total_sections} chunks. Starting extraction"
+            )
+
+        for i, psec in enumerate(pre.sections):
+            if progress_callback:
+                progress_callback(
+                    i, total_sections, f"Extracting chunk {i + 1}/{total_sections}"
+                )
+
             chunk_text = "\n\n".join(b.text for b in psec.blocks if b.text.strip())
             if not chunk_text.strip():
                 continue
@@ -649,17 +718,17 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             meta = metadata
             if psec.speaker_hint:
                 meta = TextMetadata(
-                    title=metadata.title,
-                    author=metadata.author,
+                    title=metadata.title if metadata else None,
+                    author=metadata.author if metadata else None,
                     source=(
                         f"{metadata.source} | speaker_hint={psec.speaker_hint}"
-                        if metadata.source
+                        if metadata and metadata.source
                         else f"speaker_hint={psec.speaker_hint}"
                     ),
-                    year=metadata.year,
-                    language=metadata.language,
-                    editor=metadata.editor,
-                    license=metadata.license,
+                    year=metadata.year if metadata else None,
+                    language=metadata.language if metadata else None,
+                    editor=metadata.editor if metadata else None,
+                    license=metadata.license if metadata else None,
                 )
 
             preamble = None
@@ -677,8 +746,15 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                 prompt=prompt,
                 prompt_preamble=preamble,
             )
+            # If the LLM returned a section with content, use it.
+            # If it returned a section with subsections, use those.
             if partial.content.sections:
                 section_nodes.extend(partial.content.sections)
+            elif partial.content.paragraphs or partial.content.lines:
+                section_nodes.append(partial.content)
+
+        if progress_callback:
+            progress_callback(total_sections, total_sections, "Extraction complete")
 
         root_section = Section(
             title=None,
@@ -703,6 +779,8 @@ class DocumentIngestor:
         metadata: TextMetadata | None,
         *,
         use_llm: bool = True,
+        progress_callback: ProgressCallback | None = None,
+        llm_config: AnyLLMConfig | None = None,
         **kwargs,
     ) -> OldEnglishText:
         """
@@ -714,17 +792,30 @@ class DocumentIngestor:
 
         Keyword Args:
             use_llm: Whether to use LLM extraction.
+            progress_callback: Optional callback for progress reporting.
+            llm_config: Optional LLM configuration to use.
             kwargs: Additional keyword arguments (ignored).
 
         """
-        suffix = source_path.suffix.lower()
-        if suffix in {".tei", ".xml"}:
-            return TEIDocumentIngestor().ingest(source_path, metadata, **kwargs)
+        if isinstance(source_path, Path):
+            suffix = source_path.suffix.lower()
+            if suffix in {".tei", ".xml"}:
+                return TEIDocumentIngestor().ingest(
+                    source_path, metadata, progress_callback=progress_callback, **kwargs
+                )
 
         if use_llm:
-            return LLMDocumentIngestor().ingest(source_path, metadata, **kwargs)
+            return LLMDocumentIngestor().ingest(
+                source_path,
+                metadata,
+                progress_callback=progress_callback,
+                llm_config=llm_config,
+                **kwargs,
+            )
 
-        return HeuristicDocumentIngestor().ingest(source_path, metadata, **kwargs)
+        return HeuristicDocumentIngestor().ingest(
+            source_path, metadata, progress_callback=progress_callback, **kwargs
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -736,18 +827,32 @@ def ingest_auto(
     source_path: Path,
     metadata: TextMetadata | None,
     *,
-    prefer_tei: bool = True,
-    use_langextract: bool = True,
+    use_llm: bool = True,
+    progress_callback: ProgressCallback | None = None,
+    llm_config: AnyLLMConfig | None = None,
     **kwargs,
 ) -> OldEnglishText:
     """
     Convenience entrypoint.
+
+    Args:
+        source_path: The path to the source document.
+        metadata: The metadata for the document.
+        use_llm: Whether to use LLM extraction.
+        progress_callback: Optional callback for progress reporting.
+        llm_config: Optional LLM configuration to use.
+        kwargs: Additional keyword arguments (ignored).
+
+    Returns:
+        A :class:`~oe_json_extractor.models.OldEnglishText` model.
+
     """
     return DocumentIngestor().ingest(
         source_path,
         metadata,
-        use_llm=use_langextract,
-        prefer_tei=prefer_tei,
+        use_llm=use_llm,
+        progress_callback=progress_callback,
+        llm_config=llm_config,
         **kwargs,
     )
 
