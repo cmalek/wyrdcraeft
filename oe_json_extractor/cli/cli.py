@@ -4,12 +4,22 @@ import json
 import os
 import sys
 from importlib.metadata import Distribution
+from pathlib import Path
 
 import click
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+)
 from rich.table import Table
 
 import oe_json_extractor
 
+from ..ingest.pipeline import DocumentIngestor, ingest_auto
+from ..models import TextMetadata
 from ..settings import Settings
 from .utils import console, print_error, print_info
 
@@ -145,3 +155,118 @@ def create_settings(ctx: click.Context):
             table.add_row(setting_name, str(setting_value))
 
         console.print(table)
+
+
+@cli.command(name="convert", help="Convert a source document to JSON.")
+@click.argument("source", type=str)
+@click.argument("output", type=click.Path(path_type=Path))
+@click.option(
+    "--use-llm/--no-use-llm",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help="Use LLM for extraction",
+)
+@click.option(
+    "--llm-model",
+    type=click.Choice(["qwen2.5:14b-instruct", "gpt-4o", "gemini-3-flash-preview"]),
+    help="LLM model ID",
+)
+@click.option("--llm-temperature", type=float, help="LLM temperature")
+@click.option("--llm-max-tokens", type=int, help="LLM max tokens")
+@click.option("--llm-timeout", type=int, help="LLM timeout in seconds")
+@click.option("--title", type=str, help="Title of the text")
+@click.pass_context
+def convert(  # noqa: PLR0913
+    ctx: click.Context,
+    source: str,
+    output: Path,
+    use_llm: bool,
+    llm_model: str | None,
+    llm_temperature: float | None,
+    llm_max_tokens: int | None,
+    llm_timeout: int | None,
+    title: str | None,
+):
+    """
+    Convert a source document to JSON.
+    """
+    settings: Settings = ctx.obj["settings"]
+    if not source.startswith(("http://", "https://")):
+        source = Path(source)
+
+    # Override settings with flags
+    if llm_model:
+        settings.llm_model_id = llm_model
+    if llm_temperature is not None:
+        settings.llm_temperature = llm_temperature
+    if llm_max_tokens is not None:
+        settings.llm_max_tokens = llm_max_tokens
+    if llm_timeout is not None:
+        settings.llm_timeout_s = llm_timeout
+
+    metadata = TextMetadata(
+        title=title or (source.stem if isinstance(source, Path) else source),
+        source=str(source),
+    )
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TextColumn("{task.fields[phase]}"),
+        console=console,
+    ) as progress:
+        task = progress.add_task("Processing...", total=1, phase="")
+
+        def progress_callback(current: int, total: int, message: str | None = None):
+            phase_label = ""
+            if message:
+                m_lower = message.lower()
+                if any(
+                    x in m_lower
+                    for x in [
+                        "loading",
+                        "normalizing",
+                        "filtering",
+                        "parsing",
+                        "pre-parsing",
+                    ]
+                ):
+                    phase_label = "[bold blue]Analyzing[/bold blue]"
+                elif "found" in m_lower and "chunks" in m_lower:
+                    phase_label = "[bold cyan]Planning[/bold cyan]"
+                elif "extracting" in m_lower or "extraction" in m_lower:
+                    phase_label = "[bold green]Extracting[/bold green]"
+                elif "complete" in m_lower:
+                    phase_label = "[bold green]Complete[/bold green]"
+                else:
+                    phase_label = f"[dim]{message}[/dim]"
+
+            progress.update(
+                task,
+                total=total,
+                completed=current,
+                description=message or "Processing...",
+                phase=f" {phase_label}" if phase_label else "",
+            )
+
+        try:
+            doc = DocumentIngestor().ingest(
+                source_path=source,
+                metadata=metadata,
+                use_llm=use_llm,
+                progress_callback=progress_callback,
+                llm_config=settings.llm_config,
+            )
+
+            output.write_text(doc.model_dump_json(indent=2), encoding="utf-8")
+
+            if not ctx.obj.get("quiet"):
+                print_info(f"Successfully converted {source} to {output}")
+        except Exception as e:
+            if ctx.obj.get("verbose"):
+                raise
+            print_error(f"Conversion failed: {e}")
+            sys.exit(1)

@@ -46,7 +46,7 @@ class LLMExtractor:
             {"role": "user", "content": "INPUT TEXT (Old English only):\n\n" + text},
         ]
 
-    def parse(self, raw: str) -> dict[str, Any]:
+    def parse(self, raw: str) -> dict[str, Any]:  # noqa: PLR0912
         """
         Extract a JSON object from a string. This method is used to parse the
         output of any-llm.
@@ -67,17 +67,45 @@ class LLMExtractor:
 
         """
         s = raw.strip()
+
+        # Handle potential triple backticks or other markdown wrapping
         if s.startswith("```"):
             s = s.split("\n", 1)[1] if "\n" in s else s
             s = s.rsplit("```", 1)[0].strip()
+
+        # Handle potential double-escaping (common with some LLM providers/proxies)
+        # If the string starts with { but contains literal \n and \"
+        if s.startswith("{") and "\\n" in s:
+            try:
+                # Try to see if replacing literal escapes makes it valid JSON
+                s_unescaped = (
+                    s.replace("\\n", "\n").replace('\\"', '"').replace("\\\\", "\\")
+                )
+                obj = json.loads(s_unescaped)
+                if isinstance(obj, dict):
+                    return obj
+            except json.JSONDecodeError:
+                pass
+
+        # Handle case where the entire response is a JSON-encoded string
+        if s.startswith('"') and s.endswith('"'):
+            with suppress(json.JSONDecodeError):
+                s = json.loads(s)
+
+        # Standard JSON attempt
         with suppress(json.JSONDecodeError):
             obj = json.loads(s)
             if isinstance(obj, dict):
                 return obj
+
+        # Find the first { and try to extract the JSON object
         start = s.find("{")
         if start < 0:
-            msg = "No JSON object found in output"
+            msg = f"No JSON object found in output: {s[:100]}..."
             raise ValueError(msg)
+
+        # If we found a {, but it's preceded by characters, or standard parsing failed,
+        # try the depth-tracking extraction method
         depth = 0
         in_str = False
         esc = False
@@ -97,7 +125,21 @@ class LLMExtractor:
             elif ch == "}":
                 depth -= 1
                 if depth == 0:
-                    return json.loads(s[start : i + 1])
+                    candidate = s[start : i + 1]
+                    try:
+                        return json.loads(candidate)
+                    except json.JSONDecodeError:
+                        # If depth-tracking candidate fails, it might still be escaped
+                        try:
+                            candidate_unescaped = (
+                                candidate.replace("\\n", "\n")
+                                .replace('\\"', '"')
+                                .replace("\\\\", "\\")
+                            )
+                            return json.loads(candidate_unescaped)
+                        except json.JSONDecodeError:
+                            continue
+
         msg = "Could not extract JSON object from output"
         raise ValueError(msg)
 
@@ -137,6 +179,6 @@ class LLMExtractor:
         if not isinstance(raw, str):
             raw = str(raw)
         obj = self.parse(raw)
-        if "metadata" not in obj:
+        if not obj.get("metadata") or not obj["metadata"].get("title"):
             obj["metadata"] = metadata.model_dump(mode="json", exclude_none=True)
         return OldEnglishText.model_validate(obj)

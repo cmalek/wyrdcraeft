@@ -14,6 +14,8 @@ class RawBlock:
     text: str
     #: The category of the block.
     category: str
+    #: The estimated kind of the block.
+    kind: Literal["prose", "verse"]
     #: The page number of the block.
     page: int | None = None
 
