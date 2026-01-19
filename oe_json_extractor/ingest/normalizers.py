@@ -238,9 +238,6 @@ def normalize_elements_to_blocks(
                 and len(stripped.split()) <= MAX_HEADER_WORDS
             ):
                 continue
-            # Drop standalone line numbers
-            if re.fullmatch(r"^\d+$", stripped):
-                continue
             filtered_lines.append(ln)
 
         text = "".join(filtered_lines).rstrip()

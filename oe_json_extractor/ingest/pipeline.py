@@ -122,6 +122,10 @@ SPEAKER_RE: Final[re.Pattern[str]] = re.compile(
     r"^\s*([A-ZÆÞÐ][A-Za-zÆÞÐæþð\-]+)\s+(?:cwæ(?:ð|þ)|cwæð|andswarode|andswarode\b|sæde|sprec|andcwæ(?:ð|þ))\b",
     re.IGNORECASE,
 )
+#: The regular expression to match structural number markers.
+MARKER_RE: Final[re.Pattern[str]] = re.compile(
+    r"^\s*([\[\(]?[0-9]+[\]\.\)]?|[IVXLCDMivxlcdm]+[\]\.\)]?)(?:\s+|$)"
+)
 
 # -----------------------------------------------------------------------------
 # Phase 2: OE filtering
@@ -390,6 +394,7 @@ class StructureParser:
                 _flush_run(run_kind, run_blocks, run_speaker)
 
         for b in blocks:
+            # Check for kind switch within a block if it's not a heading
             if self.is_heading(b.text):
                 _flush_blocks(cur_blocks)
                 cur_blocks = []
@@ -400,16 +405,9 @@ class StructureParser:
         _flush_blocks(cur_blocks)
 
         if not sections and blocks:
-            sections = [
-                ProvisionalSection(
-                    title=None,
-                    number=None,
-                    kind=blocks[0].kind,
-                    blocks=blocks,
-                    page=blocks[0].page,
-                    speaker_hint=self.detect_speaker(blocks[0].text),
-                )
-            ]
+            # If no sections were created (e.g. no headings), create one
+            # based on the runs detected in _flush_blocks
+            _flush_blocks(blocks)
 
         return PreParsedDocument(sections=sections)
 
@@ -422,9 +420,30 @@ class CanonicalConverter:
     Converts pre-parsed documents into canonical OldEnglishText models.
     """
 
+    def extract_marker(self, text: str) -> tuple[str | None, str]:
+        """
+        Extract a structural number marker from the start of a string.
+
+        Args:
+            text: The text to extract the marker from.
+
+        Returns:
+            A tuple of the marker (as a string) and the remaining text.
+        """
+        match = MARKER_RE.match(text)
+        if match:
+            marker = match.group(1)
+            # Strip punctuation around the marker before returning it
+            clean_marker = marker.strip("[]().")
+            # Remove the marker and any trailing whitespace from the start
+            remaining = text[match.end() :]
+            return clean_marker, remaining
+        return None, text
+
     def split_sentences(self, text: str) -> list[str]:
         """
-        Split a paragraph of text into sentences.
+        Split a paragraph of text into sentences, handling terminal
+        punctuation inside quotes or parentheses.
 
         Args:
             text: The text to split into sentences.
@@ -433,8 +452,20 @@ class CanonicalConverter:
             A list of sentences.
 
         """
-        parts = re.split(r"(?<=[\.\?\!])\s+", text.strip())
-        return [p.strip() for p in parts if p.strip()]
+        # Split at standard sentence ends followed by space.
+        # We use a non-lookbehind approach to avoid fixed-width limitations.
+        # This matches punctuation (optionally followed by quote/paren) AND the space.
+        pattern = r"([\.\?\!][\"\'\)]?\s+)"
+        parts = re.split(pattern, text.strip())
+
+        sentences = []
+        # re.split with capturing group returns [text, separator, text, separator...]
+        for i in range(0, len(parts) - 1, 2):
+            sentences.append((parts[i] + parts[i + 1]).strip())
+        if len(parts) % 2 == 1 and parts[-1].strip():
+            sentences.append(parts[-1].strip())
+
+        return [s for s in sentences if s]
 
     def build(self, meta: TextMetadata, doc: PreParsedDocument) -> OldEnglishText:
         """
@@ -456,13 +487,25 @@ class CanonicalConverter:
             if psec.kind == "prose":
                 paras: list[Paragraph] = []
                 for b in psec.blocks:
-                    sents = [
-                        Sentence(text=s, source_page=b.page)
-                        for s in self.split_sentences(b.text)
-                    ]
+                    sents: list[Sentence] = []
+                    for s in self.split_sentences(b.text):
+                        marker, cleaned_text = self.extract_marker(s)
+                        sents.append(
+                            Sentence(
+                                text=cleaned_text,
+                                number=int(marker)
+                                if marker and marker.isdigit()
+                                else marker,
+                                source_page=b.page,
+                            )
+                        )
                     if sents:
                         paras.append(
-                            Paragraph(speaker=None, sentences=sents, source_page=b.page)
+                            Paragraph(
+                                speaker=psec.speaker_hint,
+                                sentences=sents,
+                                source_page=b.page,
+                            )
                         )
                 sec = Section(
                     title=psec.title,
@@ -475,16 +518,32 @@ class CanonicalConverter:
             else:
                 lines: list[Line] = []
                 line_no = 1
+                pending_marker: str | None = None
                 for b in psec.blocks:
                     for ln in b.text.splitlines():
-                        _ln = ln.rstrip()
-                        if not _ln:
+                        if not ln.strip():
                             continue
+                        marker, cleaned_text = self.extract_marker(ln)
+
+                        # If the line was ONLY a marker, save it for the next line
+                        if marker and not cleaned_text.strip():
+                            pending_marker = marker
+                            continue
+
+                        # If we have a marker on this line, use it.
+                        # Otherwise use the pending marker if available.
+                        effective_marker = marker or pending_marker
+                        pending_marker = None  # Reset
+
+                        # For verse, we want to keep leading whitespace of the cleaned text
+                        # if the marker was removed.
                         lines.append(
                             Line(
-                                text=_ln,
-                                number=line_no,
-                                speaker=None,
+                                text=cleaned_text.rstrip(),
+                                number=int(effective_marker)
+                                if effective_marker and effective_marker.isdigit()
+                                else None,
+                                speaker=psec.speaker_hint,
                                 source_page=b.page,
                             )
                         )
@@ -775,7 +834,13 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                 "- NEVER populate paragraphs or sentences; ONLY use lines.",
             )
 
-        return self.model_prompt(config, mode) + "\n\n" + general + "\n\n" + self.mode_prompt(mode)
+        return (
+            self.model_prompt(config, mode)
+            + "\n\n"
+            + general
+            + "\n\n"
+            + self.mode_prompt(mode)
+        )
 
     def ingest(
         self,
@@ -886,7 +951,11 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                     if not _ln:
                         continue
                     # Try to see if the LLM found a speaker for this chunk
-                    speaker = partial.content.paragraphs[0].speaker if partial.content.paragraphs else None
+                    speaker = (
+                        partial.content.paragraphs[0].speaker
+                        if partial.content.paragraphs
+                        else None
+                    )
                     lines.append(
                         Line(
                             text=_ln,
@@ -930,7 +999,7 @@ class DocumentIngestor:
         source_path: Path,
         metadata: TextMetadata | None,
         *,
-        use_llm: bool = True,
+        use_llm: bool = False,
         progress_callback: ProgressCallback | None = None,
         llm_config: AnyLLMConfig | None = None,
         **kwargs,
@@ -979,7 +1048,7 @@ def ingest_auto(
     source_path: Path,
     metadata: TextMetadata | None,
     *,
-    use_llm: bool = True,
+    use_llm: bool = False,
     progress_callback: ProgressCallback | None = None,
     llm_config: AnyLLMConfig | None = None,
     **kwargs,

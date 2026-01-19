@@ -1,0 +1,399 @@
+{
+  "schema_version": "1.5",
+  "metadata": {
+    "title": "Caedmon's Hymn",
+    "author": null,
+    "source": "tests/fixtures/caedmon.txt",
+    "year": null,
+    "language": "Old English",
+    "editor": null,
+    "license": null
+  },
+  "content": {
+    "title": null,
+    "number": null,
+    "sections": [
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": [
+          {
+            "speaker": null,
+            "sentences": [
+              {
+                "text": "In ðeosse abbudissan mynstre wæs sum brōðor syndriġlīċe mid godcundre ġife ġemǣred ond ġeweorðad, for þon hē ġewunade ġerisenliċe lēoð wyrċan þā ðe tō ǣfestnisse ond tō ārfæstnisse belumpen, swā ðætte swā hwæt swā hē of godcundum stafum þurh bōceras ġeleornode, þæt hē æfter medmiċlum fæce in scopġereorde mid þā mǣstan swētnisse ond inbryrdnisse ġeglænġde ond in Engliscġereorde wel ġeworht forþbrōhte.",
+                "number": 1,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond for his lēoþsongum moniġra monna mōd oft tō worulde forhogdnisse ond tō ġeþēodnisse þæs heofonlican līfes onbærnde wǣron.",
+                "number": 2,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond ēac swelċe moniġe ōðre æfter him in Ongelþēode ongunnon ǣfeste lēoð wyrċan; ac nǣniġ hwæðre him þæt ġelīċe dōn meahte, for þon hē nales from monnum ne þurh mon ġelǣred wæs, þæt hē þone lēoðcræft leornade, ac hē wæs godcundlīċe ġefultumed ond þurh Godes ġife þone songcræft onfēng.",
+                "number": 3,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond hē for ðon nǣfre nōht lēasunge ne īdles lēoþes wyrċan meahte, ac efne þā ān þā ðe tō ǣfestnesse belumpon, ond his þā ǣfestan tungan ġedeofanade singan.",
+                "number": 4,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Wæs hē se mon in weoruldhāde ġeseted oð þā tīde þe hē wæs ġelȳfdre ylde, ond nǣfre nǣniġ lēoð ġeleornade.",
+                "number": 5,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond hē for þon oft in ġebēorscipe, þonne þǣr wæs blisse intinga ġedēmed, þæt hēo ealle sceoldon þurh endebyrdnesse be hearpan singan, þonne hē ġeseah þā hearpan him nēalēċan, þonne ārās hē for forscome from þǣm symble ond hām ēode tō his hūse.",
+                "number": 6,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā hē þæt þā sumre tīde dyde, þæt hē forlēt þæt hūs þæs ġebēorscipes ond ūt wæs gongende tō nēata scipene, þāra heord him wæs þǣre neahte beboden, þā hē ðā þǣr in ġelimpliċe tīde his leomu on reste ġesette ond onslēpte, þā stōd him sum mon æt þurh swefn ond hine hālette ond grētte ond hine be his noman nemnde: \"Cedmon, sing mē hwæthwugu.\"",
+                "number": 7,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ondswarede hē ond cwæð: \"Ne con iċ nōht singan; ond iċ for þon of þeossum ġebēorscipe ūt ēode ond hider ġewāt, for þon iċ nāht singan ne cūðe.\"",
+                "number": 8,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Eft hē cwæð, se ðe wið hine sprecende wæs: \"Hwæðre þū meaht singan.\"",
+                "number": 9,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā cwæð hē: \"Hwæt sceal iċ singan?\"",
+                "number": 10,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Cwæð hē: \"Sing mē frumsceaft.\"",
+                "number": null,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā hē ðā þās andsware onfēng, þā ongon hē sōna singan in herenesse Godes Scyppendes þā fers ond þā word þe hē nǣfre ġehȳrde, þāra endebyrdnes þis is:",
+                "number": 11,
+                "source_page": 1,
+                "confidence": null
+              }
+            ],
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "lines": null,
+        "source_page": 1,
+        "confidence": null
+      },
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": null,
+        "lines": [
+          {
+            "text": "Nū sculon heriġean     heofonrīċes weard,",
+            "number": 12,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  Meotodes meahte     ond his mōdġeþanc,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  weorc wuldorfæder,     swā hē wundra ġehwæs,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ēċe Drihten,     ōr onstealde.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "Hē ǣrest sceōp     eorðan bearnum",
+            "number": 13,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  heofon tō hrōfe,     hāliġ Scyppend;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  þā middanġeard     monncynnes weard,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  ēċe Drihten,     æfter tēode",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "  fīrum foldan,     Frēa ælmihtiġ.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "source_page": 1,
+        "confidence": null
+      },
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": [
+          {
+            "speaker": null,
+            "sentences": [
+              {
+                "text": "Þā ārās hē from þǣm slǣpe, ond eal þā þe hē slǣpende song fæste in ġemynde hæfde, ond þǣm wordum sōna moniġ word in þæt ilce ġemet Gode wyrðes songes tōġeþēodde.",
+                "number": 14,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā cōm hē on morgenne tō þǣm tūnġerēfan þe his ealdormon wæs; sæġde him hwylċe ġife hē onfēng; ond hē hine sōna tō þǣre abbudissan ġelǣdde ond hire þā cȳðde ond sæġde.",
+                "number": 15,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā heht hēo ġesomnian ealle þā ġelǣredestan men ond þā leorneras, ond him ondweardum hēt secgan þæt swefn ond þæt lēoð singan, þæt ealra heora dōme ġecoren wǣre, hwæt oððe hwonon þæt cumen wǣre.",
+                "number": 16,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā wæs him eallum ġeseġen, swā swā hit wæs, þæt him wǣre from Drihtne sylfum heofonliċ ġifu forġifen.",
+                "number": 17,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā rehton hēo him ond sæġdon sum hāliġ spell ond godcundre lāre word; bebudon him þā, ġif hē meahte, þæt hē in swinsunge lēoþsonges þæt ġehwyrfde.",
+                "number": 18,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā hē ðā hæfde þā wīsan onfongne, þā ēode hē hām tō his hūse, ond cwōm eft on morgenne, ond þȳ betstan lēoðe ġeglenġed him āsong ond āġeaf þæt him beboden wæs.",
+                "number": 19,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ðā ongan sēo abbudisse clyppan ond lufiġean þā Godes ġife in þǣm men; ond hēo hine þā monade ond lǣrde þæt hē woruldhād ānforlēte ond munuchād onfēnge, ond hē þæt wel þāfode.",
+                "number": 20,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond hēo hine in þæt mynster onfēng mid his gōdum ond hine ġeþēodde tō ġesomnunge þāra Godes þēowa; ond heht hine lǣran þæt ġetæl þæs hālgan stǣres ond spelles.",
+                "number": 21,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond hē eal þā hē in ġehȳrnesse ġeleornian meahte mid hine ġemyndgade, ond swā swā clǣne nēten eodorcende in þæt swēteste lēoð ġehwerfde.",
+                "number": 22,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond his song ond his lēoð wǣron swā wynsumu tō gehȳranne þætte þā seolfan his lārēowas æt his mūðe wreoton ond leornodon.",
+                "number": 23,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Song hē ǣrest be middanġeardes ġesceape ond bi fruman moncynnes ond eal þæt stǣr ġenesis (þæt is sēo ǣreste Moyses booc), ond eft bi ūtgonge Israhēla folces of Ægypta londe ond bi ingonge þæs ġehātlandes, ond bi ōðrum monegum spellum þæs hālgan ġewrites canōnes bōca, ond bi Crīstes menniscnesse ond bi his þrōwunge ond bi his ūpāstīġnesse in heofonas, ond bi þæs Hālgan Gāstes cyme ond þāra apostola lāre, ond eft bi þǣm dæġe þæs tōweardan dōmes ond bi fyrhtu þæs tintreġlican wiites, ond bi swētnesse þæs heofonlecan rīċes hē moniġ lēoð ġeworhte.",
+                "number": 24,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond swelċe ēac ōðer moniġ be þǣm godcundan fremsumnessum ond dōmum hē ġeworhte.",
+                "number": 25,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "In eallum þǣm hē ġeornlīċe ġēmde þæt hē men ātuge from synna lufan ond māndǣda, ond tō lufan ond tō ġeornfulnesse āwehte gōdra dǣda, for þon hē wæs se mon swīþe ǣfest ond regollecum þēodscipum ēaðmōdlīċe underþēoded.",
+                "number": 26,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond wið þǣm þā ðe in ōðre wīsan dōn woldon hē wæs mid welme miċelre ellenwōdnisse onbærned, ond hē for ðon fæġre ænde his līf betȳnde ond ġeendade.",
+                "number": 27,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "For þon þā ðǣre tīde nēalǣċte his ġewītenesse ond forðfōre, þā wæs hē fēowertȳnum dagum ǣr þæt hē wæs līċhomlicre untrymnesse þryċċed ond hefgad, hwæðre tō þon ġemetlīċe þæt hē ealle þā tīd meahte ġe sprecan ġe gongan.",
+                "number": 28,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Wæs þǣr in nēaweste untrumra monna hūs, in þǣm heora þēaw wæs þæt hēo þā untrumran ond þā ðe æt forðfōre wǣron inlǣdon sceoldon ond him þǣr ætsomne þeġnian.",
+                "number": 29,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā bæd hē his þeġn on ǣfenne þǣre neahte þe hē of worulde gongende wæs þæt hē in þǣm hūse him stōwe ġeġearwode, þæt hē ġerestan meahte.",
+                "number": 30,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā wundrode se þeġn for hwon hē ðæs bǣde, for þon him þūhte þæt his forðfōr swā nēah ne wǣre; dyde hwæðre swā swā hē cwæð ond bibēad.",
+                "number": 31,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond mid þȳ hē ðā þǣr on reste ēode ond hē ġefēonde mōde sumu þing mid him sprecende ætgædere ond glēowiende wæs þe þǣr ǣr inne wǣron, þā wæs ofer midde neaht þæt hē fræġn hwæðer hēo ǣniġ hūsl inne hæfdon.",
+                "number": 32,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ondswarodon hēo ond cwǣdon: \"Hwylċ þearf is ðē hūsles?",
+                "number": 33,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ne þīnre forþfōre swā nēah is, nū þū þus rōtlīċe ond þus glædlīċe tō ūs sprecende eart.\"",
+                "number": null,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Cwæð hē eft: \"Berað mē hūsl tō.\"",
+                "number": 34,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā hē hit þā on honda hæfde, þā fræġn hē hwæþer hēo ealle smolt mōd ond, būton eallum incan, blīðe tō him hæfdon.",
+                "number": 35,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ondswaredon hȳ ealle ond cwǣdon þæt hēo nǣniġne incan tō him wiston, ac hēo ealle him swīðe blīðemōde wǣron; ond hēo wrixendlīċe hine bǣdon þæt hē him eallum blīðe wǣre.",
+                "number": 36,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ondswarade hē ond cwæð: \"Mīne brōðor, mīne þā lēofan, iċ eom swīðe blīðemōd tō ēow ond tō eallum Godes monnum.\"",
+                "number": 37,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond swā wæs hine ġetrymmende mid þȳ heofonlecan weġneste ond him ōðres līfes ingong ġeġearwode.",
+                "number": 38,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ġȳt hē fræġn hū nēah þǣre tīde wǣre þætte þā brōðor ārīsan scolden ond Godes lof rǣran ond heora ūhtsong singan.",
+                "number": 39,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Þā ondswaredon hēo: \"Nis hit feor tō þon.\"",
+                "number": 40,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Cwæð hē: \"Teala: wuton wē wel þǣre tīde bīdan.\"",
+                "number": 41,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond þā him ġebæd ond hine ġeseġnode mid Crīstes rōdetācne ond his hēafod onhylde tō þām bolstre ond medmiċel fæc onslēpte, ond swā mid stilnesse his līf ġeendade.",
+                "number": 42,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond swā wæs ġeworden þætte swā swā hlūttre mōde ond bilwitre ond smyltre wilsumnesse Drihtne þēode, þæt hē ēac swylċe swā smylte dēaðe middanġeard wæs forlǣtende ond tō his ġesihðe becwōm.",
+                "number": 43,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ond sēo tunge þe swā moniġ hālwende word in þæs Scyppendes lof ġesette, hē ðā swelċe ēac þā ȳtmæstan word in his herenisse, hine seolfne seġniende ond his gāst in his honda bebēodende, betȳnde.",
+                "number": 44,
+                "source_page": 1,
+                "confidence": null
+              },
+              {
+                "text": "Ēac swelċe þæt is ġeseġen þæt hē wǣre ġewis his seolfes forðfōre of þǣm wē nū secgan hȳrdon.",
+                "number": 45,
+                "source_page": 1,
+                "confidence": null
+              }
+            ],
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "lines": null,
+        "source_page": 1,
+        "confidence": null
+      }
+    ],
+    "paragraphs": null,
+    "lines": null,
+    "source_page": null,
+    "confidence": null
+  }
+}

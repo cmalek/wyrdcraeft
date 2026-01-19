@@ -1,0 +1,907 @@
+{
+  "schema_version": "1.5",
+  "metadata": {
+    "title": "The Seafarer",
+    "author": null,
+    "source": "tests/fixtures/seafarer.txt",
+    "year": null,
+    "language": "Old English",
+    "editor": null,
+    "license": null
+  },
+  "content": {
+    "title": null,
+    "number": null,
+    "sections": [
+      {
+        "title": null,
+        "number": null,
+        "sections": null,
+        "paragraphs": null,
+        "lines": [
+          {
+            "text": "Mæg ic be me sylfum      soðgied wrecan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    siþas secgan,      hu ic geswincdagum",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    earfoðhwile      oft þrowade,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    bitre breostceare      gebiden hæbbe,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    gecunnad in ceole      cearselda fela,",
+            "number": 5,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    atol yþa gewealc,      þær mec oft bigeat",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    nearo nihtwaco      æt nacan stefnan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þonne he be clifum cnossað.      Calde geþrungen",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    wæron mine fet,      forste gebunden,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    caldum clommum,      þær þa ceare seofedun",
+            "number": 10,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    hat ymb heortan;      hungor innan slat",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    merewerges mod.      þæt se mon ne wat",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þe him on foldan      fægrost limpeð,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    hu ic earmcearig      iscealdne sæ",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    winter wunade      wræccan lastum,",
+            "number": 15,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    winemægum bidroren,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    bihongen hrimgicelum;      hægl scurum fleag.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þær ic ne gehyrde      butan hlimman sæ,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    iscaldne wæg.      Hwilum ylfete song",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    dyde ic me to gomene,      ganetes hleoþor",
+            "number": 20,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond huilpan sweg      fore hleahtor wera,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    mæw singende      fore medodrince.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Stormas þær stanclifu beotan,      þær him stearn oncwæð",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    isigfeþera;      ful oft þæt earn bigeal,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    urigfeþra;      ne ænig hleomæga",
+            "number": 25,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    feasceaftig ferð      frefran meahte.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Forþon him gelyfeð lyt,      se þe ah lifes wyn",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    gebiden in burgum,      bealosiþa hwon,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    wlonc ond wingal,      hu ic werig oft",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    in brimlade      bidan sceolde.",
+            "number": 30,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Nap nihtscua,      norþan sniwde,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    hrim hrusan bond,      hægl feol on eorþan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    corna caldast.      Forþon cnyssað nu",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    heortan geþohtas,      þæt ic hean streamas,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    sealtyþa gelac      sylf cunnige;",
+            "number": 35,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    monað modes lust      mæla gehwylce",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ferð to feran,      þæt ic feor heonan",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    elþeodigra      eard gesece.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Forþon nis þæs modwlonc      mon ofer eorþan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne his gifena þæs god,      ne in geoguþe to þæs hwæt,",
+            "number": 40,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne in his dædum to þæs deor,      ne him his dryhten to þæs hold,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þæt he a his sæfore      sorge næbbe,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    to hwon hine dryhten      gedon wille.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Ne biþ him to hearpan hyge      ne to hringþege,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne to wife wyn      ne to worulde hyht,",
+            "number": 45,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne ymbe owiht elles,      nefne ymb yða gewealc,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ac a hafað longunge      se þe on lagu fundað.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Bearwas blostmum nimað,      byrig fægriað,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    wongas wlitigað,      woruld onetteð;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ealle þa gemoniað      modes fusne",
+            "number": 50,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    sefan to siþe,      þam þe swa þenceð",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    on flodwegas      feor gewitan.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Swylce geac monað      geomran reorde,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    singeð sumeres weard,      sorge beodeð",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    bitter in breosthord.      þæt se beorn ne wat,",
+            "number": 55,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    esteadig secg,      hwæt þa sume dreogað",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þe þa wræclastas      widost lecgað.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Forþon nu min hyge hweorfeð      ofer hreþerlocan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    min modsefa      mid mereflode",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ofer hwæles eþel      hweorfeð wide,",
+            "number": 60,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    eorþan sceatas,      cymeð eft to me",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    gifre ond grædig,      gielleð anfloga,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    hweteð on hwælweg      hreþer unwearnum",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ofer holma gelagu.      Forþon me hatran sind",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    dryhtnes dreamas      þonne þis deade lif,",
+            "number": 65,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    læne on londe.      Ic gelyfe no",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þæt him eorðwelan      ece stondað.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Simle þreora sum      þinga gehwylce,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ær his tid aga,      to tweon weorþeð;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    adl oþþe yldo      oþþe ecghete",
+            "number": 70,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    fægum fromweardum      feorh oðþringeð.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Forþon þæt bið eorla gehwam      æftercweþendra",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    lof lifgendra      lastworda betst,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þæt he gewyrce,      ær he on weg scyle,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    fremum on foldan      wið feonda niþ,",
+            "number": 75,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    deorum dædum      deofle togeanes,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þæt hine ælda bearn      æfter hergen,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond his lof siþþan      lifge mid englum",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    awa to ealdre,      ecan lifes blæd,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    dream mid dugeþum.      Dagas sind gewitene,",
+            "number": 80,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ealle onmedlan      eorþan rices;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    næron nu cyningas      ne caseras",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne goldgiefan      swylce iu wæron,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þonne hi mæst mid him      mærþa gefremedon",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond on dryhtlicestum      dome lifdon.",
+            "number": 85,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Gedroren is þeos duguð eal,      dreamas sind gewitene,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    wuniað þa wacran      ond þas woruld healdaþ,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    brucað þurh bisgo.      Blæd is gehnæged,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    eorþan indryhto      ealdað ond searað,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    swa nu monna gehwylc      geond middangeard.",
+            "number": 90,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Yldo him on fareð,      onsyn blacað,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    gomelfeax gnornað,      wat his iuwine,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    æþelinga bearn,      eorþan forgiefene.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Ne mæg him þonne se flæschoma,      þonne him þæt feorg losað,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne swete forswelgan      ne sar gefelan,",
+            "number": 95,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne hond onhreran      ne mid hyge þencan.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þeah þe græf wille      golde stregan",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    broþor his geborenum,      byrgan be deadum,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    maþmum mislicum      þæt hine mid wille,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ne mæg þære sawle      þe biþ synna ful",
+            "number": 100,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    gold to geoce      for godes egsan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þonne he hit ær hydeð      þenden he her leofað.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Micel biþ se meotudes egsa,      forþon hi seo molde oncyrreð;",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    se gestaþelade      stiþe grundas,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    eorþan sceatas      ond uprodor.",
+            "number": 105,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Dol biþ se þe him his dryhten ne ondrædeþ;      cymeð him se deað unþinged.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Eadig bið se þe eaþmod leofaþ;      cymeð him seo ar of heofonum,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    meotod him þæt mod gestaþelað,      forþon he in his meahte gelyfeð.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Stieran mon sceal strongum mode,      ond þæt on staþelum healdan,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond gewis werum,      wisum clæne,",
+            "number": 110,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    scyle monna gehwylc      mid gemete healdan",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    wiþ leofne ond wið laþne      bealo,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þeah þe he hine wille fyres      fulne",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    oþþe on bæle      forbærnedne",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    his geworhtne wine.      Wyrd biþ swiþre,",
+            "number": 115,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    meotud meahtigra      þonne ænges monnes gehygd.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Uton we hycgan      hwær we ham agen,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond þonne geþencan      hu we þider cumen,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ond we þonne eac tilien,      þæt we to moten",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    in þa ecan      eadignesse,",
+            "number": 120,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þær is lif gelong      in lufan dryhtnes,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    hyht in heofonum.      þæs sy þam halgan þonc,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    þæt he usic geweorþade,      wuldres ealdor,",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    ece dryhten,      in ealle tid.",
+            "number": null,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          },
+          {
+            "text": "    Amen.",
+            "number": 125,
+            "speaker": null,
+            "source_page": 1,
+            "confidence": null
+          }
+        ],
+        "source_page": 1,
+        "confidence": null
+      }
+    ],
+    "paragraphs": null,
+    "lines": null,
+    "source_page": null,
+    "confidence": null
+  }
+}
