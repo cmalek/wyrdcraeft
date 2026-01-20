@@ -138,6 +138,7 @@ def roman_to_arabic(source: str) -> int:
 
     Returns:
         The arabic integer value.
+
     """
     n = [ROMAN_NUMBER_MAP[i] for i in source.lower() if i in ROMAN_NUMBER_MAP]
     if not n:
@@ -520,13 +521,13 @@ class CanonicalConverter:
         sentences = []
         # re.split with capturing group returns [text, separator, text, separator...]
         for i in range(0, len(parts) - 1, 2):
-            sentences.append((parts[i] + parts[i + 1]).strip())
+            sentences.append((parts[i] + parts[i + 1]).strip())  # noqa: PERF401
         if len(parts) % 2 == 1 and parts[-1].strip():
             sentences.append(parts[-1].strip())
 
         return [s for s in sentences if s]
 
-    def build(self, meta: TextMetadata, doc: PreParsedDocument) -> OldEnglishText:
+    def build(self, meta: TextMetadata, doc: PreParsedDocument) -> OldEnglishText:  # noqa: PLR0912
         """
         Build a canonical document from a pre-parsed document.
 
@@ -911,7 +912,7 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             + self.mode_prompt(mode)
         )
 
-    def ingest(
+    def ingest(  # noqa: PLR0912
         self,
         source_path: Path,
         metadata: TextMetadata | None,
