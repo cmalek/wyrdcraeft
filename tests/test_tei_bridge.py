@@ -4,7 +4,7 @@ from pathlib import Path
 
 from oe_json_extractor.ingest.exporters import TEIExporter
 from oe_json_extractor.ingest.loaders import TEISourceLoader
-from oe_json_extractor.models.schema import (
+from oe_json_extractor.models import (
     Line,
     OldEnglishText,
     Paragraph,
