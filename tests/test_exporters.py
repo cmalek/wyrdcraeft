@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from oe_json_extractor.ingest.exporters import TEIExporter
-from oe_json_extractor.models.schema import (
+from oe_json_extractor.models import (
     Line,
     OldEnglishText,
     Paragraph,

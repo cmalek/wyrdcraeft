@@ -18,8 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from oe_json_extractor.models.schema import Section
-
+from oe_json_extractor.models import Section
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -37,7 +36,7 @@ def test_expected_json_is_schema_valid(expected_name: str) -> None:
 
 
 def _canonicalize(obj):
-    "Deterministic ordering for stable snapshot comparisons."
+    """Deterministic ordering for stable snapshot comparisons."""
     if isinstance(obj, dict):
         return {k: _canonicalize(obj[k]) for k in sorted(obj)}
     if isinstance(obj, list):
@@ -53,7 +52,7 @@ def _canonicalize(obj):
         ("fixture_dialogue.txt", "expected_dialogue.json"),
     ],
 )
-def test_snapshot_regression_contract(text_name: str, expected_name: str) -> None:
+def test_snapshot_regression_contract(text_name: str, expected_name: str) -> None:  # noqa: ARG001
     """
     Placeholder regression test.
 

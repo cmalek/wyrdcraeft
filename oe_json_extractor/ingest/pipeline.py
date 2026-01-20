@@ -487,6 +487,7 @@ class CanonicalConverter:
 
         Returns:
             A tuple of the marker (as a string) and the remaining text.
+
         """
         match = MARKER_RE.match(text)
         if match:
@@ -605,8 +606,8 @@ class CanonicalConverter:
                         else:
                             final_number = None
 
-                        # For verse, we want to keep leading whitespace of the cleaned text
-                        # if the marker was removed.
+                        # For verse, we want to keep leading whitespace of the
+                        # cleaned text if the marker was removed.
                         lines.append(
                             Line(
                                 text=cleaned_text.rstrip(),
@@ -995,10 +996,10 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                     "- Each physical line MUST become EXACTLY one 'Line' object.\n"
                     "- DO NOT split lines at periods, semicolons, or gaps.\n"
                     "- DO NOT merge lines into paragraphs or sentences.\n"
-                    "- PRESERVE all internal spaces (the caesura). If a line has 6 spaces, keep 6 spaces.\n"
+                    "- PRESERVE all internal spaces (the caesura). If a line has 6 spaces, keep 6 spaces.\n"  # noqa: E501
                     "- PRESERVE all leading spaces/indentation.\n"
-                    "- IGNORE all grammatical rules; follow physical line breaks ONLY.\n"
-                    "- The number of 'Line' objects in your JSON MUST match the number of lines in the input.\n"
+                    "- IGNORE all grammatical rules; follow physical line breaks ONLY.\n"  # noqa: E501
+                    "- The number of 'Line' objects in your JSON MUST match the number of lines in the input.\n"  # noqa: E501
                 )
                 preamble = (preamble or "") + verse_preamble
 
@@ -1009,8 +1010,9 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
                 prompt_preamble=preamble,
             )
 
-            # SAFETY NET: If we are in verse mode but the LLM returned paragraphs/sentences,
-            # force-convert them back to lines using the original physical line breaks.
+            # SAFETY NET: If we are in verse mode but the LLM returned
+            # paragraphs/sentences, force-convert them back to lines using the
+            # original physical line breaks.
             if psec.kind == "verse" and partial.content.paragraphs:
                 # Re-extract lines from chunk_text directly
                 lines: list[Line] = []

@@ -1,6 +1,6 @@
 from .llm import AnyLLMConfig
 from .parsing import PreParsedDocument, ProvisionalSection, RawBlock
-from .schema import (
+from .source_text import (
     Confidence,
     Line,
     Number,

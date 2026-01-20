@@ -9,7 +9,8 @@ from oe_ingest.ingest.extractors.langextract_runner import (
     AnyLLMConfig,
     run_anyllm_to_canonical,
 )
-from oe_ingest.schema.models import OldEnglishText, TextMetadata
+
+from oe_json_extractor.models import OldEnglishText, TextMetadata
 
 FIX = Path(__file__).parent / "fixtures"
 
