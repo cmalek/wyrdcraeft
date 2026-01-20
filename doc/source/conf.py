@@ -12,8 +12,8 @@
 #
 from __future__ import annotations
 
-import os
 import sys
+from pathlib import Path
 from typing import Any
 
 import sphinx_rtd_theme  # noqa: F401
@@ -24,7 +24,7 @@ import sphinx_rtd_theme  # noqa: F401
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-sys.path.insert(0, os.path.abspath("../.."))  # noqa: PTH100
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.absolute()))
 
 # -- Project information -----------------------------------------------------
 
@@ -50,6 +50,8 @@ extensions = [
     "sphinxcontrib.images",
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
+    "sphinx.ext.viewcode",
+    "autodoc_pydantic",
 ]
 
 source_suffix: str = ".rst"
