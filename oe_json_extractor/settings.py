@@ -205,6 +205,13 @@ class Settings(BaseSettings):
         except ValueError as e:
             raise ConfigurationError(str(e)) from e
 
+        if self.llm_temperature < 0 or self.llm_temperature > 1:
+            msg = "LLM temperature must be between 0 and 1"
+            raise ConfigurationError(msg)
+
+        if self.llm_max_tokens <= 0:
+            msg = "LLM max tokens must be greater than 0"
+
         # Validate LLM timeout
         if self.llm_timeout_s <= 0:
             msg = "LLM timeout must be greater than 0"
