@@ -7,18 +7,19 @@ General Questions
 -----------------
 
 What is oe_json_extractor?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-oe_json_extractor is a Python command-line tool designed for __FILL_ME_IN__. It provides capabilities for:
+oe_json_extractor is a Python command-line tool designed to convert Old English (Anglo-Saxon) texts into a standard JSON format. It provides capabilities for:
 
-- Feature 1
-- Feature 2
+- Ingesting Old English texts from a variety of sources: text files, PDF files, and TEI XML files.
+- Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
+- Properly handling both prose and verse.
 
 Installation Issues
 -------------------
 
 How do I install oe_json_extractor?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See the :doc:`installation` guide for detailed installation instructions. The recommended methods are:
 
@@ -40,55 +41,41 @@ This usually means the installation directory is not in your PATH. Try:
 Usage Questions
 ---------------
 
-How do I use feature 1?
-^^^^^^^^^^^^^^^^^^^^^^^
+How do I convert a document to JSON?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-    # List all features
-    oe_json_extractor group1 feature1
+    # Convert a text file to JSON
+    oe_json_extractor convert --title="My Title" input.txt output.json
 
-    # Filter services by pattern
-    oe_json_extractor group1 feature1 --arg "foo" --arg "bar"
+    # Convert a PDF file to JSON
+    oe_json_extractor convert --title="My Title" input.pdf output.json
 
-Output and Formatting Issues
-----------------------------
+    # Convert a TEI XML file to JSON
+    oe_json_extractor convert --title="My Title" input.xml output.json
 
-How do I change the output format?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use the ``--output`` option:
+How do I convert a document to JSON using the LLM method?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-    # JSON output
-    oe_json_extractor --output json group1 feature1
+    # Convert a text file to JSON using the gpt-4o model
+    $ export OPENAI_API_KEY=your-openai-api-key
+    $ oe_json_extractor convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
 
-    # Table output (default)
-    oe_json_extractor --output table group1 feature1
+    # Convert a PDF file to JSON using the gemini-3-flash-preview model
+    $ export GEMINI_API_KEY=your-gemini-api-key
+    $ oe_json_extractor convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
 
-    # Text output
-    oe_json_extractor --output text group1 feature1
+    # Convert a TEI XML file to JSON using the qwen2.5:14b-instruct model
+    $ export OLLAMA_API_KEY=your-ollama-api-key
+    $ oe_json_extractor convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
 
-The output format applies to all commands in the session.
-
-How do I enable verbose output?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Use the ``--verbose`` option:
-
-.. code-block:: bash
-
-    # Enable verbose output
-    oe_json_extractor --verbose group1 feature1
-
-    # Verbose output with specific command
-    oe_json_extractor --verbose group1 feature1
-
-Verbose output shows additional details about:
-
-- Details 1
-- Details 2
+    # Convert a text file to JSON using the qwen2.5:14b-instruct model
+    # First run ollama, and pull the model like this:
+    $ ollama pull qwen2.5:14b-instruct
+    $ oe_json_extractor convert --title="My Title" input.txt output.json --use-llm
 
 How do I suppress output except errors?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,37 +100,23 @@ Use the ``--config-file`` option:
 .. code-block:: bash
 
     # Use custom configuration file
-    oe_json_extractor --config-file /path/to/config.toml group1 feature1
+    oe_json_extractor --config-file /path/to/config.toml convert --title="My Title" input.txt output.json
 
 The configuration file should be in TOML format. See the :doc:`configuration` guide for details.
 
 What configuration options are available?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tfmate supports configuration for:
+``oe_json_extractor`` supports configuration for:
 
-- Configuration thing 1
-- Configuration thing 2
+- LLM model ID
+- LLM temperature
+- LLM max tokens
+- LLM timeout
+- OpenAI API key
+- Gemini API key
 
-See the :doc:`configuration` guide for a complete list of options.
-
-Troubleshooting
----------------
-
-Problem 1
-^^^^^^^^^
-
-This can happen due to:
-
-1. **Network latency**: Feature 1 depends on network speed
-3. **Cold Feature 1 requests**: First access to Feature 1 objects may be slower
-
-Solutions:
-
-.. code-block:: bash
-
-    # Use verbose mode to see timing information
-    oe_json_extractor --verbose group1 feature1
+See the :doc:`configuration_cli` guide for a complete list of options.
 
 Performance and Limitations
 ---------------------------
@@ -151,27 +124,8 @@ Performance and Limitations
 What are the performance characteristics?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **Feature 1**: Feature 1 depends on network speed
-- **Feature 2**: Feature 2 depends on # sloths in Africa
-
-Are there any limitations?
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Limitation 1
-- Limitation 2
-
-Can I use oe_json_extractor in CI/CD pipelines?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Yes, oe_json_extractor is designed to work in CI/CD environments:
-
-.. code-block:: yaml
-
-    # Example configuration for various CI/CD providers
-
-
-Getting Help
-------------
+- **LLM conversion**: This can be very slow, especially when using a local model.  It also is not very accurate, especially for verse.
+- **Deterministic conversion**: This is the fastest and most accurate method, but may make mistakes, especially for complex documents.
 
 Where can I get more help?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
