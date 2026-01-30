@@ -1,4 +1,4 @@
-from oe_json_extractor.cli import cli
+from wyrdcraeft.cli import cli
 
 
 def main() -> None:

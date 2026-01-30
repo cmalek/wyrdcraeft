@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from oe_json_extractor.cli.cli import cli
-from oe_json_extractor.models import OldEnglishText, TextMetadata, Section
+from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
 
 
 def test_convert_command_no_llm(runner, temp_dir):
@@ -29,7 +29,7 @@ def test_convert_command_no_llm(runner, temp_dir):
     assert data["metadata"]["title"] == "test"
 
 
-@patch("oe_json_extractor.cli.cli.DocumentIngestor.ingest")
+@patch("wyrdcraeft.cli.cli.DocumentIngestor.ingest")
 def test_convert_command_llm_flags(mock_ingest, runner, temp_dir):
     """Test that LLM flags are correctly passed to the pipeline."""
     source_file = temp_dir / "test.txt"

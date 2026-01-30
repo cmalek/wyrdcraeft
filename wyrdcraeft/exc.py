@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 class OejsonextractorError(Exception):
-    """Base exception for all oe_json_extractor errors."""
+    """Base exception for all wyrdcraeft errors."""
 
 
 class ConfigurationError(OejsonextractorError):

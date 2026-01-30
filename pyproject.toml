@@ -1,5 +1,5 @@
 [project]
-name = "oe_json_extractor"
+name = "wyrdcraeft"
 version = "0.1.0"
 authors = [
     {name = "Chris Malek", email = "cmalek@placodermi.org"},
@@ -8,7 +8,7 @@ maintainers = [
     {name = "Chris Malek", email = "cmalek@placodermi.org"},
 ]
 requires-python = ">=3.11,<3.14"
-description = "A tool that takes an Old English source text and outputs structured JSON"
+description = "A tool that takes unstructured, textual Old English resources and outputs structured JSON for programmatic consumption by other code"
 readme = "README.md"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
   "click >= 8.1.7",
   "rich >= 13.8.1",
-  "pydantic >= 2.10.6",
+  "pydantic>=2.10.6",
   "pydantic-settings >= 2.5.2",
   "build>=1.2.2.post1",
   "unstructured[all-docs]>=0.15",

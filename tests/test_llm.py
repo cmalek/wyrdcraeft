@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from oe_json_extractor.models.llm import AnyLLMConfig
+from wyrdcraeft.models.llm import AnyLLMConfig
+
 
 class TestAnyLLMConfig:
     def test_default_config(self):

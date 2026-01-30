@@ -1,5 +1,5 @@
 """
-Settings management for oe_json_extractor.
+Settings management for wyrdcraeft.
 """
 
 from __future__ import annotations
@@ -33,12 +33,12 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         extra="ignore",
-        env_prefix="OE_JSON_EXTRACTOR_",
+        env_prefix="wyrdcraeft_",
     )
 
     # Application settings (readonly - cannot be overridden via configuration)
     app_name: str = Field(
-        default="oe_json_extractor",
+        default="wyrdcraeft",
         description="Application name",
         frozen=True,
     )
@@ -105,7 +105,7 @@ class Settings(BaseSettings):
         if os.name == "nt":  # Windows
             global_config = (
                 Path(os.environ.get("PROGRAMDATA", "C:/ProgramData"))
-                / "oe_json_extractor.toml"
+                / "wyrdcraeft.toml"
             )
         else:  # Unix-like
             global_config = Path("/etc/cookiecutter.project_python_name}}.toml")
@@ -117,16 +117,16 @@ class Settings(BaseSettings):
         config_dir = Path.home() / ".config"
         if not config_dir.exists():
             config_dir.mkdir(parents=True, exist_ok=True)
-        user_config = config_dir / "oe_json_extractor.toml"
+        user_config = config_dir / "wyrdcraeft.toml"
         if user_config.exists():
             config_paths.append(user_config)
 
         # Local configuration
-        local_config = Path.cwd() / ".oe_json_extractor.toml"
+        local_config = Path.cwd() / ".wyrdcraeft.toml"
         if local_config.exists():
             config_paths.append(local_config)
 
-        config_file = os.environ.get("OE_JSON_EXTRACTOR_CONFIG_FILE")
+        config_file = os.environ.get("wyrdcraeft_CONFIG_FILE")
         # Explicit configuration file (highest precedence)
         if config_file:
             explicit_config = Path(config_file)
@@ -163,11 +163,11 @@ class Settings(BaseSettings):
         if os.name == "nt":  # Windows
             global_config = (
                 Path(os.environ.get("PROGRAMDATA", "C:/ProgramData"))
-                / "oe_json_extractor"
+                / "wyrdcraeft"
                 / "config.toml"
             )
         else:  # Unix-like
-            global_config = Path("/etc/oe_json_extractor.toml")
+            global_config = Path("/etc/wyrdcraeft.toml")
 
         if global_config.exists():
             paths.append(global_config)
@@ -176,12 +176,12 @@ class Settings(BaseSettings):
         config_dir = Path.home() / ".config"
         if not config_dir.exists():
             config_dir.mkdir(parents=True, exist_ok=True)
-        user_config = config_dir / "oe_json_extractor.toml"
+        user_config = config_dir / "wyrdcraeft.toml"
         if user_config.exists():
             paths.append(user_config)
 
         # Local configuration
-        local_config = Path.cwd() / ".oe_json_extractor.toml"
+        local_config = Path.cwd() / ".wyrdcraeft.toml"
         if local_config.exists():
             paths.append(local_config)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import os
 import sys
@@ -16,7 +17,7 @@ from rich.progress import (
 )
 from rich.table import Table
 
-import oe_json_extractor
+import wyrdcraeft
 
 from ..ingest.pipeline import DocumentIngestor
 from ..models import TextMetadata
@@ -41,7 +42,7 @@ def cli(
     ctx: click.Context, verbose: bool, quiet: bool, config_file: str | None, output: str
 ):
     """
-    oe_json_extractor command line interface.
+    Wyrdcraeft command line interface.
     """
     # Ensure context object exists
     ctx.ensure_object(dict)
@@ -55,7 +56,7 @@ def cli(
     if config_file:
         # This will be picked up by the Settings class's
         # settings_customise_sources method
-        os.environ["OE_JSON_EXTRACTOR_CONFIG_FILE"] = config_file
+        os.environ["WYRDCRAEFT_CONFIG_FILE"] = config_file
 
     # Load settings
     try:
@@ -75,11 +76,11 @@ def version() -> None:
     """
     Print the some version info of this package,
     """
-    table = Table(title="oe_json_extractor Version Info")
+    table = Table(title="wyrdcraeft Version Info")
     table.add_column("Package", justify="left", style="cyan", no_wrap=True)
     table.add_column("Version", justify="left", style="yellow", no_wrap=True)
 
-    table.add_row("oe_json_extractor", str(oe_json_extractor.__version__))
+    table.add_row("wyrdcraeft", str(wyrdcraeft.__version__))
     table.add_row("click", str(Distribution.from_name("click").version))
     table.add_row("rich", str(Distribution.from_name("rich").version))
     table.add_row("pydantic", str(Distribution.from_name("pydantic").version))
@@ -157,7 +158,15 @@ def create_settings(ctx: click.Context):
         console.print(table)
 
 
-@cli.command(name="convert", help="Convert a source document to JSON.")
+@cli.group(name="source")
+@click.pass_context
+def reading_group(ctx: click.Context):
+    """
+    OE Source text-related commands.
+    """
+
+
+@reading_group.command(name="convert", help="Convert a source document to JSON.")
 @click.argument("source", type=str)
 @click.argument("output", type=click.Path(path_type=Path))
 @click.option(
@@ -177,7 +186,7 @@ def create_settings(ctx: click.Context):
 @click.option("--llm-timeout", type=int, help="LLM timeout in seconds")
 @click.option("--title", type=str, help="Title of the text")
 @click.pass_context
-def convert(  # noqa: PLR0913
+def reading_convert(  # noqa: PLR0913
     ctx: click.Context,
     source: str,
     output: Path,
@@ -270,3 +279,40 @@ def convert(  # noqa: PLR0913
                 raise
             print_error(f"Conversion failed: {e}")
             sys.exit(1)
+
+
+@cli.group(name="dictionary")
+@click.pass_context
+def dictionary_group(ctx: click.Context):
+    """
+    OE Dictionary-related commands.
+    """
+
+
+@dictionary_group.command(
+    name="convert", help="Convert a Bosworth-Toller Dictionary CSV file to JSON."
+)
+@click.argument("source", type=click.Path(exists=True))
+@click.argument("output", type=click.Path(path_type=Path))
+@click.pass_context
+def dictionary_convert(ctx: click.Context, source: Path, output: Path):
+    """
+    Convert a Bosworth-Toller Dictionary CSV file to JSON.
+    """
+    entries: dict[str, str] = {}
+    with source.open("r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            # Join all columns with no spaces between them
+            entry = "".join(row)
+            # Extract the normalized form from the entry
+            normalized_form = entry.split("@")[0].strip()
+            # Convert any vowels with acute accents to vowels with macrons
+            normalized_form = normalized_form.replace("á", "ā")
+            normalized_form = normalized_form.replace("é", "ē")
+            normalized_form = normalized_form.replace("í", "ī")
+            normalized_form = normalized_form.replace("ó", "ō")
+            normalized_form = normalized_form.replace("ú", "ū")
+            normalized_form = normalized_form.replace("ý", "ȳ")
+            entries[normalized_form] = entry
+    return entries

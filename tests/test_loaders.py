@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from oe_json_extractor.ingest.loaders import (
+from wyrdcraeft.ingest.loaders import (
     FileSourceLoader,
     HTTPSourceLoader,
     SourceLoader,
@@ -23,7 +23,7 @@ def test_load_from_file_text(tmp_path):
     file_path.write_text("Hello World", encoding="utf-8")
 
     loader = FileSourceLoader()
-    with patch("oe_json_extractor.ingest.loaders.partition_text") as mock_partition:
+    with patch("wyrdcraeft.ingest.loaders.partition_text") as mock_partition:
         mock_partition.return_value = [MagicMock(text="Hello World")]
         elements = loader.load_from_file(file_path)
         assert len(elements) == 1

@@ -1,0 +1,60 @@
+{
+    "source": "belt@<B>BELT,</B> es; <I>m. A</I> BELT, <I>girdle;</I> balteus, Cot. 25. [<I>O. H. Ger.</I> palz, balz, <I>m ? a girdle : Ger.</I> Belt, <I>m. name of the narrow straits between the Danish isles : Dan.</I> belte <I>a belt : Swed.</I> bälte, <I>id : O. Nrs.</I> belti, <I>n. id : Lat.</I> balteus.] v. gyrdel.@belt",
+    "result:": {
+        "display_form": "belt",
+        "normalized": "belt",
+        "search_form": "belt",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": {
+            "O. H. Ger": "palz, balz, m ? a girdle",
+            "Ger": "Belt, m. name of the narrow straits between the Danish isles",
+            "Dan": "belte a belt",
+            "Swed": "bälte id",
+            "O. Nrs": "belti, n. id",
+            "Lat": "balteus"
+        },
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": null,
+                "definition": "a belt",
+                "latin_definition": "balteus",
+                "usage_note": null,
+                "pos": "noun",
+                "examples": [
+                    {
+                        "old_english": "belt <I>girdle</I>",
+                        "translation": "balteus",
+                        "sources": [
+                            "Cot. 25"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [],
+        "similar_entries": [
+            "gyrdel"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": "noun",
+            "gender": "m",
+            "noun_declension": null,
+            "is_long_stem": true,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

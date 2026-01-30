@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from oe_json_extractor.ingest.pipeline import StructureParser, ingest_auto
-from oe_json_extractor.models.parsing import RawBlock
-from oe_json_extractor.models import TextMetadata
+from wyrdcraeft.ingest.pipeline import StructureParser, ingest_auto
+from wyrdcraeft.models.parsing import RawBlock
+from wyrdcraeft.models import TextMetadata
 from pathlib import Path
 
 

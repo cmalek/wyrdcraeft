@@ -1,19 +1,19 @@
 Configuration: Command Line Tool
 ================================
 
-This guide covers all configuration options for the ``oe_json_extractor``
+This guide covers all configuration options for the ``wyrdcraeft``
 command line tool, including configuration files, environment variables, and
 command-line options.
 
 We offer configuration files and command-line options to make it easier for us
 language nerds to convert documents into the
-:class:`~oe_json_extractor.models.OldEnglishText` model without having to write
+:class:`~wyrdcraeft.models.OldEnglishText` model without having to write
 any code.
 
 Configuration Methods
 ---------------------
 
-The ``oe_json_extractor`` command line tool supports multiple configuration methods,
+The ``wyrdcraeft`` command line tool supports multiple configuration methods,
 loaded in order of priority:
 
 1. **Command-line options** (highest priority)
@@ -29,15 +29,15 @@ File Locations
 
 In macOS and Linux, configuration files are searched in this order:
 
-1. ``/etc/oe_json_extractor.conf`` (system-wide)
-2. ``~/.oe_json_extractor.conf`` (user-specific)
-3. ``./oe_json_extractor.conf`` (current directory)
+1. ``/etc/wyrdcraeft.conf`` (system-wide)
+2. ``~/.wyrdcraeft.conf`` (user-specific)
+3. ``./wyrdcraeft.conf`` (current directory)
 
 In Windows, the configuration files are searched in this order:
 
-1. ``C:\ProgramData\oe_json_extractor\config.toml`` (system-wide)
-2. ``%USERPROFILE%\.config\oe_json_extractor.toml`` (user-specific)
-3. ``%USERPROFILE%\.oe_json_extractor.toml`` (current directory)
+1. ``C:\ProgramData\wyrdcraeft\config.toml`` (system-wide)
+2. ``%USERPROFILE%\.config\wyrdcraeft.toml`` (user-specific)
+3. ``%USERPROFILE%\.wyrdcraeft.toml`` (current directory)
 
 File Format
 ~~~~~~~~~~~
@@ -46,7 +46,7 @@ Configuration files use INI format:
 
 .. code-block:: toml
 
-    [oe_json_extractor]
+    [wyrdcraeft]
     llm_model_id = "qwen2.5:14b-instruct"
     llm_temperature = 0.0
     llm_max_tokens = 4096
@@ -54,7 +54,7 @@ Configuration files use INI format:
     openai_api_key = "sk-proj-1234567890"
     gemini_api_key = "gcp-api-key-1234567890"
     log_level = "INFO"
-    log_file = "/var/log/oe_json_extractor.log"
+    log_file = "/var/log/wyrdcraeft.log"
     default_output_format = "json"
     enable_colors = true
     quiet_mode = false
@@ -67,7 +67,7 @@ Configuration Options
 
 **llm_model_id**
     The ID of the LLM model to use when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`.  We support the following
+    :class:`~wyrdcraeft.LLMDocumentIngestor`.  We support the following
     models:
 
     - qwen2.5:14b-instruct
@@ -85,7 +85,7 @@ Configuration Options
 
 **llm_temperature**
     The temperature to use for the LLM when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`.  This is a value between 0
+    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is a value between 0
     and 1 that controls the randomness of the LLM's output.   We recommend setting
     this to 0.0 for deterministic output.
 
@@ -99,7 +99,7 @@ Configuration Options
 
 **llm_max_tokens**
     The maximum number of tokens to use for the LLM when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`.  This is the maximum number
+    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is the maximum number
     of tokens that we will allow the LLM to return.  Note that the maximum for this is
     is dependent on the model you are using.
 
@@ -113,7 +113,7 @@ Configuration Options
 
 **llm_timeout_s**
     The timeout in seconds to use for the LLM when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`.  This is the maximum amount
+    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is the maximum amount
     of time we will wait for the LLM to return a response.
 
     Default: ``120``
@@ -126,7 +126,7 @@ Configuration Options
 
 **openai_api_key**
     If you want to use an OpenAI model when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`, you need to set the API key
+    :class:`~wyrdcraeft.LLMDocumentIngestor`, you need to set the API key
     here.
 
     Example:
@@ -137,7 +137,7 @@ Configuration Options
 
 **gemini_api_key**
     If you want to use a Gemini model when using
-    :class:`~oe_json_extractor.LLMDocumentIngestor`, you need to set the API key
+    :class:`~wyrdcraeft.LLMDocumentIngestor`, you need to set the API key
     here.
 
     Example:
@@ -169,7 +169,7 @@ Configuration Options
 
     .. code-block:: toml
 
-        log_file = "/var/log/oe_json_extractor.log"
+        log_file = "/var/log/wyrdcraeft.log"
 
 **enable_colors**
     Whether to enable colors in the output.
@@ -227,17 +227,17 @@ You can set configuration using environment variables:
 Environment Variable Mapping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``OE_JSON_EXTRACTOR_LLM_MODEL_ID`` → ``llm_model_id``
-- ``OE_JSON_EXTRACTOR_LLM_TEMPERATURE`` → ``llm_temperature``
-- ``OE_JSON_EXTRACTOR_LLM_MAX_TOKENS`` → ``llm_max_tokens``
-- ``OE_JSON_EXTRACTOR_LLM_TIMEOUT_S`` → ``llm_timeout_s``
-- ``OE_JSON_EXTRACTOR_OPENAI_API_KEY`` → ``openai_api_key``
-- ``OE_JSON_EXTRACTOR_GEMINI_API_KEY`` → ``gemini_api_key``
-- ``OE_JSON_EXTRACTOR_LOG_LEVEL`` → ``log_level``
-- ``OE_JSON_EXTRACTOR_LOG_FILE`` → ``log_file``
-- ``OE_JSON_EXTRACTOR_ENABLE_COLORS`` → ``enable_colors``
-- ``OE_JSON_EXTRACTOR_QUIET_MODE`` → ``quiet_mode``
-- ``OE_JSON_EXTRACTOR_DEFAULT_OUTPUT_FORMAT`` → ``default_output_format``
+- ``WYRDCRAEFT_LLM_MODEL_ID`` → ``llm_model_id``
+- ``WYRDCRAEFT_LLM_TEMPERATURE`` → ``llm_temperature``
+- ``WYRDCRAEFT_LLM_MAX_TOKENS`` → ``llm_max_tokens``
+- ``WYRDCRAEFT_LLM_TIMEOUT_S`` → ``llm_timeout_s``
+- ``WYRDCRAEFT_OPENAI_API_KEY`` → ``openai_api_key``
+- ``WYRDCRAEFT_GEMINI_API_KEY`` → ``gemini_api_key``
+- ``WYRDCRAEFT_LOG_LEVEL`` → ``log_level``
+- ``WYRDCRAEFT_LOG_FILE`` → ``log_file``
+- ``WYRDCRAEFT_ENABLE_COLORS`` → ``enable_colors``
+- ``WYRDCRAEFT_QUIET_MODE`` → ``quiet_mode``
+- ``WYRDCRAEFT_DEFAULT_OUTPUT_FORMAT`` → ``default_output_format``
 
 Command-Line Options
 --------------------
@@ -271,7 +271,7 @@ Option Reference for all commands
 
     .. code-block:: bash
 
-        oe_json_extractor --verbose convert /path/to/source.txt /path/to/output.json
+        wyrdcraeft --verbose convert /path/to/source.txt /path/to/output.json
 
 
 **--quiet**
@@ -281,7 +281,7 @@ Option Reference for all commands
 
     .. code-block:: bash
 
-        oe_json_extractor --quiet convert /path/to/source.txt /path/to/output.json
+        wyrdcraeft --quiet convert /path/to/source.txt /path/to/output.json
 
 **--output**
     Choose output format: ``json`` or ``table``.
@@ -291,7 +291,7 @@ Option Reference for all commands
     Example:
     .. code-block:: bash
 
-        oe_json_extractor --output json settings show
+        wyrdcraeft --output json settings show
 
 **--config-file**
     Specify a custom configuration file to use.
@@ -299,7 +299,7 @@ Option Reference for all commands
     Example:
     .. code-block:: bash
 
-        oe_json_extractor --config-file /path/to/config.toml settings show
+        wyrdcraeft --config-file /path/to/config.toml settings show
 
 Configuration Examples
 ----------------------
@@ -309,8 +309,8 @@ Basic Setup
 
 .. code-block:: toml
 
-    # ~/.directory-api-client.conf
-    [oe_json_extractor]
+    # ~/.wyrdcraeft.conf
+    [wyrdcraeft]
     llm_model_id = "qwen2.5:14b-instruct"
     llm_temperature = 0.0
     llm_max_tokens = 4096
@@ -318,7 +318,7 @@ Basic Setup
     openai_api_key = "sk-proj-1234567890"
     gemini_api_key = "gcp-api-key-1234567890"
     log_level = "INFO"
-    log_file = "/var/log/oe_json_extractor.log"
+    log_file = "/var/log/wyrdcraeft.log"
     default_output_format = "json"
     enable_colors = true
     quiet_mode = false
@@ -327,17 +327,17 @@ Or use command-line options:
 
 .. code-block:: bash
 
-    $ export OE_JSON_EXTRACTOR_LLM_MODEL_ID="qwen2.5:14b-instruct"
-    $ export OE_JSON_EXTRACTOR_LLM_TEMPERATURE=0.0
-    $ export OE_JSON_EXTRACTOR_LLM_MAX_TOKENS=4096
-    $ export OE_JSON_EXTRACTOR_LLM_TIMEOUT_S=120
-    $ export OE_JSON_EXTRACTOR_OPENAI_API_KEY="sk-proj-1234567890"
-    $ export OE_JSON_EXTRACTOR_GEMINI_API_KEY="gcp-api-key-1234567890"
-    $ export OE_JSON_EXTRACTOR_LOG_LEVEL="INFO"
-    $ export OE_JSON_EXTRACTOR_LOG_FILE="/var/log/oe_json_extractor.log"
-    $ directory-api-client convert /path/to/source.txt /path/to/output.json
-    $ oe_json_extractor settings show
-    $ oe_json_extractor settings create
+    $ export WYRDCRAEFT_LLM_MODEL_ID="qwen2.5:14b-instruct"
+    $ export WYRDCRAEFT_LLM_TEMPERATURE=0.0
+    $ export WYRDCRAEFT_LLM_MAX_TOKENS=4096
+    $ export WYRDCRAEFT_LLM_TIMEOUT_S=120
+    $ export WYRDCRAEFT_OPENAI_API_KEY="sk-proj-1234567890"
+    $ export WYRDCRAEFT_GEMINI_API_KEY="gcp-api-key-1234567890"
+    $ export WYRDCRAEFT_LOG_LEVEL="INFO"
+    $ export WYRDCRAEFT_LOG_FILE="/var/log/wyrdcraeft.log"
+    $ wyrdcraeft convert /path/to/source.txt /path/to/output.json
+    $ wyrdcraeft settings show
+    $ wyrdcraeft settings create
 
 Security Considerations
 -----------------------
@@ -350,11 +350,11 @@ Protect your configuration files:
 .. code-block:: bash
 
     # Set proper permissions
-    chmod 600 ~/.oe_json_extractor.conf
+    chmod 600 ~/.wyrdcraeft.conf
 
     # For system-wide configuration
-    chmod 640 /etc/oe_json_extractor.conf
-    chown root:root /etc/oe_json_extractor.conf
+    chmod 640 /etc/wyrdcraeft.conf
+    chown root:root /etc/wyrdcraeft.conf
 
 Environment Variable Security
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -364,12 +364,12 @@ Secure environment variable usage:
 .. code-block:: bash
 
     # Set variables for current session only
-    export OE_JSON_EXTRACTOR_OPENAI_API_KEY="sk-proj-1234567890"
-    export OE_JSON_EXTRACTOR_GEMINI_API_KEY="gcp-api-key-1234567890"
+    export WYRDCRAEFT_OPENAI_API_KEY="sk-proj-1234567890"
+    export WYRDCRAEFT_GEMINI_API_KEY="gcp-api-key-1234567890"
 
     # Clear sensitive variables when done
-    unset OE_JSON_EXTRACTOR_OPENAI_API_KEY
-    unset OE_JSON_EXTRACTOR_GEMINI_API_KEY
+    unset WYRDCRAEFT_OPENAI_API_KEY
+    unset WYRDCRAEFT_GEMINI_API_KEY
 
 Troubleshooting Configuration
 -----------------------------
@@ -382,7 +382,7 @@ Check which configuration is being used:
 .. code-block:: bash
 
     # Display configuration
-    oe_json_extractor settings show
+    wyrdcraeft settings show
 
 
 Common Issues
@@ -401,7 +401,7 @@ Common Issues
 
 **Environment Variables Not Recognized**
 
-    - Check variable names (must start with ``OE_JSON_EXTRACTOR_``)
+    - Check variable names (must start with ``WYRDCRAEFT_``)
     - Restart terminal session
     - Verify variable values
 
@@ -464,7 +464,7 @@ Configuration Management
 
 1. **Use configuration files for defaults**
 
-   - Set common settings in ``~/.oe_json_extractor.conf``
+   - Set common settings in ``~/.wyrdcraeft.conf``
    - Use environment variables for overrides
    - Use command-line options for one-time changes
 

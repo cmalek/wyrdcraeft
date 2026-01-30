@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from oe_json_extractor.exc import ConfigurationError
+from wyrdcraeft.exc import ConfigurationError
 
 
 @dataclass(frozen=True)
@@ -26,7 +26,7 @@ class AnyLLMConfig:
         Get the API key for the LLM provider.
         """
         # Avoid circular import
-        from oe_json_extractor.settings import Settings  # noqa: PLC0415
+        from wyrdcraeft.settings import Settings  # noqa: PLC0415
 
         if self.provider == "openai":
             if Settings().openai_api_key is None:

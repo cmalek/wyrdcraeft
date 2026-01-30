@@ -1,5 +1,5 @@
 =================
-oe_json_extractor
+wyrdcraeft
 =================
 
 .. toctree::
@@ -41,14 +41,14 @@ oe_json_extractor
 
 Current version is |release|.
 
-``oe_json_extractor`` is a Python command-line tool for converting Old English
+``wyrdcraeft`` is a Python command-line tool for converting Old English
 texts into a standard JSON format that can be used for programmatic analysis and
 manipulation.
 
 Core Features
 -------------
 
-oe_json_extractor provides the following key features:
+wyrdcraeft provides the following key features:
 
 - Ingesting Old English texts from a variety of sources: text files, PDF files, and TEI XML files.
 - Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
@@ -57,7 +57,7 @@ oe_json_extractor provides the following key features:
 Getting Started
 ---------------
 
-To get started with oe_json_extractor:
+To get started with wyrdcraeft:
 
 1. **Installation**: Follow the :doc:`/overview/installation` guide
 2. **Quick Start**: See the :doc:`/overview/quickstart` guide for basic usage

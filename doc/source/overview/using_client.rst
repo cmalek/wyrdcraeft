@@ -1,16 +1,16 @@
 Configuration: Python Client
 ============================
 
-This guide covers all configuration options for the ``oe_json_extractor`` Python client.
+This guide covers all configuration options for the ``wyrdcraeft`` Python client.
 
 Direct Configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-Configure the client directly in Python (this will use the :class:`~oe_json_extractor.HeuristicDocumentIngestor` class):
+Configure the client directly in Python (this will use the :class:`~wyrdcraeft.HeuristicDocumentIngestor` class):
 
 .. code-block:: python
 
-    from oe_json_extractor import DocumentIngestor
+    from wyrdcraeft import DocumentIngestor
 
     metadata = TextMetadata(
         title="The Anglo-Saxon Chronicle",
@@ -25,11 +25,11 @@ Configure the client directly in Python (this will use the :class:`~oe_json_extr
 Advanced Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Convert a `TEI <https://tei-c.org/>`_ XML document (this will use the :class:`~oe_json_extractor.TEIDocumentIngestor` class):
+Convert a `TEI <https://tei-c.org/>`_ XML document (this will use the :class:`~wyrdcraeft.TEIDocumentIngestor` class):
 
 .. code-block:: python
 
-    from oe_json_extractor import DocumentIngestor
+    from wyrdcraeft import DocumentIngestor
 
     metadata = TextMetadata(
         title="Aelfric's Lives of Saints",
@@ -40,11 +40,11 @@ Convert a `TEI <https://tei-c.org/>`_ XML document (this will use the :class:`~o
         metadata=metadata,
     )
 
-Use `unstructured <https://unstructured.io/>`_ and `any-llm <https://any-llm.readthedocs.io/>`_ to convert a document (this will use the :class:`~oe_json_extractor.LLMDocumentIngestor` class):
+Use `unstructured <https://unstructured.io/>`_ and `any-llm <https://any-llm.readthedocs.io/>`_ to convert a document (this will use the :class:`~wyrdcraeft.LLMDocumentIngestor` class):
 
 .. code-block:: python
 
-    from oe_json_extractor import DocumentIngestor
+    from wyrdcraeft import DocumentIngestor
 
     metadata = TextMetadata(
         title="The Anglo-Saxon Chronicle",
@@ -78,4 +78,4 @@ Common Issues
     - If you are using a local model, ensure that `Ollama <https://ollama.com/>`_ is running and that the model is available.
 
 **LLM parsing problem**
-    If you look at the output of the LLM, you will see a JSON object.  If you don't see what you expect inside the JSON object, it is likely that the LLM did not parse the document correctly.  You can try to parse the document deterministically by not supplying a ``llm_config`` and ``use_llm=True`` to the :class:`~oe_json_extractor.DocumentIngestor`.
+    If you look at the output of the LLM, you will see a JSON object.  If you don't see what you expect inside the JSON object, it is likely that the LLM did not parse the document correctly.  You can try to parse the document deterministically by not supplying a ``llm_config`` and ``use_llm=True`` to the :class:`~wyrdcraeft.DocumentIngestor`.

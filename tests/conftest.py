@@ -38,7 +38,7 @@ def mock_settings():
     """Create a mock settings object for testing."""
     mock = Mock()
     mock.model_dump.return_value = {
-        "app_name": "oe_json_extractor",
+        "app_name": "wyrdcraeft",
         "app_version": "0.1.0",
         "default_output_format": "table",
         "enable_colors": True,
@@ -74,7 +74,10 @@ def cli_context(mock_settings, mock_console):
 def pytest_addoption(parser):
     """Add custom command line options to pytest."""
     parser.addoption(
-        "--run-llm", action="store_true", default=False, help="run tests that require LLM"
+        "--run-llm",
+        action="store_true",
+        default=False,
+        help="run tests that require LLM",
     )
 
 

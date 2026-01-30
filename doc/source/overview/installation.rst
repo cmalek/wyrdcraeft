@@ -1,12 +1,12 @@
 Installation
 ============
 
-This guide covers how to install the ``oe_json_extractor`` package and its dependencies.
+This guide covers how to install the ``wyrdcraeft`` package and its dependencies.
 
 Prerequisites
 -------------
 
-Before installing ``oe_json_extractor``, ensure you have:
+Before installing ``wyrdcraeft``, ensure you have:
 
 - Python 3.9 - 3.13 (we're waiting for a dependency to be updated to 3.14)
 - `uv <https://docs.astral.sh/uv/>`_, `pip <https://pip.pypa.io/en/stable/>`_, or `pipx <https://pipx.pypa.io/stable/>`_
@@ -19,8 +19,8 @@ From PyPI with ``pip``
 
 .. code-block:: bash
 
-    pip install oe_json_extractor
-    oe_json_extractor --help
+    pip install wyrdcraeft
+    wyrdcraeft --help
 
 
 From PyPI with ``uv``
@@ -29,18 +29,18 @@ From PyPI with ``uv``
 .. code-block:: bash
 
     sh -c "$(curl -fsSL https://astral.sh/uv/install)"
-    uv tool install oe_json_extractor
+    uv tool install wyrdcraeft
     # Ensure you have ./local/bin in your PATH, since that's where uv puts the
     # executable
-    oe_json_extractor --help
+    wyrdcraeft --help
 
 From PyPI with ``pipx``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-    pipx install oe_json_extractor
-    oe_json_extractor --help
+    pipx install wyrdcraeft
+    wyrdcraeft --help
 
 
 From Source
@@ -50,9 +50,9 @@ If you want to install from the latest development version:
 
 .. code-block:: bash
 
-    git clone https://github.com/cmalek/oe_json_extractor.git
+    git clone https://github.com/cmalek/wyrdcraeft.git
     sh -c "$(curl -fsSL https://astral.sh/uv/install)"
-    cd oe_json_extractor
+    cd wyrdcraeft
     uv tool install .
 
 Verification
@@ -64,14 +64,14 @@ If you've installed the package globally, you should be able to run the CLI:
 
 .. code-block:: bash
 
-    oe_json_extractor --help
+    wyrdcraeft --help
 
 If you've installed the package locally, you should be able to run the CLI like this:
 
 .. code-block:: bash
 
     source .venv/bin/activate
-    oe_json_extractor --help
+    wyrdcraeft --help
 
 Dependencies
 ------------
@@ -89,24 +89,24 @@ Dependencies
 - **acdh-tei-pyutils**: ACDH TEI Python utilities for TEI XML parsing
 - **pdfminer-six**: PDFMiner for PDF parsing
 
-These dependencies are automatically installed when you install ``oe_json_extractor``.
+These dependencies are automatically installed when you install ``wyrdcraeft``.
 
 Development Installation
 ------------------------
 
-If you plan to contribute to ``oe_json_extractor`` or need the latest development features:
+If you plan to contribute to ``wyrdcraeft`` or need the latest development features:
 
 .. code-block:: bash
 
     sh -c "$(curl -fsSL https://astral.sh/uv/install)"
-    git clone https://github.com/cmalek/oe_json_extractor.git
-    cd oe_json_extractor
+    git clone https://github.com/cmalek/wyrdcraeft.git
+    cd wyrdcraeft
     uv sync --dev
 
 Configuration
 -------------
 
-After installation, you may want to configure ``oe_json_extractor`` for your specific
+After installation, you may want to configure ``wyrdcraeft`` for your specific
 PVS6 device.  See :doc:`configuration_cli`  and :doc:`configuration_client` for
 detailed configuration options.
 

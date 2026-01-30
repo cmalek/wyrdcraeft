@@ -1,0 +1,35 @@
+{
+    "source": "ymbhumne@<B>ymb-humne.</B> v. ymb-hammen.@ymb-humne",
+    "result:": {
+        "display_form": "ymb-humne",
+        "normalized": "ymb-humne",
+        "search_form": "ymbhumne",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": null,
+        "senses": [],
+        "variants": [],
+        "derived_forms": [],
+        "similar_entries": [
+            "ymb-hammen"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": null,
+            "gender": null,
+            "noun_declension": null,
+            "noun_is_long_stem": null,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

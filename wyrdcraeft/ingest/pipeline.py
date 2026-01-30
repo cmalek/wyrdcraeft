@@ -384,7 +384,7 @@ class StructureParser:
     def parse(self, blocks: list[RawBlock]) -> PreParsedDocument:
         """
         Build provisional sections from raw blocks and return as
-        :class:`~oe_json_extractor.models.PreParsedDocument`.
+        :class:`~wyrdcraeft.models.PreParsedDocument`.
 
         Args:
             blocks: The blocks to pre-parse.
@@ -762,7 +762,7 @@ class HeuristicDocumentIngestor(BaseDocumentIngestor):
             kwargs: Additional keyword arguments (ignored).
 
         Returns:
-            A :class:`~oe_json_extractor.models.OldEnglishText` model.
+            A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         if progress_callback:
@@ -801,7 +801,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
             kwargs: Additional keyword arguments (ignored).
 
         Returns:
-            A :class:`~oe_json_extractor.models.OldEnglishText` model.
+            A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         if progress_callback:
@@ -933,7 +933,7 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             kwargs: Additional keyword arguments (ignored).
 
         Returns:
-            A :class:`~oe_json_extractor.models.OldEnglishText` model.
+            A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         if llm_config is None:
@@ -1136,7 +1136,7 @@ def ingest_auto(
         kwargs: Additional keyword arguments (ignored).
 
     Returns:
-        A :class:`~oe_json_extractor.models.OldEnglishText` model.
+        A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
     """
     return DocumentIngestor().ingest(

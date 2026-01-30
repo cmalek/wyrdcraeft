@@ -43,7 +43,7 @@ class BaseSourceLoader:
 
         Returns:
             A list of :class:`~unstructured.documents.elements.Element`
-            or an :class:`~oe_json_extractor.models.OldEnglishText` model.
+            or an :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         raise NotImplementedError
@@ -185,7 +185,7 @@ class TEISourceLoader(BaseSourceLoader):
             source: The source to load the document from.
 
         Returns:
-            An :class:`~oe_json_extractor.models.OldEnglishText` model.
+            An :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         source_path = Path(source)
@@ -204,7 +204,7 @@ class TEISourceLoader(BaseSourceLoader):
             tei_xml: The TEI XML to import.
 
         Returns:
-            An :class:`~oe_json_extractor.models.OldEnglishText` model.
+            An :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         tei_reader = TeiReader(tei_xml)
@@ -224,7 +224,7 @@ class TEISourceLoader(BaseSourceLoader):
             tei_reader: The TEI reader to extract metadata from.
 
         Returns:
-            A :class:`~oe_json_extractor.models.TextMetadata` model.
+            A :class:`~wyrdcraeft.models.TextMetadata` model.
 
         """
         title_els = tei_reader.any_xpath(".//tei:titleStmt/tei:title")
@@ -252,7 +252,7 @@ class TEISourceLoader(BaseSourceLoader):
             ns: The namespace to use.
 
         Returns:
-            A :class:`~oe_json_extractor.models.Section` model.
+            A :class:`~wyrdcraeft.models.Section` model.
 
         """
         body_els = doc.xpath("//tei:body", namespaces=ns)
@@ -272,7 +272,7 @@ class TEISourceLoader(BaseSourceLoader):
             ns: The namespace to use.
 
         Returns:
-            A :class:`~oe_json_extractor.models.Section` model.
+            A :class:`~wyrdcraeft.models.Section` model.
 
         """
         n_attr = section_node.attributes.get("n")
@@ -339,7 +339,7 @@ class TEISourceLoader(BaseSourceLoader):
             speaker: The speaker to use.
 
         Returns:
-            A :class:`~oe_json_extractor.models.Paragraph` model.
+            A :class:`~wyrdcraeft.models.Paragraph` model.
 
         """
         sents = []
@@ -398,7 +398,7 @@ class TEISourceLoader(BaseSourceLoader):
             speaker: The speaker to use.
 
         Returns:
-            A list of :class:`~oe_json_extractor.models.Line` models.
+            A list of :class:`~wyrdcraeft.models.Line` models.
 
         """
         lines = []
@@ -436,18 +436,18 @@ class SourceLoader:
         provided.
 
         - If the source is a URL, return an instance of
-          :class:`~oe_json_extractor.ingest.loaders.HTTPSourceLoader`.
+          :class:`~wyrdcraeft.ingest.loaders.HTTPSourceLoader`.
         - If the source is a local file, return an instance of
-          :class:`~oe_json_extractor.ingest.loaders.FileSourceLoader`.
+          :class:`~wyrdcraeft.ingest.loaders.FileSourceLoader`.
         - If the source is a TEI XML string, return an instance of
-          :class:`~oe_json_extractor.ingest.loaders.TEISourceLoader`.
+          :class:`~wyrdcraeft.ingest.loaders.TEISourceLoader`.
 
         Args:
             source: The source to load the document from.
 
         Returns:
             A subclass of
-            :class:`~oe_json_extractor.ingest.loaders.BaseSourceLoader`.
+            :class:`~wyrdcraeft.ingest.loaders.BaseSourceLoader`.
 
         """
         source_str = str(source)
@@ -471,7 +471,7 @@ class SourceLoader:
 
         Returns:
             A list of :class:`~unstructured.documents.elements.Element`
-            or an :class:`~oe_json_extractor.models.OldEnglishText` model.
+            or an :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         loader = self.get_loader(source)
