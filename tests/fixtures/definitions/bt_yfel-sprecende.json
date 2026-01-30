@@ -1,0 +1,53 @@
+{
+    "source": "wylinc@<B>wylinc,</B> Hpt. Gl. 419, 77. v. willung.@wylinc",
+    "result:": {
+        "display_form": "wylinc",
+        "normalized": "wylinc",
+        "search_form": "wylinc",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": null,
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": null,
+                "definition": null,
+                "latin_definition": null,
+                "usage_note": null,
+                "pos": null,
+                "examples": [
+                    {
+                        "old_english": null,
+                        "translation": null,
+                        "sources": [
+                            "Hpt. Gl. 419, 77"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [
+            "willung"
+        ],
+        "similar_entries": [],
+        "components": [],
+        "morphology": {
+            "primary_pos": "noun",
+            "gender": "m",
+            "noun_declension": null,
+            "is_long_stem": true,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

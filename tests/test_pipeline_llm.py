@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from oe_json_extractor.ingest.pipeline import LLMDocumentIngestor
-from oe_json_extractor.models import OldEnglishText, TextMetadata, Section
+from wyrdcraeft.ingest.pipeline import LLMDocumentIngestor
+from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
 
 
 class TestLLMDocumentIngestor:
@@ -24,9 +24,9 @@ class TestLLMDocumentIngestor:
             language="Old English",
         )
 
-    @patch("oe_json_extractor.ingest.pipeline.Path.read_text")
+    @patch("wyrdcraeft.ingest.pipeline.Path.read_text")
     def test_model_prompt(self, mock_read_text, ingestor):
-        from oe_json_extractor.models.llm import AnyLLMConfig
+        from wyrdcraeft.models.llm import AnyLLMConfig
 
         mock_read_text.return_value = "Model Prompt Content"
 
@@ -44,12 +44,12 @@ class TestLLMDocumentIngestor:
         ingestor.model_prompt(config, "prose")
         assert mock_read_text.called
 
-    @patch("oe_json_extractor.ingest.pipeline.Path.read_text")
+    @patch("wyrdcraeft.ingest.pipeline.Path.read_text")
     def test_general_prompt(self, mock_read_text, ingestor):
         mock_read_text.return_value = "General Prompt"
         assert ingestor.general_prompt() == "General Prompt"
 
-    @patch("oe_json_extractor.ingest.pipeline.Path.read_text")
+    @patch("wyrdcraeft.ingest.pipeline.Path.read_text")
     def test_mode_prompt(self, mock_read_text, ingestor):
         mock_read_text.return_value = "Mode Prompt"
         assert ingestor.mode_prompt("verse") == "Mode Prompt"
@@ -62,7 +62,7 @@ class TestLLMDocumentIngestor:
         mock_gen.return_value = "PART2"
         mock_mode.return_value = "PART3"
 
-        from oe_json_extractor.models.llm import AnyLLMConfig
+        from wyrdcraeft.models.llm import AnyLLMConfig
 
         config = AnyLLMConfig()
         prompt = ingestor._build_prompt(config, "prose")
@@ -71,7 +71,7 @@ class TestLLMDocumentIngestor:
         assert "PART2" in prompt
         assert "PART3" in prompt
 
-    @patch("oe_json_extractor.ingest.pipeline.LLMExtractor")
+    @patch("wyrdcraeft.ingest.pipeline.LLMExtractor")
     @patch.object(LLMDocumentIngestor, "_get_preparsed_doc")
     @patch.object(LLMDocumentIngestor, "_build_prompt")
     def test_ingest_llm(
@@ -84,7 +84,7 @@ class TestLLMDocumentIngestor:
         temp_dir,
     ):
         # Setup pre-parsed doc
-        from oe_json_extractor.models.parsing import (
+        from wyrdcraeft.models.parsing import (
             PreParsedDocument,
             ProvisionalSection,
             RawBlock,
@@ -124,7 +124,7 @@ class TestLLMDocumentIngestor:
         mock_extractor.extract.assert_called_once()
         assert result.metadata == mock_metadata
 
-    @patch("oe_json_extractor.ingest.pipeline.LLMExtractor")
+    @patch("wyrdcraeft.ingest.pipeline.LLMExtractor")
     @patch.object(LLMDocumentIngestor, "_get_preparsed_doc")
     @patch.object(LLMDocumentIngestor, "_build_prompt")
     def test_ingest_llm_with_speaker(
@@ -136,7 +136,7 @@ class TestLLMDocumentIngestor:
         mock_metadata,
         temp_dir,
     ):
-        from oe_json_extractor.models.parsing import (
+        from wyrdcraeft.models.parsing import (
             PreParsedDocument,
             ProvisionalSection,
             RawBlock,

@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 import pytest
-from oe_json_extractor.ingest.extractors import LLMExtractor
-from oe_json_extractor.models import AnyLLMConfig, TextMetadata
+from wyrdcraeft.ingest.extractors import LLMExtractor
+from wyrdcraeft.models import AnyLLMConfig, TextMetadata
 
 
 class TestLLMExtractor:
@@ -59,7 +59,7 @@ class TestLLMExtractor:
         ):
             extractor.parse(raw)
 
-    @patch("oe_json_extractor.ingest.extractors.completion")
+    @patch("wyrdcraeft.ingest.extractors.completion")
     def test_extract(self, mock_completion):
         mock_completion.return_value = json.dumps(
             {
@@ -87,7 +87,7 @@ class TestLLMExtractor:
         assert kwargs["model"] == extractor.config.model_id
         assert kwargs["provider"] == extractor.config.provider
 
-    @patch("oe_json_extractor.ingest.extractors.completion")
+    @patch("wyrdcraeft.ingest.extractors.completion")
     def test_extract_with_preamble(self, mock_completion):
         mock_completion.return_value = json.dumps(
             {

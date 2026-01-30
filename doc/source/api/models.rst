@@ -10,7 +10,7 @@ JSON Schema for Old English Texts
 
 The JSON schema for Old English texts is defined in the `models.py` file.
 
-.. autodoc_pydantic:: oe_json_extractor.models.schema
+.. autodoc_pydantic:: wyrdcraeft.models.schema
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,7 +20,7 @@ Parsing related models
 
 The parsing related models are defined in the `parsing.py` file.
 
-.. autodoc_pydantic:: oe_json_extractor.models.parsing
+.. autodoc_pydantic:: wyrdcraeft.models.parsing
     :members:
     :undoc-members:
     :show-inheritance:
@@ -30,7 +30,7 @@ LLM related models
 
 The LLM related models are defined in the `llm.py` file.
 
-.. autodoc_pydantic:: oe_json_extractor.models.llm
+.. autodoc_pydantic:: wyrdcraeft.models.llm
     :members:
     :undoc-members:
     :show-inheritance:

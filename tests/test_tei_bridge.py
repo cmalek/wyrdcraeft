@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from oe_json_extractor.ingest.exporters import TEIExporter
-from oe_json_extractor.ingest.loaders import TEISourceLoader
-from oe_json_extractor.models import (
+from wyrdcraeft.ingest.exporters import TEIExporter
+from wyrdcraeft.ingest.loaders import TEISourceLoader
+from wyrdcraeft.models import (
     Line,
     OldEnglishText,
     Paragraph,

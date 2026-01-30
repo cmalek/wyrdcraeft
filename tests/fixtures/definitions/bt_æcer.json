@@ -1,0 +1,115 @@
+{
+    "source": "aecer@<B>ÆCER,</B> æcyr, es; <I>m.</I> <B>I.</B> <I>a field, land, what is sown, sown land;</I> ager, seges :-- For ðam is se æcer gehāten Acheldemah <I>propter hoc vocatus est ager ille Haceldama,</I> Mt. Bos. 27, 8. Hēr ys seō bōt, hū ðū meaht ðīne æceras betan <I>here is the remedy, how thou mayest improve thy fields,</I> Lchdm. i. 398, 1. Of ðæm æcere <I>from the field,</I> Bt. Met. Fox 12, 3; Met. 12, 2. Æcera þūsend <I>a thousand fields,</I> 14, 10; Met. 14, 5. <B>II.</B> a definite quantity of land which, in <I>A. Sax.</I> times, a yoke of oxen could plough in a day, <I>an</I> ACRE, <I>that is</I> 4840 <I>square yards;</I> jugeri spatium, jugerum, a jugo quod tantum fere spatii uno jugo boum arari posset: <I>also</I> ager - <I>Ger.</I> acker <I>an acre</I> :-- ǣlce dæg ic sceal erian fulne æcer oððe māre <I>omni die debeo arare integrum jugerum</I> [MS. <I>agrum</I>]<I>aut plus,</I> Coll. Monast. Th. 19, 21. Ðæt is se teōða æcer, eal swā seō sulh hit gegā <I>that is the tenth acre, all as the plough goes over it,</I> L. C. E. 8; Th. i. 366, 6. Æceras <I>jugera,</I> Cot. 109. [<I>O. Sax.</I> akkar: <I>O. Frs.</I> ekker: <I>O. Ger.</I> ahhar: <I>N. Ger.</I> acker <I>a field, an acre: Goth.</I> akrs: <I>O. Nrs.</I> akr: <I>Lat.</I> ager: <I>Grk.</I> GREEK <I>Sansk.</I> ajra <I>a plain.</I>]@æcer",
+    "result:": {
+        "display_form": "æcer",
+        "normalized": "æcer",
+        "search_form": "aecer",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": {
+            "O. Sax": "akkar",
+            "O. Frs": "ekker",
+            "O. Ger": "ahhar",
+            "N. Ger": "acker a field, an acre",
+            "Goth": "akrs",
+            "O. Nrs": "akr",
+            "Lat": "ager",
+            "Grk": "ἀγρός",
+            "Sansk": "ajra a plain"
+        },
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": "I",
+                "definition": "a field, land, what is sown, sown land",
+                "latin_definition": "ager, seges",
+                "usage_note": null,
+                "pos": "noun",
+                "examples": [
+                    {
+                        "old_english": "For ðam is se æcer gehāten Acheldemah",
+                        "translation": "propter hoc vocatus est ager ille Haceldama",
+                        "sources": [
+                            "Mt. Bos. 27, 8"
+                        ]
+                    },
+                    {
+                        "old_english": "Hēr ys seō bōt, hū ðū meaht ðīne æceras betan",
+                        "translation": "here is the remedy, how thou mayest improve thy fields",
+                        "sources": [
+                            "Lchdm. i. 398, 1"
+                        ]
+                    },
+                    {
+                        "old_english": "Of ðæm æcere",
+                        "translation": "from the field",
+                        "sources": [
+                            "Bt. Met. Fox 12, 3",
+                            "Met. 12, 2"
+                        ]
+                    },
+                    {
+                        "old_english": "Æcera þūsend",
+                        "translation": "a thousand fields",
+                        "sources": [
+                            "Bt. Met. 14, 10"
+                        ]
+                    }
+                ]
+            },
+            {
+                "sense_order": 2,
+                "sense_name": "II",
+                "definition": "a definite quantity of land which, in A. Sax. times, a yoke of oxen could plough in a day, an acre, that is 4849 square yards",
+                "latin_definition": "jugeri spatium, jugerum, a jugo quod tantum fere spatii uno jugo boum arariposset: also ager - Ger. acker an acre",
+                "usage_note": null,
+                "pos": "noun",
+                "examples": [
+                    {
+                        "old_english": "ǣlce dæg ic sceal erian fulne æcer oððe māre",
+                        "translation": "omni die debeo arare integrum jugerum aut plus",
+                        "sources": [
+                            "Coll. Monast. Th. 19, 21"
+                        ]
+                    },
+                    {
+                        "old_english": "Ðæt is se teōða æcer, eal swā seō sulh hit gegā",
+                        "translation": "that is the tenth acre, all as the plough goes over it",
+                        "sources": [
+                            "L. C. E. 8 Th. i. 366, 6"
+                        ]
+                    },
+                    {
+                        "old_english": "Æceras jugera",
+                        "translation": "jugera",
+                        "sources": [
+                            "Cot. 109"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [
+            "æcyr",
+            "æceres"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": "noun",
+            "gender": "f",
+            "noun_declension": null,
+            "is_long_stem": false,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

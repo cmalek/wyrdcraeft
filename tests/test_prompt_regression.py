@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from oe_json_extractor.models import Section
+from wyrdcraeft.models import Section
 
 FIX = Path(__file__).parent / "fixtures"
 

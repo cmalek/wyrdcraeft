@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 import pytest
-from oe_json_extractor.ingest.pipeline import ingest_auto
-from oe_json_extractor.models import TextMetadata
+from wyrdcraeft.ingest.pipeline import ingest_auto
+from wyrdcraeft.models import TextMetadata
 
 FIX = Path(__file__).parent / "fixtures"
 

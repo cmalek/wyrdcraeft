@@ -1,4 +1,4 @@
-# oe-ingest
+# wyrdcraeft
 
 A pipeline to convert Old English source texts into a canonical JSON structure.
 

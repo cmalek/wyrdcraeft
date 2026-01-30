@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from oe_json_extractor.cli.cli import cli
+from wyrdcraeft.cli.cli import cli
 
 
 class TestCLIVersion:

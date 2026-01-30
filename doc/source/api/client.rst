@@ -6,9 +6,9 @@ Client API
 Entrypoint for ingesting documents
 ----------------------------------
 
-:class:`oe_json_extractor.DocumentIngestor` is the primary entrypoint for converting documents into the :class:`~oe_json_extractor.models.OldEnglishText` model, specifically in its :meth:`~oe_json_extractor.DocumentIngestor.ingest` method.  This is a factory class that will choose the appropriate converter based on the source type.
+:class:`wyrdcraeft.DocumentIngestor` is the primary entrypoint for converting documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.DocumentIngestor.ingest` method.  This is a factory class that will choose the appropriate converter based on the source type.
 
-.. autoclass:: oe_json_extractor.DocumentIngestor
+.. autoclass:: wyrdcraeft.DocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,9 +16,9 @@ Entrypoint for ingesting documents
 Heuristic Ingestor
 ^^^^^^^^^^^^^^^^^^
 
-:class:`oe_json_extractor.HeuristicDocumentIngestor` is a simple converter that will use deterministic heuristics to convert documents into the :class:`~oe_json_extractor.models.OldEnglishText` model, specifically in its :meth:`~oe_json_extractor.HeuristicDocumentIngestor.ingest` method.  This is a good choice for documents that are not well-structured or that are not well-suited for LLM-based ingestion.
+:class:`wyrdcraeft.HeuristicDocumentIngestor` is a simple converter that will use deterministic heuristics to convert documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.HeuristicDocumentIngestor.ingest` method.  This is a good choice for documents that are not well-structured or that are not well-suited for LLM-based ingestion.
 
-.. autoclass:: oe_json_extractor.HeuristicDocumentIngestor
+.. autoclass:: wyrdcraeft.HeuristicDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:
@@ -26,9 +26,9 @@ Heuristic Ingestor
 TEI Ingestor
 ^^^^^^^^^^^^
 
-:class:`oe_json_extractor.TEIDocumentIngestor` is an ingestor that will use the `TEI <https://tei-c.org/>`_ XML format to ingest documents.  This is a good choice for documents that are in the TEI XML format.  It will load the document from the source path and then use the TEI XML parser to parse the document, with minimal or no additional processing.
+:class:`wyrdcraeft.TEIDocumentIngestor` is an ingestor that will use the `TEI <https://tei-c.org/>`_ XML format to ingest documents.  This is a good choice for documents that are in the TEI XML format.  It will load the document from the source path and then use the TEI XML parser to parse the document, with minimal or no additional processing.
 
-.. autoclass:: oe_json_extractor.TEIDocumentIngestor
+.. autoclass:: wyrdcraeft.TEIDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:
@@ -36,10 +36,10 @@ TEI Ingestor
 LLM Ingestor
 ^^^^^^^^^^^^
 
-:class:`oe_json_extractor.LLMDocumentIngestor` is an ingestor that will use an LLM to ingest documents.  This is a a work in progress and is generally not a good choice for ingesting documents, because it still gets a lot of things wrong, especially verse.
+:class:`wyrdcraeft.LLMDocumentIngestor` is an ingestor that will use an LLM to ingest documents.  This is a a work in progress and is generally not a good choice for ingesting documents, because it still gets a lot of things wrong, especially verse.
 This is why it is not the default ingestor.
 
-.. autoclass:: oe_json_extractor.LLMDocumentIngestor
+.. autoclass:: wyrdcraeft.LLMDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:

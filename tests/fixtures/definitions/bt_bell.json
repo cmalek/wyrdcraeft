@@ -1,0 +1,74 @@
+{
+    "source": " bell@<B>BELL,</B>e; <I>f :</I> belle, an : <I>f. A</I> BELL; campana, tintinnabulum, cymbalum :-- Cyrice bell <I>the church-bell.</I> Hleōðor heora bellan <I>a sound of their bell,</I> Bd. 4, 23; S. 595, note 40. Belle <I>tintinnabulum,</I> Ælfc. Gr. 5; Som. 4, 39. Hēriaþ hine on bellum <I>laudate eum in cymbalis,</I> Ps. Lamb. 150, 5. Seō lytle belle <I>the little bell.</I> Seō mycele belle <I>the large bell;</I> campana, Lye. [<I>Plat. Dut.</I> belle, bel.] v, bellan.@bell",
+    "result:": {
+        "display_form": "bell",
+        "normalized": "bell",
+        "search_form": "bell",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": "Plat. Dut. belle, bel.",
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": null,
+                "definition": "a bell",
+                "latin_definition": "campana, tintinnabulum, cymbalum",
+                "usage_note": null,
+                "pos": "noun",
+                "examples": [
+                    {
+                        "old_english": "Cyrice bell <I>the church-bell.</I> Hlēoðor heora bellan",
+                        "translation": "a sound of their bell",
+                        "sources": [
+                            "Bd. 4, 23",
+                            "S. 595, note 40"
+                        ]
+                    },
+                    {
+                        "old_english": "Belle",
+                        "translation": "tintinnabulum",
+                        "sources": [
+                            "Ælfc. Gr. 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Hēriaþ hine on bellum",
+                        "translation": "laudate eum in cymbalis",
+                        "sources": [
+                            "Ps. Lamb. 150, 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Seō lytle belle <I>the little bell.</I> Seō mycele belle <I>the large bell;</I>",
+                        "translation": "campana",
+                        "sources": [
+                            "Lye."
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [
+            "belle",
+            "bellan"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": "noun",
+            "gender": "f",
+            "noun_declension": null,
+            "is_long_stem": true,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

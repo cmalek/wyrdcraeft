@@ -4,13 +4,13 @@ import json
 import os
 from pathlib import Path
 
-from oe_json_extractor.ingest.extractors.langextract_runner import (
+from wyrdcraeft.ingest.extractors.langextract_runner import (
     AnyLLMConfig,
     run_anyllm_to_canonical,
 )
-from oe_json_extractor.models import AnyLLMConfig
+from wyrdcraeft.models import AnyLLMConfig
 
-from oe_json_extractor.models import TextMetadata
+from wyrdcraeft.models import TextMetadata
 
 ROOT = Path(__file__).resolve().parents[1]
 FIX = ROOT / "tests" / "fixtures"

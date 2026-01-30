@@ -1,0 +1,170 @@
+{
+    "source": "wundorlice@<B>wundorlīce;</B> <I>adv. Wonderfully,</I> (1) with adjectives :-- Ðǣr wearð gegaderod wundorlīce micel folc, Homl. Skt. i. 23, 616. Hē hine gesette in wundorlīce micle cyrcean, Shrn. 121, 3. (2) with verbs :-- Wundurlīce <I>mirabiliter,</I> Ps. Surt. 75, 5. Wundorlīce <I>mire,</I> Hymn. Surt. 70, 5. Drihten hine swā wundorlīce of eallum his earfoþum gefriþode, Ps. Th. 32, arg.: Ex. 11, 7: Past. 54; Swt. 423, 4: Bt. 33, 4; Fox 130, 35: Met. 20, 162: 13, 5. Wunderlīce, Bt. 33, 4; Fox 128, 5. Hiē wundorlīce deāþ geþrowodan for Godes naman, Blickl. Homl. 171, 31. Wundurlīce heō hǣleþ, Lchdm. i. 194, 22. Wundorlīce, 220, 20. Hī wurdon wundorlīce āfirhte <I>timuerunt valde,</I> Gen. 20, 8. Ic ne fērde on mǣrðum ne wundorlīce mid getote be mē ne bodude <I>neque ambulavi in magnis, neque in mirabilibus super me,</I> R. Ben. 22, 17. Hē hine gescerpte wlitegum wǣdum wundorlīce, Met. 15, 3. In ðis tō uundranne l uundorlīce is <I>in hoc mirabile est,</I> Jn. Skt. Lind. 9, 30. And eāc ðæt wunderlīcor wæs, ðā ðā heora ān bodade mid ānre sprǣce, ǣlcum wæs geðūht swilce hē sprǣce mid his gereorde, Homl. Th. i. 318, 26. Se fugel wrixleþ wōðcræfte wundorlīcor ðonne ǣfre byre monnes hȳrde, Exon. Th. 206, 16; Ph. 127. [<I>O. H. Ger.</I> wuntarlīhho <I>mirabiliter.</I>]@wundorlice",
+    "result:": {
+        "display_form": "wundorlīce",
+        "normalized": "wundorlīce",
+        "search_form": "wundorlice",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": {
+            "O. H. Ger": "wuntarlīhho mirabiliter."
+        },
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": "1",
+                "definition": "Wonderfully",
+                "latin_definition": null,
+                "usage_note": "with adjective",
+                "pos": "adverb",
+                "examples": [
+                    {
+                        "old_english": "Ðǣr wearð gegaderod wundorlīce micel folc",
+                        "translation": null,
+                        "sources": [
+                            "Homl. Skt. i. 23, 616"
+                        ]
+                    },
+                    {
+                        "old_english": "Hē hine gesette in wundorlīce micle cyrcean",
+                        "translation": null,
+                        "sources": [
+                            "Shrn. 121, 3"
+                        ]
+                    }
+                ]
+            },
+            {
+                "sense_order": 2,
+                "sense_name": "2",
+                "definition": "Wonderfully",
+                "latin_definition": null,
+                "usage_note": "with verbs",
+                "pos": "adverb",
+                "examples": [
+                    {
+                        "old_english": "Wundurlīce",
+                        "translation": "mirabiliter",
+                        "sources": [
+                            "Ps. Surt. 75, 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Wundorlīce",
+                        "translation": "mire",
+                        "sources": [
+                            "Hymn. Surt. 70, 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Drihten hine swā wundorlīce of eallum his earfoþum gefriþode",
+                        "translation": null,
+                        "sources": [
+                            "Ps. Th. 32, arg.",
+                            "Ex. 11, 7",
+                            "Past. 54",
+                            "Swt. 423, 4",
+                            "Bt. 33, 4",
+                            "Fox 130, 35",
+                            "Met. 20, 162",
+                            "13, 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Wunderlīce",
+                        "translation": null,
+                        "sources": [
+                            "Bt. 33, 4",
+                            "Fox 128, 5"
+                        ]
+                    },
+                    {
+                        "old_english": "Hiē wundorlīce deāþ geþrowodan for Godes naman",
+                        "translation": null,
+                        "sources": [
+                            "Blickl. Homl. 171, 31"
+                        ]
+                    },
+                    {
+                        "old_english": "Wundurlīce heō hǣleþ",
+                        "translation": null,
+                        "sources": [
+                            "Lchdm. i. 194, 22"
+                        ]
+                    },
+                    {
+                        "old_english": "Wundorlīce",
+                        "translation": null,
+                        "sources": [
+                            "220, 20"
+                        ]
+                    },
+                    {
+                        "old_english": "Hī wurdon wundorlīce āfirhte",
+                        "translation": "timuerunt valde",
+                        "sources": [
+                            "Gen. 20, 8"
+                        ]
+                    },
+                    {
+                        "old_english": "Ic ne fērde on mǣrðum ne wundorlīce mid getote be mē ne bodude",
+                        "translation": "neque ambulavi in magnis, neque in mirabilibus super me",
+                        "sources": [
+                            "R. Ben. 22, 17"
+                        ]
+                    },
+                    {
+                        "old_english": "Hē hine gescerpte wlitegum wǣdum wundorlīce",
+                        "translation": null,
+                        "sources": [
+                            "Met. 15, 3"
+                        ]
+                    },
+                    {
+                        "old_english": "In ðis tō uundranne l uundorlīce is",
+                        "translation": "in hoc mirabile est",
+                        "sources": [
+                            "Jn. Skt. Lind. 9, 30"
+                        ]
+                    },
+                    {
+                        "old_english": "And eāc ðæt wunderlīcor wæs, ðā ðā heora ān bodade mid ānre sprǣce, ǣlcum wæs geðūht swilce hē sprǣce mid his gereorde",
+                        "translation": null,
+                        "sources": [
+                            "Homl. Th. i. 318, 26"
+                        ]
+                    },
+                    {
+                        "old_english": "Se fugel wrixleþ wōðcræfte wundorlīcor ðonne ǣfre byre monnes hȳrde",
+                        "translation": null,
+                        "sources": [
+                            "Exon. Th. 206, 16",
+                            "Ph. 127"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [],
+        "similar_entries": [],
+        "components": [],
+        "morphology": {
+            "primary_pos": "adverb",
+            "gender": null,
+            "noun_declension": null,
+            "is_long_stem": null,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

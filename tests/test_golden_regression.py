@@ -6,12 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from oe_json_extractor.ingest.extractors import (
+from wyrdcraeft.ingest.extractors import (
     AnyLLMConfig,
     LLMExtractor,
 )
-from oe_json_extractor.ingest.pipeline import LLMDocumentIngestor
-from oe_json_extractor.models import OldEnglishText, TextMetadata, Section
+from wyrdcraeft.ingest.pipeline import LLMDocumentIngestor
+from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
 
 FIX = Path(__file__).parent / "fixtures"
 

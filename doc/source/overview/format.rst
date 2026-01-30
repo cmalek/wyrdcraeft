@@ -169,13 +169,13 @@ To implement this in Python (>3.9<=3.13) and ensure our JSON structure is valid,
 A few notes on these models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- We use :attr:`~oe_json_extractor.models.schema.Section.sections` to allow recursive nesting of sections.  For example, a Section of type "Book I" could have ``sections=[ …chapters…]``. Pydantic's forward reference handling is set up so that it knows sections contains Section items.
+- We use :attr:`~wyrdcraeft.models.schema.Section.sections` to allow recursive nesting of sections.  For example, a Section of type "Book I" could have ``sections=[ …chapters…]``. Pydantic's forward reference handling is set up so that it knows sections contains Section items.
 
-- A :class:`~oe_json_extractor.models.schema.Section` can have either paragraphs or lines or even both. We can mix prose and verse in one section. The model does not enforce an XOR, but logically when populating it we will choose the appropriate field. If a section has both, it's interpreted that the section has some prose paragraphs and some lines of verse (as we illustrated).
+- A :class:`~wyrdcraeft.models.schema.Section` can have either paragraphs or lines or even both. We can mix prose and verse in one section. The model does not enforce an XOR, but logically when populating it we will choose the appropriate field. If a section has both, it's interpreted that the section has some prose paragraphs and some lines of verse (as we illustrated).
 
-- The :class:`~oe_json_extractor.models.schema.Paragraph` model includes an optional speaker. If present, this paragraph represents dialogue spoken by that person. In a non-dialogue context, speaker stays None.
-- :class:`~oe_json_extractor.models.schema.Sentence` and :class:`~oe_json_extractor.models.schema.Line` both carry an optional :attr:`~oe_json_extractor.models.schema.Sentence.source_page` and :attr:`~oe_json_extractor.models.schema.Line.source_page` for granular traceability.
-- :class:`~oe_json_extractor.models.schema.OldEnglishText` is the top-level model combining metadata and the content tree.
+- The :class:`~wyrdcraeft.models.schema.Paragraph` model includes an optional speaker. If present, this paragraph represents dialogue spoken by that person. In a non-dialogue context, speaker stays None.
+- :class:`~wyrdcraeft.models.schema.Sentence` and :class:`~wyrdcraeft.models.schema.Line` both carry an optional :attr:`~wyrdcraeft.models.schema.Sentence.source_page` and :attr:`~wyrdcraeft.models.schema.Line.source_page` for granular traceability.
+- :class:`~wyrdcraeft.models.schema.OldEnglishText` is the top-level model combining metadata and the content tree.
 
 These models allow us to ingest source data by populating them (e.g., parse a
 document into these structures) and then easily emit JSON via Pydantic's

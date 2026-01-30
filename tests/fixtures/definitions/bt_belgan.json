@@ -1,0 +1,91 @@
+{
+    "source": "belgan@<B>BELGAN,</B> ic belge, ðu bilgst, bilhst, he bilgþ, bilhþ, bylgþ, <I>pl.</I> belgaþ; <I>p.</I> ic, he bealg, bealh, ðū bulge, <I>pl.</I> bulgon; <I>pp.</I> bolgen. <B>I.</B> <I>v. reflex. acc. To cause oneself to swell with anger, to make oneself angry, irritate oneself, enrage oneself;</I> ira se tumefacere, se irritare, se exasperare :-- Nelle ðū on ēcnesse ðē āwa belgan <I>non in æternum indignaberis,</I> Ps. Th. 102, 9. Ic bidde ðæt ðū ðē ne belge wið me <I>ne, quæso, indigneris,</I> Gen. 18, 30. Bealg hine swīðe folc-āgende <I>the people's lord irritated himself greatly,</I> Exon. 68 a ; Th. 253, 25; Jul. 185. <B>II.</B> <I>intrans. To swell with anger, to be angry, to be enraged;</I> ira tumere, indignari, irasci :-- Ge belgaþ wið me <I>mihi indignamini,</I> Jn. Bos. 7, 23. [<I>O. Sax.</I> belgan, <I>v. reflex; p.</I> balg; <I>pp.</I> bolgan <I>irasci, indignari : N. H. Ger.</I> balgen <I>pugnis certare : O. H. Ger.</I> belgan <I>tumere, irasci.</I>] DER. a-belgan, ge-, bolgen-mōd.@belgan",
+    "result:": {
+        "display_form": "belgan",
+        "normalized": "belgan",
+        "search_form": "belgan",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": {
+            "O. Sax": "belgan, v. reflex; p. balg; pp. bolgan irasci, indignari",
+            "N. H. Ger": "balgen, pugnis, certare",
+            "O. H. Ger": "belgan, tumere, irasci"
+        },
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": "I",
+                "definition": "To cause oneself to swell with anger, to make oneself angry, irritate oneself, enrage oneself",
+                "latin_definition": "ira se tumefacere, se irritare, se exasperare",
+                "usage_note": "reflex. acc.",
+                "pos": "verb",
+                "examples": [
+                    {
+                        "old_english": "Nelle ðū on ēcnesse ðē āwa belgan",
+                        "translation": "non in æternum indignaberis",
+                        "sources": [
+                            "Ps. Th. 102, 9"
+                        ]
+                    },
+                    {
+                        "old_english": "Ic bidde ðæt ðū ðē ne belge wið me",
+                        "translation": "ne, quæso, indigneris",
+                        "sources": [
+                            "Gen. 18, 30"
+                        ]
+                    },
+                    {
+                        "old_english": "Bealg hine swīðe folc-āgende",
+                        "translation": "the people's lord irritated himself greatly",
+                        "sources": [
+                            "Exon. 68 a",
+                            "Th. 253, 25",
+                            "Jul. 185"
+                        ]
+                    }
+                ]
+            },
+            {
+                "sense_order": 2,
+                "sense_name": "II",
+                "definition": "To swell with anger, to be angry, to be enraged",
+                "latin_definition": "ira tumere, indignari, irasci",
+                "usage_note": "intrans.",
+                "pos": "verb",
+                "examples": [
+                    {
+                        "old_english": "Ge belgaþ wið me",
+                        "translation": "mihi indignamini",
+                        "sources": [
+                            "Jn. Bos. 7, 23"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [
+            "a-belgan",
+            "ge-",
+            "bolgen-mōd"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": "verb",
+            "gender": null,
+            "noun_declension": null,
+            "noun_is_long_stem": null,
+            "verb_class": null,
+            "present_i_1_sg": ["belge"],
+            "present_i_2_sg": ["bilgst", "bilhst"],
+            "present_i_3_sg": ["bilgþ", "bilhþ"],
+            "present_i_pl": ["belgaþ"],
+            "past_i_1_sg": ["bealg", "bealh"],
+            "past_i_2_sg": ["bulge"],
+            "past_i_3_sg": [],
+            "past_i_pl": ["bolgon"],
+            "present_participle": [],
+            "past_participle": ["bolgen"]
+        }
+    }
+}

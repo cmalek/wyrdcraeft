@@ -4,14 +4,14 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 import pytest
-from oe_json_extractor.settings import Settings
-from oe_json_extractor.models.llm import AnyLLMConfig
+from wyrdcraeft.settings import Settings
+from wyrdcraeft.models.llm import AnyLLMConfig
 
 
 class TestSettings:
     def test_default_settings(self):
         settings = Settings()
-        assert settings.app_name == "oe_json_extractor"
+        assert settings.app_name == "wyrdcraeft"
         assert settings.llm_provider == "ollama"
         assert settings.llm_model_id == "qwen2.5:14b-instruct"
         assert settings.llm_timeout_s == 120
@@ -59,19 +59,19 @@ class TestSettings:
             settings.validate_settings()
 
     def test_env_override(self):
-        os.environ["OE_JSON_EXTRACTOR_LLM_PROVIDER"] = "gemini"
+        os.environ["wyrdcraeft_LLM_PROVIDER"] = "gemini"
         try:
             settings = Settings()
             assert settings.llm_provider == "gemini"
         finally:
-            del os.environ["OE_JSON_EXTRACTOR_LLM_PROVIDER"]
+            del os.environ["wyrdcraeft_LLM_PROVIDER"]
 
     def test_get_config_paths(self, tmp_path):
         with patch("pathlib.Path.cwd", return_value=tmp_path):
             with patch("pathlib.Path.home", return_value=tmp_path / "home"):
-                local_config = tmp_path / ".oe_json_extractor.toml"
+                local_config = tmp_path / ".wyrdcraeft.toml"
                 local_config.touch()
 
                 settings = Settings()
                 paths = settings.get_config_paths()
-                assert any(p.name == ".oe_json_extractor.toml" for p in paths)
+                assert any(p.name == ".wyrdcraeft.toml" for p in paths)

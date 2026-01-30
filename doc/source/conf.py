@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent.absolute()))
 # the master toctree document
 master_doc = "index"
 
-project = "oe_json_extractor"
+project = "wyrdcraeft"
 copyright = "Chris Malek"  # noqa: A001
 author = "Chris Malek"
 

@@ -1,0 +1,55 @@
+{
+    "source": "yfelwyrde@<B>yfel-wyrde</B>; <I>adj. Given to use bad</I> or <I>abusive language</I> :-- Gif mon bið ācenned on Frīgedæg . . . hē yfele cræftas leornað, and he æfre bið yfelwyrde, E. S. 39, 354. [Cf. <I>Icel.</I> īll-oðr <I>abusive</I>.]@yfel-wyrde",
+    "result:": {
+        "display_form": "yfel-wyrde",
+        "normalized": "yfel-wyrde",
+        "search_form": "yfelwyrde",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": {
+            "Cf. Icel": "īll-oðr abusive"
+        },
+        "senses": [
+            {
+                "sense_order": 1,
+                "sense_name": null,
+                "definition": "Given to use bad or abusive language",
+                "latin_definition": null,
+                "usage_note": null,
+                "pos": "adjective",
+                "examples": [
+                    {
+                        "old_english": "Gif mon bið ācenned on Frīgedæg . . . hē yfele cræftas leornað, and he æfre bið yfelwyrde",
+                        "translation": null,
+                        "sources": [
+                            "E. S. 39, 354"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [],
+        "similar_entries": [
+            "ymb-hammen"
+        ],
+        "components": [],
+        "morphology": {
+            "primary_pos": "adjective",
+            "gender": null,
+            "noun_declension": null,
+            "is_long_stem": true,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}

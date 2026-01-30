@@ -6,10 +6,10 @@ This section answers common questions about tfmate and provides solutions to fre
 General Questions
 -----------------
 
-What is oe_json_extractor?
+What is wyrdcraeft?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-oe_json_extractor is a Python command-line tool designed to convert Old English (Anglo-Saxon) texts into a standard JSON format. It provides capabilities for:
+wyrdcraeft is a Python command-line tool designed to convert Old English (Anglo-Saxon) texts into a standard JSON format. It provides capabilities for:
 
 - Ingesting Old English texts from a variety of sources: text files, PDF files, and TEI XML files.
 - Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
@@ -18,14 +18,14 @@ oe_json_extractor is a Python command-line tool designed to convert Old English 
 Installation Issues
 -------------------
 
-How do I install oe_json_extractor?
+How do I install wyrdcraeft?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See the :doc:`installation` guide for detailed installation instructions. The recommended methods are:
 
-- Using ``uv tool``: ``uv tool install oe_json_extractor``
-- Using ``pipx``: ``pipx install oe_json_extractor``
-- Using ``pip``: ``pip install oe_json_extractor``
+- Using ``uv tool``: ``uv tool install wyrdcraeft``
+- Using ``pipx``: ``pipx install wyrdcraeft``
+- Using ``pip``: ``pip install wyrdcraeft``
 - From source: Clone the repository and run ``uv sync``
 
 I get a "command not found" error after installation
@@ -47,13 +47,13 @@ How do I convert a document to JSON?
 .. code-block:: bash
 
     # Convert a text file to JSON
-    oe_json_extractor convert --title="My Title" input.txt output.json
+    wyrdcraeft convert --title="My Title" input.txt output.json
 
     # Convert a PDF file to JSON
-    oe_json_extractor convert --title="My Title" input.pdf output.json
+    wyrdcraeft convert --title="My Title" input.pdf output.json
 
     # Convert a TEI XML file to JSON
-    oe_json_extractor convert --title="My Title" input.xml output.json
+    wyrdcraeft convert --title="My Title" input.xml output.json
 
 How do I convert a document to JSON using the LLM method?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,20 +62,20 @@ How do I convert a document to JSON using the LLM method?
 
     # Convert a text file to JSON using the gpt-4o model
     $ export OPENAI_API_KEY=your-openai-api-key
-    $ oe_json_extractor convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
+    $ wyrdcraeft convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
 
     # Convert a PDF file to JSON using the gemini-3-flash-preview model
     $ export GEMINI_API_KEY=your-gemini-api-key
-    $ oe_json_extractor convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
+    $ wyrdcraeft convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
 
     # Convert a TEI XML file to JSON using the qwen2.5:14b-instruct model
     $ export OLLAMA_API_KEY=your-ollama-api-key
-    $ oe_json_extractor convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
+    $ wyrdcraeft convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
 
     # Convert a text file to JSON using the qwen2.5:14b-instruct model
     # First run ollama, and pull the model like this:
     $ ollama pull qwen2.5:14b-instruct
-    $ oe_json_extractor convert --title="My Title" input.txt output.json --use-llm
+    $ wyrdcraeft convert --title="My Title" input.txt output.json --use-llm
 
 How do I suppress output except errors?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,7 +85,7 @@ Use the ``--quiet`` option:
 .. code-block:: bash
 
     # Suppress all output except errors
-    oe_json_extractor --quiet group1 feature1
+    wyrdcraeft --quiet group1 feature1
 
 This is useful in scripts where you only want to see error messages.
 
@@ -100,14 +100,14 @@ Use the ``--config-file`` option:
 .. code-block:: bash
 
     # Use custom configuration file
-    oe_json_extractor --config-file /path/to/config.toml convert --title="My Title" input.txt output.json
+    wyrdcraeft --config-file /path/to/config.toml convert --title="My Title" input.txt output.json
 
 The configuration file should be in TOML format. See the :doc:`configuration` guide for details.
 
 What configuration options are available?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``oe_json_extractor`` supports configuration for:
+``wyrdcraeft`` supports configuration for:
 
 - LLM model ID
 - LLM temperature
@@ -131,7 +131,7 @@ Where can I get more help?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. **Documentation**: Check the other sections of this documentation
-2. **Command help**: Use ``oe_json_extractor --help`` or ``oe_json_extractor <command> --help``
+2. **Command help**: Use ``wyrdcraeft --help`` or ``wyrdcraeft <command> --help``
 3. **Verbose mode**: Use ``--verbose`` for detailed error information
 4. **GitHub issues**: Report bugs or request features on the project repository
 
@@ -149,11 +149,11 @@ Example bug report:
 
 .. code-block:: text
 
-    Command: oe_json_extractor group1 feature1 --arg "foo" --arg "bar"
+    Command: wyrdcraeft group1 feature1 --arg "foo" --arg "bar"
     Error: Feature 1 error
     OS: macOS 14.0
     Python: 3.11.9
-    oe_json_extractor: 0.1.0
+    wyrdcraeft: 0.1.0
 
     Verbose output:
     [Include verbose output here]

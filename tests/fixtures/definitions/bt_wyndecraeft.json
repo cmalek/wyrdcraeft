@@ -1,0 +1,50 @@
+{
+    "source": "yfelsprecende@<B>yfel-sprecende;</B> <I>adj.</I> (<I>ptcpl.</I>) <I>Evil-speaking</I> :-- Tungan yfelspreccende <I>linguam maliloquam,</I> Ps. Surt. 11, 4.@yfel-sprecende",
+    "result:": {
+        "display_form": "yfel-sprecende",
+        "normalized": "yfel-sprecende",
+        "search_form": "yfelsprecende",
+        "expression_type": "word",
+        "ipa": null,
+        "etymology": null,
+        "senses": [
+            {
+                "sense_order": 1,
+                "definition": "Evil-speaking",
+                "latin_definition": null,
+                "usage_note": "ptcpl.",
+                "pos": "adjective",
+                "examples": [
+                    {
+                        "old_english": "Tungan yfelspreccende",
+                        "translation": "linguam maliloquam",
+                        "sources": [
+                            "Ps. Surt. 11, 4"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "variants": [],
+        "derived_forms": [],
+        "similar_entries": [],
+        "components": [],
+        "morphology": {
+            "primary_pos": "adjective",
+            "gender": null,
+            "noun_declension": null,
+            "is_long_stem": true,
+            "verb_class": null,
+            "present_i_1_sg": [],
+            "present_i_2_sg": [],
+            "present_i_3_sg": [],
+            "present_i_pl": [],
+            "past_i_1_sg": [],
+            "past_i_2_sg": [],
+            "past_i_3_sg": [],
+            "past_i_pl": [],
+            "present_participle": [],
+            "past_participle": []
+        }
+    }
+}
