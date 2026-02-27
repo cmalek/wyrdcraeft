@@ -50,17 +50,3 @@ class PreParsedDocument:
 
     #: The provisional sections of the document.
     sections: list[ProvisionalSection]
-
-@dataclass(frozen=True)
-class DictionaryEntry:
-    """
-    A parsed document is a document that has been parsed from the raw blocks,
-    and validated and structured.
-    """
-
-    #: The normalized form of the entry.
-    normalized_form: str
-    #: The display form of the entry.
-    display_form: str
-    #: Part of speech of the entry.
-    pos: str | None

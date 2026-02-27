@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import json
 import os
 import sys
@@ -279,40 +278,3 @@ def reading_convert(  # noqa: PLR0913
                 raise
             print_error(f"Conversion failed: {e}")
             sys.exit(1)
-
-
-@cli.group(name="dictionary")
-@click.pass_context
-def dictionary_group(ctx: click.Context):
-    """
-    OE Dictionary-related commands.
-    """
-
-
-@dictionary_group.command(
-    name="convert", help="Convert a Bosworth-Toller Dictionary CSV file to JSON."
-)
-@click.argument("source", type=click.Path(exists=True))
-@click.argument("output", type=click.Path(path_type=Path))
-@click.pass_context
-def dictionary_convert(ctx: click.Context, source: Path, output: Path):
-    """
-    Convert a Bosworth-Toller Dictionary CSV file to JSON.
-    """
-    entries: dict[str, str] = {}
-    with source.open("r", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            # Join all columns with no spaces between them
-            entry = "".join(row)
-            # Extract the normalized form from the entry
-            normalized_form = entry.split("@")[0].strip()
-            # Convert any vowels with acute accents to vowels with macrons
-            normalized_form = normalized_form.replace("á", "ā")
-            normalized_form = normalized_form.replace("é", "ē")
-            normalized_form = normalized_form.replace("í", "ī")
-            normalized_form = normalized_form.replace("ó", "ō")
-            normalized_form = normalized_form.replace("ú", "ū")
-            normalized_form = normalized_form.replace("ý", "ȳ")
-            entries[normalized_form] = entry
-    return entries

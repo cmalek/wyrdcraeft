@@ -66,7 +66,7 @@ Documentation = "https://oe_json_extractor.readthedocs.io"
 Issues = "https://github.com/cmalek/oe_json_extractor/issues"
 
 [project.scripts]
-oe_json_extractor = "oe_json_extractor.main:main"
+wyrdcraeft = "wyrdcraeft.main:main"
 
 [tool.uv]
 python-preference = "only-system"

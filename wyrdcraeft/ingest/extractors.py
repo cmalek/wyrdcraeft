@@ -43,8 +43,10 @@ class LLMExtractor:
         """
         user_content = "SOURCE TEXT:\n\n" + text
         if "VERSE EXTRACTION MODE" in prompt:
-            user_content += "\n\n(REMINDER: Treat each physical line above as exactly one 'Line' object in the JSON lines array. Do not split at internal punctuation.)"
-
+            user_content += (
+                "\n\n(REMINDER: Treat each physical line above as exactly one 'Line' "
+                "object in the JSON lines array. Do not split at internal punctuation.)"
+            )
         return [
             {"role": "system", "content": prompt},
             {"role": "user", "content": user_content},
