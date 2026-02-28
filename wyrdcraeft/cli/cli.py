@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 from importlib.metadata import Distribution
@@ -20,8 +21,28 @@ import wyrdcraeft
 
 from ..ingest.pipeline import DocumentIngestor
 from ..models import TextMetadata
+from ..services.markup import DiacriticRestorer
 from ..settings import Settings
 from .utils import console, print_error, print_info
+
+
+def _configure_logging(settings: Settings) -> None:
+    """
+    Configure application logging from settings.
+
+    Args:
+        settings: Loaded application settings.
+
+    """
+    level = getattr(logging, settings.log_level, logging.INFO)
+    root_logger = logging.getLogger()
+    if not root_logger.handlers:
+        logging.basicConfig(
+            level=level,
+            format="%(asctime)s %(name)s %(levelname)s %(message)s",
+        )
+    root_logger.setLevel(level)
+    logging.getLogger("wyrdcraeft").setLevel(level)
 
 
 @click.group()
@@ -61,6 +82,7 @@ def cli(
     try:
         settings = Settings()
         ctx.obj["settings"] = settings
+        _configure_logging(settings)
     except Exception as e:  # noqa: BLE001
         print_error(f"Failed to load configuration: {e}")
         sys.exit(1)
@@ -287,6 +309,60 @@ def reading_convert(  # noqa: PLR0913
                 raise
             print_error(f"Conversion failed: {e}")
             sys.exit(1)
+
+
+@reading_group.command(
+    name="mark-diacritics",
+    help="Restore macrons and dot diacritics in an Old English text file.",
+)
+@click.argument("source", type=click.Path(exists=True, path_type=Path))
+@click.argument("output", type=click.Path(path_type=Path))
+@click.option(
+    "--ambiguities-output",
+    required=True,
+    type=click.Path(path_type=Path),
+    help="Output path for ambiguity report JSON.",
+)
+def reading_mark_diacritics(
+    source: Path,
+    output: Path,
+    ambiguities_output: Path,
+) -> None:
+    """
+    Restore diacritics in a source text and emit ambiguity report JSON.
+
+    Args:
+        source: Input text file path.
+        output: Marked output text file path.
+        ambiguities_output: Output path for ambiguity report JSON.
+
+    """
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as e:
+        msg = f"Failed to read source file {source}: {e}"
+        raise click.ClickException(msg) from e
+
+    restorer = DiacriticRestorer()
+    result = restorer.restore_text(text)
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(result.marked_text, encoding="utf-8")
+
+    ambiguities_output.parent.mkdir(parents=True, exist_ok=True)
+    ambiguities_output.write_text(
+        json.dumps(
+            [item.model_dump() for item in result.ambiguities],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    print_info(
+        f"Successfully restored diacritics for {source} -> {output}. "
+        f"Ambiguities: {len(result.ambiguities)}"
+    )
 
 
 @cli.command(name="convert", help="Convert a source document to JSON.")
