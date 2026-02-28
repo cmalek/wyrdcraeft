@@ -31,8 +31,10 @@ def test_build_index_from_bt_extracts_and_dedupes(tmp_path: Path):
     assert index.unique["bar"] == "bār"
     assert index.unique["barr"] == "bār"
     assert "-ful" not in index.unique
+    assert index.ambiguous_metadata == {}
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert "meta" in payload
     assert payload["meta"]["unique_count"] == len(index.unique)
     assert payload["meta"]["ambiguous_count"] == len(index.ambiguous)
+    assert payload["ambiguous_metadata"] == {}

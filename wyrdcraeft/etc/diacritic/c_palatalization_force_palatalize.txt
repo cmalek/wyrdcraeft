@@ -1,0 +1,4 @@
+# Force-palatalize lexical exceptions for c -> ċ.
+# One normalized word per line.
+hwelc
+swelc

@@ -8,24 +8,33 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
-from ..models.diacritics import DiacriticRestorationResult, MacronAmbiguity
+from pydantic import ValidationError
+
+from ..models.diacritics import (
+    DiacriticRestorationResult,
+    MacronAmbiguity,
+    MacronFormAnnotation,
+    MacronIndexPayload,
+)
 
 #: Module logger.
 LOGGER = logging.getLogger(__name__)
 
 #: Root directory of this repository.
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parents[2]
-#: Default data directory used by diacritic tools.
-DEFAULT_DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
+#: Default package data directory used by diacritic tools.
+DEFAULT_DIACRITIC_DIR: Final[Path] = PROJECT_ROOT / "wyrdcraeft" / "etc" / "diacritic"
 #: Default macron index path.
-DEFAULT_MACRON_INDEX_PATH: Final[Path] = DEFAULT_DATA_DIR / "oe_bt_macron_index.json"
+DEFAULT_MACRON_INDEX_PATH: Final[Path] = (
+    DEFAULT_DIACRITIC_DIR / "oe_bt_macron_index.json"
+)
 #: Default force-palatalize list for ``c``.
 DEFAULT_C_FORCE_PALATALIZE_PATH: Final[Path] = (
-    DEFAULT_DATA_DIR / "c_palatalization_force_palatalize.txt"
+    DEFAULT_DIACRITIC_DIR / "c_palatalization_force_palatalize.txt"
 )
 #: Default force-non-palatalize list for ``c``.
 DEFAULT_C_FORCE_NON_PALATALIZE_PATH: Final[Path] = (
-    DEFAULT_DATA_DIR / "c_palatalization_force_non_palatalize.txt"
+    DEFAULT_DIACRITIC_DIR / "c_palatalization_force_non_palatalize.txt"
 )
 
 #: Regex used to split lexical tokens while preserving separators.
@@ -116,6 +125,8 @@ class MacronIndex:
     unique: dict[str, str]
     #: Ambiguous normalized -> marked candidates mapping.
     ambiguous: dict[str, list[str]]
+    #: Optional per-form metadata for ambiguous entries.
+    ambiguous_metadata: dict[str, dict[str, MacronFormAnnotation]]
 
 
 class MacronApplicator:
@@ -159,20 +170,29 @@ class MacronApplicator:
             )
             raise FileNotFoundError(msg)
 
-        payload = json.loads(index_path.read_text(encoding="utf-8"))
-        unique = payload.get("unique", {})
-        ambiguous = payload.get("ambiguous", {})
-        if not isinstance(unique, dict) or not isinstance(ambiguous, dict):
-            msg = "Invalid macron index format; expected object with unique/ambiguous."
-            raise TypeError(msg)
+        try:
+            payload = MacronIndexPayload.model_validate(
+                json.loads(index_path.read_text(encoding="utf-8"))
+            )
+        except (TypeError, ValidationError, ValueError) as e:
+            msg = (
+                "Invalid macron index format; expected object with unique/ambiguous "
+                "and optional ambiguous_metadata."
+            )
+            raise TypeError(msg) from e
 
         LOGGER.debug(
-            "Loaded macron index from %s (unique=%d, ambiguous=%d)",
+            "Loaded macron index from %s (unique=%d, ambiguous=%d, metadata=%d)",
             index_path,
-            len(unique),
-            len(ambiguous),
+            len(payload.unique),
+            len(payload.ambiguous),
+            len(payload.ambiguous_metadata),
         )
-        return MacronIndex(unique=unique, ambiguous=ambiguous)
+        return MacronIndex(
+            unique=payload.unique,
+            ambiguous=payload.ambiguous,
+            ambiguous_metadata=payload.ambiguous_metadata,
+        )
 
     @classmethod
     def build_index_from_bt(
@@ -244,7 +264,11 @@ class MacronApplicator:
             else:
                 ambiguous[key] = sorted_forms
 
-        index = MacronIndex(unique=unique, ambiguous=ambiguous)
+        index = MacronIndex(
+            unique=unique,
+            ambiguous=ambiguous,
+            ambiguous_metadata={},
+        )
 
         if output_path is not None:
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -258,6 +282,7 @@ class MacronApplicator:
                 },
                 "unique": unique,
                 "ambiguous": ambiguous,
+                "ambiguous_metadata": {},
             }
             output_path.write_text(
                 json.dumps(output_payload, ensure_ascii=False, indent=2),

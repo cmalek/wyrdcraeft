@@ -1,0 +1,2 @@
+# Force-non-palatalize lexical exceptions for c -> ċ.
+# One normalized word per line.

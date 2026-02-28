@@ -1,4 +1,12 @@
-from .diacritics import DiacriticRestorationResult, MacronAmbiguity
+from .diacritics import (
+    POS_CODE_LABELS,
+    POS_CODES,
+    DiacriticRestorationResult,
+    MacronAmbiguity,
+    MacronFormAnnotation,
+    MacronFormSense,
+    MacronIndexPayload,
+)
 from .llm import AnyLLMConfig
 from .parsing import PreParsedDocument, ProvisionalSection, RawBlock
 from .source_text import (
@@ -13,11 +21,16 @@ from .source_text import (
 )
 
 __all__ = [
+    "POS_CODES",
+    "POS_CODE_LABELS",
     "AnyLLMConfig",
     "Confidence",
     "DiacriticRestorationResult",
     "Line",
     "MacronAmbiguity",
+    "MacronFormAnnotation",
+    "MacronFormSense",
+    "MacronIndexPayload",
     "Number",
     "OldEnglishText",
     "Paragraph",

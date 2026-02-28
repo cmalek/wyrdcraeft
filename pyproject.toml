@@ -82,6 +82,13 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["."]
 
+[tool.setuptools.package-data]
+wyrdcraeft = [
+    "etc/diacritic/*.json",
+    "etc/diacritic/*.txt",
+    "etc/diacritic/*/*.txt",
+]
+
 [build-system]
 requires = [
     "setuptools >= 48",

@@ -1,8 +1,8 @@
 Using the Command Line Interface
 ================================
 
-The ``sungazer`` command-line interface provides easy access to all PVS6 functionality
-from the terminal. This guide covers all available commands and options.
+The ``wyrdcraeft`` command-line interface provides access to ingestion,
+conversion, and diacritic-maintenance workflows from the terminal.
 
 Getting Help
 ------------
@@ -18,6 +18,8 @@ Basic Help
     # Show help for specific command groups
     wyrdcraeft version --help
     wyrdcraeft convert --help
+    wyrdcraeft diacritic --help
+    wyrdcraeft diacritic disambiguate --help
     wyrdcraeft settings --help
     wyrdcraeft settings show --help
     wyrdcraeft settings create --help
@@ -72,3 +74,14 @@ API keys as environment variables or in the configuration file if you are using
 a cloud model) for development, testing, and troubleshooting, but you can
 override it with a configuration file.  See :doc:`/overview/configuration_cli`
 for more details.
+
+Diacritic Command Guides
+------------------------
+
+The following pages document the diacritic command workflows in detail:
+
+.. toctree::
+   :maxdepth: 1
+
+   command_convert_fix_diacritic
+   command_diacritic_disambiguate

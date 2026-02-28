@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+import pytest
+
 from wyrdcraeft.services.markup import (
+    DEFAULT_MACRON_INDEX_PATH,
     CPalatalizer,
     DiacriticRestorer,
     GPalatalizer,
@@ -27,8 +30,13 @@ def _write_index(
     *,
     unique: dict[str, str],
     ambiguous: dict[str, list[str]],
+    ambiguous_metadata: dict[str, dict[str, dict[str, str]]] | None = None,
 ) -> None:
-    payload = {"unique": unique, "ambiguous": ambiguous}
+    payload = {
+        "unique": unique,
+        "ambiguous": ambiguous,
+        "ambiguous_metadata": ambiguous_metadata or {},
+    }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
@@ -103,3 +111,57 @@ def test_diacritic_restorer_preserves_layout_and_reports_ambiguity(tmp_path: Pat
     assert ambiguity.word_number == EXPECTED_FIRST_LINE_WORD_NUMBER
     assert ambiguity.word == "wegas"
     assert ambiguity.options == ["wegas", "wēgas"]
+
+
+def test_default_macron_index_path_points_to_package_data():
+    assert DEFAULT_MACRON_INDEX_PATH.as_posix().endswith(
+        "wyrdcraeft/etc/diacritic/oe_bt_macron_index.json"
+    )
+    assert DEFAULT_MACRON_INDEX_PATH.exists()
+
+
+def test_macron_applicator_loads_ambiguous_metadata(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={"cild": "cīld"},
+        ambiguous={"ac": ["ac", "āc"]},
+        ambiguous_metadata={
+            "ac": {
+                "ac": {
+                    "part_of_speech_code": "CONJ",
+                    "modern_english_meaning": "but",
+                },
+                "āc": {
+                    "part_of_speech_code": "N",
+                    "modern_english_meaning": "oak",
+                },
+            }
+        },
+    )
+    applicator = MacronApplicator(index_path)
+
+    assert "ac" in applicator.index.ambiguous_metadata
+    assert (
+        applicator.index.ambiguous_metadata["ac"]["ac"].part_of_speech_code == "CONJ"
+    )
+
+
+def test_macron_applicator_rejects_invalid_pos_code_metadata(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"ac": ["ac", "āc"]},
+        ambiguous_metadata={
+            "ac": {
+                "ac": {
+                    "part_of_speech_code": "BAD",
+                    "modern_english_meaning": "invalid",
+                }
+            }
+        },
+    )
+
+    with pytest.raises(TypeError):
+        MacronApplicator(index_path)
