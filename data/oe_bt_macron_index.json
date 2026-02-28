@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 38927,
-    "ambiguous_count": 1315
+    "unique_count": 38945,
+    "ambiguous_count": 1297
   },
   "unique": {
     "a": "ā",
@@ -38933,7 +38933,25 @@
     "softness": "sōftness",
     "yfelness": "yfelness",
     "þrymness": "þrymness",
-    "minlice": "mīn-līce"
+    "minlice": "mīn-līce",
+    "arleaslice": "ārlēaslīce",
+    "feondlice": "fēondlīce",
+    "fæstlice": "fæstlīce",
+    "staþolfæstlice": "staþolfæstlīce",
+    "stearclice": "stearclīce",
+    "upende": "ūp-ende",
+    "upflor": "ūp-flōr",
+    "uphefness": "ūp-hefness",
+    "uprihte": "ūp-rihte",
+    "upweardes": "ūp-weardes",
+    "maessehacele": "mæsse-hacele",
+    "mearcwaed": "mearc-wæd",
+    "mearcwæd": "mearc-wæd",
+    "mæssehacele": "mæsse-hacele",
+    "unfaederlice": "un-fæderlīce",
+    "unfæderlice": "un-fæderlīce",
+    "waefersin": "wæfer-sīn",
+    "wæfersin": "wæfer-sīn"
   },
   "ambiguous": {
     "ac": [
@@ -39431,10 +39449,6 @@
     "arfullice": [
       "ārful-līce",
       "ārfullīce"
-    ],
-    "arleaslice": [
-      "ārlēaslice",
-      "ārlēaslīce"
     ],
     "arlic": [
       "ar-līc",
@@ -40582,10 +40596,6 @@
       "fæsten-tid",
       "fæsten-tīd"
     ],
-    "fæstlice": [
-      "fæstlice",
-      "fæstlīce"
-    ],
     "fæstnes": [
       "fæst-nes",
       "fæstnes"
@@ -40649,10 +40659,6 @@
     "feondlic": [
       "fēond-lic",
       "fēondlic"
-    ],
-    "feondlice": [
-      "fēondlice",
-      "fēondlīce"
     ],
     "feondseocnes": [
       "fēond-sēocnes",
@@ -43183,14 +43189,6 @@
       "mearh",
       "mærh"
     ],
-    "mæssehacele": [
-      "maesse-hacele",
-      "mæsse-hacele"
-    ],
-    "maessehacele": [
-      "maesse-hacele",
-      "mæsse-hacele"
-    ],
     "mæst": [
       "mæst",
       "mǣst"
@@ -43230,14 +43228,6 @@
     "meahtiglice": [
       "meahtig-līce",
       "meahtiglīce"
-    ],
-    "mearcwæd": [
-      "mearc-waed",
-      "mearc-wæd"
-    ],
-    "mearcwaed": [
-      "mearc-waed",
-      "mearc-wæd"
     ],
     "medumlice": [
       "medum-līce",
@@ -43803,14 +43793,6 @@
       "stalian",
       "stālian"
     ],
-    "staþolfæstlice": [
-      "staþolfæstlice",
-      "staþolfæstlīce"
-    ],
-    "stearclice": [
-      "stearclice",
-      "stearclīce"
-    ],
     "stig": [
       "stig",
       "stīg"
@@ -43975,14 +43957,6 @@
       "un-bryce",
       "un-brȳce"
     ],
-    "unfæderlice": [
-      "un-faederlīce",
-      "un-fæderlīce"
-    ],
-    "unfaederlice": [
-      "un-faederlīce",
-      "un-fæderlīce"
-    ],
     "ungemet": [
       "un-gemet",
       "un-gemēt"
@@ -44007,26 +43981,6 @@
       "up",
       "ūp"
     ],
-    "upende": [
-      "up-ende",
-      "ūp-ende"
-    ],
-    "upflor": [
-      "up-flōr",
-      "ūp-flōr"
-    ],
-    "uphefness": [
-      "up-hefness",
-      "ūp-hefness"
-    ],
-    "uprihte": [
-      "up-rihte",
-      "ūp-rihte"
-    ],
-    "upweardes": [
-      "up-weardes",
-      "ūp-weardes"
-    ],
     "ur": [
       "ur",
       "ūr"
@@ -44046,14 +44000,6 @@
     "wæd": [
       "wæd",
       "wǣd"
-    ],
-    "wæfersin": [
-      "waefer-sīn",
-      "wæfer-sīn"
-    ],
-    "waefersin": [
-      "waefer-sīn",
-      "wæfer-sīn"
     ],
     "wæg": [
       "wæg",
