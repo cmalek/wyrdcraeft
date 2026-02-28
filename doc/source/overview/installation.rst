@@ -115,7 +115,7 @@ Getting Help
 
 If you encounter issues during installation:
 
-1. Check the your colleagues for help.
+1. Check the help documentation.
 2. Review the troubleshooting section above
 3. Ensure your Python environment meets the prerequisites
 4. Try installing in a virtual environment to isolate dependencies
