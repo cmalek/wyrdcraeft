@@ -178,7 +178,7 @@ class OEFilter:
         self.oe_mode = False
         self._parser = StructureParser()
 
-    def looks_like_old_english(self, text: str) -> bool:
+    def looks_like_old_english(self, text: str) -> bool:  # noqa: PLR0912
         """
         Test if a block of text looks like Old English.
 
@@ -241,6 +241,10 @@ class OEFilter:
 
         if self.oe_mode:
             if score <= exit_oe_threshold:
+                self.oe_mode = False
+                return False
+            # Exit OE mode when we see no positive evidence in a line.
+            if score <= 0:
                 self.oe_mode = False
                 return False
             return True
@@ -371,6 +375,7 @@ class StructureParser:
         m = re.match(r"^Cap\.\s*([IVXLCDM]+|\d+)\b\s*(.*)$", t)
         if m:
             val = m.group(1)
+            n: str | int
             if val.isdigit():
                 n = int(val)
             elif is_roman_numeral(val):
@@ -551,6 +556,7 @@ class CanonicalConverter:
                     sents: list[Sentence] = []
                     for s in self.split_sentences(b.text):
                         marker, cleaned_text = self.extract_marker(s)
+                        final_marker: str | int | None
                         if marker and marker.isdigit():
                             final_marker = int(marker)
                         elif marker and is_roman_numeral(marker):
@@ -822,7 +828,7 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
     PROMPT_DIR: Final[Path] = Path(__file__).resolve().parents[1] / "prompts"
     #: The non-model and non-mode specific prompt that details the output
     #: schema and general instructions.
-    BASE_PROMPT: Final[str] = PROMPT_DIR / "general.md"
+    BASE_PROMPT: Final[Path] = PROMPT_DIR / "general.md"
 
     def model_prompt(
         self, config: AnyLLMConfig, mode: Literal["verse", "prose"]

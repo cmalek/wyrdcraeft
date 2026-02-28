@@ -3,6 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+MIN_VERSE_LINES = 2
+MAX_VERSE_AVG_LINE_LEN = 60
+MAX_PROSE_ENDING_RATIO = 0.8
+
 
 @dataclass(frozen=True)
 class RawBlock:
@@ -14,10 +18,32 @@ class RawBlock:
     text: str
     #: The category of the block.
     category: str
-    #: The estimated kind of the block.
-    kind: Literal["prose", "verse"]
+    #: The estimated kind of the block. If omitted, it will be inferred.
+    kind: Literal["prose", "verse"] | None = None
     #: The page number of the block.
     page: int | None = None
+
+    def __post_init__(self) -> None:
+        """
+        Backward-compatible kind inference for callers that only pass text/category.
+        """
+        if self.kind is not None:
+            return
+
+        lines = [ln.strip() for ln in self.text.splitlines() if ln.strip()]
+        if len(lines) >= MIN_VERSE_LINES:
+            avg_len = sum(len(ln) for ln in lines) / len(lines)
+            prose_like = sum(1 for ln in lines if ln.endswith(".")) / len(lines)
+            inferred: Literal["prose", "verse"] = (
+                "verse"
+                if avg_len <= MAX_VERSE_AVG_LINE_LEN
+                and prose_like < MAX_PROSE_ENDING_RATIO
+                else "prose"
+            )
+        else:
+            inferred = "prose"
+
+        object.__setattr__(self, "kind", inferred)
 
 
 @dataclass(frozen=True)

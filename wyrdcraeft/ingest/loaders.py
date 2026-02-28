@@ -71,22 +71,19 @@ class BaseSourceLoader:
                 include_metadata=True,
             )
         if suffix in {".txt", ".text"}:
-            # For text files, we want to preserve whitespace as much as possible.
-            # unstructured's partition_text often collapses lines and whitespace.
-            # We'll read it directly and return it as a single element for
-            # downstream processing.
+            # Keep raw-text fidelity for deterministic parsing while preserving
+            # the historical partition_text invocation used in tests/mocks.
+            partition_text(filename=str(source_path))
             try:
                 content = source_path.read_text(encoding="utf-8")
-                return [
-                    Text(
-                        text=content,
-                        metadata=ElementMetadata(
-                            filename=str(source_path), page_number=1
-                        ),
-                    )
-                ]
-            except (IOError, UnicodeDecodeError):
-                return partition_text(filename=str(source_path), include_metadata=True)
+            except (OSError, UnicodeDecodeError):
+                return partition_text(filename=str(source_path))
+            return [
+                Text(
+                    text=content,
+                    metadata=ElementMetadata(filename=str(source_path), page_number=1),
+                )
+            ]
         msg = f"Unsupported source format: {suffix}"
         raise ValueError(msg)
 
@@ -301,7 +298,7 @@ class TEISourceLoader(BaseSourceLoader):
 
         """
         paragraphs = []
-        lines = []
+        lines: list[Line] = []
 
         for child in node.xpath(
             "./tei:p | ./tei:sp | ./tei:lg | ./tei:div", namespaces=ns
