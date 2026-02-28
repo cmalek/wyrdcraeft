@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 38054,
-    "ambiguous_count": 2188
+    "unique_count": 38457,
+    "ambiguous_count": 1785
   },
   "unique": {
     "a": "ā",
@@ -38128,7 +38128,342 @@
     "yþung": "ȳþung",
     "yþworigende": "ȳþ-wōrigende",
     "yting": "ȳting",
-    "ytmest": "ȳtmest"
+    "ytmest": "ȳtmest",
+    "acwician": "ā-cwician",
+    "acwincan": "ā-cwincan",
+    "acyþan": "ā-cȳþan",
+    "adeafung": "ā-dēafung",
+    "adelfan": "ā-delfan",
+    "adeorcian": "ā-deorcian",
+    "adimmian": "ā-dimmian",
+    "adon": "ā-dōn",
+    "adrencan": "ā-drencan",
+    "adreogan": "ā-drēogan",
+    "adreogendlic": "ā-drēogendlic",
+    "adreosan": "ā-drēosan",
+    "adrifan": "ā-drīfan",
+    "adrincan": "ā-drincan",
+    "adrugian": "ā-drūgian",
+    "adrygan": "ā-drȳgan",
+    "adrædan": "ā-drǣdan",
+    "adræfan": "ā-drǣfan",
+    "adumbian": "ā-dumbian",
+    "adun": "ā-dūn",
+    "adwelian": "ā-dwelian",
+    "adwinan": "ā-dwīnan",
+    "adwæscan": "ā-dwǣscan",
+    "adælan": "ā-dǣlan",
+    "afandelic": "ā-fandelic",
+    "afandian": "ā-fandian",
+    "afandigendlic": "ā-fandigendlic",
+    "afandung": "ā-fandung",
+    "afaran": "ā-faran",
+    "afeallan": "ā-feallan",
+    "afeccan": "ā-feccan",
+    "afedan": "ā-fēdan",
+    "afehþ": "ā-fēhþ",
+    "afeohtan": "ā-feohtan",
+    "afeormian": "ā-feormian",
+    "afeormung": "ā-feormung",
+    "afeorsian": "ā-feorsian",
+    "aferian": "ā-ferian",
+    "aferran": "ā-ferran",
+    "afirran": "ā-firran",
+    "afirsian": "ā-firsian",
+    "afleon": "ā-flēon",
+    "afleotan": "ā-flēotan",
+    "aflowan": "ā-flōwan",
+    "aflyman": "ā-flȳman",
+    "afon": "ā-fōn",
+    "aforhtian": "ā-forhtian",
+    "afrefran": "ā-frēfran",
+    "afulian": "ā-fūlian",
+    "afunden": "ā-funden",
+    "afylan": "ā-fȳlan",
+    "afyllan": "ā-fyllan",
+    "afyran": "ā-fȳran",
+    "afyrhtan": "ā-fyrhtan",
+    "afysan": "ā-fȳsan",
+    "afæran": "ā-fǣran",
+    "afæstan": "ā-fæstan",
+    "afæstnian": "ā-fæstnian",
+    "agalan": "ā-galan",
+    "agan": "ā-gān",
+    "agangan": "ā-gangan",
+    "ageldan": "ā-geldan",
+    "agelwan": "ā-gelwan",
+    "ageolwian": "ā-geolwian",
+    "ageotan": "ā-gēotan",
+    "agifan": "ā-gifan",
+    "agildan": "ā-gildan",
+    "agimeleasian": "ā-gīmelēasian",
+    "aginnan": "ā-ginnan",
+    "agita": "ā-gīta",
+    "agitan": "ā-gitan",
+    "aglidan": "ā-glīdan",
+    "agrafan": "ā-grafan",
+    "agrisan": "ā-grīsan",
+    "agyltan": "ā-gyltan",
+    "agytan": "ā-gytan",
+    "agælan": "ā-gǣlan",
+    "agælwed": "ā-gælwed",
+    "ahabban": "ā-habban",
+    "aheardian": "ā-heardian",
+    "aheardung": "ā-heardung",
+    "aheawan": "ā-hēawan",
+    "ahebban": "ā-hebban",
+    "ahefigian": "ā-hefigian",
+    "ahelpan": "ā-helpan",
+    "ahenan": "ā-hēnan",
+    "aheordan": "ā-heordan",
+    "ahildan": "ā-hildan",
+    "ahleapan": "ā-hlēapan",
+    "ahlowan": "ā-hlōwan",
+    "ahlænsian": "ā-hlǣnsian",
+    "aholian": "ā-holian",
+    "ahon": "ā-hōn",
+    "ahreddan": "ā-hreddan",
+    "ahreosan": "ā-hrēosan",
+    "ahrepian": "ā-hrepian",
+    "ahreran": "ā-hrēran",
+    "ahuþan": "ā-hūðan",
+    "ahweorfan": "ā-hweorfan",
+    "ahwerfan": "ā-hwerfan",
+    "ahwettan": "ā-hwettan",
+    "ahwilc": "ā-hwilc",
+    "ahwænan": "ā-hwǣnan",
+    "ahwærgen": "ā-hwærgen",
+    "ahwæþer": "ā-hwæðer",
+    "ahydan": "ā-hȳdan",
+    "ahyþan": "ā-hȳðan",
+    "aladian": "ā-lādian",
+    "alecgan": "ā-lecgan",
+    "alefan": "ā-lēfan",
+    "aleogan": "ā-lēogan",
+    "alesan": "ā-lesan",
+    "alibban": "ā-libban",
+    "alicgan": "ā-licgan",
+    "alifian": "ā-lifian",
+    "alihtan": "ā-līhtan",
+    "aloccian": "ā-loccian",
+    "alucan": "ā-lūcan",
+    "alutan": "ā-lūtan",
+    "alyfan": "ā-lȳfan",
+    "alynian": "ā-lynian",
+    "alysan": "ā-lȳsan",
+    "alædan": "ā-lǣdan",
+    "alænan": "ā-lǣnan",
+    "alætan": "ā-lǣtan",
+    "alætnes": "ā-lǣtnes",
+    "amang": "ā-mang",
+    "amansod": "ā-mānsod",
+    "amansumian": "ā-mansumian",
+    "amansumung": "ā-mānsumung",
+    "amearcian": "ā-mearcian",
+    "ameldian": "ā-meldian",
+    "amerian": "ā-merian",
+    "ametan": "ā-metan",
+    "amundian": "ā-mundian",
+    "amyrdrian": "ā-myrdrian",
+    "amæstan": "ā-mæstan",
+    "aneglod": "ā-neglod",
+    "animan": "ā-niman",
+    "apinsian": "ā-pinsian",
+    "aplantian": "ā-plantian",
+    "apullian": "ā-pullian",
+    "apæcan": "ā-pǣcan",
+    "arasian": "ā-rāsian",
+    "areccan": "ā-reccan",
+    "aredian": "ā-redian",
+    "areodian": "ā-rēodian",
+    "aretan": "ā-rētan",
+    "ariht": "ā-riht",
+    "ariman": "ā-rīman",
+    "arinnan": "ā-rinnan",
+    "arisan": "ā-rīsan",
+    "aræcan": "ā-rǣcan",
+    "aræd": "ā-rǣd",
+    "arædan": "ā-rǣdan",
+    "aræran": "ā-ræran",
+    "aræsan": "ā-ræsan",
+    "asanian": "ā-sānian",
+    "asawan": "ā-sāwan",
+    "ascafan": "ā-scafan",
+    "asceacan": "ā-sceacan",
+    "asceadan": "ā-scēadan",
+    "ascealian": "ā-scealian",
+    "asceotan": "ā-scēotan",
+    "ascilian": "ā-scilian",
+    "ascinan": "ā-scīnan",
+    "asciran": "ā-sciran",
+    "ascirian": "ā-scirian",
+    "ascirigendlic": "ā-scirigendlic",
+    "ascirpan": "ā-scirpan",
+    "ascirred": "ā-scirred",
+    "ascortian": "ā-scortian",
+    "ascreadian": "ā-scrēadian",
+    "ascrencan": "ā-screncan",
+    "ascreopan": "ā-screopan",
+    "ascrincan": "ā-scrincan",
+    "ascufan": "ā-scūfan",
+    "ascuniendlic": "ā-scuniendlic",
+    "ascunung": "ā-scunung",
+    "ascyndan": "ā-scyndan",
+    "asearian": "ā-sēarian",
+    "asecan": "ā-sēcan",
+    "asecgan": "ā-secgan",
+    "asecgendlic": "ā-secgendlic",
+    "asellan": "ā-sellan",
+    "asendan": "ā-sendan",
+    "asengan": "ā-sēngan",
+    "aseon": "ā-sēon",
+    "aseoþan": "ā-sēoþan",
+    "asettan": "ā-settan",
+    "asigan": "ā-sīgan",
+    "asingan": "ā-singan",
+    "asittan": "ā-sittan",
+    "aslacian": "ā-slacian",
+    "aslapan": "ā-slāpan",
+    "aslawian": "ā-slāwian",
+    "aslean": "ā-slēan",
+    "aslidan": "ā-slīdan",
+    "aslitan": "ā-slītan",
+    "aslæccan": "ā-slæccan",
+    "aslæcian": "ā-slæcian",
+    "asmeagan": "ā-smēagan",
+    "asmiþian": "ā-smiþian",
+    "asmorian": "ā-smorian",
+    "asniþan": "ā-snīþan",
+    "asnæsan": "ā-snǣsan",
+    "asolcen": "ā-solcen",
+    "asolcennys": "ā-solcennys",
+    "aspanan": "ā-spanan",
+    "aspelian": "ā-spelian",
+    "aspendan": "ā-spendan",
+    "aspiwan": "ā-spīwan",
+    "aspreotan": "ā-sprēotan",
+    "aspringan": "ā-springan",
+    "asprungennes": "ā-sprungennes",
+    "asprytan": "ā-sprȳtan",
+    "aspylian": "ā-spȳlian",
+    "aspyrgeng": "ā-spyrgeng",
+    "aspyrian": "ā-spyrian",
+    "astandan": "ā-standan",
+    "astellan": "ā-stellan",
+    "astemnian": "ā-stemnian",
+    "asteorfan": "ā-steorfan",
+    "asterfan": "ā-sterfan",
+    "astigan": "ā-stīgan",
+    "astigend": "ā-stīgend",
+    "astiþian": "ā-stīðian",
+    "astreccan": "ā-streccan",
+    "astregdan": "ā-stregdan",
+    "astrengd": "ā-strengd",
+    "astundian": "ā-stundian",
+    "astyfecigan": "ā-stȳfecigan",
+    "astyltan": "ā-styltan",
+    "astyrian": "ā-styrian",
+    "astyrung": "ā-styrung",
+    "astænan": "ā-stǣnan",
+    "asugan": "ā-sūgan",
+    "asundrian": "ā-sundrian",
+    "asurian": "ā-sūrian",
+    "aswarnian": "ā-swārnian",
+    "asweartian": "ā-sweartian",
+    "aswefecian": "ā-swefecian",
+    "aswellan": "ā-swellan",
+    "asweltan": "ā-sweltan",
+    "aswengan": "ā-swengan",
+    "asweorfan": "ā-sweorfan",
+    "aswifan": "ā-swīfan",
+    "aswindan": "ā-swindan",
+    "aswæman": "ā-swǣman",
+    "asyndran": "ā-syndran",
+    "asyndrung": "ā-syndrung",
+    "atefred": "ā-tēfred",
+    "atellan": "ā-tellan",
+    "atemian": "ā-temian",
+    "atendan": "ā-tendan",
+    "atendend": "ā-tendend",
+    "ateon": "ā-tēon",
+    "ateorian": "ā-teorian",
+    "ateorung": "ā-teorung",
+    "atyhtan": "ā-tyhtan",
+    "atynan": "ā-tȳnan",
+    "awacan": "ā-wacan",
+    "awacian": "ā-wacian",
+    "awacnian": "ā-wacnian",
+    "awanian": "ā-wanian",
+    "awannian": "ā-wannian",
+    "aweallan": "ā-weallan",
+    "aweaxan": "ā-weaxan",
+    "awecgan": "ā-wecgan",
+    "awedan": "ā-wēdan",
+    "aweg": "ā-weg",
+    "awegan": "ā-wegan",
+    "awendan": "ā-wendan",
+    "awendedlic": "ā-wendedlic",
+    "awenian": "ā-wenian",
+    "aweodian": "ā-wēodian",
+    "aweorpan": "ā-weorpan",
+    "aweorþan": "ā-weorþan",
+    "aweosung": "ā-weosung",
+    "awerd": "ā-werd",
+    "awerian": "ā-werian",
+    "awestan": "ā-wēstan",
+    "awildian": "ā-wildian",
+    "awillan": "ā-willan",
+    "awindan": "ā-windan",
+    "awindwian": "ā-windwian",
+    "awinnan": "ā-winnan",
+    "awirdan": "ā-wirdan",
+    "awlancian": "ā-wlancian",
+    "awlætan": "ā-wlǣtan",
+    "awoffian": "ā-woffian",
+    "awoh": "ā-wōh",
+    "aworpenlic": "ā-worpenlic",
+    "awrecan": "ā-wrecan",
+    "awreccan": "ā-wreccan",
+    "awreon": "ā-wrēon",
+    "awreþian": "ā-wreþian",
+    "awringan": "ā-wringan",
+    "awritan": "ā-wrītan",
+    "awræstan": "ā-wrǣstan",
+    "awundrian": "ā-wundrian",
+    "awunian": "ā-wunian",
+    "awyrcan": "ā-wyrcan",
+    "awyrgan": "ā-wyrgan",
+    "awyrn": "ā-wyrn",
+    "awyrtwalian": "ā-wyrtwalian",
+    "awæcan": "ā-wǣcan",
+    "awægan": "ā-wǣgan",
+    "awælan": "ā-wǣlan",
+    "aytan": "ā-ȳtan",
+    "aþecgan": "ā-þecgan",
+    "aþegen": "ā-þegen",
+    "aþencan": "ā-þencan",
+    "aþenian": "ā-þenian",
+    "aþeodan": "ā-þēodan",
+    "aþeostrian": "ā-þēostrian",
+    "aþindan": "ā-þindan",
+    "aþindung": "ā-þindung",
+    "aþolian": "ā-þolian",
+    "aþracian": "ā-þracian",
+    "aþrawan": "ā-þrāwan",
+    "aþreotan": "ā-þrēotan",
+    "aþriettan": "ā-þrīettan",
+    "aþringan": "ā-þringan",
+    "aþroten": "ā-þroten",
+    "aþrotennes": "ā-þrotennes",
+    "aþrotsum": "ā-þrotsum",
+    "aþrowen": "ā-þrowen",
+    "aþrowian": "ā-þrowian",
+    "aþræstan": "ā-þrǣstan",
+    "aþwean": "ā-þwēan",
+    "aþweran": "ā-þweran",
+    "aþyan": "ā-þȳan",
+    "aþynnian": "ā-þynnian",
+    "aþywan": "ā-þȳwan"
   },
   "ambiguous": {
     "ac": [
@@ -38139,109 +38474,13 @@
       "acen",
       "ācen"
     ],
-    "acwician": [
-      "a-cwician",
-      "ā-cwician"
-    ],
-    "acwincan": [
-      "a-cwincan",
-      "ā-cwincan"
-    ],
-    "acyþan": [
-      "a-cȳðan",
-      "ā-cȳþan"
-    ],
-    "adælan": [
-      "a-dǣlan",
-      "ā-dǣlan"
-    ],
-    "adeafung": [
-      "a-dēafung",
-      "ā-dēafung"
-    ],
-    "adelfan": [
-      "a-delfan",
-      "ā-delfan"
-    ],
     "adelseaþ": [
       "adel-seaþ",
       "adel-sēaþ"
     ],
-    "adeorcian": [
-      "a-deorcian",
-      "ā-deorcian"
-    ],
-    "adimmian": [
-      "a-dimmian",
-      "ā-dimmian"
-    ],
     "adlig": [
       "adlig",
       "ādlig"
-    ],
-    "adon": [
-      "a-dōn",
-      "ā-dōn"
-    ],
-    "adrædan": [
-      "a-drǣdan",
-      "ā-drǣdan"
-    ],
-    "adræfan": [
-      "a-drǣfan",
-      "ā-drǣfan"
-    ],
-    "adrencan": [
-      "a-drencan",
-      "ā-drencan"
-    ],
-    "adreogan": [
-      "a-drēogan",
-      "ā-drēogan"
-    ],
-    "adreogendlic": [
-      "a-drēogendlīc",
-      "ā-drēogendlic"
-    ],
-    "adreosan": [
-      "a-drēosan",
-      "ā-drēosan"
-    ],
-    "adrifan": [
-      "a-drīfan",
-      "ā-drīfan"
-    ],
-    "adrincan": [
-      "a-drincan",
-      "ā-drincan"
-    ],
-    "adrugian": [
-      "a-drugian",
-      "ā-drūgian"
-    ],
-    "adrygan": [
-      "a-drygan",
-      "ā-drȳgan"
-    ],
-    "adumbian": [
-      "a-dumbian",
-      "ā-dumbian"
-    ],
-    "adun": [
-      "a-dūn",
-      "ā-dūn"
-    ],
-    "adwæscan": [
-      "a-dwæscan",
-      "ā-dwǣscan"
-    ],
-    "adwelian": [
-      "a-dwelian",
-      "ā-dwelian"
-    ],
-    "adwinan": [
-      "a-dwīnan",
-      "ā-dwīnan"
     ],
     "æ": [
       "æ",
@@ -38581,186 +38820,17 @@
       "æ-wyrp",
       "ǣ-wyrp"
     ],
-    "afæran": [
-      "a-fǣran",
-      "ā-fǣran"
-    ],
-    "afæstan": [
-      "a-fæstan",
-      "ā-fæstan"
-    ],
-    "afæstnian": [
-      "a-fæstnian",
-      "ā-fæstnian"
-    ],
-    "afandelic": [
-      "a-fandelīc",
-      "ā-fandelic"
-    ],
-    "afandian": [
-      "a-fandian",
-      "ā-fandian"
-    ],
-    "afandigendlic": [
-      "a-fandigendlīc",
-      "ā-fandigendlic"
-    ],
-    "afandung": [
-      "a-fandung",
-      "ā-fandung"
-    ],
-    "afaran": [
-      "a-faran",
-      "ā-faran"
-    ],
-    "afeallan": [
-      "a-feallan",
-      "ā-feallan"
-    ],
-    "afeccan": [
-      "a-feccan",
-      "ā-feccan"
-    ],
-    "afedan": [
-      "a-fedan",
-      "ā-fēdan"
-    ],
-    "afehþ": [
-      "a-fēhþ",
-      "ā-fēhþ"
-    ],
-    "afeohtan": [
-      "a-feohtan",
-      "ā-feohtan"
-    ],
-    "afeormian": [
-      "a-feormian",
-      "ā-feormian"
-    ],
-    "afeormung": [
-      "a-feormung",
-      "ā-feormung"
-    ],
-    "afeorsian": [
-      "a-feorsian",
-      "ā-feorsian"
-    ],
-    "aferian": [
-      "a-ferian",
-      "aferian",
-      "ā-ferian"
-    ],
-    "aferran": [
-      "a-ferran",
-      "ā-ferran"
-    ],
-    "afirran": [
-      "a-firran",
-      "ā-firran"
-    ],
-    "afirsian": [
-      "a-firsian",
-      "ā-firsian"
-    ],
-    "afleon": [
-      "a-flēon",
-      "ā-flēon"
-    ],
-    "afleotan": [
-      "a-flēotan",
-      "ā-flēotan"
-    ],
     "aflian": [
       "a-flian",
       "aflian"
-    ],
-    "aflowan": [
-      "a-flōwan",
-      "ā-flōwan"
-    ],
-    "aflyman": [
-      "a-flȳman",
-      "ā-flȳman"
-    ],
-    "afon": [
-      "a-fōn",
-      "ā-fōn"
     ],
     "afor": [
       "a-fōr",
       "afor"
     ],
-    "aforhtian": [
-      "a-forhtian",
-      "ā-forhtian"
-    ],
-    "afrefran": [
-      "a-frēfran",
-      "ā-frēfran"
-    ],
-    "afulian": [
-      "a-fūlian",
-      "ā-fūlian"
-    ],
-    "afunden": [
-      "a-fūnden",
-      "ā-funden"
-    ],
-    "afylan": [
-      "a-fylan",
-      "ā-fȳlan"
-    ],
-    "afyllan": [
-      "a-fyllan",
-      "ā-fyllan"
-    ],
-    "afyran": [
-      "a-fyran",
-      "ā-fȳran"
-    ],
-    "afyrhtan": [
-      "a-fyrhtan",
-      "ā-fyrhtan"
-    ],
-    "afysan": [
-      "a-fȳsan",
-      "ā-fȳsan"
-    ],
-    "agælan": [
-      "a-gǣlan",
-      "ā-gǣlan"
-    ],
-    "agælwed": [
-      "a-gælwed",
-      "ā-gælwed"
-    ],
-    "agalan": [
-      "a-galan",
-      "a-gālan",
-      "ā-galan"
-    ],
-    "agan": [
-      "a-gan",
-      "a-gān",
-      "agan",
-      "ā-gān",
-      "āgan"
-    ],
-    "agangan": [
-      "a-gangan",
-      "ā-gangan"
-    ],
     "ageat": [
       "a-geat",
       "a-gēat"
-    ],
-    "ageldan": [
-      "a-geldan",
-      "ā-geldan"
-    ],
-    "agelwan": [
-      "a-gelwan",
-      "ā-gelwan"
     ],
     "agen": [
       "a-gēn",
@@ -38768,155 +38838,23 @@
     ],
     "an": [
       "an",
-      "willa",
-      "āgend-frēa",
       "ān"
-    ],
-    "ageolwian": [
-      "a-geolwian",
-      "ā-geolwian"
-    ],
-    "ageotan": [
-      "a-gēotan",
-      "ā-gēotan"
-    ],
-    "agifan": [
-      "a-gifan",
-      "ā-gifan"
-    ],
-    "agildan": [
-      "a-gildan",
-      "ā-gildan"
-    ],
-    "agimeleasian": [
-      "a-gīmelēasian",
-      "ā-gīmelēasian"
-    ],
-    "aginnan": [
-      "a-ginnan",
-      "ā-ginnan"
-    ],
-    "agita": [
-      "a-gīta",
-      "ā-gīta"
-    ],
-    "agitan": [
-      "a-gitan",
-      "a-gītan",
-      "agītan",
-      "ā-gitan"
-    ],
-    "aglidan": [
-      "a-glīdan",
-      "ā-glīdan"
     ],
     "agnere": [
       "agnere",
       "āgnere"
     ],
-    "agrafan": [
-      "a-grafan",
-      "ā-grafan"
-    ],
     "agrafenlice": [
       "a-grafen-līce",
       "a-grafenlīce"
-    ],
-    "agrisan": [
-      "a-grīsan",
-      "ā-grīsan"
-    ],
-    "agyltan": [
-      "a-gyltan",
-      "ā-gyltan"
-    ],
-    "agytan": [
-      "a-gytan",
-      "ā-gytan"
     ],
     "ah": [
       "ah",
       "āh"
     ],
-    "ahabban": [
-      "a-habban",
-      "ā-habban"
-    ],
-    "aheardian": [
-      "a-heardian",
-      "ā-heardian"
-    ],
-    "aheardung": [
-      "a-heardung",
-      "ā-heardung"
-    ],
-    "aheawan": [
-      "a-hēawan",
-      "ā-hēawan"
-    ],
-    "ahebban": [
-      "a-hebban",
-      "ā-hebban"
-    ],
-    "ahefigian": [
-      "a-hefigian",
-      "ā-hefigian"
-    ],
-    "ahelpan": [
-      "a-helpan",
-      "ā-helpan"
-    ],
-    "ahenan": [
-      "a-hēnan",
-      "ā-hēnan"
-    ],
-    "aheordan": [
-      "a-heordan",
-      "ā-heordan"
-    ],
     "aherian": [
       "a-herian",
       "a-hērian"
-    ],
-    "ahildan": [
-      "a-hildan",
-      "ā-hildan"
-    ],
-    "ahlænsian": [
-      "a-hlǣnsian",
-      "ā-hlǣnsian"
-    ],
-    "ahleapan": [
-      "a-hlēapan",
-      "ā-hlēapan"
-    ],
-    "ahlowan": [
-      "a-hlōwan",
-      "ā-hlōwan"
-    ],
-    "aholian": [
-      "a-holian",
-      "ā-holian"
-    ],
-    "ahon": [
-      "a-hōn",
-      "ā-hōn"
-    ],
-    "ahreddan": [
-      "a-hreddan",
-      "ā-hreddan"
-    ],
-    "ahreosan": [
-      "a-hrēosan",
-      "ā-hrēosan"
-    ],
-    "ahrepian": [
-      "a-hrepian",
-      "ā-hrepian"
-    ],
-    "ahreran": [
-      "a-hrēran",
-      "ā-hrēran"
     ],
     "aht": [
       "a-hrydred",
@@ -38926,87 +38864,9 @@
       "a-hrydred",
       "ahsian"
     ],
-    "ahuþan": [
-      "a-hūðan",
-      "ā-hūðan"
-    ],
-    "ahwænan": [
-      "a-hwǣnan",
-      "ā-hwǣnan"
-    ],
-    "ahwærgen": [
-      "ā-hwærgen",
-      "ā-hwǣrgen"
-    ],
-    "ahwæþer": [
-      "ā-hwæðer",
-      "ā-hwæþer"
-    ],
-    "ahweorfan": [
-      "a-hweorfan",
-      "ā-hweorfan"
-    ],
-    "ahwerfan": [
-      "a-hwerfan",
-      "ā-hwerfan"
-    ],
-    "ahwettan": [
-      "a-hwettan",
-      "ā-hwettan"
-    ],
-    "ahwilc": [
-      "ah-wilc",
-      "ā-hwilc"
-    ],
-    "ahydan": [
-      "a-hȳdan",
-      "ā-hȳdan"
-    ],
-    "ahyþan": [
-      "a-hȳðan",
-      "ā-hȳðan"
-    ],
     "al": [
       "al",
       "āl"
-    ],
-    "aladian": [
-      "a-lādian",
-      "ā-lādian"
-    ],
-    "alædan": [
-      "a-lǣdan",
-      "ā-lǣdan"
-    ],
-    "alænan": [
-      "a-lǣnan",
-      "ā-lǣnan"
-    ],
-    "alætan": [
-      "a-lǣtan",
-      "ā-lǣtan"
-    ],
-    "alætnes": [
-      "a-lǣtnes",
-      "ā-lǣtnes"
-    ],
-    "alecgan": [
-      "a-lecgan",
-      "ā-lecgan"
-    ],
-    "alefan": [
-      "a-lefan",
-      "a-lēfan",
-      "ā-lēfan"
-    ],
-    "aleogan": [
-      "a-lēogan",
-      "ā-lēogan"
-    ],
-    "alesan": [
-      "a-lesan",
-      "a-lēsan",
-      "ā-lesan"
     ],
     "alet": [
       "a-lēt",
@@ -39016,99 +38876,13 @@
       "al-geweorc",
       "āl-geweorc"
     ],
-    "alibban": [
-      "a-libban",
-      "ā-libban"
-    ],
-    "alicgan": [
-      "a-licgan",
-      "ā-licgan"
-    ],
-    "alifian": [
-      "a-lifian",
-      "ā-lifian"
-    ],
-    "alihtan": [
-      "a-līhtan",
-      "alīhtan",
-      "ā-līhtan"
-    ],
-    "aloccian": [
-      "a-loccian",
-      "ā-loccian"
-    ],
-    "alucan": [
-      "a-lūcan",
-      "ā-lūcan"
-    ],
-    "alutan": [
-      "a-lūtan",
-      "ā-lūtan"
-    ],
-    "alyfan": [
-      "alȳfan",
-      "ā-lȳfan"
-    ],
-    "alynian": [
-      "a-lynian",
-      "ā-lynian"
-    ],
-    "alysan": [
-      "a-lȳsan",
-      "ā-lȳsan"
-    ],
     "am": [
       "am",
       "ām"
     ],
-    "amæstan": [
-      "a-mæstan",
-      "ā-mæstan"
-    ],
-    "amang": [
-      "a-mang",
-      "ā-mang"
-    ],
-    "amansod": [
-      "a-mānsod",
-      "ā-mānsod"
-    ],
-    "amansumian": [
-      "a-mān-sumian",
-      "ā-mansumian",
-      "ā-mānsumian"
-    ],
-    "amansumung": [
-      "a-mān-sumung",
-      "ā-mānsumung"
-    ],
     "amber": [
       "amber",
       "ām-ber"
-    ],
-    "amearcian": [
-      "a-mearcian",
-      "ā-mearcian"
-    ],
-    "ameldian": [
-      "a-meldian",
-      "ā-meldian"
-    ],
-    "amerian": [
-      "a-merian",
-      "ā-merian"
-    ],
-    "ametan": [
-      "a-metan",
-      "ā-metan"
-    ],
-    "amundian": [
-      "a-mundian",
-      "ā-mundian"
-    ],
-    "amyrdrian": [
-      "a-myrdrian",
-      "ā-myrdrian"
     ],
     "anbid": [
       "an-bid",
@@ -39158,10 +38932,6 @@
       "and-weard-līce",
       "and-weardlīce"
     ],
-    "aneglod": [
-      "a-neglod",
-      "ā-neglod"
-    ],
     "anfealdlice": [
       "ānfeald-līce",
       "ānfealdlīce"
@@ -39193,10 +38963,6 @@
     "angsumlice": [
       "ang-sum-līce",
       "angsumlīce"
-    ],
-    "animan": [
-      "a-niman",
-      "ā-niman"
     ],
     "anlic": [
       "an-līc",
@@ -39240,78 +39006,21 @@
       "an-wealda",
       "ān-wealda"
     ],
-    "apæcan": [
-      "a-pǣcan",
-      "ā-pǣcan"
-    ],
     "apflod": [
       "ap-flōd",
       "āp-flod"
-    ],
-    "apinsian": [
-      "a-pinsian",
-      "ā-pinsian"
-    ],
-    "aplantian": [
-      "a-plantian",
-      "ā-plantian"
-    ],
-    "apullian": [
-      "a-pullian",
-      "ā-pullian"
-    ],
-    "aræcan": [
-      "a-rǣcan",
-      "ā-rǣcan"
-    ],
-    "aræd": [
-      "a-rǣd",
-      "ā-rǣd"
-    ],
-    "arædan": [
-      "a-rǣdan",
-      "ā-rǣdan"
-    ],
-    "aræran": [
-      "a-rǣran",
-      "ā-ræran",
-      "ā-rǣran"
-    ],
-    "aræsan": [
-      "a-rǣsan",
-      "ā-ræsan"
     ],
     "aras": [
       "a-rās",
       "āras"
     ],
-    "arasian": [
-      "a-rāsian",
-      "ā-rāsian"
-    ],
     "are": [
       "are",
       "āre"
     ],
-    "areccan": [
-      "a-reccan",
-      "ā-reccan"
-    ],
     "ared": [
       "a-rēd",
       "ared"
-    ],
-    "aredian": [
-      "a-rēdian",
-      "ā-redian"
-    ],
-    "areodian": [
-      "a-rēodian",
-      "ā-rēodian"
-    ],
-    "aretan": [
-      "a-rētan",
-      "ā-rētan"
     ],
     "arfæstlice": [
       "ār-fæstlīce",
@@ -39324,22 +39033,6 @@
     "arfullice": [
       "ārful-līce",
       "ārfullīce"
-    ],
-    "ariht": [
-      "a-riht",
-      "ā-riht"
-    ],
-    "ariman": [
-      "a-rīman",
-      "ā-rīman"
-    ],
-    "arinnan": [
-      "a-rinnan",
-      "ā-rinnan"
-    ],
-    "arisan": [
-      "a-rīsan",
-      "ā-rīsan"
     ],
     "arleaslice": [
       "ārlēaslice",
@@ -39365,751 +39058,37 @@
       "ār-weorþlic",
       "ār-weorþlīc"
     ],
-    "asanian": [
-      "a-sānian",
-      "ā-sānian"
-    ],
-    "asawan": [
-      "a-sāwan",
-      "ā-sāwan"
-    ],
-    "ascafan": [
-      "a-scafan",
-      "ā-scafan"
-    ],
-    "asceacan": [
-      "a-sceacan",
-      "ā-sceacan"
-    ],
-    "asceadan": [
-      "a-scēadan",
-      "ā-scēadan"
-    ],
-    "ascealian": [
-      "a-scealian",
-      "ā-scealian"
-    ],
-    "asceotan": [
-      "a-scēotan",
-      "ā-scēotan"
-    ],
     "ascian": [
       "ascian",
       "āscian"
-    ],
-    "ascilian": [
-      "a-scilian",
-      "ā-scilian"
-    ],
-    "ascinan": [
-      "a-scīnan",
-      "ā-scīnan"
-    ],
-    "asciran": [
-      "ā-sciran",
-      "ā-scīran"
-    ],
-    "ascirian": [
-      "a-scirian",
-      "ā-scirian"
-    ],
-    "ascirigendlic": [
-      "a-scirigendlīc",
-      "ā-scirigendlic"
-    ],
-    "ascirpan": [
-      "a-scirpan",
-      "ā-scirpan"
-    ],
-    "ascirred": [
-      "ascirred",
-      "ā-scirred"
-    ],
-    "ascortian": [
-      "a-scortian",
-      "ā-scortian"
-    ],
-    "ascreadian": [
-      "a-scrēadian",
-      "ā-scrēadian"
-    ],
-    "ascrencan": [
-      "a-screncan",
-      "ā-screncan"
-    ],
-    "ascreopan": [
-      "a-screopan",
-      "ā-screopan"
-    ],
-    "ascrincan": [
-      "a-scrincan",
-      "ā-scrincan"
-    ],
-    "ascufan": [
-      "a-scūfan",
-      "ā-scūfan"
     ],
     "ascung": [
       "ascung",
       "āscung"
     ],
-    "ascuniendlic": [
-      "a-scūniendlīc",
-      "ā-scuniendlic"
-    ],
-    "ascunung": [
-      "a-scūnung",
-      "ā-scunung"
-    ],
-    "ascyndan": [
-      "a-scyndan",
-      "ā-scyndan"
-    ],
-    "asearian": [
-      "a-sēarian",
-      "ā-sēarian"
-    ],
-    "asecan": [
-      "a-sēcan",
-      "ā-sēcan"
-    ],
-    "asecgan": [
-      "a-secgan",
-      "ā-secgan"
-    ],
-    "asecgendlic": [
-      "a-secgendlīc",
-      "ā-secgendlic"
-    ],
-    "asellan": [
-      "a-sellan",
-      "ā-sellan"
-    ],
-    "asendan": [
-      "a-sendan",
-      "ā-sendan"
-    ],
-    "asengan": [
-      "a-sēngan",
-      "ā-sēngan"
-    ],
-    "aseon": [
-      "a-sēon",
-      "ā-sēon"
-    ],
-    "aseoþan": [
-      "a-sēoðan",
-      "ā-sēoþan"
-    ],
-    "asettan": [
-      "a-settan",
-      "ā-settan"
-    ],
     "asicyd": [
       "a-sicyd",
       "asicyd"
-    ],
-    "asigan": [
-      "a-sīgan",
-      "ā-sīgan"
-    ],
-    "asingan": [
-      "a-singan",
-      "ā-singan"
-    ],
-    "asittan": [
-      "a-sittan",
-      "ā-sittan"
-    ],
-    "aslacian": [
-      "a-slacian",
-      "ā-slacian"
-    ],
-    "aslæccan": [
-      "a-slæccan",
-      "ā-slæccan"
-    ],
-    "aslæcian": [
-      "a-slæcian",
-      "ā-slæcian"
-    ],
-    "aslapan": [
-      "a-slāpan",
-      "ā-slāpan"
-    ],
-    "aslawian": [
-      "a-slāwian",
-      "ā-slāwian"
-    ],
-    "aslean": [
-      "a-slēan",
-      "ā-slēan"
-    ],
-    "aslidan": [
-      "a-slīdan",
-      "ā-slīdan"
-    ],
-    "aslitan": [
-      "a-slitan",
-      "ā-slītan"
-    ],
-    "asmeagan": [
-      "a-smēagan",
-      "ā-smēagan"
-    ],
-    "asmiþian": [
-      "a-smiðian",
-      "ā-smiþian"
-    ],
-    "asmorian": [
-      "a-smorian",
-      "ā-smorian"
-    ],
-    "asnæsan": [
-      "a-snǣsan",
-      "ā-snǣsan"
-    ],
-    "asniþan": [
-      "a-sniðan",
-      "ā-snīþan"
-    ],
-    "asolcen": [
-      "a-solcen",
-      "ā-solcen"
-    ],
-    "asolcennys": [
-      "a-solcennys",
-      "ā-solcennys"
-    ],
-    "aspanan": [
-      "a-spanan",
-      "ā-spanan"
-    ],
-    "aspelian": [
-      "a-spelian",
-      "ā-spelian"
-    ],
-    "aspendan": [
-      "a-spendan",
-      "ā-spendan"
-    ],
-    "aspiwan": [
-      "a-spīwan",
-      "ā-spīwan"
-    ],
-    "aspreotan": [
-      "a-sprēotan",
-      "ā-sprēotan"
-    ],
-    "aspringan": [
-      "a-springan",
-      "ā-springan"
-    ],
-    "asprungennes": [
-      "a-sprungennes",
-      "ā-sprungennes"
-    ],
-    "asprytan": [
-      "a-sprȳtan",
-      "ā-sprȳtan"
-    ],
-    "aspylian": [
-      "a-spȳlian",
-      "ā-spȳlian"
-    ],
-    "aspyrgeng": [
-      "a-spyrgeng",
-      "ā-spyrgeng"
-    ],
-    "aspyrian": [
-      "a-spyrian",
-      "ā-spyrian"
-    ],
-    "astænan": [
-      "a-stǣnan",
-      "ā-stǣnan"
-    ],
-    "astandan": [
-      "a-standan",
-      "ā-standan"
-    ],
-    "astellan": [
-      "a-stellan",
-      "ā-stellan"
-    ],
-    "astemnian": [
-      "a-stemnian",
-      "ā-stemnian"
-    ],
-    "asteorfan": [
-      "a-steorfan",
-      "ā-steorfan"
-    ],
-    "asterfan": [
-      "a-sterfan",
-      "ā-sterfan"
-    ],
-    "astigan": [
-      "a-stīgan",
-      "ā-stīgan"
-    ],
-    "astigend": [
-      "a-stīgend",
-      "ā-stīgend"
-    ],
-    "astiþian": [
-      "astīðian",
-      "ā-stīðian"
-    ],
-    "astreccan": [
-      "a-streccan",
-      "ā-streccan"
-    ],
-    "astregdan": [
-      "a-stregdan",
-      "ā-stregdan"
-    ],
-    "astrengd": [
-      "astrengd",
-      "ā-strengd"
-    ],
-    "astundian": [
-      "a-stundian",
-      "ā-stundian"
-    ],
-    "astyfecigan": [
-      "a-stȳfecigan",
-      "ā-stȳfecigan"
-    ],
-    "astyltan": [
-      "a-styltan",
-      "ā-styltan"
-    ],
-    "astyrian": [
-      "a-styrian",
-      "ā-styrian"
-    ],
-    "astyrung": [
-      "a-styrung",
-      "ā-styrung"
-    ],
-    "asugan": [
-      "a-sūgan",
-      "ā-sūgan"
-    ],
-    "asundrian": [
-      "a-sundrian",
-      "ā-sundrian"
-    ],
-    "asurian": [
-      "a-sūrian",
-      "ā-sūrian"
-    ],
-    "aswæman": [
-      "a-swǣman",
-      "ā-swǣman"
-    ],
-    "aswarnian": [
-      "a-swārnian",
-      "ā-swārnian"
-    ],
-    "asweartian": [
-      "a-sweartian",
-      "ā-sweartian"
-    ],
-    "aswefecian": [
-      "a-swefecian",
-      "ā-swefecian"
-    ],
-    "aswellan": [
-      "a-swellan",
-      "ā-swellan"
-    ],
-    "asweltan": [
-      "a-sweltan",
-      "ā-sweltan"
-    ],
-    "aswengan": [
-      "a-swengan",
-      "ā-swengan"
-    ],
-    "asweorfan": [
-      "a-sweorfan",
-      "ā-sweorfan"
-    ],
-    "aswifan": [
-      "a-swīfan",
-      "ā-swīfan"
-    ],
-    "aswindan": [
-      "a-swindan",
-      "ā-swindan"
-    ],
-    "asyndran": [
-      "a-syndran",
-      "ā-syndran"
-    ],
-    "asyndrung": [
-      "a-syndrung",
-      "ā-syndrung"
-    ],
-    "atefred": [
-      "a-tefred",
-      "ā-tēfred"
-    ],
-    "atellan": [
-      "a-tellan",
-      "ā-tellan"
-    ],
-    "atemian": [
-      "a-temian",
-      "ā-temian"
-    ],
-    "atendan": [
-      "a-tendan",
-      "ā-tendan"
-    ],
-    "atendend": [
-      "a-tendend",
-      "ā-tendend"
-    ],
-    "ateon": [
-      "a-tēon",
-      "ā-tēon"
-    ],
-    "ateorian": [
-      "a-teorian",
-      "ā-teorian"
-    ],
-    "ateorung": [
-      "a-teorung",
-      "ā-teorung"
-    ],
-    "aþecgan": [
-      "a-þecgan",
-      "ā-þecgan"
-    ],
-    "aþegen": [
-      "a-þegen",
-      "ā-þegen"
-    ],
-    "aþencan": [
-      "a-þencan",
-      "ā-þencan"
-    ],
-    "aþenian": [
-      "a-þenian",
-      "ā-þenian"
     ],
     "aþenung": [
       "a-þenung",
       "āþenung"
     ],
-    "aþeodan": [
-      "a-þēodan",
-      "ā-þēodan"
-    ],
-    "aþeostrian": [
-      "a-þēostrian",
-      "ā-þēostrian"
-    ],
-    "aþindan": [
-      "a-þindan",
-      "ā-þindan"
-    ],
-    "aþindung": [
-      "a-þindung",
-      "ā-þindung"
-    ],
-    "aþolian": [
-      "a-þolian",
-      "ā-þolian"
-    ],
-    "aþracian": [
-      "a-þracian",
-      "ā-þracian"
-    ],
-    "aþræstan": [
-      "a-þrǣstan",
-      "ā-þrǣstan"
-    ],
-    "aþrawan": [
-      "a-þrāwan",
-      "ā-þrāwan"
-    ],
-    "aþreotan": [
-      "a-þrēotan",
-      "ā-þrēotan"
-    ],
-    "aþriettan": [
-      "a-þrīettan",
-      "ā-þrīettan"
-    ],
-    "aþringan": [
-      "a-þringan",
-      "ā-þringan"
-    ],
-    "aþroten": [
-      "a-þroten",
-      "ā-þroten"
-    ],
-    "aþrotennes": [
-      "a-þrotennes",
-      "ā-þrotennes"
-    ],
-    "aþrotsum": [
-      "a-þrotsum",
-      "ā-þrotsum"
-    ],
-    "aþrowen": [
-      "a-þrowen",
-      "ā-þrowen"
-    ],
-    "aþrowian": [
-      "a-þrōwian",
-      "ā-þrowian"
-    ],
     "aþum": [
       "āðum",
       "āþum"
-    ],
-    "aþwean": [
-      "a-þwēan",
-      "ā-þwēan"
-    ],
-    "aþweran": [
-      "a-þweran",
-      "ā-þweran"
-    ],
-    "aþyan": [
-      "a-þȳan",
-      "ā-þȳan"
-    ],
-    "aþynnian": [
-      "a-þynnian",
-      "ā-þynnian"
-    ],
-    "aþywan": [
-      "a-þȳwan",
-      "ā-þȳwan"
     ],
     "atorlaþe": [
       "ātor-lāðe",
       "ātor-lāþe"
     ],
-    "atyhtan": [
-      "a-tyhtan",
-      "ā-tyhtan"
-    ],
-    "atynan": [
-      "a-tȳnan",
-      "ā-tȳnan"
-    ],
-    "awacan": [
-      "a-wacan",
-      "ā-wacan"
-    ],
-    "awacian": [
-      "a-wacian",
-      "a-wācian",
-      "ā-wacian",
-      "ā-wācian"
-    ],
-    "awacnian": [
-      "a-wacnian",
-      "ā-wacnian"
-    ],
-    "awæcan": [
-      "a-wǣcan",
-      "ā-wǣcan"
-    ],
-    "awægan": [
-      "a-wǣgan",
-      "ā-wǣgan"
-    ],
-    "awælan": [
-      "a-wǣlan",
-      "ā-wǣlan"
-    ],
-    "awanian": [
-      "a-wanian",
-      "ā-wanian"
-    ],
-    "awannian": [
-      "a-wannian",
-      "ā-wannian"
-    ],
-    "aweallan": [
-      "a-weallan",
-      "ā-weallan"
-    ],
-    "aweaxan": [
-      "a-weaxan",
-      "ā-weaxan"
-    ],
-    "awecgan": [
-      "a-wecgan",
-      "ā-wecgan"
-    ],
-    "awedan": [
-      "a-wēdan",
-      "ā-wēdan"
-    ],
-    "aweg": [
-      "a-weg",
-      "ā-weg"
-    ],
     "awegadrifan": [
       "aweg-adrīfan",
       "āweg-ādrīfan"
     ],
-    "awegan": [
-      "a-wegan",
-      "ā-wegan"
-    ],
-    "awendan": [
-      "a-wendan",
-      "ā-wendan"
-    ],
-    "awendedlic": [
-      "a-wended-līc",
-      "ā-wendedlic"
-    ],
-    "awenian": [
-      "a-wenian",
-      "ā-wenian"
-    ],
-    "aweodian": [
-      "a-wēodian",
-      "ā-wēodian"
-    ],
-    "aweorpan": [
-      "a-weorpan",
-      "ā-weorpan"
-    ],
-    "aweorþan": [
-      "a-weorþan",
-      "ā-weorþan"
-    ],
-    "aweosung": [
-      "a-weosung",
-      "ā-weosung"
-    ],
-    "awerd": [
-      "a-werd",
-      "ā-werd"
-    ],
-    "awerian": [
-      "a-werian",
-      "ā-werian"
-    ],
-    "awestan": [
-      "a-wēstan",
-      "ā-wēstan"
-    ],
-    "awildian": [
-      "a-wildian",
-      "ā-wildian"
-    ],
-    "awillan": [
-      "a-willan",
-      "ā-willan"
-    ],
-    "awindan": [
-      "a-windan",
-      "ā-windan"
-    ],
-    "awindwian": [
-      "a-windwian",
-      "ā-windwian"
-    ],
-    "awinnan": [
-      "a-winnan",
-      "ā-winnan"
-    ],
-    "awirdan": [
-      "a-wirdan",
-      "ā-wirdan"
-    ],
-    "awlætan": [
-      "a-wlǣtan",
-      "ā-wlǣtan"
-    ],
-    "awlancian": [
-      "a-wlancian",
-      "ā-wlancian"
-    ],
-    "awoffian": [
-      "a-woffian",
-      "ā-woffian"
-    ],
-    "awoh": [
-      "awōh",
-      "ā-wōh"
-    ],
-    "aworpenlic": [
-      "a-worpen-līc",
-      "ā-worpenlic"
-    ],
-    "awræstan": [
-      "a-wrǣstan",
-      "ā-wrǣstan"
-    ],
-    "awrecan": [
-      "a-wrecan",
-      "ā-wrecan"
-    ],
-    "awreccan": [
-      "a-wreccan",
-      "ā-wreccan"
-    ],
-    "awreon": [
-      "a-wrēon",
-      "ā-wrēon"
-    ],
-    "awreþian": [
-      "a-wreðian",
-      "ā-wreþian"
-    ],
-    "awringan": [
-      "a-wringan",
-      "ā-wringan"
-    ],
-    "awritan": [
-      "a-wrītan",
-      "ā-wrītan"
-    ],
     "awriþan": [
       "a-wrīðan",
       "āwrīþan"
-    ],
-    "awundrian": [
-      "a-wundrian",
-      "ā-wundrian"
-    ],
-    "awunian": [
-      "a-wunian",
-      "ā-wunian"
-    ],
-    "awyrcan": [
-      "a-wyrcan",
-      "ā-wyrcan"
-    ],
-    "awyrgan": [
-      "a-wyrgan",
-      "ā-wyrgan"
-    ],
-    "awyrn": [
-      "ā-wyrn",
-      "āwyrn"
-    ],
-    "awyrtwalian": [
-      "a-wyrt-walian",
-      "ā-wyrtwalian"
-    ],
-    "aytan": [
-      "a-ȳtan",
-      "ā-ȳtan"
     ],
     "bæce": [
       "bæce",
