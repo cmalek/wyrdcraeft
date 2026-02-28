@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39072,
-    "ambiguous_count": 1168
+    "unique_count": 39084,
+    "ambiguous_count": 1156
   },
   "unique": {
     "a": "ā",
@@ -39078,7 +39078,19 @@
     "ærist": "ǣ-rist",
     "æswica": "ǣ-swīca",
     "æswind": "ǣ-swind",
-    "æwyrp": "ǣ-wyrp"
+    "æwyrp": "ǣ-wyrp",
+    "adelseaþ": "adel-sēaþ",
+    "adlig": "ādlig",
+    "aetfeng": "ǣt-feng",
+    "aflian": "ā-flian",
+    "afor": "ā-for",
+    "ageat": "ā-gēat",
+    "agnere": "āgnere",
+    "aht": "āht",
+    "aherian": "ā-hērian",
+    "ahsian": "āhsian",
+    "algeweorc": "al-geweorc",
+    "amber": "amber"
   },
   "ambiguous": {
     "ac": [
@@ -39088,14 +39100,6 @@
     "acen": [
       "acen",
       "ācen"
-    ],
-    "adelseaþ": [
-      "adel-seaþ",
-      "adel-sēaþ"
-    ],
-    "adlig": [
-      "adlig",
-      "ādlig"
     ],
     "æ": [
       "æ",
@@ -39249,10 +39253,6 @@
       "aet-feng",
       "ǣt-feng"
     ],
-    "aetfeng": [
-      "aet-feng",
-      "ǣt-feng"
-    ],
     "ætfeolan": [
       "æt-feolan",
       "æt-fēolan"
@@ -39293,18 +39293,6 @@
       "ǣwisc-nys",
       "ǣwiscnys"
     ],
-    "aflian": [
-      "a-flian",
-      "aflian"
-    ],
-    "afor": [
-      "a-fōr",
-      "afor"
-    ],
-    "ageat": [
-      "a-geat",
-      "a-gēat"
-    ],
     "agen": [
       "a-gēn",
       "āgen"
@@ -39313,25 +39301,9 @@
       "an",
       "ān"
     ],
-    "agnere": [
-      "agnere",
-      "āgnere"
-    ],
     "ah": [
       "ah",
       "āh"
-    ],
-    "aherian": [
-      "a-herian",
-      "a-hērian"
-    ],
-    "aht": [
-      "a-hrydred",
-      "āht"
-    ],
-    "ahsian": [
-      "a-hrydred",
-      "ahsian"
     ],
     "al": [
       "al",
@@ -39339,19 +39311,12 @@
     ],
     "alet": [
       "a-lēt",
-      "alet"
-    ],
-    "algeweorc": [
-      "al-geweorc",
-      "āl-geweorc"
+      "alet",
+      "ā-lēt"
     ],
     "am": [
       "am",
       "ām"
-    ],
-    "amber": [
-      "amber",
-      "ām-ber"
     ],
     "anbid": [
       "an-bid",
@@ -43795,5 +43760,197 @@
       "yþ",
       "ȳþ"
     ]
+  },
+  "ambiguous_metadata": {
+    "ac": {
+      "ac": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "why, whether, noone"
+          },
+          {
+            "part_of_speech_code": "CONJ",
+            "modern_english_meaning": "but, and"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "why, whether, noone"
+      },
+      "āc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "oak tree"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "oak tree"
+      }
+    },
+    "acen": {
+      "acen": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "pained (pp)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "pained (pp)"
+      },
+      "ācen": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "oaken"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "oaken"
+      }
+    },
+    "agen": {
+      "a-gēn": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "again"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "again"
+      },
+      "āgen": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "own"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "own"
+      }
+    },
+    "ah": {
+      "ah": {
+        "senses": [
+          {
+            "part_of_speech_code": "CONJ",
+            "modern_english_meaning": "but, but also, whether"
+          }
+        ],
+        "part_of_speech_code": "CONJ",
+        "modern_english_meaning": "but, but also, whether"
+      },
+      "āh": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "has, owns (from āgan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "has, owns (from āgan)"
+      }
+    },
+    "al": {
+      "al": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "an awl"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "an awl"
+      },
+      "āl": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a fire"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a fire"
+      }
+    },
+    "alet": {
+      "ā-lēt": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
+      },
+      "a-lēt": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
+      },
+      "alet": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "fire"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "fire"
+      }
+    },
+    "am": {
+      "am": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "am"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "am"
+      },
+      "ām": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "the reed or slay of a weaver's loom"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "the reed or slay of a weaver's loom"
+      }
+    },
+    "an": {
+      "an": {
+        "senses": [
+          {
+            "part_of_speech_code": "PREP",
+            "modern_english_meaning": "in, among, into, to"
+          }
+        ],
+        "part_of_speech_code": "PREP",
+        "modern_english_meaning": "in, among, into, to"
+      },
+      "ān": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "only"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "only"
+      }
+    }
   }
 }

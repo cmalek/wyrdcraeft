@@ -12,11 +12,13 @@ from wyrdcraeft.services.markup import MacronApplicator
 
 def main() -> None:
     """
-    Build ``data/oe_bt_macron_index.json`` from ``data/oe_bt.txt``.
+    Build ``wyrdcraeft/etc/diacritic/oe_bt_macron_index.json`` from ``data/oe_bt.txt``.
     """
     project_root = Path(__file__).resolve().parents[2]
     source_path = project_root / "data" / "oe_bt.txt"
-    output_path = project_root / "data" / "oe_bt_macron_index.json"
+    output_path = (
+        project_root / "wyrdcraeft" / "etc" / "diacritic" / "oe_bt_macron_index.json"
+    )
     index = MacronApplicator.build_index_from_bt(source_path, output_path)
     print(
         "Wrote "
