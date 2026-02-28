@@ -1,3 +1,4 @@
+from .diacritics import DiacriticRestorationResult, MacronAmbiguity
 from .llm import AnyLLMConfig
 from .parsing import PreParsedDocument, ProvisionalSection, RawBlock
 from .source_text import (
@@ -14,7 +15,9 @@ from .source_text import (
 __all__ = [
     "AnyLLMConfig",
     "Confidence",
+    "DiacriticRestorationResult",
     "Line",
+    "MacronAmbiguity",
     "Number",
     "OldEnglishText",
     "Paragraph",
