@@ -29,9 +29,9 @@ File Locations
 
 In macOS and Linux, configuration files are searched in this order:
 
-1. ``/etc/wyrdcraeft.conf`` (system-wide)
-2. ``~/.wyrdcraeft.conf`` (user-specific)
-3. ``./wyrdcraeft.conf`` (current directory)
+1. ``/etc/wyrdcraeft.toml`` (system-wide)
+2. ``~/.wyrdcraeft.toml`` (user-specific)
+3. ``./wyrdcraeft.toml`` (current directory)
 
 In Windows, the configuration files are searched in this order:
 

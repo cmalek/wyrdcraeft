@@ -1,12 +1,12 @@
 Configuration: Python Client
 ============================
 
-This guide covers all configuration options for the ``wyrdcraeft`` Python client.
+This guide covers how to use the ``wyrdcraeft`` Python client.
 
 Direct Configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-Configure the client directly in Python (this will use the :class:`~wyrdcraeft.HeuristicDocumentIngestor` class):
+Configure the client directly in Python using the :class:`~wyrdcraeft.DocumentIngestor` class:
 
 .. code-block:: python
 
@@ -25,6 +25,9 @@ Configure the client directly in Python (this will use the :class:`~wyrdcraeft.H
 Advanced Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
+TEI Ingestor
+^^^^^^^^^^^^
+
 Convert a `TEI <https://tei-c.org/>`_ XML document (this will use the :class:`~wyrdcraeft.TEIDocumentIngestor` class):
 
 .. code-block:: python
@@ -39,6 +42,9 @@ Convert a `TEI <https://tei-c.org/>`_ XML document (this will use the :class:`~w
         source_path="path/to/edition.xml",
         metadata=metadata,
     )
+
+LLM Ingestor
+^^^^^^^^^^^^
 
 Use `unstructured <https://unstructured.io/>`_ and `any-llm <https://any-llm.readthedocs.io/>`_ to convert a document (this will use the :class:`~wyrdcraeft.LLMDocumentIngestor` class):
 

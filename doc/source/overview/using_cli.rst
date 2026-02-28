@@ -16,8 +16,12 @@ Basic Help
     wyrdcraeft --help
 
     # Show help for specific command groups
+    wyrdcraeft version --help
     wyrdcraeft convert --help
     wyrdcraeft settings --help
+    wyrdcraeft settings show --help
+    wyrdcraeft settings create --help
+    wyrdcraeft source convert --help
 
 Command Structure
 -----------------
@@ -37,6 +41,12 @@ Common options available for all commands:
 
     # Enable verbose output
     wyrdcraeft --verbose convert input.txt output.json
+
+    # Enable quiet mode
+    wyrdcraeft --quiet convert input.txt output.json
+
+    # Use a custom configuration file
+    wyrdcraeft --config-file /path/to/config.toml convert input.txt output.json
 
     # Choose output format
     wyrdcraeft --output table settings show

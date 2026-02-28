@@ -161,10 +161,12 @@ Example JSON excerpt: To illustrate, here's a tiny fragment of what the JSON mig
 In this mock-up, we treat year 937 as a section with number “937”. It first has a paragraph (a prose introduction describing the Battle of Brunanburh) and then a list of lines which are the poetic celebration of the battle (the famous poem included in the Chronicle ). In practice, we might represent the whole poem as one object (e.g. a sub-section) separate from the prose. But this shows how the JSON can flexibly include both prose and verse under the same section. The source_page indicates these sentences came from page 120 of the source edition, for example.
 
 Notice how the verse lines have a number (line numbers 1 and 2 of the poem fragment) whereas the prose sentences do not have a number except we could include one if, say, the source numbered the sentences (not common, but Bible verses did as shown earlier). The year “937” is stored as the section's number - we could also include a field like “era”: “AD” if needed, but that might be overkill.
+
 Pydantic Models for the Schema
 ------------------------------
 
-To implement this in Python (>3.9<=3.13) and ensure our JSON structure is valid, we can define Pydantic v2 models. These models will help in reading/writing the JSON and validating that all required fields are present. See the :ref:`schema_models` for the Pydantic models corresponding to the design above.
+To implement this in Python (>3.9<=3.13) and ensure our JSON structure is valid, we defined Pydantic v2 models in the. These models help in reading/writing the JSON and validating that all required fields are present. See the :ref:`schema_models` for the Pydantic models corresponding to the design above.
+
 
 A few notes on these models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
