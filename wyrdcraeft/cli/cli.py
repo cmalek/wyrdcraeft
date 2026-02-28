@@ -200,8 +200,12 @@ def reading_convert(  # noqa: PLR0913
     Convert a source document to JSON.
     """
     settings: Settings = ctx.obj["settings"]
+    source_ref: str | Path = source
     if not source.startswith(("http://", "https://")):
-        source = Path(source)
+        source_ref = Path(source)
+        if not source_ref.exists():
+            msg = f"Source file not found: {source_ref}"
+            raise click.ClickException(msg)
 
     # Override settings with flags
     if llm_model:
@@ -214,8 +218,9 @@ def reading_convert(  # noqa: PLR0913
         settings.llm_timeout_s = llm_timeout
 
     metadata = TextMetadata(
-        title=title or (source.stem if isinstance(source, Path) else source),
-        source=str(source),
+        title=title
+        or (source_ref.stem if isinstance(source_ref, Path) else source_ref),
+        source=str(source_ref),
     )
 
     with Progress(
@@ -262,7 +267,11 @@ def reading_convert(  # noqa: PLR0913
 
         try:
             doc = DocumentIngestor().ingest(
-                source_path=source,
+                source_path=(
+                    source_ref
+                    if isinstance(source_ref, Path)
+                    else Path(source_ref)
+                ),
                 metadata=metadata,
                 use_llm=use_llm,
                 progress_callback=progress_callback,
@@ -272,9 +281,56 @@ def reading_convert(  # noqa: PLR0913
             output.write_text(doc.model_dump_json(indent=2), encoding="utf-8")
 
             if not ctx.obj.get("quiet"):
-                print_info(f"Successfully converted {source} to {output}")
+                print_info(f"Successfully converted {source_ref} to {output}")
         except Exception as e:
             if ctx.obj.get("verbose"):
                 raise
             print_error(f"Conversion failed: {e}")
             sys.exit(1)
+
+
+@cli.command(name="convert", help="Convert a source document to JSON.")
+@click.argument("source", type=str)
+@click.argument("output", type=click.Path(path_type=Path))
+@click.option(
+    "--use-llm/--no-use-llm",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help="Use LLM for extraction",
+)
+@click.option(
+    "--llm-model",
+    type=click.Choice(["qwen2.5:14b-instruct", "gpt-4o", "gemini-3-flash-preview"]),
+    help="LLM model ID",
+)
+@click.option("--llm-temperature", type=float, help="LLM temperature")
+@click.option("--llm-max-tokens", type=int, help="LLM max tokens")
+@click.option("--llm-timeout", type=int, help="LLM timeout in seconds")
+@click.option("--title", type=str, help="Title of the text")
+@click.pass_context
+def convert(  # noqa: PLR0913
+    ctx: click.Context,
+    source: str,
+    output: Path,
+    use_llm: bool,
+    llm_model: str | None,
+    llm_temperature: float | None,
+    llm_max_tokens: int | None,
+    llm_timeout: int | None,
+    title: str | None,
+) -> None:
+    """
+    Backward-compatible top-level alias for ``source convert``.
+    """
+    ctx.invoke(
+        reading_convert,
+        source=source,
+        output=output,
+        use_llm=use_llm,
+        llm_model=llm_model,
+        llm_temperature=llm_temperature,
+        llm_max_tokens=llm_max_tokens,
+        llm_timeout=llm_timeout,
+        title=title,
+    )

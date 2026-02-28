@@ -126,12 +126,16 @@ class Settings(BaseSettings):
         if local_config.exists():
             config_paths.append(local_config)
 
-        config_file = os.environ.get("wyrdcraeft_CONFIG_FILE")
-        # Explicit configuration file (highest precedence)
-        if config_file:
+        # Explicit configuration file (highest precedence). Support both the
+        # canonical uppercase key and the historical mixed-case key.
+        for key in ("WYRDCRAEFT_CONFIG_FILE", "wyrdcraeft_CONFIG_FILE"):
+            config_file = os.environ.get(key)
+            if not config_file:
+                continue
             explicit_config = Path(config_file)
             if explicit_config.exists():
                 config_paths.append(explicit_config)
+                break
 
         # Load settings with file configuration
         if config_paths:
@@ -200,6 +204,10 @@ class Settings(BaseSettings):
             msg = f"Invalid output format: {self.default_output_format}"
             raise ConfigurationError(msg)
 
+        if self.llm_provider not in {"ollama", "gemini", "openai"}:
+            msg = f"Invalid LLM provider: {self.llm_provider}"
+            raise ConfigurationError(msg)
+
         try:
             self.llm_provider = self.get_model_provider(self.llm_model_id)
         except ValueError as e:
@@ -211,13 +219,16 @@ class Settings(BaseSettings):
 
         if self.llm_max_tokens <= 0:
             msg = "LLM max tokens must be greater than 0"
+            raise ConfigurationError(msg)
 
         # Validate LLM timeout
         if self.llm_timeout_s <= 0:
             msg = "LLM timeout must be greater than 0"
             raise ConfigurationError(msg)
 
-    def get_model_provider(self, model_id: str) -> str:
+    def get_model_provider(
+        self, model_id: str
+    ) -> Literal["ollama", "gemini", "openai"]:
         """
         Get the provider for a model ID.
 

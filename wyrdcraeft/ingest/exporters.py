@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
-from delb import Document, new_tag_node
-from lxml import etree as ET  # noqa: N812
+from delb import Document, tag
 
 from .loaders import TEI_NS
 
@@ -57,86 +56,103 @@ class TEIExporter(BaseExporter):
         tei_doc = Document(f'<TEI xmlns="{TEI_NS}"/>')
         tei = tei_doc.root
 
-        tei.append_children(self._create_header(doc))
+        self._create_header(doc, tei)
 
-        text = new_tag_node(f"{{{TEI_NS}}}text")
-        tei.append_children(text)
+        text = self._append_tag(tei, "text")
 
-        body = new_tag_node(f"{{{TEI_NS}}}body")
-        text.append_children(body)
+        body = self._append_tag(text, "body")
 
         self._emit_section(doc.content, body)
 
-        # For pretty printing, we use lxml directly on the internal object
-        # but first we ensure namespaces are consistent
-        root_el = tei._etree_obj  # noqa: SLF001
-        ET.cleanup_namespaces(root_el)
-        return ET.tostring(root_el, encoding="unicode", pretty_print=True)
+        return str(tei_doc)
 
-    def _create_header(self, doc: OldEnglishText) -> Any:
+    def _append_tag(
+        self,
+        parent: Any,
+        name: str,
+        attributes: dict[str, str] | None = None,
+    ) -> Any:
+        """
+        Append a tag node to a parent and return the created node.
+
+        Args:
+            parent: The parent node.
+            name: The local tag name.
+            attributes: Optional XML attributes.
+
+        Returns:
+            The created tag node.
+
+        """
+        definition = (
+            tag(name, cast("Any", attributes))
+            if attributes is not None
+            else tag(name)
+        )
+        (node,) = parent.append_children(definition)
+        return node
+
+    def _create_header(self, doc: OldEnglishText, parent: Any) -> Any:
         """
         Create the TEI header with metadata.
 
         Args:
             doc: The document to export.
+            parent: The parent node to append the TEI header to.
 
         Returns:
-            The TEI header as a string.
+            The TEI header node.
 
         """
-        header = new_tag_node(f"{{{TEI_NS}}}teiHeader")
-        file_desc = new_tag_node(f"{{{TEI_NS}}}fileDesc")
-        header.append_children(file_desc)
+        header = self._append_tag(parent, "teiHeader")
+        file_desc = self._append_tag(header, "fileDesc")
 
-        title_stmt = new_tag_node(f"{{{TEI_NS}}}titleStmt")
-        file_desc.append_children(title_stmt)
+        title_stmt = self._append_tag(file_desc, "titleStmt")
 
-        title = new_tag_node(f"{{{TEI_NS}}}title")
+        title = self._append_tag(title_stmt, "title")
         title.append_children(doc.metadata.title)
-        title_stmt.append_children(title)
 
         if doc.metadata.author:
-            author = new_tag_node(f"{{{TEI_NS}}}author")
+            author = self._append_tag(title_stmt, "author")
             author.append_children(doc.metadata.author)
-            title_stmt.append_children(author)
 
-        file_desc.append_children(self._create_publication_stmt(doc))
-        file_desc.append_children(self._create_source_desc(doc))
+        self._create_publication_stmt(doc, file_desc)
+        self._create_source_desc(doc, file_desc)
 
         return header
 
-    def _create_publication_stmt(self, doc: OldEnglishText) -> Any:
+    def _create_publication_stmt(self, doc: OldEnglishText, parent: Any) -> Any:
         """
         Create the publication statement.
 
         Args:
             doc: The document to export.
+            parent: The parent node to append the publication statement to.
 
         Returns:
-            The publication statement as a string.
+            The publication statement node.
 
         """
-        pub_stmt = new_tag_node(f"{{{TEI_NS}}}publicationStmt")
-        p = new_tag_node(f"{{{TEI_NS}}}p")
+        pub_stmt = self._append_tag(parent, "publicationStmt")
+        p = self._append_tag(pub_stmt, "p")
         p.append_children(doc.metadata.source or "unknown")
-        pub_stmt.append_children(p)
         return pub_stmt
 
-    def _create_source_desc(self, doc: OldEnglishText) -> Any:
+    def _create_source_desc(self, doc: OldEnglishText, parent: Any) -> Any:
         """
         Create the source description.
 
         Args:
             doc: The document to export.
+            parent: The parent node to append the source description to.
 
         Returns:
-            The source description as a string.
+            The source description node.
 
         """
-        source_desc = new_tag_node(f"{{{TEI_NS}}}sourceDesc")
-        p = new_tag_node(f"{{{TEI_NS}}}p")
+        source_desc = self._append_tag(parent, "sourceDesc")
+        p = self._append_tag(source_desc, "p")
         p.append_children(doc.metadata.source or "unknown")
-        source_desc.append_children(p)
         return source_desc
 
     def _emit_section(self, sec: Section, parent: Any) -> None:
@@ -148,15 +164,13 @@ class TEIExporter(BaseExporter):
             parent: The parent node to append the section to.
 
         """
-        div = new_tag_node(f"{{{TEI_NS}}}div")
-        parent.append_children(div)
+        div = self._append_tag(parent, "div")
 
         self._apply_metadata(div, sec)
 
         if sec.title:
-            head = new_tag_node(f"{{{TEI_NS}}}head")
+            head = self._append_tag(div, "head")
             head.append_children(sec.title)
-            div.append_children(head)
 
         if sec.paragraphs:
             self._emit_paragraphs(sec.paragraphs, div)
@@ -198,17 +212,14 @@ class TEIExporter(BaseExporter):
         for par in paragraphs:
             container = parent
             if par.speaker:
-                sp = new_tag_node(f"{{{TEI_NS}}}sp", attributes={"who": par.speaker})
-                parent.append_children(sp)
+                sp = self._append_tag(parent, "sp", {"who": par.speaker})
                 container = sp
 
-            p_el = new_tag_node(f"{{{TEI_NS}}}p")
-            container.append_children(p_el)
+            p_el = self._append_tag(container, "p")
             self._apply_metadata(p_el, par)
 
             for sent in par.sentences:
-                s_el = new_tag_node(f"{{{TEI_NS}}}s")
-                p_el.append_children(s_el)
+                s_el = self._append_tag(p_el, "s")
                 self._apply_metadata(s_el, sent)
                 s_el.append_children(sent.text)
 
@@ -227,19 +238,14 @@ class TEIExporter(BaseExporter):
 
         for ln in lines:
             if ln.speaker and ln.speaker != current_who:
-                current_sp = new_tag_node(
-                    f"{{{TEI_NS}}}sp", attributes={"who": ln.speaker}
-                )
-                parent.append_children(current_sp)
+                current_sp = self._append_tag(parent, "sp", {"who": ln.speaker})
                 current_who = ln.speaker
                 lg = None
 
             target = current_sp if current_sp is not None else parent
             if lg is None:
-                lg = new_tag_node(f"{{{TEI_NS}}}lg")
-                target.append_children(lg)
+                lg = self._append_tag(target, "lg")
 
-            l_el = new_tag_node(f"{{{TEI_NS}}}l")
-            lg.append_children(l_el)
+            l_el = self._append_tag(lg, "l")
             self._apply_metadata(l_el, ln)
             l_el.append_children(ln.text)

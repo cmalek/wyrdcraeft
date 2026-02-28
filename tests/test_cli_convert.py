@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from wyrdcraeft.cli.cli import cli
-from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
+from wyrdcraeft.models import OldEnglishText
 
 
 def test_convert_command_no_llm(runner, temp_dir):
