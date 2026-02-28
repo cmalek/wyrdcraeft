@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 38671,
-    "ambiguous_count": 1571
+    "unique_count": 38927,
+    "ambiguous_count": 1315
   },
   "unique": {
     "a": "ā",
@@ -38677,7 +38677,263 @@
     "æþelian": "æþelian",
     "æþeling": "æþeling",
     "æþelnes": "æþel-nes",
-    "æþelo": "æþelo"
+    "æþelo": "æþelo",
+    "andgitlic": "andgit-līc",
+    "angelic": "an-gelīc",
+    "arweorþlic": "ār-weorþlīc",
+    "berendlic": "berendlīc",
+    "bisceoplic": "bisceop-līc",
+    "bismerlic": "bismer-līc",
+    "boclic": "bōc-līc",
+    "brosniendlic": "brosniend-līc",
+    "brydlic": "brȳd-līc",
+    "caserlic": "cāser-līc",
+    "cennendlic": "cennend-līc",
+    "ceorllic": "ceorl-līc",
+    "cildlic": "cild-līc",
+    "cinelic": "cine-līc",
+    "clænlic": "clǣn-līc",
+    "cræftlic": "cræft-līc",
+    "cuþelic": "cūþe-līc",
+    "cynlic": "cyn-līc",
+    "deadlic": "dēad-līc",
+    "deaþlic": "dēaþ-līc",
+    "domlic": "dōm-līc",
+    "donlic": "dōn-līc",
+    "dreamlic": "drēam-līc",
+    "dreorlic": "drēor-līc",
+    "dryhtenlic": "dryhten-līc",
+    "dryhtlic": "dryht-līc",
+    "dwollic": "dwol-līc",
+    "dyrstlic": "dyrst-līc",
+    "dyslic": "dys-līc",
+    "dædlic": "dǣd-līc",
+    "dæglic": "dæg-līc",
+    "dægþerlic": "dæg-ðerlīc",
+    "eadiglic": "ēadig-līc",
+    "ealdlic": "eald-līc",
+    "eallic": "eal-līc",
+    "earfoþlic": "earfoþ-līc",
+    "easterlic": "ēaster-līc",
+    "ecelic": "ēce-līc",
+    "efenlic": "efen-līc",
+    "efenspediglic": "efen-spēdiglīc",
+    "engellic": "engel-līc",
+    "eorþlic": "eorþ-līc",
+    "facenlic": "fācen-līc",
+    "flodlic": "flōd-līc",
+    "flæsclic": "flǣsc-līc",
+    "folclic": "folc-līc",
+    "forgifenlic": "for-gifenlīc",
+    "forhtiendlic": "forhtiendlīc",
+    "forhtlic": "forht-līc",
+    "forwordenlic": "for-wordenlīc",
+    "fracoþlic": "fracoþ-līc",
+    "freolic": "frēolīc",
+    "freomlic": "freomlīc",
+    "fæderlic": "fæder-līc",
+    "fæmnenlic": "fǣmnenlīc",
+    "fæstlic": "fæstlīc",
+    "gearlic": "gēarlīc",
+    "geatolic": "geatolīc",
+    "gebeorglic": "ge-beorglīc",
+    "gebrosnodlic": "ge-brosnodlīc",
+    "gebyredlic": "ge-byredlīc",
+    "gecundelic": "ge-cundelīc",
+    "gecwemedlic": "ge-cwēmedlīc",
+    "gecwemlic": "ge-cwēmlīc",
+    "gecyndelic": "ge-cyndelīc",
+    "gedafenlic": "ge-dafenlīc",
+    "gedrefedlic": "ge-drēfedlīc",
+    "gefyllendlic": "ge-fyllendlīc",
+    "geglengendlic": "ge-glengendlīc",
+    "gehyhtlic": "ge-hyhtlīc",
+    "geicendlic": "ge-īcendlīc",
+    "geleaflic": "ge-lēaflīc",
+    "geliclic": "ge-līclīc",
+    "gelomlic": "ge-lōmlīc",
+    "gemyndelic": "ge-myndelīc",
+    "gemæclic": "ge-mæclīc",
+    "geomorlic": "gēomor-līc",
+    "geonglic": "geong-līc",
+    "gerisenlic": "ge-risenlīc",
+    "gerynelic": "ge-rȳnelīc",
+    "gesceadwislic": "ge-scēadwīslīc",
+    "gesewenlic": "ge-sewenlīc",
+    "getreowlic": "ge-trēowlīc",
+    "gewilnigendlic": "ge-wilnigendlīc",
+    "gewinfullic": "ge-winfullīc",
+    "gewitendlic": "ge-wītendlīc",
+    "gewunelic": "ge-wunelīc",
+    "gewynsumlic": "ge-wynsumlīc",
+    "gewyrdelic": "ge-wyrdelīc",
+    "gewyscendlic": "ge-wȳscendlīc",
+    "geæhtendlic": "ge-æhtendlīc",
+    "geþingelic": "ge-þingelīc",
+    "geþæslic": "ge-þæslīc",
+    "giftlic": "gift-līc",
+    "gleawlic": "glēawlīc",
+    "glædlic": "glædlīc",
+    "godcundlic": "godcundlīc",
+    "godspellic": "godspellīc",
+    "gramlic": "gramlīc",
+    "grimlic": "grimlīc",
+    "grislic": "grislīc",
+    "gryrelic": "gryre-līc",
+    "halsigendlic": "hālsigendlīc",
+    "heafodlic": "hēafod-līc",
+    "heallic": "heal-līc",
+    "heanlic": "hēan-līc",
+    "heardlic": "heard-līc",
+    "hearmlic": "hearm-līc",
+    "hefelic": "hefe-līc",
+    "hefiglic": "hefig-līc",
+    "hellic": "hel-līc",
+    "helpendlic": "helpend-līc",
+    "hemlic": "hemlīc",
+    "heofonlic": "heofon-līc",
+    "herelic": "here-līc",
+    "hetelic": "hete-līc",
+    "hirdelic": "hirde-līc",
+    "hleahtorlic": "hleahtor-līc",
+    "hralic": "hrā-līc",
+    "hreoflic": "hrēof-līc",
+    "hreosendlic": "hrēosend-līc",
+    "hrædlic": "hræd-līc",
+    "hulic": "hū-līc",
+    "hundlic": "hund-līc",
+    "hunigtearlic": "hunigtēar-līc",
+    "hwilwendlic": "hwīlwend-līc",
+    "hwonlic": "hwōn-līc",
+    "hyhtlic": "hyht-līc",
+    "inlic": "in-līc",
+    "inweardlic": "inweard-līc",
+    "irlic": "ir-līc",
+    "lacnigendlic": "lācnigend-līc",
+    "ladigendlic": "lādigend-līc",
+    "lahlic": "lah-līc",
+    "lareowlic": "lārēow-līc",
+    "larlic": "lār-līc",
+    "leohtlic": "lēoht-līc",
+    "luflic": "luf-līc",
+    "lustbærlic": "lustbǣr-līc",
+    "lænendlic": "lǣnend-līc",
+    "manigfealdlic": "manigfeald-līc",
+    "medumlic": "medum-līc",
+    "menenlic": "menen-līc",
+    "meterlic": "meter-līc",
+    "middangeardlic": "middangeard-līc",
+    "middæglic": "middæg-līc",
+    "miltsigendlic": "miltsigend-līc",
+    "modorlic": "mōdor-līc",
+    "monaþlic": "mōnaþ-līc",
+    "mynsterlic": "mynster-līc",
+    "mægdenlic": "mægden-līc",
+    "mæþlic": "mǣþ-līc",
+    "neahlic": "nēah-līc",
+    "neowollic": "neowol-līc",
+    "niþerigendlic": "niþerigend-līc",
+    "niþerlic": "niþer-līc",
+    "oftrædlic": "oftrǣd-līc",
+    "ondrysnlic": "on-drysnlīc",
+    "ondrædendlic": "on-drǣdendlīc",
+    "onscuniendlic": "on-scuniendlīc",
+    "onwendedlic": "on-wendedlīc",
+    "openlic": "open-līc",
+    "pleglic": "pleg-līc",
+    "pleolic": "plēo-līc",
+    "regnlic": "regn-līc",
+    "rihtlic": "riht-līc",
+    "rihtwislic": "rihtwīs-līc",
+    "rodorlic": "rodor-līc",
+    "rædlic": "rǣd-līc",
+    "samodþyrlic": "samod-þyrlīc",
+    "sarlic": "sār-līc",
+    "scinlic": "scīn-līc",
+    "siblic": "sib-līc",
+    "smealic": "smēa-līc",
+    "styrigendlic": "styrigend-līc",
+    "sumerlic": "sumer-līc",
+    "sunnlic": "sunn-līc",
+    "swæslic": "swǣs-līc",
+    "syferlic": "sȳfer-līc",
+    "sædlic": "sǣd-līc",
+    "treowlic": "trēow-līc",
+    "tweonigendlic": "twēonigend-līc",
+    "tællic": "tǣl-līc",
+    "unaberendlic": "un-āberendlīc",
+    "unacumendlic": "un-ācumendlīc",
+    "unalifedlic": "un-ālīfedlīc",
+    "unareccendlic": "un-āreccendlīc",
+    "unaspyrigendlic": "un-āspyrigendlīc",
+    "unastyrigendlic": "un-āstyrigendlīc",
+    "unawendedlic": "un-āwendedlīc",
+    "unawendendlic": "un-āwendendlīc",
+    "unbefangenlic": "un-befangenlīc",
+    "unbeseondlic": "un-besēondlīc",
+    "unbrosnigendlic": "un-brosnigendlīc",
+    "unforesceawodlic": "un-forescēawodlīc",
+    "unforrotigendlic": "un-forrotigendlīc",
+    "ungebigendlic": "un-gebīgendlīc",
+    "ungebrosnendlic": "un-gebrosnendlīc",
+    "ungecoplic": "un-gecoplīc",
+    "ungedafenlic": "un-gedafenlīc",
+    "ungeeahtendlic": "un-geeahtendlīc",
+    "ungeendodlic": "un-geendodlīc",
+    "ungefoglic": "un-gefōglīc",
+    "ungefylledlic": "un-gefylledlīc",
+    "ungeleaflic": "un-gelēaflīc",
+    "unhalwendlic": "un-hālwendlīc",
+    "unlichamlic": "un-līchamlīc",
+    "unmiltsigendlic": "un-miltsigendlīc",
+    "unonwendedlic": "un-onwendedlīc",
+    "unrihtlic": "un-rihtlīc",
+    "unweorclic": "un-weorclīc",
+    "unþæslic": "un-þæslīc",
+    "waclic": "wāc-līc",
+    "wearglic": "wearg-līc",
+    "weorþfullic": "weorþful-līc",
+    "wilsumlic": "wilsum-līc",
+    "witiendlic": "wītiend-līc",
+    "wodlic": "wōd-līc",
+    "woplic": "wōp-līc",
+    "wrixendlic": "wrixend-līc",
+    "wundorlic": "wundor-līc",
+    "wællic": "wǣl-līc",
+    "wærlic": "wær-līc",
+    "yfellic": "yfel-līc",
+    "æfenlic": "ǣfen-līc",
+    "æfterlic": "æfter-līc",
+    "ælic": "ǣ-līc",
+    "ænlic": "ǣn-līc",
+    "æwlic": "ǣw-līc",
+    "þearfendlic": "þearfend-līc",
+    "þearflic": "þearf-līc",
+    "þeowlic": "þēow-līc",
+    "þrymlic": "þrym-līc",
+    "þæslic": "þæs-līc",
+    "cwemedness": "cwēmedness",
+    "hefigtimness": "hefigtīmness",
+    "neowolness": "neowolness",
+    "nidþearfness": "nīdþearfness",
+    "nytenness": "nytenness",
+    "næcedness": "næcedness",
+    "openness": "openness",
+    "orsorgness": "orsorgness",
+    "rihtwisness": "rihtwīsness",
+    "ripness": "rīpness",
+    "rumgifolness": "rūmgifolness",
+    "rumheortness": "rūmheortness",
+    "rummodness": "rūmmōdness",
+    "sarigness": "sārigness",
+    "sarness": "sārness",
+    "sceoness": "scēoness",
+    "scortness": "scortness",
+    "singalness": "singalness",
+    "softness": "sōftness",
+    "yfelness": "yfelness",
+    "þrymness": "þrymness",
+    "minlice": "mīn-līce"
   },
   "ambiguous": {
     "ac": [
@@ -38745,10 +39001,6 @@
       "æfen-lǣcan",
       "ǣfen-lǣcan"
     ],
-    "æfenlic": [
-      "ǣfen-lic",
-      "ǣfen-līc"
-    ],
     "æfest": [
       "æf-ēst",
       "ǣ-fest"
@@ -38760,10 +39012,6 @@
     "æfterhætu": [
       "æfter-hætu",
       "æfter-hǣtu"
-    ],
-    "æfterlic": [
-      "æfter-lic",
-      "æfter-līc"
     ],
     "æg": [
       "æg",
@@ -38821,10 +39069,6 @@
       "ælfric",
       "ælfrīc"
     ],
-    "ælic": [
-      "ǣ-lic",
-      "ǣ-līc"
-    ],
     "æling": [
       "æling",
       "ǣling"
@@ -38872,10 +39116,6 @@
     "ænga": [
       "ænga",
       "ǣnga"
-    ],
-    "ænlic": [
-      "ǣn-lic",
-      "ǣn-līc"
     ],
     "æppel": [
       "æppel",
@@ -38982,10 +39222,6 @@
       "ǣwisc-nys",
       "ǣwiscnys"
     ],
-    "æwlic": [
-      "ǣw-lic",
-      "ǣw-līc"
-    ],
     "æwyrp": [
       "æ-wyrp",
       "ǣ-wyrp"
@@ -39090,10 +39326,6 @@
       "andgit-fullīce",
       "andgitfullīce"
     ],
-    "andgitlic": [
-      "andgit-lic",
-      "andgit-līc"
-    ],
     "andgitol": [
       "and-gitol",
       "andgitol"
@@ -39121,10 +39353,6 @@
     "anga": [
       "anga",
       "ānga"
-    ],
-    "angelic": [
-      "an-gelic",
-      "an-gelīc"
     ],
     "angsumian": [
       "ang-sumian",
@@ -39223,10 +39451,6 @@
     "arwela": [
       "ār-wela",
       "ār-wēla"
-    ],
-    "arweorþlic": [
-      "ār-weorþlic",
-      "ār-weorþlīc"
     ],
     "ascian": [
       "ascian",
@@ -39374,10 +39598,6 @@
       "bere",
       "bēre"
     ],
-    "berendlic": [
-      "berendlic",
-      "berendlīc"
-    ],
     "bescrifen": [
       "be-scrēadian",
       "be-scrifen"
@@ -39434,14 +39654,6 @@
       "bin",
       "binn"
     ],
-    "bisceoplic": [
-      "bisceop-lic",
-      "bisceop-līc"
-    ],
-    "bismerlic": [
-      "bismer-lic",
-      "bismer-līc"
-    ],
     "biswic": [
       "bī-swic",
       "bī-swīc"
@@ -39492,10 +39704,6 @@
     "blodgyte": [
       "blōd-gyte",
       "blōd-gȳte"
-    ],
-    "boclic": [
-      "bōc-lic",
-      "bōc-līc"
     ],
     "bocung": [
       "bōc-ung",
@@ -39561,10 +39769,6 @@
       "broc",
       "brōc"
     ],
-    "brosniendlic": [
-      "brosniend-lic",
-      "brosniend-līc"
-    ],
     "bryce": [
       "bryce",
       "brȳce"
@@ -39572,10 +39776,6 @@
     "bryd": [
       "bryd",
       "brȳd"
-    ],
-    "brydlic": [
-      "brȳd-lic",
-      "brȳd-līc"
     ],
     "brymme": [
       "brymme",
@@ -39701,10 +39901,6 @@
       "carc-ern",
       "carcern"
     ],
-    "caserlic": [
-      "cāser-lic",
-      "cāser-līc"
-    ],
     "ceace": [
       "ceace",
       "cēace"
@@ -39717,17 +39913,9 @@
       "cele",
       "cēle"
     ],
-    "cennendlic": [
-      "cennend-lic",
-      "cennend-līc"
-    ],
     "ceol": [
       "ceol",
       "cēol"
-    ],
-    "ceorllic": [
-      "ceorl-lic",
-      "ceorl-līc"
     ],
     "ceselib": [
       "cēse",
@@ -39761,10 +39949,6 @@
       "cildiung-wif",
       "cildiung-wīf"
     ],
-    "cildlic": [
-      "cild-lic",
-      "cild-līc"
-    ],
     "cildsung": [
       "cild-sung",
       "cildsung"
@@ -39780,10 +39964,6 @@
     "cine": [
       "cine",
       "cīne"
-    ],
-    "cinelic": [
-      "cine-lic",
-      "cine-līc"
     ],
     "cipe": [
       "cipe",
@@ -39804,10 +39984,6 @@
     "ciþ": [
       "ciþ",
       "cīþ"
-    ],
-    "clænlic": [
-      "clǣn-lic",
-      "clǣn-līc"
     ],
     "clam": [
       "clam",
@@ -39865,10 +40041,6 @@
       "coþa",
       "cōða"
     ],
-    "cræftlic": [
-      "cræft-lic",
-      "cræft-līc"
-    ],
     "crecisc": [
       "crecisc",
       "crēcisc"
@@ -39897,17 +40069,9 @@
       "cū-slyppe",
       "cūslyppe"
     ],
-    "cuþelic": [
-      "cūþe-lic",
-      "cūþe-līc"
-    ],
     "cweartern": [
       "cweart-ern",
       "cweartern"
-    ],
-    "cwemedness": [
-      "cwēmed-ness",
-      "cwēmedness"
     ],
     "cymen": [
       "cymen",
@@ -39928,10 +40092,6 @@
     "cynewiþþe": [
       "cyne-wiððe",
       "cyne-wiþþe"
-    ],
-    "cynlic": [
-      "cyn-lic",
-      "cyn-līc"
     ],
     "cynlice": [
       "cyn-līce",
@@ -39973,10 +40133,6 @@
       "dǣd-bōtnys",
       "dǣdbōtnys"
     ],
-    "dædlic": [
-      "dǣd-lic",
-      "dǣd-līc"
-    ],
     "dæghwam": [
       "dæg-hwam",
       "dæg-hwām"
@@ -39989,17 +40145,9 @@
       "dæg-hwamlīce",
       "dæg-hwāmlīce"
     ],
-    "dæglic": [
-      "dæg-lic",
-      "dæg-līc"
-    ],
     "dægred": [
       "dæg-red",
       "dæg-rēd"
-    ],
-    "dægþerlic": [
-      "dæg-ðerlic",
-      "dæg-ðerlīc"
     ],
     "dæl": [
       "dæl",
@@ -40009,10 +40157,6 @@
       "dærst",
       "dærstan"
     ],
-    "deadlic": [
-      "dēad-lic",
-      "dēad-līc"
-    ],
     "deadlicnys": [
       "dēad-licnys",
       "dēad-līcnys"
@@ -40020,10 +40164,6 @@
     "deag": [
       "deag",
       "dēag"
-    ],
-    "deaþlic": [
-      "dēaþ-lic",
-      "dēaþ-līc"
     ],
     "decan": [
       "decan",
@@ -40083,14 +40223,6 @@
       "dol-līce",
       "dollīce"
     ],
-    "domlic": [
-      "dōm-lic",
-      "dōm-līc"
-    ],
-    "donlic": [
-      "dōn-lic",
-      "dōn-līc"
-    ],
     "dor": [
       "dor",
       "dōr"
@@ -40103,17 +40235,9 @@
       "drēam",
       "drīm"
     ],
-    "dreamlic": [
-      "drēam-lic",
-      "drēam-līc"
-    ],
     "dreas": [
       "drēas",
       "drēas"
-    ],
-    "dreorlic": [
-      "drēor-lic",
-      "drēor-līc"
     ],
     "drifan": [
       "drifan",
@@ -40122,14 +40246,6 @@
     "driefan": [
       "drifan",
       "drīfan"
-    ],
-    "dryhtenlic": [
-      "dryhten-lic",
-      "dryhten-līc"
-    ],
-    "dryhtlic": [
-      "dryht-lic",
-      "dryht-līc"
     ],
     "dun": [
       "dun",
@@ -40155,25 +40271,9 @@
       "dwinan",
       "dwīnan"
     ],
-    "dwollic": [
-      "dwol-lic",
-      "dwol-līc"
-    ],
-    "dyrstlic": [
-      "dyrst-lic",
-      "dyrst-līc"
-    ],
-    "dyslic": [
-      "dys-lic",
-      "dys-līc"
-    ],
     "eacen": [
       "ēacan",
       "ēacen"
-    ],
-    "eadiglic": [
-      "ēadig-lic",
-      "ēadig-līc"
     ],
     "eagseoung": [
       "ēag-seoung",
@@ -40191,10 +40291,6 @@
       "eala",
       "ēalā"
     ],
-    "ealdlic": [
-      "eald-lic",
-      "eald-līc"
-    ],
     "ealdorlic": [
       "ealdor-lic",
       "ealdorlīc"
@@ -40202,10 +40298,6 @@
     "ealdwritere": [
       "eald-writere",
       "eald-wrītere"
-    ],
-    "eallic": [
-      "eal-lic",
-      "eal-līc"
     ],
     "eam": [
       "eam",
@@ -40218,10 +40310,6 @@
     "earefinger": [
       "ēare-finger",
       "ēarefinger"
-    ],
-    "earfoþlic": [
-      "earfoþ-lic",
-      "earfoþ-līc"
     ],
     "eargebland": [
       "ear-gebland",
@@ -40238,10 +40326,6 @@
     "eastan": [
       "ēa-stān",
       "ēastan"
-    ],
-    "easterlic": [
-      "ēaster-lic",
-      "ēaster-līc"
     ],
     "easteweard": [
       "ēaste-weard",
@@ -40280,10 +40364,6 @@
       "ece",
       "ēce"
     ],
-    "ecelic": [
-      "ēce-lic",
-      "ēce-līc"
-    ],
     "ecelice": [
       "ēce-līce",
       "ēcelīce"
@@ -40316,10 +40396,6 @@
       "efen-gemæcca",
       "ēfen-gemæcca"
     ],
-    "efenlic": [
-      "efen-lic",
-      "efen-līc"
-    ],
     "efenlice": [
       "efen-līce",
       "efenlīce"
@@ -40327,10 +40403,6 @@
     "efenlicnes": [
       "efen-licnes",
       "efen-līcnes"
-    ],
-    "efenspediglic": [
-      "efen-spēdiglic",
-      "efen-spēdiglīc"
     ],
     "efenþrowian": [
       "efen-þrowian",
@@ -40397,10 +40469,6 @@
       "ende-lēaslīce",
       "endelēaslīce"
     ],
-    "engellic": [
-      "engel-lic",
-      "engel-līc"
-    ],
     "eo": [
       "eo",
       "ēo"
@@ -40416,10 +40484,6 @@
     "eorþbigenga": [
       "eorþ-bigenga",
       "eorþ-bīgenga"
-    ],
-    "eorþlic": [
-      "eorþ-lic",
-      "eorþ-līc"
     ],
     "eorwicga": [
       "eor-wicga",
@@ -40474,10 +40538,6 @@
       "ēþian",
       "ēþīan"
     ],
-    "facenlic": [
-      "fācen-lic",
-      "fācen-līc"
-    ],
     "fæc": [
       "fæc",
       "fǣc"
@@ -40490,10 +40550,6 @@
       "fæder-lēas",
       "fæderlēas"
     ],
-    "fæderlic": [
-      "fæder-lic",
-      "fæder-līc"
-    ],
     "fæle": [
       "fæle",
       "fǣle"
@@ -40501,10 +40557,6 @@
     "fæmig": [
       "fāmig",
       "fǣmig"
-    ],
-    "fæmnenlic": [
-      "fǣmnenlic",
-      "fǣmnenlīc"
     ],
     "fær": [
       "fær",
@@ -40529,10 +40581,6 @@
     "fæstentid": [
       "fæsten-tid",
       "fæsten-tīd"
-    ],
-    "fæstlic": [
-      "fæstlic",
-      "fæstlīc"
     ],
     "fæstlice": [
       "fæstlice",
@@ -40674,10 +40722,6 @@
       "flǣsc-hus",
       "flǣsc-hūs"
     ],
-    "flæsclic": [
-      "flǣsc-lic",
-      "flǣsc-līc"
-    ],
     "fleah": [
       "fleah",
       "flēah"
@@ -40714,10 +40758,6 @@
       "flīt-cræftlīc",
       "flītcræftlic"
     ],
-    "flodlic": [
-      "flōd-lic",
-      "flōd-līc"
-    ],
     "flownys": [
       "flōw-nys",
       "flōwnys"
@@ -40725,10 +40765,6 @@
     "flyþ": [
       "flyþ",
       "flȳþ"
-    ],
-    "folclic": [
-      "folc-lic",
-      "folc-līc"
     ],
     "fon": [
       "fon",
@@ -41007,10 +41043,6 @@
       "for-gangan",
       "fōr-gangan"
     ],
-    "forgifenlic": [
-      "for-gifenlic",
-      "for-gifenlīc"
-    ],
     "forgyrd": [
       "for-gyrd",
       "fōr-gyrd"
@@ -41034,14 +41066,6 @@
     "frohtian": [
       "forhtian",
       "frohtian"
-    ],
-    "forhtiendlic": [
-      "forhtiendlic",
-      "forhtiendlīc"
-    ],
-    "forhtlic": [
-      "forht-lic",
-      "forht-līc"
     ],
     "forhtlice": [
       "forht-līce",
@@ -41159,10 +41183,6 @@
       "for-word",
       "fōr-word"
     ],
-    "forwordenlic": [
-      "for-wordenlic",
-      "for-wordenlīc"
-    ],
     "forwyrcan": [
       "for-wyrcan",
       "fōr-wyrcan"
@@ -41174,10 +41194,6 @@
     "fotsiþsticcel": [
       "fōt-sīþ-gerif",
       "fōt-sīþ-sticcel"
-    ],
-    "fracoþlic": [
-      "fracoþ-lic",
-      "fracoþ-līc"
     ],
     "fræfellice": [
       "fræfel-līce",
@@ -41227,14 +41243,6 @@
     "fremsum": [
       "frem-sum",
       "fremsum"
-    ],
-    "freolic": [
-      "frēolic",
-      "frēolīc"
-    ],
-    "freomlic": [
-      "freomlic",
-      "freomlīc"
     ],
     "freondlic": [
       "frēond-lic",
@@ -41441,10 +41449,6 @@
       "ge-æbiligan",
       "ge-ǣbiligan"
     ],
-    "geæhtendlic": [
-      "ge-æhtendlic",
-      "ge-æhtendlīc"
-    ],
     "gean": [
       "ge-an",
       "gēan"
@@ -41494,10 +41498,6 @@
       "ge-arfoðe",
       "ge-arfoþ"
     ],
-    "gearlic": [
-      "gēarlic",
-      "gēarlīc"
-    ],
     "gearo": [
       "gearo",
       "gēaro"
@@ -41509,10 +41509,6 @@
     "geaþ": [
       "geaþ",
       "gēaþ"
-    ],
-    "geatolic": [
-      "geatolic",
-      "geatolīc"
     ],
     "gebærdstan": [
       "ge-bærd-stān",
@@ -41545,10 +41541,6 @@
     "gebegendlic": [
       "ge-bēgan",
       "ge-bēgendlīc"
-    ],
-    "gebeorglic": [
-      "ge-beorglic",
-      "ge-beorglīc"
     ],
     "gebeorscipe": [
       "ge-bēor-scipe",
@@ -41583,10 +41575,6 @@
       "ge-broc",
       "ge-brōc"
     ],
-    "gebrosnodlic": [
-      "ge-brosnodlic",
-      "ge-brosnodlīc"
-    ],
     "gebudon": [
       "ge-budon",
       "ge-būdon"
@@ -41607,10 +41595,6 @@
       "ge-byrd-tīd",
       "gebyrd-tīd"
     ],
-    "gebyredlic": [
-      "ge-byredlic",
-      "ge-byredlīc"
-    ],
     "gebyrgan": [
       "ge-byrgan",
       "ge-bȳrgan"
@@ -41627,29 +41611,13 @@
       "ge-cristnian",
       "ge-crīstnian"
     ],
-    "gecundelic": [
-      "ge-cundelic",
-      "ge-cundelīc"
-    ],
     "gecwedræden": [
       "ge-cwed-rǣden",
       "ge-cwedrǣden"
     ],
-    "gecwemedlic": [
-      "ge-cwēmedlic",
-      "ge-cwēmedlīc"
-    ],
-    "gecwemlic": [
-      "ge-cwēmlic",
-      "ge-cwēmlīc"
-    ],
     "gecyndboc": [
       "ge-cynd-bōc",
       "gecynd-bōc"
-    ],
-    "gecyndelic": [
-      "ge-cyndelic",
-      "ge-cyndelīc"
     ],
     "gecyndespræc": [
       "gecynde-spræc",
@@ -41663,10 +41631,6 @@
       "ge-dælan",
       "ge-dǣlan"
     ],
-    "gedafenlic": [
-      "ge-dafenlic",
-      "ge-dafenlīc"
-    ],
     "gedalland": [
       "ge-dāl-land",
       "gedāl-land"
@@ -41679,10 +41643,6 @@
     "gedeorfleas": [
       "ge-deorflēas",
       "gedeorf-lēas"
-    ],
-    "gedrefedlic": [
-      "ge-drēfedlic",
-      "ge-drēfedlīc"
     ],
     "gedrefednes": [
       "ge-drēfednes",
@@ -41784,10 +41744,6 @@
       "ge-frett",
       "gefrett"
     ],
-    "gefyllendlic": [
-      "ge-fyllendlic",
-      "ge-fyllendlīc"
-    ],
     "gegafelod": [
       "ge-gafelian",
       "ge-gafelod"
@@ -41795,10 +41751,6 @@
     "gegafspræc": [
       "ge-gaf-sprǣc",
       "gegaf-sprǣc"
-    ],
-    "geglengendlic": [
-      "ge-glengendlic",
-      "ge-glengendlīc"
     ],
     "gen": [
       "gegn",
@@ -41868,10 +41820,6 @@
       "ge-hwǣr",
       "gehwǣr"
     ],
-    "gehyhtlic": [
-      "ge-hyhtlic",
-      "ge-hyhtlīc"
-    ],
     "gehyrst": [
       "ge-hyrst",
       "ge-hȳrst"
@@ -41884,17 +41832,9 @@
       "ge-hywian",
       "ge-hȳwian"
     ],
-    "geicendlic": [
-      "ge-īcendlic",
-      "ge-īcendlīc"
-    ],
     "geleafhlystend": [
       "ge-lēafhlystend",
       "gelēaf-hlystend"
-    ],
-    "geleaflic": [
-      "ge-lēaflic",
-      "ge-lēaflīc"
     ],
     "gelenda": [
       "ge-lenda",
@@ -41916,10 +41856,6 @@
       "ge-līc-gemaca",
       "gelīc-gemaca"
     ],
-    "geliclic": [
-      "ge-līclic",
-      "ge-līclīc"
-    ],
     "gelimplic": [
       "ge-limplīc",
       "gelimplic"
@@ -41936,17 +41872,9 @@
       "ge-logod",
       "ge-lōgod"
     ],
-    "gelomlic": [
-      "ge-lōmlic",
-      "ge-lōmlīc"
-    ],
     "gelostr": [
       "ge-lostr",
       "gelostr"
-    ],
-    "gemæclic": [
-      "ge-mæclic",
-      "ge-mæclīc"
     ],
     "gemægþ": [
       "ge-mægþ",
@@ -42044,10 +41972,6 @@
       "ge-mynd-drepen",
       "gemynd-drepen"
     ],
-    "gemyndelic": [
-      "ge-myndelic",
-      "ge-myndelīc"
-    ],
     "gemyndstow": [
       "ge-mynd-stōw",
       "gemynd-stōw"
@@ -42100,10 +42024,6 @@
       "geoguþ-myru",
       "gēoguþ-myru"
     ],
-    "geomorlic": [
-      "gēomor-lic",
-      "gēomor-līc"
-    ],
     "geomorlice": [
       "gēomor-līce",
       "gēomorlīce"
@@ -42115,10 +42035,6 @@
     "geong": [
       "geong",
       "gēong"
-    ],
-    "geonglic": [
-      "geong-lic",
-      "geong-līc"
     ],
     "geongling": [
       "geong-ling",
@@ -42164,10 +42080,6 @@
       "ge-ripan",
       "ge-rīpan"
     ],
-    "gerisenlic": [
-      "ge-risenlic",
-      "ge-risenlīc"
-    ],
     "gerlic": [
       "gēr-lic",
       "gērlīc"
@@ -42176,17 +42088,9 @@
       "ge-ryne",
       "ge-rȳne"
     ],
-    "gerynelic": [
-      "ge-rȳnelic",
-      "ge-rȳnelīc"
-    ],
     "gesceadlic": [
       "ge-sceadlic",
       "ge-scēadlic"
-    ],
-    "gesceadwislic": [
-      "ge-scēadwīslic",
-      "ge-scēadwīslīc"
     ],
     "gesceot": [
       "ge-sceot",
@@ -42211,10 +42115,6 @@
     "gesetenes": [
       "ge-setednes",
       "ge-setenes"
-    ],
-    "gesewenlic": [
-      "ge-sewenlic",
-      "ge-sewenlīc"
     ],
     "gesine": [
       "ge-sīne",
@@ -42289,10 +42189,6 @@
       "ge-teorung",
       "ge-tēorung"
     ],
-    "geþæslic": [
-      "ge-þæslic",
-      "ge-þæslīc"
-    ],
     "geþancmetian": [
       "ge-þancmetian",
       "geþanc-metian"
@@ -42301,10 +42197,6 @@
       "ge-þenian",
       "ge-þēnian"
     ],
-    "geþingelic": [
-      "ge-þingelic",
-      "ge-þingelīc"
-    ],
     "geþoht": [
       "ge-þoht",
       "ge-þōht"
@@ -42312,10 +42204,6 @@
     "geþwærlæcan": [
       "ge-þwǣrlǣcan",
       "geþwǣr-lǣcan"
-    ],
-    "getreowlic": [
-      "ge-trēowlic",
-      "ge-trēowlīc"
     ],
     "geunretan": [
       "ge-un-rētan",
@@ -42353,14 +42241,6 @@
       "ge-wifsǣlig",
       "gewif-sǣlig"
     ],
-    "gewilnigendlic": [
-      "ge-wilnigendlic",
-      "ge-wilnigendlīc"
-    ],
-    "gewinfullic": [
-      "ge-winfullic",
-      "ge-winfullīc"
-    ],
     "gewis": [
       "ge-wis",
       "gewis"
@@ -42376,10 +42256,6 @@
     "gewite": [
       "ge-wite",
       "ge-wīte"
-    ],
-    "gewitendlic": [
-      "ge-wītendlic",
-      "ge-wītendlīc"
     ],
     "gewitleas": [
       "ge-witlēas",
@@ -42397,22 +42273,6 @@
       "ge-wrixlian",
       "gewrixlian"
     ],
-    "gewunelic": [
-      "ge-wunelic",
-      "ge-wunelīc"
-    ],
-    "gewynsumlic": [
-      "ge-wynsumlic",
-      "ge-wynsumlīc"
-    ],
-    "gewyrdelic": [
-      "ge-wyrdelic",
-      "ge-wyrdelīc"
-    ],
-    "gewyscendlic": [
-      "ge-wȳscendlic",
-      "ge-wȳscendlīc"
-    ],
     "gierstandæg": [
       "gierstan-dæg",
       "gierstandæg"
@@ -42424,10 +42284,6 @@
     "giftelic": [
       "gifte-lic",
       "giftelīc"
-    ],
-    "giftlic": [
-      "gift-lic",
-      "gift-līc"
     ],
     "gigantmæcg": [
       "gigant-mæcg",
@@ -42469,10 +42325,6 @@
       "glad",
       "glād"
     ],
-    "glædlic": [
-      "glædlic",
-      "glædlīc"
-    ],
     "glædman": [
       "glæd-man",
       "glædman"
@@ -42480,10 +42332,6 @@
     "glædscipe": [
       "glæd-scipe",
       "glædscipe"
-    ],
-    "gleawlic": [
-      "glēawlic",
-      "glēawlīc"
     ],
     "glenglic": [
       "gleng-lic",
@@ -42529,10 +42377,6 @@
       "god-cund",
       "godcund"
     ],
-    "godcundlic": [
-      "godcundlic",
-      "godcundlīc"
-    ],
     "goddohtor": [
       "god-dohtor",
       "god-dōhtor"
@@ -42549,10 +42393,6 @@
     "godscipe": [
       "god-scipe",
       "godscipe"
-    ],
-    "godspellic": [
-      "godspellic",
-      "godspellīc"
     ],
     "godwrecnis": [
       "god-wrecnis",
@@ -42578,17 +42418,9 @@
       "graf",
       "grāf"
     ],
-    "gramlic": [
-      "gramlic",
-      "gramlīc"
-    ],
     "grantabrycgscir": [
       "grantabrycg-scīr",
       "grantabrycgscir"
-    ],
-    "grimlic": [
-      "grimlic",
-      "grimlīc"
     ],
     "gryn": [
       "grin",
@@ -42598,17 +42430,9 @@
       "gripe",
       "grīpe"
     ],
-    "grislic": [
-      "grislic",
-      "grislīc"
-    ],
     "grut": [
       "grut",
       "grūt"
-    ],
-    "gryrelic": [
-      "gryre-lic",
-      "gryre-līc"
     ],
     "gydenlic": [
       "gyden-lic",
@@ -42679,10 +42503,6 @@
       "hēalsian",
       "hālsian"
     ],
-    "halsigendlic": [
-      "hālsigendlic",
-      "hālsigendlīc"
-    ],
     "halwenda": [
       "hāl-wenda",
       "hālwenda"
@@ -42736,10 +42556,6 @@
       "heaf",
       "hēaf"
     ],
-    "heafodlic": [
-      "hēafod-lic",
-      "hēafod-līc"
-    ],
     "heahcleofa": [
       "hēah-clēofa",
       "hēah-clēofa"
@@ -42769,17 +42585,9 @@
       "hēa-līcness",
       "hēalicness"
     ],
-    "heallic": [
-      "heal-lic",
-      "heal-līc"
-    ],
     "healmstreaw": [
       "healm-streaw",
       "healm-strēaw"
-    ],
-    "heanlic": [
-      "hēan-lic",
-      "hēan-līc"
     ],
     "heapmælum": [
       "hēap-mælum",
@@ -42788,10 +42596,6 @@
     "heardheortness": [
       "heard-heortness",
       "heardheortness"
-    ],
-    "heardlic": [
-      "heard-lic",
-      "heard-līc"
     ],
     "heardlice": [
       "heard-līce",
@@ -42805,10 +42609,6 @@
       "hearm-fullic",
       "hēarm-fullīc"
     ],
-    "hearmlic": [
-      "hearm-lic",
-      "hearm-līc"
-    ],
     "heaþu": [
       "heaðu",
       "hēaðu"
@@ -42821,21 +42621,9 @@
       "heaþu-sigel",
       "hēaðu-sigel"
     ],
-    "hefelic": [
-      "hefe-lic",
-      "hefe-līc"
-    ],
     "hefelice": [
       "hefe-līce",
       "hefelīce"
-    ],
-    "hefiglic": [
-      "hefig-lic",
-      "hefig-līc"
-    ],
-    "hefigtimness": [
-      "hefigtīm-ness",
-      "hefigtīmness"
     ],
     "hell": [
       "hel",
@@ -42845,25 +42633,9 @@
       "hell-heoþo",
       "hell-hēoþo"
     ],
-    "hellic": [
-      "hel-lic",
-      "hel-līc"
-    ],
-    "helpendlic": [
-      "helpend-lic",
-      "helpend-līc"
-    ],
-    "hemlic": [
-      "hemlic",
-      "hemlīc"
-    ],
     "himming": [
       "hemming",
       "himming"
-    ],
-    "heofonlic": [
-      "heofon-lic",
-      "heofon-līc"
     ],
     "heofonlice": [
       "heofon-līce",
@@ -42872,10 +42644,6 @@
     "here": [
       "here",
       "hēre"
-    ],
-    "herelic": [
-      "here-lic",
-      "here-līc"
     ],
     "hereman": [
       "here-man",
@@ -42888,10 +42656,6 @@
     "hyse": [
       "hese",
       "hyse"
-    ],
-    "hetelic": [
-      "hete-lic",
-      "hete-līc"
     ],
     "hetelice": [
       "hete-līce",
@@ -42912,10 +42676,6 @@
     "hinan": [
       "hinan",
       "hīnan"
-    ],
-    "hirdelic": [
-      "hirde-lic",
-      "hirde-līc"
     ],
     "hired": [
       "hī-rēd",
@@ -42974,10 +42734,6 @@
       "hlǣn-nes",
       "hlǣnnes"
     ],
-    "hleahtorlic": [
-      "hleahtor-lic",
-      "hleahtor-līc"
-    ],
     "hlifendre": [
       "hlifendre",
       "hlīfendre"
@@ -43026,10 +42782,6 @@
       "hraca",
       "hrāca"
     ],
-    "hrædlic": [
-      "hræd-lic",
-      "hræd-līc"
-    ],
     "hrædlice": [
       "hræd-līce",
       "hrædlīce"
@@ -43046,21 +42798,9 @@
       "hraen",
       "hrǣn"
     ],
-    "hralic": [
-      "hrā-lic",
-      "hrā-līc"
-    ],
     "hran": [
       "hran",
       "hrān"
-    ],
-    "hreoflic": [
-      "hrēof-lic",
-      "hrēof-līc"
-    ],
-    "hreosendlic": [
-      "hrēosend-lic",
-      "hrēosend-līc"
     ],
     "hreowlice": [
       "hrēow-līce",
@@ -43102,17 +42842,9 @@
       "hrycg-teūng",
       "hrycg-tēung"
     ],
-    "hulic": [
-      "hū-lic",
-      "hū-līc"
-    ],
     "hun": [
       "hun",
       "hūn"
-    ],
-    "hundlic": [
-      "hund-lic",
-      "hund-līc"
     ],
     "hundtwentig": [
       "hund-twentig",
@@ -43121,10 +42853,6 @@
     "hune": [
       "hune",
       "hūne"
-    ],
-    "hunigtearlic": [
-      "hunigtēar-lic",
-      "hunigtēar-līc"
     ],
     "huselhalgung": [
       "husel-hālgung",
@@ -43146,10 +42874,6 @@
       "hwil",
       "hwīl"
     ],
-    "hwilwendlic": [
-      "hwīlwend-lic",
-      "hwīlwend-līc"
-    ],
     "hwioþ": [
       "hwioð",
       "hwīoð"
@@ -43158,17 +42882,9 @@
       "hwit",
       "hwīt"
     ],
-    "hwonlic": [
-      "hwōn-lic",
-      "hwōn-līc"
-    ],
     "hwonlice": [
       "hwōn-līce",
       "hwōnlīce"
-    ],
-    "hyhtlic": [
-      "hyht-lic",
-      "hyht-līc"
     ],
     "hype": [
       "hype",
@@ -43232,10 +42948,6 @@
       "in-hoh",
       "inhoh"
     ],
-    "inlic": [
-      "in-lic",
-      "in-līc"
-    ],
     "inlice": [
       "in-līce",
       "inlīce"
@@ -43244,17 +42956,9 @@
       "inne-fare",
       "innefare"
     ],
-    "inweardlic": [
-      "inweard-lic",
-      "inweard-līc"
-    ],
     "inweardlice": [
       "inweard-līce",
       "inweardlīce"
-    ],
-    "irlic": [
-      "ir-lic",
-      "ir-līc"
     ],
     "is": [
       "is",
@@ -43276,21 +42980,9 @@
       "iw",
       "īw"
     ],
-    "lacnigendlic": [
-      "lācnigend-lic",
-      "lācnigend-līc"
-    ],
-    "ladigendlic": [
-      "lādigend-lic",
-      "lādigend-līc"
-    ],
     "læc": [
       "læc",
       "lǣc"
-    ],
-    "lænendlic": [
-      "lǣnend-lic",
-      "lǣnend-līc"
     ],
     "læs": [
       "læs",
@@ -43310,10 +43002,6 @@
       "lǣð",
       "lǣþ"
     ],
-    "lahlic": [
-      "lah-lic",
-      "lah-līc"
-    ],
     "lahlice": [
       "lah-līce",
       "lahlīce"
@@ -43329,14 +43017,6 @@
     "langsum": [
       "lang-sum",
       "langsum"
-    ],
-    "lareowlic": [
-      "lārēow-lic",
-      "lārēow-līc"
-    ],
-    "larlic": [
-      "lār-lic",
-      "lār-līc"
     ],
     "laþian": [
       "laðian",
@@ -43363,10 +43043,6 @@
     "leohte": [
       "leohte",
       "lēohte"
-    ],
-    "leohtlic": [
-      "lēoht-lic",
-      "lēoht-līc"
     ],
     "leohtlice": [
       "lēoht-līce",
@@ -43439,10 +43115,6 @@
       "loh-sceaft",
       "lōh-sceaft"
     ],
-    "luflic": [
-      "luf-lic",
-      "luf-līc"
-    ],
     "luflice": [
       "luf-līce",
       "luflīce"
@@ -43458,10 +43130,6 @@
     "lustbære": [
       "lust-bǣre",
       "lustbǣre"
-    ],
-    "lustbærlic": [
-      "lustbǣr-lic",
-      "lustbǣr-līc"
     ],
     "lustlice": [
       "lust-līce",
@@ -43482,10 +43150,6 @@
     "mæg": [
       "mæg",
       "mǣg"
-    ],
-    "mægdenlic": [
-      "mægden-lic",
-      "mægden-līc"
     ],
     "mægeþ": [
       "mægeþ",
@@ -43535,10 +43199,6 @@
       "mæst-ling",
       "mæstling"
     ],
-    "mæþlic": [
-      "mǣþ-lic",
-      "mǣþ-līc"
-    ],
     "maga": [
       "maga",
       "māga"
@@ -43554,10 +43214,6 @@
     "manfullice": [
       "mānful-līce",
       "mānfullīce"
-    ],
-    "manigfealdlic": [
-      "manigfeald-lic",
-      "manigfeald-līc"
     ],
     "manigfealdlice": [
       "manigfeald-līce",
@@ -43583,10 +43239,6 @@
       "mearc-waed",
       "mearc-wæd"
     ],
-    "medumlic": [
-      "medum-lic",
-      "medum-līc"
-    ],
     "medumlice": [
       "medum-līce",
       "medumlīce"
@@ -43599,10 +43251,6 @@
       "medum-ness",
       "mēdum-ness"
     ],
-    "menenlic": [
-      "menen-lic",
-      "menen-līc"
-    ],
     "mere": [
       "mere",
       "mēre"
@@ -43611,21 +43259,9 @@
       "metan",
       "mētan"
     ],
-    "meterlic": [
-      "meter-lic",
-      "meter-līc"
-    ],
-    "middæglic": [
-      "middæg-lic",
-      "middæg-līc"
-    ],
     "middaneardlic": [
       "middaneard-līc",
       "middaneardlic"
-    ],
-    "middangeardlic": [
-      "middangeard-lic",
-      "middangeard-līc"
     ],
     "middeweard": [
       "midde-weard",
@@ -43643,17 +43279,9 @@
       "mildheort-līce",
       "mildheortlīce"
     ],
-    "miltsigendlic": [
-      "miltsigend-lic",
-      "miltsigend-līc"
-    ],
     "min": [
       "min",
       "mīn"
-    ],
-    "minlice": [
-      "mīn-lice",
-      "mīn-līce"
     ],
     "mire": [
       "mire",
@@ -43679,10 +43307,6 @@
       "mōdig-līce",
       "mōdiglīce"
     ],
-    "modorlic": [
-      "mōdor-lic",
-      "mōdor-līc"
-    ],
     "modþryþu": [
       "mod-þryðu",
       "mōd-þryðu"
@@ -43690,10 +43314,6 @@
     "mon": [
       "mon",
       "mōn"
-    ],
-    "monaþlic": [
-      "mōnaþ-lic",
-      "mōnaþ-līc"
     ],
     "mos": [
       "mos",
@@ -43707,21 +43327,9 @@
       "moððe",
       "moþþe"
     ],
-    "mynsterlic": [
-      "mynster-lic",
-      "mynster-līc"
-    ],
-    "næcedness": [
-      "næced-ness",
-      "næcedness"
-    ],
     "neodian": [
       "nēadian",
       "nēodian"
-    ],
-    "neahlic": [
-      "nēah-lic",
-      "nēah-līc"
     ],
     "neahþeod": [
       "nēah-tīd",
@@ -43739,14 +43347,6 @@
       "neoþera",
       "neoþerä"
     ],
-    "neowollic": [
-      "neowol-lic",
-      "neowol-līc"
-    ],
-    "neowolness": [
-      "neowol-ness",
-      "neowolness"
-    ],
     "nest": [
       "nest",
       "nēst"
@@ -43759,21 +43359,9 @@
       "nīdþearf-līce",
       "nīdþearflīce"
     ],
-    "nidþearfness": [
-      "nīdþearf-ness",
-      "nīdþearfness"
-    ],
     "niþ": [
       "niþ",
       "nīþ"
-    ],
-    "niþerigendlic": [
-      "niþerigend-lic",
-      "niþerigend-līc"
-    ],
-    "niþerlic": [
-      "niþer-lic",
-      "niþer-līc"
     ],
     "niþfullice": [
       "nīþful-līce",
@@ -43790,10 +43378,6 @@
     "nyten": [
       "nyten",
       "nȳten"
-    ],
-    "nytenness": [
-      "nyten-ness",
-      "nytenness"
     ],
     "nytlicness": [
       "nytlicness",
@@ -43837,21 +43421,9 @@
       "of-teon",
       "of-tēon"
     ],
-    "oftrædlic": [
-      "oftrǣd-lic",
-      "oftrǣd-līc"
-    ],
     "onbitan": [
       "on-bītan",
       "onbītan"
-    ],
-    "ondrædendlic": [
-      "on-drǣdendlic",
-      "on-drǣdendlīc"
-    ],
-    "ondrysnlic": [
-      "on-drysnlic",
-      "on-drysnlīc"
     ],
     "onfundenness": [
       "on-fundenness",
@@ -43868,10 +43440,6 @@
     "onlice": [
       "on-līce",
       "onlīce"
-    ],
-    "onscuniendlic": [
-      "on-scuniendlic",
-      "on-scuniendlīc"
     ],
     "onsigan": [
       "on-sigan",
@@ -43893,21 +43461,9 @@
       "on-stepan",
       "on-stēpan"
     ],
-    "onwendedlic": [
-      "on-wendedlic",
-      "on-wendedlīc"
-    ],
-    "openlic": [
-      "open-lic",
-      "open-līc"
-    ],
     "openlice": [
       "open-līce",
       "openlīce"
-    ],
-    "openness": [
-      "open-ness",
-      "openness"
     ],
     "or": [
       "or",
@@ -43920,10 +43476,6 @@
     "oroþ": [
       "oroþ",
       "orōþ"
-    ],
-    "orsorgness": [
-      "orsorg-ness",
-      "orsorgness"
     ],
     "ortreowness": [
       "or-treowness",
@@ -43989,18 +43541,6 @@
       "pip-drēam",
       "pīp-drēam"
     ],
-    "pleglic": [
-      "pleg-lic",
-      "pleg-līc"
-    ],
-    "pleolic": [
-      "plēo-lic",
-      "plēo-līc"
-    ],
-    "rædlic": [
-      "rǣd-lic",
-      "rǣd-līc"
-    ],
     "rædlice": [
       "rǣd-līce",
       "rǣdlīce"
@@ -44013,10 +43553,6 @@
       "recan",
       "reccan",
       "rēcan"
-    ],
-    "regnlic": [
-      "regn-lic",
-      "regn-līc"
     ],
     "reodian": [
       "reodian",
@@ -44055,37 +43591,17 @@
       "riht-lǣcan",
       "rihtlǣcan"
     ],
-    "rihtlic": [
-      "riht-lic",
-      "riht-līc"
-    ],
     "rihtwisian": [
       "riht-wīsian",
       "rihtwīsian"
-    ],
-    "rihtwislic": [
-      "rihtwīs-lic",
-      "rihtwīs-līc"
     ],
     "rihtwislice": [
       "riht-wīslīce",
       "rihtwīslīce"
     ],
-    "rihtwisness": [
-      "rihtwīs-ness",
-      "rihtwīsness"
-    ],
-    "ripness": [
-      "rīp-ness",
-      "rīpness"
-    ],
     "riþig": [
       "riþig",
       "rīþig"
-    ],
-    "rodorlic": [
-      "rodor-lic",
-      "rodor-līc"
     ],
     "rop": [
       "rop",
@@ -44102,18 +43618,6 @@
     "rot": [
       "rot",
       "rōt"
-    ],
-    "rumgifolness": [
-      "rūmgifol-ness",
-      "rūmgifolness"
-    ],
-    "rumheortness": [
-      "rūmheort-ness",
-      "rūmheortness"
-    ],
-    "rummodness": [
-      "rūmmōd-ness",
-      "rūmmōdness"
     ],
     "rupe": [
       "rupe",
@@ -44143,10 +43647,6 @@
       "sæd",
       "sǣd"
     ],
-    "sædlic": [
-      "sǣd-lic",
-      "sǣd-līc"
-    ],
     "saeflod": [
       "sāe-flōd",
       "sǣ-flōd"
@@ -44166,22 +43666,6 @@
     "sæminte": [
       "sæ-minte",
       "sǣ-minte"
-    ],
-    "samodþyrlic": [
-      "samod-þyrlic",
-      "samod-þyrlīc"
-    ],
-    "sarigness": [
-      "sārig-ness",
-      "sārigness"
-    ],
-    "sarlic": [
-      "sār-lic",
-      "sār-līc"
-    ],
-    "sarness": [
-      "sār-ness",
-      "sārness"
     ],
     "scead": [
       "scead",
@@ -44215,10 +43699,6 @@
       "sceat",
       "scēat"
     ],
-    "sceoness": [
-      "scēo-ness",
-      "scēoness"
-    ],
     "sceþwræc": [
       "sceþ-wræc",
       "sceþwræc"
@@ -44239,17 +43719,9 @@
       "scinefrian",
       "scīnefrian"
     ],
-    "scinlic": [
-      "scīn-lic",
-      "scīn-līc"
-    ],
     "sciran": [
       "sciran",
       "scīran"
-    ],
-    "scortness": [
-      "scort-ness",
-      "scortness"
     ],
     "scyte": [
       "scyte",
@@ -44263,17 +43735,9 @@
       "sel",
       "sēl"
     ],
-    "siblic": [
-      "sib-lic",
-      "sib-līc"
-    ],
     "sigerian": [
       "sigerian",
       "sīgerian"
-    ],
-    "singalness": [
-      "singal-ness",
-      "singalness"
     ],
     "siþfæt": [
       "siþ-fæt",
@@ -44295,17 +43759,9 @@
       "smēa-gelegen",
       "smēagelegen"
     ],
-    "smealic": [
-      "smēa-lic",
-      "smēa-līc"
-    ],
     "smite": [
       "smite",
       "smīte"
-    ],
-    "softness": [
-      "sōft-ness",
-      "sōftness"
     ],
     "sol": [
       "sol",
@@ -44371,25 +43827,13 @@
       "streones-halh",
       "strēones-halh"
     ],
-    "styrigendlic": [
-      "styrigend-lic",
-      "styrigend-līc"
-    ],
     "subdiacon": [
       "sub-diācon",
       "subdiācon"
     ],
-    "sumerlic": [
-      "sumer-lic",
-      "sumer-līc"
-    ],
     "sundorspræc": [
       "sundor-sprǣc",
       "sundorsprǣc"
-    ],
-    "sunnlic": [
-      "sunn-lic",
-      "sunn-līc"
     ],
     "supe": [
       "supe",
@@ -44398,10 +43842,6 @@
     "sur": [
       "sur",
       "sūr"
-    ],
-    "swæslic": [
-      "swǣs-lic",
-      "swǣs-līc"
     ],
     "swan": [
       "swan",
@@ -44431,10 +43871,6 @@
       "swot",
       "swōt"
     ],
-    "syferlic": [
-      "sȳfer-lic",
-      "sȳfer-līc"
-    ],
     "syferlice": [
       "syferlīce",
       "sȳferlīce"
@@ -44454,10 +43890,6 @@
     "tæl": [
       "tæl",
       "tǣl"
-    ],
-    "tællic": [
-      "tǣl-lic",
-      "tǣl-līc"
     ],
     "tælsum": [
       "tæl-sum",
@@ -44479,41 +43911,17 @@
       "þær-æt",
       "þǣr-æt"
     ],
-    "þæslic": [
-      "þæs-lic",
-      "þæs-līc"
-    ],
     "þan": [
       "þan",
       "þān"
-    ],
-    "þearfendlic": [
-      "þearfend-lic",
-      "þearfend-līc"
-    ],
-    "þearflic": [
-      "þearf-lic",
-      "þearf-līc"
     ],
     "þeodlic": [
       "þēod-līc",
       "þēodlic"
     ],
-    "þeowlic": [
-      "þēow-lic",
-      "þēow-līc"
-    ],
     "þriste": [
       "þriste",
       "þrīste"
-    ],
-    "þrymlic": [
-      "þrym-lic",
-      "þrym-līc"
-    ],
-    "þrymness": [
-      "þrym-ness",
-      "þrymness"
     ],
     "þweora": [
       "þweora",
@@ -44539,14 +43947,6 @@
       "tōr-begete",
       "tōr-begēte"
     ],
-    "treowlic": [
-      "trēow-lic",
-      "trēow-līc"
-    ],
-    "tweonigendlic": [
-      "twēonigend-lic",
-      "twēonigend-līc"
-    ],
     "twibote": [
       "twi-bōte",
       "twibōte"
@@ -44567,53 +43967,9 @@
       "twi-sprǣcness",
       "twisprǣcness"
     ],
-    "unaberendlic": [
-      "un-āberendlic",
-      "un-āberendlīc"
-    ],
-    "unacumendlic": [
-      "un-ācumendlic",
-      "un-ācumendlīc"
-    ],
-    "unalifedlic": [
-      "un-ālīfedlic",
-      "un-ālīfedlīc"
-    ],
-    "unareccendlic": [
-      "un-āreccendlic",
-      "un-āreccendlīc"
-    ],
-    "unaspyrigendlic": [
-      "un-āspyrigendlic",
-      "un-āspyrigendlīc"
-    ],
-    "unastyrigendlic": [
-      "un-āstyrigendlic",
-      "un-āstyrigendlīc"
-    ],
     "unateorod": [
       "un-āteorod",
       "un-ātēorod"
-    ],
-    "unawendedlic": [
-      "un-āwendedlic",
-      "un-āwendedlīc"
-    ],
-    "unawendendlic": [
-      "un-āwendendlic",
-      "un-āwendendlīc"
-    ],
-    "unbefangenlic": [
-      "un-befangenlic",
-      "un-befangenlīc"
-    ],
-    "unbeseondlic": [
-      "un-besēondlic",
-      "un-besēondlīc"
-    ],
-    "unbrosnigendlic": [
-      "un-brosnigendlic",
-      "un-brosnigendlīc"
     ],
     "unbryce": [
       "un-bryce",
@@ -44627,50 +43983,6 @@
       "un-faederlīce",
       "un-fæderlīce"
     ],
-    "unforesceawodlic": [
-      "un-forescēawodlic",
-      "un-forescēawodlīc"
-    ],
-    "unforrotigendlic": [
-      "un-forrotigendlic",
-      "un-forrotigendlīc"
-    ],
-    "ungebigendlic": [
-      "un-gebīgendlic",
-      "un-gebīgendlīc"
-    ],
-    "ungebrosnendlic": [
-      "un-gebrosnendlic",
-      "un-gebrosnendlīc"
-    ],
-    "ungecoplic": [
-      "un-gecoplic",
-      "un-gecoplīc"
-    ],
-    "ungedafenlic": [
-      "un-gedafenlic",
-      "un-gedafenlīc"
-    ],
-    "ungeeahtendlic": [
-      "un-geeahtendlic",
-      "un-geeahtendlīc"
-    ],
-    "ungeendodlic": [
-      "un-geendodlic",
-      "un-geendodlīc"
-    ],
-    "ungefoglic": [
-      "un-gefōglic",
-      "un-gefōglīc"
-    ],
-    "ungefylledlic": [
-      "un-gefylledlic",
-      "un-gefylledlīc"
-    ],
-    "ungeleaflic": [
-      "un-gelēaflic",
-      "un-gelēaflīc"
-    ],
     "ungemet": [
       "un-gemet",
       "un-gemēt"
@@ -44678,26 +43990,6 @@
     "ungemetfæst": [
       "un-gemetfæst",
       "ungemet-fæst"
-    ],
-    "unhalwendlic": [
-      "un-hālwendlic",
-      "un-hālwendlīc"
-    ],
-    "unlichamlic": [
-      "un-līchamlic",
-      "un-līchamlīc"
-    ],
-    "unmiltsigendlic": [
-      "un-miltsigendlic",
-      "un-miltsigendlīc"
-    ],
-    "unonwendedlic": [
-      "un-onwendedlic",
-      "un-onwendedlīc"
-    ],
-    "unrihtlic": [
-      "un-rihtlic",
-      "un-rihtlīc"
     ],
     "unrihtlice": [
       "un-rihtlīce",
@@ -44710,14 +44002,6 @@
     "unstæþþig": [
       "un-stæððig",
       "un-stæþþig"
-    ],
-    "unþæslic": [
-      "un-þæslic",
-      "un-þæslīc"
-    ],
-    "unweorclic": [
-      "un-weorclic",
-      "un-weorclīc"
     ],
     "up": [
       "up",
@@ -44759,10 +44043,6 @@
       "wacian",
       "wācian"
     ],
-    "waclic": [
-      "wāc-lic",
-      "wāc-līc"
-    ],
     "wæd": [
       "wæd",
       "wǣd"
@@ -44791,17 +44071,9 @@
       "wæl-grimlīce",
       "wælgrimlīce"
     ],
-    "wællic": [
-      "wǣl-lic",
-      "wǣl-līc"
-    ],
     "wær": [
       "wær",
       "wǣr"
-    ],
-    "wærlic": [
-      "wær-lic",
-      "wær-līc"
     ],
     "wærlice": [
       "wærlīce",
@@ -44831,10 +44103,6 @@
       "wēa-gesiþ",
       "wēa-gesīþ"
     ],
-    "wearglic": [
-      "wearg-lic",
-      "wearg-līc"
-    ],
     "wel": [
       "wel",
       "wēl"
@@ -44842,10 +44110,6 @@
     "weorodlice": [
       "weorod-līce",
       "weorodlīce"
-    ],
-    "weorþfullic": [
-      "weorþful-lic",
-      "weorþful-līc"
     ],
     "wyrþian": [
       "weorþian",
@@ -44895,10 +44159,6 @@
       "wilde-dēor",
       "wildedēor"
     ],
-    "wilsumlic": [
-      "wilsum-lic",
-      "wilsum-līc"
-    ],
     "win": [
       "win",
       "wīn"
@@ -44944,14 +44204,6 @@
       "wiþig-slæd",
       "wīþig-slǣd"
     ],
-    "witiendlic": [
-      "wītiend-lic",
-      "wītiend-līc"
-    ],
-    "wodlic": [
-      "wōd-lic",
-      "wōd-līc"
-    ],
     "wohdaed": [
       "wōh-dāed",
       "wōh-dǣd"
@@ -44963,10 +44215,6 @@
     "woma": [
       "woma",
       "wōma"
-    ],
-    "woplic": [
-      "wōp-lic",
-      "wōp-līc"
     ],
     "wræc": [
       "wræc",
@@ -44980,25 +44228,9 @@
       "wrehtend",
       "wrēhtend"
     ],
-    "wrixendlic": [
-      "wrixend-lic",
-      "wrixend-līc"
-    ],
-    "wundorlic": [
-      "wundor-lic",
-      "wundor-līc"
-    ],
     "wynsum": [
       "wyn-sum",
       "wynsum"
-    ],
-    "yfellic": [
-      "yfel-lic",
-      "yfel-līc"
-    ],
-    "yfelness": [
-      "yfel-ness",
-      "yfelness"
     ],
     "ymbhygdiglice": [
       "ymb-hygdiglīce",
