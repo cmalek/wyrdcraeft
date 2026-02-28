@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39000,
-    "ambiguous_count": 1242
+    "unique_count": 39072,
+    "ambiguous_count": 1168
   },
   "unique": {
     "a": "ā",
@@ -39006,7 +39006,79 @@
     "openlice": "openlīce",
     "orgellice": "orgellīce",
     "rædlice": "rǣdlīce",
-    "weorodlice": "weorodlīce"
+    "weorodlice": "weorodlīce",
+    "cynewiþþe": "cyne-wiþþe",
+    "cyþþu": "cȳþþu",
+    "gesceþþan": "ge-sceþþan",
+    "moþþe": "moþþe",
+    "oþþe": "oþþe",
+    "oþþon": "oþþon",
+    "ryþþa": "ryþþa",
+    "siþþan": "siþþan",
+    "stæþþigness": "stæþþigness",
+    "unstæþþig": "un-stæþþig",
+    "efenceasterwearan": "efen-ceasterwearan",
+    "eoforwicceaster": "eoforwīc-ceaster",
+    "gebeorscipe": "ge-bēorscipe",
+    "gebyrddæg": "gebyrd-dæg",
+    "gebyrdtid": "gebyrd-tīd",
+    "gebærdstan": "gebærd-stān",
+    "gecwedræden": "ge-cwedrǣden",
+    "gecyndboc": "gecynd-bōc",
+    "gecyndlim": "gecynd-lim",
+    "gedalland": "gedāl-land",
+    "gedwolcræft": "ge-dwolcræft",
+    "gedwolgodas": "gedwol-godas",
+    "gedwolþing": "gedwol-þing",
+    "gedyrstignes": "ge-dyrstignes",
+    "gedyrstlæcan": "ge-dyrstlǣcan",
+    "geferræden": "ge-fērrǣden",
+    "geferscipe": "ge-fērscipe",
+    "gegafspræc": "gegaf-sprǣc",
+    "gehatland": "gehāt-land",
+    "gehæftworld": "gehæft-world",
+    "gelicgemaca": "gelīc-gemaca",
+    "gelodwyrt": "gelod-wyrt",
+    "gemetfæst": "ge-metfæst",
+    "gemetfæstlice": "ge-metfæstlīce",
+    "gemetfæstnys": "ge-metfæstnys",
+    "gemynddrepen": "gemynd-drepen",
+    "gemynddæg": "gemynd-dæg",
+    "gemyndstow": "gemynd-stōw",
+    "gemænnes": "ge-mǣnnes",
+    "gemænscipe": "ge-mǣnscipe",
+    "gemænsumian": "ge-mǣnsumian",
+    "gemænsumung": "ge-mǣnsumung",
+    "geneatriht": "genēat-riht",
+    "genyhtsumnes": "ge-nyhtsumnes",
+    "gerefland": "gerēf-land",
+    "gesundful": "ge-sundful",
+    "geunretan": "ge-unrētan",
+    "geunrotsian": "ge-unrōtsian",
+    "gewitleast": "ge-witlēast",
+    "gærstundic": "gærstūn-dīc",
+    "heahsæþeof": "hēah-sǣþēof",
+    "healfpenigwurþ": "healfpenig-wurþ",
+    "rihthlafordhyldu": "riht-hlāfordhyldu",
+    "æbylg": "ǣ-bylg",
+    "æbylgan": "ǣ-bylgan",
+    "æcelma": "ǣ-celma",
+    "æcyrf": "ǣ-cyrf",
+    "æfest": "ǣ-fest",
+    "æfestnes": "ǣ-festnes",
+    "æfæst": "ǣ-fæst",
+    "æfæstnes": "ǣ-fæstnes",
+    "æglæca": "ǣ-glǣca",
+    "æleten": "ǣ-lēten",
+    "ælæte": "ǣ-lǣte",
+    "ælæten": "ǣ-lǣten",
+    "æmen": "ǣ-men",
+    "æmod": "ǣ-mōd",
+    "æmynde": "ǣ-mynde",
+    "ærist": "ǣ-rist",
+    "æswica": "ǣ-swīca",
+    "æswind": "ǣ-swind",
+    "æwyrp": "ǣ-wyrp"
   },
   "ambiguous": {
     "ac": [
@@ -39029,42 +39101,17 @@
       "æ",
       "ǣ"
     ],
-    "æbylg": [
-      "æ-bylg",
-      "ǣ-bylg"
-    ],
-    "æbylgan": [
-      "æ-bylgan",
-      "ǣ-bylgan"
-    ],
     "æce": [
       "æce",
       "ǣce"
-    ],
-    "æcelma": [
-      "æcelma",
-      "ǣ-celma"
     ],
     "æcern": [
       "æcern",
       "ǣcern"
     ],
-    "æcyrf": [
-      "æcyrf",
-      "ǣ-cyrf"
-    ],
     "ædre": [
       "ædre",
       "ǣdre"
-    ],
-    "æfæst": [
-      "æ-fæst",
-      "æf-ǣst",
-      "ǣ-fæst"
-    ],
-    "æfæstnes": [
-      "æ-fæstnes",
-      "ǣ-fæstnes"
     ],
     "æfen": [
       "æfen",
@@ -39073,14 +39120,6 @@
     "æfenlæcan": [
       "æfen-lǣcan",
       "ǣfen-lǣcan"
-    ],
-    "æfest": [
-      "æf-ēst",
-      "ǣ-fest"
-    ],
-    "æfestnes": [
-      "æf-ēstnes",
-      "ǣ-festnes"
     ],
     "æfterhætu": [
       "æfter-hætu",
@@ -39098,10 +39137,6 @@
       "æg-hwanan",
       "ǣg-hwanan"
     ],
-    "æglæca": [
-      "æg-lǣca",
-      "ǣ-glǣca"
-    ],
     "æht": [
       "æht",
       "ǣht"
@@ -39114,14 +39149,6 @@
       "æl",
       "ǣl"
     ],
-    "ælæte": [
-      "æ-læte",
-      "ǣ-lǣte"
-    ],
-    "ælæten": [
-      "æ-lǣten",
-      "ǣ-lǣten"
-    ],
     "ælan": [
       "ælan",
       "ǣlan"
@@ -39129,10 +39156,6 @@
     "ælcra": [
       "ælcor",
       "ælcra"
-    ],
-    "æleten": [
-      "æ-lēten",
-      "ǣ-lēten"
     ],
     "ælfred": [
       "ælfred",
@@ -39154,10 +39177,6 @@
       "æl-tæwlīce",
       "æl-tǣwlīce"
     ],
-    "æmen": [
-      "æ-men",
-      "ǣ-men"
-    ],
     "æmethwil": [
       "æmet-hwīl",
       "ǣmet-hwīl"
@@ -39174,17 +39193,9 @@
       "æmettig",
       "ǣmettig"
     ],
-    "æmod": [
-      "æ-mōd",
-      "ǣ-mōd"
-    ],
     "æmtig": [
       "æmta",
       "æmtig"
-    ],
-    "æmynde": [
-      "æ-mynde",
-      "ǣ-mynde"
     ],
     "ænga": [
       "ænga",
@@ -39214,11 +39225,6 @@
       "ær-glæd",
       "ǣr-glæd"
     ],
-    "ærist": [
-      "æ-rist",
-      "ǣ-rist",
-      "ǣrist"
-    ],
     "ærn": [
       "ærn",
       "ǣrn"
@@ -39234,14 +39240,6 @@
     "æstel": [
       "æstel",
       "ǣstel"
-    ],
-    "æswica": [
-      "æ-swīca",
-      "ǣ-swīca"
-    ],
-    "æswind": [
-      "æ-swind",
-      "ǣ-swind"
     ],
     "æt": [
       "æt",
@@ -39294,10 +39292,6 @@
     "æwiscnys": [
       "ǣwisc-nys",
       "ǣwiscnys"
-    ],
-    "æwyrp": [
-      "æ-wyrp",
-      "ǣ-wyrp"
     ],
     "aflian": [
       "a-flian",
@@ -40130,10 +40124,6 @@
       "cynelic-nys",
       "cynelīc-nys"
     ],
-    "cynewiþþe": [
-      "cyne-wiððe",
-      "cyne-wiþþe"
-    ],
     "cyp": [
       "cyp",
       "cȳp"
@@ -40161,10 +40151,6 @@
     "cyþlæcan": [
       "cyð-lǣcan",
       "cȳþ-lǣcan"
-    ],
-    "cyþþu": [
-      "cȳððu",
-      "cȳþþu"
     ],
     "dædbotnys": [
       "dǣd-bōtnys",
@@ -40417,10 +40403,6 @@
       "efen",
       "ēfen"
     ],
-    "efenceasterwearan": [
-      "efen-ceaster-wearan",
-      "efen-ceasterwearan"
-    ],
     "efengemæcca": [
       "efen-gemæcca",
       "ēfen-gemæcca"
@@ -40493,10 +40475,6 @@
     "eo": [
       "eo",
       "ēo"
-    ],
-    "eoforwicceaster": [
-      "eofor-wīc-ceaster",
-      "eoforwīc-ceaster"
     ],
     "eorlic": [
       "eor-lic",
@@ -41381,10 +41359,6 @@
       "gælsa",
       "gǣlsa"
     ],
-    "gærstundic": [
-      "gærs-tūn-dīc",
-      "gærstūn-dīc"
-    ],
     "gæst": [
       "gæst",
       "gǣst"
@@ -41511,10 +41485,6 @@
       "geaþ",
       "gēaþ"
     ],
-    "gebærdstan": [
-      "ge-bærd-stān",
-      "gebærd-stān"
-    ],
     "gebeded": [
       "ge-beded",
       "ge-bēded"
@@ -41542,10 +41512,6 @@
     "gebegendlic": [
       "ge-bēgan",
       "ge-bēgendlīc"
-    ],
-    "gebeorscipe": [
-      "ge-bēor-scipe",
-      "ge-bēorscipe"
     ],
     "gebeotian": [
       "ge-beotian",
@@ -41588,14 +41554,6 @@
       "ge-byld",
       "gebyld"
     ],
-    "gebyrddæg": [
-      "ge-byrd-dæg",
-      "gebyrd-dæg"
-    ],
-    "gebyrdtid": [
-      "ge-byrd-tīd",
-      "gebyrd-tīd"
-    ],
     "gebyrgan": [
       "ge-byrgan",
       "ge-bȳrgan"
@@ -41612,29 +41570,13 @@
       "ge-cristnian",
       "ge-crīstnian"
     ],
-    "gecwedræden": [
-      "ge-cwed-rǣden",
-      "ge-cwedrǣden"
-    ],
-    "gecyndboc": [
-      "ge-cynd-bōc",
-      "gecynd-bōc"
-    ],
     "gecyndespræc": [
       "gecynde-spræc",
       "gecynde-sprǣc"
     ],
-    "gecyndlim": [
-      "ge-cynd-lim",
-      "gecynd-lim"
-    ],
     "gedælan": [
       "ge-dælan",
       "ge-dǣlan"
-    ],
-    "gedalland": [
-      "ge-dāl-land",
-      "gedāl-land"
     ],
     "gedefelic": [
       "ge-defelic",
@@ -41665,29 +41607,9 @@
       "ge-dwildmann",
       "gedwild-mann"
     ],
-    "gedwolcræft": [
-      "ge-dwol-cræft",
-      "ge-dwolcræft"
-    ],
-    "gedwolgodas": [
-      "ge-dwol-godas",
-      "gedwol-godas"
-    ],
-    "gedwolþing": [
-      "ge-dwol-þing",
-      "gedwol-þing"
-    ],
     "gedyre": [
       "ge-dȳre",
       "gedȳre"
-    ],
-    "gedyrstignes": [
-      "ge-dyrstig-nes",
-      "ge-dyrstignes"
-    ],
-    "gedyrstlæcan": [
-      "ge-dyrst-lǣcan",
-      "ge-dyrstlǣcan"
     ],
     "geedþrawen": [
       "ge-edðrawen",
@@ -41712,14 +41634,6 @@
     "geferlæcan": [
       "ge-fērlǣcan",
       "gefēr-lǣcan"
-    ],
-    "geferræden": [
-      "ge-fēr-rǣden",
-      "ge-fērrǣden"
-    ],
-    "geferscipe": [
-      "ge-fēr-scipe",
-      "ge-fērscipe"
     ],
     "geflit": [
       "ge-flit",
@@ -41749,17 +41663,9 @@
       "ge-gafelian",
       "ge-gafelod"
     ],
-    "gegafspræc": [
-      "ge-gaf-sprǣc",
-      "gegaf-sprǣc"
-    ],
     "gen": [
       "gegn",
       "gēn"
-    ],
-    "gehæftworld": [
-      "ge-hæft-world",
-      "gehæft-world"
     ],
     "gehat": [
       "ge-hāt",
@@ -41772,10 +41678,6 @@
     "gehatian": [
       "ge-hatian",
       "ge-hātian"
-    ],
-    "gehatland": [
-      "ge-hāt-land",
-      "gehāt-land"
     ],
     "gehelan": [
       "ge-helan",
@@ -41853,10 +41755,6 @@
       "ge-leornes",
       "ge-lēornes"
     ],
-    "gelicgemaca": [
-      "ge-līc-gemaca",
-      "gelīc-gemaca"
-    ],
     "gelimplic": [
       "ge-limplīc",
       "gelimplic"
@@ -41864,10 +41762,6 @@
     "geliþewæcan": [
       "ge-liðewǣcan",
       "ge-līþewǣcan"
-    ],
-    "gelodwyrt": [
-      "ge-lod-wyrt",
-      "gelod-wyrt"
     ],
     "gelogod": [
       "ge-logod",
@@ -41884,22 +41778,6 @@
     "gemænelic": [
       "ge-mǣne-līc",
       "ge-mǣnelic"
-    ],
-    "gemænnes": [
-      "ge-mǣn-nes",
-      "ge-mǣnnes"
-    ],
-    "gemænscipe": [
-      "ge-mǣn-scipe",
-      "ge-mǣnscipe"
-    ],
-    "gemænsumian": [
-      "ge-mǣn-sumian",
-      "ge-mǣnsumian"
-    ],
-    "gemænsumung": [
-      "ge-mǣn-sumung",
-      "ge-mǣnsumung"
     ],
     "gemahlicnes": [
       "ge-māhlicnes",
@@ -41933,18 +41811,6 @@
       "ge-mete",
       "gemete"
     ],
-    "gemetfæst": [
-      "ge-met-fæst",
-      "ge-metfæst"
-    ],
-    "gemetfæstlice": [
-      "ge-met-fæstlīce",
-      "ge-metfæstlīce"
-    ],
-    "gemetfæstnys": [
-      "ge-met-fæstnys",
-      "ge-metfæstnys"
-    ],
     "gemetlic": [
       "ge-met-līc",
       "ge-metlic"
@@ -41957,22 +41823,6 @@
       "ge-mōdsumian",
       "ge-mōdsumnes"
     ],
-    "gemynddæg": [
-      "ge-mynd-dæg",
-      "gemynd-dæg"
-    ],
-    "gemynddrepen": [
-      "ge-mynd-drepen",
-      "gemynd-drepen"
-    ],
-    "gemyndstow": [
-      "ge-mynd-stōw",
-      "gemynd-stōw"
-    ],
-    "geneatriht": [
-      "ge-nēat-riht",
-      "genēat-riht"
-    ],
     "genehlice": [
       "ge-nehlīce",
       "ge-nēhlīce"
@@ -41984,10 +41834,6 @@
     "geniwian": [
       "ge-niwian",
       "ge-nīwian"
-    ],
-    "genyhtsumnes": [
-      "ge-nyhtsum-nes",
-      "ge-nyhtsumnes"
     ],
     "geoc": [
       "geoc",
@@ -42053,10 +41899,6 @@
       "ge-ræc",
       "ge-rǣc"
     ],
-    "gerefland": [
-      "ge-rēf-land",
-      "gerēf-land"
-    ],
     "gerif": [
       "ge-rif",
       "ge-rīf"
@@ -42080,10 +41922,6 @@
     "gesceot": [
       "ge-sceot",
       "ge-scēot"
-    ],
-    "gesceþþan": [
-      "ge-sceððan",
-      "ge-sceþþan"
     ],
     "gescotfeoht": [
       "ge-scotfeoht",
@@ -42137,10 +41975,6 @@
       "ge-stēdhors",
       "gestēd-hors"
     ],
-    "gesundful": [
-      "ge-sund-ful",
-      "ge-sundful"
-    ],
     "geswætan": [
       "ge-swætan",
       "ge-swǣtan"
@@ -42190,14 +42024,6 @@
       "ge-þwǣrlǣcan",
       "geþwǣr-lǣcan"
     ],
-    "geunretan": [
-      "ge-un-rētan",
-      "ge-unrētan"
-    ],
-    "geunrotsian": [
-      "ge-un-rōtsian",
-      "ge-unrōtsian"
-    ],
     "geuntreowsian": [
       "ge-untrēowsian",
       "ge-untrēowsīan"
@@ -42245,10 +42071,6 @@
     "gewitleas": [
       "ge-witlēas",
       "gewit-lēas"
-    ],
-    "gewitleast": [
-      "ge-wit-lēast",
-      "ge-witlēast"
     ],
     "gewitscipe": [
       "ge-witscipe",
@@ -42548,14 +42370,6 @@
     "heahsacerd": [
       "hēah-sacerd",
       "hēah-sācerd"
-    ],
-    "heahsæþeof": [
-      "hēah-sǣ-þēof",
-      "hēah-sǣþēof"
-    ],
-    "healfpenigwurþ": [
-      "healf-penig-wurþ",
-      "healfpenig-wurþ"
     ],
     "healic": [
       "healic",
@@ -43184,10 +42998,6 @@
       "mot",
       "mōt"
     ],
-    "moþþe": [
-      "moððe",
-      "moþþe"
-    ],
     "neodian": [
       "nēadian",
       "nēodian"
@@ -43342,14 +43152,6 @@
       "oþ-sacan",
       "ōþ-sacan"
     ],
-    "oþþe": [
-      "oððe",
-      "oþþe"
-    ],
-    "oþþon": [
-      "oððon",
-      "oþþon"
-    ],
     "oþwindan": [
       "oþ-windan",
       "ōþ-windan"
@@ -43412,10 +43214,6 @@
       "riht-fæstendæg",
       "rihtfæsten-dæg"
     ],
-    "rihthlafordhyldu": [
-      "riht-hlāford-hyldu",
-      "riht-hlāfordhyldu"
-    ],
     "rihtlæcan": [
       "riht-lǣcan",
       "rihtlǣcan"
@@ -43459,10 +43257,6 @@
     "rynelice": [
       "rynelīce",
       "rȳnelīce"
-    ],
-    "ryþþa": [
-      "ryðða",
-      "ryþþa"
     ],
     "sacerdhad": [
       "sacerd-hād",
@@ -43572,10 +43366,6 @@
       "siþ-fæt",
       "sīþ-fæt"
     ],
-    "siþþan": [
-      "siððan",
-      "siþþan"
-    ],
     "sled": [
       "slēd",
       "slǣd"
@@ -43623,10 +43413,6 @@
     "stæþhlipe": [
       "stæþ-hlipe",
       "stæþ-hlīpe"
-    ],
-    "stæþþigness": [
-      "stæððigness",
-      "stæþþigness"
     ],
     "stalian": [
       "stalian",
@@ -43720,14 +43506,6 @@
       "tal",
       "tāl"
     ],
-    "th": [
-      "th",
-      "þ"
-    ],
-    "þ": [
-      "th",
-      "þ"
-    ],
     "þæræt": [
       "þær-æt",
       "þǣr-æt"
@@ -43811,10 +43589,6 @@
     "unsæd": [
       "un-sæd",
       "un-sǣd"
-    ],
-    "unstæþþig": [
-      "un-stæððig",
-      "un-stæþþig"
     ],
     "up": [
       "up",
