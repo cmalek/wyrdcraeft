@@ -53,7 +53,7 @@ BT_SPLIT_PART_COUNT: Final[int] = 3
 
 def normalize_old_english(text: str | None) -> str | None:
     """
-    Normalize Old English token text for stable matching.
+    A simple Old English word normalizer for stable matching.
 
     Rules:
         - Lowercase
@@ -73,9 +73,7 @@ def normalize_old_english(text: str | None) -> str | None:
         return None
     lowered = text.strip().lower().replace("ð", "þ")
     decomposed = unicodedata.normalize("NFD", lowered)
-    without_marks = "".join(
-        ch for ch in decomposed if unicodedata.category(ch) != "Mn"
-    )
+    without_marks = "".join(ch for ch in decomposed if unicodedata.category(ch) != "Mn")
     stripped_internal_hyphen = INTERNAL_DASH_RE.sub("", without_marks)
     return unicodedata.normalize("NFC", stripped_internal_hyphen)
 
@@ -614,21 +612,15 @@ class CPalatalizer:
             should_palatalize = False
 
             # Initial c before front vowel/diphthong
-            if (
-                (i == 0 and self._is_front_context(lower, i + 1))
-                or (
-                    i == len(chars) - 1
-                    and i > 0
-                    and chars[i - 1] in self.HIGH_FRONT_VOWELS
-                )
+            if (i == 0 and self._is_front_context(lower, i + 1)) or (
+                i == len(chars) - 1 and i > 0 and chars[i - 1] in self.HIGH_FRONT_VOWELS
             ):
                 should_palatalize = True
 
             # Medial c between front-vowel contexts
             elif 0 < i < len(chars) - 1:
-                if (
-                    chars[i - 1] in self.FRONT_VOWELS
-                    and self._is_front_context(lower, i + 1)
+                if chars[i - 1] in self.FRONT_VOWELS and self._is_front_context(
+                    lower, i + 1
                 ):
                     should_palatalize = True
 

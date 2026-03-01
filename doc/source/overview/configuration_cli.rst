@@ -1,3 +1,5 @@
+.. _configuration cli:
+
 Configuration: Command Line Tool
 ================================
 

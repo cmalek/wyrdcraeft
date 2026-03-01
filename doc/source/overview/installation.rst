@@ -107,8 +107,7 @@ Configuration
 -------------
 
 After installation, you may want to configure ``wyrdcraeft`` for your specific
-PVS6 device.  See :doc:`configuration_cli`  and :doc:`configuration_client` for
-detailed configuration options.
+PVS6 device.  See :doc:`configuration_cli` for detailed configuration options.
 
 Getting Help
 ------------

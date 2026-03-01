@@ -23,6 +23,7 @@ from wyrdcraeft.services.morphology.processors import (
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
+#: The fields in the form output.
 FORM_FIELDS = [
     "counter",
     "formi",
@@ -44,8 +45,10 @@ FORM_FIELDS = [
     "comment",
 ]
 
+#: The fields in the form output without the counter.
 FORM_FIELDS_NO_COUNTER = [field for field in FORM_FIELDS if field != "counter"]
 
+#: The default fields to sort the form output by.
 DEFAULT_FORM_SORT_FIELDS = [
     "BT",
     "wordclass",
@@ -68,7 +71,16 @@ DEFAULT_FORM_SORT_FIELDS = [
 
 
 def parse_form_output(output: str) -> list[dict[str, str]]:
-    """Parse generator TSV output into normalized records."""
+    """
+    Parse generator TSV output into normalized records.
+
+    Args:
+        output: The generator TSV output.
+
+    Returns:
+        A list of dictionaries, one for each row in the output.
+
+    """
     records: list[dict[str, str]] = []
     for raw_line in output.splitlines():
         if not raw_line:
@@ -89,7 +101,17 @@ def canonical_sort_rows(
     *,
     sort_fields: list[str],
 ) -> list[dict[str, str]]:
-    """Return deterministically sorted shallow-copied records."""
+    """
+    Return deterministically sorted shallow-copied records.
+
+    Args:
+        rows: The rows to sort.
+        sort_fields: The fields to sort the rows by.
+
+    Returns:
+        A list of dictionaries, sorted by the sort fields.
+
+    """
     normalized = [{key: str(value) for key, value in row.items()} for row in rows]
     return sorted(
         normalized,
@@ -98,7 +120,16 @@ def canonical_sort_rows(
 
 
 def canonicalize_form_rows(rows: list[dict[str, Any]]) -> list[dict[str, str]]:
-    """Canonicalize form rows for stable snapshot storage."""
+    """
+    Canonicalize form rows for stable snapshot storage.
+
+    Args:
+        rows: The rows to canonicalize.
+
+    Returns:
+        A list of dictionaries, sorted by the default form sort fields.
+
+    """
     return canonical_sort_rows(rows, sort_fields=DEFAULT_FORM_SORT_FIELDS)
 
 
@@ -108,7 +139,18 @@ def write_jsonl_gz(
     *,
     update: bool,
 ) -> None:
-    """Write compressed JSON lines deterministically."""
+    """
+    Write compressed JSON lines deterministically.
+
+    Side Effects:
+        Writes the compressed JSON lines to the file system.
+
+    Args:
+        path: The path to write the compressed JSON lines to.
+        rows: The rows to write.
+        update: Whether to update the existing file.
+
+    """
     if path.exists() and not update:
         msg = f"Snapshot already exists: {path}. Re-run with --update to overwrite."
         raise FileExistsError(msg)
@@ -127,7 +169,21 @@ def build_session(
     verbal_paradigms: Path,
     prefixes: Path,
 ) -> GeneratorSession:
-    """Create a fully prepared session for a dictionary file."""
+    """
+    Create a fully prepared
+    :class:`~wyrdcraeft.services.morphology.GeneratorSession`  for a dictionary
+    file.
+
+    Args:
+        dictionary_path: The path to the dictionary file.
+        manual_forms: The path to the manual forms file.
+        verbal_paradigms: The path to the verbal paradigms file.
+        prefixes: The path to the prefixes file.
+
+    Returns:
+        A fully prepared :class:`~wyrdcraeft.services.morphology.GeneratorSession`.
+
+    """
     session = GeneratorSession()
     session.load_all(
         str(dictionary_path),
@@ -145,7 +201,16 @@ def build_session(
 
 
 def preprocess_snapshot_rows(session: GeneratorSession) -> list[dict[str, str]]:
-    """Build canonical preprocess rows from session words."""
+    """
+    Build canonical preprocess rows from session words.
+
+    Args:
+        session: The session to build the preprocess rows from.
+
+    Returns:
+        A list of dictionaries, one for each word in the session.
+
+    """
     rows = [
         {
             "nid": str(word.nid),
@@ -160,7 +225,16 @@ def preprocess_snapshot_rows(session: GeneratorSession) -> list[dict[str, str]]:
 
 
 def paradigm_snapshot_rows(session: GeneratorSession) -> list[dict[str, str]]:
-    """Build canonical paradigm assignment rows from session words."""
+    """
+    Build canonical paradigm assignment rows from session words.
+
+    Args:
+        session: The session to build the paradigm assignment rows from.
+
+    Returns:
+        A list of dictionaries, one for each word in the session.
+
+    """
     rows = [
         {
             "nid": str(word.nid),
@@ -185,7 +259,17 @@ def form_rows_for_stage(
     *,
     stage_name: str,
 ) -> list[dict[str, str]]:
-    """Run one generation stage and return canonicalized form rows."""
+    """
+    Run one generation stage and return canonicalized form rows.
+
+    Args:
+        session: The session to run the generation stage on.
+        stage_name: The name of the generation stage to run.
+
+    Returns:
+        A list of dictionaries, one for each row in the output.
+
+    """
     output = io.StringIO()
 
     if stage_name == "manual":
@@ -208,7 +292,16 @@ def form_rows_for_stage(
 
 
 def full_flow_rows(session: GeneratorSession) -> list[dict[str, str]]:
-    """Run full generator flow and return canonicalized output rows."""
+    """
+    Run full generator flow and return canonicalized output rows.
+
+    Args:
+        session: The session to run the full generator flow on.
+
+    Returns:
+        A list of dictionaries, one for each row in the output.
+
+    """
     output = io.StringIO()
     output_manual_forms(session, output)
     generate_vbforms(session, output)
@@ -220,7 +313,16 @@ def full_flow_rows(session: GeneratorSession) -> list[dict[str, str]]:
 
 
 def full_flow_metadata(session: GeneratorSession) -> dict[str, str]:
-    """Compute stable metadata for optional full-dataset smoke checking."""
+    """
+    Compute stable metadata for optional full-dataset smoke checking.
+
+    Args:
+        session: The session to compute the metadata for.
+
+    Returns:
+        A dictionary with the metadata.
+
+    """
     hasher = hashlib.sha256()
     line_count = 0
     byte_count = 0
@@ -260,7 +362,23 @@ def generate_reference_snapshots(
     verbal_paradigms: Path,
     prefixes: Path,
 ) -> dict[str, object]:
-    """Generate morphology reference snapshots for test fixtures."""
+    """
+    Generate morphology reference snapshots for test fixtures.
+
+    Args:
+        output_dir: The directory to write the snapshots to.
+        update: Whether to update the existing snapshots.
+        include_full: Whether to include the full dataset smoke metadata snapshot.
+        subset_dictionary: The path to the subset dictionary file.
+        full_dictionary: The path to the full dictionary file.
+        manual_forms: The path to the manual forms file.
+        verbal_paradigms: The path to the verbal paradigms file.
+        prefixes: The path to the prefixes file.
+
+    Returns:
+        A dictionary with the result.
+
+    """
     subset_session = build_session(
         dictionary_path=subset_dictionary,
         manual_forms=manual_forms,
@@ -329,5 +447,14 @@ def generate_reference_snapshots(
 
 
 def format_reference_snapshot_result(result: dict[str, object]) -> str:
-    """Format snapshot command result payload for CLI output."""
+    """
+    Format snapshot command result payload for CLI output.
+
+    Args:
+        result: The result to format.
+
+    Returns:
+        A JSON string with the formatted result.
+
+    """
     return json.dumps(result)

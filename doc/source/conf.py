@@ -51,7 +51,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
     "sphinx.ext.viewcode",
-    "autodoc_pydantic",
+    "sphinxcontrib.autodoc_pydantic",
 ]
 
 source_suffix: str = ".rst"

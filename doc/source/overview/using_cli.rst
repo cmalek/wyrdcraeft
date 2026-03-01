@@ -89,4 +89,3 @@ The following pages document the diacritic command workflows in detail:
    command_convert_fix_diacritic
    command_diacritic_disambiguate
    command_morphology_generate
-   morphology_perl_quirks_ledger
