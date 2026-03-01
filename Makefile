@@ -1,6 +1,6 @@
 VERSION = 0.1.0
 
-PACKAGE = oe_json_extractor
+PACKAGE = wyrdcraeft
 
 #======================================================================
 
