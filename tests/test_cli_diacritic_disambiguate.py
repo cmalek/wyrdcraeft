@@ -84,6 +84,33 @@ def test_diacritic_disambiguate_choose_decline_keeps_state(runner, temp_dir):
     assert "ac" not in payload["unique"]
 
 
+def test_diacritic_disambiguate_subcommand_q_returns_to_main_menu(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {"ac": ["ac", "āc"], "adlig": ["adlig", "ādlig"]},
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "disambiguate",
+            "--index-path",
+            str(index_path),
+        ],
+        input="c\nq\ns\nq\n",
+    )
+
+    assert result.exit_code == 0
+    assert "normalized form: adlig" in result.output
+
+
 def test_diacritic_disambiguate_replace_commits_explicit_unique(runner, temp_dir):
     index_path = temp_dir / "index.json"
     _write_index(
@@ -143,7 +170,7 @@ def test_diacritic_disambiguate_define_persists_metadata(runner, temp_dir):
             "--index-path",
             str(index_path),
         ],
-        input="d\n6\nbut\nn\n1\noak\nn\n",
+        input="d\n6\nbut\nn\n1\noak\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -177,7 +204,7 @@ def test_diacritic_disambiguate_define_allows_multiple_senses(runner, temp_dir):
             "--index-path",
             str(index_path),
         ],
-        input="d\n6\nbut\ny\n5\nwhy\nn\n",
+        input="d\n6\nbut\ny\n5\nwhy\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -191,6 +218,36 @@ def test_diacritic_disambiguate_define_allows_multiple_senses(runner, temp_dir):
     assert entry["senses"][0]["modern_english_meaning"] == "but"
     assert entry["senses"][1]["part_of_speech_code"] == "ADV"
     assert entry["senses"][1]["modern_english_meaning"] == "why"
+
+
+def test_diacritic_disambiguate_define_stays_on_same_key_after_save(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {"ac": ["ac", "āc"], "adlig": ["adlig", "ādlig"]},
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "disambiguate",
+            "--index-path",
+            str(index_path),
+        ],
+        input="d\n6\nbut\nn\n1\noak\nn\nc\n1\ny\nq\n",
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "ac"
+    assert "ac" not in payload["ambiguous"]
+    assert "adlig" in payload["ambiguous"]
 
 
 def test_diacritic_disambiguate_mark_completed_commits(runner, temp_dir):
@@ -262,7 +319,7 @@ def test_diacritic_disambiguate_mark_completed_requires_annotations(runner, temp
             "--index-path",
             str(index_path),
         ],
-        input="m\n",
+        input="m\nq\n",
     )
 
     assert result.exit_code == 0
@@ -320,7 +377,7 @@ def test_diacritic_disambiguate_add_entry_and_annotate_all_forms(runner, temp_di
             "--index-path",
             str(index_path),
         ],
-        input="a\nax\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\n",
+        input="a\nax\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -333,6 +390,36 @@ def test_diacritic_disambiguate_add_entry_and_annotate_all_forms(runner, temp_di
     assert annotations["ac"]["modern_english_meaning"] == "but"
     assert annotations["āc"]["part_of_speech_code"] == "N"
     assert annotations["āc"]["modern_english_meaning"] == "oak"
+
+
+def test_diacritic_disambiguate_add_stays_on_same_key_after_save(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {"ac": ["ac", "āc"], "adlig": ["adlig", "ādlig"]},
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "disambiguate",
+            "--index-path",
+            str(index_path),
+        ],
+        input="a\nax\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nc\n3\ny\nq\n",
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "ax"
+    assert "ac" not in payload["ambiguous"]
+    assert "adlig" in payload["ambiguous"]
 
 
 def test_diacritic_disambiguate_add_entry_accepts_unicode_form(runner, temp_dir):
@@ -357,7 +444,7 @@ def test_diacritic_disambiguate_add_entry_accepts_unicode_form(runner, temp_dir)
             "--index-path",
             str(index_path),
         ],
-        input=f"a\n{combining_a_macron}\n2\nlong a\nn\n6\nbut\nn\n1\noak\nn\n",
+        input=f"a\n{combining_a_macron}\n2\nlong a\nn\n6\nbut\nn\n1\noak\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -391,7 +478,7 @@ def test_diacritic_disambiguate_add_entry_accepts_option_escape_sequence(
             "--index-path",
             str(index_path),
         ],
-        input="a\n^[aa-flian\n2\nto afflict\nn\n1\naflian\nn\n2\nafflict\nn\n",
+        input="a\n^[aa-flian\n2\nto afflict\nn\n1\naflian\nn\n2\nafflict\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -439,7 +526,7 @@ def test_diacritic_disambiguate_delete_entry_with_confirmation(runner, temp_dir)
             "--index-path",
             str(index_path),
         ],
-        input="x\n2\ny\n",
+        input="x\n2\ny\nq\n",
     )
 
     assert result.exit_code == 0
@@ -449,6 +536,39 @@ def test_diacritic_disambiguate_delete_entry_with_confirmation(runner, temp_dir)
     assert "āc" not in annotations
     assert annotations["ac"]["modern_english_meaning"] == "but"
     assert annotations["ax"]["modern_english_meaning"] == "add"
+
+
+def test_diacritic_disambiguate_delete_stays_on_same_key_after_save(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {
+                "ac": ["ac", "āc", "ax"],
+                "adlig": ["adlig", "ādlig"],
+            },
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "disambiguate",
+            "--index-path",
+            str(index_path),
+        ],
+        input="x\n3\ny\nc\n2\ny\nq\n",
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "āc"
+    assert "ac" not in payload["ambiguous"]
+    assert "adlig" in payload["ambiguous"]
 
 
 def test_diacritic_disambiguate_delete_entry_requires_two_or_more(runner, temp_dir):
@@ -472,7 +592,7 @@ def test_diacritic_disambiguate_delete_entry_requires_two_or_more(runner, temp_d
             "--index-path",
             str(index_path),
         ],
-        input="x\n",
+        input="x\nq\n",
     )
 
     assert result.exit_code == 0

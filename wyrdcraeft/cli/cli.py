@@ -199,12 +199,6 @@ def create_settings(ctx: click.Context):
         console.print(table)
 
 
-class _CloseDisambiguation(Exception):
-    """
-    Internal sentinel used to exit interactive disambiguation.
-    """
-
-
 #: Minimum number of candidate forms required to allow delete action.
 MIN_DELETE_CANDIDATE_COUNT = 2
 
@@ -449,29 +443,15 @@ def _render_disambiguation_layout(  # noqa: PLR0913
     return layout
 
 
-def _close_disambiguation() -> None:
-    """
-    Exit the current disambiguation session.
-
-    Raises:
-        _CloseDisambiguation: Always raised.
-
-    """
-    raise _CloseDisambiguation
-
-
-def _prompt_pos_code(attested_form: str) -> str:
+def _prompt_pos_code(attested_form: str) -> str | None:
     """
     Prompt for a controlled POS code for one attested form.
 
     Args:
         attested_form: Candidate display form being annotated.
 
-    Raises:
-        _CloseDisambiguation: If user requests close.
-
     Returns:
-        Selected POS code.
+        Selected POS code, or ``None`` when user cancels this subcommand.
 
     """
     pos_table = Table(show_header=True, header_style="bold magenta")
@@ -490,22 +470,19 @@ def _prompt_pos_code(attested_form: str) -> str:
         choices=[*choices, "q"],
     )
     if choice == "q":
-        raise _CloseDisambiguation
+        return None
     return POS_CODES[int(choice) - 1]
 
 
-def _prompt_modern_meaning(attested_form: str) -> str:
+def _prompt_modern_meaning(attested_form: str) -> str | None:
     """
     Prompt for a non-empty modern English meaning.
 
     Args:
         attested_form: Candidate display form being annotated.
 
-    Raises:
-        _CloseDisambiguation: If user requests close.
-
     Returns:
-        Entered meaning text.
+        Entered meaning text, or ``None`` when user cancels this subcommand.
 
     """
     while True:
@@ -517,7 +494,7 @@ def _prompt_modern_meaning(attested_form: str) -> str:
             ).strip(),
         )
         if entered.lower() == "q":
-            raise _CloseDisambiguation
+            return None
         if entered:
             return entered
         print_error("Meaning cannot be empty.")
@@ -538,18 +515,15 @@ def _prompt_text_input(prompt: str) -> str:
     return _normalize_option_key_sequences(input())
 
 
-def _prompt_attested_form(existing_forms: list[str]) -> str:
+def _prompt_attested_form(existing_forms: list[str]) -> str | None:
     """
     Prompt for a new attested form that is non-empty and not a duplicate.
 
     Args:
         existing_forms: Existing candidate forms for the normalized key.
 
-    Raises:
-        _CloseDisambiguation: If user requests close.
-
     Returns:
-        New attested form string.
+        New attested form string, or ``None`` when user cancels this subcommand.
 
     """
     existing_lookup = {unicodedata.normalize("NFC", form) for form in existing_forms}
@@ -559,7 +533,7 @@ def _prompt_attested_form(existing_forms: list[str]) -> str:
             _prompt_text_input("New attested form to add (or q to close): ").strip(),
         )
         if entered.lower() == "q":
-            raise _CloseDisambiguation
+            return None
         if not entered:
             print_error("Attested form cannot be empty.")
             continue
@@ -569,15 +543,12 @@ def _prompt_attested_form(existing_forms: list[str]) -> str:
         return entered
 
 
-def _prompt_unique_replacement() -> str:
+def _prompt_unique_replacement() -> str | None:
     """
     Prompt for a replacement unique form value.
 
-    Raises:
-        _CloseDisambiguation: If user requests close.
-
     Returns:
-        Replacement unique form text.
+        Replacement unique form text, or ``None`` when user cancels this subcommand.
 
     """
     while True:
@@ -586,30 +557,31 @@ def _prompt_unique_replacement() -> str:
             _prompt_text_input("Replacement unique form (or q to close): ").strip(),
         )
         if entered.lower() == "q":
-            raise _CloseDisambiguation
+            return None
         if entered:
             return entered
         print_error("Replacement form cannot be empty.")
 
 
-def _prompt_form_annotation(attested_form: str) -> MacronFormAnnotation:
+def _prompt_form_annotation(attested_form: str) -> MacronFormAnnotation | None:
     """
     Prompt for POS and meaning annotation for one attested form.
 
     Args:
         attested_form: Candidate display form being annotated.
 
-    Raises:
-        _CloseDisambiguation: If user requests close.
-
     Returns:
-        Built form annotation.
+        Built form annotation, or ``None`` when user cancels this subcommand.
 
     """
     senses: list[MacronFormSense] = []
     while True:
         pos_code = _prompt_pos_code(attested_form)
+        if pos_code is None:
+            return None
         meaning = _prompt_modern_meaning(attested_form)
+        if meaning is None:
+            return None
         senses.append(
             MacronFormSense(
                 part_of_speech_code=pos_code,
@@ -622,7 +594,7 @@ def _prompt_form_annotation(attested_form: str) -> MacronFormAnnotation:
             default="n",
         )
         if another == "q":
-            raise _CloseDisambiguation
+            return None
         if another == "n":
             break
 
@@ -709,11 +681,11 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
 
     bt_cache: dict[str, list[BTSearchEntry]] = {}
 
-    try:
-        for offset, key in enumerate(target_keys, start=1):
+    for offset, key in enumerate(target_keys, start=1):
+        while True:
             options = payload.ambiguous.get(key)
             if options is None:
-                continue
+                break
 
             bt_warning: str | None = None
             lookup_queries = list(dict.fromkeys([key, *options]))
@@ -760,16 +732,17 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
             )
 
             if action == "q":
-                _close_disambiguation()
+                print_info("Closed disambiguation session.")
+                return
             if action == "s":
-                continue
+                break
             if action == "c":
                 selection = Prompt.ask(
                     "Choose candidate number (or q to close)",
                     choices=[*[str(i) for i in range(1, len(options) + 1)], "q"],
                 )
                 if selection == "q":
-                    _close_disambiguation()
+                    continue
                 chosen_form = options[int(selection) - 1]
                 confirm_commit = Prompt.ask(
                     f"Commit unique[{key}] = {chosen_form} and remove ambiguous entry? "
@@ -778,9 +751,9 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                     default="n",
                 )
                 if confirm_commit == "q":
-                    _close_disambiguation()
-                if confirm_commit != "y":
                     continue
+                if confirm_commit != "y":
+                    break
 
                 payload.unique[key] = chosen_form
                 payload.ambiguous.pop(key, None)
@@ -788,10 +761,12 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 payload.ambiguous_metadata.pop(key, None)
                 _write_macron_index_payload(index_path, payload)
                 print_info(f"Committed '{key}' -> '{chosen_form}'.")
-                continue
+                break
 
             if action == "r":
                 replacement_form = _prompt_unique_replacement()
+                if replacement_form is None:
+                    continue
                 confirm_commit = Prompt.ask(
                     "Commit "
                     f"unique[{key}] = {replacement_form} and remove ambiguous "
@@ -800,9 +775,9 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                     default="n",
                 )
                 if confirm_commit == "q":
-                    _close_disambiguation()
-                if confirm_commit != "y":
                     continue
+                if confirm_commit != "y":
+                    break
 
                 payload.unique[key] = replacement_form
                 payload.ambiguous.pop(key, None)
@@ -810,7 +785,7 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 payload.ambiguous_metadata.pop(key, None)
                 _write_macron_index_payload(index_path, payload)
                 print_info(f"Committed '{key}' -> '{replacement_form}'.")
-                continue
+                break
 
             if action == "m":
                 if not _can_mark_completed(
@@ -831,22 +806,35 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                     default="n",
                 )
                 if confirm_completed == "q":
-                    _close_disambiguation()
-                if confirm_completed != "y":
                     continue
+                if confirm_completed != "y":
+                    break
 
                 payload.ambiguous_completed.add(key)
                 _write_macron_index_payload(index_path, payload)
                 print_info(f"Marked '{key}' as completed.")
-                continue
+                break
 
             if action == "a":
                 new_form = _prompt_attested_form(options)
+                if new_form is None:
+                    continue
+                new_annotation = _prompt_form_annotation(new_form)
+                if new_annotation is None:
+                    continue
                 form_annotations: dict[str, MacronFormAnnotation] = {
-                    new_form: _prompt_form_annotation(new_form)
+                    new_form: new_annotation
                 }
+                cancelled = False
                 for form in options:
-                    form_annotations[form] = _prompt_form_annotation(form)
+                    form_annotation = _prompt_form_annotation(form)
+                    if form_annotation is None:
+                        cancelled = True
+                        break
+                    form_annotations[form] = form_annotation
+                if cancelled:
+                    continue
+
                 payload.ambiguous[key] = [*options, new_form]
                 payload.ambiguous_completed.discard(key)
                 payload.ambiguous_metadata[key] = form_annotations
@@ -864,7 +852,7 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                     choices=[*[str(i) for i in range(1, len(options) + 1)], "q"],
                 )
                 if selection == "q":
-                    _close_disambiguation()
+                    continue
                 deleted_form = options[int(selection) - 1]
 
                 confirm_delete = Prompt.ask(
@@ -873,9 +861,9 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                     default="n",
                 )
                 if confirm_delete == "q":
-                    _close_disambiguation()
-                if confirm_delete != "y":
                     continue
+                if confirm_delete != "y":
+                    break
 
                 payload.ambiguous[key] = [
                     form for form in options if form != deleted_form
@@ -889,17 +877,22 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 print_info(f"Deleted '{deleted_form}' from '{key}'.")
                 continue
 
-            form_annotations = {
-                form: _prompt_form_annotation(form) for form in options
-            }
+            define_annotations: dict[str, MacronFormAnnotation] = {}
+            cancelled = False
+            for form in options:
+                form_annotation = _prompt_form_annotation(form)
+                if form_annotation is None:
+                    cancelled = True
+                    break
+                define_annotations[form] = form_annotation
+            if cancelled:
+                continue
+
             payload.ambiguous_completed.discard(key)
-            payload.ambiguous_metadata[key] = form_annotations
+            payload.ambiguous_metadata[key] = define_annotations
             _write_macron_index_payload(index_path, payload)
             print_info(f"Saved annotations for '{key}'.")
-
-    except _CloseDisambiguation:
-        print_info("Closed disambiguation session.")
-        return
+            continue
 
     print_info("Disambiguation session complete.")
 
