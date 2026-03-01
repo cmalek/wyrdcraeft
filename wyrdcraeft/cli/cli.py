@@ -1128,3 +1128,7 @@ def convert(  # noqa: PLR0913
         llm_timeout=llm_timeout,
         title=title,
     )
+
+from .morphology import morphology_group
+
+cli.add_command(morphology_group)

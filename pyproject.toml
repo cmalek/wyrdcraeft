@@ -35,6 +35,7 @@ dependencies = [
   "acdh-tei-pyutils>=1.6",
   "beautifulsoup4>=4.14.3",
   "pdfminer-six>=20260107",
+  "wheel>=0.46.3",
 ]
 
 [dependency-groups]
@@ -59,6 +60,7 @@ test = [
   "pytest-env>=0.8.1",
   "pytest-timeout>=2.1.0",
   "pytest-xdist>=3.5.0",
+  "pytest-randomly>=4.0.1",
 ]
 
 [project.urls]
@@ -87,6 +89,7 @@ wyrdcraeft = [
     "etc/diacritic/*.json",
     "etc/diacritic/*.txt",
     "etc/diacritic/*/*.txt",
+    "etc/morphology/*.txt",
 ]
 
 [build-system]
@@ -99,6 +102,8 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 markers = [
     "llm: tests that require live LLM access (run with --run-llm)",
+    "morphology: Morphology generator tests and reference contracts",
+    "morphology_full: Optional full-dataset morphology smoke checks",
 ]
 
 [tool.mypy]
@@ -198,6 +203,11 @@ docstring-code-line-length = "dynamic"
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
 "tests/*.py" = ["S101"]
+"wyrdcraeft/services/morphology/generators/common.py" = ["PLR0913", "D417", "PLR5501", "ARG002", "PLR2004", "PLC0415", "I001", "E501", "RUF100"]
+"wyrdcraeft/services/morphology/generators/noun_forms.py" = ["ERA001"]
+"wyrdcraeft/services/morphology/generators/adj_forms.py" = ["I001"]
+"wyrdcraeft/services/morphology/reference_snapshots.py" = ["TC003", "PLR0913"]
+"wyrdcraeft/services/morphology/text_utils.py" = ["RUF100"]
 
 [tool.vulture]
 # Configuration for vulture: https://github.com/jendrikseipp/vulture
