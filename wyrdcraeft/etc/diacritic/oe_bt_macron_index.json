@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39084,
-    "ambiguous_count": 1156
+    "unique_count": 39189,
+    "ambiguous_count": 1051
   },
   "unique": {
     "a": "ā",
@@ -39090,7 +39090,112 @@
     "aherian": "ā-hērian",
     "ahsian": "āhsian",
     "algeweorc": "al-geweorc",
-    "amber": "amber"
+    "amber": "amber",
+    "anbid": "anbīd",
+    "anbidian": "anbīdian",
+    "ancleow": "anclēow",
+    "ancor": "āncor",
+    "ancorlic": "āncorlīc",
+    "ancorlif": "āncor-līf",
+    "ancra": "āncra",
+    "andetnes": "andetnes",
+    "andgitfullice": "andgitfullīce",
+    "andgitol": "andgitol",
+    "anfealdnes": "ānfealdnes",
+    "anforlætan": "an-forlǣtan",
+    "angsumian": "ang-sumian",
+    "angsumlice": "angsumlīce",
+    "anlic": "ānlīc",
+    "anlice": "anlīce",
+    "anlician": "anlīce",
+    "anmod": "ānmōd",
+    "anmodlice": "ānmōdlīce",
+    "anmodnes": "ānmōdnes",
+    "anrædnes": "ānrǣdnes",
+    "anweald": "anweald",
+    "anwealda": "anwealda",
+    "apflod": "ap-flōd",
+    "ared": "ārēd",
+    "arfæstlice": "ārfæstlīce",
+    "arfæstnes": "ārfæstnes",
+    "arlic": "ārlīc",
+    "ascian": "āscian",
+    "ascung": "āscung",
+    "asicyd": "āsicyd",
+    "awegadrifan": "āweg-ādrīfan",
+    "awriþan": "ā-wrīþan",
+    "aþenung": "ā-þenung",
+    "balzam": "balzam",
+    "arwela": "ār-wēla",
+    "beacenstan": "bēacen-stān",
+    "befættian": "be-fǣttian",
+    "behat": "behāt",
+    "behoflic": "be-hōflic",
+    "behrumod": "be-hrūmod",
+    "beorhtnes": "beorhtnes",
+    "beost": "bēost",
+    "bescriadien": "be-scrīadien",
+    "bescrifen": "be-scrifen",
+    "betrymian": "be-trymian",
+    "beþearf": "be-þearf",
+    "beþigean": "beðigean",
+    "bi": "bī",
+    "bidan": "bīdan",
+    "bige": "bige",
+    "bigenga": "bī-genga",
+    "bill": "bill",
+    "binn": "binn",
+    "biswic": "bī-swīc",
+    "betæcan": "betǣcan",
+    "beþearfaþ": "be-þearfaþ",
+    "bitan": "bītan",
+    "bliþe": "bliþe",
+    "bymian": "bȳmian",
+    "blican": "blīcan",
+    "blodgyte": "blōd-gyte",
+    "blæcern": "blæc-ern",
+    "blæst": "blǣst",
+    "bocung": "bōc-ung",
+    "bondeland": "bonde-land",
+    "borian": "bōrian",
+    "breme": "brēme",
+    "bremen": "brēmen",
+    "breostlin": "brēost-līn",
+    "brice": "brīce",
+    "brid": "brīd",
+    "briw": "brīw",
+    "bryttian": "bryttian",
+    "bufan": "bufan",
+    "bur": "būr",
+    "byd": "bȳd",
+    "byrle": "byrle",
+    "byrnan": "byrnan",
+    "bytl": "bȳtl",
+    "bytlung": "bȳtlung",
+    "bæddel": "bæddel",
+    "cachus": "cac-hūs",
+    "carcern": "carcern",
+    "ceselib": "cēse-lib",
+    "cest": "cest",
+    "cete": "cete",
+    "cetel": "cetel",
+    "cidan": "cīdan",
+    "cigan": "cīgan",
+    "cildclaþ": "cild-clāþ",
+    "cildiungwif": "cildiung-wīf",
+    "cildsung": "cildsung",
+    "ciltern": "ciltern",
+    "cipe": "cīpe",
+    "ciriclec": "ciriclec",
+    "cistmælum": "cīst-mǣlum",
+    "ciþ": "cīþ",
+    "cleowen": "cleowen",
+    "clifan": "clīfan",
+    "clypol": "clypol",
+    "cnafa": "cnafa",
+    "cneodan": "cnēodan",
+    "cneordnys": "cneordnys",
+    "cnocian": "cnocian"
   },
   "ambiguous": {
     "ac": [
@@ -39310,7 +39415,6 @@
       "āl"
     ],
     "alet": [
-      "a-lēt",
       "alet",
       "ā-lēt"
     ],
@@ -39318,179 +39422,33 @@
       "am",
       "ām"
     ],
-    "anbid": [
-      "an-bid",
-      "an-bīd"
-    ],
-    "anbidian": [
-      "an-bidian",
-      "an-bīdian"
-    ],
-    "ancleow": [
-      "ancleow",
-      "anclēow"
-    ],
-    "ancor": [
-      "ancor",
-      "āncor"
-    ],
-    "ancorlic": [
-      "ancor-lic",
-      "āncor-līc"
-    ],
-    "ancorlif": [
-      "ancor-līf",
-      "āncor-līf"
-    ],
-    "ancra": [
-      "ancra",
-      "āncra"
-    ],
-    "andetnes": [
-      "andet-nes",
-      "andetnes"
-    ],
-    "andgitfullice": [
-      "andgit-fullīce",
-      "andgitfullīce"
-    ],
-    "andgitol": [
-      "and-gitol",
-      "andgitol"
-    ],
-    "anfealdnes": [
-      "ānfeald-nes",
-      "ānfealdnes"
-    ],
     "anfenge": [
       "an-fenge",
       "an-fēnge"
-    ],
-    "anforlætan": [
-      "an-forlǣtan",
-      "ān-for-lǣtan"
     ],
     "anga": [
       "anga",
       "ānga"
     ],
-    "angsumian": [
-      "ang-sumian",
-      "angsumian"
-    ],
-    "angsumlice": [
-      "ang-sum-līce",
-      "angsumlīce"
-    ],
-    "anlic": [
-      "an-līc",
-      "ān-lic",
-      "ān-līc"
-    ],
-    "anlice": [
-      "an-līce",
-      "ān-līce"
-    ],
-    "anlician": [
-      "an-līce",
-      "ān-līce"
-    ],
-    "anmod": [
-      "an-mōd",
-      "ān-mōd"
-    ],
-    "anmodlice": [
-      "an-mōdlīce",
-      "ān-mōdlīce"
-    ],
-    "anmodnes": [
-      "an-mōdnes",
-      "ān-mōdnes"
-    ],
-    "anrædnes": [
-      "an-rǣdnes",
-      "ān-rædnes",
-      "ān-rǣdnes"
-    ],
     "anunga": [
       "anunga",
       "ānunga"
     ],
-    "anweald": [
-      "an-weald",
-      "ān-weald"
-    ],
-    "anwealda": [
-      "an-wealda",
-      "ān-wealda"
-    ],
-    "apflod": [
-      "ap-flōd",
-      "āp-flod"
-    ],
     "aras": [
-      "a-rās",
-      "āras"
+      "āras",
+      "ārās"
     ],
     "are": [
       "are",
       "āre"
     ],
-    "ared": [
-      "a-rēd",
-      "ared"
-    ],
-    "arfæstlice": [
-      "ār-fæstlīce",
-      "ārfæstlīce"
-    ],
-    "arfæstnes": [
-      "ār-fæstnes",
-      "ārfæstnes"
-    ],
-    "arlic": [
-      "ar-līc",
-      "ār-lic"
-    ],
     "arod": [
       "arod",
       "ārod"
     ],
-    "arwela": [
-      "ār-wela",
-      "ār-wēla"
-    ],
-    "ascian": [
-      "ascian",
-      "āscian"
-    ],
-    "ascung": [
-      "ascung",
-      "āscung"
-    ],
-    "asicyd": [
-      "a-sicyd",
-      "asicyd"
-    ],
-    "aþenung": [
-      "a-þenung",
-      "āþenung"
-    ],
-    "awegadrifan": [
-      "aweg-adrīfan",
-      "āweg-ādrīfan"
-    ],
-    "awriþan": [
-      "a-wrīðan",
-      "āwrīþan"
-    ],
     "bæce": [
       "bæce",
       "bǣce"
-    ],
-    "bæddel": [
-      "bæddel",
-      "bǣddel"
     ],
     "bædling": [
       "bædling",
@@ -39502,16 +39460,11 @@
     ],
     "bærlic": [
       "bær-lic",
-      "bær-līc",
       "bærlīc"
     ],
     "bærning": [
       "bærning",
       "bǣrning"
-    ],
-    "balzam": [
-      "balsam",
-      "balzam"
     ],
     "ban": [
       "ban",
@@ -39528,10 +39481,6 @@
     "batian": [
       "batian",
       "bātian"
-    ],
-    "beacenstan": [
-      "beacen-stān",
-      "bēacen-stān"
     ],
     "bearn": [
       "be-arn",
@@ -39553,10 +39502,6 @@
       "bedu",
       "bēdu"
     ],
-    "befættian": [
-      "be-fættian",
-      "be-fǣttian"
-    ],
     "began": [
       "be-gan",
       "be-gān",
@@ -39566,22 +39511,6 @@
       "be-geat",
       "be-gēat"
     ],
-    "behat": [
-      "be-hāt",
-      "behāt"
-    ],
-    "behoflic": [
-      "be-hōf-līc",
-      "be-hōflic"
-    ],
-    "behrumod": [
-      "be-hrumod",
-      "be-hrūmod"
-    ],
-    "ampc": [
-      "be-hydelīce",
-      "flȳma"
-    ],
     "beinnan": [
       "be-innan",
       "binnan"
@@ -39590,136 +39519,37 @@
       "ben",
       "bēn"
     ],
-    "beorhtnes": [
-      "beorht-nes",
-      "beorhtnes"
-    ],
-    "beost": [
-      "beost",
-      "bēost"
-    ],
     "bere": [
       "bere",
       "bēre"
-    ],
-    "bescrifen": [
-      "be-scrēadian",
-      "be-scrifen"
-    ],
-    "betæcan": [
-      "be-tǣcan",
-      "betǣcan"
-    ],
-    "beþearf": [
-      "be-þearf",
-      "beþ"
-    ],
-    "beþearfaþ": [
-      "be-þearfaþ",
-      "beþearfaþ"
-    ],
-    "beþigean": [
-      "beðian",
-      "beðigean"
-    ],
-    "betrymian": [
-      "be-trymian",
-      "betrymian"
-    ],
-    "bi": [
-      "bi",
-      "bī"
-    ],
-    "bidan": [
-      "bidan",
-      "bīdan"
     ],
     "bigan": [
       "bi-gān",
       "bīgan"
     ],
-    "bige": [
-      "bige",
-      "bīge"
-    ],
-    "bigenga": [
-      "bi-genga",
-      "bī-genga"
-    ],
-    "bill": [
-      "bil",
-      "bill"
-    ],
     "bile": [
       "bile",
       "bīle"
-    ],
-    "binn": [
-      "bin",
-      "binn"
-    ],
-    "biswic": [
-      "bī-swic",
-      "bī-swīc"
-    ],
-    "bitan": [
-      "bitan",
-      "bītan"
     ],
     "bitst": [
       "bitst",
       "bītst"
     ],
     "blac": [
-      "bixen",
       "blæc",
-      "blāc",
       "blǣc"
     ],
     "blæc": [
       "blæc",
       "blǣc"
     ],
-    "blæcern": [
-      "blæc-ern",
-      "blǣc-ern"
-    ],
     "blæd": [
       "blæd",
       "blǣd"
     ],
-    "blæst": [
-      "blæst",
-      "blǣst"
-    ],
     "bled": [
       "bled",
       "blēd"
-    ],
-    "blican": [
-      "blican",
-      "blīcan"
-    ],
-    "bliþe": [
-      "bliðe",
-      "blīðe",
-      "blīþe"
-    ],
-    "blodgyte": [
-      "blōd-gyte",
-      "blōd-gȳte"
-    ],
-    "bocung": [
-      "bōc-ung",
-      "bōcung"
-    ],
-    "bondeland": [
-      "bonde-land",
-      "bōnde-land"
-    ],
-    "borian": [
-      "borian",
-      "bōrian"
     ],
     "bræc": [
       "bræc",
@@ -39745,30 +39575,6 @@
       "bregd",
       "brēgd"
     ],
-    "breme": [
-      "breme",
-      "brēme"
-    ],
-    "bremen": [
-      "bremen",
-      "brēmen"
-    ],
-    "breostlin": [
-      "brēost-lin",
-      "brēost-līn"
-    ],
-    "brice": [
-      "brice",
-      "brīce"
-    ],
-    "brid": [
-      "brid",
-      "brīd"
-    ],
-    "briw": [
-      "briw",
-      "brīw"
-    ],
     "broc": [
       "broc",
       "brōc"
@@ -39789,10 +39595,6 @@
       "brytian",
       "brȳtian"
     ],
-    "bryttian": [
-      "bryttian",
-      "brȳttian"
-    ],
     "buc": [
       "buc",
       "būc"
@@ -39801,25 +39603,9 @@
       "bude",
       "būde"
     ],
-    "bufan": [
-      "bufan",
-      "būfan"
-    ],
-    "bur": [
-      "bur",
-      "būr"
-    ],
     "buta": [
       "būta",
       "būtā"
-    ],
-    "byd": [
-      "byd",
-      "bȳd"
-    ],
-    "bymian": [
-      "bȳme",
-      "bȳmian"
     ],
     "byre": [
       "byre",
@@ -39853,14 +39639,6 @@
       "byrignes",
       "bȳrignes"
     ],
-    "byrnan": [
-      "byris",
-      "byrnan"
-    ],
-    "byrle": [
-      "byris",
-      "byrle"
-    ],
     "byrþling": [
       "byrþ-ling",
       "byrþling"
@@ -39877,21 +39655,9 @@
       "byþ",
       "bȳþ"
     ],
-    "bytl": [
-      "byþne",
-      "bȳtl"
-    ],
-    "bytlung": [
-      "bytlung",
-      "bȳtlung"
-    ],
     "bytt": [
       "bytt",
       "bȳtt"
-    ],
-    "cachus": [
-      "cac",
-      "cac-hūs"
     ],
     "cæd": [
       "cac",
@@ -39900,10 +39666,6 @@
     "cægloca": [
       "cæg-loca",
       "cǣg-loca"
-    ],
-    "carcern": [
-      "carc-ern",
-      "carcern"
     ],
     "ceace": [
       "ceace",
@@ -39921,46 +39683,6 @@
       "ceol",
       "cēol"
     ],
-    "ceselib": [
-      "cēse",
-      "cēse-lib"
-    ],
-    "cete": [
-      "cete",
-      "cēse"
-    ],
-    "cest": [
-      "cest",
-      "cēse"
-    ],
-    "cetel": [
-      "cetel",
-      "cēse"
-    ],
-    "cidan": [
-      "cidan",
-      "cīdan"
-    ],
-    "cigan": [
-      "cigan",
-      "cīgan"
-    ],
-    "cildclaþ": [
-      "cild-claþ",
-      "cild-clāþ"
-    ],
-    "cildiungwif": [
-      "cildiung-wif",
-      "cildiung-wīf"
-    ],
-    "cildsung": [
-      "cild-sung",
-      "cildsung"
-    ],
-    "ciltern": [
-      "cilt-ern",
-      "ciltern"
-    ],
     "cinn": [
       "cin",
       "cinn"
@@ -39969,61 +39691,17 @@
       "cine",
       "cīne"
     ],
-    "cipe": [
-      "cipe",
-      "cīpe"
-    ],
-    "ciriclec": [
-      "ciric-lec",
-      "ciriclec"
-    ],
     "cist": [
       "cist",
       "cīst"
-    ],
-    "cistmælum": [
-      "cist-mǣlum",
-      "cīst-mǣlum"
-    ],
-    "ciþ": [
-      "ciþ",
-      "cīþ"
     ],
     "clam": [
       "clam",
       "clām"
     ],
-    "cleowen": [
-      "cleowen",
-      "cliwen"
-    ],
-    "clifan": [
-      "clifan",
-      "clīfan"
-    ],
-    "clypol": [
-      "clypian",
-      "clypol"
-    ],
-    "cnafa": [
-      "cnafa",
-      "cnapa"
-    ],
-    "cneodan": [
-      "cnēodan",
-      "cnōdan"
-    ],
-    "cneordnys": [
-      "cneord-nys",
-      "cneordnys"
-    ],
     "cnif": [
       "cnif",
       "cnīf"
-    ],
-    "cnocian": [
-      "cnocian",
-      "cnucian"
     ],
     "coc": [
       "coc",
@@ -40188,8 +39866,7 @@
     ],
     "diglice": [
       "dīg-līce",
-      "dīglīce",
-      "dīgol-līce"
+      "dīglīce"
     ],
     "dimlic": [
       "dim-lic",
@@ -43761,6 +43438,82 @@
       "ȳþ"
     ]
   },
+  "ambiguous_completed": [
+    "ac",
+    "acen",
+    "agen",
+    "ah",
+    "al",
+    "alet",
+    "am",
+    "an",
+    "anfenge",
+    "anga",
+    "anunga",
+    "aras",
+    "are",
+    "arod",
+    "ban",
+    "bar",
+    "bat",
+    "batian",
+    "bearn",
+    "bec",
+    "bece",
+    "bed",
+    "bedu",
+    "began",
+    "begeat",
+    "beinnan",
+    "ben",
+    "bere",
+    "bigan",
+    "bile",
+    "bitst",
+    "blac",
+    "blæc",
+    "blæd",
+    "brec",
+    "bred",
+    "bredan",
+    "bregd",
+    "broc",
+    "bryce",
+    "bryd",
+    "brymme",
+    "brytian",
+    "bræc",
+    "bræd",
+    "bude",
+    "buta",
+    "byre",
+    "byreþ",
+    "byrgan",
+    "byrging",
+    "byrian",
+    "byrigan",
+    "byrigean",
+    "byrignes",
+    "byrþling",
+    "byst",
+    "byt",
+    "bytt",
+    "byþ",
+    "bæce",
+    "bædling",
+    "bær",
+    "bærlic",
+    "bærning",
+    "ceace",
+    "cecil",
+    "cele",
+    "ceol",
+    "cine",
+    "cinn",
+    "cist",
+    "clam",
+    "coc"
+  ],
   "ambiguous_metadata": {
     "ac": {
       "ac": {
@@ -43887,16 +43640,6 @@
         "part_of_speech_code": "V",
         "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
       },
-      "a-lēt": {
-        "senses": [
-          {
-            "part_of_speech_code": "V",
-            "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
-          }
-        ],
-        "part_of_speech_code": "V",
-        "modern_english_meaning": "left, gave up (from ā-la'tan: participle)"
-      },
       "alet": {
         "senses": [
           {
@@ -43950,6 +43693,1630 @@
         ],
         "part_of_speech_code": "ADV",
         "modern_english_meaning": "only"
+      }
+    },
+    "anfenge": {
+      "an-fenge": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "acceptible, fit"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "acceptible, fit"
+      },
+      "an-fēnge": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "should have taken (from an-fōn, seize, take)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "should have taken (from an-fōn, seize, take)"
+      }
+    },
+    "anga": {
+      "anga": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a string"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a string"
+      },
+      "ānga": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "one and no more, only, sole, single, singular"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "one and no more, only, sole, single, singular"
+      }
+    },
+    "anunga": {
+      "anunga": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "zeal, an earnest desire, jealousy"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "zeal, an earnest desire, jealousy"
+      },
+      "ānunga": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "entirely, necessarily, by all means"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "entirely, necessarily, by all means"
+      }
+    },
+    "aras": {
+      "ārās": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "rose (from ārīsan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "rose (from ārīsan)"
+      },
+      "āras": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "messengers"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "messengers"
+      }
+    },
+    "are": {
+      "are": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "courtyard"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "courtyard"
+      },
+      "āre": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "honour, honesty, favor, benefit, pity, mercy"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "honour, honesty, favor, benefit, pity, mercy"
+      }
+    },
+    "arod": {
+      "arod": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "quick, swift, ready, prepared"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "quick, swift, ready, prepared"
+      },
+      "ārod": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a mark of honor, badge of office"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a mark of honor, badge of office"
+      }
+    },
+    "ban": {
+      "ban": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "command, edict, interdict"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "command, edict, interdict"
+      },
+      "bān": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bone"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "bone"
+      }
+    },
+    "bar": {
+      "bar": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bear"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "bear"
+      },
+      "bār": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "wild boar"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "wild boar"
+      }
+    },
+    "bat": {
+      "bat": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "contention, strife"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "contention, strife"
+      },
+      "bāt": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "boat, ship, vessel"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "bit (past part of bītan)"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "food (that which can be bitten)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "boat, ship, vessel"
+      }
+    },
+    "batian": {
+      "batian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to get better"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to get better"
+      },
+      "bātian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bait or lay bait for a fish, to bait a hook"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bait or lay bait for a fish, to bait a hook"
+      }
+    },
+    "bearn": {
+      "be-arn": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "occurred (past part of be-yrnan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "occurred (past part of be-yrnan)"
+      },
+      "bearn": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "child"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "barn"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "burned, consumed (past part of beornan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "child"
+      }
+    },
+    "bec": {
+      "bec": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "if capitalized, a monastery in Normandy: Bec"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "if capitalized, a monastery in Normandy: Bec"
+      },
+      "bēc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "books"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "books"
+      }
+    },
+    "bece": {
+      "bece": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a brook"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a brook"
+      },
+      "bēce": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a beech tree, a tree bearing mast"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a beech tree, a tree bearing mast"
+      }
+    },
+    "bed": {
+      "bed": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "asked (past part of biddan)"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bed"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "couch"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "asked (past part of biddan)"
+      },
+      "bēd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "prayer, supplication, religious worship; bed"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "oratio"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "prayer, supplication, religious worship; bed"
+      }
+    },
+    "bedu": {
+      "bedu": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "prayer"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "prayer"
+      },
+      "bēdu": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "prayers"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "prayers"
+      }
+    },
+    "began": {
+      "be-gan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "began (past sing of be-ginnan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "began (past sing of be-ginnan)"
+      },
+      "be-gān": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to go over, surround, occupy, dwell, cultivate, till"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to go over, surround, occupy, dwell, cultivate, till"
+      },
+      "bēgan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bow, bend, turn"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bow, bend, turn"
+      }
+    },
+    "begeat": {
+      "be-geat": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "obtained (past part of be-gytan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "obtained (past part of be-gytan)"
+      },
+      "be-gēat": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "poured out, casted upon, sprinkled, covered, poured into (past part of be-gēotan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "poured out, casted upon, sprinkled, covered, poured into (past part of be-gēotan)"
+      }
+    },
+    "beinnan": {
+      "be-innan": {
+        "senses": [
+          {
+            "part_of_speech_code": "PREP",
+            "modern_english_meaning": "in, within"
+          },
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "inside, within, in"
+          }
+        ],
+        "part_of_speech_code": "PREP",
+        "modern_english_meaning": "in, within"
+      },
+      "binnan": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADV",
+            "modern_english_meaning": "within, inside, in"
+          },
+          {
+            "part_of_speech_code": "PREP",
+            "modern_english_meaning": "in, within"
+          }
+        ],
+        "part_of_speech_code": "ADV",
+        "modern_english_meaning": "within, inside, in"
+      }
+    },
+    "ben": {
+      "ben": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a wound"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a wound"
+      },
+      "bēn": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "prayer, petition, entreaty, deprecation, supplication; bone; boon"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "summoned (past part of bannan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "prayer, petition, entreaty, deprecation, supplication; bone; boon"
+      }
+    },
+    "bere": {
+      "bere": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "barley; a female bear"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "barley; a female bear"
+      },
+      "bēre": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a bed"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a bed"
+      }
+    },
+    "bigan": {
+      "bi-gān": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to commit, exercise, observe, enjoy"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to commit, exercise, observe, enjoy"
+      },
+      "bīgan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bend, incline, humiliate, subdue, turn"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bend, incline, humiliate, subdue, turn"
+      }
+    },
+    "bile": {
+      "bile": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bil (of a bird)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "bil (of a bird)"
+      },
+      "bīle": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bile"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "bile"
+      }
+    },
+    "bitst": {
+      "bitst": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "waits (2nd, 3rd person pres. of biddan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "waits (2nd, 3rd person pres. of biddan)"
+      },
+      "bītst": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "waits, (2nd and 3rd pers pres of bīdan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "waits, (2nd and 3rd pers pres of bīdan)"
+      }
+    },
+    "blac": {
+      "blæc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "black"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "black"
+      },
+      "blǣc": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "bright, pale"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "bright, pale"
+      }
+    },
+    "bled": {
+      "bled": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a bowl, the dish of a balance, a scale"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a bowl, the dish of a balance, a scale"
+      },
+      "blēd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a shoot, branch, flower, shoot"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a shoot, branch, flower, shoot"
+      }
+    },
+    "blæc": {
+      "blæc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "black matter"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "black matter"
+      },
+      "blǣc": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "bright, pale"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "bright, pale"
+      }
+    },
+    "blæd": {
+      "blæd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cup"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cup"
+      },
+      "blǣd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "fruit"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a blowing, breath, breathing, spirit, inspiration, flame, blaze, prosperity"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "fruit"
+      }
+    },
+    "brec": {
+      "brec": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a breaking, crash, noise"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a breaking, crash, noise"
+      },
+      "brēc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "trousers"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "trousers"
+      }
+    },
+    "bred": {
+      "bred": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a board, plank or tablet"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "small houses with tables, eating houses, taverns"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a board, plank or tablet"
+      },
+      "brēd": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "broad"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "broad"
+      }
+    },
+    "bredan": {
+      "bredan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to weave, braid, join together, draw, pluck"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to weave, braid, join together, draw, pluck"
+      },
+      "brēdan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to roast, boil, warm; to cherish, nourish; to make broad"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to roast, boil, warm; to cherish, nourish; to make broad"
+      }
+    },
+    "bregd": {
+      "bregd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "deceit, fraud"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "deceit, fraud"
+      },
+      "brēgd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "fear, terror, dread"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "fear, terror, dread"
+      }
+    },
+    "broc": {
+      "broc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "cicada"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "use, advantage"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "fragment"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "badger"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "cicada"
+      },
+      "brōc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "affliction, labor, misery, trouble, disease, hurt"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "breech (half of a pair of pants), a covering for the leg"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a brook"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "an inferior horse, a shaking horse"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a horse"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "broke (past sing of bracan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "affliction, labor, misery, trouble, disease, hurt"
+      }
+    },
+    "bryce": {
+      "bryce": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "breakable, worthless, frail, fleeting"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a violation, infraction"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "breakable, worthless, frail, fleeting"
+      },
+      "brȳce": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "Useful, profitable"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "Useful, profitable"
+      }
+    },
+    "bryd": {
+      "bryd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a drawing, drawing out"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a drawing, drawing out"
+      },
+      "brȳd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "bride"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "bride"
+      }
+    },
+    "brymme": {
+      "brymme": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a brim, brink, edge, border, lip of a pot and such-like"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a brim, brink, edge, border, lip of a pot and such-like"
+      },
+      "brȳmme": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "famous"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "famous"
+      }
+    },
+    "brytian": {
+      "brytian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to dispense, distribute"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to dispense, distribute"
+      },
+      "brȳtian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to profit"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to profit"
+      }
+    },
+    "bræc": {
+      "bræc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a brack, break"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "break (present sing of brecan)"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a breaking, flowing"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a brack, break"
+      },
+      "brǣc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "breach, breaking, destruction"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "breeches"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "breach, breaking, destruction"
+      }
+    },
+    "bræd": {
+      "bræd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "fraud, deceit"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "plucked, drew out (past part of bredan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "fraud, deceit"
+      },
+      "brǣd": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "breadth"
+          },
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "broad"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "breadth"
+      }
+    },
+    "bude": {
+      "bude": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "has offered (2nd person past sing of bēodan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "has offered (2nd person past sing of bēodan)"
+      },
+      "būde": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "dwelt (past part of būan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "dwelt (past part of būan)"
+      }
+    },
+    "buta": {
+      "būta": {
+        "senses": [
+          {
+            "part_of_speech_code": "PREP",
+            "modern_english_meaning": "without"
+          }
+        ],
+        "part_of_speech_code": "PREP",
+        "modern_english_meaning": "without"
+      },
+      "būtā": {
+        "senses": [
+          {
+            "part_of_speech_code": "PRO",
+            "modern_english_meaning": "both"
+          }
+        ],
+        "part_of_speech_code": "PRO",
+        "modern_english_meaning": "both"
+      }
+    },
+    "byre": {
+      "byre": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a son, child, descendent"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a strong wind"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a son, child, descendent"
+      },
+      "bȳre": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a byre, shed, hovel"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "An event, the time at which anything happens, a favourable time, an opportunity"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a time, season"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a byre, shed, hovel"
+      }
+    },
+    "byreþ": {
+      "byreþ": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "bears (3rd pers pres of beran)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "bears (3rd pers pres of beran)"
+      },
+      "bȳreþ": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "it pertains to, it is lawful; pertinent (3rd pers pres of bȳrian)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "it pertains to, it is lawful; pertinent (3rd pers pres of bȳrian)"
+      }
+    },
+    "byrgan": {
+      "byrgan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to save"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to save"
+      },
+      "bȳrgan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to taste, eat"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to taste, eat"
+      }
+    },
+    "byrging": {
+      "byrging": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a burying, the act of burying"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a burying, the act of burying"
+      },
+      "bȳrging": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "taste, lasting"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "taste, lasting"
+      }
+    },
+    "byrian": {
+      "byrian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bury"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bury"
+      },
+      "bȳrian": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to taste"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to happen, pertain to, belong to"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to taste"
+      }
+    },
+    "byrigan": {
+      "byrigan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bury"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bury"
+      },
+      "bȳrigan": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to taste"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to taste"
+      }
+    },
+    "byrigean": {
+      "byrigean": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to bury"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to bury"
+      },
+      "bȳrigean": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "to taste"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "to taste"
+      }
+    },
+    "byrignes": {
+      "byrignes": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a burying, burial"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a burying, burial"
+      },
+      "bȳrignes": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a tasting, a taste"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a tasting, a taste"
+      }
+    },
+    "byrþling": {
+      "byrþ-ling": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a born image, birthling, child"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a born image, birthling, child"
+      },
+      "byrþling": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a carrier"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a carrier"
+      }
+    },
+    "byst": {
+      "byst": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "is (2nd person pres of bēon)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "is (2nd person pres of bēon)"
+      },
+      "bȳst": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "the first milk of the cow after calving, biestings"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "commands, offers (2nd person pres of bēodan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "the first milk of the cow after calving, biestings"
+      }
+    },
+    "byt": {
+      "byt": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a bottle, flagon"
+          },
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "asks, prays (3rd person pres of biddan)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a bottle, flagon"
+      },
+      "bȳt": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "commands, bids (3rd person pres of bēodan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "commands, bids (3rd person pres of bēodan)"
+      }
+    },
+    "bytt": {
+      "bytt": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a butt, piece of land"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a butt, piece of land"
+      },
+      "bȳtt": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "ordains (3rd person pres of bēodan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "ordains (3rd person pres of bēodan)"
+      }
+    },
+    "byþ": {
+      "byþ": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "is (3rd pers sing pres of bēon)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "is (3rd pers sing pres of bēon)"
+      },
+      "bȳþ": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "inhabits (3rd person pres of būon)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "inhabits (3rd person pres of būon)"
+      }
+    },
+    "bæce": {
+      "bæce": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "back parts"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "back parts"
+      },
+      "bǣce": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "beech tree"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "beech tree"
+      }
+    },
+    "bædling": {
+      "bædling": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "an effeminate person"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "an effeminate person"
+      },
+      "bǣdling": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a carrier of letters or orders"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a carrier of letters or orders"
+      }
+    },
+    "bær": {
+      "bær": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "bare, without clothes, naked"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "bare, without clothes, naked"
+      },
+      "bǣr": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a pasture"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a pasture"
+      }
+    },
+    "bærlic": {
+      "bær-lic": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "open, public"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "open, public"
+      },
+      "bærlīc": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "of barley"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "of barley"
+      }
+    },
+    "bærning": {
+      "bærning": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a burning"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a burning"
+      },
+      "bǣrning": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a burnt-offering"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a burnt-offering"
+      }
+    },
+    "ceace": {
+      "ceace": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a trial, proof"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a trial, proof"
+      },
+      "cēace": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cheek"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cheek"
+      }
+    },
+    "cecil": {
+      "cecil": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cooking pot?"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cooking pot?"
+      },
+      "cēcil": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cake"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cake"
+      }
+    },
+    "cele": {
+      "cele": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "the beak of a ship (prow?)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "the beak of a ship (prow?)"
+      },
+      "cēle": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cold, coldness"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cold, coldness"
+      }
+    },
+    "ceol": {
+      "ceol": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a basket"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a basket"
+      },
+      "cēol": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "keel; a ship"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "keel; a ship"
+      }
+    },
+    "cine": {
+      "cine": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a commander"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a folded sheet of parchment"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a commander"
+      },
+      "cīne": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a chink, fissure, fault, crack"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a chink, fissure, fault, crack"
+      }
+    },
+    "cinn": {
+      "cin": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "the chin"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "the chin"
+      },
+      "cinn": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a kind"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a kind"
+      }
+    },
+    "cist": {
+      "cist": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a chest"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a band, company"
+          },
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "goodness, bounty"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a chest"
+      },
+      "cīst": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "chooses (3rd pers pres sing of cēosan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "chooses (3rd pers pres sing of cēosan)"
+      }
+    },
+    "clam": {
+      "clam": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "mud, clay; a bandage; chain, net, fold, prison"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "mud, clay; a bandage; chain, net, fold, prison"
+      },
+      "clām": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "with claws (dat of clā)"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "with claws (dat of clā)"
+      }
+    },
+    "coc": {
+      "coc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cock, male fowl or bird"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cock, male fowl or bird"
+      },
+      "cōc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cook"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cook"
       }
     }
   }
