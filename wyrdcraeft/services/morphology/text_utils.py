@@ -5,7 +5,24 @@ from typing import Final
 
 class OENormalizer:
     """
-    A utility class for Old English text normalization and linguistic analysis.
+    A robust utility class for Old English text normalization and linguistic
+    analysis.  This is used in the generation of Old English morphology forms.
+
+    :func:`~wyrdcraeft.services.syllable.normalize_old_english` is useful for
+    normalizing Old English text for stable matching, for instance when doing
+    searches for matching Old English text.
+
+    This class is far more robust than that and can be used for linguistic
+    analysis of Old English text.
+
+    - Provides robust normalization functions for output text
+    - Normalizes Old English text to a canonical form
+    - Provides linguistic analysis tools for Old English text
+    - Includes robust regex patterns for vowels, diphthongs, and consonants
+    - Handles diacritic restoration and accent movement in Bosworth-Toller Old
+      English Dictionary data
+    - Supports syllable counting and stem length determination
+
     """
 
     #: The regex for the vowels.
@@ -124,7 +141,10 @@ class OENormalizer:
     @classmethod
     def move_accents(cls, text: str) -> str:
         """
-        Move the accents from the accents to the vowels.
+        Move the accents from the accents to the proper vowels.  For some
+        reason, in the raw Bosworth-Toller data, the accents for dipthongs are
+        on the wrong vowel.  This function moves the accents to the proper
+        vowels.
 
         Args:
             text: The text to process.

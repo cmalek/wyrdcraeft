@@ -102,7 +102,7 @@ Use the ``--config-file`` option:
     # Use custom configuration file
     wyrdcraeft --config-file /path/to/config.toml convert --title="My Title" input.txt output.json
 
-The configuration file should be in TOML format. See the :doc:`configuration` guide for details.
+The configuration file should be in TOML format. See the :doc:`configuration_cli` guide for details.
 
 What configuration options are available?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -143,7 +143,7 @@ When reporting a bug, please include:
 1. **Command used**: The exact command that failed
 2. **Error message**: The complete error output
 3. **Environment**: OS, Python version, tfmate version
-6. **Verbose output**: Use ``--verbose`` and include the output
+4. **Verbose output**: Use ``--verbose`` and include the output
 
 Example bug report:
 

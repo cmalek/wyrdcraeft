@@ -44,7 +44,7 @@ class Sentence(BaseModel):
         None,
         description=(
             "Optional confidence score for this sentence extraction "
-            "(0.0-1.0 recommended).",
+            "(0.0-1.0 recommended)."
         ),
     )
 
@@ -74,7 +74,7 @@ class Paragraph(BaseModel):
         None,
         description=(
             "Optional confidence score for this paragraph extraction "
-            "(0.0-1.0 recommended).",
+            "(0.0-1.0 recommended)."
         ),
     )
 
@@ -99,7 +99,7 @@ class Line(BaseModel):
     confidence: Confidence = Field(
         None,
         description=(
-            "Optional confidence score for this line extraction (0.0-1.0 recommended).",
+            "Optional confidence score for this line extraction (0.0-1.0 recommended)."
         ),
     )
 

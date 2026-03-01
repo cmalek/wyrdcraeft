@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 class GeneratorSession:
     """
-    Generator session. This is used to store the session data for the generator.
+    The primary entry point for the morphology generation service.  This is used
+    to store the session data for the generator as the generator is run.
     """
 
     def __init__(self) -> None:
@@ -59,7 +60,14 @@ class GeneratorSession:
         self, dict_path: str, forms_path: str, para_path: str, prefix_path: str
     ) -> None:
         """
-        Load all the data from the files.
+        Load all the data from the supporting files into the session.
+
+        - Loads the dictionary
+        - Loads the manual forms
+        - Loads the paradigms
+        - Loads the prefixes
+        - Categorizes the words initially into verbs (:attr:`verbs`), adjectives
+          (:attr:`adjectives`), and nouns (:attr:`nouns`)
 
         Args:
             dict_path: The path to the dictionary file.

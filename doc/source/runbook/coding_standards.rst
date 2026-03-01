@@ -23,7 +23,7 @@ Documentation
 
 - Document all functions and classes using docstrings in `Sphinx Napoleon format <https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html>`_.
 - When documenting methods, put positional arguments in the ``Args:`` section, keyword arguments in the ``Keyword Arguments:`` section, include any exceptions raised in the ``Raises:`` section, and of course include a ``Returns:`` section.  Leave a blank line after the ``Returns:`` section so ``ruff`` doesn't complain about the docstring.
-- Use ``#: `` notation for type hints on attributes, variables or constants.
+- Use ``#:`` (with a space after the colon) for type hints on attributes, variables or constants.
 
 **Examples:**
 
@@ -33,7 +33,7 @@ Documentation
     class Person:
         """
         A dataclass representing a person.
-        """"
+        """
         #: The name of the person
         name: str
         #: The age of the person

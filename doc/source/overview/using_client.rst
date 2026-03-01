@@ -74,13 +74,13 @@ Common Issues
 ~~~~~~~~~~~~~
 
 **LLM API key not set**
-    - Ensure that your LLM API key is set correctly; see :ref:`Configuration CLI` for more details.
+    - Ensure that your LLM API key is set correctly; see :ref:`configuration cli` for more details.
 
 **LLM model not supported**
-    - Ensure that the LLM model you are using is supported; see :ref:`Configuration CLI` for more details.
+    - Ensure that the LLM model you are using is supported; see :ref:`configuration cli` for more details.
 
 **LLM timeout**
-    - Ensure that the LLM timeout is set correctly; see :ref:`Configuration CLI` for more details.
+    - Ensure that the LLM timeout is set correctly; see :ref:`configuration cli` for more details.
     - If you are using a local model, ensure that `Ollama <https://ollama.com/>`_ is running and that the model is available.
 
 **LLM parsing problem**

@@ -22,11 +22,11 @@ Basic Usage with Python Client
 The :class:`~wyrdcraeft.DocumentIngestor` provides a simple interface to
 convert documents into the :class:`~wyrdcraeft.models.OldEnglishText`
 model.  You can find the full API reference in the :doc:`/api/client` section.
-See :doc:`/overview/configuration_client` for configuration options for the
+See :doc:`configuration_cli` for configuration options for the
 Python client.
 
 Configuration for the Command Line Tool
----------------------------------------
+----------------------------------------
 
 Typically the defaults that ship with ``wyrdcraeft`` will work. If you
 need to change those defaults, you can create a configuration file at
@@ -45,7 +45,7 @@ This will create a stub version of the configuration file at the appropriate loc
 You can then edit the configuration file to your liking.  See the :doc:`configuration_cli` guide for details.
 
 Environment Variables
-~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 - :envvar:`WYRDCRAEFT_LLM_MODEL_ID` - The ID of the LLM model to use.
 - :envvar:`WYRDCRAEFT_LLM_TEMPERATURE` - The temperature to use for the LLM.
@@ -65,7 +65,7 @@ Next Steps
 Now that you have the basics working:
 
 1. **Usage**: See :doc:`/overview/using_client` and :doc:`/overview/using_cli` for more advanced features and detailed examples.
-2. **Configuration**: See :doc:`/overview/configuration_cli` and :doc:`/overview/configuration_client` for configuration options.
+2. **Configuration**: See :doc:`configuration_cli` for configuration options.
 3. **Troubleshooting**: See the troubleshooting sections in each guide for common issues.
 
 Getting Help

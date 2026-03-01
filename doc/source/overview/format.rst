@@ -7,20 +7,23 @@ Overview and Requirements
 Old English texts vary widely in structure - from prose chronicles and homilies to poetic epics and dialogues. To effectively import these into translation software, we need a standard JSON schema that can flexibly capture all structural features of the source material. Based on the criteria, the JSON representation must account for:
 
 - **Hierarchical divisions**: Books, chapters, sections, acts/scenes,
-etc., as applicable.
+  etc., as applicable.
+
 - **Paragraphs and Sentences**: Prose texts should be broken into
-paragraphs and individual sentences.
+  paragraphs and individual sentences.
+
 - **Poetry lines and stanzas**: Verse texts need line breaks preserved;
-stanzas or numbered verse sections should be represented.
+  stanzas or numbered verse sections should be represented.
 - **Numbering systems**: Chapter numbers, verse numbers, chronological entries (e.g. annal years in a chronicle ), and any other numbering (Roman numerals, etc.) should be captured as metadata, not intermingled with the text.
 - **Dialogue structure**: Dialogues (like plays or Q&A texts) should mark speaker names for each spoken segment. For example, the *Solomon and Saturn* dialogue poem includes speakers “Saturnus” and “Salomon” in alternating lines . The JSON should represent these turns with a speaker field.
 - **Whitespace and formatting**: Significant whitespace such as
-paragraph breaks, stanza breaks, or indentations should be preserved
-by the structure (e.g. paragraphs as distinct JSON elements, blank
-lines indicating stanza breaks, etc.). There's usually no need to
-record every newline character, but blank lines that separate sections
-(like stanza breaks in poems) might be represented as empty paragraphs
-or a special marker.
+  paragraph breaks, stanza breaks, or indentations should be preserved
+  by the structure (e.g. paragraphs as distinct JSON elements, blank
+  lines indicating stanza breaks, etc.). There's usually no need to
+  record every newline character, but blank lines that separate sections
+  (like stanza breaks in poems) might be represented as empty paragraphs
+  or a special marker.
+
 - **Source references**: Include source bibliographic info (title, author, source URL or print edition) at the document level, and original page or folio numbers at a fine-grained level. For instance, if a sentence or line begins on a new page of the source, the JSON element for that sentence/line can carry a source_page number. In the Beowulf edition by Wyatt, the text indicates manuscript folio changes (e.g. “Fol. 129a” in the text ); the JSON could record these as page/folio markers attached to the relevant line or as special elements.
 
 By designing the JSON with these requirements, we can handle a wide range of Old English texts - whether a continuous prose homily with paragraphs, a poem with numbered lines, or a play-like dialogue with speakers. The goal is to preserve content and structure without mixing them (e.g., store numbering or speaker metadata separately from the text content).
@@ -37,13 +40,12 @@ To cover all the above, we propose a hierarchical JSON structure using nested ob
 - **Paragraphs vs. Verses**: A section can contain either prose paragraphs or verse lines:
 - **Paragraphs**: Each paragraph is an array of sentence objects. We split into sentences so that alignment with translations is easier and so that verse numbers or sentence numbers can be attached. For instance, a paragraph in the JSON might look like. This example shows two sentences from the West Saxon Gospel of Mark, with verse numbers 1 and 2 stored separately . The number field in a sentence holds verse or sentence identifier if present (otherwise it can be omitted).
 
-.. code:: json
+.. code-block:: json
 
    {
       "sentences": [
          {"text": "Her ys godspelles angyn Hælendes Cristes, godes suna.", "number": 1},
-         {"text": "Swa awriten is on ðæs witegan bec Isaiam,", "number": 2},
-         ...
+         {"text": "Swa awriten is on ðæs witegan bec Isaiam,", "number": 2}
       ]
    }
 
@@ -165,19 +167,19 @@ Notice how the verse lines have a number (line numbers 1 and 2 of the poem fragm
 Pydantic Models for the Schema
 ------------------------------
 
-To implement this in Python (>3.9<=3.13) and ensure our JSON structure is valid, we defined Pydantic v2 models in the. These models help in reading/writing the JSON and validating that all required fields are present. See the :ref:`schema_models` for the Pydantic models corresponding to the design above.
+To implement this in Python (>3.9<=3.13) and ensure our JSON structure is valid, we defined Pydantic v2 models in the. These models help in reading/writing the JSON and validating that all required fields are present. See the :ref:`api_models` (schema models section) for the Pydantic models corresponding to the design above.
 
 
 A few notes on these models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- We use :attr:`~wyrdcraeft.models.schema.Section.sections` to allow recursive nesting of sections.  For example, a Section of type "Book I" could have ``sections=[ …chapters…]``. Pydantic's forward reference handling is set up so that it knows sections contains Section items.
+- We use :attr:`~wyrdcraeft.models.source_text.Section.sections` to allow recursive nesting of sections.  For example, a Section of type "Book I" could have ``sections=[ …chapters…]``. Pydantic's forward reference handling is set up so that it knows sections contains Section items.
 
-- A :class:`~wyrdcraeft.models.schema.Section` can have either paragraphs or lines or even both. We can mix prose and verse in one section. The model does not enforce an XOR, but logically when populating it we will choose the appropriate field. If a section has both, it's interpreted that the section has some prose paragraphs and some lines of verse (as we illustrated).
+- A :class:`~wyrdcraeft.models.source_text.Section` can have either paragraphs or lines or even both. We can mix prose and verse in one section. The model does not enforce an XOR, but logically when populating it we will choose the appropriate field. If a section has both, it's interpreted that the section has some prose paragraphs and some lines of verse (as we illustrated).
 
-- The :class:`~wyrdcraeft.models.schema.Paragraph` model includes an optional speaker. If present, this paragraph represents dialogue spoken by that person. In a non-dialogue context, speaker stays None.
-- :class:`~wyrdcraeft.models.schema.Sentence` and :class:`~wyrdcraeft.models.schema.Line` both carry an optional :attr:`~wyrdcraeft.models.schema.Sentence.source_page` and :attr:`~wyrdcraeft.models.schema.Line.source_page` for granular traceability.
-- :class:`~wyrdcraeft.models.schema.OldEnglishText` is the top-level model combining metadata and the content tree.
+- The :class:`~wyrdcraeft.models.source_text.Paragraph` model includes an optional speaker. If present, this paragraph represents dialogue spoken by that person. In a non-dialogue context, speaker stays None.
+- :class:`~wyrdcraeft.models.source_text.Sentence` and :class:`~wyrdcraeft.models.source_text.Line` both carry an optional :attr:`~wyrdcraeft.models.source_text.Sentence.source_page` and :attr:`~wyrdcraeft.models.source_text.Line.source_page` for granular traceability.
+- :class:`~wyrdcraeft.models.source_text.OldEnglishText` is the top-level model combining metadata and the content tree.
 
 These models allow us to ingest source data by populating them (e.g., parse a
 document into these structures) and then easily emit JSON via Pydantic's
@@ -381,15 +383,17 @@ presented) is capable of representing all these cases. The use of tools like
 unstructured and ``any-llm`` will streamline converting each source:
 
 - E.g., for the *Chronicle*, ``unstructured`` can separate each year entry
-(perhaps as paragraphs starting with a year), and we'll add logic to mark the
-year as a section number.
+  (perhaps as paragraphs starting with a year), and we'll add logic to mark the
+  year as a section number.
+
 - For *Beowulf*, ``unstructured`` theoretically could get us the lines (likely
-each line as a separate “NarrativeText” element since each line ends with hard
-line break in the PDF), and we can then easily number them and drop footnote
-texts.
+  each line as a separate “NarrativeText” element since each line ends with hard
+  line break in the PDF), and we can then easily number them and drop footnote
+  texts.
+
 - For parallel-text homilies, ``unstructured`` will get both languages; we might
-use ``any-llm`` or even a simpler script to split OE vs modern, then proceed
-with OE paragraphs.
+  use ``any-llm`` or even a simpler script to split OE vs modern, then proceed
+  with OE paragraphs.
 
 In conclusion, the standard JSON representation defined here, backed by Pydantic
 models, can uniformly capture the diverse structural features of Old English

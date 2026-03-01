@@ -15,12 +15,9 @@ wyrdcraeft
    :caption: User Guide
    :hidden:
 
-   overview/configuration_client
    overview/configuration_cli
    overview/using_client
    overview/using_cli
-   overview/command_morphology_generate
-   overview/morphology_perl_quirks_ledger
    overview/faq
 
 .. toctree::
@@ -38,6 +35,8 @@ wyrdcraeft
 
    changelog
    overview/format
+   overview/wright_paradigms
+   verview/morphology_perl_quirks_ledger
    api/client
    api/models
 
@@ -55,6 +54,7 @@ wyrdcraeft provides the following key features:
 - Ingesting Old English texts from a variety of sources: text files, PDF files, and TEI XML files.
 - Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
 - Properly handling both prose and verse.
+- Generating Old English morphology forms using the migrated Python implementation from Ondřej Tichý's original Perl-based generator workflow.
 
 Getting Started
 ---------------
@@ -73,3 +73,23 @@ Requirements
 ------------
 
 - Python 3.10 - 3.13 (we're waiting for a dependency to be updated to 3.14)
+
+Licensing and provenance
+------------------------
+
+Bosworth-Toller Old English Dictionary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The OCR extracted text of the Bosworth-Toller Old English Dictionary used in this project is from the `Germanic Lexicon Project <https://www.germanic-lexicon-project.org/>`_.  The scanning was done by Jason Burton, B. Dan Fairchild, Margaret Hoyt, Grace Mrowicki, Michael O'Keefe, Sarah Hartman, Finlay Logan, Sean Crist, Thomas McFadden, David Harrison, and Sean Crist; that data is in the public domain.
+
+Morphological Analyser of Old English
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- The Old English morphology generator in ``wyrdcraeft`` is based on the work of Ondřej Tichý's thesis, `Morphological Analyser of Old English <https://www.researchgate.net/publication/318926182_Morphological_analyser_of_old_english>`_ (2017).
+- The upstream morphological generator Perl code and data is (c) Ondřej Tichý, is released under the CC BY 4.0 license.  The modified Perl code itself, with Madeleine Thompson's changes, can be found at `github:madeleineth/tichy_oe_generator <https://github.com/madeleineth/tichy_oe_generator>`_.
+- Changes made to the morphology generator in this repository by the maintainers of ``wyrdcraeft`` are released under the MIT license.
+
+All other code
+~~~~~~~~~~~~~~
+
+- All other code implemented directly by Christopher Malek, also released under the MIT license.
