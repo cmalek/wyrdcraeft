@@ -7,7 +7,7 @@ authors = [
 maintainers = [
     {name = "Chris Malek", email = "cmalek@placodermi.org"},
 ]
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.11,<3.14"
 description = "A tool that processes Old English texts and provides a toolkit for working with the text."
 readme = "README.md"
 classifiers = [
