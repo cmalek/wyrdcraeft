@@ -19,6 +19,8 @@ wyrdcraeft
    overview/configuration_cli
    overview/using_client
    overview/using_cli
+   overview/command_morphology_generate
+   overview/morphology_perl_quirks_ledger
    overview/faq
 
 .. toctree::
