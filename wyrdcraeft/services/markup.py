@@ -410,7 +410,7 @@ class GPalatalizer:
         "gēomor",
         "gēong",
         "gēongra",
-        "gēs",
+        "gēs",  # "geese"; ē from i-mutation of ō, g stays velar (see c blocklist)
         "gēsne",
         "gēsnian",
         "gēsting",
@@ -507,17 +507,59 @@ class GPalatalizer:
         return transformed
 
 
+def _possible_pre_iumlaut_sources(vowel: str) -> frozenset[str]:
+    """
+    Return possible pre-i-mutation (reconstructed) sources for an OE vowel.
+
+    Used to avoid palatalizing c when the triggering vowel unambiguously
+    derives from a back vowel (palatalization preceded i-mutation).
+
+    Args:
+        vowel: Single character, typically a front vowel in attested OE.
+
+    Returns:
+        Frozenset of possible pre-mutation vowel(s); empty if unknown.
+
+    """
+    # y, ȳ → only u, ū (unambiguous: do not palatalize c)
+    if vowel in ("y", "ȳ"):
+        return frozenset({"u", "ū"})
+    # e, ē → o, ō or æ, ǣ (ambiguous; blocklist handles)
+    if vowel in ("e", "ē"):
+        return frozenset({"o", "ō", "æ", "ǣ"})
+    # æ, ǣ → a, ā
+    if vowel in ("æ", "ǣ"):
+        return frozenset({"a", "ā"})
+    # i, ī → e, ē (front; palatalize)
+    if vowel in ("i", "ī"):
+        return frozenset({"e", "ē"})
+    return frozenset()
+
+
 class CPalatalizer:
     """
     Palatalize ``c`` to ``ċ`` based on OE context rules.
+
+    Rules (palatalization applied before i-mutation):
+    - Rule A: Word-initial ``c`` before any front vowel/diphthong → ċ.
+    - Rule B: Medial ``c`` before e/æ/y (non-i) does *not* palatalize.
+    - Rule C: ``c`` before /i, i:/ (spelling ``i``, ``ī``) in any position → ċ.
+    - Rule D: ``c`` after /i/, /i:/ (possibly +n), unless a back vowel follows → ċ
+      (e.g. iċ, dīċ; wicu stays velar because u follows).
+    - Caveat: When the triggering vowel has only back pre-i-mutation sources
+      (e.g. y/ȳ → u/ū), do not palatalize; blocklist covers remaining cases.
     """
 
     #: Vowels considered front for ``c`` palatalization.
     FRONT_VOWELS: Final[set[str]] = {"i", "ī", "e", "ē", "æ", "ǣ", "y", "ȳ"}
-    #: Diphthongs considered front for initial/medial context checks.
+    #: Diphthongs considered front for initial context checks.
     FRONT_DIPHTHONGS: Final[tuple[str, ...]] = ("ea", "ēa", "eo", "ēo", "ie", "īe")
-    #: High-front vowels used for final ``-ċ`` checks.
+    #: High-front vowels used for final ``-ċ`` and "c after i/ī" checks.
     HIGH_FRONT_VOWELS: Final[set[str]] = {"i", "ī", "y", "ȳ"}
+    #: Back vowels; "c after i/ī" does not palatalize when one of these follows.
+    BACK_VOWELS: Final[set[str]] = {"a", "ā", "o", "ō", "u", "ū"}
+    #: Minimum index to have two chars before (for "in" / "īn" before c).
+    _MIN_INDEX_FOR_PRECEDING_N: Final[int] = 2
 
     def __init__(
         self,
@@ -579,9 +621,54 @@ class CPalatalizer:
             return True
         return any(text.startswith(diph, index) for diph in self.FRONT_DIPHTHONGS)
 
+    @staticmethod
+    def _preceding_is_i_or_i_with_optional_n(chars: list[str], i: int) -> bool:
+        """
+        Return whether the character before position i is i/ī or i/ī + n.
+
+        Used for Rule D: c after i/ī (possibly with intervening n) may palatalize.
+
+        Args:
+            chars: List of characters.
+            i: Index of the ``c`` under consideration.
+
+        Returns:
+            True if the segment immediately before i is i, ī, in, or īn.
+
+        """
+        if i <= 0:
+            return False
+        return chars[i - 1] in {"i", "ī"} or (
+            chars[i - 1] == "n"
+            and i >= CPalatalizer._MIN_INDEX_FOR_PRECEDING_N
+            and chars[i - 2] in {"i", "ī"}
+        )
+
+    def _vowel_has_only_back_pre_sources(self, vowel: str) -> bool:
+        """
+        Return True if the vowel unambiguously derives only from back vowels.
+
+        Used to avoid palatalizing c when the trigger vowel is from i-mutation
+        (e.g. y/ȳ from u/ū).
+
+        Args:
+            vowel: Single character (front vowel in attested OE).
+
+        Returns:
+            True when possible pre-sources are non-empty and all in BACK_VOWELS.
+
+        """
+        sources = _possible_pre_iumlaut_sources(vowel)
+        return bool(sources) and sources <= self.BACK_VOWELS
+
     def palatalize(self, word: str) -> str:
         """
-        Palatalize ``c`` in a lexical token.
+        Palatalize ``c`` in a lexical token per rules A-D and i-mutation caveat.
+
+        Rule A: word-initial c before front vowel (unless only-back trigger).
+        Rule B: medial c before e/æ/y does not palatalize (no branch).
+        Rule C: c before i/ī in any position → ċ.
+        Rule D: c after i/ī (possibly +n) unless back vowel follows → ċ.
 
         Args:
             word: Token to palatalize.
@@ -611,18 +698,27 @@ class CPalatalizer:
 
             should_palatalize = False
 
-            # Initial c before front vowel/diphthong
-            if (i == 0 and self._is_front_context(lower, i + 1)) or (
-                i == len(chars) - 1 and i > 0 and chars[i - 1] in self.HIGH_FRONT_VOWELS
+            # Rule C: c before i/ī in any position
+            if i + 1 < len(chars) and chars[i + 1] in {"i", "ī"}:
+                should_palatalize = True
+
+            # Rule A: word-initial c before front vowel (not when only-back, e.g. y/ȳ)
+            if (
+                not should_palatalize
+                and i == 0
+                and self._is_front_context(lower, i + 1)
+                and i + 1 < len(chars)
+                and not self._vowel_has_only_back_pre_sources(chars[i + 1])
             ):
                 should_palatalize = True
 
-            # Medial c between front-vowel contexts
-            elif 0 < i < len(chars) - 1:
-                if chars[i - 1] in self.FRONT_VOWELS and self._is_front_context(
-                    lower, i + 1
-                ):
-                    should_palatalize = True
+            # Rule D: c after i/ī (possibly +n) unless back vowel follows
+            if not should_palatalize and self._preceding_is_i_or_i_with_optional_n(
+                chars, i
+            ):
+                should_palatalize = (
+                    i == len(chars) - 1 or chars[i + 1] not in self.BACK_VOWELS
+                )
 
             if should_palatalize:
                 chars[i] = "ċ"
