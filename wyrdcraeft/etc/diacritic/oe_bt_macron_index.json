@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39193,
-    "ambiguous_count": 1051
+    "unique_count": 39207,
+    "ambiguous_count": 1049
   },
   "unique": {
     "a": "ā",
@@ -39199,7 +39199,21 @@
     "him": "him",
     "wæron": "wǣron",
     "wæren": "wǣren",
-    "wære": "wǣre"
+    "wære": "wǣre",
+    "þam": "þām",
+    "þæm": "þǣm",
+    "hit": "hit",
+    "þæs": "þæs",
+    "his": "his",
+    "wæs": "wæs",
+    "þis": "þis",
+    "þas": "þās",
+    "þara": "þāra",
+    "þæra": "þǣra",
+    "þære": "þǣre",
+    "þy": "þȳ",
+    "cnif": "cnīf",
+    "cofa": "cōfa"
   },
   "ambiguous": {
     "ac": [
@@ -39703,17 +39717,9 @@
       "clam",
       "clām"
     ],
-    "cnif": [
-      "cnif",
-      "cnīf"
-    ],
     "coc": [
       "coc",
       "cōc"
-    ],
-    "cofa": [
-      "cofa",
-      "cōfa"
     ],
     "con": [
       "con",
@@ -43475,6 +43481,7 @@
     "bile",
     "bitst",
     "blac",
+    "bled",
     "blæc",
     "blæd",
     "brec",
@@ -43488,6 +43495,7 @@
     "brytian",
     "bræc",
     "bræd",
+    "buc",
     "bude",
     "buta",
     "byre",
@@ -45321,6 +45329,28 @@
         ],
         "part_of_speech_code": "N",
         "modern_english_meaning": "a cook"
+      }
+    },
+    "buc": {
+      "buc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a buck"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a buck"
+      },
+      "būc": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a vessel that bulges out, as a bottle, jug or pitcher"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a vessel that bulges out, as a bottle, jug or pitcher"
       }
     }
   }
