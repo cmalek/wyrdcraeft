@@ -40,6 +40,21 @@ POSCodeLiteral = Literal[
 ]
 
 
+class AmbiguityOption(BaseModel):
+    """
+    One candidate form for an ambiguous token, with POS and definitions when available.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: The marked form (candidate the user may choose).
+    form: str = Field(..., min_length=1)
+    #: Human-readable part-of-speech label(s), or None if unknown.
+    part_of_speech: str | None = None
+    #: Modern English definitions from the macron index, when available.
+    definitions: list[str] = Field(default_factory=list)
+
+
 class MacronAmbiguity(BaseModel):
     """
     Ambiguity row for a token with multiple macron candidates.
@@ -53,8 +68,23 @@ class MacronAmbiguity(BaseModel):
     word_number: int = Field(..., ge=1)
     #: Verbatim source token.
     word: str = Field(..., min_length=1)
-    #: Candidate marked forms for the token.
-    options: list[str] = Field(default_factory=list)
+    #: Candidate forms with POS and definitions attached to each option.
+    options: list[AmbiguityOption] = Field(default_factory=list)
+
+
+class UnknownToken(BaseModel):
+    """
+    Token that was not found in the macron index (unrecognized word).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: 1-based line number in the source text.
+    line_number: int = Field(..., ge=1)
+    #: 1-based lexical word index within the source line.
+    word_number: int = Field(..., ge=1)
+    #: Verbatim source token.
+    word: str = Field(..., min_length=1)
 
 
 class DiacriticRestorationResult(BaseModel):
@@ -68,6 +98,8 @@ class DiacriticRestorationResult(BaseModel):
     marked_text: str = Field(..., description="Marked output text.")
     #: Ambiguity rows generated during macron application.
     ambiguities: list[MacronAmbiguity] = Field(default_factory=list)
+    #: Tokens not found in the macron index (unrecognized words).
+    unknowns: list[UnknownToken] = Field(default_factory=list)
 
 
 class MacronFormAnnotation(BaseModel):

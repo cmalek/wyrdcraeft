@@ -1032,32 +1032,68 @@ def reading_convert(  # noqa: PLR0913
             sys.exit(1)
 
 
+def _mark_diacritics_derived_path(source: Path, infix: str) -> Path:
+    """Derive output path from source: stem + infix + suffix (e.g. poem.fixed.txt)."""
+    return source.parent / (source.stem + infix + source.suffix)
+
+
 @reading_group.command(
     name="mark-diacritics",
     help="Restore macrons and dot diacritics in an Old English text file.",
 )
 @click.argument("source", type=click.Path(exists=True, path_type=Path))
-@click.argument("output", type=click.Path(path_type=Path))
+@click.argument(
+    "output",
+    required=False,
+    default=None,
+    type=click.Path(path_type=Path),
+)
 @click.option(
     "--ambiguities-output",
-    required=True,
     type=click.Path(path_type=Path),
-    help="Output path for ambiguity report JSON.",
+    default=None,
+    help="Ambiguity report JSON path. Default: stem.anomalies + input extension.",
+)
+@click.option(
+    "--unknown-output",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Unrecognized-words JSON path. Default: stem.unknown + input extension.",
 )
 def reading_mark_diacritics(
     source: Path,
-    output: Path,
-    ambiguities_output: Path,
+    output: Path | None,
+    ambiguities_output: Path | None,
+    unknown_output: Path | None,
 ) -> None:
     """
-    Restore diacritics in a source text and emit ambiguity report JSON.
+    Restore diacritics in a source text and emit ambiguity and unknown-word reports.
+
+    When output paths are omitted, they default to the input directory using
+    the input filename stem and extension (e.g. poem.txt -> poem.fixed.txt,
+    poem.anomalies.txt, poem.unknown.txt).
 
     Args:
         source: Input text file path.
-        output: Marked output text file path.
+        output: Marked output text file path. Default: stem + '.fixed' + extension.
         ambiguities_output: Output path for ambiguity report JSON.
+        unknown_output: Output path for unrecognized-words report JSON.
 
     """
+    resolved_output = output if output is not None else _mark_diacritics_derived_path(
+        source, ".fixed"
+    )
+    resolved_ambiguities = (
+        ambiguities_output
+        if ambiguities_output is not None
+        else _mark_diacritics_derived_path(source, ".anomalies")
+    )
+    resolved_unknown = (
+        unknown_output
+        if unknown_output is not None
+        else _mark_diacritics_derived_path(source, ".unknown")
+    )
+
     try:
         text = source.read_text(encoding="utf-8")
     except OSError as e:
@@ -1067,11 +1103,11 @@ def reading_mark_diacritics(
     restorer = DiacriticRestorer()
     result = restorer.restore_text(text)
 
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(result.marked_text, encoding="utf-8")
+    resolved_output.parent.mkdir(parents=True, exist_ok=True)
+    resolved_output.write_text(result.marked_text, encoding="utf-8")
 
-    ambiguities_output.parent.mkdir(parents=True, exist_ok=True)
-    ambiguities_output.write_text(
+    resolved_ambiguities.parent.mkdir(parents=True, exist_ok=True)
+    resolved_ambiguities.write_text(
         json.dumps(
             [item.model_dump() for item in result.ambiguities],
             ensure_ascii=False,
@@ -1080,9 +1116,19 @@ def reading_mark_diacritics(
         encoding="utf-8",
     )
 
+    resolved_unknown.parent.mkdir(parents=True, exist_ok=True)
+    resolved_unknown.write_text(
+        json.dumps(
+            [item.model_dump() for item in result.unknowns],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
     print_info(
-        f"Successfully restored diacritics for {source} -> {output}. "
-        f"Ambiguities: {len(result.ambiguities)}"
+        f"Successfully restored diacritics for {source} -> {resolved_output}. "
+        f"Ambiguities: {len(result.ambiguities)}, Unknowns: {len(result.unknowns)}"
     )
 
 

@@ -10,9 +10,12 @@ from typing import Final
 from pydantic import ValidationError
 
 from ..models.diacritics import (
+    POS_CODE_LABELS,
+    AmbiguityOption,
     DiacriticRestorationResult,
     MacronAmbiguity,
     MacronIndexPayload,
+    UnknownToken,
 )
 from ..models.macron_index import MacronIndex
 
@@ -290,7 +293,7 @@ class MacronApplicator:
 
     def apply(
         self, word: str, line_number: int, word_number: int
-    ) -> tuple[str, MacronAmbiguity | None]:
+    ) -> tuple[str, MacronAmbiguity | None, bool]:
         """
         Apply macrons to a single lexical token.
 
@@ -300,7 +303,8 @@ class MacronApplicator:
             word_number: 1-based lexical token number within line.
 
         Returns:
-            Tuple of transformed token and optional ambiguity report row.
+            Tuple of (transformed token, optional ambiguity row, is_unknown).
+            is_unknown is True when the token normalized but was not in the index.
 
         """
         normalized = normalize_old_english(word)
@@ -312,27 +316,55 @@ class MacronApplicator:
             word_number,
         )
         if not normalized:
-            return word, None
+            return word, None, False
 
         if normalized in self.index.ambiguous:
-            options = [
-                _apply_case_pattern(word, opt)
-                for opt in self.index.ambiguous[normalized]
-            ]
+            raw_options = self.index.ambiguous[normalized]
+            metadata_by_form = self.index.ambiguous_metadata.get(normalized, {})
+            options_list: list[AmbiguityOption] = []
+            for opt in raw_options:
+                cased_form = _apply_case_pattern(word, opt)
+                annotation = metadata_by_form.get(opt)
+                if annotation and annotation.senses:
+                    pos_labels = sorted(
+                        dict.fromkeys(
+                            POS_CODE_LABELS.get(
+                                s.part_of_speech_code, s.part_of_speech_code
+                            )
+                            for s in annotation.senses
+                        )
+                    )
+                    part_of_speech = ", ".join(pos_labels) if pos_labels else None
+                    definitions = [s.modern_english_meaning for s in annotation.senses]
+                    options_list.append(
+                        AmbiguityOption(
+                            form=cased_form,
+                            part_of_speech=part_of_speech,
+                            definitions=definitions,
+                        )
+                    )
+                else:
+                    options_list.append(
+                        AmbiguityOption(
+                            form=cased_form,
+                            part_of_speech=None,
+                            definitions=[],
+                        )
+                    )
             ambiguity = MacronAmbiguity(
                 line_number=line_number,
                 word_number=word_number,
                 word=word,
-                options=options,
+                options=options_list,
             )
             LOGGER.debug(
                 "Macron ambiguous token='%s' line=%d word=%d options=%s",
                 word,
                 line_number,
                 word_number,
-                options,
+                [o.form for o in options_list],
             )
-            return word, ambiguity
+            return word, ambiguity, False
 
         marked = self.index.unique.get(normalized)
         if marked is None:
@@ -342,7 +374,7 @@ class MacronApplicator:
                 line_number,
                 word_number,
             )
-            return word, None
+            return word, None, True
 
         transformed = _apply_case_pattern(word, marked)
         LOGGER.debug(
@@ -352,7 +384,7 @@ class MacronApplicator:
             line_number,
             word_number,
         )
-        return transformed, None
+        return transformed, None, False
 
 
 class GPalatalizer:
@@ -767,6 +799,7 @@ class DiacriticRestorer:
 
         """
         ambiguities: list[MacronAmbiguity] = []
+        unknowns: list[UnknownToken] = []
         output_lines: list[str] = []
 
         for line_idx, line in enumerate(text.splitlines(keepends=True), start=1):
@@ -779,13 +812,21 @@ class DiacriticRestorer:
                 token = match.group(0)
                 segments.append(line[last_end:start])
 
-                macroned, ambiguity = self.macron_applicator.apply(
+                macroned, ambiguity, is_unknown = self.macron_applicator.apply(
                     token,
                     line_number=line_idx,
                     word_number=word_counter,
                 )
                 if ambiguity is not None:
                     ambiguities.append(ambiguity)
+                if is_unknown:
+                    unknowns.append(
+                        UnknownToken(
+                            line_number=line_idx,
+                            word_number=word_counter,
+                            word=token,
+                        )
+                    )
 
                 palatalized_g = self.g_palatalizer.palatalize(macroned)
                 palatalized_c = self.c_palatalizer.palatalize(palatalized_g)
@@ -797,11 +838,13 @@ class DiacriticRestorer:
 
         restored_text = "".join(output_lines)
         LOGGER.debug(
-            "Diacritic restoration complete (lines=%d, ambiguities=%d)",
+            "Diacritic restoration complete (lines=%d, ambiguities=%d, unknowns=%d)",
             len(output_lines),
             len(ambiguities),
+            len(unknowns),
         )
         return DiacriticRestorationResult(
             marked_text=restored_text,
             ambiguities=ambiguities,
+            unknowns=unknowns,
         )
