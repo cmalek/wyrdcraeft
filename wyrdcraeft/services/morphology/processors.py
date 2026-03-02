@@ -1,6 +1,7 @@
 import re
 
-from .models import VerbParadigm, Word
+from wyrdcraeft.models.morphology import VerbParadigm, Word
+
 from .session import GeneratorSession
 from .text_utils import OENormalizer
 

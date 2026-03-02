@@ -6,7 +6,7 @@ import io
 import re
 from collections.abc import Iterable
 
-from wyrdcraeft.services.morphology.models import Word
+from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 

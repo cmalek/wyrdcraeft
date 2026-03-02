@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+from wyrdcraeft.models.bosworth_toller import BTSearchEntry
 from wyrdcraeft.services.bosworthtoller import (
-    BTSearchEntry,
     closest_bt_entry,
     closest_entries_for_forms,
     fetch_bt_search_entries,

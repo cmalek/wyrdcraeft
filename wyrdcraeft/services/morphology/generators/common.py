@@ -2,8 +2,13 @@ import io
 import re
 from typing import Final
 
-from wyrdcraeft.services.morphology.models import ParadigmPart, ParadigmVariant, VerbParadigm, Word
-from wyrdcraeft.services.morphology.models import Word as WordModel
+from wyrdcraeft.models.morphology import (
+    ParadigmPart,
+    ParadigmVariant,
+    VerbParadigm,
+    Word,
+    Word as WordModel,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from ..text_utils import OENormalizer

@@ -5,7 +5,7 @@ Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 import io
 import re
 
-from wyrdcraeft.services.morphology.models import Word
+from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 

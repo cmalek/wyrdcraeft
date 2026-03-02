@@ -4,7 +4,6 @@ import json
 import logging
 import re
 import unicodedata
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
@@ -13,9 +12,9 @@ from pydantic import ValidationError
 from ..models.diacritics import (
     DiacriticRestorationResult,
     MacronAmbiguity,
-    MacronFormAnnotation,
     MacronIndexPayload,
 )
+from ..models.macron_index import MacronIndex
 
 #: Module logger.
 LOGGER = logging.getLogger(__name__)
@@ -111,20 +110,6 @@ def _is_oe_wordlike(form: str) -> bool:
 
     """
     return bool(LEXICAL_TOKEN_RE.fullmatch(form))
-
-
-@dataclass(frozen=True)
-class MacronIndex:
-    """
-    In-memory lookup maps for macron restoration.
-    """
-
-    #: Deterministic normalized -> marked mapping.
-    unique: dict[str, str]
-    #: Ambiguous normalized -> marked candidates mapping.
-    ambiguous: dict[str, list[str]]
-    #: Optional per-form metadata for ambiguous entries.
-    ambiguous_metadata: dict[str, dict[str, MacronFormAnnotation]]
 
 
 class MacronApplicator:

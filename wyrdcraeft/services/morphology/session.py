@@ -5,7 +5,7 @@ from .loaders import load_dictionary, load_forms, load_paradigms, load_prefixes
 from .text_utils import OENormalizer
 
 if TYPE_CHECKING:
-    from .models import ManualForm, VerbParadigm, Word
+    from wyrdcraeft.models.morphology import ManualForm, VerbParadigm, Word
 
 
 class GeneratorSession:

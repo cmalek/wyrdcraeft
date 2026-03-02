@@ -1,6 +1,13 @@
 from pathlib import Path
 
-from .models import ManualForm, ParadigmPart, ParadigmVariant, VerbParadigm, Word
+from wyrdcraeft.models.morphology import (
+    ManualForm,
+    ParadigmPart,
+    ParadigmVariant,
+    VerbParadigm,
+    Word,
+)
+
 from .text_utils import OENormalizer
 
 
@@ -12,7 +19,7 @@ def load_dictionary(path: str) -> list[Word]:
         path: The path to the dictionary file.
 
     Returns:
-        A list of :class:`~oe_generator.models.Word` objects.
+        A list of :class:`~wyrdcraeft.models.morphology.Word` objects.
 
     """
     _path = Path(path)
@@ -82,7 +89,7 @@ def load_forms(path: str) -> list[ManualForm]:
         path: The path to the manual forms file.
 
     Returns:
-        A list of :class:`~oe_generator.models.ManualForm` objects.
+        A list of :class:`~wyrdcraeft.models.morphology.ManualForm` objects.
 
     """
     _path = Path(path)
@@ -136,7 +143,7 @@ def load_paradigms(path: str) -> dict[str, VerbParadigm]:
         path: The path to the paradigms file.
 
     Returns:
-        A dictionary of :class:`~oe_generator.models.VerbParadigm` objects.
+        A dictionary of :class:`~wyrdcraeft.models.morphology.VerbParadigm` objects.
 
     """
     _path = Path(path)
