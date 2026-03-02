@@ -47,13 +47,13 @@ How do I convert a document to JSON?
 .. code-block:: bash
 
     # Convert a text file to JSON
-    wyrdcraeft convert --title="My Title" input.txt output.json
+    wyrdcraeft source convert --title="My Title" input.txt output.json
 
     # Convert a PDF file to JSON
-    wyrdcraeft convert --title="My Title" input.pdf output.json
+    wyrdcraeft source convert --title="My Title" input.pdf output.json
 
     # Convert a TEI XML file to JSON
-    wyrdcraeft convert --title="My Title" input.xml output.json
+    wyrdcraeft source convert --title="My Title" input.xml output.json
 
 How do I convert a document to JSON using the LLM method?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,20 +62,20 @@ How do I convert a document to JSON using the LLM method?
 
     # Convert a text file to JSON using the gpt-4o model
     $ export OPENAI_API_KEY=your-openai-api-key
-    $ wyrdcraeft convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
+    $ wyrdcraeft source convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
 
     # Convert a PDF file to JSON using the gemini-3-flash-preview model
     $ export GEMINI_API_KEY=your-gemini-api-key
-    $ wyrdcraeft convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
+    $ wyrdcraeft source convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
 
     # Convert a TEI XML file to JSON using the qwen2.5:14b-instruct model
     $ export OLLAMA_API_KEY=your-ollama-api-key
-    $ wyrdcraeft convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
+    $ wyrdcraeft source convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
 
     # Convert a text file to JSON using the qwen2.5:14b-instruct model
     # First run ollama, and pull the model like this:
     $ ollama pull qwen2.5:14b-instruct
-    $ wyrdcraeft convert --title="My Title" input.txt output.json --use-llm
+    $ wyrdcraeft source convert --title="My Title" input.txt output.json --use-llm
 
 How do I suppress output except errors?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,7 +100,7 @@ Use the ``--config-file`` option:
 .. code-block:: bash
 
     # Use custom configuration file
-    wyrdcraeft --config-file /path/to/config.toml convert --title="My Title" input.txt output.json
+    wyrdcraeft --config-file /path/to/config.toml source convert --title="My Title" input.txt output.json
 
 The configuration file should be in TOML format. See the :doc:`configuration_cli` guide for details.
 

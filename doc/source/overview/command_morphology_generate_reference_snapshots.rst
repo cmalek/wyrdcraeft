@@ -1,5 +1,5 @@
 ``wyrdcraeft morphology generate-reference-snapshots``
-=====================================================
+=======================================================
 
 This command is a developer-only tool for generating deterministic compressed
 JSONL snapshots used by morphology reference tests.  A regular user should not

@@ -12,7 +12,7 @@ from wyrdcraeft.models.diacritics import (
 )
 
 
-@patch("wyrdcraeft.cli.cli.DiacriticRestorer")
+@patch("wyrdcraeft.cli.source.DiacriticRestorer")
 def test_source_mark_diacritics_writes_text_and_ambiguities(
     mock_restorer_cls, runner, temp_dir
 ):
@@ -76,7 +76,7 @@ def test_source_mark_diacritics_writes_text_and_ambiguities(
     ]
 
 
-@patch("wyrdcraeft.cli.cli.DiacriticRestorer")
+@patch("wyrdcraeft.cli.source.DiacriticRestorer")
 def test_source_mark_diacritics_default_paths(mock_restorer_cls, runner, temp_dir):
     """With only input given, paths default to stem + infix + extension."""
     source_file = temp_dir / "poem.txt"
@@ -101,7 +101,7 @@ def test_source_mark_diacritics_default_paths(mock_restorer_cls, runner, temp_di
     assert json.loads((temp_dir / "poem.unknown.txt").read_text()) == []
 
 
-@patch("wyrdcraeft.cli.cli.DiacriticRestorer")
+@patch("wyrdcraeft.cli.source.DiacriticRestorer")
 def test_source_mark_diacritics_writes_unknowns_file(
     mock_restorer_cls, runner, temp_dir
 ):

@@ -69,8 +69,10 @@ For each lexical token:
 
 1. Normalize token with the rules above.
 2. Lookup in macron index:
+
    - if key in ``unique``: apply deterministic marked form
    - if key in ``ambiguous``: keep source token, emit ambiguity row with options
+
 3. Apply ``g`` palatalization rules.
 4. Apply ``c`` palatalization rules (historically informed: ``c`` before /i, iː/ or
    word-initial before other front vowels, and ``c`` after /i/, /i:/ unless a back
@@ -83,23 +85,3 @@ The command writes:
 - **Marked output text file** (default: ``stem.fixed.extension``).
 - **Ambiguity report** (default: ``stem.anomalies.extension``): JSON array of objects with ``line_number``, ``word_number``, ``word``, and ``options``. Each option is an object with ``form`` (the candidate marked form), and when available from the index, ``part_of_speech`` and ``definitions``, so POS and meaning are attached to each choice for context when deciding.
 - **Unknown-words report** (default: ``stem.unknown.extension``): JSON array of objects with ``line_number``, ``word_number``, and ``word`` for each token not found in the macron index.
-
-Maintaining the canonical list
-------------------------------
-
-The canonical list is curated with:
-
-.. code-block:: bash
-
-    wyrdcraeft diacritic disambiguate
-
-Maintenance loop:
-
-1. Review each normalized key in ``ambiguous``.
-2. Either:
-   - promote one form into ``unique`` (resolving the ambiguity), or
-   - annotate forms in ``ambiguous_metadata`` with POS code and modern meaning.
-3. Persist changes immediately after each commit.
-
-This keeps the canonical index maintainable over time while preserving
-provenance for unresolved lexical ambiguity.

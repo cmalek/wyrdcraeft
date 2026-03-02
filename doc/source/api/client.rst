@@ -85,7 +85,7 @@ Utilities
     :undoc-members:
     :show-inheritance:
 
-.. autofunction:: wyrdcraeft.services.syllable.normalize_old_english
+.. autofunction:: wyrdcraeft.services.markup.normalize_old_english
 
 .. autoclass:: wyrdcraeft.services.morphology.text_utils.OENormalizer
     :members:

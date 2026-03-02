@@ -273,7 +273,7 @@ Option Reference for all commands
 
     .. code-block:: bash
 
-        wyrdcraeft --verbose convert /path/to/source.txt /path/to/output.json
+        wyrdcraeft --verbose source convert /path/to/source.txt /path/to/output.json
 
 
 **--quiet**
@@ -283,7 +283,7 @@ Option Reference for all commands
 
     .. code-block:: bash
 
-        wyrdcraeft --quiet convert /path/to/source.txt /path/to/output.json
+        wyrdcraeft --quiet source convert /path/to/source.txt /path/to/output.json
 
 **--output**
     Choose output format: ``json`` or ``table``.
@@ -337,7 +337,7 @@ Or use command-line options:
     $ export WYRDCRAEFT_GEMINI_API_KEY="gcp-api-key-1234567890"
     $ export WYRDCRAEFT_LOG_LEVEL="INFO"
     $ export WYRDCRAEFT_LOG_FILE="/var/log/wyrdcraeft.log"
-    $ wyrdcraeft convert /path/to/source.txt /path/to/output.json
+    $ wyrdcraeft source convert /path/to/source.txt /path/to/output.json
     $ wyrdcraeft settings show
     $ wyrdcraeft settings create
 

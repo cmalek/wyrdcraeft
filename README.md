@@ -60,7 +60,7 @@ uv sync --dev
 **Command line:** convert a text file to JSON:
 
 ```bash
-wyrdcraeft convert --title="My Title" input.txt output.json
+wyrdcraeft source convert --title="My Title" input.txt output.json
 ```
 
 **Python:** use `DocumentIngestor` to get an `OldEnglishText` model:
