@@ -1463,7 +1463,7 @@ class VerbFormGenerator:
             # If the form ends in a vowel, the initial vowel of the ending is deleted
             fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
             perl_inf_vowel_end = bool(
-                re.search(r"[æaeyouÆAEIYOUǽáéíýóúǼÁÉÍÝÓÚ][0-]*?$", fp_base)
+                re.search(r"[æaeyouÆAEIYOUǣāēīȳōūǢĀĒĪȲŌŪ][0-]*?$", fp_base)
             )
             self._generate_and_print_form(
                 formhash,
@@ -1775,7 +1775,7 @@ class VerbFormGenerator:
 
                 fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
                 perl_inf_vowel_end = bool(
-                    re.search(r"[æaeyouÆAEIYOUǽáéíýóúǼÁÉÍÝÓÚ][0-]*?$", fp_base)
+                    re.search(r"[æaeyouÆAEIYOUǣāēīȳōūǢĀĒĪȲŌŪ][0-]*?$", fp_base)
                 )
 
                 # if (only for ig and ige)

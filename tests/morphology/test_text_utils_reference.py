@@ -27,14 +27,14 @@ def test_eth2thorn_reference(input_text: str | None, expected: str) -> None:
 @pytest.mark.parametrize(
     ("input_text", "expected"),
     [
-        ("ǽ", "æ"),
-        ("á", "a"),
-        ("é", "e"),
-        ("í", "i"),
-        ("ý", "y"),
-        ("ó", "o"),
-        ("ú", "u"),
-        ("stán", "stan"),
+        ("ǣ", "æ"),
+        ("ā", "a"),
+        ("ē", "e"),
+        ("ī", "i"),
+        ("ȳ", "y"),
+        ("ō", "o"),
+        ("ū", "u"),
+        ("stān", "stan"),
         ("bacan", "bacan"),
         ("", ""),
         (None, ""),
@@ -47,12 +47,12 @@ def test_remove_diacritics_reference(input_text: str | None, expected: str) -> N
 @pytest.mark.parametrize(
     ("input_text", "expected"),
     [
-        ("eó", "éo"),
-        ("eá", "éa"),
-        ("ié", "íe"),
-        ("éo", "éo"),
-        ("éa", "éa"),
-        ("íe", "íe"),
+        ("eó", "ēo"),  # acute input -> macron output
+        ("eá", "ēa"),
+        ("ié", "īe"),
+        ("ēo", "ēo"),  # already macron unchanged
+        ("ēa", "ēa"),
+        ("īe", "īe"),
         ("bacan", "bacan"),
         ("", ""),
         (None, ""),
@@ -70,15 +70,15 @@ def test_move_accents_reference(input_text: str | None, expected: str) -> None:
         (["u", "u"], ["y", "u"]),
         (["æ", "æ"], ["e", "æ"]),
         (["a", "a"], ["æ", "a", "e"]),
-        (["á", "á"], ["ǽ", "á"]),
-        (["ó", "ó"], ["é", "ó"]),
-        (["ú", "ú"], ["ý", "ú"]),
+        (["ā", "ā"], ["ǣ", "ā"]),
+        (["ō", "ō"], ["ē", "ō"]),
+        (["ū", "ū"], ["ȳ", "ū"]),
         (["ea", "ea"], ["ea", "ie", "i"]),
         (["eo", "eo"], ["ie", "eo"]),
         (["io", "io"], ["ie", "io", "i"]),
-        (["éa", "éa"], ["íe", "éa", "í"]),
-        (["éo", "éo"], ["íe", "éo"]),
-        (["ío", "ío"], ["íe", "ío", "í"]),
+        (["ēa", "ēa"], ["īe", "ēa", "ī"]),
+        (["ēo", "ēo"], ["īe", "ēo"]),
+        (["īo", "īo"], ["īe", "īo", "ī"]),
     ],
 )
 def test_iumlaut_reference(vowels: list[str], expected: list[str]) -> None:
@@ -88,7 +88,7 @@ def test_iumlaut_reference(vowels: list[str], expected: list[str]) -> None:
 @pytest.mark.parametrize(
     ("stem", "expected"),
     [
-        ("stán", 1),
+        ("stān", 1),
         ("bacan", 0),
         ("bringan", 1),
         ("word", 1),
@@ -106,13 +106,13 @@ def test_stem_length_reference(stem: str, expected: int) -> None:
 @pytest.mark.parametrize(
     ("text", "expected"),
     [
-        ("stán", 1),
+        ("stān", 1),
         ("bacan", 2),
         ("æ", 1),
         ("a", 1),
         ("", 0),
         (None, 0),
-        ("abban dún", 3),
+        ("abban dūn", 3),
     ],
 )
 def test_syllable_count_reference(text: str | None, expected: int) -> None:
@@ -124,11 +124,11 @@ def test_syllable_count_reference(text: str | None, expected: int) -> None:
     [
         ("y", "i"),
         ("ie", "i"),
-        ("ý", "i"),
-        ("íe", "i"),
+        ("ȳ", "i"),
+        ("īe", "i"),
         ("yfele", "ifele"),
         ("micle", "micle"),
-        ("stán", "stan"),
+        ("stān", "stan"),
         ("", ""),
         (None, ""),
     ],

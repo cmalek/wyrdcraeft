@@ -6,9 +6,9 @@ from .text_utils import OENormalizer
 
 R_STEM_PARADIGM_BY_STEM = {
     "fæder": "fæder",
-    "bróþor": "bróþor",
-    "módor": "módor",
-    "dóhtor": "dóhtor",
+    "brōþor": "brōþor",
+    "mōdor": "mōdor",
+    "dōhtor": "dōhtor",
     "sweostor": "sweostor",
 }
 
