@@ -3,7 +3,7 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39189,
+    "unique_count": 39193,
     "ambiguous_count": 1051
   },
   "unique": {
@@ -39195,7 +39195,11 @@
     "cnafa": "cnafa",
     "cneodan": "cnēodan",
     "cneordnys": "cneordnys",
-    "cnocian": "cnocian"
+    "cnocian": "cnocian",
+    "him": "him",
+    "wæron": "wǣron",
+    "wæren": "wǣren",
+    "wære": "wǣre"
   },
   "ambiguous": {
     "ac": [
