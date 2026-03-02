@@ -865,3 +865,234 @@ def test_diacritic_disambiguate_single_key_not_ambiguous_errors(runner, temp_dir
 
     assert result.exit_code != 0
     assert "is not present in ambiguous entries" in result.output
+
+
+def _minimal_index_payload(unique: dict | None = None, ambiguous: dict | None = None):
+    """Minimal macron index payload for diacritic add/delete tests."""
+    u = unique or {}
+    a = ambiguous or {}
+    return {
+        "meta": {"unique_count": len(u), "ambiguous_count": len(a)},
+        "unique": u,
+        "ambiguous": a,
+        "ambiguous_completed": [],
+        "ambiguous_metadata": {},
+    }
+
+
+def test_diacritic_add_inserts_pair(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(index_path, _minimal_index_payload())
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "add",
+            "ac",
+            "āc",
+            "--index-path",
+            str(index_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "āc"
+    assert payload["meta"]["unique_count"] == 1
+
+
+def test_diacritic_add_normalizes_key(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(index_path, _minimal_index_payload())
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "add",
+            "Āc",
+            "āc",
+            "--index-path",
+            str(index_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert "ac" in payload["unique"]
+    assert payload["unique"]["ac"] == "āc"
+
+
+def test_diacritic_add_fails_when_exists_without_force(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(unique={"ac": "āc"}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "add",
+            "ac",
+            "āc",
+            "--index-path",
+            str(index_path),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "already exists" in result.output
+    assert "Use --force" in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "āc"
+
+
+def test_diacritic_add_force_overwrites(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(unique={"ac": "āc"}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "add",
+            "ac",
+            "ā-c",
+            "--index-path",
+            str(index_path),
+            "--force",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "ā-c"
+
+
+def test_diacritic_add_fails_when_key_in_ambiguous_even_with_force(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(ambiguous={"ac": ["ac", "āc"]}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "add",
+            "ac",
+            "āc",
+            "--index-path",
+            str(index_path),
+            "--force",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "ambiguous" in result.output
+    assert "does not apply" in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert "ac" not in payload["unique"]
+    assert payload["ambiguous"]["ac"] == ["ac", "āc"]
+
+
+def test_diacritic_delete_with_yes_removes_pair(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(unique={"ac": "āc"}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "delete",
+            "ac",
+            "--index-path",
+            str(index_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert "ac" not in payload["unique"]
+    assert payload["meta"]["unique_count"] == 0
+
+
+def test_diacritic_delete_with_confirmation_removes_when_yes(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(unique={"ac": "āc"}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "delete",
+            "ac",
+            "--index-path",
+            str(index_path),
+        ],
+        input="y\n",
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert "ac" not in payload["unique"]
+
+
+def test_diacritic_delete_with_confirmation_keeps_when_no(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        _minimal_index_payload(unique={"ac": "āc"}),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "delete",
+            "ac",
+            "--index-path",
+            str(index_path),
+        ],
+        input="n\n",
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "āc"
+
+
+def test_diacritic_delete_fails_when_key_missing(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _write_index(index_path, _minimal_index_payload(unique={"ac": "āc"}))
+
+    result = runner.invoke(
+        cli,
+        [
+            "diacritic",
+            "delete",
+            "nonexistent",
+            "--index-path",
+            str(index_path),
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "not found" in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "āc"
