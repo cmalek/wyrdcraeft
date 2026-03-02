@@ -78,14 +78,15 @@ a cloud model) for development, testing, and troubleshooting, but you can
 override it with a configuration file.  See :doc:`/overview/configuration_cli`
 for more details.
 
-Diacritic Command Guides
-------------------------
+Command Guides
+--------------
 
 The following pages document the diacritic command workflows in detail:
 
 .. toctree::
    :maxdepth: 1
 
-   command_convert_fix_diacritic
+   command_source_mark_diacritics
    command_diacritic_disambiguate
    command_morphology_generate
+   command_morphology_generate_reference_snapshots

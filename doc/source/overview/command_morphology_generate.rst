@@ -4,6 +4,45 @@
 This command generates Old English morphology forms using the migrated Python
 implementation from Ondřej Tichý's original Perl-based generator workflow.
 
+Command usage
+-------------
+
+.. code-block:: bash
+
+    wyrdcraeft morphology generate [OPTIONS]
+
+Options
+-------
+
+- ``--data-dir PATH``: default directory for morphology data files.
+- ``--dictionary PATH``: dictionary file to process.
+- ``--manual-forms PATH``: manual forms input file.
+- ``--verbal-paradigms PATH``: verbal paradigms file.
+- ``--prefixes PATH``: prefix list file.
+- ``--output PATH``: output TSV path.
+- ``--limit INTEGER``: process only the first N words (ignored in full mode).
+- ``--enable-r-stem-nouns``: enable opt-in non-parity r-stem noun generation.
+- ``--full / --no-full``: full dictionary generation mode.
+
+Defaults
+--------
+
+You should not need to provide any of the ``--data-dir``, ``--dictionary``, ``--manual-forms``, ``--verbal-paradigms``, or ``--prefixes`` paths explicitly, as the generator will load the data from the packaged files under ``wyrdcraeft/etc/morphology/``.
+
+Only provide these paths if you need to override the default paths.
+
+
+Examples
+--------
+
+.. code-block:: bash
+
+    # Generate subset output with limit
+    wyrdcraeft morphology generate --limit 250 --output output.tsv
+
+    # Generate full output
+    wyrdcraeft morphology generate --full --output morphology_full.tsv
+
 Background
 ----------
 
@@ -69,11 +108,19 @@ The generator pipeline (based on Tichý’s paper) works as follows:
 How to use the output
 ---------------------
 
-Use the **form** column for the surface spelling of each generated word form.
-Use **function** for the morphosyntactic tag (e.g. case, number, tense).
-Use **wright** for the inflectional paradigm name (the example word from Wright’s
-grammar that the generator follows). For a list of Wright paradigm names and
-which ones the generator implements, see :doc:`wright_paradigms`.
+Quick reference
+---------------
+
+The final output is a TSV (Tab-Separated Values) file.  Use the **form** column
+for the surface spelling of each generated word form.  Use **function** for the
+morphosyntactic tag (e.g. case, number, tense).  Use **wright** for the
+inflectional paradigm name (the example word from Wright’s grammar that the
+generator follows). For a list of Wright paradigm names and which ones the
+generator implements, see :doc:`wright_paradigms`.
+
+.. warning::
+    The ouput file is **huge**.  There will be on the order of 15 million lines
+    in the full output file.
 
 Generator output format
 -----------------------
@@ -82,8 +129,7 @@ Output is **TSV** (tab-separated), UTF-8, one row per generated form. Some
 forms produce an extra line when a spelling variant is generated (e.g. when
 double consonants are reduced).
 
-Column order and meaning (aligned with the generator’s ``FORM_FIELDS`` and
-``print_one_form`` output):
+Column order and meaning:
 
 .. list-table::
    :header-rows: 1
@@ -135,11 +181,11 @@ Function codes (glossary)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``function`` column contains morphosyntactic tags. Codes are built from
-abbreviations for number (Sg = singular, Pl = plural), gender (Ma = masculine,
-Fe = feminine, Ne = neuter), and case (No = nominative, Ac = accusative,
-Ge = genitive, Da = dative, Is = instrumental). Adjective codes add a degree
-prefix: Po = positive, Co = comparative, Sp = superlative. Verb codes use
-different abbreviations (see below).
+abbreviations for number (``Sg`` = singular, ``Pl`` = plural), gender (``Ma`` = masculine,
+``Fe`` = feminine, ``Ne`` = neuter), and case (``No`` = nominative, ``Ac`` = accusative,
+``Ge`` = genitive, ``Da`` = dative, ``Is`` = instrumental). Adjective codes add a degree
+prefix: ``Po`` = positive, ``Co`` = comparative, ``Sp`` = superlative. Verb codes use
+a variety of different abbreviations (see below).
 
 Nouns
 ^^^^^
@@ -295,56 +341,7 @@ Numerals and pronoun-like forms reuse noun and adjective function codes where
 they decline (e.g. ``PlFeNo``, ``PoPlFeNo`` for numeral forms that agree in
 gender, number, and case).
 
-Command usage
--------------
 
-.. code-block:: bash
-
-    wyrdcraeft morphology generate [OPTIONS]
-
-Options
--------
-
-- ``--data-dir PATH``: default directory for morphology data files.
-- ``--dictionary PATH``: dictionary file to process.
-- ``--manual-forms PATH``: manual forms input file.
-- ``--verbal-paradigms PATH``: verbal paradigms file.
-- ``--prefixes PATH``: prefix list file.
-- ``--output PATH``: output TSV path.
-- ``--limit INTEGER``: process only the first N words (ignored in full mode).
-- ``--enable-r-stem-nouns``: enable opt-in non-parity r-stem noun generation.
-- ``--full / --no-full``: full dictionary generation mode.
-
-Defaults
---------
-
-You should not need to provide any of the ``--data-dir``, ``--dictionary``, ``--manual-forms``, ``--verbal-paradigms``, or ``--prefixes`` paths explicitly, as the generator will load the data from the packaged files under ``wyrdcraeft/etc/morphology/``.
-
-Only provide these paths if you need to override the default paths.
-
-
-Examples
---------
-
-.. code-block:: bash
-
-    # Generate subset output with limit
-    wyrdcraeft morphology generate --limit 250 --output output.tsv
-
-    # Generate full output
-    wyrdcraeft morphology generate --full --output morphology_full.tsv
-
-Python-reference snapshots
---------------------------
-
-The migrated Python snapshot generator is available as:
-
-.. code-block:: bash
-
-    wyrdcraeft morphology generate-reference-snapshots --help
-
-It writes deterministic compressed JSONL snapshots used by morphology reference
-tests.
 
 Perl quirks ledger
 ------------------
