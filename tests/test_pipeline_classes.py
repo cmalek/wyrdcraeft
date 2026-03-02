@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from wyrdcraeft.ingest.pipeline import (
-    StructureParser,
-    OEFilter,
     CanonicalConverter,
     DocumentIngestor,
-    HeuristicDocumentIngestor,
     LLMDocumentIngestor,
-    TEIDocumentIngestor,
+    OEFilter,
+    StructureParser,
 )
+from wyrdcraeft.models import OldEnglishText, Section, TextMetadata
 from wyrdcraeft.models.parsing import RawBlock
-from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -82,7 +80,31 @@ def test_canonical_converter_verse(verse_text):
     oe_text = converter.build(meta, pre_doc)
     assert oe_text.metadata.title == "Test Verse"
     assert len(oe_text.content.sections) == 1
-    assert oe_text.content.sections[0].lines is not None
+    section = oe_text.content.sections[0]
+    assert section.lines is not None
+    for i, line in enumerate(section.lines, start=1):
+        assert line.number == i, f"Line {i}: expected number={i}, got {line.number}"
+
+
+def test_canonical_converter_verse_number_fallback():
+    """Unmarked verse gets 1-based line numbers within the section."""
+    three_lines = (
+        "Us is riht micel      ðæt we rodera weard,\n"
+        "wereda wuldorcining,      wordum herigen,\n"
+        "modum lufien!      He is mægna sped,"
+    )
+    parser = StructureParser()
+    blocks = [RawBlock(text=three_lines, category="NarrativeText", page=1)]
+    pre_doc = parser.parse(blocks)
+    converter = CanonicalConverter()
+    meta = TextMetadata(title="Snippet", source="test")
+    oe_text = converter.build(meta, pre_doc)
+    assert len(oe_text.content.sections) == 1
+    lines = oe_text.content.sections[0].lines
+    assert lines is not None
+    expected_line_count = 3
+    assert len(lines) == expected_line_count
+    assert [lines[0].number, lines[1].number, lines[2].number] == [1, 2, 3]
 
 
 @patch("wyrdcraeft.ingest.pipeline.LLMExtractor")
