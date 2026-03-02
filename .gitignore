@@ -122,3 +122,6 @@ tags
 *.code-workspace
 .idea
 .vscode
+*.anomalies.txt
+*.fixed.txt
+*.unknown.txt
