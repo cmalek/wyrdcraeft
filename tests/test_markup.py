@@ -70,6 +70,59 @@ def test_c_palatalizer_core_rules_and_force_exception(tmp_path: Path):
     assert palatalizer.palatalize("cuman") == "cuman"
 
 
+def test_c_palatalizer_medial_c_before_e_ae_y_not_palatalized():
+    """Medial c before e/æ/y (non-i) does not palatalize (Rule B)."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("specan") == "specan"
+    assert palatalizer.palatalize("weorc") == "weorc"
+
+
+def test_c_palatalizer_wicu_stays_velar():
+    """C after i/ī does not palatalize when a back vowel follows (Rule D)."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("wicu") == "wicu"
+
+
+def test_c_palatalizer_c_before_i_palatalizes():
+    """C before i/ī in any position palatalizes (Rule C)."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("cild") == "ċild"
+    assert palatalizer.palatalize("micel") == "miċel"
+    assert palatalizer.palatalize("cidan") == "ċidan"
+
+
+def test_c_palatalizer_blocklist_i_mutation_exceptions():
+    """Blocklist keeps c velar for i-mutation exceptions (cyning, cemban, cynn)."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("cyning") == "cyning"
+    assert palatalizer.palatalize("cemban") == "cemban"
+    assert palatalizer.palatalize("cynn") == "cynn"
+
+
+def test_g_palatalizer_ges_exception():
+    """gēs ('geese') is a g-exception (ē from i-mutation of ō); g stays velar."""
+    palatalizer = GPalatalizer()
+    assert palatalizer.palatalize("gēs") == "gēs"
+
+
+def test_c_palatalizer_force_palatalize_canonical_forms():
+    """Force-palatalize list gives final ċ for hwelc/hwilc, swelc, ǣlc, þylc."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("hwelc") == "hwelċ"
+    assert palatalizer.palatalize("hwilc") == "hwilċ"
+    assert palatalizer.palatalize("swelc") == "swelċ"
+    assert palatalizer.palatalize("swilc") == "swilċ"
+    assert palatalizer.palatalize("swylc") == "swylċ"
+    assert palatalizer.palatalize("ǣlc") == "ǣlċ"
+    assert palatalizer.palatalize("þylc") == "þylċ"
+
+
+def test_c_palatalizer_pre_iumlaut_cyning_unchanged():
+    """Cyning (c + y from u) remains non-palatalized; blocklist and only-back."""
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("cyning") == "cyning"
+
+
 def test_macron_applicator_single_and_ambiguous(tmp_path: Path):
     index_path = tmp_path / "index.json"
     _write_index(

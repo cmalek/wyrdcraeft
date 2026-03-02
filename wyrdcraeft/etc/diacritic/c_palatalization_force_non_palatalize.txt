@@ -1,2 +1,12 @@
 # Force-non-palatalize lexical exceptions for c -> ċ.
+# Words where c stays velar because the adjacent front vowel is from i-mutation
+# (palatalization applied before i-mutation, so c was not before a front vowel at the time).
 # One normalized word per line.
+# Note: gēs ("geese") is a g-exception, not c; see GPalatalizer FRONTAL_G_EXCEPTIONS.
+cyning
+cemban
+cynn
+cyme
+cyll
+cyst
+cynd

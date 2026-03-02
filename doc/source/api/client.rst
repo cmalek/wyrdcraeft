@@ -46,7 +46,7 @@ LLM Ingestor
 Diacritical Marking
 -------------------
 
-These classes are used to mark diacritical marks in Old English text that lack them, based on a pre-built index of attested forms from the Bosworth-Toller Old English Dictionary and g and c palatalization rules.
+These classes are used to mark diacritical marks in Old English text that lack them, based on a pre-built index of attested forms from the Bosworth-Toller Old English Dictionary and ``g`` and ``c`` palatalization rules. ``c`` palatalization follows historically informed rules (e.g. ``c`` before /i, iː/ or word-initial before other front vowels; ``c`` after /i/, /iː/ unless a back vowel follows), a pre‑i‑mutation “only back” heuristic, and a blocklist for i‑mutation exceptions; ``sc`` → ``sċ`` is planned as a separate follow‑up.
 
 .. autoclass:: wyrdcraeft.services.markup.MacronApplicator
     :members:

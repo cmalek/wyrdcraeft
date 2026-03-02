@@ -1,4 +1,10 @@
 # Force-palatalize lexical exceptions for c -> ċ.
 # One normalized word per line.
+# Variants: hwelc/hwilc "which"; swelc/swilc/swylc "such"; ǣlc "each, every"; þylc "such (a)".
 hwelc
+hwilc
 swelc
+swilc
+swylc
+ǣlc
+þylc

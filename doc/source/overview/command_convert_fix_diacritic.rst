@@ -76,7 +76,11 @@ For each lexical token:
    - if key in ``unique``: apply deterministic marked form
    - if key in ``ambiguous``: keep source token, emit ambiguity row with options
 3. Apply ``g`` palatalization rules.
-4. Apply ``c`` palatalization rules (with force include/exclude lists).
+4. Apply ``c`` palatalization rules (historically informed: ``c`` before /i, iː/ or
+   word-initial before other front vowels, and ``c`` after /i/, /i:/ unless a back
+   vowel follows). A pre-i-mutation “only back” check and a blocklist avoid
+   palatalizing ``c`` when the adjacent front vowel derives from i-mutation (e.g.
+   *cyning*). ``sc`` → ``sċ`` is handled in a separate follow-up.
 
 The command writes:
 
