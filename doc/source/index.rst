@@ -36,7 +36,14 @@ wyrdcraeft
    changelog
    overview/format
    overview/wright_paradigms
+   runbook/macron_list_generation
    verview/morphology_perl_quirks_ledger
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+   :hidden:
+
    api/client
    api/models
 

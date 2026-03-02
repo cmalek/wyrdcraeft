@@ -24,7 +24,7 @@ Behavior overview
 The command reads the macron index payload and iterates entries in
 ``ambiguous``.
 
-On each iteration, the Rich console layout shows:
+On each iteration, the interactive console layout shows:
 
 - top section:
   - current normalized form
@@ -35,6 +35,60 @@ On each iteration, the Rich console layout shows:
   - Bosworth-Toller assist table nested inside the candidate forms area
   - any existing POS code and meaning annotations per form
 - available actions, including close
+
+.. code-block:: text
+
+    ╭──────────────────────────────────────────── Disambiguating normalized form: con ─────────────────────────────────────────────╮
+    │ Progress                                                                                           4/976                     │
+    │ Unique entries                                                                                     39207                     │
+    │ Ambiguous entries                                                                                  1049                      │
+    │ Completed ambiguous                                                                                76                        │
+    ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+    ╭────────────────────────────────────────────────────── Candidate Forms ───────────────────────────────────────────────────────╮
+    │ ╭────────────────────── Attested Forms ──────────────────────╮╭───────────── Bosworth-Toller Assist (Page 1) ──────────────╮ │
+    │ │ ┏━━━┳━━━━━━━━━━━━━━━┳━━━━━┳━━━━━━━━━┓                      ││ ┏━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓ │ │
+    │ │ ┃ # ┃ Attested Form ┃ POS ┃ Meaning ┃                      ││ ┃ Attested ┃ BT Spelling ┃ POS  ┃ Meanings               ┃ │ │
+    │ │ ┡━━━╇━━━━━━━━━━━━━━━╇━━━━━╇━━━━━━━━━┩                      ││ ┡━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩ │ │
+    │ │ │ 1 │ con           │ —   │ —       │                      ││ │ con      │ con         │ —    │ I know, he knows; I,   │ │ │
+    │ │ │ 2 │ cōn           │ —   │ —       │                      ││ │          │             │      │ he can                 │ │ │
+    │ │ └───┴───────────────┴─────┴─────────┘                      ││ │ cōn      │ cōn         │ adj. │ bold                   │ │ │
+    │ │                                                            ││ └──────────┴─────────────┴──────┴────────────────────────┘ │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ │                                                            ││                                                            │ │
+    │ ╰────────────────────────────────────────────────────────────╯╰────────────────────────────────────────────────────────────╯ │
+    ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+    ╭────────────────────────────────────────────── Actions (Close button: press q) ───────────────────────────────────────────────╮
+    │ c  Choose one form and commit                                                                                                │
+    │ r  Replace with an explicit unique form                                                                                      │
+    │ d  Define POS code + modern meaning for each form                                                                            │
+    │ m  Mark ambiguous entry as completed                                                                                         │
+    │ a  Add a new entry, then annotate all forms                                                                                  │
+    │ x  Delete one entry (requires 2+ forms)                                                                                      │
+    ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+    Action [c/r/d/m/a/x/s/q] (s):
+
 
 Actions
 -------

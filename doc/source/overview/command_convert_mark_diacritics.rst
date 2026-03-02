@@ -1,8 +1,8 @@
-``wyrdcraeft convert fix-diacritic``
-====================================
+``wyrdcraeft source mark-diacritics``
+=====================================
 
 This page documents the diacritic-restoration workflow requested as
-``wyrdcraeft convert fix-diacritic``.
+``wyrdcraeft source mark-diacritics``.
 
 Compatibility note
 ------------------
@@ -24,13 +24,13 @@ Example with defaults (only input required):
 
 .. code-block:: bash
 
-    wyrdcraeft source mark-diacritics poem.txt
+    wyrdcraeft source mark-diacritics source.txt
 
 Example with explicit paths:
 
 .. code-block:: bash
 
-    wyrdcraeft source mark-diacritics poem.txt poem.fixed.txt --ambiguities-output poem.anomalies.json --unknown-output poem.unknown.json
+    wyrdcraeft source mark-diacritics source.txt output.txt --ambiguities-output source.anomalies.json --unknown-output source.unknown.json
 
 The workflow and data pipeline described below are the same ones used by that
 command path.
@@ -47,31 +47,6 @@ It also emits:
 
 - an **ambiguity report** when a token has multiple valid macron candidates (with part-of-speech and definitions per option when available in the index);
 - an **unknown-words report** listing lexical tokens that were not found in the macron index.
-
-Canonical list construction
----------------------------
-
-The canonical macron list is generated from a Bosworth-Toller OCR source file
-(``data/oe_bt.txt``) using the builder script. The source of this file is [github:madeleineth/btc_anglo_saxon](https://github.com/madeleineth/btc_anglo_saxon/blob/master/db/oe_bosworthtoller.txt.bz2):
-
-Our internal macron index was originally built from this source file using the
-builder script:
-
-.. code-block:: bash
-
-    python data/tools/build_macron_index.py
-
-Build pipeline summary:
-
-1. Read each source line and split with ``@``.
-2. Extract the first bold headword from ``<B>...</B>``.
-3. Normalize the candidate keys (see normalization rules below).
-4. Aggregate attested marked forms per normalized key.
-5. Partition results:
-   - one attested form -> ``unique``
-   - multiple attested forms -> ``ambiguous``
-6. Write payload to:
-   ``wyrdcraeft/etc/diacritic/oe_bt_macron_index.json``.
 
 Normalization rules
 -------------------
