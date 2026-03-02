@@ -55,40 +55,15 @@ cd wyrdcraeft
 uv sync --dev
 ```
 
-## Quick start
-
-**Command line:** convert a text file to JSON:
-
-```bash
-wyrdcraeft source convert --title="My Title" input.txt output.json
-```
-
-**Python:** use `DocumentIngestor` to get an `OldEnglishText` model:
-
-```python
-from wyrdcraeft import DocumentIngestor, TextMetadata
-
-metadata = TextMetadata(
-    title="The Anglo-Saxon Chronicle",
-    source="https://example.org/source.txt",
-)
-oe_json = DocumentIngestor().ingest(
-    source_path="path/to/source.txt",
-    metadata=metadata,
-)
-```
-
-For TEI XML, pass a `.xml` path; `DocumentIngestor` will use the TEI ingestor. For LLM-based extraction, use `ingest(..., use_llm=True, llm_config=...)`. See the full documentation for configuration and options.
-
 ## Documentation
 
 Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://oe_json_extractor.readthedocs.io](https://oe_json_extractor.readthedocs.io)
 
-## Contributing and license
+## Contributing, Licensing and Provenance
 
-Contributing and coding standards are described in the documentation (runbook). This project is licensed under the MIT License — see [LICENSE.txt](LICENSE.txt).
+## Contributing
 
----
+Contributing and coding standards are described in the documentation (runbook).
 
 ## Licensing and Provenance
 
@@ -104,4 +79,4 @@ The OCR extracted text of the Bosworth-Toller Old English Dictionary used in thi
 
 ### All other code
 
-- All other code implemented directly by Christopher Malek, also released under the MIT license.
+- All other code implemented directly by this project's maintainers are also released under the MIT license.
