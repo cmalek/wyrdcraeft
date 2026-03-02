@@ -11,7 +11,26 @@ In this codebase, the currently shipped command path is:
 
 .. code-block:: bash
 
-    wyrdcraeft source mark-diacritics INPUT OUTPUT --ambiguities-output FILE
+    wyrdcraeft source mark-diacritics INPUT [OUTPUT] [OPTIONS]
+
+All output paths are optional. When omitted, they default to the input
+directory using the input filename stem and extension:
+
+- **OUTPUT** (marked text): default ``stem.fixed.extension`` (e.g. ``poem.txt`` → ``poem.fixed.txt``).
+- **--ambiguities-output**: default ``stem.anomalies.extension`` (e.g. ``poem.anomalies.txt``).
+- **--unknown-output**: default ``stem.unknown.extension`` (e.g. ``poem.unknown.txt``).
+
+Example with defaults (only input required):
+
+.. code-block:: bash
+
+    wyrdcraeft source mark-diacritics poem.txt
+
+Example with explicit paths:
+
+.. code-block:: bash
+
+    wyrdcraeft source mark-diacritics poem.txt poem.fixed.txt --ambiguities-output poem.anomalies.json --unknown-output poem.unknown.json
 
 The workflow and data pipeline described below are the same ones used by that
 command path.
@@ -24,8 +43,10 @@ The command applies attested Old English diacritics in unmarked text by applying
 - macrons from a Bosworth-Toller-derived canonical index
 - palatalization marks for ``g`` (``ġ``) and ``c`` (``ċ``)
 
-It also emits an ambiguity report when a token has multiple valid macron
-candidates.
+It also emits:
+
+- an **ambiguity report** when a token has multiple valid macron candidates (with part-of-speech and definitions per option when available in the index);
+- an **unknown-words report** listing lexical tokens that were not found in the macron index.
 
 Canonical list construction
 ---------------------------
@@ -84,8 +105,9 @@ For each lexical token:
 
 The command writes:
 
-- marked output text file
-- JSON ambiguity report with line number, word number, original token, options
+- **Marked output text file** (default: ``stem.fixed.extension``).
+- **Ambiguity report** (default: ``stem.anomalies.extension``): JSON array of objects with ``line_number``, ``word_number``, ``word``, and ``options``. Each option is an object with ``form`` (the candidate marked form), and when available from the index, ``part_of_speech`` and ``definitions``, so POS and meaning are attached to each choice for context when deciding.
+- **Unknown-words report** (default: ``stem.unknown.extension``): JSON array of objects with ``line_number``, ``word_number``, and ``word`` for each token not found in the macron index.
 
 Maintaining the canonical list
 ------------------------------

@@ -132,17 +132,31 @@ def test_macron_applicator_single_and_ambiguous(tmp_path: Path):
     )
     applicator = MacronApplicator(index_path)
 
-    marked, ambiguity = applicator.apply("Cild", line_number=1, word_number=1)
+    marked, ambiguity, is_unknown = applicator.apply(
+        "Cild", line_number=1, word_number=1
+    )
     assert marked == "Cīld"
     assert ambiguity is None
+    assert is_unknown is False
 
-    unchanged, ambiguity = applicator.apply("wegas", line_number=3, word_number=5)
+    unchanged, ambiguity, is_unknown = applicator.apply(
+        "wegas", line_number=3, word_number=5
+    )
     assert unchanged == "wegas"
     assert ambiguity is not None
+    assert is_unknown is False
     assert ambiguity.line_number == EXPECTED_LINE_NUMBER
     assert ambiguity.word_number == EXPECTED_WORD_NUMBER
     assert ambiguity.word == "wegas"
-    assert ambiguity.options == ["wegas", "wēgas"]
+    assert [o.form for o in ambiguity.options] == ["wegas", "wēgas"]
+
+    # Token not in index is returned unchanged with is_unknown=True
+    unknown_word, no_ambiguity, is_unknown = applicator.apply(
+        "xyzword", line_number=2, word_number=1
+    )
+    assert unknown_word == "xyzword"
+    assert no_ambiguity is None
+    assert is_unknown is True
 
 
 def test_diacritic_restorer_preserves_layout_and_reports_ambiguity(tmp_path: Path):
@@ -163,7 +177,11 @@ def test_diacritic_restorer_preserves_layout_and_reports_ambiguity(tmp_path: Pat
     assert ambiguity.line_number == 1
     assert ambiguity.word_number == EXPECTED_FIRST_LINE_WORD_NUMBER
     assert ambiguity.word == "wegas"
-    assert ambiguity.options == ["wegas", "wēgas"]
+    assert [o.form for o in ambiguity.options] == ["wegas", "wēgas"]
+    # "and" is not in the index, so it is reported as unknown
+    assert len(result.unknowns) == 1
+    assert result.unknowns[0].word == "and"
+    assert result.unknowns[0].line_number == 1
 
 
 def test_default_macron_index_path_points_to_package_data():
@@ -198,6 +216,18 @@ def test_macron_applicator_loads_ambiguous_metadata(tmp_path: Path):
     assert (
         applicator.index.ambiguous_metadata["ac"]["ac"].part_of_speech_code == "CONJ"
     )
+
+    _, ambiguity, is_unknown = applicator.apply("ac", line_number=1, word_number=1)
+    assert is_unknown is False
+    assert ambiguity is not None
+    expected_option_count = 2
+    assert len(ambiguity.options) == expected_option_count
+    assert ambiguity.options[0].form == "ac"
+    assert ambiguity.options[0].part_of_speech == "conjunction"
+    assert ambiguity.options[0].definitions == ["but"]
+    assert ambiguity.options[1].form == "āc"
+    assert ambiguity.options[1].part_of_speech == "noun"
+    assert ambiguity.options[1].definitions == ["oak"]
 
 
 def test_macron_applicator_rejects_invalid_pos_code_metadata(tmp_path: Path):

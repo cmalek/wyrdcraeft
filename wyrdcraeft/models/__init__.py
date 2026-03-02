@@ -2,11 +2,13 @@ from .bosworth_toller import BTSearchEntry
 from .diacritics import (
     POS_CODE_LABELS,
     POS_CODES,
+    AmbiguityOption,
     DiacriticRestorationResult,
     MacronAmbiguity,
     MacronFormAnnotation,
     MacronFormSense,
     MacronIndexPayload,
+    UnknownToken,
 )
 from .llm import AnyLLMConfig
 from .macron_index import MacronIndex
@@ -34,6 +36,7 @@ from .syllable import Syllable
 __all__ = [
     "POS_CODES",
     "POS_CODE_LABELS",
+    "AmbiguityOption",
     "AnyLLMConfig",
     "BTSearchEntry",
     "Confidence",
@@ -58,6 +61,7 @@ __all__ = [
     "Sentence",
     "Syllable",
     "TextMetadata",
+    "UnknownToken",
     "VerbParadigm",
     "Word",
 ]
