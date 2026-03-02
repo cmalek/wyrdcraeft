@@ -614,6 +614,9 @@ class CanonicalConverter:
                         else:
                             final_number = None
 
+                        if final_number is None:
+                            final_number = line_no
+
                         # For verse, we want to keep leading whitespace of the
                         # cleaned text if the marker was removed.
                         lines.append(
