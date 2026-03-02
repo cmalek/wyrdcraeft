@@ -100,6 +100,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
+addopts = ["--randomly-seed=0"]
 markers = [
     "llm: tests that require live LLM access (run with --run-llm)",
     "morphology: Morphology generator tests and reference contracts",
