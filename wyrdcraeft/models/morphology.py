@@ -1,3 +1,5 @@
+"""Morphology-related Pydantic models for the Old English morphology generator."""
+
 from pydantic import BaseModel, Field
 
 

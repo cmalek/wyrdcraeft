@@ -8,6 +8,7 @@ import sys
 import unicodedata
 from importlib.metadata import Distribution
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from pydantic import ValidationError
@@ -36,7 +37,6 @@ from ..models import (
     TextMetadata,
 )
 from ..services.bosworthtoller import (
-    BTSearchEntry,
     closest_entries_for_forms,
     fetch_bt_search_entries,
     merge_bt_entries,
@@ -44,6 +44,9 @@ from ..services.bosworthtoller import (
 from ..services.markup import DEFAULT_MACRON_INDEX_PATH, DiacriticRestorer
 from ..settings import Settings
 from .utils import console, print_error, print_info
+
+if TYPE_CHECKING:
+    from ..models.bosworth_toller import BTSearchEntry
 
 
 def _configure_logging(settings: Settings) -> None:

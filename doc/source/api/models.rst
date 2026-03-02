@@ -40,7 +40,37 @@ Morphology related models
 
 The morphology related models are used by the morphology generator service.
 
-.. automodule:: wyrdcraeft.services.morphology.models
+.. automodule:: wyrdcraeft.models.morphology
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Macron index
+------------
+
+In-memory macron index for diacritic restoration.
+
+.. automodule:: wyrdcraeft.models.macron_index
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Bosworth-Toller
+---------------
+
+Bosworth-Toller search result model.
+
+.. automodule:: wyrdcraeft.models.bosworth_toller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Syllable
+--------
+
+Syllable model for Old English syllable breaking.
+
+.. automodule:: wyrdcraeft.models.syllable
     :members:
     :undoc-members:
     :show-inheritance:

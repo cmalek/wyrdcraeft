@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from wyrdcraeft.cli.cli import cli
-from wyrdcraeft.services.bosworthtoller import BTSearchEntry
+from wyrdcraeft.models.bosworth_toller import BTSearchEntry
 
 if TYPE_CHECKING:
     from pathlib import Path
