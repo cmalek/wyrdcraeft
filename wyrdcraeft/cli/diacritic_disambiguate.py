@@ -19,9 +19,8 @@ from ..models import (
     MacronFormSense,
 )
 from ..services.bosworthtoller import (
-    closest_entries_for_forms,
     fetch_bt_search_entries,
-    merge_bt_entries,
+    filter_bt_entries_by_normalized_form,
 )
 from ..services.markup import DEFAULT_MACRON_INDEX_PATH
 from .diacritic import _load_macron_index_payload, _write_macron_index_payload
@@ -33,8 +32,13 @@ if TYPE_CHECKING:
 
 #: Minimum number of candidate forms required to allow delete action.
 MIN_DELETE_CANDIDATE_COUNT = 2
+#: Max rows shown in BT assist table so Candidate Forms box fits terminal.
+MAX_BT_ASSIST_ROWS = 6
+#: Fixed height (lines) for Candidate Forms panel to avoid overflow.
+CANDIDATE_FORMS_PANEL_SIZE = 36
 
 
+#: Map of common terminal Option-key escape sequences to Unicode letters.
 _MACRON_VOWEL_MAP = {
     "a": "ā",
     "e": "ē",
@@ -78,17 +82,18 @@ def _normalize_option_key_sequences(raw_text: str) -> str:
     return normalized.replace("\x1b", "")
 
 
-def _render_disambiguation_layout(  # noqa: PLR0913
+def _render_disambiguation_layout(  # noqa: PLR0913, PLR0915
     *,
     normalized_form: str,
     options: list[str],
     annotations: dict[str, MacronFormAnnotation],
-    bt_matches: dict[str, BTSearchEntry | None],
+    bt_entries: list[BTSearchEntry],
     bt_warning: str | None,
     progress_label: str,
     unique_count: int,
     ambiguous_count: int,
     completed_count: int,
+    max_attested_rows: int = 5,
 ) -> Layout:
     """
     Build one rich layout frame for a disambiguation step.
@@ -97,12 +102,13 @@ def _render_disambiguation_layout(  # noqa: PLR0913
         normalized_form: Current normalized key.
         options: Candidate attested forms.
         annotations: Per-form annotations already stored for this key.
-        bt_matches: Best BT match per attested form.
+        bt_entries: BT search results that normalize to this key (from one search).
         bt_warning: Optional warning text for BT lookup issues.
         progress_label: Human-readable iteration progress.
         unique_count: Current unique mapping count.
         ambiguous_count: Current ambiguous mapping count.
         completed_count: Current completed ambiguous key count.
+        max_attested_rows: Max rows to show in Attested Forms table.
 
     Returns:
         A rendered rich layout.
@@ -121,7 +127,8 @@ def _render_disambiguation_layout(  # noqa: PLR0913
     options_table.add_column("Attested Form", style="green")
     options_table.add_column("POS", style="yellow", no_wrap=True)
     options_table.add_column("Meaning", style="white")
-    for idx, form in enumerate(options, start=1):
+    options_slice = options[:max_attested_rows]
+    for idx, form in enumerate(options_slice, start=1):
         annotation = annotations.get(form)
         if annotation is None:
             options_table.add_row(str(idx), form, "—", "—")
@@ -138,6 +145,13 @@ def _render_disambiguation_layout(  # noqa: PLR0913
             pos_text,
             meaning_text,
         )
+    if len(options) > max_attested_rows:
+        options_table.add_row(
+            "…",
+            f"+{len(options) - max_attested_rows} more",
+            "",
+            "",
+        )
 
     actions_table = Table.grid(expand=True)
     actions_table.add_column(style="yellow")
@@ -152,18 +166,31 @@ def _render_disambiguation_layout(  # noqa: PLR0913
     actions_table.add_row("q", "Close session immediately")
 
     bt_table = Table(show_header=True, header_style="bold cyan")
-    bt_table.add_column("Attested", style="green")
-    bt_table.add_column("BT Spelling", style="yellow")
+    bt_table.add_column("BT form", style="yellow")
     bt_table.add_column("POS", style="magenta", no_wrap=True)
     bt_table.add_column("Meanings", style="white")
-    for form in options:
-        match = bt_matches.get(form)
-        if match is None:
-            bt_table.add_row(form, "—", "—", "—")
-            continue
-        bt_meanings = " | ".join(match.meanings) if match.meanings else "—"
-        bt_pos = match.pos or "—"
-        bt_table.add_row(form, match.headword_macronized, bt_pos, bt_meanings)
+    if not bt_entries:
+        bt_table.add_row(
+            f"No BT entries on this page normalize to {normalized_form!r}.",
+            "",
+            "",
+        )
+    else:
+        bt_slice = bt_entries[:MAX_BT_ASSIST_ROWS]
+        for entry in bt_slice:
+            bt_meanings = " | ".join(entry.meanings) if entry.meanings else "—"
+            bt_pos = entry.pos or "—"
+            bt_table.add_row(
+                entry.headword_macronized,
+                bt_pos,
+                bt_meanings,
+            )
+        if len(bt_entries) > MAX_BT_ASSIST_ROWS:
+            bt_table.add_row(
+                f"+{len(bt_entries) - MAX_BT_ASSIST_ROWS} more",
+                "",
+                "",
+            )
 
     bt_panel_content = (
         Group(f"[yellow]{bt_warning}[/yellow]", bt_table) if bt_warning else bt_table
@@ -195,14 +222,17 @@ def _render_disambiguation_layout(  # noqa: PLR0913
             ),
             size=6,
         ),
-        Layout(Panel(candidate_layout, title="Candidate Forms", border_style="green")),
+        Layout(
+            Panel(candidate_layout, title="Candidate Forms", border_style="green"),
+            size=CANDIDATE_FORMS_PANEL_SIZE,
+        ),
         Layout(
             Panel(
                 actions_table,
                 title="Actions (Close button: press q)",
                 border_style="red",
             ),
-            size=8,
+            size=10,
         ),
     )
     return layout
@@ -404,7 +434,9 @@ def _can_mark_completed(
     show_default=True,
     help="Macron index JSON path.",
 )
+@click.pass_context
 def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
+    ctx: click.Context,
     normalized_form: str | None,
     index_path: Path,
 ) -> None:
@@ -412,10 +444,16 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
     Resolve or annotate ambiguous normalized entries in the macron index.
 
     Args:
+        ctx: Click context (provides settings).
         normalized_form: Optional single normalized key to edit.
         index_path: Path to macron index JSON file.
 
     """
+    # Settings are set on the root CLI context.
+    root_ctx = ctx
+    while root_ctx.parent is not None:
+        root_ctx = root_ctx.parent
+    settings = root_ctx.obj["settings"]
     payload = _load_macron_index_payload(index_path)
 
     if normalized_form is not None:
@@ -446,41 +484,37 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 break
 
             bt_warning: str | None = None
-            lookup_queries = list(dict.fromkeys([key, *options]))
-            fetched_groups: list[list[BTSearchEntry]] = []
-            failed_queries: list[str] = []
-            for query in lookup_queries:
-                cached_entries = bt_cache.get(query)
-                if cached_entries is not None:
-                    fetched_groups.append(cached_entries)
-                    continue
-                try:
-                    queried_entries = fetch_bt_search_entries(query)
-                    bt_cache[query] = queried_entries
-                    fetched_groups.append(queried_entries)
-                except Exception:  # noqa: BLE001
-                    failed_queries.append(query)
-
-            bt_entries = merge_bt_entries(fetched_groups)
-            if failed_queries:
-                failed_label = ", ".join(f"'{query}'" for query in failed_queries)
+            bt_entries_list: list[BTSearchEntry] = []
+            try:
+                cached = bt_cache.get(key)
+                if cached is not None:
+                    bt_entries_list = filter_bt_entries_by_normalized_form(
+                        cached, key
+                    )
+                else:
+                    raw_entries = fetch_bt_search_entries(key)
+                    bt_cache[key] = raw_entries
+                    bt_entries_list = filter_bt_entries_by_normalized_form(
+                        raw_entries, key
+                    )
+            except Exception:  # noqa: BLE001
                 bt_warning = (
                     "Bosworth-Toller lookup unavailable for query "
-                    f"{failed_label}."
+                    f"'{key}'."
                 )
-            bt_matches = closest_entries_for_forms(options, bt_entries)
 
             console.print(
                 _render_disambiguation_layout(
                     normalized_form=key,
                     options=options,
                     annotations=payload.ambiguous_metadata.get(key, {}),
-                    bt_matches=bt_matches,
+                    bt_entries=bt_entries_list,
                     bt_warning=bt_warning,
                     progress_label=f"{offset}/{len(target_keys)}",
                     unique_count=len(payload.unique),
                     ambiguous_count=len(payload.ambiguous),
                     completed_count=len(payload.ambiguous_completed),
+                    max_attested_rows=settings.max_attested_rows,
                 )
             )
             action = Prompt.ask(

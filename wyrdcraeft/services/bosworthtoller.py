@@ -135,54 +135,29 @@ def parse_bt_search_entries(html: str) -> list[BTSearchEntry]:
     return results
 
 
-def closest_bt_entry(
-    attested_form: str,
+def filter_bt_entries_by_normalized_form(
     entries: list[BTSearchEntry],
-) -> BTSearchEntry | None:
+    normalized_form: str,
+) -> list[BTSearchEntry]:
     """
-    Resolve the closest BT entry for one attested form.
-
-    Ranking priorities:
-        1. Exact match against macronized BT display spelling
-        2. Exact raw case-insensitive match
-        3. Exact normalized match
-        4. Prefix proximity on normalized forms
-        5. Smaller edit distance between normalized forms
-        6. Earlier search result order
+    Keep only BT entries whose headword normalizes to the given form.
 
     Args:
-        attested_form: Candidate form from ambiguous list.
-        entries: Parsed BT entries.
+        entries: Parsed BT search entries (e.g. from first page).
+        normalized_form: Target normalized key (same normalization as macron index).
 
     Returns:
-        Best matching entry, or ``None`` when no entries exist.
+        Filtered list in original order; entries where
+        ``normalize_old_english(entry.headword_raw) != normalized_form``
+        or normalization returns ``None`` are excluded.
 
     """
-    if not entries:
-        return None
-
-    return max(
-        entries,
-        key=lambda entry: _match_rank(attested_form, entry),
-    )
-
-
-def closest_entries_for_forms(
-    attested_forms: list[str],
-    entries: list[BTSearchEntry],
-) -> dict[str, BTSearchEntry | None]:
-    """
-    Resolve closest BT entries for all attested forms.
-
-    Args:
-        attested_forms: Candidate forms.
-        entries: Parsed BT entries from search page.
-
-    Returns:
-        Mapping of attested form to best BT entry or ``None``.
-
-    """
-    return {form: closest_bt_entry(form, entries) for form in attested_forms}
+    result: list[BTSearchEntry] = []
+    for entry in entries:
+        entry_norm = normalize_old_english(entry.headword_raw)
+        if entry_norm is not None and entry_norm == normalized_form:
+            result.append(entry)
+    return result
 
 
 def merge_bt_entries(entry_groups: list[list[BTSearchEntry]]) -> list[BTSearchEntry]:
@@ -231,77 +206,3 @@ def _collapse_whitespace(text: str) -> str:
 
     """
     return WS_RE.sub(" ", text).strip()
-
-
-def _match_rank(
-    attested_form: str,
-    entry: BTSearchEntry,
-) -> tuple[int, int, int, int, int, int]:
-    """
-    Build ranking tuple for one attested form vs one BT entry.
-
-    Args:
-        attested_form: Candidate form from ambiguous list.
-        entry: Parsed BT entry.
-
-    Returns:
-        Ranking tuple where larger is better.
-
-    """
-    attested_raw = unicodedata.normalize("NFC", attested_form).casefold()
-    entry_raw = entry.headword_raw.casefold()
-    raw_exact = int(attested_raw == entry_raw)
-    macronized_exact = int(attested_raw == entry.headword_macronized.casefold())
-
-    attested_norm = normalize_old_english(attested_form) or ""
-    entry_norm = normalize_old_english(entry.headword_raw) or ""
-
-    normalized_exact = int(bool(attested_norm) and attested_norm == entry_norm)
-    prefix_proximity = int(
-        bool(attested_norm)
-        and bool(entry_norm)
-        and (
-            attested_norm.startswith(entry_norm) or entry_norm.startswith(attested_norm)
-        )
-    )
-    edit_distance = _levenshtein_distance(attested_norm, entry_norm)
-
-    return (
-        macronized_exact,
-        raw_exact,
-        normalized_exact,
-        prefix_proximity,
-        -edit_distance,
-        -entry.order_index,
-    )
-
-
-def _levenshtein_distance(left: str, right: str) -> int:
-    """
-    Compute Levenshtein edit distance between two strings.
-
-    Args:
-        left: First string.
-        right: Second string.
-
-    Returns:
-        Edit distance.
-
-    """
-    if left == right:
-        return 0
-    if not left:
-        return len(right)
-    if not right:
-        return len(left)
-
-    previous = list(range(len(right) + 1))
-    for i, left_char in enumerate(left, start=1):
-        current = [i]
-        for j, right_char in enumerate(right, start=1):
-            insert_cost = current[j - 1] + 1
-            delete_cost = previous[j] + 1
-            replace_cost = previous[j - 1] + int(left_char != right_char)
-            current.append(min(insert_cost, delete_cost, replace_cost))
-        previous = current
-    return previous[-1]

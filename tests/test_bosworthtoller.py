@@ -4,9 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from wyrdcraeft.models.bosworth_toller import BTSearchEntry
 from wyrdcraeft.services.bosworthtoller import (
-    closest_bt_entry,
-    closest_entries_for_forms,
     fetch_bt_search_entries,
+    filter_bt_entries_by_normalized_form,
     merge_bt_entries,
     normalize_bt_spelling,
     parse_bt_search_entries,
@@ -81,8 +80,24 @@ def test_fetch_bt_search_entries_uses_search_endpoint() -> None:
     mock_response.raise_for_status.assert_called_once()
 
 
-def test_closest_bt_entry_prefers_exact_matches() -> None:
+def test_filter_bt_entries_by_normalized_form_keeps_matching_drops_others() -> None:
     entries = [
+        BTSearchEntry(
+            headword_raw="AC",
+            headword_macronized="AC",
+            pos="con.",
+            meanings=["but"],
+            entry_url="https://bosworthtoller.com/134",
+            order_index=0,
+        ),
+        BTSearchEntry(
+            headword_raw="other",
+            headword_macronized="other",
+            pos="n.",
+            meanings=["other"],
+            entry_url="https://bosworthtoller.com/999",
+            order_index=1,
+        ),
         BTSearchEntry(
             headword_raw="ÁC",
             headword_macronized="ĀC",
@@ -91,75 +106,53 @@ def test_closest_bt_entry_prefers_exact_matches() -> None:
             entry_url="https://bosworthtoller.com/137",
             order_index=2,
         ),
-        BTSearchEntry(
-            headword_raw="AC",
-            headword_macronized="AC",
-            pos="con.",
-            meanings=["but"],
-            entry_url="https://bosworthtoller.com/134",
-            order_index=0,
-        ),
     ]
-
-    best_for_ac = closest_bt_entry("ac", entries)
-    best_for_acute = closest_bt_entry("ÁC", entries)
-
-    assert best_for_ac is not None
-    assert best_for_ac.headword_raw == "AC"
-    assert best_for_acute is not None
-    assert best_for_acute.headword_raw == "ÁC"
+    filtered = filter_bt_entries_by_normalized_form(entries, "ac")
+    expected_count = 2
+    assert len(filtered) == expected_count
+    assert filtered[0].headword_raw == "AC"
+    assert filtered[1].headword_raw == "ÁC"
 
 
-def test_closest_bt_entry_prefers_macronized_headword_match() -> None:
+def test_filter_bt_entries_by_normalized_form_preserves_order() -> None:
     entries = [
-        BTSearchEntry(
-            headword_raw="AC",
-            headword_macronized="AC",
-            pos="con.",
-            meanings=["but"],
-            entry_url="https://bosworthtoller.com/134",
-            order_index=0,
-        ),
         BTSearchEntry(
             headword_raw="ÁC",
             headword_macronized="ĀC",
             pos="n.",
             meanings=["oak"],
             entry_url="https://bosworthtoller.com/137",
-            order_index=1,
-        ),
-    ]
-
-    best = closest_bt_entry("āc", entries)
-
-    assert best is not None
-    assert best.headword_raw == "ÁC"
-
-
-def test_closest_entries_for_forms_uses_earlier_order_as_tiebreak() -> None:
-    entries = [
-        BTSearchEntry(
-            headword_raw="ac-foo",
-            headword_macronized="ac-foo",
-            pos="n.",
-            meanings=["one"],
-            entry_url="https://bosworthtoller.com/1",
             order_index=0,
         ),
         BTSearchEntry(
-            headword_raw="ac-bar",
-            headword_macronized="ac-bar",
-            pos="n.",
-            meanings=["two"],
-            entry_url="https://bosworthtoller.com/2",
+            headword_raw="AC",
+            headword_macronized="AC",
+            pos="con.",
+            meanings=["but"],
+            entry_url="https://bosworthtoller.com/134",
             order_index=1,
         ),
     ]
+    filtered = filter_bt_entries_by_normalized_form(entries, "ac")
+    assert [e.headword_raw for e in filtered] == ["ÁC", "AC"]
 
-    matches = closest_entries_for_forms(["ac"], entries)
 
-    assert matches["ac"] is not None
-    assert matches["ac"].entry_url == "https://bosworthtoller.com/1"
+def test_filter_bt_entries_by_normalized_form_empty_list_returns_empty() -> None:
+    assert filter_bt_entries_by_normalized_form([], "ac") == []
+
+
+def test_filter_bt_entries_by_normalized_form_no_matches_returns_empty() -> None:
+    entries = [
+        BTSearchEntry(
+            headword_raw="other",
+            headword_macronized="other",
+            pos="n.",
+            meanings=["x"],
+            entry_url="https://bosworthtoller.com/1",
+            order_index=0,
+        ),
+    ]
+    assert filter_bt_entries_by_normalized_form(entries, "ac") == []
 
 
 def test_merge_bt_entries_deduplicates_and_reindexes() -> None:

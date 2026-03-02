@@ -43524,7 +43524,9 @@
     "cinn",
     "cist",
     "clam",
-    "coc"
+    "coc",
+    "con",
+    "cop"
   ],
   "ambiguous_metadata": {
     "ac": {
@@ -45351,6 +45353,50 @@
         ],
         "part_of_speech_code": "N",
         "modern_english_meaning": "a vessel that bulges out, as a bottle, jug or pitcher"
+      }
+    },
+    "con": {
+      "con": {
+        "senses": [
+          {
+            "part_of_speech_code": "V",
+            "modern_english_meaning": "I know/can, He knows/can (1st and 3td pres sing of cunnan)"
+          }
+        ],
+        "part_of_speech_code": "V",
+        "modern_english_meaning": "I know/can, He knows/can (1st and 3td pres sing of cunnan)"
+      },
+      "cōn": {
+        "senses": [
+          {
+            "part_of_speech_code": "ADJ",
+            "modern_english_meaning": "bold"
+          }
+        ],
+        "part_of_speech_code": "ADJ",
+        "modern_english_meaning": "bold"
+      }
+    },
+    "cop": {
+      "cop": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a top, cop, summit"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a top, cop, summit"
+      },
+      "cōp": {
+        "senses": [
+          {
+            "part_of_speech_code": "N",
+            "modern_english_meaning": "a cope, an outer garment worn by priests"
+          }
+        ],
+        "part_of_speech_code": "N",
+        "modern_english_meaning": "a cope, an outer garment worn by priests"
       }
     }
   }
