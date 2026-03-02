@@ -68,6 +68,12 @@ class Settings(BaseSettings):
     enable_colors: bool = Field(default=True, description="Enable colored output")
     quiet_mode: bool = Field(default=False, description="Enable quiet mode")
 
+    # Diacritic disambiguate UI
+    max_attested_rows: int = Field(
+        default=5,
+        description="Max rows shown in Attested Forms table (diacritic disambiguate).",
+    )
+
     # Logging settings
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO", description="Logging level"

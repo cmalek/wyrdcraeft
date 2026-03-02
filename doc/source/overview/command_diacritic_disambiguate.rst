@@ -46,13 +46,12 @@ On each iteration, the interactive console layout shows:
     ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
     ╭────────────────────────────────────────────────────── Candidate Forms ───────────────────────────────────────────────────────╮
     │ ╭────────────────────── Attested Forms ──────────────────────╮╭───────────── Bosworth-Toller Assist (Page 1) ──────────────╮ │
-    │ │ ┏━━━┳━━━━━━━━━━━━━━━┳━━━━━┳━━━━━━━━━┓                      ││ ┏━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓ │ │
-    │ │ ┃ # ┃ Attested Form ┃ POS ┃ Meaning ┃                      ││ ┃ Attested ┃ BT Spelling ┃ POS  ┃ Meanings               ┃ │ │
-    │ │ ┡━━━╇━━━━━━━━━━━━━━━╇━━━━━╇━━━━━━━━━┩                      ││ ┡━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩ │ │
-    │ │ │ 1 │ con           │ —   │ —       │                      ││ │ con      │ con         │ —    │ I know, he knows; I,   │ │ │
-    │ │ │ 2 │ cōn           │ —   │ —       │                      ││ │          │             │      │ he can                 │ │ │
-    │ │ └───┴───────────────┴─────┴─────────┘                      ││ │ cōn      │ cōn         │ adj. │ bold                   │ │ │
-    │ │                                                            ││ └──────────┴─────────────┴──────┴────────────────────────┘ │ │
+    │ │ ┏━━━┳━━━━━━━━━━━━━━━┳━━━━━┳━━━━━━━━━┓                      ││ ┏━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ │ │
+    │ │ ┃ # ┃ Attested Form ┃ POS ┃ Meaning ┃                      ││ ┃ BT form  ┃ POS  ┃ Meanings                             ┃ │ │
+    │ │ ┡━━━╇━━━━━━━━━━━━━━━╇━━━━━╇━━━━━━━━━┩                      ││ ┡━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩ │ │
+    │ │ │ 1 │ con           │ —   │ —       │                      ││ │ con      │ —    │ I know, he knows; I, he can           │ │ │
+    │ │ │ 2 │ cōn           │ —   │ —       │                      ││ │ cōn      │ adj. │ bold                                 │ │ │
+    │ │ └───┴───────────────┴─────┴─────────┘                      ││ └──────────┴──────┴────────────────────────────────────────┘ │ │
     │ │                                                            ││                                                            │ │
     │ │                                                            ││                                                            │ │
     │ │                                                            ││                                                            │ │
@@ -172,30 +171,21 @@ the prompt normalizes those common macron sequences automatically.
 Bosworth-Toller assist pane
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For each normalized key, the command requests:
+For each normalized key, the command performs **one** search:
 
 .. code-block:: text
 
     https://bosworthtoller.com/search?q=<normalized_form>
 
-and also searches each attested form (de-duplicated), for example:
+Only the **first page** of results is used. From that page, the command shows
+**all** entries whose headword normalizes to the current normalized form. Each
+row in the assist table is one BT entry: **BT form** (macron spelling), **POS**,
+and **meaning(s)**. This gives full-page context for disambiguation without
+opening bosworthtoller.com in a browser.
 
-.. code-block:: text
-
-    https://bosworthtoller.com/search?q=<attested_form>
-
-Only page 1 is used for each query. For each attested form, the command chooses the closest
-search result using this ranking:
-
-1. exact match against BT spelling after acute-to-macron display normalization
-2. exact raw spelling match (case-insensitive)
-3. exact normalized match
-4. prefix proximity on normalized forms
-5. smaller edit distance
-6. earlier result order on the page
-
-If BT lookup or parsing fails, disambiguation continues with a warning shown in
-the Bosworth-Toller assist area and no BT rows for that key.
+If the lookup fails (e.g. network error), a warning is shown in the
+Bosworth-Toller assist area and the table displays a message that no BT
+entries on the page normalize to that key.
 
 Delete flow
 ~~~~~~~~~~~

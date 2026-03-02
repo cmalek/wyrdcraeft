@@ -689,10 +689,11 @@ def test_diacritic_disambiguate_layout_shows_bt_assist_content(
             "ambiguous_metadata": {},
         },
     )
+    # Single search for "ac"; return both entries that normalize to "ac".
     monkeypatch.setattr(
         diacritic_disambiguate_module,
         "fetch_bt_search_entries",
-        lambda query: [
+        lambda _query: [
             BTSearchEntry(
                 headword_raw="AC",
                 headword_macronized="AC",
@@ -700,18 +701,15 @@ def test_diacritic_disambiguate_layout_shows_bt_assist_content(
                 meanings=["but", "for"],
                 entry_url="https://bosworthtoller.com/134",
                 order_index=0,
-            )
-        ]
-        if query == "ac"
-        else [
+            ),
             BTSearchEntry(
                 headword_raw="ÁC",
                 headword_macronized="ĀC",
                 pos="n.",
                 meanings=["oak"],
                 entry_url="https://bosworthtoller.com/137",
-                order_index=0,
-            )
+                order_index=1,
+            ),
         ],
     )
 
@@ -775,7 +773,7 @@ def test_diacritic_disambiguate_looks_up_normalized_and_attested_forms(
     )
 
     assert result.exit_code == 0
-    assert queries == ["ac", "āc"]
+    assert queries == ["ac"]
 
 
 def test_diacritic_disambiguate_bt_fetch_failure_is_non_blocking(
@@ -817,7 +815,6 @@ def test_diacritic_disambiguate_bt_fetch_failure_is_non_blocking(
     assert result.exit_code == 0
     assert "lookup unavailable" in result.output
     assert "'ac'" in result.output
-    assert "'āc'" in result.output
 
 
 def test_diacritic_disambiguate_close_exits_cleanly(runner, temp_dir):
