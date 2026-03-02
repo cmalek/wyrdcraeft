@@ -558,13 +558,16 @@ class CPalatalizer:
     Palatalize ``c`` to ``ċ`` based on OE context rules.
 
     Rules (palatalization applied before i-mutation):
+
     - Rule A: Word-initial ``c`` before any front vowel/diphthong → ċ.
     - Rule B: Medial ``c`` before e/æ/y (non-i) does *not* palatalize.
     - Rule C: ``c`` before /i, i:/ (spelling ``i``, ``ī``) in any position → ċ.
-    - Rule D: ``c`` after /i/, /i:/ (possibly +n), unless a back vowel follows → ċ
-      (e.g. iċ, dīċ; wicu stays velar because u follows).
+    - Rule D: ``c`` after /i/, /i:/ (possibly +n), unless a back vowel follows
+      → ċ (e.g. iċ, dīċ; wicu stays velar because u follows).
+
     - Caveat: When the triggering vowel has only back pre-i-mutation sources
       (e.g. y/ȳ → u/ū), do not palatalize; blocklist covers remaining cases.
+
     """
 
     #: Vowels considered front for ``c`` palatalization.

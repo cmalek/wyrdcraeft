@@ -119,7 +119,7 @@ generator follows). For a list of Wright paradigm names and which ones the
 generator implements, see :doc:`wright_paradigms`.
 
 .. warning::
-    The ouput file is **huge**.  There will be on the order of 15 million lines
+    The output file is **huge**.  There will be on the order of 15 million lines
     in the full output file.
 
 Generator output format

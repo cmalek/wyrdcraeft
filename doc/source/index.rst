@@ -37,7 +37,7 @@ wyrdcraeft
    overview/format
    overview/wright_paradigms
    runbook/macron_list_generation
-   verview/morphology_perl_quirks_ledger
+   overview/morphology_perl_quirks_ledger
 
 .. toctree::
    :maxdepth: 2

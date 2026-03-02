@@ -47,12 +47,14 @@ release = "1.0.1"
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    "sphinxcontrib.images",
     "sphinx.ext.intersphinx",
     "sphinx_rtd_theme",
     "sphinx.ext.viewcode",
     "sphinxcontrib.autodoc_pydantic",
 ]
+
+# Mock optional dependencies so autodoc can import the package without them.
+autodoc_mock_imports = ["any_llm", "acdh_tei_pyutils"]
 
 source_suffix: str = ".rst"
 

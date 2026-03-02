@@ -12,7 +12,9 @@ from wyrdcraeft.models.bosworth_toller import BTSearchEntry
 if TYPE_CHECKING:
     from pathlib import Path
 
-cli_module = importlib.import_module("wyrdcraeft.cli.cli")
+diacritic_disambiguate_module = importlib.import_module(
+    "wyrdcraeft.cli.diacritic_disambiguate"
+)
 
 
 def _write_index(path: Path, payload: dict) -> None:
@@ -21,7 +23,9 @@ def _write_index(path: Path, payload: dict) -> None:
 
 @pytest.fixture(autouse=True)
 def _mock_bt_lookup(monkeypatch):
-    monkeypatch.setattr(cli_module, "fetch_bt_search_entries", lambda _q: [])
+    monkeypatch.setattr(
+        diacritic_disambiguate_module, "fetch_bt_search_entries", lambda _q: []
+    )
 
 
 def test_diacritic_disambiguate_choose_commits_selection(runner, temp_dir):
@@ -686,7 +690,7 @@ def test_diacritic_disambiguate_layout_shows_bt_assist_content(
         },
     )
     monkeypatch.setattr(
-        cli_module,
+        diacritic_disambiguate_module,
         "fetch_bt_search_entries",
         lambda query: [
             BTSearchEntry(
@@ -753,7 +757,7 @@ def test_diacritic_disambiguate_looks_up_normalized_and_attested_forms(
         return []
 
     monkeypatch.setattr(
-        cli_module,
+        diacritic_disambiguate_module,
         "fetch_bt_search_entries",
         _capture_queries,
     )
@@ -793,7 +797,7 @@ def test_diacritic_disambiguate_bt_fetch_failure_is_non_blocking(
         raise RuntimeError(error_message)
 
     monkeypatch.setattr(
-        cli_module,
+        diacritic_disambiguate_module,
         "fetch_bt_search_entries",
         _raise_lookup,
     )

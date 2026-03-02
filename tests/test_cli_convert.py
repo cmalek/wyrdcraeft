@@ -15,7 +15,7 @@ def test_convert_command_no_llm(runner, temp_dir):
 
     # Use a real file and run with --no-use-llm
     result = runner.invoke(
-        cli, ["convert", str(source_file), str(output_file), "--no-use-llm"]
+        cli, ["source", "convert", str(source_file), str(output_file), "--no-use-llm"]
     )
 
     assert result.exit_code == 0
@@ -28,7 +28,7 @@ def test_convert_command_no_llm(runner, temp_dir):
     assert data["metadata"]["title"] == "test"
 
 
-@patch("wyrdcraeft.cli.cli.DocumentIngestor.ingest")
+@patch("wyrdcraeft.cli.source.DocumentIngestor.ingest")
 def test_convert_command_llm_flags(mock_ingest, runner, temp_dir):
     """Test that LLM flags are correctly passed to the pipeline."""
     source_file = temp_dir / "test.txt"
@@ -43,9 +43,11 @@ def test_convert_command_llm_flags(mock_ingest, runner, temp_dir):
     result = runner.invoke(
         cli,
         [
+            "source",
             "convert",
             str(source_file),
             str(output_file),
+            "--use-llm",
             "--llm-model",
             "gpt-4o",
             "--llm-temperature",
@@ -78,7 +80,9 @@ def test_convert_command_llm_flags(mock_ingest, runner, temp_dir):
 def test_convert_command_missing_source(runner, temp_dir):
     """Test the convert command with a missing source file."""
     output_file = temp_dir / "output.json"
-    result = runner.invoke(cli, ["convert", "non_existent.txt", str(output_file)])
+    result = runner.invoke(
+        cli, ["source", "convert", "non_existent.txt", str(output_file)]
+    )
     assert result.exit_code != 0
     # The error message depends on whether it's caught by click or our try-except
     # Currently it seems to be caught by our try-except and printed via print_error
