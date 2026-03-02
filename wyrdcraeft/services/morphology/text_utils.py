@@ -25,21 +25,21 @@ class OENormalizer:
 
     """
 
-    #: The regex for the vowels.
+    #: The regex for the vowels (includes macron long vowels: ā ē ī ō ū ȳ ǣ).
     VOWEL: Final[str] = (
-        r"[\u00E6aeiyou\u0153\u00C6AEIYOU\u0152\u01FD\u00E1\u00E9\u00ED\u00FD\u00F3\u00FA\u01FC\u00C1\u00C9\u00CD\u00DD\u00D3\u00DA]"
+        r"[\u00E6aeiyou\u0153\u00C6AEIYOU\u0152\u01E3\u0101\u0113\u012B\u0233\u014D\u016B\u01E2\u0100\u0112\u012A\u0232\u014C\u016A]"
     )
-    #: The regex for the long vowels.
+    #: The regex for the long vowels (macrons).
     LVOWEL: Final[str] = (
-        r"[\u01FD\u00E1\u00E9\u00ED\u00FD\u00F3\u00FA\u01FC\u00C1\u00C9\u00CD\u00DD\u00D3\u00DA]"
+        r"[\u01E3\u0101\u0113\u012B\u0233\u014D\u016B\u01E2\u0100\u0112\u012A\u0232\u014C\u016A]"
     )
     #: The regex for the diphthongs.
     DIPHTHONG: Final[str] = r"([Ee][AaOo])|([Ii][Ee])"
-    #: The regex for the long diphthongs.
-    LDIPHTHONG: Final[str] = r"([\u00C9\u00E9][AaOo])|([\u00CD\u00ED][Ee])"
+    #: The regex for the long diphthongs (macrons: ēa ēo īe).
+    LDIPHTHONG: Final[str] = r"([\u0112\u0113][AaOo])|([\u012A\u012B][Ee])"
     #: The regex for the consonants.
     CONSONANT: Final[str] = (
-        r"[^\u00E6aeiyou\u00C6AEIYOU\u01FD\u00E1\u00E9\u00ED\u00FD\u00F3\u00FA\u01FC\u00C1\u00C9\u00CD\u00DD\u00D3\u00DA]"
+        r"[^\u00E6aeiyou\u00C6AEIYOU\u01E3\u0101\u0113\u012B\u0233\u014D\u016B\u01E2\u0100\u0112\u012A\u0232\u014C\u016A]"
     )
 
     #: The compiled regex for the vowels.
@@ -74,38 +74,35 @@ class OENormalizer:
     @classmethod
     def remove_dia_perl(cls, text: str) -> str:
         r"""
-        Remove diacritics from text, matching ``create_dict31.pl`` ``remove_dia``.
+        Remove macrons (long-vowel diacritics) from text.
 
-        Note:
-            Original Perl code:
-
-            .. code-block:: perl
-
-                $mywords =~ s/\x{01FD}/\x{00E6}/g;
-                $mywords =~ s/\x{00E1}/a/g;
-                $mywords =~ s/\x{00E9}/e/g;
-                $mywords =~ s/\x{00ED}/i/g;
-                $mywords =~ s/\x{00FD}/y/g;
-                $mywords =~ s/\x{00F3}/o/g;
-                $mywords =~ s/\x{00FA}/u/g;
+        Strips macron to base vowel (e.g. ā→a, ǣ→æ). Matches Perl ``remove_dia``
+        semantics but for macron input.
 
         Args:
             text: The text to process.
 
         Returns:
-            The text with diacritics replaced.
+            The text with macrons replaced by base vowels.
 
-        """  # noqa: E501
+        """
         if not text:
             return ""
         replacements = {
-            "\u01fd": "æ",  # ǽ -> æ
-            "\u00e1": "a",  # á -> a
-            "\u00e9": "e",  # é -> e
-            "\u00ed": "i",  # í -> i
-            "\u00fd": "y",  # ý -> y
-            "\u00f3": "o",  # ó -> o
-            "\u00fa": "u",  # ú -> u
+            "\u01e3": "æ",  # ǣ -> æ
+            "\u01e2": "Æ",  # Ǣ -> Æ
+            "\u0101": "a",  # ā -> a
+            "\u0100": "A",  # Ā -> A
+            "\u0113": "e",  # ē -> e
+            "\u0112": "E",  # Ē -> E
+            "\u012b": "i",  # ī -> i
+            "\u012a": "I",  # Ī -> I
+            "\u0233": "y",  # ȳ -> y
+            "\u0232": "Y",  # Ȳ -> Y
+            "\u014d": "o",  # ō -> o
+            "\u014c": "O",  # Ō -> O
+            "\u016b": "u",  # ū -> u
+            "\u016a": "U",  # Ū -> U
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
@@ -114,25 +111,32 @@ class OENormalizer:
     @classmethod
     def remove_diacritics(cls, text: str) -> str:
         """
-        Remove the diacritics from the text.
+        Remove macrons (long-vowel diacritics) from the text.
 
         Args:
             text: The text to process.
 
         Returns:
-            The text with diacritics removed.
+            The text with macrons replaced by base vowels.
 
         """
         if not text:
             return ""
         replacements = {
-            "\u01fd": "æ",  # ǽ -> æ
-            "\u00e1": "a",  # á -> a
-            "\u00e9": "e",  # é -> e
-            "\u00ed": "i",  # í -> i
-            "\u00fd": "y",  # ý -> y
-            "\u00f3": "o",  # ó -> o
-            "\u00fa": "u",  # ú -> u
+            "\u01e3": "æ",  # ǣ -> æ
+            "\u01e2": "Æ",  # Ǣ -> Æ
+            "\u0101": "a",  # ā -> a
+            "\u0100": "A",  # Ā -> A
+            "\u0113": "e",  # ē -> e
+            "\u0112": "E",  # Ē -> E
+            "\u012b": "i",  # ī -> i
+            "\u012a": "I",  # Ī -> I
+            "\u0233": "y",  # ȳ -> y
+            "\u0232": "Y",  # Ȳ -> Y
+            "\u014d": "o",  # ō -> o
+            "\u014c": "O",  # Ō -> O
+            "\u016b": "u",  # ū -> u
+            "\u016a": "U",  # Ū -> U
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
@@ -141,23 +145,26 @@ class OENormalizer:
     @classmethod
     def move_accents(cls, text: str) -> str:
         """
-        Move the accents from the accents to the proper vowels.  For some
-        reason, in the raw Bosworth-Toller data, the accents for dipthongs are
-        on the wrong vowel.  This function moves the accents to the proper
-        vowels.
+        Convert raw BT-style acute diphthongs to macron diphthongs.
+
+        Bosworth-Toller data may have the long-vowel mark on the wrong vowel
+        (e.g. eó, eá, ié). This function accepts that acute input and outputs
+        macron diphthongs (ēo, ēa, īe) so the rest of the pipeline is macron-only.
+        We're doing it this way so we don't have to modify the BT source data.
 
         Args:
-            text: The text to process.
+            text: The text to process (may contain acute diphthongs).
 
         Returns:
-            The text with accents moved to the vowels.
+            The text with acute diphthongs replaced by macron diphthongs.
 
         """
         if not text:
             return ""
-        text = text.replace("e\u00f3", "éo")  # eó -> éo
-        text = text.replace("e\u00e1", "éa")  # eá -> éa
-        return text.replace("i\u00e9", "íe")  # ié -> íe
+        # Acute input -> macron output (ē U+0113, ī U+012B)
+        text = text.replace("e\u00f3", "\u0113o")  # eó -> ēo
+        text = text.replace("e\u00e1", "\u0113a")  # eá -> ēa
+        return text.replace("i\u00e9", "\u012be")  # ié -> īe
 
     @classmethod
     def iumlaut(cls, vowels: list[str]) -> list[str]:  # noqa: PLR0912
@@ -211,12 +218,12 @@ class OENormalizer:
         elif v0 == "a":
             v0 = "æ"
             v2 = "e"
-        elif v0 == "á":
-            v0 = "ǽ"
-        elif v0 == "ó":
-            v0 = "é"
-        elif v0 == "ú":
-            v0 = "ý"
+        elif v0 == "ā":
+            v0 = "ǣ"
+        elif v0 == "ō":
+            v0 = "ē"
+        elif v0 == "ū":
+            v0 = "ȳ"
         if v1 == "ea":
             v1 = "ie"
             v2 = "i"
@@ -225,14 +232,14 @@ class OENormalizer:
         if v0 == "io":
             v0 = "ie"
             v2 = "i"
-        if v0 == "éa":
-            v0 = "íe"
-            v2 = "í"
-        if v0 == "éo":
-            v0 = "íe"
-        if v0 == "ío":
-            v0 = "íe"
-            v2 = "í"
+        if v0 == "ēa":
+            v0 = "īe"
+            v2 = "ī"
+        if v0 == "ēo":
+            v0 = "īe"
+        if v0 == "īo":
+            v0 = "īe"
+            v2 = "ī"
 
         res = [v0, v1]
         if v2 is not None:
@@ -306,30 +313,21 @@ class OENormalizer:
     @classmethod
     def normalize_output(cls, text: str) -> str:
         r"""
-        Normalize the output text by replacing y/ie with i and removing diacritics.
-        Matches Perl's print_one_form normalization exactly.
+        Normalize the output text by replacing y/ie with i and stripping macrons.
+
+        Replaces ȳ and īe with ī, then NFKD normalizes and removes combining
+        marks (so long vowels become base vowels).
 
         Args:
             text: The text to normalize.
 
-        Note:
-            Matches Perl's ``print_one_form`` normalization exactly.
-
-            Original Perl code:
-
-            .. code-block:: perl
-
-                $formi =~ s/(y)|(ie?)/i/g;
-                $formi =~ s/\x{00FD}|\x{00ED}e/\x{00ED}/g;
-                $formi = Unicode::Normalize::NFKD($formi);
-
         Returns:
-            The normalized text.
+            The normalized text (macrons stripped to base vowels).
 
         """
         if not text:
             return ""
         text = re.sub(r"y|ie?", "i", text)
-        text = re.sub(r"\u00FD|\u00EDe", "\u00ed", text)
+        text = re.sub(r"\u0233|\u012Be", "\u012b", text)  # ȳ|īe -> ī
         text = unicodedata.normalize("NFKD", text)
         return "".join(c for c in text if not unicodedata.combining(c))

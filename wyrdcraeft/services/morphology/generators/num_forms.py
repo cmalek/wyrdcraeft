@@ -90,7 +90,7 @@ def _stem_no_ea(stem: str) -> str:
 def generate_numforms(session: GeneratorSession, output_file: io.StringIO) -> None:  # noqa: PLR0912, PLR0915
     """
     Generate numeral forms.  Processes words where numeral==1. For noun
-    numerals: cardinals as nouns (wine, cwéne, spere paradigms). For all
+    numerals: cardinals as nouns (wine, cwēne, spere paradigms). For all
     numerals: cardinals/ordinals as adjectives (blinda paradigm).
 
     Note:
@@ -147,8 +147,8 @@ def generate_numforms(session: GeneratorSession, output_file: io.StringIO) -> No
                     fp = f"{prefix}-{s}-um"
                     _num_print(session, output_file, formhash_base, fp, "PlMaDa")
 
-            # Feminine (cwéne paradigm)
-            formhash_base["paradigm"] = "cwéne"
+            # Feminine (cwēne paradigm)
+            formhash_base["paradigm"] = "cwēne"
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"

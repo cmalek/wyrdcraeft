@@ -95,7 +95,7 @@ def _build_weak_title_array(word: Word, paradigm: str) -> list[str]:
         title_array.append(f"{word.prefix}-{title_alt}")
 
     # hālig syncope (only for hālig paradigm, not participles)
-    is_halig = "hālig" in paradigm or "h\u00e1lig" in paradigm
+    is_halig = "hālig" in paradigm
     if is_halig and (word.papart + word.pspart) == 0:
         # Perl: $title_alt =~ s/($vowel_regex.*)$vowel_regex(.*?)$/$1$2/;
         new_alt = re.sub(
@@ -274,8 +274,8 @@ def _gen_strong_heah_thweorh(
     paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
     title_alt = f"{word.prefix}-{word.stem}"
     if "weorh" in paradigm:  # þweorh
-        stem_alt = re.sub(r"e([ao])", "\u00e9\\1", word.stem)
-        stem_alt = re.sub(r"([^\u00e9])o", lambda m: f"{m.group(1)}ó", stem_alt)
+        stem_alt = re.sub(r"e([ao])", "\u0113\\1", word.stem)  # e+ao -> ēa/ēo
+        stem_alt = re.sub(r"([^\u0113])o", lambda m: f"{m.group(1)}ō", stem_alt)
         title_alt = f"{word.prefix}-{stem_alt}"
     title_alt = re.sub(r"h$", "", title_alt)
     forms = [
@@ -699,7 +699,7 @@ def _build_comparative_title_array(  # noqa: PLR0912
                 if re.search(f"{vowel_regex}$", title_alt):
                     title_alt = re.sub(f"({vowel_regex})$", "", title_alt)
                     title_array.append(f"{word.prefix}-{title_alt}")
-                if "h\u00e1lig" in paradigm or "hālig" in paradigm:
+                if "hālig" in paradigm:
                     if (word.papart + word.pspart) == 0:
                         new_alt = re.sub(
                             f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt
@@ -857,7 +857,7 @@ def _build_superlative_title_array(  # noqa: PLR0912
                 if re.search(f"{vowel_regex}$", title_alt):
                     title_alt = re.sub(f"({vowel_regex})$", "", title_alt)
                     title_array.append(f"{word.prefix}-{title_alt}")
-                if "h\u00e1lig" in paradigm or "hālig" in paradigm:
+                if "hālig" in paradigm:
                     if (word.papart + word.pspart) == 0:
                         new_alt = re.sub(
                             f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt
@@ -1110,11 +1110,10 @@ def generate_adjforms(session: GeneratorSession, output_file: io.StringIO) -> No
             _gen_strong_manig(session, output_file, word, formhash)
         elif (
             "hālig" in paradigm
-            or "h\u00e1lig" in paradigm
             or (word.papart == 1 and OENormalizer.stem_length(word.stem))
         ):
             if word.papart == 1:
-                word.adj_paradigm = ["h\u00e1lig"]
+                word.adj_paradigm = ["hālig"]
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "past"
                 formhash["paradigm"] = "halig"
@@ -1130,7 +1129,7 @@ def generate_adjforms(session: GeneratorSession, output_file: io.StringIO) -> No
             _gen_strong_glaed_til(session, output_file, word, formhash)
         elif "blind" in paradigm:
             _gen_strong_blind(session, output_file, word, formhash)
-        elif re.search(r"h\u00e9ah|hēah|weorh", paradigm):
+        elif re.search(r"hēah|weorh", paradigm):
             _gen_strong_heah_thweorh(session, output_file, word, formhash)
         elif "gearu" in paradigm:
             _gen_strong_gearu(session, output_file, word, formhash)

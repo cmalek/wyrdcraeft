@@ -16,7 +16,7 @@ VOWEL = OENormalizer.VOWEL
 #: The consonant regex, saved here for convenience.
 CONSONANT = OENormalizer.CONSONANT_REGEX.pattern
 
-R_STEM_PARADIGMS = {"fæder", "bróþor", "módor", "dóhtor", "sweostor"}
+R_STEM_PARADIGMS = {"fæder", "brōþor", "mōdor", "dōhtor", "sweostor"}
 
 R_STEM_FAEDER_FORMS = {
     "SgMaNo": ["fæder"],
@@ -30,62 +30,62 @@ R_STEM_FAEDER_FORMS = {
 }
 
 R_STEM_BROTHOR_FORMS = {
-    "SgMaNo": ["bróþor", "bróþur", "bródor", "bródur"],
-    "SgMaAc": ["bróþor", "bróþur", "bródor", "bródur"],
-    "SgMaGe": ["bróþor", "bróþur", "bródor", "bródur"],
-    "SgMaDa": ["bróþer", "bréþer", "bróder", "bréder"],
+    "SgMaNo": ["brōþor", "brōþur", "brōdor", "brōdur"],
+    "SgMaAc": ["brōþor", "brōþur", "brōdor", "brōdur"],
+    "SgMaGe": ["brōþor", "brōþur", "brōdor", "brōdur"],
+    "SgMaDa": ["brōþer", "brēþer", "brōder", "brēder"],
     "PlMaNo": [
-        "bróþor",
-        "bróþru",
-        "bróþur",
-        "bróþro",
-        "bróþer",
-        "bróþra",
-        "bródor",
-        "bródru",
-        "bródur",
-        "bródro",
-        "bróder",
-        "bródra",
+        "brōþor",
+        "brōþru",
+        "brōþur",
+        "brōþro",
+        "brōþer",
+        "brōþra",
+        "brōdor",
+        "brōdru",
+        "brōdur",
+        "brōdro",
+        "brōder",
+        "brōdra",
     ],
     "PlMaAc": [
-        "bróþor",
-        "bróþru",
-        "bróþur",
-        "bróþro",
-        "bróþer",
-        "bróþra",
-        "bródor",
-        "bródru",
-        "bródur",
-        "bródro",
-        "bróder",
-        "bródra",
+        "brōþor",
+        "brōþru",
+        "brōþur",
+        "brōþro",
+        "brōþer",
+        "brōþra",
+        "brōdor",
+        "brōdru",
+        "brōdur",
+        "brōdro",
+        "brōder",
+        "brōdra",
     ],
-    "PlMaGe": ["bróþra", "bródra"],
-    "PlMaDa": ["bróþrum", "bródrum"],
+    "PlMaGe": ["brōþra", "brōdra"],
+    "PlMaDa": ["brōþrum", "brōdrum"],
 }
 
 R_STEM_DOHTOR_FORMS = {
-    "SgFeNo": ["dóhtor"],
-    "SgFeAc": ["dóhtor"],
-    "SgFeGe": ["dóhtor"],
-    "SgFeDa": ["déhter"],
-    "PlFeNo": ["dóhtor", "dóhtru", "dóhtra"],
-    "PlFeAc": ["dóhtor", "dóhtru", "dóhtra"],
-    "PlFeGe": ["dóhtra"],
-    "PlFeDa": ["dóhtrum"],
+    "SgFeNo": ["dōhtor"],
+    "SgFeAc": ["dōhtor"],
+    "SgFeGe": ["dōhtor"],
+    "SgFeDa": ["dēhter"],
+    "PlFeNo": ["dōhtor", "dōhtru", "dōhtra"],
+    "PlFeAc": ["dōhtor", "dōhtru", "dōhtra"],
+    "PlFeGe": ["dōhtra"],
+    "PlFeDa": ["dōhtrum"],
 }
 
 R_STEM_MODOR_FORMS = {
-    "SgFeNo": ["módor"],
-    "SgFeAc": ["módor"],
-    "SgFeGe": ["módor"],
-    "SgFeDa": ["méder"],
-    "PlFeNo": ["módor", "módru", "módra"],
-    "PlFeAc": ["módor", "módru", "módra"],
-    "PlFeGe": ["módra"],
-    "PlFeDa": ["módrum"],
+    "SgFeNo": ["mōdor"],
+    "SgFeAc": ["mōdor"],
+    "SgFeGe": ["mōdor"],
+    "SgFeDa": ["mēder"],
+    "PlFeNo": ["mōdor", "mōdru", "mōdra"],
+    "PlFeAc": ["mōdor", "mōdru", "mōdra"],
+    "PlFeGe": ["mōdra"],
+    "PlFeDa": ["mōdrum"],
 }
 
 R_STEM_SWEOSTOR_FORMS = {
@@ -337,7 +337,7 @@ def _build_stem_hof_ge_da(stem: str) -> list[str]:
 
 def _build_stem_daeg_pl(stem: str) -> list[str]:
     r"""
-    Stem for dæg plural: stem + ``æ->a``, ``ǽ->á`` (i-mutation reversal).
+    Stem for dæg plural: stem + ``æ->a``, ``ǣ->ā`` (i-mutation reversal).
 
     This is for the ``dæg`` Wright paradigm.
 
@@ -356,7 +356,7 @@ def _build_stem_daeg_pl(stem: str) -> list[str]:
 
     """
     stems = [stem]
-    alt = stem.replace("\u00e6", "a").replace("\u01fd", "\u00e1")  # æ->a, ǽ->á
+    alt = stem.replace("\u00e6", "a").replace("\u01e3", "\u0101")  # æ->a, ǣ->ā
     if alt != stem:
         stems.append(alt)
     return stems
@@ -364,10 +364,10 @@ def _build_stem_daeg_pl(stem: str) -> list[str]:
 
 def _build_stem_ar_sg_no_ac(stem: str) -> list[str]:
     """
-    Stem for ár singular nominative (SgNo)/ singular accusative (SgAc): stem +
+    Stem for ār singular nominative (SgNo)/ singular accusative (SgAc): stem +
     geminate.
 
-    This is for the ``ár`` Wright paradigm.
+    This is for the ``ār`` Wright paradigm.
 
     Args:
         stem: The stem to process.
@@ -381,10 +381,10 @@ def _build_stem_ar_sg_no_ac(stem: str) -> list[str]:
 
 def _build_stem_ar_sg_ge_da(stem: str) -> list[str]:
     """
-    Stem for ár singular genitive (SgGe)/ singular dative (SgDa): drop ``u$``,
+    Stem for ār singular genitive (SgGe)/ singular dative (SgDa): drop ``u$``,
     syllab>1 syncope.
 
-    This is for the ``ár`` Wright paradigm.
+    This is for the ``ār`` Wright paradigm.
 
     Args:
         stem: The stem to process.
@@ -404,9 +404,9 @@ def _build_stem_ar_sg_ge_da(stem: str) -> list[str]:
 
 def _build_stem_ar_pl(stem: str) -> list[str]:
     """
-    Stem for ár plural: drop ``u$``, syllab syncope, geminate.
+    Stem for ār plural: drop ``u$``, syllab syncope, geminate.
 
-    This is for the ``ár`` Wright paradigm.
+    This is for the ``ār`` Wright paradigm.
 
     Args:
         stem: The stem to process.
@@ -555,7 +555,7 @@ def _gen_daeg(
             _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgMaGe")
             _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgMaDa")
 
-    # PlNo, PlAc, PlGe, PlDa: stem + æ->a, ǽ->á
+    # PlNo, PlAc, PlGe, PlDa: stem + æ->a, ǣ->ā
     for s in _build_stem_daeg_pl(word.stem):
         if s:
             _noun_print(session, output_file, formhash_base, fp(s, "as"), "PlMaNo")
@@ -593,7 +593,7 @@ def _gen_faet(
             _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgNeGe")
             _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgNeDa")
 
-    # PlNo: stem + æ->a, ǽ->á, endings -u and -o
+    # PlNo: stem + æ->a, ǣ->ā, endings -u and -o
     for s in _build_stem_daeg_pl(word.stem):
         if s:
             _noun_print(session, output_file, formhash_base, fp(s, "u"), "PlNeNo")
@@ -619,7 +619,7 @@ def _gen_ar(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``ár`` paradigm (feminine ō-stems).
+    ``ār`` paradigm (feminine ō-stems).
 
     Args:
         session: The generator session.
@@ -884,7 +884,7 @@ def _gen_frea(
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
-    """Fréa paradigm (masculine n-stems, weak)."""
+    """Frēa paradigm (masculine n-stems, weak)."""
     fh = formhash_base.copy()
     fh["class1"] = "weak"
     prefix = word.prefix or "0"
@@ -952,7 +952,7 @@ def _gen_eage(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``éage`` paradigm (neuter n-stems, weak).
+    ``ēage`` paradigm (neuter n-stems, weak).
 
     Args:
         session: The generator session.
@@ -991,7 +991,7 @@ def _gen_wigend(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``wígend`` paradigm (masculine nd-stems).
+    ``wīgend`` paradigm (masculine nd-stems).
 
     Note:
         This is part of the ``weak`` block in Perl.
@@ -1077,7 +1077,7 @@ def _gen_r_stem_brothor(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``bróþor`` opt-in r-stem forms.
+    ``brōþor`` opt-in r-stem forms.
 
     Args:
         session: The generator session.
@@ -1104,7 +1104,7 @@ def _gen_r_stem_modor(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``módor`` opt-in r-stem forms.
+    ``mōdor`` opt-in r-stem forms.
 
     Args:
         session: The generator session.
@@ -1123,7 +1123,7 @@ def _gen_r_stem_dohtor(
     formhash_base: dict[str, str],
 ) -> None:
     """
-    ``dóhtor`` opt-in r-stem forms.
+    ``dōhtor`` opt-in r-stem forms.
 
     Args:
         session: The generator session.
@@ -1287,15 +1287,15 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
             if session.enable_r_stem_nouns and paradigm in R_STEM_PARADIGMS:
                 if paradigm == "fæder":
                     _gen_r_stem_faeder(session, output_file, word, formhash_base)
-                elif paradigm == "bróþor":
+                elif paradigm == "brōþor":
                     _gen_r_stem_brothor(session, output_file, word, formhash_base)
-                elif paradigm == "módor":
+                elif paradigm == "mōdor":
                     _gen_r_stem_modor(session, output_file, word, formhash_base)
-                elif paradigm == "dóhtor":
+                elif paradigm == "dōhtor":
                     _gen_r_stem_dohtor(session, output_file, word, formhash_base)
                 elif paradigm == "sweostor":
                     _gen_r_stem_sweostor(session, output_file, word, formhash_base)
-            elif re.search(r"st\u00e1n|cynn", paradigm):
+            elif re.search(r"st\u0101n|cynn", paradigm):
                 _gen_stan_cynn(
                     session,
                     output_file,
