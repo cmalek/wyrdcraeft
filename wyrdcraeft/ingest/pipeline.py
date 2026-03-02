@@ -604,6 +604,8 @@ class CanonicalConverter:
 
                         # If we have a marker on this line, use it.
                         # Otherwise use the pending marker if available.
+                        # Verse line numbers: use explicit marker when present,
+                        # else 1-offset index starting with the first line in the block.
                         effective_marker = marker or pending_marker
                         pending_marker = None  # Reset
 
@@ -612,9 +614,6 @@ class CanonicalConverter:
                         elif effective_marker and is_roman_numeral(effective_marker):
                             final_number = roman_to_arabic(effective_marker)
                         else:
-                            final_number = None
-
-                        if final_number is None:
                             final_number = line_no
 
                         # For verse, we want to keep leading whitespace of the
@@ -637,6 +636,7 @@ class CanonicalConverter:
                     source_page=psec.page,
                 )
 
+            assert root.sections is not None
             root.sections.append(sec)
 
         return OldEnglishText(metadata=meta, content=root)
@@ -819,6 +819,7 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
         result = SourceLoader().load(source_path)
         if progress_callback:
             progress_callback(1, 1, "TEI ingestion complete")
+        assert isinstance(result, OldEnglishText)
         return result
 
 
@@ -946,6 +947,9 @@ class LLMDocumentIngestor(BaseDocumentIngestor):
             A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
+        if metadata is None:
+            msg = "LLM ingestion requires metadata"
+            raise ValueError(msg)
         if llm_config is None:
             settings = Settings()
             llm_config = settings.llm_config
