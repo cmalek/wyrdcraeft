@@ -5,6 +5,7 @@ import io
 from wyrdcraeft.models.morphology import ParadigmPart, Word
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
+    emit_sound_changed_forms,
 )
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
     emit_strong_derived_from_inf_non_umlaut,
@@ -89,6 +90,58 @@ def test_derive_sound_changed_forms_psinsg2_gst_chain() -> None:
 def test_derive_sound_changed_forms_psinsg3_td_th_chain() -> None:
     observed = derive_sound_changed_forms(function="PsInSg3", form="bedþ")
     assert observed == ["bett", "bet"]
+
+
+def test_emit_sound_changed_forms_psinsg2_probability_delta() -> None:
+    observed: list[tuple[str, str, str, str | int | None]] = []
+
+    def _emit_manual(
+        form: str,
+        form_parts: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        observed.append((form, form_parts, function, probability))
+
+    emit_sound_changed_forms(
+        function="PsInSg2",
+        form="agst",
+        form_parts="fp",
+        probability=2,
+        sound_change_prob_delta=1,
+        emit_manual=_emit_manual,
+    )
+
+    assert observed == [
+        ("ahst", "fp", "PsInSg2", 3),
+        ("axst", "fp", "PsInSg2", 3),
+    ]
+
+
+def test_emit_sound_changed_forms_psinsg3_zero_delta() -> None:
+    observed: list[tuple[str, str, str, str | int | None]] = []
+
+    def _emit_manual(
+        form: str,
+        form_parts: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        observed.append((form, form_parts, function, probability))
+
+    emit_sound_changed_forms(
+        function="PsInSg3",
+        form="bedþ",
+        form_parts="fp",
+        probability=1,
+        sound_change_prob_delta=0,
+        emit_manual=_emit_manual,
+    )
+
+    assert observed == [
+        ("bett", "fp", "PsInSg3", 1),
+        ("bet", "fp", "PsInSg3", 1),
+    ]
 
 
 def test_emit_strong_derived_from_inf_non_umlaut_an_branch_order() -> None:
