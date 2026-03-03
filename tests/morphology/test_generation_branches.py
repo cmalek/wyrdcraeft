@@ -11,6 +11,7 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
     emit_strong_umlaut_for_vowel,
 )
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
+    emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
 )
 from wyrdcraeft.services.morphology.generators.common import VerbFormGenerator
@@ -203,6 +204,54 @@ def test_emit_weak_derived_from_psinsg2_sequence() -> None:
     assert sounds == [
         ("st", "PsInSg2", 0, 1),
         ("þ", "PsInSg3", 1, 0),
+    ]
+
+
+def test_emit_weak_derived_from_painsg1_variant_sequence() -> None:
+    forms: list[tuple[str, str, str | int | None]] = []
+    manuals: list[tuple[str, str, str, str | int | None]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        forms.append((ending, function, probability))
+
+    def _emit_manual(
+        form: str,
+        form_parts: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        manuals.append((form, form_parts, function, probability))
+
+    form_parts = emit_weak_derived_from_painsg1_variant(
+        prefix="ge",
+        pre_vowel="l",
+        vowel="o",
+        post_vowel_simple="m",
+        boundary="t",
+        dental="ed",
+        probability=2,
+        emit_form=_emit_form,
+        emit_manual=_emit_manual,
+    )
+
+    assert form_parts == "ge-l-o-m-t-ed"
+    assert forms == [
+        ("e", "PaInSg1", 2),
+        ("est", "PaInSg2", 2),
+        ("es", "PaInSg2", 3),
+        ("e", "PaInSg3", 2),
+        ("on", "PaInPl", 2),
+        ("e", "PaSuSg", 2),
+        ("en", "PaSuPl", 2),
+    ]
+    assert manuals == [
+        ("gelomted", "ge-l-o-m-t-ed", "PaPt", 2),
+        ("gelomtt", "ge-l-o-m-t-ed", "PaPt", 3),
+        ("gelomt", "ge-l-o-m-t-ed", "PaPt", 3),
     ]
 
 
