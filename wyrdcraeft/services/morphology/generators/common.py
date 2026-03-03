@@ -18,7 +18,6 @@ from ..generation.probability import (
 )
 from ..generation.shared import FormOutput
 from ..generation.sound_changes import (
-    derive_papt_sound_changed_forms,
     derive_sound_changed_forms,
 )
 from ..generation.strong_inflections import (
@@ -26,6 +25,7 @@ from ..generation.strong_inflections import (
     emit_strong_umlaut_for_vowel,
 )
 from ..generation.weak_inflections import (
+    emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_derived_from_inf_class2_variant,
     emit_weak_derived_from_inf_general,
@@ -1200,119 +1200,51 @@ class VerbFormGenerator:
         for vcount, current_vowel in enumerate(vowel_list):
             curr_prob = base_probability + vcount
 
-            # PaInSg1
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "e",
-                "PaInSg1",
-                curr_prob,
-            )
+            def emit_form(
+                ending: str,
+                function: str,
+                prob_value: str | int | None,
+                *,
+                _current_vowel: str = current_vowel,
+            ) -> None:
+                self._generate_and_print_form(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    _current_vowel,
+                    pv_simp,
+                    boundary,
+                    dental,
+                    ending,
+                    function,
+                    prob_value,
+                )
 
-            # PaInSg2
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "est",
-                "PaInSg2",
-                curr_prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "es",
-                "PaInSg2",
-                curr_prob + 1,
-            )
-
-            # PaInSg3
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "e",
-                "PaInSg3",
-                curr_prob,
-            )
-
-            # PaInPl
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "on",
-                "PaInPl",
-                curr_prob,
-            )
-
-            # PaSuSg
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "e",
-                "PaSuSg",
-                curr_prob,
-            )
-
-            # PaSuPl
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                current_vowel,
-                pv_simp,
-                boundary,
-                dental,
-                "en",
-                "PaSuPl",
-                curr_prob,
-            )
-
-            # PaPt uses no explicit ending in Perl.
-            form_parts = (
-                f"{prefix}-{pre_vowel}-{current_vowel}-{pv_simp}-{boundary}-{dental}"
-            )
-            form = form_parts.replace("0", "").replace("-", "")
-            self._generate_and_print_manual(
-                formhash, form, form_parts, "PaPt", curr_prob
-            )
-
-            for sound_changed_form in derive_papt_sound_changed_forms(form):
+            def emit_manual(
+                form: str,
+                form_parts: str,
+                function: str,
+                prob_value: str | int | None,
+            ) -> None:
                 self._generate_and_print_manual(
                     formhash,
-                    sound_changed_form,
+                    form,
                     form_parts,
-                    "PaPt",
-                    curr_prob + 1,
+                    function,
+                    prob_value,
                 )
+
+            form_parts = emit_weak_derived_from_painsg1_variant(
+                prefix=prefix,
+                pre_vowel=pre_vowel,
+                vowel=current_vowel,
+                post_vowel_simple=pv_simp,
+                boundary=boundary,
+                dental=dental,
+                probability=curr_prob,
+                emit_form=emit_form,
+                emit_manual=emit_manual,
+            )
 
             self._add_participle_to_adjectives(word, prefix, form_parts, True)  # noqa: FBT003
 

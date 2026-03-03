@@ -6,6 +6,7 @@ import re
 from collections.abc import Callable
 
 from ..text_utils import OENormalizer
+from .sound_changes import derive_papt_sound_changed_forms
 
 #: Callback signature for one weak-form emission operation.
 WeakFormEmitter = Callable[
@@ -16,6 +17,8 @@ WeakFormEmitter = Callable[
 WeakSimpleFormEmitter = Callable[[str, str, str | int | None], None]
 #: Callback signature for one weak-form sound-change emission operation.
 WeakSoundEmitter = Callable[[str, str, str | int | None, int], None]
+#: Callback signature for one weak manual-form emission operation.
+WeakManualEmitter = Callable[[str, str, str, str | int | None], None]
 
 
 def has_perl_inf_vowel_ending(fp_base: str) -> bool:
@@ -266,3 +269,62 @@ def emit_weak_derived_from_psinsg2(
     emit_form("e", "ImSg", probability)
     emit_form("ie", "ImSg", probability)
     emit_form("0", "ImSg", probability)
+
+
+def emit_weak_derived_from_painsg1_variant(  # noqa: PLR0913
+    *,
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel_simple: str,
+    boundary: str,
+    dental: str,
+    probability: int,
+    emit_form: WeakSimpleFormEmitter,
+    emit_manual: WeakManualEmitter,
+) -> str:
+    """
+    Emit one weak-verb ``PaInSg1``-derived vowel variant sequence.
+
+    Side Effects:
+        Writes generated rows through ``emit_form`` and ``emit_manual``.
+
+    Args:
+        prefix: Word prefix component.
+        pre_vowel: Pre-vowel stem segment.
+        vowel: Active vowel for this variant.
+        post_vowel_simple: Simplified post-vowel segment.
+        boundary: Boundary consonant segment.
+        dental: Dental segment.
+        probability: Base probability for this variant.
+        emit_form: Callback that emits one generated inflection form.
+        emit_manual: Callback that emits one manual-form row.
+
+    Keyword Args:
+        None.
+
+    Raises:
+        None.
+
+    Returns:
+        ``formParts`` string used for participle adjective derivation.
+
+    """
+    emit_form("e", "PaInSg1", probability)
+
+    emit_form("est", "PaInSg2", probability)
+    emit_form("es", "PaInSg2", probability + 1)
+
+    emit_form("e", "PaInSg3", probability)
+    emit_form("on", "PaInPl", probability)
+    emit_form("e", "PaSuSg", probability)
+    emit_form("en", "PaSuPl", probability)
+
+    form_parts = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel_simple}-{boundary}-{dental}"
+    form = form_parts.replace("0", "").replace("-", "")
+    emit_manual(form, form_parts, "PaPt", probability)
+
+    for sound_changed_form in derive_papt_sound_changed_forms(form):
+        emit_manual(sound_changed_form, form_parts, "PaPt", probability + 1)
+
+    return form_parts
