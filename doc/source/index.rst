@@ -27,6 +27,7 @@ wyrdcraeft
 
    runbook/contributing
    runbook/coding_standards
+   architecture/index
 
 .. toctree::
    :maxdepth: 2
