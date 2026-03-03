@@ -13,6 +13,8 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
+    emit_weak_principal_form,
+    is_weak_item_shape_window,
 )
 from wyrdcraeft.services.morphology.generators.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
@@ -252,6 +254,56 @@ def test_emit_weak_derived_from_painsg1_variant_sequence() -> None:
         ("gelomted", "ge-l-o-m-t-ed", "PaPt", 2),
         ("gelomtt", "ge-l-o-m-t-ed", "PaPt", 3),
         ("gelomt", "ge-l-o-m-t-ed", "PaPt", 3),
+    ]
+
+
+def test_is_weak_item_shape_window_bounds() -> None:
+    assert is_weak_item_shape_window("89")
+    assert is_weak_item_shape_window("92")
+    assert not is_weak_item_shape_window("88")
+    assert not is_weak_item_shape_window("93")
+    assert not is_weak_item_shape_window("abc")
+
+
+def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
+    observed: list[tuple[object, ...]] = []
+
+    def _emit_form(*args: object) -> tuple[str, str]:
+        observed.append(args)
+        (
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            _function,
+            _probability,
+        ) = args
+        return (
+            "form",
+            (
+                f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-"
+                f"{boundary}-{dental}-{ending}"
+            ),
+        )
+
+    form_parts = emit_weak_principal_form(
+        para_id="PaInSg1",
+        prefix="ge",
+        default_parts=("l", "a", "m", "t"),
+        item_parts=("X", "Y", "Z", "B"),
+        dental="ed",
+        ending="e",
+        variant_id=0,
+        use_item_shape=False,
+        emit_form=_emit_form,
+    )
+
+    assert form_parts == "ge-l-a-m-t-ed-e"
+    assert observed == [
+        ("ge", "l", "a", "m", "t", "ed", "e", "PaInSg1", None),
     ]
 
 

@@ -29,8 +29,10 @@ from ..generation.weak_inflections import (
     emit_weak_derived_from_psinsg2,
     emit_weak_derived_from_inf_class2_variant,
     emit_weak_derived_from_inf_general,
+    emit_weak_principal_form,
     has_perl_inf_vowel_ending,
     has_regex_vowel_ending,
+    is_weak_item_shape_window,
 )
 from ..text_utils import OENormalizer
 
@@ -990,87 +992,90 @@ class VerbFormGenerator:
         ending = item.ending
         dental = item.dental
         boundary = item.boundary
-        para_id_int = int(para_id_num) if str(para_id_num).isdigit() else None
-
         prob: str | int | None = 0
+        para_id_lower = para_id.lower()
+        use_item_shape = is_weak_item_shape_window(para_id_num)
 
-        # Perl: if (($ID > 88) && ($ID < 93))
-        if para_id_int is not None and 88 < para_id_int < 93:
-            _, fp = self._generate_and_print_form(
+        def emit_principal(
+            emit_prefix: str,
+            emit_pre_vowel: str,
+            emit_vowel: str,
+            emit_post_vowel: str,
+            emit_boundary: str,
+            emit_dental: str | None,
+            emit_ending: str,
+            emit_function: str,
+            emit_prob: str | int | None,
+        ) -> tuple[str, str]:
+            return self._generate_and_print_form(
                 formhash,
+                emit_prefix,
+                emit_pre_vowel,
+                emit_vowel,
+                emit_post_vowel,
+                emit_boundary,
+                emit_dental,
+                emit_ending,
+                emit_function,
+                emit_prob,
+            )
+
+        fp = emit_weak_principal_form(
+            para_id=para_id,
+            prefix=prefix,
+            default_parts=(pre_vowel, root_vowel_actual, post_vowel, boundary),
+            item_parts=(item.pre_vowel, item.vowel, item.post_vowel, item.boundary),
+            dental=dental,
+            ending=ending,
+            variant_id=variant_id,
+            use_item_shape=use_item_shape,
+            emit_form=emit_principal,
+        )
+        if para_id_lower == "pspt":
+            self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
+        if para_id_lower == "papt":
+            self._add_participle_to_adjectives(word, prefix, fp, True)  # noqa: FBT003
+
+        if use_item_shape:
+            return
+
+        # Derived forms
+        if para_id_lower == "if":
+            self._generate_weak_derived_from_inf(
+                formhash,
+                word,
                 prefix,
-                item.pre_vowel,
-                item.vowel,
-                item.post_vowel,
-                item.boundary,
-                dental,
+                pre_vowel,
+                root_vowel_actual,
+                post_vowel,
+                boundary,
                 ending,
-                para_id,
-                0,
+                prob,
             )
-            if para_id.lower() == "pspt":
-                self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
-            if para_id.lower() == "papt":
-                self._add_participle_to_adjectives(word, prefix, fp, True)  # noqa: FBT003
-        else:
-            # Original form from paradigm file
-            principal_prob: str | int | None = (
-                None if (para_id.lower() == "painsg1" and variant_id == 0) else prob
-            )
-            _, fp = self._generate_and_print_form(
+        elif para_id_lower == "psinsg2":
+            self._generate_weak_derived_from_psinsg2(
                 formhash,
                 prefix,
                 pre_vowel,
                 root_vowel_actual,
                 post_vowel,
                 boundary,
-                dental,
-                ending,
-                para_id,
-                principal_prob,
+                prob,
             )
-            if para_id.lower() == "pspt":
-                self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
-            if para_id.lower() == "papt":
-                self._add_participle_to_adjectives(word, prefix, fp, True)  # noqa: FBT003
-
-            # Derived forms
-            if para_id.lower() == "if":
-                self._generate_weak_derived_from_inf(
+        elif para_id_lower == "painsg1":
+            self._generate_weak_derived_from_painsg1(
                 formhash,
                 word,
                 prefix,
                 pre_vowel,
                 root_vowel_actual,
-                    post_vowel,
-                    boundary,
-                    ending,
-                    prob,
-                )
-            elif para_id.lower() == "psinsg2":
-                self._generate_weak_derived_from_psinsg2(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    root_vowel_actual,
-                    post_vowel,
-                    boundary,
-                    prob,
-                )
-            elif para_id.lower() == "painsg1":
-                self._generate_weak_derived_from_painsg1(
-                    formhash,
-                    word,
-                    prefix,
-                    pre_vowel,
-                    root_vowel_actual,
-                    post_vowel,
-                    boundary,
-                    dental,
-                    prob,
-                    vowel_inf,
-                    vowel_pa,
-                )
+                post_vowel,
+                boundary,
+                dental,
+                prob,
+                vowel_inf,
+                vowel_pa,
+            )
 
     def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
         self,

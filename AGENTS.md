@@ -41,11 +41,12 @@ For all non-test Python code in this repository:
 1. Class docstrings must describe the class contract and include constructor `Args:` when constructor arguments exist.
 2. Function/method docstrings must include:
    - brief description
-   - `Side Effects:`
-   - `Args:`
-   - `Keyword Args:`
-   - `Raises:`
-   - `Returns:` or `Yields:`
+   - `Side Effects:` (only when there are real side effects; omit otherwise)
+   - `Args:` (only when positional args exist; omit otherwise)
+   - `Keyword Args:` (only when keyword args exist; omit otherwise)
+   - `Raises:` (only when meaningful exceptions are raised; omit otherwise)
+   - `Returns:` or `Yields:` (only when applicable; omit otherwise)
+   - Do not add placeholder content such as `None.` for empty/inapplicable sections.
 3. Document all of the following with Napoleon `#:` comments:
    - class attributes
    - instance attributes assigned in `__init__`

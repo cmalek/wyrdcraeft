@@ -19,6 +19,15 @@ WeakSimpleFormEmitter = Callable[[str, str, str | int | None], None]
 WeakSoundEmitter = Callable[[str, str, str | int | None, int], None]
 #: Callback signature for one weak manual-form emission operation.
 WeakManualEmitter = Callable[[str, str, str, str | int | None], None]
+#: Callback signature for one weak principal-form emission operation.
+WeakPrincipalEmitter = Callable[
+    [str, str, str, str, str, str | None, str, str, str | int | None],
+    tuple[str, str],
+]
+#: Lower bound (exclusive) for using raw item-shape weak forms.
+WEAK_ITEM_SHAPE_MIN_ID: int = 88
+#: Upper bound (exclusive) for using raw item-shape weak forms.
+WEAK_ITEM_SHAPE_MAX_ID: int = 93
 
 
 def has_perl_inf_vowel_ending(fp_base: str) -> bool:
@@ -327,4 +336,102 @@ def emit_weak_derived_from_painsg1_variant(  # noqa: PLR0913
     for sound_changed_form in derive_papt_sound_changed_forms(form):
         emit_manual(sound_changed_form, form_parts, "PaPt", probability + 1)
 
+    return form_parts
+
+
+def is_weak_item_shape_window(para_id_num: str) -> bool:
+    """
+    Return whether weak generation should use raw item shape by paradigm ID.
+
+    Side Effects:
+        None.
+
+    Args:
+        para_id_num: Paradigm numeric ID string.
+
+    Keyword Args:
+        None.
+
+    Raises:
+        None.
+
+    Returns:
+        ``True`` when ``88 < int(para_id_num) < 93``.
+
+    """
+    if not str(para_id_num).isdigit():
+        return False
+    para_id_int = int(para_id_num)
+    return WEAK_ITEM_SHAPE_MIN_ID < para_id_int < WEAK_ITEM_SHAPE_MAX_ID
+
+
+def emit_weak_principal_form(  # noqa: PLR0913
+    *,
+    para_id: str,
+    prefix: str,
+    default_parts: tuple[str, str, str, str],
+    item_parts: tuple[str, str, str, str],
+    dental: str | None,
+    ending: str,
+    variant_id: int,
+    use_item_shape: bool,
+    emit_form: WeakPrincipalEmitter,
+) -> str:
+    """
+    Emit one weak principal form and return emitted ``formParts``.
+
+    Side Effects:
+        Writes one principal-form row through ``emit_form``.
+
+    Args:
+        para_id: Paradigm function identifier.
+        prefix: Word prefix component.
+        default_parts: ``(pre_vowel, vowel, post_vowel, boundary)`` tuple.
+        item_parts: Raw item tuple ``(pre_vowel, vowel, post_vowel, boundary)``.
+        dental: Dental segment.
+        ending: Paradigm ending.
+        variant_id: Variant index for principal probability rules.
+        use_item_shape: Whether to emit from raw item parts.
+        emit_form: Callback that emits one generated principal form.
+
+    Keyword Args:
+        None.
+
+    Raises:
+        None.
+
+    Returns:
+        Emitted ``formParts`` string.
+
+    """
+    if use_item_shape:
+        pre_vowel, vowel, post_vowel, boundary = item_parts
+        _, form_parts = emit_form(
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            para_id,
+            0,
+        )
+        return form_parts
+
+    pre_vowel, vowel, post_vowel, boundary = default_parts
+    principal_prob: str | int | None = (
+        None if (para_id.lower() == "painsg1" and variant_id == 0) else 0
+    )
+    _, form_parts = emit_form(
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        dental,
+        ending,
+        para_id,
+        principal_prob,
+    )
     return form_parts
