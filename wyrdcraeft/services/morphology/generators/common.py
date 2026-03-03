@@ -22,19 +22,16 @@ from ..generation.sound_changes import (
 )
 from ..generation.strong_inflections import (
     dispatch_strong_verb_part_branches,
+    emit_strong_derived_from_inf_sequence,
     emit_strong_painpl_derived,
     emit_strong_painsg1_derived,
-    emit_strong_derived_from_inf_non_umlaut,
-    emit_strong_umlaut_for_vowel,
 )
 from ..generation.weak_inflections import (
     dispatch_weak_derived_forms,
-    emit_weak_derived_from_inf_by_class2,
+    emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_principal_form,
-    has_perl_inf_vowel_ending,
-    has_regex_vowel_ending,
     is_weak_item_shape_window,
 )
 from ..text_utils import OENormalizer
@@ -770,9 +767,8 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        probability_plus_one = probability_plus(prob, delta=1, empty_default=1)
-
-        def emit_non_umlaut(
+        def emit_form_for_vowel(
+            active_vowel: str,
             ending_value: str,
             function: str,
             prob_value: str | int | None,
@@ -781,7 +777,7 @@ class VerbFormGenerator:
                 formhash,
                 prefix,
                 pre_vowel,
-                vowel,
+                active_vowel,
                 post_vowel,
                 boundary,
                 "",
@@ -790,77 +786,57 @@ class VerbFormGenerator:
                 prob_value,
             )
 
-        fp = emit_strong_derived_from_inf_non_umlaut(
-            ending=ending,
-            probability=prob,
-            probability_plus_one=probability_plus_one,
-            emit_form=emit_non_umlaut,
-        )
-        self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
-
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            post_vowel,
-            boundary,
-            "",
-            "0",
-            "ImSg",
-            prob,
-        )
-
-        # Umlaut forms
-        mvowels = OENormalizer.iumlaut([vowel])
-        for mv_idx, mvowel in enumerate(mvowels):
-            mv_prob = int(prob) + mv_idx if prob is not None else mv_idx
-
-            def emit_umlaut(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-                *,
-                _mvowel: str = mvowel,
-            ) -> tuple[str, str]:
-                return self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _mvowel,
-                    post_vowel,
-                    boundary,
-                    "",
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            def emit_umlaut_sound(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-                *,
-                _mvowel: str = mvowel,
-            ) -> None:
-                self._generate_and_print_form_with_sound_changes(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _mvowel,
-                    post_vowel,
-                    boundary,
-                    "",
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            emit_strong_umlaut_for_vowel(
-                probability=mv_prob,
-                emit_form=emit_umlaut,
-                emit_sound=emit_umlaut_sound,
+        def emit_sound_for_vowel(
+            active_vowel: str,
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> None:
+            self._generate_and_print_form_with_sound_changes(
+                formhash,
+                prefix,
+                pre_vowel,
+                active_vowel,
+                post_vowel,
+                boundary,
+                "",
+                ending_value,
+                function,
+                prob_value,
             )
+
+        def emit_imsg(prob_value: str | int | None) -> None:
+            self._generate_and_print_form(
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                "",
+                "0",
+                "ImSg",
+                prob_value,
+            )
+
+        def on_participle(form_parts: str) -> None:
+            self._add_participle_to_adjectives(
+                word,
+                prefix,
+                form_parts,
+                is_past=False,
+            )
+
+        emit_strong_derived_from_inf_sequence(
+            ending=ending,
+            vowel=vowel,
+            probability=prob,
+            umlaut_vowels=OENormalizer.iumlaut([vowel]),
+            emit_form_for_vowel=emit_form_for_vowel,
+            emit_sound_for_vowel=emit_sound_for_vowel,
+            on_participle=on_participle,
+            emit_imsg=emit_imsg,
+        )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913
         self,
@@ -1107,16 +1083,6 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        probability = prob if prob is not None else ""
-        probability_plus_one = probability_plus(
-            probability,
-            delta=1,
-            empty_default=1,
-        )
-        fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
-        perl_inf_vowel_end = has_perl_inf_vowel_ending(fp_base)
-        regex_vowel_end = has_regex_vowel_ending(fp_base)
-
         def emit_form(
             dental: str | None,
             ending: str,
@@ -1137,15 +1103,22 @@ class VerbFormGenerator:
             )
 
         def on_participle(form_parts: str) -> None:
-            self._add_participle_to_adjectives(word, prefix, form_parts, False)  # noqa: FBT003
+            self._add_participle_to_adjectives(
+                word,
+                prefix,
+                form_parts,
+                is_past=False,
+            )
 
-        emit_weak_derived_from_inf_by_class2(
+        emit_weak_derived_from_inf_sequence(
             class2=formhash.get("class2"),
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
             original_ending=original_ending,
-            probability=probability,
-            probability_plus_one=probability_plus_one,
-            perl_inf_vowel_end=perl_inf_vowel_end,
-            regex_vowel_end=regex_vowel_end,
+            probability=prob,
             emit_form=emit_form,
             on_participle=on_participle,
         )

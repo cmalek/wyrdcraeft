@@ -13,6 +13,7 @@ from wyrdcraeft.services.morphology.generation.sound_changes import (
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
     dispatch_strong_verb_part_branches,
     emit_strong_derived_from_inf_non_umlaut,
+    emit_strong_derived_from_inf_sequence,
     emit_strong_painpl_derived,
     emit_strong_painsg1_derived,
     emit_strong_umlaut_for_vowel,
@@ -20,6 +21,7 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
     dispatch_weak_derived_forms,
     emit_weak_derived_from_inf_by_class2,
+    emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_principal_form,
@@ -224,6 +226,51 @@ def test_emit_strong_umlaut_for_vowel_sequence() -> None:
         ("st", "PsInSg2", 2),
         ("þ", "PsInSg3", 2),
     ]
+
+
+def test_emit_strong_derived_from_inf_sequence_event_ordering() -> None:
+    events: list[tuple[object, ...]] = []
+
+    def _emit_form_for_vowel(
+        active_vowel: str,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        events.append(("form", active_vowel, ending, function, probability))
+        return "form", f"fp-{active_vowel}-{ending}-{function}"
+
+    def _emit_sound_for_vowel(
+        active_vowel: str,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        events.append(("sound", active_vowel, ending, function, probability))
+
+    def _on_participle(form_parts: str) -> None:
+        events.append(("part", form_parts))
+
+    def _emit_imsg(probability: str | int | None) -> None:
+        events.append(("imsg", probability))
+
+    emit_strong_derived_from_inf_sequence(
+        ending="an",
+        vowel="a",
+        probability=1,
+        umlaut_vowels=["æ", "e"],
+        emit_form_for_vowel=_emit_form_for_vowel,
+        emit_sound_for_vowel=_emit_sound_for_vowel,
+        on_participle=_on_participle,
+        emit_imsg=_emit_imsg,
+    )
+
+    part_idx = events.index(("part", "fp-a-ende-PsPt"))
+    assert part_idx > 0
+    assert events[0] == ("form", "a", "anne", "IdIf", 1)
+    assert events[part_idx + 1] == ("imsg", 1)
+    assert ("sound", "æ", "st", "PsInSg2", 1) in events
+    assert ("sound", "e", "þ", "PsInSg3", 2) in events
 
 
 def test_dispatch_strong_verb_part_branches_painpl() -> None:
@@ -528,6 +575,37 @@ def test_emit_weak_derived_from_inf_by_class2_two_uses_general_path() -> None:
         not (ending == "an" and function == "if")
         for _, ending, function, _ in observed
     )
+    assert participles == ["fp-ende-PsPt"]
+
+
+def test_emit_weak_derived_from_inf_sequence_normalizes_none_probability() -> None:
+    observed: list[tuple[str | None, str, str, str | int | None]] = []
+    participles: list[str] = []
+
+    def _emit_form(
+        dental: str | None,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((dental, ending, function, probability))
+        return "form", f"fp-{ending}-{function}"
+
+    emit_weak_derived_from_inf_sequence(
+        class2="1",
+        prefix="ge",
+        pre_vowel="l",
+        vowel="a",
+        post_vowel="m",
+        boundary="t",
+        original_ending="ian",
+        probability=None,
+        emit_form=_emit_form,
+        on_participle=participles.append,
+    )
+
+    assert observed[0] == (None, "ian", "if", "")
+    assert ("i", "u", "PsInSg1", 1) in observed
     assert participles == ["fp-ende-PsPt"]
 
 

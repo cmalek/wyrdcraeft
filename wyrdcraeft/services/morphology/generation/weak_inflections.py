@@ -6,6 +6,7 @@ import re
 from collections.abc import Callable
 
 from ..text_utils import OENormalizer
+from .probability import probability_plus
 from .sound_changes import derive_papt_sound_changed_forms
 
 #: Callback signature for one weak-form emission operation.
@@ -298,6 +299,61 @@ def emit_weak_derived_from_inf_by_class2(  # noqa: PLR0913
                 emit_form=emit_form,
             )
             on_participle(fp)
+
+
+def emit_weak_derived_from_inf_sequence(  # noqa: PLR0913
+    *,
+    class2: str | None,
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    original_ending: str,
+    probability: str | int | None,
+    emit_form: WeakFormEmitter,
+    on_participle: WeakParticipleSink,
+) -> None:
+    """
+    Emit weak-verb infinitive-derived branches for one principal-part context.
+
+    Side Effects:
+        Emits generated rows through callbacks and forwards participle rows.
+
+    Args:
+        class2: Weak-verb class2 marker from form metadata.
+        prefix: Word prefix component.
+        pre_vowel: Pre-vowel stem segment.
+        vowel: Active vowel segment.
+        post_vowel: Post-vowel stem segment.
+        boundary: Boundary consonant segment.
+        original_ending: Source infinitive ending from the paradigm.
+        probability: Base probability scalar for derived forms.
+        emit_form: Callback that emits one generated form.
+        on_participle: Callback invoked for each derived participle form-parts.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    effective_probability = probability if probability is not None else ""
+    probability_plus_one = probability_plus(
+        effective_probability,
+        delta=1,
+        empty_default=1,
+    )
+    fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
+
+    emit_weak_derived_from_inf_by_class2(
+        class2=class2,
+        original_ending=original_ending,
+        probability=effective_probability,
+        probability_plus_one=probability_plus_one,
+        perl_inf_vowel_end=has_perl_inf_vowel_ending(fp_base),
+        regex_vowel_end=has_regex_vowel_ending(fp_base),
+        emit_form=emit_form,
+        on_participle=on_participle,
+    )
 
 
 def emit_weak_derived_from_psinsg2(
