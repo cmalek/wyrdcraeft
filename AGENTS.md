@@ -31,4 +31,26 @@ After implementation edits are complete:
 
 1. Run `ruff` on the touched files (or broader target if the task requires it).
 2. Run `mypy` on the touched files (or broader target if the task requires it).
-3. Fix all problems reported by those runs before finishing the task.
+3. Run `make napoleon-gate` to enforce no new Napoleon documentation violations.
+4. Fix all problems reported by those runs before finishing the task.
+
+## Documentation Contract (Required)
+
+For all non-test Python code in this repository:
+
+1. Class docstrings must describe the class contract and include constructor `Args:` when constructor arguments exist.
+2. Function/method docstrings must include:
+   - brief description
+   - `Side Effects:`
+   - `Args:`
+   - `Keyword Args:`
+   - `Raises:`
+   - `Returns:` or `Yields:`
+3. Document all of the following with Napoleon `#:` comments:
+   - class attributes
+   - instance attributes assigned in `__init__`
+   - module-level global variables
+
+Enforcement command:
+- `make napoleon-gate` (no new violations vs baseline)
+- `make napoleon-gate-strict` (all violations; use when explicitly requested)
