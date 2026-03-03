@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 from typing import TYPE_CHECKING, Any
 
@@ -176,3 +177,18 @@ def stable_json_lines_digest(rows: Sequence[dict[str, Any]]) -> str:
     return "\n".join(
         json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows
     )
+
+
+def stable_json_sha256(rows: Sequence[dict[str, Any]]) -> str:
+    """
+    Build a stable SHA-256 hash from canonicalized JSON-line rows.
+
+    Args:
+        rows: Rows to serialize and hash.
+
+    Returns:
+        Hex SHA-256 digest.
+
+    """
+    payload = stable_json_lines_digest(rows).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()

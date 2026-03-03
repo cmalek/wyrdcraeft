@@ -2,7 +2,6 @@
 Adjective form generation. Port of Perl generate_adjforms from create_dict31.pl.
 """
 
-import io
 import re
 from collections.abc import Iterable
 
@@ -10,6 +9,7 @@ from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
+from ..generation.shared import FormOutput
 from .common import print_one_form
 
 def _dedupe_preserve_first(values: Iterable[str]) -> list[str]:
@@ -45,7 +45,7 @@ def _form_from_parts(form_parts: str) -> str:
 
 def _adj_print(  # noqa: PLR0913
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
     func: str,
@@ -117,7 +117,7 @@ def _build_weak_title_array(word: Word, paradigm: str) -> list[str]:
 
 def _gen_strong_glaed_til(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -193,7 +193,7 @@ def _gen_strong_glaed_til(
 
 def _gen_strong_blind(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -257,7 +257,7 @@ def _gen_strong_blind(
 
 def _gen_strong_heah_thweorh(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -325,7 +325,7 @@ def _gen_strong_heah_thweorh(
 
 def _gen_strong_manig(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -381,7 +381,7 @@ def _gen_strong_manig(
 
 def _gen_strong_halig(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -452,7 +452,7 @@ def _gen_strong_halig(
 
 def _gen_strong_wilde(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -507,7 +507,7 @@ def _gen_strong_wilde(
 
 def _gen_strong_gearu(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
 ) -> None:
@@ -567,7 +567,7 @@ def _gen_strong_gearu(
 
 def _gen_weak(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     paradigm: str,
 ) -> None:
@@ -725,7 +725,7 @@ def _build_comparative_title_array(  # noqa: PLR0912
 
 
 def _gen_comparative(
-    session: GeneratorSession, output_file: io.StringIO, word: Word
+    session: GeneratorSession, output_file: FormOutput, word: Word
 ) -> None:
     """
     Comparative (Co) weak forms for all adjectives.
@@ -879,7 +879,7 @@ def _build_superlative_title_array(  # noqa: PLR0912
 
 
 def _gen_superlative(
-    session: GeneratorSession, output_file: io.StringIO, word: Word
+    session: GeneratorSession, output_file: FormOutput, word: Word
 ) -> None:
     """
     Generate superlative adjective forms: weak (Sp) forms then strong (Sp)
@@ -1056,7 +1056,7 @@ def _gen_superlative(
             print_one_form(session, fh, output_file)
 
 
-def generate_adjforms(session: GeneratorSession, output_file: io.StringIO) -> None:  # noqa: PLR0912
+def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> None:  # noqa: PLR0912
     """
     Generate adjective forms.
 

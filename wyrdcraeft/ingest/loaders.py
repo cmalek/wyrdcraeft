@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 import httpx
-from acdh_tei_pyutils.tei import TeiReader
+from acdh_tei_pyutils.tei import TeiReader  # type: ignore[import-untyped]
 
 # Additional imports for preformatted HTML handling
 from bs4 import BeautifulSoup
@@ -165,7 +165,7 @@ class HTTPSourceLoader(BaseSourceLoader):
                 elements.append(
                     Text(
                         text=text,
-                        metadata=ElementMetadata(source="html-pre"),
+                        metadata=ElementMetadata(filename="html-pre"),
                     )
                 )
         return elements

@@ -3,11 +3,11 @@ Numeral form generation. Port of Perl generate_numforms from create_dict31.pl
 (lines 7927-8429).
 """
 
-import io
 import re
 
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
+from ..generation.shared import FormOutput
 from .common import print_one_form
 
 
@@ -27,7 +27,7 @@ def _form_from_parts(form_parts: str) -> str:
 
 def _num_print(  # noqa: PLR0913
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
     function: str,
@@ -87,7 +87,7 @@ def _stem_no_ea(stem: str) -> str:
     return re.sub(r"[ea]$", "", stem)
 
 
-def generate_numforms(session: GeneratorSession, output_file: io.StringIO) -> None:  # noqa: PLR0912, PLR0915
+def generate_numforms(session: GeneratorSession, output_file: FormOutput) -> None:  # noqa: PLR0912, PLR0915
     """
     Generate numeral forms.  Processes words where numeral==1. For noun
     numerals: cardinals as nouns (wine, cwēne, spere paradigms). For all

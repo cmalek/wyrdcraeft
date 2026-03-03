@@ -5,14 +5,14 @@ from pathlib import Path
 
 import click
 
-from wyrdcraeft.services.morphology.generators.common import (
+from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
     generate_nounforms,
     generate_numforms,
     generate_vbforms,
-    output_manual_forms,
 )
+from wyrdcraeft.services.morphology.generators.common import output_manual_forms
 from wyrdcraeft.services.morphology.processors import (
     set_adj_paradigm,
     set_noun_paradigm,

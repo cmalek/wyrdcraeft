@@ -98,7 +98,12 @@ def parse_bt_search_entries(html: str) -> list[BTSearchEntry]:
         if not headword_raw:
             continue
 
-        href = _collapse_whitespace(anchor.get("href") or "")
+        href_raw = anchor.get("href")
+        href = (
+            _collapse_whitespace(" ".join(href_raw))
+            if isinstance(href_raw, list)
+            else _collapse_whitespace(href_raw or "")
+        )
         entry_url = urljoin(BT_BASE_URL, href) if href else BT_BASE_URL
 
         pos_node = card.select_one(".btd--search-entry-wordclass")

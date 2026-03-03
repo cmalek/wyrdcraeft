@@ -29,7 +29,7 @@ class LLMExtractor:
         #: The configuration for any-llm.
         self.config = config or AnyLLMConfig()
 
-    def prepare(self, prompt: str, text: str) -> list[dict[str, str]]:
+    def prepare(self, prompt: str, text: str) -> list[dict[str, Any]]:
         """
         Create a list of messages for any-llm.
 
@@ -173,9 +173,10 @@ class LLMExtractor:
         """
         if prompt_preamble:
             prompt = prompt_preamble.rstrip() + "\n\n" + prompt
-        raw = completion(
+        messages: Any = self.prepare(prompt, text)
+        raw: Any = completion(
             model=self.config.model_id,
-            messages=self.prepare(prompt, text),
+            messages=messages,
             provider=self.config.provider,
             temperature=self.config.temperature,
             max_tokens=self.config.max_tokens,
