@@ -6,11 +6,11 @@ from wyrdcraeft.models.morphology import (
     ParadigmVariant,
     VerbParadigm,
     Word,
-    Word as WordModel,
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from ..generation.form_assembly import assemble_form_parts, materialize_form
+from ..generation.participles import build_participle_adjective
 from ..generation.probability import (
     format_probability,
     probability_or_zero,
@@ -21,6 +21,7 @@ from ..generation.sound_changes import (
     emit_sound_changed_forms,
 )
 from ..generation.strong_inflections import (
+    dispatch_strong_verb_part_branches,
     emit_strong_derived_from_inf_non_umlaut,
     emit_strong_umlaut_for_vowel,
 )
@@ -595,46 +596,11 @@ class VerbFormGenerator:
         if perl_numify(prefix) != perl_numify(word.prefix):
             return
 
-        match = re.search(f"{re.escape(prefix)}(.*)$", form_parts)
-        if match:
-            stem = match.group(1).replace("0", "").replace("-", "").replace("\n", "")
-        else:
-            stem = form_parts.replace("0", "").replace("-", "").replace("\n", "")
-
-        # In Python, we add to session.adjectives
-        # We need to create a new Word object or similar structure
-        # For now, let's just store it in a way Phase 5 can use.
-        # The Perl code adds to a global @adjectives array.
-        # We'll add to session.adjectives which is a list[Word].
-
-        new_adj = WordModel(
-            nid=word.nid,
-            title=(prefix + stem).replace("0", "").replace("-", "").replace("\n", ""),
-            wright=word.wright,
-            noun=0,
-            pronoun=0,
-            adjective=1,
-            verb=0,
-            participle=0,
-            pspart=1 if not is_past else 0,
-            papart=1 if is_past else 0,
-            adverb=0,
-            preposition=0,
-            conjunction=0,
-            interjection=0,
-            numeral=0,
-            vb_weak=0,
-            vb_strong=0,
-            vb_contracted=0,
-            vb_pretpres=0,
-            vb_anomalous=0,
-            vb_uncertain=0,
-            n_masc=0,
-            n_fem=0,
-            n_neut=0,
-            n_uncert=0,
+        new_adj = build_participle_adjective(
+            word=word,
             prefix=prefix,
-            stem=stem,
+            form_parts=form_parts,
+            is_past=is_past,
         )
         self.session.adjectives.append(new_adj)
 
@@ -687,71 +653,93 @@ class VerbFormGenerator:
                 prob,
             )
 
-            if para_id.lower() == "papt":
-                self._add_participle_to_adjectives(word, prefix, form_parts, True)  # noqa: FBT003
+            def on_papt(*, _form_parts: str = form_parts) -> None:
+                self._add_participle_to_adjectives(word, prefix, _form_parts, True)  # noqa: FBT003
 
-            if para_id.lower() == "if":
+            def on_inf(
+                *,
+                _v: str = v,
+                _prob: str | int | None = prob,
+            ) -> None:
                 self._generate_strong_derived_from_inf(
                     formhash,
                     word,
                     prefix,
                     pre_vowel,
-                    v,
+                    _v,
                     post_vowel,
                     boundary,
                     ending,
-                    prob,
+                    _prob,
                 )
-            elif para_id.lower() == "painsg1":
+
+            def on_painsg1(
+                *,
+                _v: str = v,
+                _prob: str | int | None = prob,
+            ) -> None:
                 self._generate_and_print_form(
                     formhash,
                     prefix,
                     pre_vowel,
-                    v,
+                    _v,
                     post_vowel,
                     boundary,
                     "",
                     "0",
                     "PaInSg3",
-                    prob,
+                    _prob,
                 )
-            elif para_id.lower() == "painpl":
+
+            def on_painpl(
+                *,
+                _v: str = v,
+                _prob: str | int | None = prob,
+            ) -> None:
                 self._generate_and_print_form(
                     formhash,
                     prefix,
                     pre_vowel,
-                    v,
+                    _v,
                     post_vowel,
                     boundary,
                     "",
                     "e",
                     "PaInSg2",
-                    prob,
+                    _prob,
                 )
                 self._generate_and_print_form(
                     formhash,
                     prefix,
                     pre_vowel,
-                    v,
+                    _v,
                     post_vowel,
                     boundary,
                     "",
                     "e",
                     "PaSuSg",
-                    prob,
+                    _prob,
                 )
                 self._generate_and_print_form(
                     formhash,
                     prefix,
                     pre_vowel,
-                    v,
+                    _v,
                     post_vowel,
                     boundary,
                     "",
                     "en",
                     "PaSuPl",
-                    prob,
+                    _prob,
                 )
+
+            dispatch_strong_verb_part_branches(
+                para_id=para_id,
+                on_papt=on_papt,
+                on_inf=on_inf,
+                on_painsg1=on_painsg1,
+                on_painpl=on_painpl,
+            )
 
     def _generate_strong_derived_from_inf(  # noqa: PLR0913
         self,
