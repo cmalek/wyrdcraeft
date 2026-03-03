@@ -1,4 +1,3 @@
-import io
 import re
 from typing import Final
 
@@ -11,6 +10,17 @@ from wyrdcraeft.models.morphology import (
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
+from ..generation.form_assembly import assemble_form_parts, materialize_form
+from ..generation.probability import (
+    format_probability,
+    probability_or_zero,
+    probability_plus,
+)
+from ..generation.shared import FormOutput
+from ..generation.sound_changes import (
+    derive_papt_sound_changed_forms,
+    derive_sound_changed_forms,
+)
 from ..text_utils import OENormalizer
 
 
@@ -51,7 +61,7 @@ def perl_numify(val: str) -> float:
         return 0.0
 
 
-def output_manual_forms(session: GeneratorSession, output_file: io.StringIO) -> None:
+def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
     """
     Output manual forms to the output file. Perl load_forms prints each form
     to OUTPUT first; Python must match this behavior for parity.
@@ -84,7 +94,7 @@ def output_manual_forms(session: GeneratorSession, output_file: io.StringIO) -> 
 
 
 def print_one_form(
-    session: GeneratorSession, form_data: dict[str, str], output_file: io.StringIO
+    session: GeneratorSession, form_data: dict[str, str], output_file: FormOutput
 ) -> None:
     r"""
     Print one form to the output file.  A form in this context is a single form
@@ -198,7 +208,7 @@ class VerbFormGenerator:
         (r"gþ$", "hþ"),
     ]
 
-    def __init__(self, session: GeneratorSession, output_file: io.StringIO):
+    def __init__(self, session: GeneratorSession, output_file: FormOutput):
         #: The generator session.
         self.session = session
         #: The output file.
@@ -526,36 +536,21 @@ class VerbFormGenerator:
         fh = formhash.copy()
         fh["function"] = function
 
-        # Ensure values are strings and handle None/0 as Perl does in interpolation
-        def p_interp(val):
-            if val is None:
-                return ""
-            return str(val)
-
-        if fh["class1"] == "s":
-            form_parts = (
-                f"{p_interp(prefix)}-{p_interp(pre_vowel)}-{p_interp(vowel)}"
-                f"-{p_interp(post_vowel)}-{p_interp(boundary)}-{p_interp(ending)}"
-            )
-        else:
-            if dental is None:
-                form_parts = (
-                    f"{p_interp(prefix)}-{p_interp(pre_vowel)}-{p_interp(vowel)}"
-                    f"-{p_interp(post_vowel)}-{p_interp(boundary)}-{p_interp(ending)}"
-                )
-            else:
-                d = p_interp(dental)
-                form_parts = (
-                    f"{p_interp(prefix)}-{p_interp(pre_vowel)}-{p_interp(vowel)}"
-                    f"-{p_interp(post_vowel)}-{p_interp(boundary)}-{d}-{p_interp(ending)}"
-                )
-
-        form = form_parts.replace("0", "").replace("-", "").replace("\n", "")
-        form_parts = form_parts.replace("\n", "")
+        form_parts_raw = assemble_form_parts(
+            class1=fh["class1"],
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+            dental=dental,
+            ending=ending,
+        )
+        form, form_parts = materialize_form(form_parts_raw)
 
         fh["form"] = form
         fh["formParts"] = form_parts
-        fh["probability"] = "" if prob is None else str(prob)
+        fh["probability"] = format_probability(prob)
 
         print_one_form(self.session, fh, self.output_file)
         return form, form_parts
@@ -1201,97 +1196,22 @@ class VerbFormGenerator:
             function,
             prob,
         )
-        sound_prob = int(prob or 0) + sound_change_prob_delta
-
-        # Sound changes for PsInSg2/3
-        if function == "PsInSg2":
-            # Perl uses sequential s/// which modifies $form. We'll do the same.
-            if "dst" in form:
-                form = form.replace("dst", "tst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "þst" in form:
-                form = form.replace("þst", "tst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "tst" in form:
-                form = form.replace("tst", "st")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "ngst" in form:
-                form = form.replace("ngst", "ncst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "ncst" in form:
-                form = form.replace("ncst", "nst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "gst" in form:
-                form = form.replace("gst", "hst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-            if "hst" in form:
-                form = form.replace("hst", "xst")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-        elif function == "PsInSg3":
-            # Perl: if ($form =~ s/[td]\x{00FE}$/tt/g)
-            match = re.search(r"[td]þ$", form)
-            if match:
-                form = re.sub(r"[td]þ$", "tt", form)
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/[dt]t$/t/g)
-            match = re.search(r"[dt]t$", form)
-            if match:
-                form = re.sub(r"[dt]t$", "t", form)
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/\x{00FE}\x{00FE}$/\x{00FE}/g)
-            if "þþ" in form:
-                form = form.replace("þþ", "þ")
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/\x{00FE}$/t/g)
-            if form.endswith("þ"):
-                form = form[:-1] + "t"
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/s\x{00FE}$/st/g)
-            if form.endswith("sþ"):
-                form = form[:-2] + "st"
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/ng\x{00FE}$/nc\x{00FE}/g)
-            if form.endswith("ngþ"):
-                form = form[:-3] + "ncþ"
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
-
-            # Perl: if ($form =~ s/g\x{00FE}$/h\x{00FE}/g)
-            if form.endswith("gþ"):
-                form = form[:-2] + "hþ"
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, function, sound_prob
-                )
+        sound_prob = probability_plus(
+            prob,
+            delta=sound_change_prob_delta,
+            empty_default=0,
+        )
+        for sound_changed_form in derive_sound_changed_forms(
+            function=function,
+            form=form,
+        ):
+            self._generate_and_print_manual(
+                formhash,
+                sound_changed_form,
+                form_parts,
+                function,
+                sound_prob,
+            )
 
     def _generate_and_print_manual(
         self,
@@ -1308,7 +1228,7 @@ class VerbFormGenerator:
         fh["form"] = form
         fh["formParts"] = form_parts
         fh["function"] = function
-        fh["probability"] = "" if prob is None else str(prob)
+        fh["probability"] = format_probability(prob)
         print_one_form(self.session, fh, self.output_file)
 
     def _generate_weak_verb_parts(  # noqa: PLR0913
@@ -2159,7 +2079,7 @@ class VerbFormGenerator:
 
         """
         pv_simp = re.sub(r"(.)\1", r"\1", post_vowel)
-        base_probability = int(prob or 0)
+        base_probability = probability_or_zero(prob)
         vowel_list = [vowel]
 
         # Perl unshifts the paradigm preterite vowel when infinitive and
@@ -2275,16 +2195,13 @@ class VerbFormGenerator:
                 formhash, form, form_parts, "PaPt", curr_prob
             )
 
-            # t-ed > t-t; t-t > t
-            if form.endswith("ted"):
-                form = re.sub(r"ted$", "tt", form)
+            for sound_changed_form in derive_papt_sound_changed_forms(form):
                 self._generate_and_print_manual(
-                    formhash, form, form_parts, "PaPt", curr_prob + 1
-                )
-            if form.endswith("tt"):
-                form = re.sub(r"tt$", "t", form)
-                self._generate_and_print_manual(
-                    formhash, form, form_parts, "PaPt", curr_prob + 1
+                    formhash,
+                    sound_changed_form,
+                    form_parts,
+                    "PaPt",
+                    curr_prob + 1,
                 )
 
             self._add_participle_to_adjectives(word, prefix, form_parts, True)  # noqa: FBT003
@@ -2303,6 +2220,11 @@ class VerbFormGenerator:
         Matches Perl's generate_weak_derived_from_psinsg2.
         """
         probability = prob if prob is not None else ""
+        probability_plus_one = probability_plus(
+            probability,
+            delta=1,
+            empty_default=1,
+        )
         # Perl: $post_vowel =~ s/(.)\1/$1/;
         pv_simp = re.sub(r"(.)\1", r"\1", post_vowel)
 
@@ -2317,7 +2239,7 @@ class VerbFormGenerator:
             None,
             "est",
             "PsInSg2",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
         self._generate_and_print_form(
             formhash,
@@ -2329,7 +2251,7 @@ class VerbFormGenerator:
             None,
             "es",
             "PsInSg2",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
         self._generate_and_print_form(
             formhash,
@@ -2341,7 +2263,7 @@ class VerbFormGenerator:
             None,
             "ist",
             "PsInSg2",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
         self._generate_and_print_form(
             formhash,
@@ -2353,7 +2275,7 @@ class VerbFormGenerator:
             None,
             "s",
             "PsInSg2",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
 
         # Sound changes for PsInSg2
@@ -2381,7 +2303,7 @@ class VerbFormGenerator:
             None,
             "eþ",
             "PsInSg3",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
 
         self._generate_and_print_form(
@@ -2394,7 +2316,7 @@ class VerbFormGenerator:
             None,
             "ieþ",
             "PsInSg3",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
         self._generate_and_print_form(
             formhash,
@@ -2406,7 +2328,7 @@ class VerbFormGenerator:
             None,
             "iþ",
             "PsInSg3",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
         )
 
         # Sound changes for PsInSg3
@@ -2420,7 +2342,7 @@ class VerbFormGenerator:
             None,
             "þ",
             "PsInSg3",
-            (int(probability) + 1 if probability != "" else 1),
+            probability_plus_one,
             0,
         )
 
@@ -2463,7 +2385,7 @@ class VerbFormGenerator:
         )
 
 
-def generate_vbforms(session: GeneratorSession, output_file: io.StringIO) -> None:
+def generate_vbforms(session: GeneratorSession, output_file: FormOutput) -> None:
     """
     Wrapper for VerbFormGenerator.
 
@@ -2472,8 +2394,10 @@ def generate_vbforms(session: GeneratorSession, output_file: io.StringIO) -> Non
         output_file: The output file.
 
     """
-    generator = VerbFormGenerator(session, output_file)
-    generator.generate()
+    from ..generation.verb_engine import VerbFormOrchestrator
+
+    orchestrator = VerbFormOrchestrator(session, output_file)
+    orchestrator.generate()
 
 
 def generate_adjforms(session, output_file):

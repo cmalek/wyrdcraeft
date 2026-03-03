@@ -15,7 +15,12 @@ from wyrdcraeft.services.morphology.generators.common import (
     output_manual_forms,
 )
 
-from .snapshot_io import canonicalize_form_rows, parse_form_output, read_jsonl_gz
+from .snapshot_io import (
+    canonicalize_form_rows,
+    parse_form_output,
+    read_jsonl_gz,
+    stable_json_sha256,
+)
 
 if TYPE_CHECKING:
     from wyrdcraeft.services.morphology.session import GeneratorSession
@@ -67,4 +72,5 @@ def test_stage_output_matches_snapshot(
     expected = read_jsonl_gz(STAGE_TO_PATH[stage])
 
     assert len(observed) == len(expected)
+    assert stable_json_sha256(observed) == stable_json_sha256(expected)
     assert observed == expected

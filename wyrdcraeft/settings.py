@@ -81,6 +81,17 @@ class Settings(BaseSettings):
     log_file: str | None = Field(default=None, description="Log file path")
 
     @classmethod
+    def default_settings_path(cls) -> Path:
+        """
+        Return the default local settings file path used by the CLI.
+
+        Returns:
+            The default settings file path.
+
+        """
+        return Path.cwd() / ".wyrdcraeft.toml"
+
+    @classmethod
     def settings_customise_sources(
         cls,
         settings_cls: type[BaseSettings],

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+from typing import Literal, cast
 
 import pytest
 
@@ -11,7 +12,7 @@ from wyrdcraeft.ingest.extractors import (
     LLMExtractor,
 )
 from wyrdcraeft.ingest.pipeline import LLMDocumentIngestor
-from wyrdcraeft.models import OldEnglishText, TextMetadata, Section
+from wyrdcraeft.models import Section, TextMetadata
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -73,7 +74,7 @@ def test_live_qwen_matches_golden(
     )
 
     ingestor = LLMDocumentIngestor()
-    prompt = ingestor._build_prompt(config, mode)
+    prompt = ingestor._build_prompt(config, cast("Literal['prose', 'verse']", mode))
 
     extractor = LLMExtractor(config=config)
     doc = extractor.extract(

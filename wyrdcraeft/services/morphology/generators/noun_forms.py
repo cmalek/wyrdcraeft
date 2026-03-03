@@ -2,13 +2,13 @@
 Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 """
 
-import io
 import re
 
 from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
+from ..generation.shared import FormOutput
 from .common import print_one_form
 
 #: The vowel regex, saved here for convenience.
@@ -133,7 +133,7 @@ def _form_from_parts(form_parts: str) -> str:
 
 def _noun_print(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
     func: str,
@@ -429,7 +429,7 @@ def _build_stem_ar_pl(stem: str) -> list[str]:
 
 def _gen_word(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -475,7 +475,7 @@ def _gen_word(
 
 def _gen_hof(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -528,7 +528,7 @@ def _gen_hof(
 
 def _gen_daeg(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -566,7 +566,7 @@ def _gen_daeg(
 
 def _gen_faet(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -614,7 +614,7 @@ def _gen_faet(
 
 def _gen_ar(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -673,7 +673,7 @@ def _gen_ar(
 
 def _gen_strengu(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -713,7 +713,7 @@ def _gen_strengu(
 
 def _gen_hand_feld(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
     paradigm: str,
@@ -755,7 +755,7 @@ def _gen_hand_feld(
 
 def _gen_sunu_duru(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
     paradigm: str,
@@ -791,7 +791,7 @@ def _gen_sunu_duru(
 
 def _gen_bearu(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -817,7 +817,7 @@ def _gen_bearu(
 
 def _gen_bealu(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -844,7 +844,7 @@ def _gen_bealu(
 
 def _gen_guma(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -880,7 +880,7 @@ def _gen_guma(
 
 def _gen_frea(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -908,7 +908,7 @@ def _gen_frea(
 
 def _gen_tunge(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -947,7 +947,7 @@ def _gen_tunge(
 
 def _gen_eage(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -986,7 +986,7 @@ def _gen_eage(
 
 def _gen_wigend(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1023,7 +1023,7 @@ def _gen_wigend(
 
 def _emit_r_stem_forms(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
     forms_by_function: dict[str, list[str]],
@@ -1053,7 +1053,7 @@ def _emit_r_stem_forms(
 
 def _gen_r_stem_faeder(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1072,7 +1072,7 @@ def _gen_r_stem_faeder(
 
 def _gen_r_stem_brothor(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1099,7 +1099,7 @@ def _gen_r_stem_brothor(
 
 def _gen_r_stem_modor(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1118,7 +1118,7 @@ def _gen_r_stem_modor(
 
 def _gen_r_stem_dohtor(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1137,7 +1137,7 @@ def _gen_r_stem_dohtor(
 
 def _gen_r_stem_sweostor(
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
 ) -> None:
@@ -1164,7 +1164,7 @@ def _gen_r_stem_sweostor(
 
 def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
     session: GeneratorSession,
-    output_file: io.StringIO,
+    output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
     paradigm: str,  # noqa: ARG001
@@ -1249,7 +1249,7 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
 
 
 def generate_nounforms(  # noqa: PLR0912, PLR0915
-    session: GeneratorSession, output_file: io.StringIO
+    session: GeneratorSession, output_file: FormOutput
 ) -> None:
     """
     Generate noun forms.

@@ -18,7 +18,12 @@ from wyrdcraeft.services.morphology.generators.common import (
 )
 
 from .conftest import FULL_DICTIONARY, build_session
-from .snapshot_io import canonicalize_form_rows, parse_form_output, read_jsonl_gz
+from .snapshot_io import (
+    canonicalize_form_rows,
+    parse_form_output,
+    read_jsonl_gz,
+    stable_json_sha256,
+)
 
 if TYPE_CHECKING:
     from wyrdcraeft.services.morphology.session import GeneratorSession
@@ -74,6 +79,7 @@ def test_full_flow_subset_matches_snapshot(subset_session: GeneratorSession) -> 
     expected = read_jsonl_gz(FULL_FLOW_SUBSET_PATH)
 
     assert len(observed) == len(expected)
+    assert stable_json_sha256(observed) == stable_json_sha256(expected)
     assert observed == expected
 
 
