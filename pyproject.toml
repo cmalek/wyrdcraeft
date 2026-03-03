@@ -119,6 +119,18 @@ ignore_missing_imports = true
 module = "sphinx_rtd_theme.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "acdh_tei_pyutils.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "acdh_tei_pyutils"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "acdh_tei_pyutils.tei"
+ignore_missing_imports = true
+
 [tool.ruff]
 # Same as Black.
 line-length = 88
@@ -202,8 +214,8 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"]
-"tests/*.py" = ["S101"]
+"tests/**/*.py" = ["S101", "SLF001"]
+"tests/*.py" = ["S101", "SLF001"]
 "wyrdcraeft/services/morphology/generators/common.py" = ["PLR0913", "D417", "PLR5501", "ARG002", "PLR2004", "PLC0415", "I001", "E501", "RUF100"]
 "wyrdcraeft/services/morphology/generators/noun_forms.py" = ["ERA001"]
 "wyrdcraeft/services/morphology/generators/adj_forms.py" = ["I001"]
