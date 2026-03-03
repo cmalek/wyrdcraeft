@@ -11,6 +11,8 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
     emit_strong_umlaut_for_vowel,
 )
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
+    dispatch_weak_derived_forms,
+    emit_weak_derived_from_inf_by_class2,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_principal_form,
@@ -305,6 +307,96 @@ def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
     assert observed == [
         ("ge", "l", "a", "m", "t", "ed", "e", "PaInSg1", None),
     ]
+
+
+def test_emit_weak_derived_from_inf_by_class2_general_branch() -> None:
+    observed: list[tuple[str | None, str, str, str | int | None]] = []
+    participles: list[str] = []
+
+    def _emit_form(
+        dental: str | None,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((dental, ending, function, probability))
+        return "form", f"fp-{ending}-{function}"
+
+    emit_weak_derived_from_inf_by_class2(
+        class2="1",
+        original_ending="ian",
+        probability=0,
+        probability_plus_one=1,
+        perl_inf_vowel_end=False,
+        regex_vowel_end=False,
+        emit_form=_emit_form,
+        on_participle=participles.append,
+    )
+
+    assert observed[0] == (None, "ian", "if", 0)
+    assert participles == ["fp-ende-PsPt"]
+
+
+def test_emit_weak_derived_from_inf_by_class2_two_uses_general_path() -> None:
+    observed: list[tuple[str | None, str, str, str | int | None]] = []
+    participles: list[str] = []
+
+    def _emit_form(
+        dental: str | None,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((dental, ending, function, probability))
+        return "form", f"fp-{ending}-{function}"
+
+    emit_weak_derived_from_inf_by_class2(
+        class2="2",
+        original_ending="ian",
+        probability=0,
+        probability_plus_one=1,
+        perl_inf_vowel_end=False,
+        regex_vowel_end=False,
+        emit_form=_emit_form,
+        on_participle=participles.append,
+    )
+
+    assert observed[0] == (None, "ian", "if", 0)
+    assert all(
+        not (ending == "an" and function == "if")
+        for _, ending, function, _ in observed
+    )
+    assert participles == ["fp-ende-PsPt"]
+
+
+def test_dispatch_weak_derived_forms_selects_psinsg2_branch() -> None:
+    calls: list[str] = []
+
+    did_dispatch = dispatch_weak_derived_forms(
+        para_id="PsInSg2",
+        use_item_shape=False,
+        on_inf=lambda: calls.append("if"),
+        on_psinsg2=lambda: calls.append("psinsg2"),
+        on_painsg1=lambda: calls.append("painsg1"),
+    )
+
+    assert did_dispatch
+    assert calls == ["psinsg2"]
+
+
+def test_dispatch_weak_derived_forms_skips_item_shape_mode() -> None:
+    calls: list[str] = []
+
+    did_dispatch = dispatch_weak_derived_forms(
+        para_id="if",
+        use_item_shape=True,
+        on_inf=lambda: calls.append("if"),
+        on_psinsg2=lambda: calls.append("psinsg2"),
+        on_painsg1=lambda: calls.append("painsg1"),
+    )
+
+    assert not did_dispatch
+    assert calls == []
 
 
 def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:

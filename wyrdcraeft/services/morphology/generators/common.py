@@ -25,10 +25,10 @@ from ..generation.strong_inflections import (
     emit_strong_umlaut_for_vowel,
 )
 from ..generation.weak_inflections import (
+    dispatch_weak_derived_forms,
+    emit_weak_derived_from_inf_by_class2,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
-    emit_weak_derived_from_inf_class2_variant,
-    emit_weak_derived_from_inf_general,
     emit_weak_principal_form,
     has_perl_inf_vowel_ending,
     has_regex_vowel_ending,
@@ -1036,11 +1036,7 @@ class VerbFormGenerator:
         if para_id_lower == "papt":
             self._add_participle_to_adjectives(word, prefix, fp, True)  # noqa: FBT003
 
-        if use_item_shape:
-            return
-
-        # Derived forms
-        if para_id_lower == "if":
+        def on_inf() -> None:
             self._generate_weak_derived_from_inf(
                 formhash,
                 word,
@@ -1052,7 +1048,8 @@ class VerbFormGenerator:
                 ending,
                 prob,
             )
-        elif para_id_lower == "psinsg2":
+
+        def on_psinsg2() -> None:
             self._generate_weak_derived_from_psinsg2(
                 formhash,
                 prefix,
@@ -1062,7 +1059,8 @@ class VerbFormGenerator:
                 boundary,
                 prob,
             )
-        elif para_id_lower == "painsg1":
+
+        def on_painsg1() -> None:
             self._generate_weak_derived_from_painsg1(
                 formhash,
                 word,
@@ -1076,6 +1074,14 @@ class VerbFormGenerator:
                 vowel_inf,
                 vowel_pa,
             )
+
+        dispatch_weak_derived_forms(
+            para_id=para_id,
+            use_item_shape=use_item_shape,
+            on_inf=on_inf,
+            on_psinsg2=on_psinsg2,
+            on_painsg1=on_painsg1,
+        )
 
     def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
         self,
@@ -1137,30 +1143,19 @@ class VerbFormGenerator:
                 prob_value,
             )
 
-        # create_dict31.pl applies this branch to weak verbs generally.
-        if formhash.get("class2") in {"", "1", "2"}:
-            iending_general = "i" if original_ending.lower().startswith("i") else ""
-            fp = emit_weak_derived_from_inf_general(
-                original_ending=original_ending,
-                iending=iending_general,
-                probability=probability,
-                probability_plus_one=probability_plus_one,
-                perl_inf_vowel_end=perl_inf_vowel_end,
-                regex_vowel_end=regex_vowel_end,
-                emit_form=emit_form,
-            )
-            self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
+        def on_participle(form_parts: str) -> None:
+            self._add_participle_to_adjectives(word, prefix, form_parts, False)  # noqa: FBT003
 
-        # Perl: if ($word->{class2} == 2)
-        elif formhash.get("class2") == "2":
-            for iending in ["ig", "ige", ""]:
-                fp = emit_weak_derived_from_inf_class2_variant(
-                    iending=iending,
-                    perl_inf_vowel_end=perl_inf_vowel_end,
-                    regex_vowel_end=regex_vowel_end,
-                    emit_form=emit_form,
-                )
-                self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
+        emit_weak_derived_from_inf_by_class2(
+            class2=formhash.get("class2"),
+            original_ending=original_ending,
+            probability=probability,
+            probability_plus_one=probability_plus_one,
+            perl_inf_vowel_end=perl_inf_vowel_end,
+            regex_vowel_end=regex_vowel_end,
+            emit_form=emit_form,
+            on_participle=on_participle,
+        )
 
     def _generate_weak_derived_from_painsg1(  # noqa: PLR0913
         self,

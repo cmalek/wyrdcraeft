@@ -24,6 +24,10 @@ WeakPrincipalEmitter = Callable[
     [str, str, str, str, str, str | None, str, str, str | int | None],
     tuple[str, str],
 ]
+#: Callback signature for attaching a derived participle form.
+WeakParticipleSink = Callable[[str], None]
+#: Callback signature for one derived-branch dispatch action.
+WeakBranchAction = Callable[[], None]
 #: Lower bound (exclusive) for using raw item-shape weak forms.
 WEAK_ITEM_SHAPE_MIN_ID: int = 88
 #: Upper bound (exclusive) for using raw item-shape weak forms.
@@ -41,7 +45,7 @@ def has_perl_inf_vowel_ending(fp_base: str) -> bool:
         fp_base: Form-parts base string.
 
     Keyword Args:
-        None.
+        This function does not define keyword-only arguments.
 
     Raises:
         None.
@@ -231,6 +235,69 @@ def emit_weak_derived_from_inf_class2_variant(
     if perl_inf_vowel_end:
         _, participle_form_parts = emit_form(iending, "nde", "PsPt", prob_c2)
     return participle_form_parts
+
+
+def emit_weak_derived_from_inf_by_class2(  # noqa: PLR0913
+    *,
+    class2: str | None,
+    original_ending: str,
+    probability: str | int | None,
+    probability_plus_one: int,
+    perl_inf_vowel_end: bool,
+    regex_vowel_end: bool,
+    emit_form: WeakFormEmitter,
+    on_participle: WeakParticipleSink,
+) -> None:
+    """
+    Emit weak infinitive-derived branches according to ``class2`` routing.
+
+    Side Effects:
+        Emits generated rows via ``emit_form`` and forwards participles.
+
+    Args:
+        class2: Weak-verb class2 marker from form metadata.
+        original_ending: Source infinitive ending from the paradigm.
+        probability: Base probability scalar for principal forms.
+        probability_plus_one: Incremented probability scalar.
+        perl_inf_vowel_end: Perl-style vowel-ending predicate.
+        regex_vowel_end: Regex-based vowel-ending predicate.
+        emit_form: Callback that emits one generated form.
+        on_participle: Callback invoked for each derived participle form-parts.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Raises:
+        Does not raise directly.
+
+    Returns:
+        ``None``.
+
+    """
+    # create_dict31.pl applies this branch to weak verbs generally.
+    if class2 in {"", "1", "2"}:
+        iending_general = "i" if original_ending.lower().startswith("i") else ""
+        fp = emit_weak_derived_from_inf_general(
+            original_ending=original_ending,
+            iending=iending_general,
+            probability=probability,
+            probability_plus_one=probability_plus_one,
+            perl_inf_vowel_end=perl_inf_vowel_end,
+            regex_vowel_end=regex_vowel_end,
+            emit_form=emit_form,
+        )
+        on_participle(fp)
+
+    # Perl: if ($word->{class2} == 2)
+    elif class2 == "2":
+        for iending in ["ig", "ige", ""]:
+            fp = emit_weak_derived_from_inf_class2_variant(
+                iending=iending,
+                perl_inf_vowel_end=perl_inf_vowel_end,
+                regex_vowel_end=regex_vowel_end,
+                emit_form=emit_form,
+            )
+            on_participle(fp)
 
 
 def emit_weak_derived_from_psinsg2(
@@ -435,3 +502,50 @@ def emit_weak_principal_form(  # noqa: PLR0913
         principal_prob,
     )
     return form_parts
+
+
+def dispatch_weak_derived_forms(
+    *,
+    para_id: str,
+    use_item_shape: bool,
+    on_inf: WeakBranchAction,
+    on_psinsg2: WeakBranchAction,
+    on_painsg1: WeakBranchAction,
+) -> bool:
+    """
+    Dispatch weak derived-form generation for one principal paradigm function.
+
+    Side Effects:
+        Invokes one branch callback when a derived branch applies.
+
+    Args:
+        para_id: Principal function identifier from the paradigm row.
+        use_item_shape: Whether generation is in raw item-shape mode.
+        on_inf: Callback for infinitive-derived branch.
+        on_psinsg2: Callback for ``PsInSg2``-derived branch.
+        on_painsg1: Callback for ``PaInSg1``-derived branch.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Raises:
+        Does not raise directly.
+
+    Returns:
+        ``True`` when a branch callback was invoked, otherwise ``False``.
+
+    """
+    if use_item_shape:
+        return False
+
+    para_id_lower = para_id.lower()
+    if para_id_lower == "if":
+        on_inf()
+        return True
+    if para_id_lower == "psinsg2":
+        on_psinsg2()
+        return True
+    if para_id_lower == "painsg1":
+        on_painsg1()
+        return True
+    return False
