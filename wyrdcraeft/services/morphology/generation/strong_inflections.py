@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
+
+from .probability import probability_plus
 
 #: Callback signature for one strong-form emission operation.
 StrongFormEmitter = Callable[[str, str, str | int | None], tuple[str, str]]
@@ -10,6 +12,98 @@ StrongFormEmitter = Callable[[str, str, str | int | None], tuple[str, str]]
 StrongSoundEmitter = Callable[[str, str, str | int | None], None]
 #: Callback signature for one strong-branch action.
 StrongBranchAction = Callable[[], None]
+#: Callback signature for emitting a strong form for a specific active vowel.
+StrongVowelFormEmitter = Callable[[str, str, str, str | int | None], tuple[str, str]]
+#: Callback signature for emitting strong sound changes for a specific vowel.
+StrongVowelSoundEmitter = Callable[[str, str, str, str | int | None], None]
+#: Callback signature for consuming one derived participle ``formParts`` value.
+StrongParticipleSink = Callable[[str], None]
+#: Callback signature for emitting the imperative-singular derivative row.
+StrongImSgEmitter = Callable[[str | int | None], None]
+
+
+def emit_strong_derived_from_inf_sequence(  # noqa: PLR0913
+    *,
+    ending: str,
+    vowel: str,
+    probability: str | int | None,
+    umlaut_vowels: Sequence[str],
+    emit_form_for_vowel: StrongVowelFormEmitter,
+    emit_sound_for_vowel: StrongVowelSoundEmitter,
+    on_participle: StrongParticipleSink,
+    emit_imsg: StrongImSgEmitter,
+) -> None:
+    """
+    Emit the full strong-verb infinitive-derived sequence.
+
+    Side Effects:
+        Invokes emission callbacks for non-umlaut, imperative, and umlaut forms.
+
+    Args:
+        ending: Original paradigm ending from the infinitive principal part.
+        vowel: Base infinitive vowel.
+        probability: Base probability scalar for the branch.
+        umlaut_vowels: Ordered umlaut vowel variants for the base vowel.
+        emit_form_for_vowel: Callback that emits a form for one active vowel.
+        emit_sound_for_vowel: Callback that emits sound-change rows for one vowel.
+        on_participle: Callback that consumes the emitted participle form-parts.
+        emit_imsg: Callback that emits the ``ImSg`` derived row.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    probability_plus_one = probability_plus(probability, delta=1, empty_default=1)
+    form_parts = emit_strong_derived_from_inf_non_umlaut(
+        ending=ending,
+        probability=probability,
+        probability_plus_one=probability_plus_one,
+        emit_form=lambda ending_value, function, prob_value: emit_form_for_vowel(
+            vowel,
+            ending_value,
+            function,
+            prob_value,
+        ),
+    )
+    on_participle(form_parts)
+    emit_imsg(probability)
+
+    for mv_idx, mvowel in enumerate(umlaut_vowels):
+        mv_prob = int(probability) + mv_idx if probability is not None else mv_idx
+
+        def emit_umlaut(
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+            *,
+            _mvowel: str = mvowel,
+        ) -> tuple[str, str]:
+            return emit_form_for_vowel(
+                _mvowel,
+                ending_value,
+                function,
+                prob_value,
+            )
+
+        def emit_umlaut_sound(
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+            *,
+            _mvowel: str = mvowel,
+        ) -> None:
+            emit_sound_for_vowel(
+                _mvowel,
+                ending_value,
+                function,
+                prob_value,
+            )
+
+        emit_strong_umlaut_for_vowel(
+            probability=mv_prob,
+            emit_form=emit_umlaut,
+            emit_sound=emit_umlaut_sound,
+        )
 
 
 def emit_strong_derived_from_inf_non_umlaut(
