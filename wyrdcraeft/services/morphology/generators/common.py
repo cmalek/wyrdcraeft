@@ -21,6 +21,12 @@ from ..generation.sound_changes import (
     derive_papt_sound_changed_forms,
     derive_sound_changed_forms,
 )
+from ..generation.weak_inflections import (
+    emit_weak_derived_from_inf_class2_variant,
+    emit_weak_derived_from_inf_general,
+    has_perl_inf_vowel_ending,
+    has_regex_vowel_ending,
+)
 from ..text_utils import OENormalizer
 
 
@@ -1348,7 +1354,7 @@ class VerbFormGenerator:
                     vowel_pa,
                 )
 
-    def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913, PLR0915
+    def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
         self,
         formhash: dict[str, str],
         word: Word,
@@ -1380,671 +1386,57 @@ class VerbFormGenerator:
 
         """
         probability = prob if prob is not None else ""
+        probability_plus_one = probability_plus(
+            probability,
+            delta=1,
+            empty_default=1,
+        )
+        fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
+        perl_inf_vowel_end = has_perl_inf_vowel_ending(fp_base)
+        regex_vowel_end = has_regex_vowel_ending(fp_base)
+
+        def emit_form(
+            dental: str | None,
+            ending: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> tuple[str, str]:
+            return self._generate_and_print_form(
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob_value,
+            )
 
         # create_dict31.pl applies this branch to weak verbs generally.
         if formhash.get("class2") in {"", "1", "2"}:
-            iending = "i" if original_ending.lower().startswith("i") else ""
-
-            # If the form ends in a vowel, the initial vowel of the ending is deleted
-            fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
-            perl_inf_vowel_end = bool(
-                re.search(r"[æaeyouÆAEIYOUǣāēīȳōūǢĀĒĪȲŌŪ][0-]*?$", fp_base)
+            iending_general = "i" if original_ending.lower().startswith("i") else ""
+            fp = emit_weak_derived_from_inf_general(
+                original_ending=original_ending,
+                iending=iending_general,
+                probability=probability,
+                probability_plus_one=probability_plus_one,
+                perl_inf_vowel_end=perl_inf_vowel_end,
+                regex_vowel_end=regex_vowel_end,
+                emit_form=emit_form,
             )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                None,
-                original_ending,
-                "if",
-                probability,
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    None,
-                    "n",
-                    "if",
-                    probability,
-                )
-
-            # IdIf
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "anne",
-                "IdIf",
-                probability,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "enne",
-                "IdIf",
-                probability,
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "nne",
-                    "IdIf",
-                    probability,
-                )
-
-            # PsInSg1
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "e",
-                "PsInSg1",
-                probability,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "u",
-                "PsInSg1",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "o",
-                "PsInSg1",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "æ",
-                "PsInSg1",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    None,
-                    "0",
-                    "PsInSg1",
-                    probability,
-                )
-
-            # PsInPl
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "aþ",
-                "PsInPl",
-                probability,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "eþ",
-                "PsInPl",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "es",
-                "PsInPl",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "as",
-                "PsInPl",
-                (int(probability) + 1 if probability != "" else 1),
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "þ",
-                    "PsInPl",
-                    probability,
-                )
-
-            # PsSuSg
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "e",
-                "PsSuSg",
-                probability,
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    None,
-                    "0",
-                    "PsSuSg",
-                    probability,
-                )
-
-            # PsSuPl
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "en",
-                "PsSuPl",
-                probability,
-            )
-            if re.search(
-                f"{OENormalizer.VOWEL_REGEX.pattern}$", fp_base, re.IGNORECASE
-            ):
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "n",
-                    "PsSuPl",
-                    probability,
-                )
-
-            # ImPl
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "aþ",
-                "ImPl",
-                probability,
-            )
-            if perl_inf_vowel_end:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    None,
-                    "þ",
-                    "ImPl",
-                    probability,
-                )
-
-            # PsPt
-            _, fp = self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                iending,
-                "ende",
-                "PsPt",
-                probability,
-            )
-            if perl_inf_vowel_end:
-                _, fp = self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "nde",
-                    "PsPt",
-                    probability,
-                )
             self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
 
         # Perl: if ($word->{class2} == 2)
         elif formhash.get("class2") == "2":
             for iending in ["ig", "ige", ""]:
-                # Perl: my $prob_c2 = 0;
-                prob_c2 = 0
-
-                fp_base = f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}"
-                perl_inf_vowel_end = bool(
-                    re.search(r"[æaeyouÆAEIYOUǣāēīȳōūǢĀĒĪȲŌŪ][0-]*?$", fp_base)
+                fp = emit_weak_derived_from_inf_class2_variant(
+                    iending=iending,
+                    perl_inf_vowel_end=perl_inf_vowel_end,
+                    regex_vowel_end=regex_vowel_end,
+                    emit_form=emit_form,
                 )
-
-                # if (only for ig and ige)
-                if iending != "":
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        iending,
-                        "an",
-                        "if",
-                        prob_c2,
-                    )
-                    if perl_inf_vowel_end:
-                        self._generate_and_print_form(
-                            formhash,
-                            prefix,
-                            pre_vowel,
-                            vowel,
-                            post_vowel,
-                            boundary,
-                            None,
-                            "n",
-                            "if",
-                            prob_c2,
-                        )
-                elif perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        None,
-                        "n",
-                        "if",
-                        prob_c2,
-                    )
-
-                # IdIf
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "anne",
-                    "IdIf",
-                    prob_c2,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "enne",
-                    "IdIf",
-                    prob_c2,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        iending,
-                        "nne",
-                        "IdIf",
-                        prob_c2,
-                    )
-
-                # ImSg
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "a",
-                    "ImSg",
-                    prob_c2,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        None,
-                        "0",
-                        "ImSg",
-                        prob_c2,
-                    )
-
-                # PsInSg1
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "e",
-                    "PsInSg1",
-                    prob_c2,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "u",
-                    "PsInSg1",
-                    prob_c2 + 1,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "o",
-                    "PsInSg1",
-                    prob_c2 + 1,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "æ",
-                    "PsInSg1",
-                    prob_c2 + 1,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        None,
-                        "0",
-                        "PsInSg1",
-                        prob_c2,
-                    )
-
-                # PsInPl
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "aþ",
-                    "PsInPl",
-                    prob_c2,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "eþ",
-                    "PsInPl",
-                    prob_c2 + 1,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "es",
-                    "PsInPl",
-                    prob_c2 + 1,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "as",
-                    "PsInPl",
-                    prob_c2 + 1,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        iending,
-                        "þ",
-                        "PsInPl",
-                        prob_c2,
-                    )
-
-                # PsSuSg
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "e",
-                    "PsSuSg",
-                    prob_c2,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        None,
-                        "0",
-                        "PsSuSg",
-                        prob_c2,
-                    )
-
-                # PsSuPl
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "en",
-                    "PsSuPl",
-                    prob_c2,
-                )
-                if re.search(
-                    f"{OENormalizer.VOWEL_REGEX.pattern}$", fp_base, re.IGNORECASE
-                ):
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        iending,
-                        "n",
-                        "PsSuPl",
-                        prob_c2,
-                    )
-
-                # ImPl
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "aþ",
-                    "ImPl",
-                    prob_c2,
-                )
-                if perl_inf_vowel_end:
-                    self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        None,
-                        "þ",
-                        "ImPl",
-                        prob_c2,
-                    )
-
-                # Past participle
-                _, fp = self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    vowel,
-                    post_vowel,
-                    boundary,
-                    iending,
-                    "ende",
-                    "PsPt",
-                    prob_c2,
-                )
-                if perl_inf_vowel_end:
-                    _, fp = self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        vowel,
-                        post_vowel,
-                        boundary,
-                        iending,
-                        "nde",
-                        "PsPt",
-                        prob_c2,
-                    )
                 self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
 
     def _generate_weak_derived_from_painsg1(  # noqa: PLR0913
