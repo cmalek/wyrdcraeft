@@ -142,6 +142,31 @@ Linting
 
 - Use ``ruff`` to lint the code, according to the settings in ``pyproject.toml``. Try to fix the lint errors by either fixing the code or adding a ``# noqa: <rule>`` comment to the line.
 - Use ``mypy`` to type check the code, according to the settings in ``pyproject.toml``.  For any imported modules that lack type hints, add a section like this to the appropriate place in the ``pyproject.toml`` file:
+- Enforce documentation quality with the Napoleon gate script:
+
+  - ``make napoleon-gate``: fails only on new violations not in baseline.
+  - ``make napoleon-gate-strict``: fails on all violations.
+  - ``make napoleon-gate-baseline``: refreshes baseline intentionally.
+
+Napoleon gate requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The gate validates non-test Python modules under ``wyrdcraeft`` and requires:
+
+- Class docstrings:
+  - Brief contract summary.
+  - ``Args:`` section when constructor arguments exist.
+- Method/function docstrings:
+  - Brief description.
+  - ``Side Effects:``
+  - ``Args:``
+  - ``Keyword Args:``
+  - ``Raises:``
+  - ``Returns:`` or ``Yields:``
+- ``#:`` comments for:
+  - class attributes
+  - instance attributes assigned in ``__init__``
+  - module-level global variables
 
 To silence mypy errors about missing type hints in a dependency, you can add the following to your ``pyproject.toml`` file:
 
