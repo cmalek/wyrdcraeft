@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+
+from .probability import probability_plus
 
 #: Ordered sequential substitutions for ``PsInSg2`` forms.
 PSINSG2_SUBSTITUTIONS: tuple[tuple[str, str], ...] = (
@@ -14,6 +17,9 @@ PSINSG2_SUBSTITUTIONS: tuple[tuple[str, str], ...] = (
     ("gst", "hst"),
     ("hst", "xst"),
 )
+
+#: Callback signature for emitting one sound-changed manual form row.
+SoundManualEmitter = Callable[[str, str, str, str | int | None], None]
 
 
 def derive_sound_changed_forms(*, function: str, form: str) -> list[str]:
@@ -150,3 +156,52 @@ def _derive_psinsg3_sound_changes(form: str) -> list[str]:
         derived.append(current)
     return derived
 
+
+def emit_sound_changed_forms(  # noqa: PLR0913
+    *,
+    function: str,
+    form: str,
+    form_parts: str,
+    probability: str | int | None,
+    sound_change_prob_delta: int,
+    emit_manual: SoundManualEmitter,
+) -> None:
+    """
+    Emit manual rows for all derived sound-change forms of one base form.
+
+    Side Effects:
+        Invokes ``emit_manual`` once for each derived sound-change form.
+
+    Args:
+        function: Morphology function code driving substitution rules.
+        form: Base generated surface form.
+        form_parts: Canonical form-parts representation for manual rows.
+        probability: Base probability scalar for the source form.
+        sound_change_prob_delta: Delta applied to source probability.
+        emit_manual: Callback that emits one manual row.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Raises:
+        Does not raise directly.
+
+    Returns:
+        ``None``.
+
+    """
+    sound_prob = probability_plus(
+        probability,
+        delta=sound_change_prob_delta,
+        empty_default=0,
+    )
+    for sound_changed_form in derive_sound_changed_forms(
+        function=function,
+        form=form,
+    ):
+        emit_manual(
+            sound_changed_form,
+            form_parts,
+            function,
+            sound_prob,
+        )

@@ -18,7 +18,7 @@ from ..generation.probability import (
 )
 from ..generation.shared import FormOutput
 from ..generation.sound_changes import (
-    derive_sound_changed_forms,
+    emit_sound_changed_forms,
 )
 from ..generation.strong_inflections import (
     emit_strong_derived_from_inf_non_umlaut,
@@ -922,22 +922,29 @@ class VerbFormGenerator:
             function,
             prob,
         )
-        sound_prob = probability_plus(
-            prob,
-            delta=sound_change_prob_delta,
-            empty_default=0,
-        )
-        for sound_changed_form in derive_sound_changed_forms(
-            function=function,
-            form=form,
-        ):
+
+        def emit_manual(
+            sound_changed_form: str,
+            source_form_parts: str,
+            source_function: str,
+            source_probability: str | int | None,
+        ) -> None:
             self._generate_and_print_manual(
                 formhash,
                 sound_changed_form,
-                form_parts,
-                function,
-                sound_prob,
+                source_form_parts,
+                source_function,
+                source_probability,
             )
+
+        emit_sound_changed_forms(
+            function=function,
+            form=form,
+            form_parts=form_parts,
+            probability=prob,
+            sound_change_prob_delta=sound_change_prob_delta,
+            emit_manual=emit_manual,
+        )
 
     def _generate_and_print_manual(
         self,
