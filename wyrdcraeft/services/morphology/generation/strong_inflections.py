@@ -158,3 +158,55 @@ def dispatch_strong_verb_part_branches(
         on_painpl()
         return True
     return invoked
+
+
+def emit_strong_painsg1_derived(
+    *,
+    probability: str | int | None,
+    emit_form: StrongFormEmitter,
+) -> None:
+    """
+    Emit ``PaInSg1``-derived strong-verb side branch forms.
+
+    Side Effects:
+        Writes generated rows through ``emit_form``.
+
+    Args:
+        probability: Base probability scalar for branch emissions.
+        emit_form: Callback that emits one generated form.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Returns:
+        ``None``.
+
+    """
+    emit_form("0", "PaInSg3", probability)
+
+
+def emit_strong_painpl_derived(
+    *,
+    probability: str | int | None,
+    emit_form: StrongFormEmitter,
+) -> None:
+    """
+    Emit ``PaInPl``-derived strong-verb side branch forms.
+
+    Side Effects:
+        Writes generated rows through ``emit_form``.
+
+    Args:
+        probability: Base probability scalar for branch emissions.
+        emit_form: Callback that emits one generated form.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Returns:
+        ``None``.
+
+    """
+    emit_form("e", "PaInSg2", probability)
+    emit_form("e", "PaSuSg", probability)
+    emit_form("en", "PaSuPl", probability)

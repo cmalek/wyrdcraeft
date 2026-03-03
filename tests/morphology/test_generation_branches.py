@@ -13,6 +13,8 @@ from wyrdcraeft.services.morphology.generation.sound_changes import (
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
     dispatch_strong_verb_part_branches,
     emit_strong_derived_from_inf_non_umlaut,
+    emit_strong_painpl_derived,
+    emit_strong_painsg1_derived,
     emit_strong_umlaut_for_vowel,
 )
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
@@ -252,6 +254,48 @@ def test_dispatch_strong_verb_part_branches_papt_only() -> None:
 
     assert did_dispatch
     assert calls == ["papt"]
+
+
+def test_emit_strong_painsg1_derived_sequence() -> None:
+    observed: list[tuple[str, str, str | int | None]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((ending, function, probability))
+        return "form", "parts"
+
+    emit_strong_painsg1_derived(
+        probability=0,
+        emit_form=_emit_form,
+    )
+
+    assert observed == [("0", "PaInSg3", 0)]
+
+
+def test_emit_strong_painpl_derived_sequence() -> None:
+    observed: list[tuple[str, str, str | int | None]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((ending, function, probability))
+        return "form", "parts"
+
+    emit_strong_painpl_derived(
+        probability=1,
+        emit_form=_emit_form,
+    )
+
+    assert observed == [
+        ("e", "PaInSg2", 1),
+        ("e", "PaSuSg", 1),
+        ("en", "PaSuPl", 1),
+    ]
 
 
 def test_build_participle_adjective_sanitizes_fields() -> None:

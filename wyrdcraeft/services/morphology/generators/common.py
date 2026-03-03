@@ -22,6 +22,8 @@ from ..generation.sound_changes import (
 )
 from ..generation.strong_inflections import (
     dispatch_strong_verb_part_branches,
+    emit_strong_painpl_derived,
+    emit_strong_painsg1_derived,
     emit_strong_derived_from_inf_non_umlaut,
     emit_strong_umlaut_for_vowel,
 )
@@ -678,17 +680,27 @@ class VerbFormGenerator:
                 _v: str = v,
                 _prob: str | int | None = prob,
             ) -> None:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _v,
-                    post_vowel,
-                    boundary,
-                    "",
-                    "0",
-                    "PaInSg3",
-                    _prob,
+                def emit_form(
+                    ending_value: str,
+                    function: str,
+                    prob_value: str | int | None,
+                ) -> tuple[str, str]:
+                    return self._generate_and_print_form(
+                        formhash,
+                        prefix,
+                        pre_vowel,
+                        _v,
+                        post_vowel,
+                        boundary,
+                        "",
+                        ending_value,
+                        function,
+                        prob_value,
+                    )
+
+                emit_strong_painsg1_derived(
+                    probability=_prob,
+                    emit_form=emit_form,
                 )
 
             def on_painpl(
@@ -696,41 +708,27 @@ class VerbFormGenerator:
                 _v: str = v,
                 _prob: str | int | None = prob,
             ) -> None:
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _v,
-                    post_vowel,
-                    boundary,
-                    "",
-                    "e",
-                    "PaInSg2",
-                    _prob,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _v,
-                    post_vowel,
-                    boundary,
-                    "",
-                    "e",
-                    "PaSuSg",
-                    _prob,
-                )
-                self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    _v,
-                    post_vowel,
-                    boundary,
-                    "",
-                    "en",
-                    "PaSuPl",
-                    _prob,
+                def emit_form(
+                    ending_value: str,
+                    function: str,
+                    prob_value: str | int | None,
+                ) -> tuple[str, str]:
+                    return self._generate_and_print_form(
+                        formhash,
+                        prefix,
+                        pre_vowel,
+                        _v,
+                        post_vowel,
+                        boundary,
+                        "",
+                        ending_value,
+                        function,
+                        prob_value,
+                    )
+
+                emit_strong_painpl_derived(
+                    probability=_prob,
+                    emit_form=emit_form,
                 )
 
             dispatch_strong_verb_part_branches(
