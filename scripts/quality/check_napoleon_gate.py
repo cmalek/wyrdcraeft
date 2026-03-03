@@ -8,13 +8,6 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-REQUIRED_FUNC_SECTIONS = (
-    "Side Effects:",
-    "Args:",
-    "Keyword Args:",
-    "Raises:",
-)
-
 RETURNS_SECTIONS = ("Returns:", "Yields:")
 MIN_CLASS_SUMMARY_WORDS = 3
 
@@ -155,6 +148,48 @@ def _constructor_has_args(class_node: ast.ClassDef) -> bool:
     return False
 
 
+def _function_has_args(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Return whether a function defines non-self/cls positional arguments."""
+    positional = [*node.args.posonlyargs, *node.args.args]
+    if positional and positional[0].arg in {"self", "cls"}:
+        positional = positional[1:]
+    return bool(positional or node.args.vararg)
+
+
+def _function_has_keyword_args(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Return whether a function defines keyword-only or ``**kwargs`` args."""
+    return bool(node.args.kwonlyargs or node.args.kwarg)
+
+
+def _function_uses_return_or_yield(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """
+    Return whether function body yields or returns a non-``None`` value.
+
+    Nested function/class scopes are ignored for this determination.
+    """
+    stack: list[ast.AST] = [*node.body]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue
+        if isinstance(current, (ast.Yield, ast.YieldFrom)):
+            return True
+        if isinstance(current, ast.Return):
+            if current.value is None:
+                continue
+            if isinstance(current.value, ast.Constant) and current.value.value is None:
+                continue
+            return True
+        stack.extend(ast.iter_child_nodes(current))
+    return False
+
+
 def _check_function_doc(
     path: Path,
     node: ast.FunctionDef | ast.AsyncFunctionDef,
@@ -177,27 +212,41 @@ def _check_function_doc(
         )
         return violations
 
-    for index, header in enumerate(REQUIRED_FUNC_SECTIONS, start=1):
-        if header in doc:
-            continue
+    if _function_has_args(node) and "Args:" not in doc:
         violations.append(
             Violation(
                 path=str(path),
                 line=node.lineno,
-                code=f"DOC20{index}",
+                code="DOC202",
                 symbol=symbol,
-                message=f"Missing required Napoleon section '{header}'.",
+                message="Missing required Napoleon section 'Args:'.",
             )
         )
 
-    if not any(header in doc for header in RETURNS_SECTIONS):
+    if _function_has_keyword_args(node) and "Keyword Args:" not in doc:
+        violations.append(
+            Violation(
+                path=str(path),
+                line=node.lineno,
+                code="DOC203",
+                symbol=symbol,
+                message="Missing required Napoleon section 'Keyword Args:'.",
+            )
+        )
+
+    if _function_uses_return_or_yield(node) and not any(
+        header in doc for header in RETURNS_SECTIONS
+    ):
         violations.append(
             Violation(
                 path=str(path),
                 line=node.lineno,
                 code="DOC205",
                 symbol=symbol,
-                message="Missing required Napoleon section 'Returns:' or 'Yields:'.",
+                message=(
+                    "Missing required Napoleon section 'Returns:' or 'Yields:' "
+                    "for function with yielded/returned value."
+                ),
             )
         )
 
