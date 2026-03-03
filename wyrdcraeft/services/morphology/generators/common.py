@@ -21,6 +21,10 @@ from ..generation.sound_changes import (
     derive_papt_sound_changed_forms,
     derive_sound_changed_forms,
 )
+from ..generation.strong_inflections import (
+    emit_strong_derived_from_inf_non_umlaut,
+    emit_strong_umlaut_for_vowel,
+)
 from ..generation.weak_inflections import (
     emit_weak_derived_from_inf_class2_variant,
     emit_weak_derived_from_inf_general,
@@ -777,46 +781,14 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        if "an" in ending:
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "anne",
-                "IdIf",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "enne",
-                "IdIf",
-                prob,
-            )
-            _, fp = self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "ende",
-                "PsPt",
-                prob,
-            )
-            self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
+        probability_plus_one = probability_plus(prob, delta=1, empty_default=1)
 
-            self._generate_and_print_form(
+        def emit_non_umlaut(
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> tuple[str, str]:
+            return self._generate_and_print_form(
                 formhash,
                 prefix,
                 pre_vowel,
@@ -824,219 +796,18 @@ class VerbFormGenerator:
                 post_vowel,
                 boundary,
                 "",
-                "e",
-                "PsInSg1",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "u",
-                "PsInSg1",
-                (int(prob) + 1 if prob is not None else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "o",
-                "PsInSg1",
-                (int(prob) + 1 if prob is not None else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "æ",
-                "PsInSg1",
-                (int(prob) + 1 if prob is not None else 1),
+                ending_value,
+                function,
+                prob_value,
             )
 
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "aþ",
-                "PsInPl",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "eþ",
-                "PsInPl",
-                (int(prob) + 1 if prob is not None else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "es",
-                "PsInPl",
-                (int(prob) + 1 if prob is not None else 1),
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "as",
-                "PsInPl",
-                (int(prob) + 1 if prob is not None else 1),
-            )
-
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "e",
-                "PsSuSg",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "en",
-                "PsSuPl",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "aþ",
-                "ImPl",
-                prob,
-            )
-        else:
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "nne",
-                "IdIf",
-                prob,
-            )
-            _, fp = self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "nde",
-                "PsPt",
-                prob,
-            )
-            self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
-
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "0",
-                "PsInSg1",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "þ",
-                "PsInPl",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "0",
-                "PsSuSg",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "n",
-                "PsSuPl",
-                prob,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                "",
-                "þ",
-                "ImPl",
-                prob,
-            )
+        fp = emit_strong_derived_from_inf_non_umlaut(
+            ending=ending,
+            probability=prob,
+            probability_plus_one=probability_plus_one,
+            emit_form=emit_non_umlaut,
+        )
+        self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
 
         self._generate_and_print_form(
             formhash,
@@ -1056,104 +827,50 @@ class VerbFormGenerator:
         for mv_idx, mvowel in enumerate(mvowels):
             mv_prob = int(prob) + mv_idx if prob is not None else mv_idx
 
-            # PsInSg2
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "stu",
-                "PsInSg2",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "est",
-                "PsInSg2",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "ist",
-                "PsInSg2",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "s",
-                "PsInSg2",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form_with_sound_changes(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "st",
-                "PsInSg2",
-                mv_prob,
-            )
+            def emit_umlaut(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+                *,
+                _mvowel: str = mvowel,
+            ) -> tuple[str, str]:
+                return self._generate_and_print_form(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    _mvowel,
+                    post_vowel,
+                    boundary,
+                    "",
+                    ending_value,
+                    function,
+                    prob_value,
+                )
 
-            # PsInSg3
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "eþ",
-                "PsInSg3",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "iþ",
-                "PsInSg3",
-                mv_prob + 1,
-            )
-            self._generate_and_print_form_with_sound_changes(
-                formhash,
-                prefix,
-                pre_vowel,
-                mvowel,
-                post_vowel,
-                boundary,
-                "",
-                "þ",
-                "PsInSg3",
-                mv_prob,
+            def emit_umlaut_sound(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+                *,
+                _mvowel: str = mvowel,
+            ) -> None:
+                self._generate_and_print_form_with_sound_changes(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    _mvowel,
+                    post_vowel,
+                    boundary,
+                    "",
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+
+            emit_strong_umlaut_for_vowel(
+                probability=mv_prob,
+                emit_form=emit_umlaut,
+                emit_sound=emit_umlaut_sound,
             )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913

@@ -6,6 +6,10 @@ from wyrdcraeft.models.morphology import ParadigmPart, Word
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
 )
+from wyrdcraeft.services.morphology.generation.strong_inflections import (
+    emit_strong_derived_from_inf_non_umlaut,
+    emit_strong_umlaut_for_vowel,
+)
 from wyrdcraeft.services.morphology.generators.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
@@ -77,6 +81,82 @@ def test_derive_sound_changed_forms_psinsg2_gst_chain() -> None:
 def test_derive_sound_changed_forms_psinsg3_td_th_chain() -> None:
     observed = derive_sound_changed_forms(function="PsInSg3", form="bedþ")
     assert observed == ["bett", "bet"]
+
+
+def test_emit_strong_derived_from_inf_non_umlaut_an_branch_order() -> None:
+    observed: list[tuple[str, str, str | int | None]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append((ending, function, probability))
+        return "form", f"fp-{ending}-{function}"
+
+    fp = emit_strong_derived_from_inf_non_umlaut(
+        ending="an",
+        probability=0,
+        probability_plus_one=1,
+        emit_form=_emit_form,
+    )
+
+    assert fp == "fp-ende-PsPt"
+    assert observed == [
+        ("anne", "IdIf", 0),
+        ("enne", "IdIf", 0),
+        ("ende", "PsPt", 0),
+        ("e", "PsInSg1", 0),
+        ("u", "PsInSg1", 1),
+        ("o", "PsInSg1", 1),
+        ("æ", "PsInSg1", 1),
+        ("aþ", "PsInPl", 0),
+        ("eþ", "PsInPl", 1),
+        ("es", "PsInPl", 1),
+        ("as", "PsInPl", 1),
+        ("e", "PsSuSg", 0),
+        ("en", "PsSuPl", 0),
+        ("aþ", "ImPl", 0),
+    ]
+
+
+def test_emit_strong_umlaut_for_vowel_sequence() -> None:
+    forms: list[tuple[str, str, str | int | None]] = []
+    sounds: list[tuple[str, str, str | int | None]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        forms.append((ending, function, probability))
+        return "form", "parts"
+
+    def _emit_sound(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        sounds.append((ending, function, probability))
+
+    emit_strong_umlaut_for_vowel(
+        probability=2,
+        emit_form=_emit_form,
+        emit_sound=_emit_sound,
+    )
+
+    assert forms == [
+        ("stu", "PsInSg2", 3),
+        ("est", "PsInSg2", 3),
+        ("ist", "PsInSg2", 3),
+        ("s", "PsInSg2", 3),
+        ("eþ", "PsInSg3", 3),
+        ("iþ", "PsInSg3", 3),
+    ]
+    assert sounds == [
+        ("st", "PsInSg2", 2),
+        ("þ", "PsInSg3", 2),
+    ]
 
 
 def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:
