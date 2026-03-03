@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-03-03T22:25:42.137553+00:00",
+  "generated_at_utc": "2026-03-03T22:56:30.382743+00:00",
   "violation_count": 191,
   "violations": [
     {
@@ -1091,57 +1091,57 @@
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:225:DOC200:VerbFormGenerator.__init__",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:227:DOC200:VerbFormGenerator.__init__",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 225,
+      "line": 227,
       "code": "DOC200",
       "symbol": "VerbFormGenerator.__init__",
       "message": "Missing docstring on function/method."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:937:DOC202:VerbFormGenerator._generate_and_print_manual",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:935:DOC202:VerbFormGenerator._generate_and_print_manual",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 937,
+      "line": 935,
       "code": "DOC202",
       "symbol": "VerbFormGenerator._generate_and_print_manual",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1246:DOC202:VerbFormGenerator._generate_weak_derived_from_psinsg2",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1244:DOC202:VerbFormGenerator._generate_weak_derived_from_psinsg2",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 1246,
+      "line": 1244,
       "code": "DOC202",
       "symbol": "VerbFormGenerator._generate_weak_derived_from_psinsg2",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1329:DOC202:generate_adjforms",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1327:DOC202:generate_adjforms",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 1329,
+      "line": 1327,
       "code": "DOC202",
       "symbol": "generate_adjforms",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1336:DOC202:generate_advforms",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1334:DOC202:generate_advforms",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 1336,
+      "line": 1334,
       "code": "DOC202",
       "symbol": "generate_advforms",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1390:DOC202:generate_numforms",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1388:DOC202:generate_numforms",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 1390,
+      "line": 1388,
       "code": "DOC202",
       "symbol": "generate_numforms",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1397:DOC202:generate_nounforms",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py:1395:DOC202:generate_nounforms",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/common.py",
-      "line": 1397,
+      "line": 1395,
       "code": "DOC202",
       "symbol": "generate_nounforms",
       "message": "Missing required Napoleon section 'Args:'."
