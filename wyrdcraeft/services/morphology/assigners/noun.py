@@ -44,12 +44,29 @@ NOUN_WRIGHT_RULES: tuple[tuple[str, tuple[str, ...], bool], ...] = (
 
 
 def _match_wright_rule(wright: str, pattern: str, exact: bool) -> bool:
-    """Evaluate one ordered Wright mapping rule."""
+    """
+    Evaluate one ordered Wright mapping rule.
+
+    Args:
+        wright: Wright code string.
+        pattern: Pattern to match.
+        exact: Whether to match the pattern exactly.
+
+    Returns:
+        ``True`` if the pattern is matched, otherwise ``False``.
+
+    """
     return pattern in wright if exact else bool(re.search(pattern, wright))
 
 
 def _assign_by_wright(word: Word) -> None:
-    """Apply ordered Wright noun rules and append first-match paradigms."""
+    """
+    Apply ordered Wright noun rules and append first-match paradigms.
+
+    Args:
+        word: The word to assign.
+
+    """
     for pattern, paradigms, exact in NOUN_WRIGHT_RULES:
         if not _match_wright_rule(word.wright, pattern, exact):
             continue
@@ -98,7 +115,13 @@ def _get_r_stem_paradigm(word: Word) -> str | None:
 
 
 def set_noun_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912, PLR0915
-    """Set the noun paradigm."""
+    """
+    Set the noun paradigm.
+
+    Args:
+        session: The generator session.
+
+    """
     nouns = session.nouns
     prefix_re = session.prefix_regex
     vowel_re = OENormalizer.VOWEL

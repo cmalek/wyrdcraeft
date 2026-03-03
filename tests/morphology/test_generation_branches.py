@@ -3,11 +3,15 @@ from __future__ import annotations
 import io
 
 from wyrdcraeft.models.morphology import ParadigmPart, Word
+from wyrdcraeft.services.morphology.generation.participles import (
+    build_participle_adjective,
+)
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
     emit_sound_changed_forms,
 )
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
+    dispatch_strong_verb_part_branches,
     emit_strong_derived_from_inf_non_umlaut,
     emit_strong_umlaut_for_vowel,
 )
@@ -218,6 +222,67 @@ def test_emit_strong_umlaut_for_vowel_sequence() -> None:
         ("st", "PsInSg2", 2),
         ("þ", "PsInSg3", 2),
     ]
+
+
+def test_dispatch_strong_verb_part_branches_painpl() -> None:
+    calls: list[str] = []
+
+    did_dispatch = dispatch_strong_verb_part_branches(
+        para_id="PaInPl",
+        on_papt=lambda: calls.append("papt"),
+        on_inf=lambda: calls.append("if"),
+        on_painsg1=lambda: calls.append("painsg1"),
+        on_painpl=lambda: calls.append("painpl"),
+    )
+
+    assert did_dispatch
+    assert calls == ["painpl"]
+
+
+def test_dispatch_strong_verb_part_branches_papt_only() -> None:
+    calls: list[str] = []
+
+    did_dispatch = dispatch_strong_verb_part_branches(
+        para_id="PaPt",
+        on_papt=lambda: calls.append("papt"),
+        on_inf=lambda: calls.append("if"),
+        on_painsg1=lambda: calls.append("painsg1"),
+        on_painpl=lambda: calls.append("painpl"),
+    )
+
+    assert did_dispatch
+    assert calls == ["papt"]
+
+
+def test_build_participle_adjective_sanitizes_fields() -> None:
+    word = _make_word(prefix="ge", title="lemma")
+    adjective = build_participle_adjective(
+        word=word,
+        prefix="ge",
+        form_parts="ge-l-a-m-0\n",
+        is_past=False,
+    )
+
+    assert adjective.title == "gelam"
+    assert adjective.stem == "lam"
+    assert adjective.pspart == 1
+    assert adjective.papart == 0
+
+
+def test_add_participle_to_adjectives_respects_prefix_numeric_match() -> None:
+    session = GeneratorSession()
+    output = io.StringIO()
+    generator = VerbFormGenerator(session, output)
+    word = _make_word(prefix="1")
+
+    generator._add_participle_to_adjectives(
+        word,
+        "ge",
+        "ge-l-a-m",
+        is_past=False,
+    )
+
+    assert session.adjectives == []
 
 
 def test_emit_weak_derived_from_psinsg2_sequence() -> None:

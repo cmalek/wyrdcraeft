@@ -8,6 +8,8 @@ from collections.abc import Callable
 StrongFormEmitter = Callable[[str, str, str | int | None], tuple[str, str]]
 #: Callback signature for one strong-form sound-change emission operation.
 StrongSoundEmitter = Callable[[str, str, str | int | None], None]
+#: Callback signature for one strong-branch action.
+StrongBranchAction = Callable[[], None]
 
 
 def emit_strong_derived_from_inf_non_umlaut(
@@ -107,3 +109,52 @@ def emit_strong_umlaut_for_vowel(
     emit_form("iþ", "PsInSg3", probability + 1)
     emit_sound("þ", "PsInSg3", probability)
 
+
+def dispatch_strong_verb_part_branches(
+    *,
+    para_id: str,
+    on_papt: StrongBranchAction,
+    on_inf: StrongBranchAction,
+    on_painsg1: StrongBranchAction,
+    on_painpl: StrongBranchAction,
+) -> bool:
+    """
+    Dispatch strong-verb principal-part branch actions for one ``para_id``.
+
+    Side Effects:
+        Invokes at least one branch callback when a branch matches.
+
+    Args:
+        para_id: Principal function identifier from paradigm row.
+        on_papt: Callback for past-participle branch side effects.
+        on_inf: Callback for infinitive-derived branch.
+        on_painsg1: Callback for ``PaInSg1``-derived branch.
+        on_painpl: Callback for ``PaInPl``-derived branch.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Raises:
+        Does not raise directly.
+
+    Returns:
+        ``True`` when any branch callback was invoked, else ``False``.
+
+    """
+    invoked = False
+    para_id_lower = para_id.lower()
+
+    if para_id_lower == "papt":
+        on_papt()
+        invoked = True
+
+    if para_id_lower == "if":
+        on_inf()
+        return True
+    if para_id_lower == "painsg1":
+        on_painsg1()
+        return True
+    if para_id_lower == "painpl":
+        on_painpl()
+        return True
+    return invoked
