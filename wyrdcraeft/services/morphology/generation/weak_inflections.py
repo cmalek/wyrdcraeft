@@ -12,6 +12,10 @@ WeakFormEmitter = Callable[
     [str | None, str, str, str | int | None],
     tuple[str, str],
 ]
+#: Callback signature for one weak-form emission without a dental component.
+WeakSimpleFormEmitter = Callable[[str, str, str | int | None], None]
+#: Callback signature for one weak-form sound-change emission operation.
+WeakSoundEmitter = Callable[[str, str, str | int | None, int], None]
 
 
 def has_perl_inf_vowel_ending(fp_base: str) -> bool:
@@ -215,3 +219,50 @@ def emit_weak_derived_from_inf_class2_variant(
     if perl_inf_vowel_end:
         _, participle_form_parts = emit_form(iending, "nde", "PsPt", prob_c2)
     return participle_form_parts
+
+
+def emit_weak_derived_from_psinsg2(
+    *,
+    probability: str | int | None,
+    probability_plus_one: int,
+    emit_form: WeakSimpleFormEmitter,
+    emit_sound: WeakSoundEmitter,
+) -> None:
+    """
+    Emit weak-verb forms derived from the ``PsInSg2`` principal part.
+
+    Side Effects:
+        Writes generated rows through ``emit_form`` and ``emit_sound``.
+
+    Args:
+        probability: Base probability scalar.
+        probability_plus_one: Incremented probability scalar.
+        emit_form: Callback that emits one generated form.
+        emit_sound: Callback that emits one sound-change branch.
+
+    Keyword Args:
+        None.
+
+    Raises:
+        None.
+
+    Returns:
+        ``None``.
+
+    """
+    emit_form("est", "PsInSg2", probability_plus_one)
+    emit_form("es", "PsInSg2", probability_plus_one)
+    emit_form("ist", "PsInSg2", probability_plus_one)
+    emit_form("s", "PsInSg2", probability_plus_one)
+
+    emit_sound("st", "PsInSg2", probability, 1)
+
+    emit_form("eþ", "PsInSg3", probability_plus_one)
+    emit_form("ieþ", "PsInSg3", probability_plus_one)
+    emit_form("iþ", "PsInSg3", probability_plus_one)
+
+    emit_sound("þ", "PsInSg3", probability_plus_one, 0)
+
+    emit_form("e", "ImSg", probability)
+    emit_form("ie", "ImSg", probability)
+    emit_form("0", "ImSg", probability)

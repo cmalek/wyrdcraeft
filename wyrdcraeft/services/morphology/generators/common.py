@@ -26,6 +26,7 @@ from ..generation.strong_inflections import (
     emit_strong_umlaut_for_vowel,
 )
 from ..generation.weak_inflections import (
+    emit_weak_derived_from_psinsg2,
     emit_weak_derived_from_inf_class2_variant,
     emit_weak_derived_from_inf_general,
     has_perl_inf_vowel_ending,
@@ -1337,160 +1338,49 @@ class VerbFormGenerator:
         # Perl: $post_vowel =~ s/(.)\1/$1/;
         pv_simp = re.sub(r"(.)\1", r"\1", post_vowel)
 
-        # PsInSg2 -est, -es, -ist, -s, -st
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "est",
-            "PsInSg2",
-            probability_plus_one,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "es",
-            "PsInSg2",
-            probability_plus_one,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "ist",
-            "PsInSg2",
-            probability_plus_one,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "s",
-            "PsInSg2",
-            probability_plus_one,
-        )
+        def emit_form(
+            ending: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> None:
+            self._generate_and_print_form(
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                pv_simp,
+                boundary,
+                None,
+                ending,
+                function,
+                prob_value,
+            )
 
-        # Sound changes for PsInSg2
-        self._generate_and_print_form_with_sound_changes(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "st",
-            "PsInSg2",
-            probability,
-        )
+        def emit_sound(
+            ending: str,
+            function: str,
+            prob_value: str | int | None,
+            consonant_change_prob: int,
+        ) -> None:
+            self._generate_and_print_form_with_sound_changes(
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                pv_simp,
+                boundary,
+                None,
+                ending,
+                function,
+                prob_value,
+                consonant_change_prob,
+            )
 
-        # PsInSg3 -eþ, -ieþ, -iþ, -þ
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "eþ",
-            "PsInSg3",
-            probability_plus_one,
-        )
-
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "ieþ",
-            "PsInSg3",
-            probability_plus_one,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "iþ",
-            "PsInSg3",
-            probability_plus_one,
-        )
-
-        # Sound changes for PsInSg3
-        self._generate_and_print_form_with_sound_changes(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "þ",
-            "PsInSg3",
-            probability_plus_one,
-            0,
-        )
-
-        # ImSg -e; -ie; -0
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "e",
-            "ImSg",
-            probability,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "ie",
-            "ImSg",
-            probability,
-        )
-        self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            pv_simp,
-            boundary,
-            None,
-            "0",
-            "ImSg",
-            probability,
+        emit_weak_derived_from_psinsg2(
+            probability=probability,
+            probability_plus_one=probability_plus_one,
+            emit_form=emit_form,
+            emit_sound=emit_sound,
         )
 
 

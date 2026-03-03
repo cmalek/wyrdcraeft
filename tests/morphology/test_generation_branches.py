@@ -10,6 +10,9 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
     emit_strong_derived_from_inf_non_umlaut,
     emit_strong_umlaut_for_vowel,
 )
+from wyrdcraeft.services.morphology.generation.weak_inflections import (
+    emit_weak_derived_from_psinsg2,
+)
 from wyrdcraeft.services.morphology.generators.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
@@ -156,6 +159,50 @@ def test_emit_strong_umlaut_for_vowel_sequence() -> None:
     assert sounds == [
         ("st", "PsInSg2", 2),
         ("þ", "PsInSg3", 2),
+    ]
+
+
+def test_emit_weak_derived_from_psinsg2_sequence() -> None:
+    forms: list[tuple[str, str, str | int | None]] = []
+    sounds: list[tuple[str, str, str | int | None, int]] = []
+
+    def _emit_form(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        forms.append((ending, function, probability))
+
+    def _emit_sound(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+        consonant_change_prob: int,
+    ) -> None:
+        sounds.append((ending, function, probability, consonant_change_prob))
+
+    emit_weak_derived_from_psinsg2(
+        probability=0,
+        probability_plus_one=1,
+        emit_form=_emit_form,
+        emit_sound=_emit_sound,
+    )
+
+    assert forms == [
+        ("est", "PsInSg2", 1),
+        ("es", "PsInSg2", 1),
+        ("ist", "PsInSg2", 1),
+        ("s", "PsInSg2", 1),
+        ("eþ", "PsInSg3", 1),
+        ("ieþ", "PsInSg3", 1),
+        ("iþ", "PsInSg3", 1),
+        ("e", "ImSg", 0),
+        ("ie", "ImSg", 0),
+        ("0", "ImSg", 0),
+    ]
+    assert sounds == [
+        ("st", "PsInSg2", 0, 1),
+        ("þ", "PsInSg3", 1, 0),
     ]
 
 
