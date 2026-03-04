@@ -13,7 +13,6 @@ from ..generation.form_assembly import assemble_form_parts, materialize_form
 from ..generation.participles import build_participle_adjective
 from ..generation.probability import (
     format_probability,
-    probability_plus,
 )
 from ..generation.shared import FormOutput
 from ..generation.sound_changes import (
@@ -28,7 +27,7 @@ from ..generation.weak_inflections import (
     emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_sequence,
     emit_weak_derived_from_painsg1_variant,
-    emit_weak_derived_from_psinsg2,
+    emit_weak_derived_from_psinsg2_context,
     emit_weak_principal_form,
     is_weak_item_shape_window,
 )
@@ -1211,26 +1210,18 @@ class VerbFormGenerator:
         """
         Matches Perl's generate_weak_derived_from_psinsg2.
         """
-        probability = prob if prob is not None else ""
-        probability_plus_one = probability_plus(
-            probability,
-            delta=1,
-            empty_default=1,
-        )
-        # Perl: $post_vowel =~ s/(.)\1/$1/;
-        pv_simp = re.sub(r"(.)\1", r"\1", post_vowel)
-
-        def emit_form(
+        def emit_form_with_post(
             ending: str,
             function: str,
             prob_value: str | int | None,
+            post_vowel_simple: str,
         ) -> None:
             self._generate_and_print_form(
                 formhash,
                 prefix,
                 pre_vowel,
                 vowel,
-                pv_simp,
+                post_vowel_simple,
                 boundary,
                 None,
                 ending,
@@ -1238,18 +1229,19 @@ class VerbFormGenerator:
                 prob_value,
             )
 
-        def emit_sound(
+        def emit_sound_with_post(
             ending: str,
             function: str,
             prob_value: str | int | None,
             consonant_change_prob: int,
+            post_vowel_simple: str,
         ) -> None:
             self._generate_and_print_form_with_sound_changes(
                 formhash,
                 prefix,
                 pre_vowel,
                 vowel,
-                pv_simp,
+                post_vowel_simple,
                 boundary,
                 None,
                 ending,
@@ -1258,11 +1250,11 @@ class VerbFormGenerator:
                 consonant_change_prob,
             )
 
-        emit_weak_derived_from_psinsg2(
-            probability=probability,
-            probability_plus_one=probability_plus_one,
-            emit_form=emit_form,
-            emit_sound=emit_sound,
+        emit_weak_derived_from_psinsg2_context(
+            probability=prob,
+            post_vowel=post_vowel,
+            emit_form_with_post=emit_form_with_post,
+            emit_sound_with_post=emit_sound_with_post,
         )
 
 
