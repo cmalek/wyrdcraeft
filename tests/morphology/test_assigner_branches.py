@@ -115,6 +115,39 @@ def test_set_noun_paradigm_heuristic_incel_suffix() -> None:
     assert word.noun_paradigm == ["hof"]
 
 
+def test_set_noun_paradigm_heuristic_terminal_e_gender_order() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, stem="lande", wright="0", n_fem=1, n_masc=1, n_neut=1)
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["tunge", "stán", "hof"]
+
+
+def test_set_noun_paradigm_heuristic_short_syllable_front_vowel() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, stem="fæ", wright="0", n_masc=1, n_neut=1, syllables=1)
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["dæg", "fæt"]
+
+
+def test_set_noun_paradigm_heuristic_nd_stem_masculine() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, stem="friend", wright="0", n_masc=1)
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["wígend"]
+
+
 def test_set_noun_paradigm_final_fallback_neuter_long_stem() -> None:
     session = GeneratorSession()
     word = _make_word(noun=1, n_neut=1, stem="sten", wright="0")
@@ -124,6 +157,17 @@ def test_set_noun_paradigm_final_fallback_neuter_long_stem() -> None:
     set_noun_paradigm(session)
 
     assert word.noun_paradigm == ["word"]
+
+
+def test_set_noun_paradigm_final_fallback_neuter_short_stem() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, n_neut=1, stem="bi", wright="0")
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["hof"]
 
 
 def test_set_verb_paradigm_strong_heuristic_assignment() -> None:

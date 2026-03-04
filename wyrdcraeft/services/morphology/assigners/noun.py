@@ -42,6 +42,13 @@ NOUN_WRIGHT_RULES: tuple[tuple[str, tuple[str, ...], bool], ...] = (
     ("418", ("wígend",), True),
 )
 
+#: Ordered suffix heuristics used in the morphophonological assignment stage.
+NOUN_SUFFIX_HEURISTIC_RULES: tuple[tuple[str, str], ...] = (
+    (r"(els|scipe)$", "st\u00e1n"),
+    (r"incel$", "hof"),
+    (r"(ness|niss|nyss|ung)$", "\u00e1r"),
+)
+
 
 def _match_wright_rule(wright: str, pattern: str, exact: bool) -> bool:
     """
@@ -229,7 +236,106 @@ def _run_stem_propagation_cycle(
     _run_advanced_stem_pass(nouns, assigned, prefix_re)
 
 
-def _apply_noun_heuristics(  # noqa: PLR0912
+def _extract_heuristic_vowel(stem: str, vowel_re: str) -> str:
+    """
+    Extract the legacy heuristic vowel capture from a noun stem.
+
+    Args:
+        stem: Noun stem to analyze.
+        vowel_re: Vowel regex fragment.
+
+    Returns:
+        Captured vowel group used by heuristic rules, or ``""``.
+
+    """
+    v_match = re.search(
+        f"^({vowel_re}?{vowel_re}?.*?)({vowel_re}{vowel_re}?)",
+        stem,
+    )
+    return v_match.group(2) if v_match else ""
+
+
+def _append_terminal_a_heuristic(word: Word, vowel: str, lvowel_re: str) -> None:
+    """
+    Append ``-a`` terminal heuristic paradigms.
+
+    Args:
+        word: Noun candidate to assign.
+        vowel: Heuristic vowel capture for the stem.
+        lvowel_re: Long-vowel regex fragment.
+
+    """
+    if not word.stem.endswith("a"):
+        return
+    if re.search(lvowel_re, vowel):
+        word.noun_paradigm.append("fr\u00e9a")
+    else:
+        word.noun_paradigm.append("guma")
+
+
+def _append_terminal_e_heuristic(word: Word) -> None:
+    """
+    Append ``-e`` terminal heuristic paradigms by grammatical gender flags.
+
+    Args:
+        word: Noun candidate to assign.
+
+    """
+    if not word.stem.endswith("e"):
+        return
+    if word.n_fem == 1:
+        word.noun_paradigm.append("tunge")
+    if word.n_masc == 1:
+        word.noun_paradigm.append("st\u00e1n")
+    if word.n_neut == 1:
+        word.noun_paradigm.append("hof")
+
+
+def _append_suffix_heuristics(word: Word) -> None:
+    """
+    Append heuristic paradigms for known terminal/suffix pattern classes.
+
+    Args:
+        word: Noun candidate to assign.
+
+    Note:
+        Wright lists ``-nd`` stems as a minor declension class
+        (§§416-418). This helper keeps a dedicated ``-nd`` branch and then
+        applies ordered compatibility suffix rules.
+
+    """
+    if word.stem.endswith("nd") and word.n_masc == 1:
+        word.noun_paradigm.append("w\u00edgend")
+    for pattern, paradigm in NOUN_SUFFIX_HEURISTIC_RULES:
+        if re.search(pattern, word.stem):
+            word.noun_paradigm.append(paradigm)
+
+
+def _append_short_syllable_front_vowel_heuristic(
+    word: Word,
+    buggy_word: Word,
+    vowel: str,
+) -> None:
+    """
+    Append short-syllable front-vowel heuristic paradigms.
+
+    Args:
+        word: Noun candidate to assign.
+        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+        vowel: Heuristic vowel capture for the stem.
+
+    """
+    if not re.search(r"[\u00e6\u01fd]", vowel):
+        return
+    if buggy_word.syllables >= 2:  # noqa: PLR2004
+        return
+    if word.n_masc == 1:
+        word.noun_paradigm.append("d\u00e6g")
+    if word.n_neut == 1:
+        word.noun_paradigm.append("f\u00e6t")
+
+
+def _apply_noun_heuristics(
     *,
     word: Word,
     buggy_word: Word,
@@ -252,38 +358,11 @@ def _apply_noun_heuristics(  # noqa: PLR0912
         ``True`` when at least one paradigm was appended.
 
     """
-    v_match = re.search(
-        f"^({vowel_re}?{vowel_re}?.*?)({vowel_re}{vowel_re}?)",
-        word.stem,
-    )
-    vowel = v_match.group(2) if v_match else ""
-
-    if word.stem.endswith("a"):
-        if re.search(lvowel_re, vowel):
-            word.noun_paradigm.append("fr\u00e9a")
-        else:
-            word.noun_paradigm.append("guma")
-    if word.stem.endswith("e"):
-        if word.n_fem == 1:
-            word.noun_paradigm.append("tunge")
-        if word.n_masc == 1:
-            word.noun_paradigm.append("st\u00e1n")
-        if word.n_neut == 1:
-            word.noun_paradigm.append("hof")
-    if word.stem.endswith("nd") and word.n_masc == 1:
-        word.noun_paradigm.append("w\u00edgend")
-    if re.search(r"(els|scipe)$", word.stem):
-        word.noun_paradigm.append("st\u00e1n")
-    if word.stem.endswith("incel"):
-        word.noun_paradigm.append("hof")
-    if re.search(r"(ness|niss|nyss|ung)$", word.stem):
-        word.noun_paradigm.append("\u00e1r")
-
-    if re.search(r"[\u00e6\u01fd]", vowel) and buggy_word.syllables < 2:  # noqa: PLR2004
-        if word.n_masc == 1:
-            word.noun_paradigm.append("d\u00e6g")
-        if word.n_neut == 1:
-            word.noun_paradigm.append("f\u00e6t")
+    vowel = _extract_heuristic_vowel(word.stem, vowel_re)
+    _append_terminal_a_heuristic(word, vowel, lvowel_re)
+    _append_terminal_e_heuristic(word)
+    _append_suffix_heuristics(word)
+    _append_short_syllable_front_vowel_heuristic(word, buggy_word, vowel)
 
     return bool(word.noun_paradigm)
 
@@ -323,6 +402,10 @@ def _run_initial_assignment_pass(
         assigned: Nouns already assigned paradigms.
         enable_r_stem_nouns: Whether opt-in r-stem assignment is enabled.
 
+    Note:
+        Tichý (2017) describes an initial assignment phase using exemplar
+        paradigms derived from grammar before fallback stages.
+
     """
     for word in nouns:
         word.noun_paradigm = []
@@ -355,6 +438,10 @@ def _run_heuristic_pass(
         vowel_re: Vowel regex fragment.
         lvowel_re: Long-vowel regex fragment.
 
+    Note:
+        Tichý (2017, algorithm step 3) describes a morphophonological pass over
+        previously unassigned items before probability fallback.
+
     """
     for i, word in enumerate(nouns):
         if not word.noun_paradigm:
@@ -375,6 +462,11 @@ def _run_final_fallback_pass(nouns: list[Word], words: list[Word]) -> None:
         nouns: Nouns to process.
         words: Full session words list for legacy index coupling.
 
+    Note:
+        Tichý (2017, algorithm step 4b) specifies noun fallback mapping:
+        masculine/indefinite -> ``stán``, feminine -> ``ár``, neuter long stem
+        -> ``word``, neuter short stem -> ``hof``.
+
     """
     for i, word in enumerate(nouns):
         if not word.noun_paradigm:
@@ -388,6 +480,12 @@ def set_noun_paradigm(session: GeneratorSession) -> None:
 
     Args:
         session: The generator session.
+
+    Note:
+        This preserves the staged assignment flow described by Tichý (2017):
+        exemplar assignment, morphophonological heuristics, then probability
+        fallback, while keeping Wright-style declension exemplars used by the
+        generator.
 
     """
     nouns = session.nouns
