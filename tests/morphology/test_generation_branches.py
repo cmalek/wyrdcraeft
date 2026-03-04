@@ -11,6 +11,7 @@ from wyrdcraeft.services.morphology.generation.sound_changes import (
     emit_sound_changed_forms,
 )
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
+    dispatch_strong_derived_from_principal_part,
     dispatch_strong_verb_part_branches,
     emit_strong_derived_from_inf_non_umlaut,
     emit_strong_derived_from_inf_sequence,
@@ -20,6 +21,7 @@ from wyrdcraeft.services.morphology.generation.strong_inflections import (
 )
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
     dispatch_weak_derived_forms,
+    dispatch_weak_principal_part_derivations,
     emit_weak_derived_from_inf_by_class2,
     emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_variant,
@@ -301,6 +303,38 @@ def test_dispatch_strong_verb_part_branches_papt_only() -> None:
 
     assert did_dispatch
     assert calls == ["papt"]
+
+
+def test_dispatch_strong_derived_from_principal_part_routes_painsg1() -> None:
+    observed: list[tuple[object, ...]] = []
+
+    def _on_papt_form_parts(form_parts: str) -> None:
+        observed.append(("papt", form_parts))
+
+    def _on_inf(active_vowel: str, probability: str | int | None) -> None:
+        observed.append(("if", active_vowel, probability))
+
+    def _emit_form_for_vowel(
+        active_vowel: str,
+        ending: str,
+        function: str,
+        probability: str | int | None,
+    ) -> tuple[str, str]:
+        observed.append(("form", active_vowel, ending, function, probability))
+        return "form", "parts"
+
+    did_dispatch = dispatch_strong_derived_from_principal_part(
+        para_id="PaInSg1",
+        form_parts="fp-main",
+        active_vowel="a",
+        probability=2,
+        on_papt_form_parts=_on_papt_form_parts,
+        on_inf=_on_inf,
+        emit_form_for_vowel=_emit_form_for_vowel,
+    )
+
+    assert did_dispatch
+    assert observed == [("form", "a", "0", "PaInSg3", 2)]
 
 
 def test_emit_strong_painsg1_derived_sequence() -> None:
@@ -637,6 +671,24 @@ def test_dispatch_weak_derived_forms_skips_item_shape_mode() -> None:
 
     assert not did_dispatch
     assert calls == []
+
+
+def test_dispatch_weak_principal_part_derivations_emits_papt_only() -> None:
+    observed: list[str] = []
+
+    did_dispatch = dispatch_weak_principal_part_derivations(
+        para_id="PaPt",
+        use_item_shape=False,
+        form_parts="fp-main",
+        on_pspt_participle=lambda form_parts: observed.append(f"pspt:{form_parts}"),
+        on_papt_participle=lambda form_parts: observed.append(f"papt:{form_parts}"),
+        on_inf=lambda: observed.append("if"),
+        on_psinsg2=lambda: observed.append("psinsg2"),
+        on_painsg1=lambda: observed.append("painsg1"),
+    )
+
+    assert not did_dispatch
+    assert observed == ["papt:fp-main"]
 
 
 def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:

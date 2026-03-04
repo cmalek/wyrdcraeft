@@ -21,13 +21,11 @@ from ..generation.sound_changes import (
     emit_sound_changed_forms,
 )
 from ..generation.strong_inflections import (
-    dispatch_strong_verb_part_branches,
+    dispatch_strong_derived_from_principal_part,
     emit_strong_derived_from_inf_sequence,
-    emit_strong_painpl_derived,
-    emit_strong_painsg1_derived,
 )
 from ..generation.weak_inflections import (
-    dispatch_weak_derived_forms,
+    dispatch_weak_principal_part_derivations,
     emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
@@ -652,88 +650,57 @@ class VerbFormGenerator:
                 prob,
             )
 
-            def on_papt(*, _form_parts: str = form_parts) -> None:
-                self._add_participle_to_adjectives(word, prefix, _form_parts, True)  # noqa: FBT003
+            def emit_form_for_vowel(
+                active_vowel: str,
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+            ) -> tuple[str, str]:
+                return self._generate_and_print_form(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    active_vowel,
+                    post_vowel,
+                    boundary,
+                    "",
+                    ending_value,
+                    function,
+                    prob_value,
+                )
 
             def on_inf(
-                *,
-                _v: str = v,
-                _prob: str | int | None = prob,
+                active_vowel: str,
+                prob_value: str | int | None,
             ) -> None:
                 self._generate_strong_derived_from_inf(
                     formhash,
                     word,
                     prefix,
                     pre_vowel,
-                    _v,
+                    active_vowel,
                     post_vowel,
                     boundary,
                     ending,
-                    _prob,
+                    prob_value,
                 )
 
-            def on_painsg1(
-                *,
-                _v: str = v,
-                _prob: str | int | None = prob,
-            ) -> None:
-                def emit_form(
-                    ending_value: str,
-                    function: str,
-                    prob_value: str | int | None,
-                ) -> tuple[str, str]:
-                    return self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        _v,
-                        post_vowel,
-                        boundary,
-                        "",
-                        ending_value,
-                        function,
-                        prob_value,
-                    )
-
-                emit_strong_painsg1_derived(
-                    probability=_prob,
-                    emit_form=emit_form,
+            def on_papt_form_parts(derived_form_parts: str) -> None:
+                self._add_participle_to_adjectives(
+                    word,
+                    prefix,
+                    derived_form_parts,
+                    is_past=True,
                 )
 
-            def on_painpl(
-                *,
-                _v: str = v,
-                _prob: str | int | None = prob,
-            ) -> None:
-                def emit_form(
-                    ending_value: str,
-                    function: str,
-                    prob_value: str | int | None,
-                ) -> tuple[str, str]:
-                    return self._generate_and_print_form(
-                        formhash,
-                        prefix,
-                        pre_vowel,
-                        _v,
-                        post_vowel,
-                        boundary,
-                        "",
-                        ending_value,
-                        function,
-                        prob_value,
-                    )
-
-                emit_strong_painpl_derived(
-                    probability=_prob,
-                    emit_form=emit_form,
-                )
-
-            dispatch_strong_verb_part_branches(
+            dispatch_strong_derived_from_principal_part(
                 para_id=para_id,
-                on_papt=on_papt,
+                form_parts=form_parts,
+                active_vowel=v,
+                probability=prob,
+                on_papt_form_parts=on_papt_form_parts,
                 on_inf=on_inf,
-                on_painsg1=on_painsg1,
-                on_painpl=on_painpl,
+                emit_form_for_vowel=emit_form_for_vowel,
             )
 
     def _generate_strong_derived_from_inf(  # noqa: PLR0913
@@ -962,7 +929,6 @@ class VerbFormGenerator:
         dental = item.dental
         boundary = item.boundary
         prob: str | int | None = 0
-        para_id_lower = para_id.lower()
         use_item_shape = is_weak_item_shape_window(para_id_num)
 
         def emit_principal(
@@ -1000,10 +966,22 @@ class VerbFormGenerator:
             use_item_shape=use_item_shape,
             emit_form=emit_principal,
         )
-        if para_id_lower == "pspt":
-            self._add_participle_to_adjectives(word, prefix, fp, False)  # noqa: FBT003
-        if para_id_lower == "papt":
-            self._add_participle_to_adjectives(word, prefix, fp, True)  # noqa: FBT003
+
+        def on_pspt_participle(form_parts: str) -> None:
+            self._add_participle_to_adjectives(
+                word,
+                prefix,
+                form_parts,
+                is_past=False,
+            )
+
+        def on_papt_participle(form_parts: str) -> None:
+            self._add_participle_to_adjectives(
+                word,
+                prefix,
+                form_parts,
+                is_past=True,
+            )
 
         def on_inf() -> None:
             self._generate_weak_derived_from_inf(
@@ -1044,9 +1022,12 @@ class VerbFormGenerator:
                 vowel_pa,
             )
 
-        dispatch_weak_derived_forms(
+        dispatch_weak_principal_part_derivations(
             para_id=para_id,
             use_item_shape=use_item_shape,
+            form_parts=fp,
+            on_pspt_participle=on_pspt_participle,
+            on_papt_participle=on_papt_participle,
             on_inf=on_inf,
             on_psinsg2=on_psinsg2,
             on_painsg1=on_painsg1,
