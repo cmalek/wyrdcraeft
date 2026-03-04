@@ -9,6 +9,7 @@ from wyrdcraeft.services.morphology.generation.participles import (
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
     emit_sound_changed_forms,
+    emit_sound_changed_from_source,
 )
 from wyrdcraeft.services.morphology.generation.strong_inflections import (
     dispatch_strong_derived_from_principal_part,
@@ -153,6 +154,38 @@ def test_emit_sound_changed_forms_psinsg3_zero_delta() -> None:
     assert observed == [
         ("bett", "fp", "PsInSg3", 1),
         ("bet", "fp", "PsInSg3", 1),
+    ]
+
+
+def test_emit_sound_changed_from_source_keeps_source_ordering() -> None:
+    observed: list[tuple[str, str, str, str | int | None]] = []
+    calls: list[str] = []
+
+    def _emit_source_form() -> tuple[str, str]:
+        calls.append("source")
+        return "agst", "fp"
+
+    def _emit_manual(
+        form: str,
+        form_parts: str,
+        function: str,
+        probability: str | int | None,
+    ) -> None:
+        calls.append("manual")
+        observed.append((form, form_parts, function, probability))
+
+    emit_sound_changed_from_source(
+        function="PsInSg2",
+        probability=2,
+        sound_change_prob_delta=1,
+        emit_source_form=_emit_source_form,
+        emit_manual=_emit_manual,
+    )
+
+    assert calls[0] == "source"
+    assert observed == [
+        ("ahst", "fp", "PsInSg2", 3),
+        ("axst", "fp", "PsInSg2", 3),
     ]
 
 
