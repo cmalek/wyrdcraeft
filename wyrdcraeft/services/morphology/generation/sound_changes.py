@@ -20,6 +20,8 @@ PSINSG2_SUBSTITUTIONS: tuple[tuple[str, str], ...] = (
 
 #: Callback signature for emitting one sound-changed manual form row.
 SoundManualEmitter = Callable[[str, str, str, str | int | None], None]
+#: Callback signature for emitting one source form prior to sound changes.
+SoundSourceFormEmitter = Callable[[], tuple[str, str]]
 
 
 def derive_sound_changed_forms(*, function: str, form: str) -> list[str]:
@@ -205,3 +207,39 @@ def emit_sound_changed_forms(  # noqa: PLR0913
             function,
             sound_prob,
         )
+
+
+def emit_sound_changed_from_source(
+    *,
+    function: str,
+    probability: str | int | None,
+    sound_change_prob_delta: int,
+    emit_source_form: SoundSourceFormEmitter,
+    emit_manual: SoundManualEmitter,
+) -> None:
+    """
+    Emit sound-change rows after emitting one source form row.
+
+    Side Effects:
+        Invokes ``emit_source_form`` and then emits derived manual rows.
+
+    Args:
+        function: Morphology function code driving substitution rules.
+        probability: Base probability scalar for the source form.
+        sound_change_prob_delta: Delta applied to source probability.
+        emit_source_form: Callback returning ``(form, form_parts)``.
+        emit_manual: Callback that emits one derived manual row.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    source_form, source_form_parts = emit_source_form()
+    emit_sound_changed_forms(
+        function=function,
+        form=source_form,
+        form_parts=source_form_parts,
+        probability=probability,
+        sound_change_prob_delta=sound_change_prob_delta,
+        emit_manual=emit_manual,
+    )

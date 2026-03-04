@@ -16,7 +16,7 @@ from ..generation.probability import (
 )
 from ..generation.shared import FormOutput
 from ..generation.sound_changes import (
-    emit_sound_changed_forms,
+    emit_sound_changed_from_source,
 )
 from ..generation.strong_inflections import (
     dispatch_strong_derived_from_principal_part,
@@ -838,18 +838,19 @@ class VerbFormGenerator:
             prob: The probability.
 
         """  # noqa: E501
-        form, form_parts = self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            post_vowel,
-            boundary,
-            dental,
-            ending,
-            function,
-            prob,
-        )
+        def emit_source_form() -> tuple[str, str]:
+            return self._generate_and_print_form(
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+            )
 
         def emit_manual(
             sound_changed_form: str,
@@ -865,12 +866,11 @@ class VerbFormGenerator:
                 source_probability,
             )
 
-        emit_sound_changed_forms(
+        emit_sound_changed_from_source(
             function=function,
-            form=form,
-            form_parts=form_parts,
             probability=prob,
             sound_change_prob_delta=sound_change_prob_delta,
+            emit_source_form=emit_source_form,
             emit_manual=emit_manual,
         )
 
