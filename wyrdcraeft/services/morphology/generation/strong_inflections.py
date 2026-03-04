@@ -20,6 +20,8 @@ StrongVowelSoundEmitter = Callable[[str, str, str, str | int | None], None]
 StrongParticipleSink = Callable[[str], None]
 #: Callback signature for emitting the imperative-singular derivative row.
 StrongImSgEmitter = Callable[[str | int | None], None]
+#: Callback signature for deriving from one active-vowel principal-part context.
+StrongDerivedEmitter = Callable[[str, str | int | None], None]
 
 
 def emit_strong_derived_from_inf_sequence(  # noqa: PLR0913
@@ -252,6 +254,90 @@ def dispatch_strong_verb_part_branches(
         on_painpl()
         return True
     return invoked
+
+
+def dispatch_strong_derived_from_principal_part(  # noqa: PLR0913
+    *,
+    para_id: str,
+    form_parts: str,
+    active_vowel: str,
+    probability: str | int | None,
+    on_papt_form_parts: StrongParticipleSink,
+    on_inf: StrongDerivedEmitter,
+    emit_form_for_vowel: StrongVowelFormEmitter,
+) -> bool:
+    """
+    Dispatch and emit strong derived branches for one principal-part emission.
+
+    Side Effects:
+        Invokes branch emitters and participle sinks according to ``para_id``.
+
+    Args:
+        para_id: Principal function identifier from the paradigm row.
+        form_parts: Emitted principal-form ``formParts`` string.
+        active_vowel: Active vowel for the current branch context.
+        probability: Probability scalar for derived branch emissions.
+        on_papt_form_parts: Sink for ``PaPt`` participle projection.
+        on_inf: Callback that emits infinitive-derived branches.
+        emit_form_for_vowel: Callback for one strong form on ``active_vowel``.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Returns:
+        ``True`` when any branch callback was invoked, else ``False``.
+
+    """
+
+    def on_papt() -> None:
+        on_papt_form_parts(form_parts)
+
+    def on_inf_branch() -> None:
+        on_inf(active_vowel, probability)
+
+    def on_painsg1_branch() -> None:
+        def emit_form(
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> tuple[str, str]:
+            return emit_form_for_vowel(
+                active_vowel,
+                ending_value,
+                function,
+                prob_value,
+            )
+
+        emit_strong_painsg1_derived(
+            probability=probability,
+            emit_form=emit_form,
+        )
+
+    def on_painpl_branch() -> None:
+        def emit_form(
+            ending_value: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> tuple[str, str]:
+            return emit_form_for_vowel(
+                active_vowel,
+                ending_value,
+                function,
+                prob_value,
+            )
+
+        emit_strong_painpl_derived(
+            probability=probability,
+            emit_form=emit_form,
+        )
+
+    return dispatch_strong_verb_part_branches(
+        para_id=para_id,
+        on_papt=on_papt,
+        on_inf=on_inf_branch,
+        on_painsg1=on_painsg1_branch,
+        on_painpl=on_painpl_branch,
+    )
 
 
 def emit_strong_painsg1_derived(

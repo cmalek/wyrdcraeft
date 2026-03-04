@@ -605,3 +605,52 @@ def dispatch_weak_derived_forms(
         on_painsg1()
         return True
     return False
+
+
+def dispatch_weak_principal_part_derivations(  # noqa: PLR0913
+    *,
+    para_id: str,
+    use_item_shape: bool,
+    form_parts: str,
+    on_pspt_participle: WeakParticipleSink,
+    on_papt_participle: WeakParticipleSink,
+    on_inf: WeakBranchAction,
+    on_psinsg2: WeakBranchAction,
+    on_painsg1: WeakBranchAction,
+) -> bool:
+    """
+    Dispatch weak branch derivations and participle side effects per principal part.
+
+    Side Effects:
+        Invokes participle sinks and derived-branch callbacks.
+
+    Args:
+        para_id: Principal function identifier from the paradigm row.
+        use_item_shape: Whether generation is in raw item-shape mode.
+        form_parts: Emitted principal-form ``formParts`` string.
+        on_pspt_participle: Sink callback for ``PsPt`` participles.
+        on_papt_participle: Sink callback for ``PaPt`` participles.
+        on_inf: Callback for infinitive-derived branch.
+        on_psinsg2: Callback for ``PsInSg2``-derived branch.
+        on_painsg1: Callback for ``PaInSg1``-derived branch.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Returns:
+        ``True`` when a derived branch callback was invoked, otherwise ``False``.
+
+    """
+    para_id_lower = para_id.lower()
+    if para_id_lower == "pspt":
+        on_pspt_participle(form_parts)
+    if para_id_lower == "papt":
+        on_papt_participle(form_parts)
+
+    return dispatch_weak_derived_forms(
+        para_id=para_id,
+        use_item_shape=use_item_shape,
+        on_inf=on_inf,
+        on_psinsg2=on_psinsg2,
+        on_painsg1=on_painsg1,
+    )
