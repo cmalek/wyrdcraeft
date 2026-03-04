@@ -104,6 +104,28 @@ def test_set_noun_paradigm_advanced_stem_propagation() -> None:
     assert derived.noun_paradigm == ["cynn"]
 
 
+def test_set_noun_paradigm_heuristic_incel_suffix() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, stem="princel", wright="0")
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["hof"]
+
+
+def test_set_noun_paradigm_final_fallback_neuter_long_stem() -> None:
+    session = GeneratorSession()
+    word = _make_word(noun=1, n_neut=1, stem="sten", wright="0")
+    session.nouns = [word]
+    session.words = [word]
+
+    set_noun_paradigm(session)
+
+    assert word.noun_paradigm == ["word"]
+
+
 def test_set_verb_paradigm_strong_heuristic_assignment() -> None:
     session = GeneratorSession()
     word = _make_word(verb=1, vb_strong=1, stem="faran")
