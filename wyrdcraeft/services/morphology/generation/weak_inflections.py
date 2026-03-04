@@ -6,7 +6,7 @@ import re
 from collections.abc import Callable
 
 from ..text_utils import OENormalizer
-from .probability import probability_plus
+from .probability import probability_or_zero, probability_plus
 from .sound_changes import derive_papt_sound_changed_forms
 
 #: Callback signature for one weak-form emission operation.
@@ -29,6 +29,8 @@ WeakPrincipalEmitter = Callable[
 WeakParticipleSink = Callable[[str], None]
 #: Callback signature for one derived-branch dispatch action.
 WeakBranchAction = Callable[[], None]
+#: Callback signature for one weak ``PaInSg1`` vowel-variant emission.
+WeakPainsg1VariantEmitter = Callable[[str, int], str]
 #: Lower bound (exclusive) for using raw item-shape weak forms.
 WEAK_ITEM_SHAPE_MIN_ID: int = 88
 #: Upper bound (exclusive) for using raw item-shape weak forms.
@@ -460,6 +462,46 @@ def emit_weak_derived_from_painsg1_variant(  # noqa: PLR0913
         emit_manual(sound_changed_form, form_parts, "PaPt", probability + 1)
 
     return form_parts
+
+
+def emit_weak_derived_from_painsg1_sequence(  # noqa: PLR0913
+    *,
+    vowel: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    probability: str | int | None,
+    emit_variant: WeakPainsg1VariantEmitter,
+    on_participle: WeakParticipleSink,
+) -> None:
+    """
+    Emit all weak ``PaInSg1``-derived vowel variants for one principal context.
+
+    Side Effects:
+        Invokes variant and participle callbacks per emitted vowel/probability pair.
+
+    Args:
+        vowel: Principal ``PaInSg1`` vowel segment.
+        vowel_inf: Infinitive vowel from variant 0.
+        vowel_pa: Preterite singular vowel from variant 0.
+        probability: Base probability scalar for variant sequencing.
+        emit_variant: Callback that emits one vowel variant and returns form-parts.
+        on_participle: Callback that consumes each emitted participle form-parts.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    base_probability = probability_or_zero(probability)
+    vowel_list = [vowel]
+
+    # Perl unshifts the paradigm preterite vowel when infinitive and
+    # preterite vowels differ in the exemplar.
+    if vowel_inf and vowel_pa and vowel_inf != vowel_pa:
+        vowel_list.insert(0, vowel_pa)
+
+    for vcount, current_vowel in enumerate(vowel_list):
+        form_parts = emit_variant(current_vowel, base_probability + vcount)
+        on_participle(form_parts)
 
 
 def is_weak_item_shape_window(para_id_num: str) -> bool:
