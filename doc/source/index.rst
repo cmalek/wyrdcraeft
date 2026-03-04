@@ -27,6 +27,7 @@ wyrdcraeft
 
    runbook/contributing
    runbook/coding_standards
+   runbook/old_english_ocr_pipeline
    architecture/index
 
 .. toctree::

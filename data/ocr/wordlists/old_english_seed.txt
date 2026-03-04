@@ -1,0 +1,32 @@
+# Seed words used to filter unknown-token report noise.
+# Add project/domain terms as you validate OCR output.
+stán
+ár
+word
+hof
+guma
+fréa
+tunge
+wígend
+dæg
+fæt
+fæder
+brōþor
+mōdor
+dōhtor
+sweostor
+declension
+paradigm
+noun
+masculine
+feminine
+neuter
+strong
+weak
+stem
+stems
+section
+wright
+tichý
+thorn
+eth

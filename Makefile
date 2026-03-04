@@ -38,6 +38,9 @@ napoleon-gate-strict:
 napoleon-gate-baseline:
 	@python scripts/quality/check_napoleon_gate.py --write-baseline
 
-.PHONY: docs release compile dist clean list morphology-guardrails napoleon-gate napoleon-gate-strict napoleon-gate-baseline
+ocr-old-english-help:
+	@.venv/bin/python scripts/ocr/old_english_ocr_pipeline.py --help
+
+.PHONY: docs release compile dist clean list morphology-guardrails napoleon-gate napoleon-gate-strict napoleon-gate-baseline ocr-old-english-help
 list:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
