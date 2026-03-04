@@ -211,6 +211,24 @@ def _run_advanced_stem_pass(
             _assign_from_advanced_stem(word, assigned, prefix_re)
 
 
+def _run_stem_propagation_cycle(
+    nouns: list[Word],
+    assigned: list[Word],
+    prefix_re: str,
+) -> None:
+    """
+    Run one full stem-propagation cycle (simple then advanced).
+
+    Args:
+        nouns: Nouns to process.
+        assigned: Nouns already assigned paradigms.
+        prefix_re: Session prefix regex used by advanced matching.
+
+    """
+    _run_simple_stem_pass(nouns, assigned)
+    _run_advanced_stem_pass(nouns, assigned, prefix_re)
+
+
 def _apply_noun_heuristics(  # noqa: PLR0912
     *,
     word: Word,
@@ -292,6 +310,77 @@ def _apply_final_fallback(word: Word, buggy_word: Word) -> None:
         word.noun_paradigm.append("\u00e1r")
 
 
+def _run_initial_assignment_pass(
+    nouns: list[Word],
+    assigned: list[Word],
+    enable_r_stem_nouns: bool,
+) -> None:
+    """
+    Assign paradigms from r-stem and Wright rules for all nouns.
+
+    Args:
+        nouns: Nouns to process.
+        assigned: Nouns already assigned paradigms.
+        enable_r_stem_nouns: Whether opt-in r-stem assignment is enabled.
+
+    """
+    for word in nouns:
+        word.noun_paradigm = []
+        if enable_r_stem_nouns:
+            r_stem_paradigm = _get_r_stem_paradigm(word)
+            if r_stem_paradigm:
+                word.noun_paradigm.append(r_stem_paradigm)
+                assigned.append(word)
+                continue
+        _assign_by_wright(word)
+
+        if word.noun_paradigm:
+            assigned.append(word)
+
+
+def _run_heuristic_pass(
+    nouns: list[Word],
+    words: list[Word],
+    assigned: list[Word],
+    vowel_re: str,
+    lvowel_re: str,
+) -> None:
+    """
+    Assign paradigms using the legacy heuristic pass.
+
+    Args:
+        nouns: Nouns to process.
+        words: Full session words list for legacy index coupling.
+        assigned: Nouns already assigned paradigms.
+        vowel_re: Vowel regex fragment.
+        lvowel_re: Long-vowel regex fragment.
+
+    """
+    for i, word in enumerate(nouns):
+        if not word.noun_paradigm:
+            if _apply_noun_heuristics(
+                word=word,
+                buggy_word=words[i],
+                vowel_re=vowel_re,
+                lvowel_re=lvowel_re,
+            ):
+                assigned.append(word)
+
+
+def _run_final_fallback_pass(nouns: list[Word], words: list[Word]) -> None:
+    """
+    Apply final fallback paradigms for nouns still lacking assignments.
+
+    Args:
+        nouns: Nouns to process.
+        words: Full session words list for legacy index coupling.
+
+    """
+    for i, word in enumerate(nouns):
+        if not word.noun_paradigm:
+            _apply_final_fallback(word, words[i])
+
+
 
 def set_noun_paradigm(session: GeneratorSession) -> None:
     """
@@ -307,38 +396,18 @@ def set_noun_paradigm(session: GeneratorSession) -> None:
     lvowel_re = OENormalizer.LVOWEL
 
     assigned: list[Word] = []
-
-    for word in nouns:
-        word.noun_paradigm = []
-        if session.enable_r_stem_nouns:
-            r_stem_paradigm = _get_r_stem_paradigm(word)
-            if r_stem_paradigm:
-                word.noun_paradigm.append(r_stem_paradigm)
-                assigned.append(word)
-                continue
-        _assign_by_wright(word)
-
-        if word.noun_paradigm:
-            assigned.append(word)
-
-    _run_simple_stem_pass(nouns, assigned)
-    _run_advanced_stem_pass(nouns, assigned, prefix_re)
-
-    # Heuristics
-    for i, word in enumerate(nouns):
-        if not word.noun_paradigm:
-            if _apply_noun_heuristics(
-                word=word,
-                buggy_word=session.words[i],
-                vowel_re=vowel_re,
-                lvowel_re=lvowel_re,
-            ):
-                assigned.append(word)
-
-    _run_simple_stem_pass(nouns, assigned)
-    _run_advanced_stem_pass(nouns, assigned, prefix_re)
-
-    # Final fallback
-    for i, word in enumerate(nouns):
-        if not word.noun_paradigm:
-            _apply_final_fallback(word, session.words[i])
+    _run_initial_assignment_pass(
+        nouns,
+        assigned,
+        session.enable_r_stem_nouns,
+    )
+    _run_stem_propagation_cycle(nouns, assigned, prefix_re)
+    _run_heuristic_pass(
+        nouns,
+        session.words,
+        assigned,
+        vowel_re,
+        lvowel_re,
+    )
+    _run_stem_propagation_cycle(nouns, assigned, prefix_re)
+    _run_final_fallback_pass(nouns, session.words)
