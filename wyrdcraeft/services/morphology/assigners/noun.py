@@ -113,8 +113,187 @@ def _get_r_stem_paradigm(word: Word) -> str | None:
     return R_STEM_PARADIGM_BY_STEM.get(word.stem)
 
 
+def _assign_from_simple_stem(word: Word, assigned: list[Word]) -> bool:
+    """
+    Assign paradigm from exact-stem matches in the assigned noun pool.
 
-def set_noun_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912, PLR0915
+    Args:
+        word: Noun candidate to assign.
+        assigned: Nouns already assigned a paradigm in current pass order.
+
+    Returns:
+        ``True`` when a paradigm was copied and ``word`` appended to ``assigned``.
+
+    """
+    for other in assigned:
+        if word.stem == other.stem:
+            word.noun_paradigm = [other.noun_paradigm[0]]
+            assigned.append(word)
+            return True
+    return False
+
+
+def _normalized_stem_variants(stem: str, prefix_re: str) -> tuple[str, str, str, str]:
+    """
+    Build ordered normalized stem candidates for advanced noun matching.
+
+    Args:
+        stem: Candidate noun stem.
+        prefix_re: Session prefix regex used by the legacy stripping rule.
+
+    Returns:
+        Ordered tuple matching legacy ``mod_match`` transformation flow.
+
+    """
+    mod_match1 = re.sub(f"^({prefix_re})-?(.*)", r"\2", stem)
+    mod_match2 = mod_match1.replace("y", "i")
+    mod_match3 = mod_match1.replace("i", "y")
+    mod_match4 = mod_match2.replace("i", "ie")
+    return mod_match1, mod_match2, mod_match3, mod_match4
+
+
+def _assign_from_advanced_stem(
+    word: Word,
+    assigned: list[Word],
+    prefix_re: str,
+) -> bool:
+    """
+    Assign paradigm using normalized stem variants against assigned nouns.
+
+    Args:
+        word: Noun candidate to assign.
+        assigned: Nouns already assigned a paradigm in current pass order.
+        prefix_re: Session prefix regex used by normalization.
+
+    Returns:
+        ``True`` when a paradigm was copied and ``word`` appended to ``assigned``.
+
+    """
+    stem_candidates = _normalized_stem_variants(word.stem, prefix_re)
+    for other in assigned:
+        if other.stem in stem_candidates:
+            word.noun_paradigm = [other.noun_paradigm[0]]
+            assigned.append(word)
+            return True
+    return False
+
+
+def _run_simple_stem_pass(nouns: list[Word], assigned: list[Word]) -> None:
+    """
+    Run one exact-stem propagation pass for nouns lacking paradigms.
+
+    Args:
+        nouns: Nouns to process.
+        assigned: Nouns already assigned paradigms.
+
+    """
+    for word in nouns:
+        if not word.noun_paradigm:
+            _assign_from_simple_stem(word, assigned)
+
+
+def _run_advanced_stem_pass(
+    nouns: list[Word],
+    assigned: list[Word],
+    prefix_re: str,
+) -> None:
+    """
+    Run one normalized-stem propagation pass for nouns lacking paradigms.
+
+    Args:
+        nouns: Nouns to process.
+        assigned: Nouns already assigned paradigms.
+        prefix_re: Session prefix regex used by normalization.
+
+    """
+    for word in nouns:
+        if not word.noun_paradigm:
+            _assign_from_advanced_stem(word, assigned, prefix_re)
+
+
+def _apply_noun_heuristics(  # noqa: PLR0912
+    *,
+    word: Word,
+    buggy_word: Word,
+    vowel_re: str,
+    lvowel_re: str,
+) -> bool:
+    """
+    Apply legacy noun heuristic rules for one word.
+
+    Args:
+        word: Noun candidate to assign.
+        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+        vowel_re: Vowel regex fragment.
+        lvowel_re: Long-vowel regex fragment.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Returns:
+        ``True`` when at least one paradigm was appended.
+
+    """
+    v_match = re.search(
+        f"^({vowel_re}?{vowel_re}?.*?)({vowel_re}{vowel_re}?)",
+        word.stem,
+    )
+    vowel = v_match.group(2) if v_match else ""
+
+    if word.stem.endswith("a"):
+        if re.search(lvowel_re, vowel):
+            word.noun_paradigm.append("fr\u00e9a")
+        else:
+            word.noun_paradigm.append("guma")
+    if word.stem.endswith("e"):
+        if word.n_fem == 1:
+            word.noun_paradigm.append("tunge")
+        if word.n_masc == 1:
+            word.noun_paradigm.append("st\u00e1n")
+        if word.n_neut == 1:
+            word.noun_paradigm.append("hof")
+    if word.stem.endswith("nd") and word.n_masc == 1:
+        word.noun_paradigm.append("w\u00edgend")
+    if re.search(r"(els|scipe)$", word.stem):
+        word.noun_paradigm.append("st\u00e1n")
+    if word.stem.endswith("incel"):
+        word.noun_paradigm.append("hof")
+    if re.search(r"(ness|niss|nyss|ung)$", word.stem):
+        word.noun_paradigm.append("\u00e1r")
+
+    if re.search(r"[\u00e6\u01fd]", vowel) and buggy_word.syllables < 2:  # noqa: PLR2004
+        if word.n_masc == 1:
+            word.noun_paradigm.append("d\u00e6g")
+        if word.n_neut == 1:
+            word.noun_paradigm.append("f\u00e6t")
+
+    return bool(word.noun_paradigm)
+
+
+def _apply_final_fallback(word: Word, buggy_word: Word) -> None:
+    """
+    Apply last-resort noun paradigm fallback rules for one word.
+
+    Args:
+        word: Noun candidate to assign.
+        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+
+    """
+    if word.n_masc == 1 or word.n_uncert == 1:
+        word.noun_paradigm.append("st\u00e1n")
+
+    if word.n_neut == 1:
+        if OENormalizer.stem_length(buggy_word.stem):
+            word.noun_paradigm.append("word")
+        else:
+            word.noun_paradigm.append("hof")
+
+    if word.n_fem == 1:
+        word.noun_paradigm.append("\u00e1r")
+
+
+
+def set_noun_paradigm(session: GeneratorSession) -> None:
     """
     Set the noun paradigm.
 
@@ -142,105 +321,24 @@ def set_noun_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912, PLR0
         if word.noun_paradigm:
             assigned.append(word)
 
-    # Simple stem comparison
-    for word in nouns:
-        if not word.noun_paradigm:
-            for other in assigned:
-                if word.stem == other.stem:
-                    word.noun_paradigm = [other.noun_paradigm[0]]
-                    assigned.append(word)
-                    break
-
-    # Advanced stem comparison
-    for word in nouns:
-        if not word.noun_paradigm:
-            mod_match1 = re.sub(f"^({prefix_re})-?(.*)", r"\2", word.stem)
-            mod_match2 = mod_match1.replace("y", "i")
-            mod_match3 = mod_match1.replace("i", "y")
-            mod_match4 = mod_match2.replace("i", "ie")
-
-            for other in assigned:
-                if other.stem in [mod_match1, mod_match2, mod_match3, mod_match4]:
-                    word.noun_paradigm = [other.noun_paradigm[0]]
-                    assigned.append(word)
-                    break
+    _run_simple_stem_pass(nouns, assigned)
+    _run_advanced_stem_pass(nouns, assigned, prefix_re)
 
     # Heuristics
     for i, word in enumerate(nouns):
         if not word.noun_paradigm:
-            v_match = re.search(
-                f"^({vowel_re}?{vowel_re}?.*?)({vowel_re}{vowel_re}?)", word.stem
-            )
-            vowel = v_match.group(2) if v_match else ""
-
-            if word.stem.endswith("a"):
-                if re.search(lvowel_re, vowel):
-                    word.noun_paradigm.append("fr\u00e9a")
-                else:
-                    word.noun_paradigm.append("guma")
-            if word.stem.endswith("e"):
-                if word.n_fem == 1:
-                    word.noun_paradigm.append("tunge")
-                if word.n_masc == 1:
-                    word.noun_paradigm.append("st\u00e1n")
-                if word.n_neut == 1:
-                    word.noun_paradigm.append("hof")
-            if word.stem.endswith("nd") and word.n_masc == 1:
-                word.noun_paradigm.append("w\u00edgend")
-            if re.search(r"(els|scipe)$", word.stem):
-                word.noun_paradigm.append("st\u00e1n")
-            if word.stem.endswith("incel"):
-                word.noun_paradigm.append("hof")
-            if re.search(r"(ness|niss|nyss|ung)$", word.stem):
-                word.noun_paradigm.append("\u00e1r")
-
-            # Buggy indexing matching Perl
-            buggy_word = session.words[i]
-            if re.search(r"[\u00e6\u01fd]", vowel) and buggy_word.syllables < 2:  # noqa: PLR2004
-                if word.n_masc == 1:
-                    word.noun_paradigm.append("d\u00e6g")
-                if word.n_neut == 1:
-                    word.noun_paradigm.append("f\u00e6t")
-
-            if word.noun_paradigm:
+            if _apply_noun_heuristics(
+                word=word,
+                buggy_word=session.words[i],
+                vowel_re=vowel_re,
+                lvowel_re=lvowel_re,
+            ):
                 assigned.append(word)
 
-    # Second stem comparison
-    for word in nouns:
-        if not word.noun_paradigm:
-            for other in assigned:
-                if word.stem == other.stem:
-                    word.noun_paradigm = [other.noun_paradigm[0]]
-                    assigned.append(word)
-                    break
-
-    # Second advanced stem comparison
-    for word in nouns:
-        if not word.noun_paradigm:
-            mod_match1 = re.sub(f"^({prefix_re})-?(.*)", r"\2", word.stem)
-            mod_match2 = mod_match1.replace("y", "i")
-            mod_match3 = mod_match1.replace("i", "y")
-            mod_match4 = mod_match2.replace("i", "ie")
-
-            for other in assigned:
-                if other.stem in [mod_match1, mod_match2, mod_match3, mod_match4]:
-                    word.noun_paradigm = [other.noun_paradigm[0]]
-                    assigned.append(word)
-                    break
+    _run_simple_stem_pass(nouns, assigned)
+    _run_advanced_stem_pass(nouns, assigned, prefix_re)
 
     # Final fallback
     for i, word in enumerate(nouns):
         if not word.noun_paradigm:
-            if word.n_masc == 1 or word.n_uncert == 1:
-                word.noun_paradigm.append("st\u00e1n")
-
-            # Buggy indexing matching Perl
-            buggy_word = session.words[i]
-            if word.n_neut == 1:
-                if OENormalizer.stem_length(buggy_word.stem):
-                    word.noun_paradigm.append("word")
-                else:
-                    word.noun_paradigm.append("hof")
-
-            if word.n_fem == 1:
-                word.noun_paradigm.append("\u00e1r")
+            _apply_final_fallback(word, session.words[i])

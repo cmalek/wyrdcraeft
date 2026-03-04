@@ -78,6 +78,32 @@ def test_set_noun_paradigm_r_stem_opt_in() -> None:
     assert word.noun_paradigm == ["fæder"]
 
 
+def test_set_noun_paradigm_simple_stem_propagation() -> None:
+    session = GeneratorSession()
+    source = _make_word(noun=1, stem="same", wright="356")
+    derived = _make_word(noun=1, stem="same", wright="0")
+    session.nouns = [source, derived]
+    session.words = [source, derived]
+
+    set_noun_paradigm(session)
+
+    assert source.noun_paradigm == ["cynn"]
+    assert derived.noun_paradigm == ["cynn"]
+
+
+def test_set_noun_paradigm_advanced_stem_propagation() -> None:
+    session = GeneratorSession()
+    source = _make_word(noun=1, stem="his", wright="356")
+    derived = _make_word(noun=1, stem="hys", wright="0")
+    session.nouns = [source, derived]
+    session.words = [source, derived]
+
+    set_noun_paradigm(session)
+
+    assert source.noun_paradigm == ["cynn"]
+    assert derived.noun_paradigm == ["cynn"]
+
+
 def test_set_verb_paradigm_strong_heuristic_assignment() -> None:
     session = GeneratorSession()
     word = _make_word(verb=1, vb_strong=1, stem="faran")
