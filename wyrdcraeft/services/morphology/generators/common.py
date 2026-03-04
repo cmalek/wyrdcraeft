@@ -13,7 +13,6 @@ from ..generation.form_assembly import assemble_form_parts, materialize_form
 from ..generation.participles import build_participle_adjective
 from ..generation.probability import (
     format_probability,
-    probability_or_zero,
     probability_plus,
 )
 from ..generation.shared import FormOutput
@@ -27,6 +26,7 @@ from ..generation.strong_inflections import (
 from ..generation.weak_inflections import (
     dispatch_weak_principal_part_derivations,
     emit_weak_derived_from_inf_sequence,
+    emit_weak_derived_from_painsg1_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_principal_form,
@@ -1136,29 +1136,17 @@ class VerbFormGenerator:
 
         """
         pv_simp = re.sub(r"(.)\1", r"\1", post_vowel)
-        base_probability = probability_or_zero(prob)
-        vowel_list = [vowel]
-
-        # Perl unshifts the paradigm preterite vowel when infinitive and
-        # preterite vowels differ in the exemplar.
-        if vowel_inf and vowel_pa and vowel_inf != vowel_pa:
-            vowel_list.insert(0, vowel_pa)
-
-        for vcount, current_vowel in enumerate(vowel_list):
-            curr_prob = base_probability + vcount
-
+        def emit_variant(current_vowel: str, current_probability: int) -> str:
             def emit_form(
                 ending: str,
                 function: str,
                 prob_value: str | int | None,
-                *,
-                _current_vowel: str = current_vowel,
             ) -> None:
                 self._generate_and_print_form(
                     formhash,
                     prefix,
                     pre_vowel,
-                    _current_vowel,
+                    current_vowel,
                     pv_simp,
                     boundary,
                     dental,
@@ -1181,19 +1169,34 @@ class VerbFormGenerator:
                     prob_value,
                 )
 
-            form_parts = emit_weak_derived_from_painsg1_variant(
+            return emit_weak_derived_from_painsg1_variant(
                 prefix=prefix,
                 pre_vowel=pre_vowel,
                 vowel=current_vowel,
                 post_vowel_simple=pv_simp,
                 boundary=boundary,
                 dental=dental,
-                probability=curr_prob,
+                probability=current_probability,
                 emit_form=emit_form,
                 emit_manual=emit_manual,
             )
 
-            self._add_participle_to_adjectives(word, prefix, form_parts, True)  # noqa: FBT003
+        def on_participle(form_parts: str) -> None:
+            self._add_participle_to_adjectives(
+                word,
+                prefix,
+                form_parts,
+                is_past=True,
+            )
+
+        emit_weak_derived_from_painsg1_sequence(
+            vowel=vowel,
+            vowel_inf=vowel_inf,
+            vowel_pa=vowel_pa,
+            probability=prob,
+            emit_variant=emit_variant,
+            on_participle=on_participle,
+        )
 
     def _generate_weak_derived_from_psinsg2(  # noqa: PLR0913
         self,

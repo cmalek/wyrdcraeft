@@ -24,6 +24,7 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     dispatch_weak_principal_part_derivations,
     emit_weak_derived_from_inf_by_class2,
     emit_weak_derived_from_inf_sequence,
+    emit_weak_derived_from_painsg1_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
     emit_weak_principal_form,
@@ -500,6 +501,27 @@ def test_emit_weak_derived_from_painsg1_variant_sequence() -> None:
         ("gelomtt", "ge-l-o-m-t-ed", "PaPt", 3),
         ("gelomt", "ge-l-o-m-t-ed", "PaPt", 3),
     ]
+
+
+def test_emit_weak_derived_from_painsg1_sequence_uses_preterite_order() -> None:
+    observed: list[tuple[str, int]] = []
+    participles: list[str] = []
+
+    def _emit_variant(vowel: str, probability: int) -> str:
+        observed.append((vowel, probability))
+        return f"fp-{vowel}-{probability}"
+
+    emit_weak_derived_from_painsg1_sequence(
+        vowel="a",
+        vowel_inf="a",
+        vowel_pa="o",
+        probability=0,
+        emit_variant=_emit_variant,
+        on_participle=participles.append,
+    )
+
+    assert observed == [("o", 0), ("a", 1)]
+    assert participles == ["fp-o-0", "fp-a-1"]
 
 
 def test_is_weak_item_shape_window_bounds() -> None:
