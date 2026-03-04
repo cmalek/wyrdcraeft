@@ -565,6 +565,146 @@ class VerbFormGenerator:
         print_one_form(self.session, fh, self.output_file)
         return form, form_parts
 
+    def _emit_form_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        """
+        Emit one generated form for a fixed stem context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+
+        Keyword Args:
+            dental: Dental segment for weak forms.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._generate_and_print_form(
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_sound_changed_form_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        *,
+        dental: str | None = "",
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        """
+        Emit one source row and its sound-change derivatives for a stem context.
+
+        Side Effects:
+            Writes generated and derived rows to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation for the source row.
+
+        Keyword Args:
+            dental: Dental segment for weak-form contexts.
+            sound_change_prob_delta: Probability delta used on derived forms.
+
+        """
+        self._generate_and_print_form_with_sound_changes(
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob,
+            sound_change_prob_delta=sound_change_prob_delta,
+        )
+
+    def _emit_imsg_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit the imperative-singular row for one fixed stem context.
+
+        Side Effects:
+            Writes one ``ImSg`` row to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_form_for_context(
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            "0",
+            "ImSg",
+            prob=prob,
+        )
+
     def _add_participle_to_adjectives(
         self, word: Word, prefix: str, form_parts: str, is_past: bool
     ) -> None:
@@ -636,70 +776,57 @@ class VerbFormGenerator:
 
         for vcount, v in enumerate(vowel_list):
             prob = 1 if vcount == 1 else None
-            _, form_parts = self._generate_and_print_form(
+            _, form_parts = self._emit_form_for_context(
                 formhash,
                 prefix,
                 pre_vowel,
                 v,
                 post_vowel,
                 boundary,
-                "",
                 ending,
                 para_id,
-                prob,
+                prob=prob,
             )
-
-            def emit_form_for_vowel(
-                active_vowel: str,
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-            ) -> tuple[str, str]:
-                return self._generate_and_print_form(
-                    formhash,
-                    prefix,
-                    pre_vowel,
-                    active_vowel,
-                    post_vowel,
-                    boundary,
-                    "",
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            def on_inf(
-                active_vowel: str,
-                prob_value: str | int | None,
-            ) -> None:
-                self._generate_strong_derived_from_inf(
-                    formhash,
-                    word,
-                    prefix,
-                    pre_vowel,
-                    active_vowel,
-                    post_vowel,
-                    boundary,
-                    ending,
-                    prob_value,
-                )
-
-            def on_papt_form_parts(derived_form_parts: str) -> None:
-                self._add_participle_to_adjectives(
-                    word,
-                    prefix,
-                    derived_form_parts,
-                    is_past=True,
-                )
 
             dispatch_strong_derived_from_principal_part(
                 para_id=para_id,
                 form_parts=form_parts,
                 active_vowel=v,
                 probability=prob,
-                on_papt_form_parts=on_papt_form_parts,
-                on_inf=on_inf,
-                emit_form_for_vowel=emit_form_for_vowel,
+                on_papt_form_parts=lambda derived_form_parts: (
+                    self._add_participle_to_adjectives(
+                        word,
+                        prefix,
+                        derived_form_parts,
+                        is_past=True,
+                    )
+                ),
+                on_inf=lambda active_vowel, prob_value: (
+                    self._generate_strong_derived_from_inf(
+                        formhash,
+                        word,
+                        prefix,
+                        pre_vowel,
+                        active_vowel,
+                        post_vowel,
+                        boundary,
+                        ending,
+                        prob_value,
+                    )
+                ),
+                emit_form_for_vowel=lambda active_vowel, ending_value, function, prob_value: (
+                    self._emit_form_for_context(
+                        formhash,
+                        prefix,
+                        pre_vowel,
+                        active_vowel,
+                        post_vowel,
+                        boundary,
+                        ending_value,
+                        function,
+                        prob=prob_value,
+                    )
+                ),
             )
 
     def _generate_strong_derived_from_inf(  # noqa: PLR0913
@@ -721,6 +848,14 @@ class VerbFormGenerator:
             Matches Perl implementation of ``generate_strong_derived_from_inf``
             function.
 
+        Note:
+            Wright (``Old English Grammar``, §§474-475) describes strong verbs
+            as deriving preterite and participle stems by vowel alternation
+            (ablaut) across a fixed stem set. This routine emits those
+            infinitive-derived rows in that legacy order. Tichý (2017, p. 43)
+            keeps the same traditional strong/weak split for transparent
+            morphological analysis.
+
         Args:
             formhash: The form hash.
             word: The word to process.
@@ -733,75 +868,54 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        def emit_form_for_vowel(
-            active_vowel: str,
-            ending_value: str,
-            function: str,
-            prob_value: str | int | None,
-        ) -> tuple[str, str]:
-            return self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                active_vowel,
-                post_vowel,
-                boundary,
-                "",
-                ending_value,
-                function,
-                prob_value,
-            )
-
-        def emit_sound_for_vowel(
-            active_vowel: str,
-            ending_value: str,
-            function: str,
-            prob_value: str | int | None,
-        ) -> None:
-            self._generate_and_print_form_with_sound_changes(
-                formhash,
-                prefix,
-                pre_vowel,
-                active_vowel,
-                post_vowel,
-                boundary,
-                "",
-                ending_value,
-                function,
-                prob_value,
-            )
-
-        def emit_imsg(prob_value: str | int | None) -> None:
-            self._generate_and_print_form(
+        emit_strong_derived_from_inf_sequence(
+            ending=ending,
+            vowel=vowel,
+            probability=prob,
+            umlaut_vowels=OENormalizer.iumlaut([vowel]),
+            emit_form_for_vowel=lambda active_vowel, ending_value, function, prob_value: (
+                self._emit_form_for_context(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    active_vowel,
+                    post_vowel,
+                    boundary,
+                    ending_value,
+                    function,
+                    prob=prob_value,
+                )
+            ),
+            emit_sound_for_vowel=lambda active_vowel, ending_value, function, prob_value: (
+                self._emit_sound_changed_form_for_context(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    active_vowel,
+                    post_vowel,
+                    boundary,
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+            ),
+            on_participle=lambda form_parts: (
+                self._add_participle_to_adjectives(
+                    word,
+                    prefix,
+                    form_parts,
+                    is_past=False,
+                )
+            ),
+            emit_imsg=lambda prob_value: self._emit_imsg_for_context(
                 formhash,
                 prefix,
                 pre_vowel,
                 vowel,
                 post_vowel,
                 boundary,
-                "",
-                "0",
-                "ImSg",
                 prob_value,
-            )
-
-        def on_participle(form_parts: str) -> None:
-            self._add_participle_to_adjectives(
-                word,
-                prefix,
-                form_parts,
-                is_past=False,
-            )
-
-        emit_strong_derived_from_inf_sequence(
-            ending=ending,
-            vowel=vowel,
-            probability=prob,
-            umlaut_vowels=OENormalizer.iumlaut([vowel]),
-            emit_form_for_vowel=emit_form_for_vowel,
-            emit_sound_for_vowel=emit_sound_for_vowel,
-            on_participle=on_participle,
-            emit_imsg=emit_imsg,
+            ),
         )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913
@@ -884,6 +998,14 @@ class VerbFormGenerator:
     ) -> None:
         """
         Matches Perl's generate_and_print_manual.
+
+        Args:
+            formhash: The form hash.
+            form: The generated form text.
+            form_parts: The generated form-parts payload.
+            function: The morphology function code.
+            prob: The probability annotation.
+
         """
         fh = formhash.copy()
         fh["form"] = form
@@ -930,30 +1052,6 @@ class VerbFormGenerator:
         prob: str | int | None = 0
         use_item_shape = is_weak_item_shape_window(para_id_num)
 
-        def emit_principal(
-            emit_prefix: str,
-            emit_pre_vowel: str,
-            emit_vowel: str,
-            emit_post_vowel: str,
-            emit_boundary: str,
-            emit_dental: str | None,
-            emit_ending: str,
-            emit_function: str,
-            emit_prob: str | int | None,
-        ) -> tuple[str, str]:
-            return self._generate_and_print_form(
-                formhash,
-                emit_prefix,
-                emit_pre_vowel,
-                emit_vowel,
-                emit_post_vowel,
-                emit_boundary,
-                emit_dental,
-                emit_ending,
-                emit_function,
-                emit_prob,
-            )
-
         fp = emit_weak_principal_form(
             para_id=para_id,
             prefix=prefix,
@@ -963,73 +1061,81 @@ class VerbFormGenerator:
             ending=ending,
             variant_id=variant_id,
             use_item_shape=use_item_shape,
-            emit_form=emit_principal,
+            emit_form=lambda emit_prefix, emit_pre_vowel, emit_vowel, emit_post_vowel, emit_boundary, emit_dental, emit_ending, emit_function, emit_prob: (
+                self._emit_form_for_context(
+                    formhash,
+                    emit_prefix,
+                    emit_pre_vowel,
+                    emit_vowel,
+                    emit_post_vowel,
+                    emit_boundary,
+                    emit_ending,
+                    emit_function,
+                    dental=emit_dental,
+                    prob=emit_prob,
+                )
+            ),
         )
-
-        def on_pspt_participle(form_parts: str) -> None:
-            self._add_participle_to_adjectives(
-                word,
-                prefix,
-                form_parts,
-                is_past=False,
-            )
-
-        def on_papt_participle(form_parts: str) -> None:
-            self._add_participle_to_adjectives(
-                word,
-                prefix,
-                form_parts,
-                is_past=True,
-            )
-
-        def on_inf() -> None:
-            self._generate_weak_derived_from_inf(
-                formhash,
-                word,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                ending,
-                prob,
-            )
-
-        def on_psinsg2() -> None:
-            self._generate_weak_derived_from_psinsg2(
-                formhash,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                prob,
-            )
-
-        def on_painsg1() -> None:
-            self._generate_weak_derived_from_painsg1(
-                formhash,
-                word,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                dental,
-                prob,
-                vowel_inf,
-                vowel_pa,
-            )
 
         dispatch_weak_principal_part_derivations(
             para_id=para_id,
             use_item_shape=use_item_shape,
             form_parts=fp,
-            on_pspt_participle=on_pspt_participle,
-            on_papt_participle=on_papt_participle,
-            on_inf=on_inf,
-            on_psinsg2=on_psinsg2,
-            on_painsg1=on_painsg1,
+            on_pspt_participle=lambda form_parts: (
+                self._add_participle_to_adjectives(
+                    word,
+                    prefix,
+                    form_parts,
+                    is_past=False,
+                )
+            ),
+            on_papt_participle=lambda form_parts: (
+                self._add_participle_to_adjectives(
+                    word,
+                    prefix,
+                    form_parts,
+                    is_past=True,
+                )
+            ),
+            on_inf=lambda: (
+                self._generate_weak_derived_from_inf(
+                    formhash,
+                    word,
+                    prefix,
+                    pre_vowel,
+                    root_vowel_actual,
+                    post_vowel,
+                    boundary,
+                    ending,
+                    prob,
+                )
+            ),
+            on_psinsg2=lambda: (
+                self._generate_weak_derived_from_psinsg2(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    root_vowel_actual,
+                    post_vowel,
+                    boundary,
+                    prob,
+                )
+            ),
+            on_painsg1=lambda: (
+                self._generate_weak_derived_from_painsg1(
+                    formhash,
+                    word,
+                    prefix,
+                    pre_vowel,
+                    root_vowel_actual,
+                    post_vowel,
+                    boundary,
+                    dental,
+                    prob,
+                    vowel_inf,
+                    vowel_pa,
+                )
+            ),
         )
 
     def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
@@ -1051,6 +1157,13 @@ class VerbFormGenerator:
             Matches Perl implementation of ``generate_weak_derived_from_inf``
             function.
 
+        Note:
+            Wright (``Old English Grammar``, §§474 and 520) describes weak
+            verbs as forming preterites and participles with dental suffixes.
+            This helper keeps that weak-class dental sequencing in the same
+            deterministic order used by the legacy generator and by Tichý's
+            class-based analyzer design (2017, p. 43).
+
         Args:
             formhash: The form hash.
             word: The word to process.
@@ -1063,33 +1176,6 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        def emit_form(
-            dental: str | None,
-            ending: str,
-            function: str,
-            prob_value: str | int | None,
-        ) -> tuple[str, str]:
-            return self._generate_and_print_form(
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
-                dental,
-                ending,
-                function,
-                prob_value,
-            )
-
-        def on_participle(form_parts: str) -> None:
-            self._add_participle_to_adjectives(
-                word,
-                prefix,
-                form_parts,
-                is_past=False,
-            )
-
         emit_weak_derived_from_inf_sequence(
             class2=formhash.get("class2"),
             prefix=prefix,
@@ -1099,8 +1185,28 @@ class VerbFormGenerator:
             boundary=boundary,
             original_ending=original_ending,
             probability=prob,
-            emit_form=emit_form,
-            on_participle=on_participle,
+            emit_form=lambda dental, ending, function, prob_value: (
+                self._emit_form_for_context(
+                    formhash,
+                    prefix,
+                    pre_vowel,
+                    vowel,
+                    post_vowel,
+                    boundary,
+                    ending,
+                    function,
+                    dental=dental,
+                    prob=prob_value,
+                )
+            ),
+            on_participle=lambda form_parts: (
+                self._add_participle_to_adjectives(
+                    word,
+                    prefix,
+                    form_parts,
+                    is_past=False,
+                )
+            ),
         )
 
     def _generate_weak_derived_from_painsg1(  # noqa: PLR0913
@@ -1209,6 +1315,16 @@ class VerbFormGenerator:
     ) -> None:
         """
         Matches Perl's generate_weak_derived_from_psinsg2.
+
+        Args:
+            formhash: The form hash.
+            prefix: The prefix segment.
+            pre_vowel: The pre-vowel segment.
+            vowel: The active vowel segment.
+            post_vowel: The post-vowel segment.
+            boundary: The boundary segment.
+            prob: The probability annotation.
+
         """
         def emit_form_with_post(
             ending: str,
@@ -1274,14 +1390,28 @@ def generate_vbforms(session: GeneratorSession, output_file: FormOutput) -> None
 
 
 def generate_adjforms(session, output_file):
-    """Perl: sub generate_adjforms"""
+    """
+    Delegate adjective form generation to the extracted module.
+
+    Args:
+        session: Active morphology generator session.
+        output_file: Output stream receiving generated rows.
+
+    """
     from .adj_forms import generate_adjforms as _generate_adjforms
 
     _generate_adjforms(session, output_file)
 
 
 def generate_advforms(session, output_file):
-    """Perl: sub generate_advforms"""
+    """
+    Generate adverb forms and comparative/superlative derivatives.
+
+    Args:
+        session: Active morphology generator session.
+        output_file: Output stream receiving generated rows.
+
+    """
     for word in session.words:
         if word.adverb == 1:
             bt_id = f"{word.nid:06d}"
@@ -1335,14 +1465,28 @@ def generate_advforms(session, output_file):
 
 
 def generate_numforms(session, output_file):
-    """Perl: sub generate_numforms"""
+    """
+    Delegate numeral form generation to the extracted module.
+
+    Args:
+        session: Active morphology generator session.
+        output_file: Output stream receiving generated rows.
+
+    """
     from .num_forms import generate_numforms as _generate_numforms
 
     _generate_numforms(session, output_file)
 
 
 def generate_nounforms(session, output_file):
-    """Perl: sub generate_nounforms"""
+    """
+    Delegate noun form generation to the extracted module.
+
+    Args:
+        session: Active morphology generator session.
+        output_file: Output stream receiving generated rows.
+
+    """
     from .noun_forms import generate_nounforms as _generate_nounforms
 
     _generate_nounforms(session, output_file)
