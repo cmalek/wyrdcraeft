@@ -27,6 +27,7 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     emit_weak_derived_from_painsg1_sequence,
     emit_weak_derived_from_painsg1_variant,
     emit_weak_derived_from_psinsg2,
+    emit_weak_derived_from_psinsg2_context,
     emit_weak_principal_form,
     is_weak_item_shape_window,
 )
@@ -453,6 +454,42 @@ def test_emit_weak_derived_from_psinsg2_sequence() -> None:
         ("st", "PsInSg2", 0, 1),
         ("þ", "PsInSg3", 1, 0),
     ]
+
+
+def test_emit_weak_derived_from_psinsg2_context_simplifies_post_vowel() -> None:
+    forms: list[tuple[str, str, str | int | None, str]] = []
+    sounds: list[tuple[str, str, str | int | None, int, str]] = []
+
+    def _emit_form_with_post(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+        post_vowel_simple: str,
+    ) -> None:
+        forms.append((ending, function, probability, post_vowel_simple))
+
+    def _emit_sound_with_post(
+        ending: str,
+        function: str,
+        probability: str | int | None,
+        consonant_change_prob: int,
+        post_vowel_simple: str,
+    ) -> None:
+        sounds.append(
+            (ending, function, probability, consonant_change_prob, post_vowel_simple)
+        )
+
+    emit_weak_derived_from_psinsg2_context(
+        probability=None,
+        post_vowel="mm",
+        emit_form_with_post=_emit_form_with_post,
+        emit_sound_with_post=_emit_sound_with_post,
+    )
+
+    assert ("est", "PsInSg2", 1, "m") in forms
+    assert all(row[-1] == "m" for row in forms)
+    assert ("st", "PsInSg2", "", 1, "m") in sounds
+    assert ("þ", "PsInSg3", 1, 0, "m") in sounds
 
 
 def test_emit_weak_derived_from_painsg1_variant_sequence() -> None:

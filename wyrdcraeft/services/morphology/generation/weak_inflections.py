@@ -18,6 +18,13 @@ WeakFormEmitter = Callable[
 WeakSimpleFormEmitter = Callable[[str, str, str | int | None], None]
 #: Callback signature for one weak-form sound-change emission operation.
 WeakSoundEmitter = Callable[[str, str, str | int | None, int], None]
+#: Callback signature for one weak-form emission with simplified post-vowel.
+WeakSimpleFormWithPostEmitter = Callable[[str, str, str | int | None, str], None]
+#: Callback signature for one weak sound-emission with simplified post-vowel.
+WeakSoundWithPostEmitter = Callable[
+    [str, str, str | int | None, int, str],
+    None,
+]
 #: Callback signature for one weak manual-form emission operation.
 WeakManualEmitter = Callable[[str, str, str, str | int | None], None]
 #: Callback signature for one weak principal-form emission operation.
@@ -403,6 +410,59 @@ def emit_weak_derived_from_psinsg2(
     emit_form("e", "ImSg", probability)
     emit_form("ie", "ImSg", probability)
     emit_form("0", "ImSg", probability)
+
+
+def emit_weak_derived_from_psinsg2_context(
+    *,
+    probability: str | int | None,
+    post_vowel: str,
+    emit_form_with_post: WeakSimpleFormWithPostEmitter,
+    emit_sound_with_post: WeakSoundWithPostEmitter,
+) -> None:
+    """
+    Emit weak ``PsInSg2``-derived forms for one principal-part stem context.
+
+    Side Effects:
+        Invokes form and sound callbacks for all branch rows.
+
+    Args:
+        probability: Base probability scalar for the branch.
+        post_vowel: Post-vowel segment from the principal-part stem.
+        emit_form_with_post: Callback for one form row with simplified post-vowel.
+        emit_sound_with_post: Callback for one sound-change row with post-vowel.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    effective_probability = probability if probability is not None else ""
+    probability_plus_one = probability_plus(
+        effective_probability,
+        delta=1,
+        empty_default=1,
+    )
+    # Perl: $post_vowel =~ s/(.)\1/$1/;
+    post_vowel_simple = re.sub(r"(.)\1", r"\1", post_vowel)
+
+    emit_weak_derived_from_psinsg2(
+        probability=effective_probability,
+        probability_plus_one=probability_plus_one,
+        emit_form=lambda ending, function, prob_value: emit_form_with_post(
+            ending,
+            function,
+            prob_value,
+            post_vowel_simple,
+        ),
+        emit_sound=lambda ending, function, prob_value, consonant_change_prob: (
+            emit_sound_with_post(
+                ending,
+                function,
+                prob_value,
+                consonant_change_prob,
+                post_vowel_simple,
+            )
+        ),
+    )
 
 
 def emit_weak_derived_from_painsg1_variant(  # noqa: PLR0913
