@@ -4,12 +4,12 @@ Old English OCR Pipeline
 ========================
 
 This runbook defines a repeatable, repository-local OCR workflow for grammar
-sources such as Wright and Tichý PDFs.
+sources such as Wright and Tichý PDFs, backed by ``olmocr``.
 
 Goals
 -----
 
-- Produce machine-readable text from PDF scans.
+- Produce machine-readable text from PDF scans using ``olmocr``.
 - Apply deterministic, reviewable regex corrections.
 - Generate an unknown-token report for manual cleanup.
 - Keep all artifacts under ``data/ocr/`` for incremental iteration.
@@ -17,10 +17,11 @@ Goals
 Tooling
 -------
 
-Required CLI tools:
+Required runtime components:
 
-- ``ocrmypdf`` (OCR stage)
-- ``gs`` (Ghostscript ``txtwrite`` extraction)
+- ``olmocr`` Python package (installed with ``wyrdcraeft`` dependencies)
+- Local OpenAI-compatible inference server (e.g. ``llama-server`` / LM Studio)
+- ``wyrdcraeft`` managed local proxy (auto-launched for ``ocr old-english``)
 
 The pipeline script:
 
@@ -36,7 +37,7 @@ Output layout
 
 For an input file ``data/OldEnglishGrammar.pdf``, default outputs are:
 
-- ``data/ocr/OldEnglishGrammar/01_ocr.pdf``
+- ``data/ocr/OldEnglishGrammar/olmocr_workspace/`` (olmocr workspace artifacts)
 - ``data/ocr/OldEnglishGrammar/02_raw.txt``
 - ``data/ocr/OldEnglishGrammar/03_normalized.txt``
 - ``data/ocr/OldEnglishGrammar/04_unknown_tokens.tsv``
@@ -44,28 +45,32 @@ For an input file ``data/OldEnglishGrammar.pdf``, default outputs are:
 Commands
 --------
 
-Run full OCR + extraction + normalization:
+Run full OCR + extraction + normalization via the main CLI
+(this command automatically starts and stops the local proxy):
+
+.. code-block:: shell
+
+    .venv/bin/python -m wyrdcraeft.main ocr old-english \
+      --input-pdf data/OldEnglishGrammar.pdf
+
+The ``--pages`` option is not supported in the olmocr-backed path; use a
+pre-sliced input PDF if you need subset processing.
+
+Skip the olmocr execution stage and only regenerate normalized/report outputs
+from an existing ``olmocr_workspace``:
+
+.. code-block:: shell
+
+    .venv/bin/python -m wyrdcraeft.main ocr old-english \
+      --input-pdf data/OldEnglishGrammar.pdf \
+      --skip-ocr
+
+Compatibility script shim (same pipeline implementation, script entrypoint):
 
 .. code-block:: shell
 
     .venv/bin/python scripts/ocr/old_english_ocr_pipeline.py \
       --input-pdf data/OldEnglishGrammar.pdf
-
-Run on a page subset (recommended for incremental cleanup):
-
-.. code-block:: shell
-
-    .venv/bin/python scripts/ocr/old_english_ocr_pipeline.py \
-      --input-pdf data/OldEnglishGrammar.pdf \
-      --pages 194-220
-
-Skip OCR stage and only extract/normalize text from an existing PDF:
-
-.. code-block:: shell
-
-    .venv/bin/python scripts/ocr/old_english_ocr_pipeline.py \
-      --input-pdf data/OldEnglishGrammar.pdf \
-      --skip-ocr
 
 Regex correction rules
 ----------------------
@@ -103,4 +108,3 @@ Notes for Old English content
 - Diacritics and graphemes (e.g. thorn/eth/macrons) require post-correction
   and manual verification.
 - Use source-grounded checks when OCR text will feed factual documentation.
-

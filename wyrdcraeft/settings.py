@@ -37,47 +37,171 @@ class Settings(BaseSettings):
     )
 
     # Application settings (readonly - cannot be overridden via configuration)
+    #: Application name (readonly).
     app_name: str = Field(
         default="wyrdcraeft",
         description="Application name",
         frozen=True,
     )
+    #: Application version (readonly).
     app_version: str = Field(
         default="0.1.0", description="Application version", frozen=True
     )
 
     # LLM settings
+    #: LLM model identifier.
     llm_model_id: str = Field(
         default="qwen2.5:14b-instruct", description="LLM model ID"
     )
+    #: LLM provider name.
     llm_provider: Literal["ollama", "gemini", "openai"] = Field(
         default="ollama", description="LLM provider"
     )
+    #: LLM generation temperature.
     llm_temperature: float = Field(default=0.0, description="LLM temperature")
+    #: LLM max output tokens.
     llm_max_tokens: int = Field(default=4096, description="LLM max tokens")
+    #: LLM request timeout in seconds.
     llm_timeout_s: int = Field(default=120, description="LLM timeout in seconds")
+    #: OpenAI API key.
     openai_api_key: str | None = Field(default=None, description="OpenAI API key")
+    #: Gemini API key.
     gemini_api_key: str | None = Field(default=None, description="Gemini API key")
+
+    # OCR + olmocr settings
+    #: Upstream OpenAI-compatible base URL for OCR proxy forwarding.
+    ocr_upstream_base_url: str = Field(
+        default="http://127.0.0.1:8080/v1",
+        description="Upstream OpenAI-compatible base URL for OCR proxy forwarding.",
+    )
+    #: Default olmocr model identifier/path used for OCR pipeline requests.
+    ocr_olmocr_model: str = Field(
+        default="./data/models/allenai_olmOCR-2-7B-1025-Q5_K_M.gguf",
+        description="Default olmocr model identifier or local path.",
+    )
+    #: Local worker count for olmocr pipeline.
+    ocr_olmocr_workers: int = Field(
+        default=1,
+        description="Local worker count for olmocr pipeline.",
+    )
+    #: Maximum concurrent requests for local olmocr runs.
+    ocr_olmocr_max_concurrent_requests: int = Field(
+        default=1,
+        description="Maximum concurrent requests for local olmocr runs.",
+    )
+    #: Target longest image dimension for olmocr rendering.
+    ocr_olmocr_target_longest_image_dim: int = Field(
+        default=1024,
+        description="Target longest image dimension for olmocr rendering.",
+    )
+    #: Per-page retry budget for olmocr runs.
+    ocr_olmocr_max_page_retries: int = Field(
+        default=5,
+        description="Per-page retry budget for olmocr runs.",
+    )
+    #: Legacy OCR language option retained for compatibility.
+    ocr_legacy_lang: str = Field(
+        default="eng+lat",
+        description="Legacy OCR language option retained for compatibility.",
+    )
+    #: Legacy Tesseract PSM option retained for compatibility.
+    ocr_legacy_tesseract_psm: int = Field(
+        default=4,
+        description="Legacy Tesseract PSM option retained for compatibility.",
+    )
+    #: Legacy oversample DPI option retained for compatibility.
+    ocr_legacy_oversample_dpi: int = Field(
+        default=400,
+        description="Legacy oversample DPI option retained for compatibility.",
+    )
+    #: Default skip_ocr behavior for the old-english OCR command.
+    ocr_skip_ocr: bool = Field(
+        default=False,
+        description="Default skip_ocr behavior for old-english OCR command.",
+    )
+
+    # OCR proxy settings
+    #: Bind host for standalone OCR proxy command.
+    ocr_proxy_host: str = Field(
+        default="127.0.0.1",
+        description="Bind host for standalone OCR proxy command.",
+    )
+    #: Bind port for standalone OCR proxy command.
+    ocr_proxy_port: int = Field(
+        default=8001,
+        description="Bind port for standalone OCR proxy command.",
+    )
+    #: Clamp cap for completion token fields at proxy boundary.
+    ocr_proxy_max_tokens_cap: int = Field(
+        default=1500,
+        description="Clamp cap for completion token fields at proxy boundary.",
+    )
+    #: Enable conservative finish_reason length->stop override.
+    ocr_proxy_override_length_to_stop: bool = Field(
+        default=True,
+        description="Enable conservative finish_reason length->stop override.",
+    )
+    #: Minimum body chars after YAML for length->stop override.
+    ocr_proxy_min_body_chars_after_yaml: int = Field(
+        default=50,
+        description="Minimum body chars after YAML for length->stop override.",
+    )
+    #: Minimum body lines after YAML for length->stop override.
+    ocr_proxy_min_body_lines_after_yaml: int = Field(
+        default=5,
+        description="Minimum body lines after YAML for length->stop override.",
+    )
+    #: Synchronize max_tokens and max_completion_tokens when true.
+    ocr_proxy_clamp_both_token_fields: bool = Field(
+        default=False,
+        description="Synchronize max_tokens and max_completion_tokens when true.",
+    )
+    #: Optional temperature override applied by proxy.
+    ocr_proxy_temperature_override: float | None = Field(
+        default=None,
+        description="Optional temperature override applied by proxy.",
+    )
+    #: Optional top_p override applied by proxy.
+    ocr_proxy_top_p_override: float | None = Field(
+        default=None,
+        description="Optional top_p override applied by proxy.",
+    )
+    #: Upstream request timeout in seconds for proxy forwarding.
+    ocr_proxy_upstream_timeout_seconds: float = Field(
+        default=120.0,
+        description="Upstream request timeout in seconds for proxy forwarding.",
+    )
+    #: Timeout in seconds waiting for managed proxy startup.
+    ocr_proxy_startup_timeout_seconds: float = Field(
+        default=15.0,
+        description="Timeout in seconds waiting for managed proxy startup.",
+    )
 
     # Write-able settings
 
     # Output settings
+    #: Default output rendering format.
     default_output_format: Literal["table", "json", "text"] = Field(
         default="table", description="Default output format"
     )
+    #: Whether colored output is enabled.
     enable_colors: bool = Field(default=True, description="Enable colored output")
+    #: Whether quiet mode is enabled.
     quiet_mode: bool = Field(default=False, description="Enable quiet mode")
 
     # Diacritic disambiguate UI
+    #: Maximum rows shown in Attested Forms table.
     max_attested_rows: int = Field(
         default=5,
         description="Max rows shown in Attested Forms table (diacritic disambiguate).",
     )
 
     # Logging settings
+    #: Logging verbosity level.
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO", description="Logging level"
     )
+    #: Optional log file path.
     log_file: str | None = Field(default=None, description="Log file path")
 
     @classmethod
@@ -208,7 +332,7 @@ class Settings(BaseSettings):
 
         return paths
 
-    def validate_settings(self) -> None:
+    def validate_settings(self) -> None:  # noqa: PLR0912, PLR0915
         """
         Validate settings and ensure required directories exist.
 
@@ -243,11 +367,55 @@ class Settings(BaseSettings):
             msg = "LLM timeout must be greater than 0"
             raise ConfigurationError(msg)
 
+        if self.ocr_olmocr_workers <= 0:
+            msg = "ocr_olmocr_workers must be greater than 0"
+            raise ConfigurationError(msg)
+        if not self.ocr_olmocr_model.strip():
+            msg = "ocr_olmocr_model must not be empty"
+            raise ConfigurationError(msg)
+        if self.ocr_olmocr_max_concurrent_requests <= 0:
+            msg = "ocr_olmocr_max_concurrent_requests must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_olmocr_target_longest_image_dim <= 0:
+            msg = "ocr_olmocr_target_longest_image_dim must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_olmocr_max_page_retries <= 0:
+            msg = "ocr_olmocr_max_page_retries must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_legacy_tesseract_psm <= 0:
+            msg = "ocr_legacy_tesseract_psm must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_legacy_oversample_dpi <= 0:
+            msg = "ocr_legacy_oversample_dpi must be greater than 0"
+            raise ConfigurationError(msg)
+
+        if self.ocr_proxy_port <= 0:
+            msg = "ocr_proxy_port must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_max_tokens_cap <= 0:
+            msg = "ocr_proxy_max_tokens_cap must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_min_body_chars_after_yaml < 0:
+            msg = "ocr_proxy_min_body_chars_after_yaml must be >= 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_min_body_lines_after_yaml < 0:
+            msg = "ocr_proxy_min_body_lines_after_yaml must be >= 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_upstream_timeout_seconds <= 0:
+            msg = "ocr_proxy_upstream_timeout_seconds must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_startup_timeout_seconds <= 0:
+            msg = "ocr_proxy_startup_timeout_seconds must be greater than 0"
+            raise ConfigurationError(msg)
+
     def get_model_provider(
         self, model_id: str
     ) -> Literal["ollama", "gemini", "openai"]:
         """
         Get the provider for a model ID.
+
+        Args:
+            model_id: Model identifier string.
 
         Raises:
             ValueError: If the model ID is not supported.

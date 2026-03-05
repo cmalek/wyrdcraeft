@@ -100,6 +100,7 @@ def version() -> None:
 from .diacritic import diacritic_group
 from .diacritic_disambiguate import diacritic_disambiguate
 from .morphology import morphology_group
+from .ocr import ocr_group
 from .settings import settings_group
 from .source import reading_group
 
@@ -107,4 +108,5 @@ cli.add_command(settings_group)
 cli.add_command(diacritic_group)
 cli.add_command(reading_group)
 cli.add_command(morphology_group)
+cli.add_command(ocr_group)
 diacritic_group.add_command(diacritic_disambiguate)
