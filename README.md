@@ -59,6 +59,54 @@ uv sync --dev
 
 Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://oe_json_extractor.readthedocs.io](https://oe_json_extractor.readthedocs.io)
 
+## Local olmocr proxy (llama.cpp / LM Studio)
+
+When using `olmocr` against local OpenAI-compatible servers, this repository includes a local proxy that clamps oversized token limits and can conservatively rewrite `finish_reason="length"` to `finish_reason="stop"` when output appears complete enough for `olmocr`.
+
+1. Start local `llama-server` (example):
+
+```bash
+make llama
+```
+
+2. Start the proxy (defaults: upstream `http://127.0.0.1:8080/v1`, proxy `127.0.0.1:8001`):
+
+```bash
+wyrdcraeft ocr proxy
+```
+
+3. Run `olmocr` through the proxy (`/v1` endpoint):
+
+```bash
+python -m olmocr.pipeline ... --server http://127.0.0.1:8001/v1
+```
+
+Environment knobs:
+- `UPSTREAM_BASE_URL` (default `http://127.0.0.1:8080/v1`)
+- `PROXY_HOST` (default `127.0.0.1`)
+- `PROXY_PORT` (default `8001`)
+- `PROXY_MAX_TOKENS_CAP` (default `1500`)
+- `OVERRIDE_LENGTH_TO_STOP` (default `true`)
+- `MIN_BODY_CHARS_AFTER_YAML` (default `50`)
+- `MIN_BODY_LINES_AFTER_YAML` (default `5`)
+
+`wyrdcraeft ocr old-english` and `wyrdcraeft ocr proxy` also read defaults from settings (`.wyrdcraeft.toml`) when command flags are omitted, e.g.:
+
+```toml
+ocr_upstream_base_url = "http://127.0.0.1:8080/v1"
+ocr_olmocr_workers = 1
+ocr_olmocr_max_concurrent_requests = 1
+ocr_olmocr_target_longest_image_dim = 1024
+ocr_olmocr_max_page_retries = 5
+
+ocr_proxy_host = "127.0.0.1"
+ocr_proxy_port = 8001
+ocr_proxy_max_tokens_cap = 1500
+ocr_proxy_override_length_to_stop = true
+ocr_proxy_min_body_chars_after_yaml = 50
+ocr_proxy_min_body_lines_after_yaml = 5
+```
+
 ## Contributing, Licensing and Provenance
 
 ## Contributing
