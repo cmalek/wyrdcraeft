@@ -1,0 +1,18 @@
+{
+  "defaults": {
+    "max_cer": 0.45,
+    "max_wer": 0.6,
+    "min_thorn_recall": 0.2,
+    "max_thorn_to_p_rate": 0.75,
+    "min_macron_recall": 0.35
+  },
+  "fixtures": {
+    "wright1": {},
+    "wright2": {},
+    "wright3": {},
+    "wright4": {},
+    "wright5": {
+      "max_thorn_to_p_rate": 0.95
+    }
+  }
+}

@@ -19,6 +19,10 @@ DEFAULT_MIN_BODY_CHARS_AFTER_YAML = 50
 DEFAULT_MIN_BODY_LINES_AFTER_YAML = 5
 #: Default timeout in seconds for upstream HTTP calls.
 DEFAULT_UPSTREAM_TIMEOUT_SECONDS = 120.0
+#: Default retry budget for transient upstream failures.
+DEFAULT_UPSTREAM_MAX_RETRIES = 2
+#: Default base backoff in seconds between transient upstream retries.
+DEFAULT_UPSTREAM_RETRY_BACKOFF_SECONDS = 0.5
 #: String values interpreted as true in boolean environment flags.
 TRUE_ENV_VALUES = {"1", "true", "yes", "on"}
 
@@ -45,6 +49,9 @@ class ProxyConfig:
             Optional forced ``temperature`` value in forwarded requests.
         top_p_override: Optional forced ``top_p`` value in forwarded requests.
         upstream_timeout_seconds: HTTP timeout applied to upstream calls.
+        upstream_max_retries: Retry budget for transient upstream request failures.
+        upstream_retry_backoff_seconds:
+            Base backoff in seconds between transient upstream retries.
 
     """
 
@@ -70,6 +77,10 @@ class ProxyConfig:
     top_p_override: float | None = None
     #: HTTP timeout applied to upstream calls.
     upstream_timeout_seconds: float = DEFAULT_UPSTREAM_TIMEOUT_SECONDS
+    #: Retry budget for transient upstream request failures.
+    upstream_max_retries: int = DEFAULT_UPSTREAM_MAX_RETRIES
+    #: Base backoff in seconds between transient upstream retries.
+    upstream_retry_backoff_seconds: float = DEFAULT_UPSTREAM_RETRY_BACKOFF_SECONDS
 
 
 def _parse_bool_env(name: str, default: bool) -> bool:
@@ -211,6 +222,9 @@ def load_proxy_config() -> ProxyConfig:
         PROXY_TEMPERATURE_OVERRIDE: Optional forced ``temperature``.
         PROXY_TOP_P_OVERRIDE: Optional forced ``top_p``.
         PROXY_UPSTREAM_TIMEOUT_SECONDS: Upstream request timeout in seconds.
+        PROXY_UPSTREAM_MAX_RETRIES: Retry budget for transient upstream failures.
+        PROXY_UPSTREAM_RETRY_BACKOFF_SECONDS:
+            Base backoff in seconds between transient upstream retry attempts.
 
     Returns:
         Parsed immutable proxy configuration.
@@ -247,5 +261,15 @@ def load_proxy_config() -> ProxyConfig:
             "PROXY_UPSTREAM_TIMEOUT_SECONDS",
             DEFAULT_UPSTREAM_TIMEOUT_SECONDS,
             minimum=0.001,
+        ),
+        upstream_max_retries=_parse_int_env(
+            "PROXY_UPSTREAM_MAX_RETRIES",
+            DEFAULT_UPSTREAM_MAX_RETRIES,
+            minimum=0,
+        ),
+        upstream_retry_backoff_seconds=_parse_float_env(
+            "PROXY_UPSTREAM_RETRY_BACKOFF_SECONDS",
+            DEFAULT_UPSTREAM_RETRY_BACKOFF_SECONDS,
+            minimum=0.0,
         ),
     )

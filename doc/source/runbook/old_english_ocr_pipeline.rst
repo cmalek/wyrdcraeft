@@ -3,108 +3,185 @@
 Old English OCR Pipeline
 ========================
 
-This runbook defines a repeatable, repository-local OCR workflow for grammar
-sources such as Wright and Tichý PDFs, backed by ``olmocr``.
+This runbook documents the current OCR architecture in ``wyrdcraeft``:
 
-Goals
------
+- ``olmocr`` pipeline execution for page OCR
+- managed local OpenAI-compatible proxy in ``wyrdcraeft.services.ocr_proxy``
+- local ``llama-server`` upstream (Apple Metal / llama.cpp path)
 
-- Produce machine-readable text from PDF scans using ``olmocr``.
-- Apply deterministic, reviewable regex corrections.
-- Generate an unknown-token report for manual cleanup.
-- Keep all artifacts under ``data/ocr/`` for incremental iteration.
+The primary objective is lower OCR page latency with explicit quality gates.
 
-Tooling
--------
+Current Architecture
+--------------------
 
-Required runtime components:
+End-to-end flow for one source PDF:
 
-- ``olmocr`` Python package (installed with ``wyrdcraeft`` dependencies)
-- Local OpenAI-compatible inference server (e.g. ``llama-server`` / LM Studio)
-- ``wyrdcraeft`` managed local proxy (auto-launched for ``ocr old-english``)
+1. ``wyrdcraeft ocr old-english`` starts a managed local proxy subprocess.
+2. ``olmocr.pipeline`` is launched with proxy URL forced as ``--server``.
+3. Proxy forwards to local upstream server (typically ``http://127.0.0.1:8080/v1``).
+4. ``olmocr`` writes markdown outputs into ``olmocr_workspace/markdown``.
+5. ``wyrdcraeft`` collects markdown, writes:
 
-The pipeline script:
+   - ``02_raw.txt``
+   - ``03_normalized.txt``
+   - ``04_unknown_tokens.tsv``
 
-- ``scripts/ocr/old_english_ocr_pipeline.py``
+The ``--pages`` option is intentionally unsupported in the olmocr-backed path.
 
-Configuration files:
-
-- ``data/ocr/rules/old_english_safe.tsv``
-- ``data/ocr/wordlists/old_english_seed.txt``
-
-Output layout
+Core Commands
 -------------
 
-For an input file ``data/OldEnglishGrammar.pdf``, default outputs are:
-
-- ``data/ocr/OldEnglishGrammar/olmocr_workspace/`` (olmocr workspace artifacts)
-- ``data/ocr/OldEnglishGrammar/02_raw.txt``
-- ``data/ocr/OldEnglishGrammar/03_normalized.txt``
-- ``data/ocr/OldEnglishGrammar/04_unknown_tokens.tsv``
-
-Commands
---------
-
-Run full OCR + extraction + normalization via the main CLI
-(this command automatically starts and stops the local proxy):
+Run OCR pipeline:
 
 .. code-block:: shell
 
     .venv/bin/python -m wyrdcraeft.main ocr old-english \
-      --input-pdf data/OldEnglishGrammar.pdf
+      --input-pdf tests/fixtures/ocr/wright1.pdf
 
-The ``--pages`` option is not supported in the olmocr-backed path; use a
-pre-sliced input PDF if you need subset processing.
-
-Skip the olmocr execution stage and only regenerate normalized/report outputs
-from an existing ``olmocr_workspace``:
+Run standalone proxy:
 
 .. code-block:: shell
 
-    .venv/bin/python -m wyrdcraeft.main ocr old-english \
-      --input-pdf data/OldEnglishGrammar.pdf \
-      --skip-ocr
+    .venv/bin/python -m wyrdcraeft.main ocr proxy
 
-Compatibility script shim (same pipeline implementation, script entrypoint):
+Compatibility script shim:
 
 .. code-block:: shell
 
     .venv/bin/python scripts/ocr/old_english_ocr_pipeline.py \
-      --input-pdf data/OldEnglishGrammar.pdf
+      --input-pdf tests/fixtures/ocr/wright1.pdf
 
-Regex correction rules
+llama.cpp Profiles
+------------------
+
+The Makefile includes dedicated targets:
+
+- ``make llama``
+- ``make llama-test``
+- ``make llama-test-latency`` (forces ``LLAMA_PARALLEL=1``)
+- ``make llama-test-throughput`` (forces ``LLAMA_PARALLEL=2``)
+
+Important knobs for vision-model throughput/latency:
+
+- ``LLAMA_IMAGE_MIN_TOKENS``
+- ``LLAMA_IMAGE_MAX_TOKENS``
+- ``LLAMA_BATCH``
+- ``LLAMA_UBATCH``
+- ``LLAMA_THREADS``
+- ``LLAMA_THREADS_BATCH``
+- ``LLAMA_THREADS_HTTP``
+- ``LLAMA_PARALLEL``
+- ``LLAMA_CONT_BATCHING``
+- ``LLAMA_SEED``
+
+The test profile keeps ``--flash-attn on``, ``--mmproj-offload``, and
+``--n-gpu-layers -1`` enabled by default.
+
+Live Integration Tests
 ----------------------
 
-Rules are loaded from ``data/ocr/rules/old_english_safe.tsv`` and applied in
-file order. Current safe baseline rules include:
+Live OCR integration tests are additive and opt-in.
 
-- long-s replacement (``ſ -> s``)
-- section marker normalization at line start (``S 153.`` or ``5 153.`` -> ``§ 153.``)
-- carriage-return removal
-- whitespace/newline normalization
+Marker and flag:
 
-Add new rules only when they are deterministic and low-risk. Keep aggressive,
-content-specific fixes in separate optional rule files.
+- marker: ``ocr_integration``
+- flag: ``--run-ocr-integration``
 
-Incremental review workflow
----------------------------
+Command:
 
-1. Run the pipeline on a narrow page range.
-2. Inspect ``03_normalized.txt`` for high-value sections.
-3. Review ``04_unknown_tokens.tsv`` to find OCR errors not covered by current
-   regex rules or seed wordlist.
-4. Add:
+.. code-block:: shell
 
-   - deterministic regex fixes to ``old_english_safe.tsv`` when broadly safe
-   - accepted lexical forms to ``old_english_seed.txt`` when they are valid
+    .venv/bin/pytest -m ocr_integration --run-ocr-integration
 
-5. Re-run on the same page range and compare output.
+The integration fixture behavior:
 
-Notes for Old English content
------------------------------
+1. Probe ``http://127.0.0.1:8080/v1/models``.
+2. Reuse existing healthy server.
+3. Else start ``make llama-test``.
+4. Poll readiness every 250ms up to 120s.
+5. Teardown only if fixture started the server.
 
-- Tesseract has no dedicated Old English model; ``eng+lat`` is a practical
-  baseline.
-- Diacritics and graphemes (e.g. thorn/eth/macrons) require post-correction
-  and manual verification.
-- Use source-grounded checks when OCR text will feed factual documentation.
+Accuracy Metrics
+----------------
+
+Live OCR comparisons use ``tests/fixtures/ocr/wright*.md`` as expected text and
+generated ``02_raw.txt`` as observed text.
+
+Preprocessing before scoring:
+
+- Unicode NFKC normalization
+- ``\\r\\n`` normalized to ``\\n``
+- trailing whitespace stripped per line
+- runs of 3+ blank lines collapsed to 2
+
+Metrics:
+
+- CER (character error rate)
+- WER (word error rate)
+- thorn/eth metrics:
+
+  - ``thorn_expected``
+  - ``thorn_preserved``
+  - ``thorn_to_p_rate``
+
+- macron metrics:
+
+  - ``macron_expected``
+  - ``macron_preserved``
+  - ``macron_recall``
+
+Thresholds are defined in ``tests/fixtures/ocr/wright_quality_thresholds.json``
+and are intentionally coarse to catch only clear quality collapse in live runs.
+
+Known OCR Caveats
+-----------------
+
+- ``þ``/``ð`` can be under-detected in difficult scans and may appear as ``p``.
+- Macronized vowels can be dropped in noisy lines.
+- Treat per-run quality metrics as the source of truth during tuning.
+
+Benchmark Protocol
+------------------
+
+Use:
+
+.. code-block:: shell
+
+    .venv/bin/python scripts/ocr/benchmark_wright_live.py
+
+Protocol defaults:
+
+- warmup: 1 run (excluded)
+- measured: 3 runs per fixture
+- fixtures: ``wright1``..``wright5``
+
+Reported fields:
+
+- mean sec/page
+- p95 sec/page
+- stddev sec/page
+- pages/minute
+- retries/page
+- CER/WER + thorn/macron aggregates
+
+The script performs staged tuning sweeps:
+
+1. image token budget
+2. batch/ubatch
+3. thread settings
+4. proxy token cap
+
+Selection rule:
+
+- choose the lowest mean sec/page candidate that passes quality thresholds.
+
+Default-Change Policy
+---------------------
+
+Do not auto-change global defaults from one benchmark run.
+
+Instead:
+
+1. emit recommended environment overrides from the benchmark report
+2. validate across repeated local runs
+3. promote defaults only after stable repeatability

@@ -42,6 +42,8 @@ dependencies = [
   "olmocr>=0.4.25",
   "uvicorn>=0.30.0",
   "huggingface-hub[cli]>=0.36.2",
+  "ocrmypdf>=17.3.0",
+  "ocrmypdf-appleocr>=0.3.3",
 ]
 
 [dependency-groups]
@@ -109,6 +111,7 @@ build-backend = "setuptools.build_meta"
 addopts = ["--randomly-seed=0"]
 markers = [
     "llm: tests that require live LLM access (run with --run-llm)",
+    "ocr_integration: live OCR integration tests requiring local model server (run with --run-ocr-integration)",
     "morphology: Morphology generator tests and reference contracts",
     "morphology_full: Optional full-dataset morphology smoke checks",
 ]

@@ -190,6 +190,18 @@ def _resolve_cli_value(value: Any | None, fallback: Any) -> Any:
     help="Managed proxy upstream timeout in seconds.",
 )
 @click.option(
+    "--proxy-upstream-max-retries",
+    type=int,
+    default=None,
+    help="Managed proxy retry budget for transient upstream failures.",
+)
+@click.option(
+    "--proxy-upstream-retry-backoff-seconds",
+    type=float,
+    default=None,
+    help="Managed proxy base retry backoff in seconds for transient upstream failures.",
+)
+@click.option(
     "--proxy-startup-timeout-seconds",
     type=float,
     default=None,
@@ -221,6 +233,8 @@ def old_english_ocr(  # noqa: PLR0913
     proxy_temperature_override: float | None,
     proxy_top_p_override: float | None,
     proxy_upstream_timeout_seconds: float | None,
+    proxy_upstream_max_retries: int | None,
+    proxy_upstream_retry_backoff_seconds: float | None,
     proxy_startup_timeout_seconds: float | None,
 ) -> None:
     """
@@ -254,6 +268,8 @@ def old_english_ocr(  # noqa: PLR0913
         proxy_temperature_override: Managed proxy temperature override.
         proxy_top_p_override: Managed proxy top_p override.
         proxy_upstream_timeout_seconds: Managed proxy upstream timeout.
+        proxy_upstream_max_retries: Managed proxy retry budget for transient failures.
+        proxy_upstream_retry_backoff_seconds: Managed proxy retry backoff in seconds.
         proxy_startup_timeout_seconds: Managed proxy startup timeout.
 
     Raises:
@@ -320,6 +336,14 @@ def old_english_ocr(  # noqa: PLR0913
         proxy_upstream_timeout_seconds,
         settings.ocr_proxy_upstream_timeout_seconds,
     )
+    resolved_proxy_upstream_max_retries = _resolve_cli_value(
+        proxy_upstream_max_retries,
+        settings.ocr_proxy_upstream_max_retries,
+    )
+    resolved_proxy_upstream_retry_backoff_seconds = _resolve_cli_value(
+        proxy_upstream_retry_backoff_seconds,
+        settings.ocr_proxy_upstream_retry_backoff_seconds,
+    )
     resolved_proxy_startup_timeout_seconds = _resolve_cli_value(
         proxy_startup_timeout_seconds,
         settings.ocr_proxy_startup_timeout_seconds,
@@ -349,6 +373,10 @@ def old_english_ocr(  # noqa: PLR0913
         proxy_temperature_override=resolved_proxy_temperature_override,
         proxy_top_p_override=resolved_proxy_top_p_override,
         proxy_upstream_timeout_seconds=resolved_proxy_upstream_timeout_seconds,
+        proxy_upstream_max_retries=resolved_proxy_upstream_max_retries,
+        proxy_upstream_retry_backoff_seconds=(
+            resolved_proxy_upstream_retry_backoff_seconds
+        ),
         proxy_startup_timeout_seconds=resolved_proxy_startup_timeout_seconds,
     )
     try:
@@ -430,6 +458,18 @@ def old_english_ocr(  # noqa: PLR0913
     default=None,
     help="Proxy upstream timeout in seconds.",
 )
+@click.option(
+    "--upstream-max-retries",
+    type=int,
+    default=None,
+    help="Retry budget for transient upstream proxy failures.",
+)
+@click.option(
+    "--upstream-retry-backoff-seconds",
+    type=float,
+    default=None,
+    help="Base retry backoff in seconds for transient upstream proxy failures.",
+)
 @click.pass_context
 def run_ocr_proxy(  # noqa: PLR0913
     ctx: click.Context,
@@ -444,6 +484,8 @@ def run_ocr_proxy(  # noqa: PLR0913
     temperature_override: float | None,
     top_p_override: float | None,
     upstream_timeout_seconds: float | None,
+    upstream_max_retries: int | None,
+    upstream_retry_backoff_seconds: float | None,
 ) -> None:
     """
     Run the local OpenAI-compatible proxy under the ``wyrdcraeft`` CLI.
@@ -465,6 +507,9 @@ def run_ocr_proxy(  # noqa: PLR0913
         temperature_override: Optional forced proxy temperature.
         top_p_override: Optional forced proxy top_p.
         upstream_timeout_seconds: Proxy upstream timeout.
+        upstream_max_retries: Retry budget for transient upstream request failures.
+        upstream_retry_backoff_seconds:
+            Base backoff in seconds between transient upstream retries.
 
     """
     settings = ctx.obj["settings"]
@@ -504,6 +549,14 @@ def run_ocr_proxy(  # noqa: PLR0913
         upstream_timeout_seconds,
         settings.ocr_proxy_upstream_timeout_seconds,
     )
+    resolved_upstream_max_retries = _resolve_cli_value(
+        upstream_max_retries,
+        settings.ocr_proxy_upstream_max_retries,
+    )
+    resolved_upstream_retry_backoff_seconds = _resolve_cli_value(
+        upstream_retry_backoff_seconds,
+        settings.ocr_proxy_upstream_retry_backoff_seconds,
+    )
 
     updates = {
         "UPSTREAM_BASE_URL": resolved_upstream_base_url,
@@ -519,6 +572,10 @@ def run_ocr_proxy(  # noqa: PLR0913
             "true" if resolved_clamp_both_token_fields else "false"
         ),
         "PROXY_UPSTREAM_TIMEOUT_SECONDS": str(resolved_upstream_timeout_seconds),
+        "PROXY_UPSTREAM_MAX_RETRIES": str(resolved_upstream_max_retries),
+        "PROXY_UPSTREAM_RETRY_BACKOFF_SECONDS": str(
+            resolved_upstream_retry_backoff_seconds
+        ),
     }
     if resolved_temperature_override is not None:
         updates["PROXY_TEMPERATURE_OVERRIDE"] = str(resolved_temperature_override)

@@ -74,6 +74,10 @@ class OldEnglishOCRConfig:
         proxy_temperature_override: Managed proxy temperature override.
         proxy_top_p_override: Managed proxy top_p override.
         proxy_upstream_timeout_seconds: Managed proxy upstream timeout.
+        proxy_upstream_max_retries:
+            Managed proxy retry budget for transient upstream failures.
+        proxy_upstream_retry_backoff_seconds:
+            Managed proxy base retry backoff for transient upstream failures.
         proxy_startup_timeout_seconds: Managed proxy startup readiness timeout.
 
     """
@@ -126,6 +130,10 @@ class OldEnglishOCRConfig:
     proxy_top_p_override: float | None = None
     #: Managed proxy upstream timeout.
     proxy_upstream_timeout_seconds: float = 120.0
+    #: Managed proxy retry budget for transient upstream failures.
+    proxy_upstream_max_retries: int = 2
+    #: Managed proxy base retry backoff for transient upstream failures.
+    proxy_upstream_retry_backoff_seconds: float = 0.5
     #: Managed proxy startup readiness timeout.
     proxy_startup_timeout_seconds: float = PROXY_STARTUP_TIMEOUT_SECONDS
 
@@ -299,6 +307,8 @@ def _run_olmocr(
         temperature_override=config.proxy_temperature_override,
         top_p_override=config.proxy_top_p_override,
         upstream_timeout_seconds=config.proxy_upstream_timeout_seconds,
+        upstream_max_retries=config.proxy_upstream_max_retries,
+        upstream_retry_backoff_seconds=config.proxy_upstream_retry_backoff_seconds,
         startup_timeout_seconds=config.proxy_startup_timeout_seconds,
     )
     return_code = run_olmocr_pipeline_with_managed_proxy(
