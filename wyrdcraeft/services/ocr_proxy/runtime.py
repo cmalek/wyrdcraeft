@@ -19,6 +19,8 @@ from wyrdcraeft.services.ocr_proxy.config import (
     DEFAULT_OVERRIDE_LENGTH_TO_STOP,
     DEFAULT_PROXY_HOST,
     DEFAULT_UPSTREAM_BASE_URL,
+    DEFAULT_UPSTREAM_MAX_RETRIES,
+    DEFAULT_UPSTREAM_RETRY_BACKOFF_SECONDS,
     DEFAULT_UPSTREAM_TIMEOUT_SECONDS,
 )
 
@@ -54,6 +56,9 @@ class ProxyLaunchConfig:
         temperature_override: Optional forced ``temperature`` sent upstream.
         top_p_override: Optional forced ``top_p`` sent upstream.
         upstream_timeout_seconds: Timeout for upstream HTTP calls from proxy.
+        upstream_max_retries: Retry budget for transient upstream request failures.
+        upstream_retry_backoff_seconds:
+            Base backoff in seconds between transient upstream retries.
         startup_timeout_seconds: Timeout while waiting for local proxy readiness.
 
     """
@@ -78,6 +83,10 @@ class ProxyLaunchConfig:
     top_p_override: float | None = None
     #: Timeout for upstream HTTP calls from proxy.
     upstream_timeout_seconds: float = DEFAULT_UPSTREAM_TIMEOUT_SECONDS
+    #: Retry budget for transient upstream request failures.
+    upstream_max_retries: int = DEFAULT_UPSTREAM_MAX_RETRIES
+    #: Base backoff in seconds between transient upstream retries.
+    upstream_retry_backoff_seconds: float = DEFAULT_UPSTREAM_RETRY_BACKOFF_SECONDS
     #: Timeout while waiting for local proxy readiness.
     startup_timeout_seconds: float = PROXY_STARTUP_TIMEOUT_SECONDS
 
@@ -140,6 +149,10 @@ def _build_proxy_env(
     env["MIN_BODY_LINES_AFTER_YAML"] = str(config.min_body_lines_after_yaml)
     env["CLAMP_BOTH_TOKEN_FIELDS"] = _bool_env_value(config.clamp_both_token_fields)
     env["PROXY_UPSTREAM_TIMEOUT_SECONDS"] = str(config.upstream_timeout_seconds)
+    env["PROXY_UPSTREAM_MAX_RETRIES"] = str(config.upstream_max_retries)
+    env["PROXY_UPSTREAM_RETRY_BACKOFF_SECONDS"] = str(
+        config.upstream_retry_backoff_seconds
+    )
 
     if config.temperature_override is not None:
         env["PROXY_TEMPERATURE_OVERRIDE"] = str(config.temperature_override)

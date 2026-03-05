@@ -171,6 +171,16 @@ class Settings(BaseSettings):
         default=120.0,
         description="Upstream request timeout in seconds for proxy forwarding.",
     )
+    #: Maximum retry attempts for transient upstream proxy request failures.
+    ocr_proxy_upstream_max_retries: int = Field(
+        default=2,
+        description="Maximum retry attempts for transient upstream proxy failures.",
+    )
+    #: Base backoff in seconds between transient upstream retry attempts.
+    ocr_proxy_upstream_retry_backoff_seconds: float = Field(
+        default=0.5,
+        description="Base retry backoff in seconds for upstream proxy failures.",
+    )
     #: Timeout in seconds waiting for managed proxy startup.
     ocr_proxy_startup_timeout_seconds: float = Field(
         default=15.0,
@@ -403,6 +413,12 @@ class Settings(BaseSettings):
             raise ConfigurationError(msg)
         if self.ocr_proxy_upstream_timeout_seconds <= 0:
             msg = "ocr_proxy_upstream_timeout_seconds must be greater than 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_upstream_max_retries < 0:
+            msg = "ocr_proxy_upstream_max_retries must be >= 0"
+            raise ConfigurationError(msg)
+        if self.ocr_proxy_upstream_retry_backoff_seconds < 0:
+            msg = "ocr_proxy_upstream_retry_backoff_seconds must be >= 0"
             raise ConfigurationError(msg)
         if self.ocr_proxy_startup_timeout_seconds <= 0:
             msg = "ocr_proxy_startup_timeout_seconds must be greater than 0"

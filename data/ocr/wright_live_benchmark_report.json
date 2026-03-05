@@ -1,0 +1,292 @@
+{
+  "baseline": {
+    "profile": {
+      "name": "baseline",
+      "threads": 12,
+      "threads_batch": 12,
+      "threads_http": 2,
+      "batch": 1024,
+      "ubatch": 512,
+      "parallel": 1,
+      "image_min_tokens": 512,
+      "image_max_tokens": 2048,
+      "cont_batching": "on",
+      "seed": 0
+    },
+    "proxy_max_tokens_cap": 1500,
+    "quality_pass": false,
+    "mean_sec_per_page": 168.19136310447357,
+    "p95_sec_per_page": 45.83900445897598,
+    "stddev_sec_per_page": 122.35235864549759,
+    "pages_per_minute": 0.35673651067760515,
+    "retries_per_page": 0.0,
+    "mean_cer": 0.04158023033565784,
+    "mean_wer": 0.21973581298340142,
+    "mean_thorn_to_p_rate": 0.4642857142857143,
+    "mean_macron_recall": 1.0,
+    "pages_measured": 2,
+    "failed_pages": 0
+  },
+  "stage1": {
+    "results": [
+      {
+        "profile": {
+          "name": "stage1_img_512_2048",
+          "threads": 12,
+          "threads_batch": 12,
+          "threads_http": 2,
+          "batch": 1024,
+          "ubatch": 512,
+          "parallel": 1,
+          "image_min_tokens": 512,
+          "image_max_tokens": 2048,
+          "cont_batching": "on",
+          "seed": 0
+        },
+        "proxy_max_tokens_cap": 1500,
+        "quality_pass": false,
+        "mean_sec_per_page": 174.00766210450092,
+        "p95_sec_per_page": 45.59494837501552,
+        "stddev_sec_per_page": 128.4127137294854,
+        "pages_per_minute": 0.3448124023640223,
+        "retries_per_page": 0.0,
+        "mean_cer": 0.04158023033565784,
+        "mean_wer": 0.21973581298340142,
+        "mean_thorn_to_p_rate": 0.4642857142857143,
+        "mean_macron_recall": 1.0,
+        "pages_measured": 2,
+        "failed_pages": 0
+      }
+    ],
+    "best": {
+      "profile": {
+        "name": "stage1_img_512_2048",
+        "threads": 12,
+        "threads_batch": 12,
+        "threads_http": 2,
+        "batch": 1024,
+        "ubatch": 512,
+        "parallel": 1,
+        "image_min_tokens": 512,
+        "image_max_tokens": 2048,
+        "cont_batching": "on",
+        "seed": 0
+      },
+      "proxy_max_tokens_cap": 1500,
+      "quality_pass": false,
+      "mean_sec_per_page": 174.00766210450092,
+      "p95_sec_per_page": 45.59494837501552,
+      "stddev_sec_per_page": 128.4127137294854,
+      "pages_per_minute": 0.3448124023640223,
+      "retries_per_page": 0.0,
+      "mean_cer": 0.04158023033565784,
+      "mean_wer": 0.21973581298340142,
+      "mean_thorn_to_p_rate": 0.4642857142857143,
+      "mean_macron_recall": 1.0,
+      "pages_measured": 2,
+      "failed_pages": 0
+    }
+  },
+  "stage2": {
+    "results": [
+      {
+        "profile": {
+          "name": "stage2_batch_1024_512",
+          "threads": 12,
+          "threads_batch": 12,
+          "threads_http": 2,
+          "batch": 1024,
+          "ubatch": 512,
+          "parallel": 1,
+          "image_min_tokens": 512,
+          "image_max_tokens": 2048,
+          "cont_batching": "on",
+          "seed": 0
+        },
+        "proxy_max_tokens_cap": 1500,
+        "quality_pass": false,
+        "mean_sec_per_page": 166.57139920801274,
+        "p95_sec_per_page": 45.54314837499987,
+        "stddev_sec_per_page": 121.02825083301286,
+        "pages_per_minute": 0.3602058954014824,
+        "retries_per_page": 0.0,
+        "mean_cer": 0.04158023033565784,
+        "mean_wer": 0.21973581298340142,
+        "mean_thorn_to_p_rate": 0.4642857142857143,
+        "mean_macron_recall": 1.0,
+        "pages_measured": 2,
+        "failed_pages": 0
+      }
+    ],
+    "best": {
+      "profile": {
+        "name": "stage2_batch_1024_512",
+        "threads": 12,
+        "threads_batch": 12,
+        "threads_http": 2,
+        "batch": 1024,
+        "ubatch": 512,
+        "parallel": 1,
+        "image_min_tokens": 512,
+        "image_max_tokens": 2048,
+        "cont_batching": "on",
+        "seed": 0
+      },
+      "proxy_max_tokens_cap": 1500,
+      "quality_pass": false,
+      "mean_sec_per_page": 166.57139920801274,
+      "p95_sec_per_page": 45.54314837499987,
+      "stddev_sec_per_page": 121.02825083301286,
+      "pages_per_minute": 0.3602058954014824,
+      "retries_per_page": 0.0,
+      "mean_cer": 0.04158023033565784,
+      "mean_wer": 0.21973581298340142,
+      "mean_thorn_to_p_rate": 0.4642857142857143,
+      "mean_macron_recall": 1.0,
+      "pages_measured": 2,
+      "failed_pages": 0
+    }
+  },
+  "stage3": {
+    "results": [
+      {
+        "profile": {
+          "name": "stage3_threads_6_http_1",
+          "threads": 6,
+          "threads_batch": 6,
+          "threads_http": 1,
+          "batch": 1024,
+          "ubatch": 512,
+          "parallel": 1,
+          "image_min_tokens": 512,
+          "image_max_tokens": 2048,
+          "cont_batching": "on",
+          "seed": 0
+        },
+        "proxy_max_tokens_cap": 1500,
+        "quality_pass": false,
+        "mean_sec_per_page": 188.4057053544675,
+        "p95_sec_per_page": 52.38091995898867,
+        "stddev_sec_per_page": 136.02478539547883,
+        "pages_per_minute": 0.3184616935411573,
+        "retries_per_page": 0.0,
+        "mean_cer": 0.04158023033565784,
+        "mean_wer": 0.21973581298340142,
+        "mean_thorn_to_p_rate": 0.4642857142857143,
+        "mean_macron_recall": 1.0,
+        "pages_measured": 2,
+        "failed_pages": 0
+      }
+    ],
+    "best": {
+      "profile": {
+        "name": "stage3_threads_6_http_1",
+        "threads": 6,
+        "threads_batch": 6,
+        "threads_http": 1,
+        "batch": 1024,
+        "ubatch": 512,
+        "parallel": 1,
+        "image_min_tokens": 512,
+        "image_max_tokens": 2048,
+        "cont_batching": "on",
+        "seed": 0
+      },
+      "proxy_max_tokens_cap": 1500,
+      "quality_pass": false,
+      "mean_sec_per_page": 188.4057053544675,
+      "p95_sec_per_page": 52.38091995898867,
+      "stddev_sec_per_page": 136.02478539547883,
+      "pages_per_minute": 0.3184616935411573,
+      "retries_per_page": 0.0,
+      "mean_cer": 0.04158023033565784,
+      "mean_wer": 0.21973581298340142,
+      "mean_thorn_to_p_rate": 0.4642857142857143,
+      "mean_macron_recall": 1.0,
+      "pages_measured": 2,
+      "failed_pages": 0
+    }
+  },
+  "stage4": {
+    "results": [
+      {
+        "profile": {
+          "name": "stage3_threads_6_http_1",
+          "threads": 6,
+          "threads_batch": 6,
+          "threads_http": 1,
+          "batch": 1024,
+          "ubatch": 512,
+          "parallel": 1,
+          "image_min_tokens": 512,
+          "image_max_tokens": 2048,
+          "cont_batching": "on",
+          "seed": 0
+        },
+        "proxy_max_tokens_cap": 2000,
+        "quality_pass": false,
+        "mean_sec_per_page": 236.08464535450912,
+        "p95_sec_per_page": 53.61317195900483,
+        "stddev_sec_per_page": 182.4714733955043,
+        "pages_per_minute": 0.25414613436593,
+        "retries_per_page": 0.0,
+        "mean_cer": 0.04158023033565784,
+        "mean_wer": 0.21973581298340142,
+        "mean_thorn_to_p_rate": 0.4642857142857143,
+        "mean_macron_recall": 1.0,
+        "pages_measured": 2,
+        "failed_pages": 0
+      }
+    ],
+    "best": {
+      "profile": {
+        "name": "stage3_threads_6_http_1",
+        "threads": 6,
+        "threads_batch": 6,
+        "threads_http": 1,
+        "batch": 1024,
+        "ubatch": 512,
+        "parallel": 1,
+        "image_min_tokens": 512,
+        "image_max_tokens": 2048,
+        "cont_batching": "on",
+        "seed": 0
+      },
+      "proxy_max_tokens_cap": 2000,
+      "quality_pass": false,
+      "mean_sec_per_page": 236.08464535450912,
+      "p95_sec_per_page": 53.61317195900483,
+      "stddev_sec_per_page": 182.4714733955043,
+      "pages_per_minute": 0.25414613436593,
+      "retries_per_page": 0.0,
+      "mean_cer": 0.04158023033565784,
+      "mean_wer": 0.21973581298340142,
+      "mean_thorn_to_p_rate": 0.4642857142857143,
+      "mean_macron_recall": 1.0,
+      "pages_measured": 2,
+      "failed_pages": 0
+    }
+  },
+  "recommended_env": {
+    "LLAMA_THREADS": "6",
+    "LLAMA_THREADS_BATCH": "6",
+    "LLAMA_THREADS_HTTP": "1",
+    "LLAMA_BATCH": "1024",
+    "LLAMA_UBATCH": "512",
+    "LLAMA_PARALLEL": "1",
+    "LLAMA_IMAGE_MIN_TOKENS": "512",
+    "LLAMA_IMAGE_MAX_TOKENS": "2048",
+    "LLAMA_CONT_BATCHING": "on",
+    "LLAMA_SEED": "0",
+    "WYRDCRAEFT_OCR_PROXY_MAX_TOKENS_CAP": "2000",
+    "WYRDCRAEFT_OCR_PROXY_OVERRIDE_LENGTH_TO_STOP": "false"
+  },
+  "before_after_summary": {
+    "before_mean_sec_per_page": 168.19136310447357,
+    "after_mean_sec_per_page": 236.08464535450912,
+    "before_p95_sec_per_page": 45.83900445897598,
+    "after_p95_sec_per_page": 53.61317195900483,
+    "before_pages_per_minute": 0.35673651067760515,
+    "after_pages_per_minute": 0.25414613436593
+  }
+}

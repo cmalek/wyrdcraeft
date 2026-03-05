@@ -16,10 +16,13 @@ LLAMA_THREADS_HTTP ?= 2
 LLAMA_BATCH ?= 1024
 LLAMA_UBATCH ?= 512
 LLAMA_PARALLEL ?= 1
+LLAMA_CONT_BATCHING ?= on
+LLAMA_SEED ?= 0
 LLAMA_IMAGE_MIN_TOKENS ?= 512
 LLAMA_IMAGE_MAX_TOKENS ?= 2048
 LLAMA_CACHE_TYPE_K ?= q8_0
 LLAMA_CACHE_TYPE_V ?= q8_0
+LLAMA_METRICS ?= on
 
 #======================================================================
 
@@ -69,6 +72,7 @@ llama:
 	llama-server \
 		-m $(LLAMA_MODEL) \
 		--mmproj $(LLAMA_MMPROJ) \
+		--mmproj-offload \
 		-c $(LLAMA_CTX) \
 		--host $(LLAMA_HOST) --port $(LLAMA_PORT) \
 		--threads $(LLAMA_THREADS) \
@@ -81,11 +85,47 @@ llama:
 		--cache-type-v $(LLAMA_CACHE_TYPE_V) \
 		--n-gpu-layers -1 \
 		--flash-attn on \
+		--$(if $(filter on,$(LLAMA_CONT_BATCHING)),cont-batching,no-cont-batching) \
+		--seed $(LLAMA_SEED) \
+		--temp 0.0 \
 		--no-webui \
 		--reasoning-budget 0 \
+		$(if $(filter on,$(LLAMA_METRICS)),--metrics,) \
 		--image-min-tokens $(LLAMA_IMAGE_MIN_TOKENS) \
 		--image-max-tokens $(LLAMA_IMAGE_MAX_TOKENS)
 
-.PHONY: docs release compile dist clean list morphology-guardrails napoleon-gate napoleon-gate-strict napoleon-gate-baseline ocr-old-english-help download-models-macos llama
+llama-test:
+	llama-server \
+		-m $(LLAMA_MODEL) \
+		--mmproj $(LLAMA_MMPROJ) \
+		--mmproj-offload \
+		-c $(LLAMA_CTX) \
+		--host $(LLAMA_HOST) --port $(LLAMA_PORT) \
+		--threads $(LLAMA_THREADS) \
+		--threads-batch $(LLAMA_THREADS_BATCH) \
+		--threads-http $(LLAMA_THREADS_HTTP) \
+		--parallel $(LLAMA_PARALLEL) \
+		--batch-size $(LLAMA_BATCH) \
+		--ubatch-size $(LLAMA_UBATCH) \
+		--cache-type-k $(LLAMA_CACHE_TYPE_K) \
+		--cache-type-v $(LLAMA_CACHE_TYPE_V) \
+		--n-gpu-layers -1 \
+		--flash-attn on \
+		--$(if $(filter on,$(LLAMA_CONT_BATCHING)),cont-batching,no-cont-batching) \
+		--seed $(LLAMA_SEED) \
+		--temp 0.0 \
+		--no-webui \
+		--reasoning-budget 0 \
+		$(if $(filter on,$(LLAMA_METRICS)),--metrics,) \
+		--image-min-tokens $(LLAMA_IMAGE_MIN_TOKENS) \
+		--image-max-tokens $(LLAMA_IMAGE_MAX_TOKENS)
+
+llama-test-latency:
+	@$(MAKE) llama-test LLAMA_PARALLEL=1
+
+llama-test-throughput:
+	@$(MAKE) llama-test LLAMA_PARALLEL=2
+
+.PHONY: docs release compile dist clean list morphology-guardrails napoleon-gate napoleon-gate-strict napoleon-gate-baseline ocr-old-english-help download-models-macos llama llama-test llama-test-latency llama-test-throughput
 list:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs

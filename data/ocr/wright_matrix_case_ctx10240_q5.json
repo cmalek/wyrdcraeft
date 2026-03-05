@@ -1,0 +1,110 @@
+{
+  "fixtures": [
+    "wright1",
+    "wright3",
+    "wright4"
+  ],
+  "ctx_values": [
+    10240
+  ],
+  "cache_types": [
+    "q5_0"
+  ],
+  "model_path": "./data/models/allenai_olmOCR-2-7B-1025-Q5_K_M.gguf",
+  "controls": {
+    "proxy_upstream_timeout_seconds": 120.0,
+    "proxy_upstream_max_retries": 0,
+    "proxy_upstream_retry_backoff_seconds": 0.2,
+    "olmocr_max_page_retries": 1,
+    "ocr_command_timeout_seconds": 240.0,
+    "upstream_base_url": "http://127.0.0.1:18080/v1",
+    "snapshot_interval_seconds": 10.0,
+    "print_live_snapshots": true,
+    "show_llama_server_logs": false,
+    "print_progress": true
+  },
+  "proxy_max_tokens_cap": 1500,
+  "proxy_override_length_to_stop": true,
+  "results": [
+    {
+      "ctx": 10240,
+      "cache_type": "q5_0",
+      "fixtures": [
+        "wright1",
+        "wright3",
+        "wright4"
+      ],
+      "profile": {
+        "name": "baseline",
+        "threads": 12,
+        "threads_batch": 12,
+        "threads_http": 2,
+        "batch": 1024,
+        "ubatch": 512,
+        "parallel": 1,
+        "image_min_tokens": 512,
+        "image_max_tokens": 2048,
+        "cont_batching": "on",
+        "seed": 0
+      },
+      "proxy_max_tokens_cap": 1500,
+      "quality_pass": false,
+      "mean_sec_per_page": 18.412869861000217,
+      "p95_sec_per_page": 17.941973833017983,
+      "stddev_sec_per_page": 0.6663173111870797,
+      "pages_per_minute": 3.258590347563598,
+      "retries_per_page": 0.0,
+      "mean_cer": 0.0,
+      "mean_wer": 0.0,
+      "mean_thorn_to_p_rate": 0.0,
+      "mean_macron_recall": 0.0,
+      "proxy_request_count": 3,
+      "proxy_prompt_tokens_total": 3313,
+      "proxy_completion_tokens_total": 6,
+      "proxy_total_tokens_total": 3319,
+      "proxy_completion_tokens_per_second": 0.2695417789757413,
+      "pages_measured": 3,
+      "failed_pages": 3
+    }
+  ],
+  "best": {
+    "ctx": 10240,
+    "cache_type": "q5_0",
+    "fixtures": [
+      "wright1",
+      "wright3",
+      "wright4"
+    ],
+    "profile": {
+      "name": "baseline",
+      "threads": 12,
+      "threads_batch": 12,
+      "threads_http": 2,
+      "batch": 1024,
+      "ubatch": 512,
+      "parallel": 1,
+      "image_min_tokens": 512,
+      "image_max_tokens": 2048,
+      "cont_batching": "on",
+      "seed": 0
+    },
+    "proxy_max_tokens_cap": 1500,
+    "quality_pass": false,
+    "mean_sec_per_page": 18.412869861000217,
+    "p95_sec_per_page": 17.941973833017983,
+    "stddev_sec_per_page": 0.6663173111870797,
+    "pages_per_minute": 3.258590347563598,
+    "retries_per_page": 0.0,
+    "mean_cer": 0.0,
+    "mean_wer": 0.0,
+    "mean_thorn_to_p_rate": 0.0,
+    "mean_macron_recall": 0.0,
+    "proxy_request_count": 3,
+    "proxy_prompt_tokens_total": 3313,
+    "proxy_completion_tokens_total": 6,
+    "proxy_total_tokens_total": 3319,
+    "proxy_completion_tokens_per_second": 0.2695417789757413,
+    "pages_measured": 3,
+    "failed_pages": 3
+  }
+}
