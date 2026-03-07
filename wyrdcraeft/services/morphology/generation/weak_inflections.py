@@ -38,6 +38,13 @@ WeakParticipleSink = Callable[[str], None]
 WeakBranchAction = Callable[[], None]
 #: Callback signature for one weak ``PaInSg1`` vowel-variant emission.
 WeakPainsg1VariantEmitter = Callable[[str, int], str]
+#: Callback signature for one ``PaInSg1`` form emission for a selected vowel.
+WeakPainsg1VowelFormEmitter = Callable[
+    [str, str, str, str | int | None, str],
+    tuple[str, str] | None,
+]
+#: Stem-part tuple ``(pre_vowel, vowel, post_vowel, boundary)``.
+WeakStemParts = tuple[str, str, str, str]
 #: Lower bound (exclusive) for using raw item-shape weak forms.
 WEAK_ITEM_SHAPE_MIN_ID: int = 88
 #: Upper bound (exclusive) for using raw item-shape weak forms.
@@ -564,6 +571,89 @@ def emit_weak_derived_from_painsg1_sequence(  # noqa: PLR0913
         on_participle(form_parts)
 
 
+def emit_weak_derived_from_painsg1_context(  # noqa: PLR0913
+    *,
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    dental: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    probability: str | int | None,
+    emit_form_for_vowel: WeakPainsg1VowelFormEmitter,
+    emit_manual: WeakManualEmitter,
+    on_participle: WeakParticipleSink,
+) -> None:
+    """
+    Emit weak ``PaInSg1`` derivatives for a fully bound stem context.
+
+    Note:
+        Wright treats weak preterites as dental-suffix formations, and Tichý's
+        pipeline generates verbal participles with verbs before adjective
+        inflection. This helper keeps that ``PaInSg1`` ordering intact.
+
+    Side Effects:
+        Emits rows through callback hooks and forwards participle form-parts.
+
+    Args:
+        prefix: Word prefix component.
+        pre_vowel: Pre-vowel stem segment.
+        vowel: Base ``PaInSg1`` vowel segment.
+        post_vowel: Post-vowel stem segment before simplification.
+        boundary: Boundary consonant segment.
+        dental: Dental segment used in weak preterite forms.
+        vowel_inf: Infinitive vowel from variant 0.
+        vowel_pa: Preterite singular vowel from variant 0.
+        probability: Base probability scalar for this branch.
+        emit_form_for_vowel: Callback emitting one inflection for one vowel and
+            simplified post-vowel segment.
+        emit_manual: Callback emitting one manual-form row.
+        on_participle: Callback consuming emitted participle form-parts.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    post_vowel_simple = re.sub(r"(.)\1", r"\1", post_vowel)
+
+    def emit_variant(current_vowel: str, current_probability: int) -> str:
+        def emit_form(
+            ending: str,
+            function: str,
+            prob_value: str | int | None,
+        ) -> None:
+            emit_form_for_vowel(
+                current_vowel,
+                ending,
+                function,
+                prob_value,
+                post_vowel_simple,
+            )
+
+        return emit_weak_derived_from_painsg1_variant(
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=current_vowel,
+            post_vowel_simple=post_vowel_simple,
+            boundary=boundary,
+            dental=dental,
+            probability=current_probability,
+            emit_form=emit_form,
+            emit_manual=emit_manual,
+        )
+
+    emit_weak_derived_from_painsg1_sequence(
+        vowel=vowel,
+        vowel_inf=vowel_inf,
+        vowel_pa=vowel_pa,
+        probability=probability,
+        emit_variant=emit_variant,
+        on_participle=on_participle,
+    )
+
+
 def is_weak_item_shape_window(para_id_num: str) -> bool:
     """
     Return whether weak generation should use raw item shape by paradigm ID.
@@ -660,6 +750,73 @@ def emit_weak_principal_form(  # noqa: PLR0913
         principal_prob,
     )
     return form_parts
+
+
+def emit_weak_principal_part_sequence(  # noqa: PLR0913
+    *,
+    para_id: str,
+    para_id_num: str,
+    variant_id: int,
+    prefix: str,
+    default_parts: WeakStemParts,
+    item_parts: WeakStemParts,
+    dental: str | None,
+    ending: str,
+    emit_form: WeakPrincipalEmitter,
+    on_pspt_participle: WeakParticipleSink,
+    on_papt_participle: WeakParticipleSink,
+    on_inf: WeakBranchAction,
+    on_psinsg2: WeakBranchAction,
+    on_painsg1: WeakBranchAction,
+) -> None:
+    """
+    Emit one weak principal part and route all dependent derivation branches.
+
+    Side Effects:
+        Emits principal-form rows and triggers derived branch callbacks.
+
+    Args:
+        para_id: Principal function identifier from the paradigm row.
+        para_id_num: Numeric paradigm ID used for legacy shape branching.
+        variant_id: Variant index for principal probability rules.
+        prefix: Word prefix component.
+        default_parts: Stem parts from normalized root extraction.
+        item_parts: Stem parts from raw paradigm item values.
+        dental: Dental segment from the paradigm item.
+        ending: Morphological ending from the paradigm item.
+        emit_form: Callback that emits one principal-form row.
+        on_pspt_participle: Callback for present participle projection.
+        on_papt_participle: Callback for past participle projection.
+        on_inf: Callback for infinitive-derived weak branch generation.
+        on_psinsg2: Callback for ``PsInSg2``-derived branch generation.
+        on_painsg1: Callback for ``PaInSg1``-derived branch generation.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    use_item_shape = is_weak_item_shape_window(para_id_num)
+    form_parts = emit_weak_principal_form(
+        para_id=para_id,
+        prefix=prefix,
+        default_parts=default_parts,
+        item_parts=item_parts,
+        dental=dental,
+        ending=ending,
+        variant_id=variant_id,
+        use_item_shape=use_item_shape,
+        emit_form=emit_form,
+    )
+    dispatch_weak_principal_part_derivations(
+        para_id=para_id,
+        use_item_shape=use_item_shape,
+        form_parts=form_parts,
+        on_pspt_participle=on_pspt_participle,
+        on_papt_participle=on_papt_participle,
+        on_inf=on_inf,
+        on_psinsg2=on_psinsg2,
+        on_painsg1=on_painsg1,
+    )
 
 
 def dispatch_weak_derived_forms(
