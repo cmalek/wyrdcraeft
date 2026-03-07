@@ -27,6 +27,25 @@ def _normalize_key(value: str) -> str:
     return OENormalizer.normalize_output(value).casefold()
 
 
+def _project_query_rows(rows: list[sqlite3.Row]) -> list[QueryFormRow]:
+    """
+    Convert raw SQLite rows into typed morphology query rows.
+
+    Args:
+        rows: Raw SQLite rows returned from lookup queries.
+
+    Returns:
+        Validated query rows with counter values projected as strings.
+
+    """
+    projected: list[QueryFormRow] = []
+    for row in rows:
+        payload = dict(row)
+        payload["counter"] = str(payload["counter"])
+        projected.append(QueryFormRow.model_validate(payload))
+    return projected
+
+
 class MorphologyQueryService:
     """
     Query interface over emitted morphology rows persisted in SQLite.
@@ -107,7 +126,7 @@ class MorphologyQueryService:
             """,
             (lemma_key, lemma_key, lemma_key, max(1, limit)),
         ).fetchall()
-        return [QueryFormRow.model_validate(dict(row)) for row in rows]
+        return _project_query_rows(rows)
 
     def lookup_by_form(self, form: str, limit: int = 200) -> list[QueryFormRow]:
         """
@@ -159,7 +178,7 @@ class MorphologyQueryService:
             """,
             (form_key, form_key, max(1, limit)),
         ).fetchall()
-        return [QueryFormRow.model_validate(dict(row)) for row in rows]
+        return _project_query_rows(rows)
 
     def close(self) -> None:
         """

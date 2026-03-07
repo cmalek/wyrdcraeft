@@ -42,9 +42,16 @@ def _perl_hash_order(values: list[str]) -> list[str]:
     Return deterministic title ordering without Perl runtime dependency.
 
     Note:
-        Ordering preserves adjective title variants from
-        ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
-        In plain terms, this keeps adjective Part-of-Speech variants stable.
+        ``data/OldEnglishGrammar.pdf`` documents adjective alternants that can
+        collapse to the same surface stem (for example, syncope/analogy around
+        ``halig`` in §223 and §431, plus u/wa variation in §439-§440). The
+        Old English generator description in
+        ``data/Ondej_Tich_40-54-1.pdf`` also states that adjective generation
+        intentionally emits multiple phonological/morphological alternatives.
+        Part of Speech scope: adjective. In plain terms, this keeps the first
+        linguistically valid stem order, then removes repeats so we do not emit
+        duplicate adjective alternatives when different historical rules land on
+        the same written form.
 
     Args:
         values: Candidate title variants in source order.

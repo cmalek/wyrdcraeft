@@ -211,69 +211,160 @@ NOTE.—A few words simplified the double consonants at an early period and then
 c. wō·STEMS.
 
 § 379. SING.
-Nom. beadu, ·o, battle      mǣd, meadow
-Acc. Gen. Dat. beadwe        mǣdwe
+<table>
+  <tr>
+   	<td>Nom.</td>
+		<td>beadu, ·o, battle</td>
+		<td>mǣd, meadow</td>
+	<tr>
+		<td>Acc. Gen. Dat.</td>
+		<td>beadwe</td>
+		<td>mǣdwe</td>
+	</tr>
+</table>
+
 PLUR.
-Nom. Acc. beadwe, ·a         mǣdwe, ·a
-Gen. beadwa                   mǣdwa
-Dat. beadwum                  mǣdwum
-In the nom. singular the prim. Germanic ending ·wō regularly became ·wu (§ 214), then the w disappeared before the ·u (§ 266). The ·u remained after consonants preceded by an original short vowel, but disappeared after consonants preceded by a long vowel (§ 215). When the ·u was preceded by a it combined with it to form a diphthong, as clēa from *cla(w)u, claw, þrēa from *pra(w)u, threat (§ 75), pl. nom. acc. clēa, dat. clēam from *cla(w)um; beside the regular nom. sing. forms clēa, þrēa new nominatives clawu, þrawu were made from the stem-form of the oblique cases. The final ·u also regularly disappeared after long vowels and diphthongs (§ 215), but was restored again from the inflected forms already in the oldest period of the language, as hrēow, repentance; stōw, place; trēow (§ 90), faith, truth.
+<table>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>beadwe, ·a</td>
+		<td>mǣdwe, ·a</td>
+	<tr>
+		<td>Gen.</td>
+		<td>beadwa</td>
+		<td>mǣdwa</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>beadwum</td>
+		<td>mǣdwum</td>
+	</tr>
+</table>
+
+In the nom. singular the prim. Germanic ending ·wō regularly became ·wu (§ 214), then the w disappeared before the ·u (§ 266). The ·u remained after consonants preceded by an original short vowel, but disappeared after consonants preceded by a long vowel (§ 215). When the ·u was preceded by a it combined with it to form a diphthong, as clēa from *cla(w)u, claw, þrēa from *þra(w)u, threat (§ 75), pl. nom. acc. clēa, dat. clēam from *cla(w)um; beside the regular nom. sing. forms clēa, þrēa new nominatives clawu, þrawu were made from the stem-form of the oblique cases. The final ·u also regularly disappeared after long vowels and diphthongs (§ 215), but was restored again from the inflected forms already in the oldest period of the language, as hrēow, repentance; stōw, place; trēow (§ 90), faith, truth.
 
 In the inflected forms the wō-stems had the same endings as the ō-stems except that they never had the ending -(e)na in the gen. plural. On the svarabhakti vowel in forms like gen. beaduwe beside beadwe, see § 220.
 
 § 380. Like beadu are declined sinu, sionu, sinew; sceadu, shadow; and the plurals frætwe, ornaments; geatwe, armaments, armour.
 
-§ 381. Like māed are declined blōd(es)lāes, blood-letting, bleeding; lāes, pasture.
+§ 381. Like māed are declined blōd(es)lǣs, blood-letting, bleeding; lǣs, pasture.
 
 3. Feminine Abstract Nouns in -ī.
 
-§ 382. This declension comprises the fem. abstract nouns formed from adjectives. The stem originally ended in ·in, and the nom. in ·i, cp. Goth. mikilei, greatness, diupei, depth, formed from mikils, great, diups, deep, gen. mikileins, diupeins (weak declension). The ·in, ·i were shortened to ·in, ·i in prehistoric OE. (§§ 211, 214), and then the i caused umlaut of the stem-vowel. But already in the oldest period of the language this class of nouns was remodelled on analogy with the short ō-stems (§ 365), so
-that the nom. came to end in ·u, later ·o, and the oblique cases of the singular in ·e. At a later period the new nominative came to be used for all forms of the singular and for the nom. acc. plural. Few nouns belonging to this class have a plural.
+§ 382. This declension comprises the fem. abstract nouns formed from adjectives. The stem originally ended in ·īn, and the nom. in ·ī, cp. Goth. mikilei, greatness, diupei, depth, formed from mikils, great, diups, deep, gen. mikileins, diupeins (weak declension). The ·in, ·i were shortened to ·īn, ·ī in prehistoric OE. (§§ 211, 214), and then the i caused umlaut of the stem-vowel. But already in the oldest period of the language this class of nouns was remodelled on analogy with the short ō-stems (§ 365), so that the nom. came to end in ·u, later ·o, and the oblique cases of the singular in ·e. At a later period the new nominative came to be used for all forms of the singular and for the nom. acc. plural. Few nouns belonging to this class have a plural.
 
-SING.
-Nom. strengu, ·o, strength
-Acc. strenge, ·u, ·o
-Gen. "
-Dat. "
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom.</td>
+			<td>strengu, ·o, strength</td>
+			<td>strenge, ·a ; ·u, ·o</td>
+		</tr>
+			<td>Acc.</td>
+			<td>strenge, ·u, ·o</td>
+			<td>"</td>
+		</tr>
+		<tr>
+			<td>Gen.</td>
+			<td>"</td>
+			<td>strenga</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>"</td>
+			<td>strengum</td>
+		</tr>
+	</tbody>
+</table>
 
-PLUR.
-strenge, ·a ; ·u, ·o
-"
-strenga
-strengum
-
-§ 383. Like strengu are declined bieldu, boldness; bierhtu, brightness; engu, narrowness; fyllu, fullness; hāelu, health; hēetu, heat; hyldu, favour; ieldu, age; menigu, mengu, multitude; oferfierru, great distance; snytru, wisdom; piestru, darkness; wlencu, wlenc(e)o, pride. See §§ 563, 614.
+§ 383. Like strengu are declined bieldu, boldness; bierhtu, brightness; engu, narrowness; fyllu, fullness; hǣlu, health; hǣtu, heat; hyldu, favour; ieldu, age; menigu, mengu, multitude; oferfierru, great distance; snytru, wisdom; þīestru, darkness; wlencu, wlenc(e)o, pride. See §§ 563, 614.
 
 4. The i-declension.
 
-§ 384. The i-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. i-declension (nom. masc. and fem. Lat. ·is, Gr. ·vs, acc. ·im, ·iv; neut. nom. acc. ·e, ·i).
+§ 384. The i-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. i-declension (nom. masc. and fem. Lat. ·ις, Gr. ·vs, acc. ·im, ·ιν; neut. nom. acc. ·e, ·ι).
 
 a. Masculine.
 
 § 385. SING.
-Nom. Acc. wine, friend giest, guest
-Gen. wines giestes
-Dat. wine gieste
+<table>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>wine, friend</td>
+		<td>giest, guest</td>
+	<tr>
+		<td>Gen.</td>
+		<td>wines</td>
+		<td>giestes</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>wine</td>
+		<td>gieste</td>
+	</tr>
+</table>
 
 PLUR.
-Nom. Acc. wine, -as giestas
-Gen. wini(ge)a, wina giesta
-Dat. winum giestum
+<table>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>wine, -as</td>
+		<td>giestas</td>
+	<tr>
+		<td>Gen.</td>
+		<td>wini(ge)a</td>
+		<td>giesta</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>winum</td>
+		<td>giestum</td>
+	</tr>
+</table>
 
-The prim. Germanic forms were : Sing. nom. *gastiz, acc. *gastin, gen. *gastaiz (cp. Goth. anstáis), dat. *gastai (cp.
-Goth. anstái), loc. *gastī from Indg. *ghostēi; Plur. nom. *gastīz older -ijiz (Goth. gasteis), acc. *gastinz (Goth. gastins), gen. *gasti(j)ōn, dat. *gastimiz (Goth. gastim). The endings -iz, -in of the nom. acc. sing. regularly became -i in prehistoric OE. The -i caused umlaut of the stem-vowel and then disappeared after long stems (§ 215), but remained after short stems and later became -e (§ 215, Note). The regular ending of the gen. sing. would be -e (§ 217), the -es is from the a-stems. The dat. sing. ended in -i (later -e) in the oldest OE. and corresponded to the locative ending -ī (§ 334, Note). The prim. Germanic nom. pl. ending -iz regularly became -i, later -e, which remained in the oldest period of the language. But already at an early period the nom. pl. was re-formed after the analogy of the masc. a-stems and then later the old ending -e was only preserved in a few plurals, especially in names of peoples, as Dene, Danes; Engle, the English; Mierce (gen. Miercna), Mercians; Norþphymbre, Northumbrians; Seaxe (gen. Seaxna), Saxons; ielde, men; ielfe, elves; līode, lēode, people. The ending -i(j)ōn regularly became -i(j)a which has only been preserved in a few words with short stems, as Deni(ge)a, wini(ge)a. The ending -a is from the gen. pl. of the a- and consonantal stems. The dat. pl. would regularly have ended in -im, but it had -um from the other classes of nouns. Apart from the few words mentioned above, the long i-stems have the same endings as the masc. a-stems and are only distinguishable from them by the presence or absence of umlaut.
+The prim. Germanic forms were : Sing. nom. *ʒastiz, acc. *ʒastin, gen. *ʒastaiz (cp. Goth. anstáis), dat. *ʒastai (cp. Goth. anstái), loc. *ʒastī from Indg. *ghostēi; Plur. nom. *ʒastīz older -ijiz (Goth. gasteis), acc. *ʒastinz (Goth. gastins), gen. *ʒasti(j)ōn, dat. *ʒastimiz (Goth. gastim). The endings -iz, -in of the nom. acc. sing. regularly became -i in prehistoric OE. The -i caused umlaut of the stem-vowel and then disappeared after long stems (§ 215), but remained after short stems and later became -e (§ 215, Note). The regular ending of the gen. sing. would be -e (§ 217), the -es is from the a-stems. The dat. sing. ended in -i (later -e) in the oldest OE. and corresponded to the locative ending -ī (§ 334, Note). The prim. Germanic nom. pl. ending -īz regularly became -i, later -e, which remained in the oldest period of the language. But already at an early period the nom. pl. was re-formed after the analogy of the masc. a-stems and then later the old ending -e was only preserved in a few plurals, especially in names of peoples, as Dene, Danes; Engle, the English; Mierce (gen. Miercna), Mercians; Norþphymbre, Northumbrians; Seaxe (gen. Seaxna), Saxons; ielde, men; ielfe, elves; līode, lēode, people. The ending -i(j)ȭn regularly became -i(j)a which has only been preserved in a few words with short stems, as Deni(ge)a, wini(ge)a. The ending -a is from the gen. pl. of the a- and consonantal stems. The dat. pl. would regularly have ended in -im, but it had -um from the other classes of nouns. Apart from the few words mentioned above, the long i-stems have the same endings as the masc. a-stems and are only distinguishable from them by the presence or absence of umlaut.
 
-§ 386. Like wine are declined a large number of nouns, as bile, beak; bite, bite; bryce, breach; bryne, burning; byge, curve; byre, son; ciele, cold; cyme, advent; cyre, choice; cwide, saying, speech; dene, valley; drepe, stroke, blow; dryre, fall; dyne, din; flyge, flight; gripe, grasp; gryre, terror; gyte, pouring forth; hæle (orig. a cons. stem, see § 414), man, hero; hefe, weight; hege, hedge;
-hrine, touch ; hryre, fall ; -hyge, mind ; hype, hip ; hyse (pl. hys(s)as), youth, son ; ile (pl. il(l)as), sole of the foot ; lyge, falsehood ; lyre, loss ; mere (orig. neut.), lake, pool ; mete (pl. mettas), food ; myne, memory ; ryge, rye ; ryne, course ; scyfe, shove ; scyte, shooting ; sele, hall ; sice, sigh ; slege, stroke, blow ; slide, slip ; slite, slit ; snide, incision ; stæpe, step ; stede, place ; stice, stitch ; stige, ascent ; stride, stride ; swyle, swelling ; þyle, orator ; wlite, brightness, beauty. bēoriscipe, feast ; for further examples, see § 611. bere (Goth. *baris), barley ; ege (Goth. agis), fear ; hete (Goth. hatis), hate ; mene, necklace ; sige (Goth. sigis), victory, originally belonged to the neuter -os, -es-declension (§ 419). ele (Lat. oleum), oil, was also originally neuter.
+§ 386. Like wine are declined a large number of nouns, as bile, beak; bite, bite; bryce, breach; bryne, burning; byge, curve; byre, son; ciele, cold; cyme, advent; cyre, choice; cwide, saying, speech; dene, valley; drepe, stroke, blow; dryre, fall; dyne, din; flyge, flight; gripe, grasp; gryre, terror; gyte, pouring forth; hæle (orig. a cons. stem, see § 414), man, hero; hefe, weight; hege, hedge; hrine, touch ; hryre, fall ; -hyge, mind ; hype, hip ; hyse (pl. hys(s)as), youth, son ; ile (pl. il(l)as), sole of the foot ; lyge, falsehood ; lyre, loss ; mere (orig. neut.), lake, pool ; mete (pl. mettas), food ; myne, memory ; ryge, rye ; ryne, course ; scyfe, shove ; scyte, shooting ; sele, hall ; sice, sigh ; slege, stroke, blow ; slide, slip ; slite, slit ; snide, incision ; stæpe, step ; stede, place ; stice, stitch ; stige, ascent ; stride, stride ; swyle, swelling ; þyle, orator ; wlite, brightness, beauty. bēoriscipe, feast ; for further examples, see § 611. bere (Goth. *baris), barley ; ege (Goth. agis), fear ; hete (Goth. hatis), hate ; mene, necklace ; sige (Goth. sigis), victory, originally belonged to the neuter -os, -es-declension (§ 419). ele (Lat. oleum), oil, was also originally neuter.
 
-§ 387. Like giest are declined a large number of nouns, as ærist (also fem.), resurrection ; æsc, ash-tree ; blæd, blast, breath ; blæst, blast ; brygd, brandishing ; byht, bend ; byrst, loss ; cierm, clamour ; cierr, turn, change ; dæl, part ; drenc, drink ; dynt, dint ; ent, giant ; feng, grasp ; fiell, fall ; fierst, period of time ; flyht, flight ; fyrs, furze ; glæm, gleam ; gylt, guilt ; hliep, leap ; hlyst (also fem.), sense of hearing ; hwyrtf, turning, circuit ; hyht, hope ; læst, track ; lēc, sight, looking at ; lieg, flame ; list, skill, cunning ; lyft (also fem.), air ; mǣw, seagull ; pliht, danger, peril ; sāl (also fem.), time ; scen, cup, draught ; slieht, slaughter ; smiec, smoke ; stenc, odour ; steng, pole ; stiell, leap ; stren, string ; swēg, sound, noise ; swylt, death ; tyht, training, instruction ; þyrs, giant ; wǣg, wave ; wiell, spring ; wielm, boiling ; wrenc, trick, stratagem ; wyrm, worm.
+§ 387. Like giest are declined a large number of nouns, as ǣrist (also fem.), resurrection ; æsc, ash-tree ; blǣd, blast, breath ; blǣst, blast ; brygd, brandishing ; byht, bend ; byrst, loss ; cierm, clamour ; cierr, turn, change ; dǣl, part ; drenc, drink ; dynt, dint ; ent, giant ; feng, grasp ; fiell, fall ; fierst, period of time ; flyht, flight ; fyrs, furze ; glǣm, gleam ; gylt, guilt ; hliep, leap ; hlyst (also fem.), sense of hearing ; hwyrtf, turning, circuit ; hyht, hope ; lǣst, track ; lēc, sight, looking at ; līeg, flame ; list, skill, cunning ; lyft (also fem.), air ; mǣw, seagull ; pliht, danger, peril ; sǣl (also fem.), time ; scen, cup, draught ; slieht, slaughter ; smīec, smoke ; stenc, odour ; steng, pole ; stiell, leap ; stren, string ; swēg, sound, noise ; swylt, death ; tyht, training, instruction ; þyrs, giant ; wǣg, wave ; wiell, spring ; wielm, boiling ; wrenc, trick, stratagem ; wyrm, worm.
 
-§ 388. sǣ, prim. Germanic *saiwiz, sea, gen. sāes, dat. sǣ, pl. nom. acc. sāes, gen. *sǣwa, dat. sǣm beside sǣwum (a new formation) ; also fem. gen. dat. sǣ beside sǣwe ; drŷ, magician, gen. drŷs, dat. drŷ, pl. nom. acc. drŷas, dat. drŷum. On the contracted forms, see §§ 139, 142.
-§§ 389–91] Nouns 183
+§ 388. sǣ, prim. Germanic *saiwiz, sea, gen. sāes, dat. sǣ, pl. nom. acc. sāes, gen. *sǣwa, dat. sǣm beside sǣwum (a new formation) ; also fem. gen. dat. sǣ beside sǣwe ; drȳ, magician, gen. drȳs, dat. drȳ, pl. nom. acc. drȳas, dat. drȳum. On the contracted forms, see §§ 139, 142.
+
 
 b. Feminine.
 
-§ 389. SING.        PLUR.
+§ 389. 
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom. Acc.</td>
+			<td>cwēn, queen</td>
+			<td>cwēne</td>
+		<tr>
+			<td>Gen.</td>
+			<td>"</td>
+			<td>strenga</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>"</td>
+			<td>strengum</td>
+		</tr>
+	</tbody>
+</table>
 Nom. Acc. cwēn, queen    cwēne
 Gen. cwēne            cwēna
 Dat. cwēne            cwēnum
