@@ -1,5 +1,7 @@
 """Morphology-related Pydantic models for the Old English morphology generator."""
 
+from dataclasses import dataclass
+
 from pydantic import BaseModel, Field
 
 
@@ -62,7 +64,7 @@ class VerbParadigm(BaseModel):
 
 class Word(BaseModel):
     """
-    Word model.
+    Lexical entry schema carrying POS flags and paradigm state for one lemma.
     """
 
     #: The ID.
@@ -218,3 +220,122 @@ class GeneratedForm(BaseModel):
     class3: str
     #: The comment.
     comment: str
+
+
+@dataclass(frozen=True)
+class _StrongInfDerivationContext:
+    """
+    Immutable context for strong infinitive-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        base_vowel: Base infinitive vowel used for ``ImSg`` derivation.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Base infinitive vowel used for ``ImSg`` derivation.
+    base_vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+
+
+@dataclass(frozen=True)
+class _WeakInfDerivationContext:
+    """
+    Immutable context for weak infinitive-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        vowel: Base infinitive vowel for weak-derivation emission.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Base infinitive vowel for weak-derivation emission.
+    vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+
+
+@dataclass(frozen=True)
+class _WeakPainsg1DerivationContext:
+    """
+    Immutable context for weak ``PaInSg1``-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        dental: Weak preterite dental segment used in derived forms.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+    #: Weak preterite dental segment used in derived forms.
+    dental: str
+
+
+@dataclass(frozen=True)
+class _WeakPsinsg2DerivationContext:
+    """
+    Immutable context for weak ``PsInSg2``-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        vowel: Active stem vowel used for this derivation branch.
+        boundary: Stem-boundary marker used in form-parts payloads.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Active stem vowel used for this derivation branch.
+    vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str

@@ -1,11 +1,14 @@
 import re
-from dataclasses import dataclass
 from functools import partial
 from typing import Final
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
     ParadigmVariant,
+    _StrongInfDerivationContext,
+    _WeakInfDerivationContext,
+    _WeakPainsg1DerivationContext,
+    _WeakPsinsg2DerivationContext,
     VerbParadigm,
     Word,
 )
@@ -190,70 +193,6 @@ def print_one_form(
         )
         output_file.write(line)
         session.output_counter += 1
-
-
-@dataclass(frozen=True)
-class _StrongInfDerivationContext:
-    """
-    Immutable context for strong infinitive-derived emitter callbacks.
-
-    Args:
-        formhash: Shared form metadata for emitted rows.
-        word: Source lexical entry receiving derived participles.
-        prefix: Prefix segment prepended to generated forms.
-        pre_vowel: Segment before the active stem vowel.
-        base_vowel: Base infinitive vowel used for ``ImSg`` derivation.
-        post_vowel: Segment after the active stem vowel.
-        boundary: Stem-boundary marker used in form-parts payloads.
-
-    """
-
-    #: Shared form metadata for emitted rows.
-    formhash: dict[str, str]
-    #: Source lexical entry receiving derived participles.
-    word: Word
-    #: Prefix segment prepended to generated forms.
-    prefix: str
-    #: Segment before the active stem vowel.
-    pre_vowel: str
-    #: Base infinitive vowel used for ``ImSg`` derivation.
-    base_vowel: str
-    #: Segment after the active stem vowel.
-    post_vowel: str
-    #: Stem-boundary marker used in form-parts payloads.
-    boundary: str
-
-
-@dataclass(frozen=True)
-class _WeakInfDerivationContext:
-    """
-    Immutable context for weak infinitive-derived emitter callbacks.
-
-    Args:
-        formhash: Shared form metadata for emitted rows.
-        word: Source lexical entry receiving derived participles.
-        prefix: Prefix segment prepended to generated forms.
-        pre_vowel: Segment before the active stem vowel.
-        vowel: Base infinitive vowel for weak-derivation emission.
-        post_vowel: Segment after the active stem vowel.
-        boundary: Stem-boundary marker used in form-parts payloads.
-
-    """
-
-    #: Shared form metadata for emitted rows.
-    formhash: dict[str, str]
-    #: Source lexical entry receiving derived participles.
-    word: Word
-    #: Prefix segment prepended to generated forms.
-    prefix: str
-    #: Segment before the active stem vowel.
-    pre_vowel: str
-    #: Base infinitive vowel for weak-derivation emission.
-    vowel: str
-    #: Segment after the active stem vowel.
-    post_vowel: str
-    #: Stem-boundary marker used in form-parts payloads.
-    boundary: str
 
 
 class VerbFormGenerator:
@@ -1109,6 +1048,97 @@ class VerbFormGenerator:
             prob,
         )
 
+    def _emit_weak_painsg1_form_for_vowel_derivation_context(
+        self,
+        context: _WeakPainsg1DerivationContext,
+        current_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        post_vowel_simple: str,
+    ) -> tuple[str, str]:
+        """
+        Emit one ``PaInSg1`` form row from a pre-bound weak derivation context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared weak ``PaInSg1`` derivation context.
+            current_vowel: Active vowel for this variant.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+            post_vowel_simple: Simplified post-vowel segment.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_weak_painsg1_form_for_vowel_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.boundary,
+            context.dental,
+            current_vowel,
+            ending,
+            function,
+            prob,
+            post_vowel_simple,
+        )
+
+    def _emit_weak_painsg1_manual_context(
+        self,
+        context: _WeakPainsg1DerivationContext,
+        form: str,
+        form_parts: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit one manual row from a pre-bound weak ``PaInSg1`` context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared weak ``PaInSg1`` derivation context.
+            form: Emitted surface form.
+            form_parts: Structured form-parts payload.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        """
+        self._generate_and_print_manual(
+            context.formhash,
+            form,
+            form_parts,
+            function,
+            prob,
+        )
+
+    def _emit_weak_painsg1_participle_context(
+        self, context: _WeakPainsg1DerivationContext, form_parts: str
+    ) -> None:
+        """
+        Attach a past participle emitted from a weak ``PaInSg1`` branch.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared weak ``PaInSg1`` derivation context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=True,
+        )
+
     def _emit_weak_psinsg2_form_with_post_context(  # noqa: PLR0913
         self,
         formhash: dict[str, str],
@@ -1196,6 +1226,77 @@ class VerbFormGenerator:
             function,
             prob,
             sound_change_prob_delta=consonant_change_prob,
+        )
+
+    def _emit_weak_psinsg2_form_with_post_derivation_context(
+        self,
+        context: _WeakPsinsg2DerivationContext,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        post_vowel_simple: str,
+    ) -> None:
+        """
+        Emit one weak ``PsInSg2`` form row from a pre-bound derivation context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared weak ``PsInSg2`` derivation context.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+            post_vowel_simple: Simplified post-vowel segment.
+
+        """
+        self._emit_weak_psinsg2_form_with_post_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.boundary,
+            ending,
+            function,
+            prob,
+            post_vowel_simple,
+        )
+
+    def _emit_weak_psinsg2_sound_with_post_derivation_context(
+        self,
+        context: _WeakPsinsg2DerivationContext,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        consonant_change_prob: int,
+        post_vowel_simple: str,
+    ) -> None:
+        """
+        Emit one weak ``PsInSg2`` sound-change row from a pre-bound context.
+
+        Side Effects:
+            Writes generated and sound-changed rows to the output stream.
+
+        Args:
+            context: Shared weak ``PsInSg2`` derivation context.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+            consonant_change_prob: Probability delta used by sound changes.
+            post_vowel_simple: Simplified post-vowel segment.
+
+        """
+        self._emit_weak_psinsg2_sound_with_post_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.boundary,
+            ending,
+            function,
+            prob,
+            consonant_change_prob,
+            post_vowel_simple,
         )
 
     def _generate_strong_verb_parts(  # noqa: PLR0913
@@ -1860,6 +1961,14 @@ class VerbFormGenerator:
             vowel_pa: The preterite singular vowel from variant 0.
 
         """
+        context = _WeakPainsg1DerivationContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            boundary=boundary,
+            dental=dental,
+        )
         emit_weak_derived_from_painsg1_context(
             prefix=prefix,
             pre_vowel=pre_vowel,
@@ -1871,19 +1980,16 @@ class VerbFormGenerator:
             vowel_pa=vowel_pa,
             probability=prob,
             emit_form_for_vowel=partial(
-                self._emit_weak_painsg1_form_for_vowel_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                boundary,
-                dental,
+                self._emit_weak_painsg1_form_for_vowel_derivation_context,
+                context,
             ),
-            emit_manual=partial(self._generate_and_print_manual, formhash),
+            emit_manual=partial(
+                self._emit_weak_painsg1_manual_context,
+                context,
+            ),
             on_participle=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=True,
+                self._emit_weak_painsg1_participle_context,
+                context,
             ),
         )
 
@@ -1910,24 +2016,23 @@ class VerbFormGenerator:
             prob: The probability annotation.
 
         """
+        context = _WeakPsinsg2DerivationContext(
+            formhash=formhash,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=vowel,
+            boundary=boundary,
+        )
         emit_weak_derived_from_psinsg2_context(
             probability=prob,
             post_vowel=post_vowel,
             emit_form_with_post=partial(
-                self._emit_weak_psinsg2_form_with_post_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                boundary,
+                self._emit_weak_psinsg2_form_with_post_derivation_context,
+                context,
             ),
             emit_sound_with_post=partial(
-                self._emit_weak_psinsg2_sound_with_post_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                boundary,
+                self._emit_weak_psinsg2_sound_with_post_derivation_context,
+                context,
             ),
         )
 
