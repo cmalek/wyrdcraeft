@@ -340,6 +340,53 @@ def dispatch_strong_derived_from_principal_part(  # noqa: PLR0913
     )
 
 
+def emit_strong_principal_part_sequence(  # noqa: PLR0913
+    *,
+    para_id: str,
+    ending: str,
+    vowels: Sequence[str],
+    emit_form_for_vowel: StrongVowelFormEmitter,
+    on_papt_form_parts: StrongParticipleSink,
+    on_inf: StrongDerivedEmitter,
+) -> None:
+    """
+    Emit one strong principal-part sequence and dispatch derived branches.
+
+    Note:
+        Wright's strong-verb chapter groups verbs by vowel alternation classes,
+        and Tichý's generation description likewise replaces the root vowel by
+        paradigm-specific ablaut/umlaut options. This helper keeps that
+        vowel-first branching order unchanged for parity.
+
+    Side Effects:
+        Emits forms and invokes derived-branch callbacks for each active vowel.
+
+    Args:
+        para_id: Principal function identifier from the paradigm row.
+        ending: Morphological ending from the active principal part.
+        vowels: Ordered vowel variants to emit for the principal part.
+        emit_form_for_vowel: Callback emitting one form for one active vowel.
+        on_papt_form_parts: Callback receiving ``PaPt`` participle form-parts.
+        on_inf: Callback emitting infinitive-derived branches.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    """
+    for vcount, active_vowel in enumerate(vowels):
+        prob: str | int | None = 1 if vcount == 1 else None
+        _, form_parts = emit_form_for_vowel(active_vowel, ending, para_id, prob)
+        dispatch_strong_derived_from_principal_part(
+            para_id=para_id,
+            form_parts=form_parts,
+            active_vowel=active_vowel,
+            probability=prob,
+            on_papt_form_parts=on_papt_form_parts,
+            on_inf=on_inf,
+            emit_form_for_vowel=emit_form_for_vowel,
+        )
+
+
 def emit_strong_painsg1_derived(
     *,
     probability: str | int | None,
