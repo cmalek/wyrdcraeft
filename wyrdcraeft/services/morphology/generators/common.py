@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 from functools import partial
 from typing import Final
 
@@ -189,6 +190,70 @@ def print_one_form(
         )
         output_file.write(line)
         session.output_counter += 1
+
+
+@dataclass(frozen=True)
+class _StrongInfDerivationContext:
+    """
+    Immutable context for strong infinitive-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        base_vowel: Base infinitive vowel used for ``ImSg`` derivation.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Base infinitive vowel used for ``ImSg`` derivation.
+    base_vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+
+
+@dataclass(frozen=True)
+class _WeakInfDerivationContext:
+    """
+    Immutable context for weak infinitive-derived emitter callbacks.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        vowel: Base infinitive vowel for weak-derivation emission.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Base infinitive vowel for weak-derivation emission.
+    vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
 
 
 class VerbFormGenerator:
@@ -1233,42 +1298,152 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
+        context = _StrongInfDerivationContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            base_vowel=vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+        )
         emit_strong_derived_from_inf_sequence(
             ending=ending,
             vowel=vowel,
             probability=prob,
             umlaut_vowels=OENormalizer.iumlaut([vowel]),
             emit_form_for_vowel=partial(
-                self._emit_strong_vowel_form_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                post_vowel,
-                boundary,
+                self._emit_strong_derived_inf_form_for_vowel_context,
+                context,
             ),
             emit_sound_for_vowel=partial(
-                self._emit_strong_vowel_sound_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                post_vowel,
-                boundary,
+                self._emit_strong_derived_inf_sound_for_vowel_context,
+                context,
             ),
             on_participle=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=False,
+                self._emit_strong_derived_inf_participle_context,
+                context,
             ),
             emit_imsg=partial(
-                self._emit_imsg_for_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
+                self._emit_strong_derived_inf_imsg_context,
+                context,
             ),
+        )
+
+    def _emit_strong_derived_inf_form_for_vowel_context(
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong infinitive-derived row for a selected active vowel.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            active_vowel: Active vowel used for the emitted row.
+            ending: Ending segment for the emitted row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_strong_vowel_form_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_strong_derived_inf_sound_for_vowel_context(
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit sound-change rows for one strong infinitive-derived vowel branch.
+
+        Side Effects:
+            Writes one or more rows to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            active_vowel: Active vowel used for source-row assembly.
+            ending: Ending segment for the source row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_strong_vowel_sound_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_strong_derived_inf_participle_context(
+        self, context: _StrongInfDerivationContext, form_parts: str
+    ) -> None:
+        """
+        Attach a present participle emitted from infinitive-derived strong rows.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=False,
+        )
+
+    def _emit_strong_derived_inf_imsg_context(
+        self, context: _StrongInfDerivationContext, prob: str | int | None
+    ) -> None:
+        """
+        Emit the strong imperative-singular derivative for infinitive branches.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_imsg_for_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.base_vowel,
+            context.post_vowel,
+            context.boundary,
+            prob,
         )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913
@@ -1567,6 +1742,15 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
+        context = _WeakInfDerivationContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+        )
         emit_weak_derived_from_inf_sequence(
             class2=formhash.get("class2"),
             prefix=prefix,
@@ -1577,20 +1761,72 @@ class VerbFormGenerator:
             original_ending=original_ending,
             probability=prob,
             emit_form=partial(
-                self._emit_weak_inf_form_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                vowel,
-                post_vowel,
-                boundary,
+                self._emit_weak_derived_inf_form_context,
+                context,
             ),
             on_participle=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=False,
+                self._emit_weak_derived_inf_participle_context,
+                context,
             ),
+        )
+
+    def _emit_weak_derived_inf_form_context(
+        self,
+        context: _WeakInfDerivationContext,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one weak infinitive-derived row for a selected dental/ending pair.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared weak-derivation emission context.
+            dental: Optional weak-dental segment for the emitted row.
+            ending: Ending segment for the emitted row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_weak_inf_form_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.post_vowel,
+            context.boundary,
+            dental,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_weak_derived_inf_participle_context(
+        self, context: _WeakInfDerivationContext, form_parts: str
+    ) -> None:
+        """
+        Attach a present participle emitted from infinitive-derived weak rows.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared weak-derivation emission context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=False,
         )
 
     def _generate_weak_derived_from_painsg1(  # noqa: PLR0913
