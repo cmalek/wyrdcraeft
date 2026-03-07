@@ -222,6 +222,56 @@ class GeneratedForm(BaseModel):
     comment: str
 
 
+class FormRow(BaseModel):
+    """Canonical emitted morphology row used by sinks and query services."""
+
+    #: The output counter value.
+    counter: str
+    #: Normalized form identifier for lookup/sorting.
+    formi: str
+    #: Lemma/base token identifier.
+    BT: str
+    #: Surface title token.
+    title: str
+    #: Stem token.
+    stem: str
+    #: Emitted form text.
+    form: str
+    #: Emitted form-parts payload.
+    formParts: str  # noqa: N815
+    #: Variant identifier.
+    var: str
+    #: Emitted probability field.
+    probability: str
+    #: Morphology function code.
+    function: str
+    #: Wright grammar annotation.
+    wright: str
+    #: Paradigm label.
+    paradigm: str
+    #: Paradigm ID.
+    paraID: str  # noqa: N815
+    #: Word class label.
+    wordclass: str
+    #: Class-1 metadata field.
+    class1: str
+    #: Class-2 metadata field.
+    class2: str
+    #: Class-3 metadata field.
+    class3: str
+    #: Free-form comment field.
+    comment: str
+
+
+class QueryFormRow(FormRow):
+    """Indexed morphology row enriched with normalized query keys."""
+
+    #: Normalized joined lemma lookup key payload.
+    lemma_key: str
+    #: Normalized emitted form lookup key.
+    form_key: str
+
+
 @dataclass(frozen=True)
 class _ParadigmVariantDispatchContext:
     """
@@ -257,6 +307,47 @@ class _VariantPartDispatchContext:
     paradigm: VerbParadigm
     #: Active variant whose parts are being dispatched.
     variant: ParadigmVariant
+
+
+@dataclass(frozen=True)
+class _SoundChangeDispatchContext:
+    """
+    Immutable context for sound-change callback dispatch.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        vowel: Active stem vowel for source-row emission.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        dental: Optional weak preterite dental segment.
+        ending: Morphological ending for source-row emission.
+        function: Morphology function code for source-row emission.
+        probability: Optional source-row probability annotation.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Active stem vowel for source-row emission.
+    vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+    #: Optional weak preterite dental segment.
+    dental: str | None
+    #: Morphological ending for source-row emission.
+    ending: str
+    #: Morphology function code for source-row emission.
+    function: str
+    #: Optional source-row probability annotation.
+    probability: str | int | None
 
 
 @dataclass(frozen=True)

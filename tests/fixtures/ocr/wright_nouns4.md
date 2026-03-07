@@ -1,22 +1,55 @@
 a. Pure ō-stems.
 
 § 365. Sing.
-    Nom. giefu, -o, gift      ār, honour
-    Acc. giefe                āre
-    Gen. giefe                āre
-    Dat. giefe                āre
+
+<table>
+	<tr>
+		<td>Nom.</td>
+		<td>giefu, -o, gift</td>
+		<td>ār, honour</td>
+	</tr>
+	<tr>
+		<td>Acc.</td>
+		<td>giefe</td>
+		<td>āre</td>
+	</tr>
+	<tr>
+		<td>Gen.</td>
+		<td>giefe</td>
+		<td>āre</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>giefe</td>
+		<td>āre</td>
+	</tr>
+</table>
 
 Plur.
-    Nom. Acc. giefe, -a       āre, -a
-    Gen. giefa, (-ena)        āra, (-na, -ena)
-    Dat. giefum               ārum
 
-The prim. Germanic forms were: Sing. nom. *gebō, acc. *gebōn (cp. Gr. χώραν), gen. *gebōz (Goth. gibōs), dat. *gebai; Plur. nom. acc. *gebōz (Goth. gibōs), gen. *gebōn (Goth. gibō), dat. *gebōmiz (Goth. gibōm). The acc. gen. and dat. sing. and the nom. acc. pl. regularly fell together in ·æ in prehistoric OE. (§ 217). The ·æ remained in the oldest period of the language and then later regularly became ·e. In the nom. sing. the -ō became ·u and then regularly disappeared after long stem-syllables (§ 215). In late OE. the gen. sing. often ended in ·es after the analogy of the masc. a-stems; and sometimes the nom. of the short stems was used for all cases of the singular. The regular ending of the gen. pl. is ·a, but in late OE. the gen. pl. often ended in ·(e)na after the analogy of the n-stems (§ 403). On the ending ·um of the dat. plural, see § 218, 5. It is difficult to account for the ·a in the nom. acc. pl. in WS. and Ken., and for the ·a in the oblique cases of the fem. nouns ending in ·ung in these dialects. Seeing that the gen. sing. and nom. pl. originally had the same ending ·ōz and that both cases ended in ·æ in the oldest OE., the ·a in the nom. pl. cannot be a regular development from older ·æ. It is sometimes assumed that ·a is the regular
-development of prim. Germanic -ōz in OE., and that what is called the gen. sing. is morphologically the dat., but against this assumption it should be pointed out that in the oldest period of the language the gen. and dat. sing. and nom. plural had all the same ending. Short stems with a often have æ beside a in the acc. gen. and dat. sing. and nom. acc. pl., as lāþe, ræce, beside lāþe, race.
+<table>
+	<tr>
+		<td>Nom. Acc.</td>
+		<td>giefe, -a</td>
+		<td>āre, -a</td>
+	</tr>
+	<tr>
+		<td>Gen.</td>
+		<td>giefa, (-ena)</td>
+		<td>āra, (-na, -ena)</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>giefum</td>
+		<td>ārum</td>
+	</tr>
+</table>
+
+The prim. Germanic forms were: Sing. nom. *ʒeƀō, acc. *gebōn (cp. Gr. χώραν), gen. *ʒeƀȭz (Goth. gibōs), dat. *ʒeƀai; Plur. nom. acc. *ʒeƀȭz (Goth. gibōs), gen. *ʒeƀȭn (Goth. gibō), dat. *ʒeƀōmiz (Goth. gibōm). The acc. gen. and dat. sing. and the nom. acc. pl. regularly fell together in ·æ in prehistoric OE. (§ 217). The ·æ remained in the oldest period of the language and then later regularly became ·e. In the nom. sing. the -ō became ·u and then regularly disappeared after long stem-syllables (§ 215). In late OE. the gen. sing. often ended in ·es after the analogy of the masc. a-stems; and sometimes the nom. of the short stems was used for all cases of the singular. The regular ending of the gen. pl. is ·a, but in late OE. the gen. pl. often ended in ·(e)na after the analogy of the n-stems (§ 403). On the ending ·um of the dat. plural, see § 218, 5. It is difficult to account for the ·a in the nom. acc. pl. in WS. and Ken., and for the ·a in the oblique cases of the fem. nouns ending in ·ung in these dialects. Seeing that the gen. sing. and nom. pl. originally had the same ending ·ȭz and that both cases ended in ·æ in the oldest OE., the ·a in the nom. pl. cannot be a regular development from older ·æ. It is sometimes assumed that ·a is the regular development of prim. Germanic -ȭz in OE., and that what is called the gen. sing. is morphologically the dat., but against this assumption it should be pointed out that in the oldest period of the language the gen. and dat. sing. and nom. plural had all the same ending. Short stems with a often have æ beside a in the acc. gen. and dat. sing. and nom. acc. pl., as lǣþe, ræce, beside lāþe, race.
 
 § 366. Like giefu are declined caru, care; coþu, disease; cwalu, violent death; daru, injury; denu, valley; faru, journey; hogu, solicitude; laþu, invitation; lufu (also weak), love; nafu, nave (of wheel); notu, use; racu, account, narrative; rudu, redness; sacu, strife; sagu, saw; sc(e)amu, shame; scinu, shin; scolu, troop; snoru, daughter-in-law; stalu, theft; swaþu, track; talu, tale, number; þracu, violence, combat; waru, people; wracu, revenge; &c.
 
-§ 367. Like ār are declined a large number of nouns, as æsp, aspen-tree; bād, pledge; bær, bier; beorc, birch-tree; bōt, advantage; brōd, brood; eax, axis; eaxl, shoulder; fēol, file; gād, goad; glōf, glove; heall, hall; heord, herd, flock; hwil, space of time; lād, way, journey; lāf, remnant; lār, learning; lēod, nation; lind, linden, shield; mearc, boundary; mēd, meord, reward; mund, hand; rād, ride, riding; reord, voice, language; rōd, cross; rūn, secret; scand, disgrace; scofl, shovel; sealf, ointment; sorg, sorrow; stund, period of time, hour; tang, tongs; þearf, need; þēod, nation; þrāg, time, period; wamb, stomach; weard, protection; wund, wound; &c. brū, eyebrow, has nom. acc. pl. brūa beside brūwa, gen. brūna, dat. brūum beside brūwum.
+§ 367. Like ār are declined a large number of nouns, as æsp, aspen-tree; bād, pledge; bǣr, bier; beorc, birch-tree; bōt, advantage; brōd, brood; eax, axis; eaxl, shoulder; fēol, file; gād, goad; glōf, glove; heall, hall; heord, herd, flock; hwil, space of time; lād, way, journey; lāf, remnant; lār, learning; lēod, nation; lind, linden, shield; mearc, boundary; mēd, meord, reward; mund, hand; rād, ride, riding; reord, voice, language; rōd, cross; rūn, secret; scand, disgrace; scofl, shovel; sealf, ointment; sorg, sorrow; stund, period of time, hour; tang, tongs; þearf, need; þēod, nation; þrāg, time, period; wamb, stomach; weard, protection; wund, wound; &c. brū, eyebrow, has nom. acc. pl. brūa beside brūwa, gen. brūna, dat. brūum beside brūwum.
 
 § 368. Sing.
 
@@ -42,10 +75,25 @@ development of prim. Germanic -ōz in OE., and that what is called the gen. sing
     <th>sāwle</th>
   </tr>
 </table>
+
 PLUR.
-Nom. Acc. firene, -a      sāwle, -a
-Gen.      firena           sāwla
-Dat.      firenum          sāwlum
+<table>
+	<tr>
+		<td>Nom. Acc.</td>
+		<td>firene, -a</td>
+		<td>sāwle, -a</td>
+	</tr>
+	<tr>
+		<td>Gen.<\td>
+		<td>firena<\td>
+		<td>sāwla</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>firenum</td>
+		<td>sāwlum</td>
+	</tr>
+</table>
 
 In originally trisyllabic words the final -u regularly disappeared in the nom. sing. when the stem and the medial syllable were short, but remained when the stem-syllable was long and the medial syllable short (§ 216). Then after the analogy of words like firen, the final -u was also dropped in words like sāwol. The medial vowel regularly disappeared in the inflected forms after long stems, but remained after short (§ 221). The nouns of this class do not have the ending -(e)na in the gen. plural.
 
@@ -53,61 +101,110 @@ In originally trisyllabic words the final -u regularly disappeared in the nom. s
 
 § 370. Like sāwol are declined ādl, disease; ceaster, city, fortress; frōfor (also masc.), consolation; nǣdl, needle; wōcor, increase, usury.
 
-§ 371. Nom. strengþu, -o, strength leornung, learning
-Acc. Gen. Dat. strengþe leornunge, -a
+§ 371. 
+<table>
+	<tr>
+		<td>Nom.</td>
+		<td>strengþu, -o, strength</td>
+		<td>leornung, learning</td>
+	</tr?
+	<tr>
+		<td>Acc. Gen. Dat.</td>
+		<td>strengþe</td>
+		<td>leornunge, -a</td>
+	</tr>
+</table>
 
 The fem. abstract nouns ending in prim. Germanic ·iþō regularly syncopated the medial i (§ 221) and in the oldest period of the language retained the final ·u in the nom. (§ 216). Then at a later period the ·u (-o) was often dropped after the analogy of words like ār (§ 367). At a still later period the nom. with and without the final ·o came to be used for all cases. The abstract nouns in ·ung regularly syncopated the final ·u in the nom. (§ 216).
 
-§ 372. Like strengþu, -o, strengþ are declined cŷþþu, cŷþ(p), native country; fæhp(u), feud; gesǣlp(u), prosperity;
-hliewp(u), shelter; māgp(u), family, kindred; þiefj (u), theft; wrāpp(u), anger, wrath; for further examples, see § 613.
+§ 372. Like strengþu, -o, strengþ are declined cȳþþu, cȳþ(þ), native country; fæhþ(u), feud; gesǣlþ(u), prosperity; hliewþ(u), shelter; māgþ(u), family, kindred; þiefþ(u), theft; wrāþþ(u), anger, wrath; for further examples, see § 613.
 
-§ 373. Like leornung are declined æfnung, evening; æring, dawn; geþafung, consent; lēasung, falsehood; rihtung, direction; swinsung, melody; wēnung, hope, expectation; for further examples, see § 615.
+§ 373. Like leornung are declined ǣfnung, evening; ǣring, dawn; geþafung, consent; lēasung, falsehood; rihtung, direction; swinsung, melody; wēnung, hope, expectation; for further examples, see § 615.
 
 b. jō-STEMS.
 
 § 374. SING.
 <table>
-  <tr><th></th><th>Nom.</th><th>Acc.</th><th>Gen.</th><th>Dat.</th></tr>
-  <tr><td></td><td>hen(n), hen</td><td>henne</td><td>henne</td><td>henne</td></tr>
-  <tr><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td></td><td></td><td></td><td></td><td></td></tr>
-  <tr><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr>
+   	<td>Nom.</td>
+		<td>hen(n), hen</td>
+		<td>gierd, rod</td>
+	</tr>
+		<td>Acc.</td>
+		<td>henne</td>
+		<td>gierde</td>
+	</tr>
+	<tr>
+		<td>Gen.</td>
+		<td>henne</td>
+		<td>gierde</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>henne</td>
+		<td>gierde</td>
+	</tr>
 </table>
-
-gierd, rod
-gierde
-gierde
-gierde
 
 PLUR.
 <table>
-  <tr><th></th><th>Nom. Acc.</th><th>Gen.</th><th>Dat.</th></tr>
-  <tr><td></td><td>henne, -a</td><td>henna</td><td>hennum</td></tr>
-  <tr><td></td><td></td><td></td><td></td></tr>
-  <tr><td></td><td></td><td></td><td></td></tr>
-  <tr><td></td><td></td><td></td><td></td></tr>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>henne, -a</td>
+		<td>gierde, -a</td>
+	<tr>
+		<td>Gen.</td>
+		<td>henna</td>
+		<td>gierda</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>hennum</td>
+		<td>gierdum</td>
+	</tr>
 </table>
-
-gierde, -a
-gierda
-gierdum
 
 It is necessary to distinguish between those stems which were originally long and those which became long by the West Germanic doubling of consonants (§ 254). The j regularly disappeared after causing umlaut of the preceding vowel, and then the ·u in the nom. sing. being preceded by a long stem also disappeared (§ 215), so that the endings of the jō-stems are the same as the long ō-stems except that the gen. pl. never has the ending -(e)na (§ 365). On the final double consonants in the nom. singular, see § 259.
 
 § 375. Like hen(n) are declined benn, wound; brycg, bridge; bytt, flagon; cribb, crib; crycc, crutch; ecg, edge; hell, hell; nytt, use, profit; sciell, shell; secg, sword; sibb, relationship; slecg, sledge-hammer; synn, sin; syll, sill, threshold; wynn, joy. On hæcc, gate, hatch; sæcc, strife, see § 55, Note 3.
 
-§ 376. Like gierd are declined æx, axe; bend (also masc. and neut.), band; bliþs, bliss, bliss; hild, war, battle; hind, doe; liþs, liss, favour, kindness; milts, mercy, kind-
-ness; nift, niece; rest, rest; spræc, speech, language; wræc, vengeance; wylf, she-wolf; ūp, wave. On the g in cēg, key; īeg, island, see §§ 270, 272.
+§ 376. Like gierd are declined æx, axe; bend (also masc. and neut.), band; bliþs, bliss, bliss; hild, war, battle; hind, doe; līþs, liss, favour, kindness; milts, mercy, kindness; nift, niece; rest, rest; sprǣc, speech, language; wrǣc, vengeance; wylf, she-wolf; ȳßp, wave. On the g in cǣg, key; īeg, island, see §§ 270, 272.
 
 § 377. SING.                PLUR.
-Nom. byrþen(n), burden      byrþenne, -a
-Acc. byrþenne                byrþenne, -a
-Gen. byrþenne                byrþenna
-Dat. byrþenne                byrþennum
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom.</td>
+			<td>byrþen(n), burden</td>
+			<td>byrþenne, -a</td>
+		</tr>
+			<td>Acc.</td>
+			<td>byrþenne</td>
+			<td>byrþenne, -a</td>
+		</tr>
+		<tr>
+			<td>Gen.</td>
+			<td>byrþenne</td>
+			<td>byrþenna</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>byrþenne</td>
+			<td>byrþennum</td>
+		</tr>
+	</tbody>
+</table>
 
 In originally trisyllabic words the final ·u in the nom. singular also regularly disappeared after the medial syllable which became long by the West Germanic doubling of consonants (§§ 216, 254). The nouns ending in ·en(n) sometimes took ·u again in the nom. sing. after the analogy of the short ō-stems. In late OE, the double consonants were often simplified in the inflected forms.
 
-§ 378. Like byrþen(n) are declined candel (Lat. candēla), candle; cnēoris(s), generation; hægtes(s), witch; biren, she-bear; fyxen, she-fox; gyden, goddess; þyften, female servant; wiergen, she-wolf; byrgen, tomb; for further examples, see § 599. cōlnes(s), coolness; swiftnes(s), swiftness; þrīnes(s), trinity; for further examples, see § 609. rāeden(n), arrangement, rule; hūsrāeden(n), household; for further examples, see § 610.
+§ 378. Like byrþen(n) are declined candel (Lat. candēla), candle; cnēoris(s), generation; hægtes(s), witch; biren, she-bear; fyxen, she-fox; gyden, goddess; þyften, female servant; wiergen, she-wolf; byrgen, tomb; for further examples, see § 599. cōlnes(s), coolness; swiftnes(s), swiftness; þrīnes(s), trinity; for further examples, see § 609. rǣden(n), arrangement, rule; hūsrǣden(n), household; for further examples, see § 610.
 
 NOTE.—A few words simplified the double consonants at an early period and then added ·u in the nom. singular after the analogy of the short ō-stems, as hyrnetu beside hyrnet, hornet; ielfetu, swan.
 

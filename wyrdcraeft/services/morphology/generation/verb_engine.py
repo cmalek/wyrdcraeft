@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..generators.common import VerbFormGenerator
+from .common import VerbFormGenerator
 
 if TYPE_CHECKING:
     from ..contracts import FormOutput

@@ -1,3 +1,4 @@
+# ruff: noqa: I001
 from __future__ import annotations
 
 import io
@@ -32,7 +33,7 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     emit_weak_principal_form,
     is_weak_item_shape_window,
 )
-from wyrdcraeft.services.morphology.generators.common import VerbFormGenerator
+from wyrdcraeft.services.morphology.generation.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .snapshot_io import parse_form_output

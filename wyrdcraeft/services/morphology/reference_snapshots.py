@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, cast
 
-from wyrdcraeft.services.morphology.generators.common import (
+from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
     generate_nounforms,

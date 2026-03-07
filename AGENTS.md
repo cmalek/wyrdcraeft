@@ -47,10 +47,15 @@ For all non-test Python code in this repository:
    - `Raises:` (only when meaningful exceptions are raised; omit otherwise)
    - `Returns:` or `Yields:` (only when applicable; omit otherwise)
    - Do not add placeholder content such as `None.` for empty/inapplicable sections.
+   - Never add `Args:`/`Keyword Args:`/`Returns:`/`Yields:` sections when they would be empty or semantically `None`.
 3. Document all of the following with Napoleon `#:` comments:
    - class attributes
    - instance attributes assigned in `__init__`
    - module-level global variables
+4. Linguistic `Note:` blocks are required for morphology logic and must:
+   - cite both `data/OldEnglishGrammar.pdf` and `data/Ondej_Tich_40-54-1.pdf`
+   - explain the function/method behavior in clear layman terms
+   - state the Part of Speech scope explicitly (verb, noun, adjective, adverb, numeral, or cross-PoS)
 
 Enforcement command:
 - `make napoleon-gate` (no new violations vs baseline)
