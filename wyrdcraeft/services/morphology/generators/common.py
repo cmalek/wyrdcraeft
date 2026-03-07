@@ -5,7 +5,9 @@ from typing import Final
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
     ParadigmVariant,
+    _StrongPrincipalPartContext,
     _StrongInfDerivationContext,
+    _WeakPrincipalPartContext,
     _WeakInfDerivationContext,
     _WeakPainsg1DerivationContext,
     _WeakPsinsg2DerivationContext,
@@ -1299,6 +1301,94 @@ class VerbFormGenerator:
             post_vowel_simple,
         )
 
+    def _emit_strong_principal_form_for_vowel_context(
+        self,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong principal-part row for a selected active vowel.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active stem vowel for this emitted row.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_strong_vowel_form_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_strong_principal_participle_context(
+        self, context: _StrongPrincipalPartContext, form_parts: str
+    ) -> None:
+        """
+        Attach a past participle emitted from a strong principal-part row.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared strong principal-part context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=True,
+        )
+
+    def _emit_strong_principal_inf_derivation_context(
+        self,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit strong infinitive-derived rows from a principal-part context.
+
+        Side Effects:
+            Writes generated rows and participle side effects to output/session.
+
+        Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active stem vowel for this derivation branch.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_strong_inf_derivation_context(
+            context.formhash,
+            context.word,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            context.ending,
+            active_vowel,
+            prob,
+        )
+
     def _generate_strong_verb_parts(  # noqa: PLR0913
         self,
         formhash: dict[str, str],
@@ -1330,33 +1420,30 @@ class VerbFormGenerator:
         para_id = item.para_id
         ending = item.ending
         boundary = item.boundary
+        context = _StrongPrincipalPartContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+            ending=ending,
+        )
         emit_strong_principal_part_sequence(
             para_id=para_id,
             ending=ending,
             vowels=[item.vowel],
             emit_form_for_vowel=partial(
-                self._emit_strong_vowel_form_context,
-                formhash,
-                prefix,
-                pre_vowel,
-                post_vowel,
-                boundary,
+                self._emit_strong_principal_form_for_vowel_context,
+                context,
             ),
             on_papt_form_parts=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=True,
+                self._emit_strong_principal_participle_context,
+                context,
             ),
             on_inf=partial(
-                self._emit_strong_inf_derivation_context,
-                formhash,
-                word,
-                prefix,
-                pre_vowel,
-                post_vowel,
-                boundary,
-                ending,
+                self._emit_strong_principal_inf_derivation_context,
+                context,
             ),
         )
 
@@ -1709,6 +1796,123 @@ class VerbFormGenerator:
         fh["probability"] = format_probability(prob)
         print_one_form(self.session, fh, self.output_file)
 
+    def _emit_weak_principal_pspt_participle_context(
+        self, context: _WeakPrincipalPartContext, form_parts: str
+    ) -> None:
+        """
+        Attach a present participle emitted from a weak principal-part row.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared weak principal-part context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=False,
+        )
+
+    def _emit_weak_principal_papt_participle_context(
+        self, context: _WeakPrincipalPartContext, form_parts: str
+    ) -> None:
+        """
+        Attach a past participle emitted from a weak principal-part row.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared weak principal-part context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=True,
+        )
+
+    def _emit_weak_principal_inf_derivation_context(
+        self, context: _WeakPrincipalPartContext
+    ) -> None:
+        """
+        Emit weak infinitive-derived rows from a principal-part context.
+
+        Side Effects:
+            Writes generated rows and participle side effects to output/session.
+
+        Args:
+            context: Shared weak principal-part context.
+
+        """
+        self._generate_weak_derived_from_inf(
+            context.formhash,
+            context.word,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.post_vowel,
+            context.boundary,
+            context.ending,
+            context.probability,
+        )
+
+    def _emit_weak_principal_psinsg2_derivation_context(
+        self, context: _WeakPrincipalPartContext
+    ) -> None:
+        """
+        Emit weak ``PsInSg2``-derived rows from a principal-part context.
+
+        Side Effects:
+            Writes generated rows to the morphology output stream.
+
+        Args:
+            context: Shared weak principal-part context.
+
+        """
+        self._generate_weak_derived_from_psinsg2(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.post_vowel,
+            context.boundary,
+            context.probability,
+        )
+
+    def _emit_weak_principal_painsg1_derivation_context(
+        self, context: _WeakPrincipalPartContext
+    ) -> None:
+        """
+        Emit weak ``PaInSg1``-derived rows from a principal-part context.
+
+        Side Effects:
+            Writes generated rows and participle side effects to output/session.
+
+        Args:
+            context: Shared weak principal-part context.
+
+        """
+        self._generate_weak_derived_from_painsg1(
+            context.formhash,
+            context.word,
+            context.prefix,
+            context.pre_vowel,
+            context.vowel,
+            context.post_vowel,
+            context.boundary,
+            context.dental,
+            context.probability,
+            context.vowel_inf,
+            context.vowel_pa,
+        )
+
     def _generate_weak_verb_parts(  # noqa: PLR0913
         self,
         formhash: dict[str, str],
@@ -1745,6 +1949,20 @@ class VerbFormGenerator:
         dental = item.dental
         boundary = item.boundary
         prob: str | int | None = 0
+        context = _WeakPrincipalPartContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            vowel=root_vowel_actual,
+            post_vowel=post_vowel,
+            boundary=boundary,
+            ending=ending,
+            dental=dental,
+            probability=prob,
+            vowel_inf=vowel_inf,
+            vowel_pa=vowel_pa,
+        )
         emit_weak_principal_part_sequence(
             para_id=para_id,
             para_id_num=para_id_num,
@@ -1756,52 +1974,24 @@ class VerbFormGenerator:
             ending=ending,
             emit_form=partial(self._emit_weak_principal_form_context, formhash),
             on_pspt_participle=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=False,
+                self._emit_weak_principal_pspt_participle_context,
+                context,
             ),
             on_papt_participle=partial(
-                self._add_participle_to_adjectives,
-                word,
-                prefix,
-                is_past=True,
+                self._emit_weak_principal_papt_participle_context,
+                context,
             ),
             on_inf=partial(
-                self._generate_weak_derived_from_inf,
-                formhash,
-                word,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                ending,
-                prob,
+                self._emit_weak_principal_inf_derivation_context,
+                context,
             ),
             on_psinsg2=partial(
-                self._generate_weak_derived_from_psinsg2,
-                formhash,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                prob,
+                self._emit_weak_principal_psinsg2_derivation_context,
+                context,
             ),
             on_painsg1=partial(
-                self._generate_weak_derived_from_painsg1,
-                formhash,
-                word,
-                prefix,
-                pre_vowel,
-                root_vowel_actual,
-                post_vowel,
-                boundary,
-                dental,
-                prob,
-                vowel_inf,
-                vowel_pa,
+                self._emit_weak_principal_painsg1_derivation_context,
+                context,
             ),
         )
 

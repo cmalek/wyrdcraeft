@@ -223,6 +223,38 @@ class GeneratedForm(BaseModel):
 
 
 @dataclass(frozen=True)
+class _StrongPrincipalPartContext:
+    """
+    Immutable context for strong principal-part callback bindings.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        ending: Morphological ending from the active principal part.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+    #: Morphological ending from the active principal part.
+    ending: str
+
+
+@dataclass(frozen=True)
 class _StrongInfDerivationContext:
     """
     Immutable context for strong infinitive-derived emitter callbacks.
@@ -252,6 +284,53 @@ class _StrongInfDerivationContext:
     post_vowel: str
     #: Stem-boundary marker used in form-parts payloads.
     boundary: str
+
+
+@dataclass(frozen=True)
+class _WeakPrincipalPartContext:
+    """
+    Immutable context for weak principal-part callback bindings.
+
+    Args:
+        formhash: Shared form metadata for emitted rows.
+        word: Source lexical entry receiving derived participles.
+        prefix: Prefix segment prepended to generated forms.
+        pre_vowel: Segment before the active stem vowel.
+        vowel: Active stem vowel used for weak branch derivations.
+        post_vowel: Segment after the active stem vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        ending: Morphological ending from the active principal part.
+        dental: Weak preterite dental segment from the principal part.
+        probability: Base probability annotation for derived branches.
+        vowel_inf: Infinitive vowel from variant 0.
+        vowel_pa: Preterite singular vowel from variant 0.
+
+    """
+
+    #: Shared form metadata for emitted rows.
+    formhash: dict[str, str]
+    #: Source lexical entry receiving derived participles.
+    word: Word
+    #: Prefix segment prepended to generated forms.
+    prefix: str
+    #: Segment before the active stem vowel.
+    pre_vowel: str
+    #: Active stem vowel used for weak branch derivations.
+    vowel: str
+    #: Segment after the active stem vowel.
+    post_vowel: str
+    #: Stem-boundary marker used in form-parts payloads.
+    boundary: str
+    #: Morphological ending from the active principal part.
+    ending: str
+    #: Weak preterite dental segment from the principal part.
+    dental: str
+    #: Base probability annotation for derived branches.
+    probability: str | int | None
+    #: Infinitive vowel from variant 0.
+    vowel_inf: str
+    #: Preterite singular vowel from variant 0.
+    vowel_pa: str
 
 
 @dataclass(frozen=True)
