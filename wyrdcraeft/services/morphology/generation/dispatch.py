@@ -5,9 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .adj_forms import generate_adjforms as _generate_adjforms
-from .common import (
-    generate_advforms as _generate_advforms,
-)
+from .adv_forms import generate_advforms as _generate_advforms
 from .common import (
     generate_vbforms as _generate_vbforms,
 )
@@ -75,7 +73,7 @@ def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> Non
 
 def generate_advforms(session: GeneratorSession, output_file: FormOutput) -> None:
     """
-    Generate adverb forms via the legacy module.
+    Generate adverb forms via the migrated generation module.
 
     Note:
         Adverb morphology follows ``data/OldEnglishGrammar.pdf`` and

@@ -355,42 +355,59 @@ b. Feminine.
 			<td>cwēne</td>
 		<tr>
 			<td>Gen.</td>
-			<td>"</td>
-			<td>strenga</td>
+			<td>cwēne</td>
+			<td>cwēna</td>
 		</tr>
 		<tr>
 			<td>Dat.</td>
-			<td>"</td>
-			<td>strengum</td>
+			<td>cwēne</td>
+			<td>cwēnum</td>
 		</tr>
 	</tbody>
 </table>
-Nom. Acc. cwēn, queen    cwēne
-Gen. cwēne            cwēna
-Dat. cwēne            cwēnum
 
 The masc. and fem. i-stems were originally declined alike in the sing. and plural. The nom. pl. and the whole of the sing. are regularly developed from the corresponding prim. Germanic forms, as sing. *kwǣniz, *kwǣnin, *kwǣnaiz, *kwǣnai, nom. pl. *kwǣniz. The gen. and dat. pl. were new formations as in the masc. i-stems. In early Nth, and then later also in WS. and Ken. the acc. sing. often had ·e after the analogy of the ō-stems; and in like manner the nom. acc. pl. often had ·a already in early OE.
 
-§ 390. Like cwēn are declined āht, property; ansien, face; bēn, prayer; benc, bench; brŷd, bride; cŷf, tub; cyst, choice; dǣd, deed; dryht, troop; ēst, favour; fierd, army; fŷst, fist; glēd, live coal; hāes, command; hŷd, hide, skin; hŷf, hive; hyrst, ornament; meaht, miht, might, power; nied, need; scyld, guilt; spēd, success; sŷl, pillar; tīd, time; prŷp, strength; wēd, garment; wēn, hope, expectation; wist, sustenance, food; wyrd, fate; wyrt, vegetable, herb; ŷst, storm. dugūp, strength, geogūp, youth, ides, woman, which originally belonged to this declension, went over into the ō-declension.
+§ 390. Like cwēn are declined ǣht, property; ansīen, face; bēn, prayer; benc, bench; brȳd, bride; cȳf, tub; cyst, choice; dǣd, deed; dryht, troop; ēst, favour; fierd, army; fȳst, fist; glēd, live coal; hǣs, command; hȳd, hide, skin; hȳf, hive; hyrst, ornament; meaht, miht, might, power; nīed, need; scyld, guilt; spēd, success; sȳl, pillar; tīd, time; þrȳþ, strength; wǣd, garment; wēn, hope, expectation; wist, sustenance, food; wyrd, fate; wyrt, vegetable, herb; ȳst, storm. duguþ, strength, geoguþ, youth, ides, woman, which originally belonged to this declension, went over into the ō-declension.
 
-Note.—ǣ, prim. Germanic *aiwiz, divine law, generally remains uninflected in the sing. and in the nom. acc. plural, but beside the gen. dat. sing. ā there also exists āwe from which a new nom. āw was formed.
+Note.—ǣ, prim. Germanic *aiwiz, divine law, generally remains uninflected in the sing. and in the nom. acc. plural, but beside the gen. dat. sing. ǣ there also exists ǣwe from which a new nom. ǣw was formed.
 
-§ 391. A certain number of nouns, which originally belonged to the fem. i-declension, partly or entirely became neuter and were then declined like cynn (§ 355) or hof (§ 342) in the singular, and like hof in the plural. Such nouns are: fulwiht, fulluht, baptism; grîn, snare, noose;
-oferhygd, pride; wiht, wuht, thing, creature; nouns with the prefix ge-, as gebyrd, birth; gecynd, nature, kind; gehygd, mind; gemynd, memory; gesceaf, creation; gepeaht, thought; gepyld, patience; gewyrht, merit, desert; pl. gedryhtu, elements; giftu, gifts. In late OE. other fem. i-stems also sometimes took the neut. plural ending -u (-o).
+§ 391. A certain number of nouns, which originally belonged to the fem. i-declension, partly or entirely became neuter and were then declined like cynn (§ 355) or hof (§ 342) in the singular, and like hof in the plural. Such nouns are: fulwiht, fulluht, baptism; grîn, snare, noose; oferhygd, pride; wiht, wuht, thing, creature; nouns with the prefix ge-, as gebyrd, birth; gecynd, nature, kind; gehygd, mind; gemynd, memory; gesceaf, creation; geþeaht, thought; geþyld, patience; gewyrht, merit, desert; pl. gedryhtu, elements; giftu, gifts. In late OE. other fem. i-stems also sometimes took the neut. plural ending -u (-o).
 
 c. Neuter.
 
-§ 392. SING.           PLUR.
-Nom. Acc.   spere, spear    speru, -o
-Gen.        speres           spera
-Dat.        spere            sperum
+§ 392.
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom. Acc.</td>
+			<td>spere, spear</td>
+			<td>speru, -o</td>
+		<tr>
+			<td>Gen.</td>
+			<td>speres</td>
+			<td>spera</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>spere</td>
+			<td>sperum</td>
+		</tr>
+	</tbody>
+</table>
 
 The neuter i-stems had originally the same endings as the masculine except in the nom. acc. sing. and plural. The nom. acc. sing. ended in -i which regularly disappeared after long stems, but remained after short stems, and then later became -e (§ 215, Note). The nom. acc. pl. ended in -i which would regularly have become -i (§ 214), later -e, after short stems, and disappeared after long stems. The nom. acc. pl. ending -u (-o) was due to the influence of the short neuter a-stems. The endings of the other cases are of the same origin as those of the masc. short i-stems. The regular form of the nom. acc. singular would be *spire (§ 41) if spere originally belonged to the neuter i-declension.
 
 § 393. Like spere are declined ofdæle, downward slope, descent; oferslege, lintel; orlege, fate; sife, sieve. All these nouns probably belonged originally to the -os-, -es-declension (§ 419).
 
-A certain number of neuter nouns which originally belonged partly to the neut. ja-stems, and partly to the -os-, -es-stems are declined like spere, except that the stem-syllable being long the final -e disappeared in the nom. acc. singular. Such nouns are: flæsc, flesh; flies, fleece; hæl, health; hilt (also masc.), hill; læn, loan; sweng, blow.
-gefēg, joining, joint; gegrynd, plot of ground; gehield, watching, protection; gehlŷd, noise; gehnǣst, -āst, collision; genyht, sufficiency; geresp, blame; gewēd, fury, madness; geswinc, labour, affliction.
+A certain number of neuter nouns which originally belonged partly to the neut. ja-stems, and partly to the -os-, -es-stems are declined like spere, except that the stem-syllable being long the final -e disappeared in the nom. acc. singular. Such nouns are: flǣsc, flesh; flīes, fleece; hǣl, health; hilt (also masc.), hill; lǣn, loan; sweng, blow. gefēg, joining, joint; gegrynd, plot of ground; gehield, watching, protection; gehlȳd, noise; gehnǣst, -āst, collision; genyht, sufficiency; geresp, blame; gewēd, fury, madness; geswinc, labour, affliction.
 
 5. The u-declension.
 
@@ -398,21 +415,45 @@ gefēg, joining, joint; gegrynd, plot of ground; gehield, watching, protection; 
 
 a. Masculine.
 
-§ 395. Sing.
+§ 395. SING.
 <table>
-  <tr><th>Nom. Acc.</th><th>sunu, ·o, son</th><th>feld, field</th></tr>
-  <tr><th>Gen.</th><th>suna</th><th>felda</th></tr>
-  <tr><th>Dat.</th><th>suna</th><th>felda</th></tr>
-  <tr><th colspan="2">Plur.</th><th></th></tr>
-  <tr><th>Nom. Acc.</th><th>suna</th><th>felda</th></tr>
-  <tr><th>Gen.</th><th>suna</th><th>felda</th></tr>
-  <tr><th>Dat.</th><th>sunum</th><th>feldum</th></tr>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>sunu, ·o, son</td>
+		<td>feld, field</td>
+	<tr>
+		<td>Gen.</td>
+		<td>suna</td>
+		<td>felda</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>suna</td>
+		<td>felda</td>
+	</tr>
 </table>
 
-The prim. Germanic forms were: Sing. nom. *sunuz (Goth. sunus), acc. *sunun (Goth. sunu), gen. *sunauz (Goth. sunáus), dat. *suniwai (*sunwai), loc. *sunau (Goth. sunáu); Plur. nom. *suniwiz (Goth. sunjus), acc. *sununz (Goth. sununs), gen. *suniwōn (*sunwōn), dat. *sunumiz. The endings ·uz, ·un regularly became ·u in prehistoric OE., and then disappeared after long stems (§§ 211, 215), but remained after short stems and later became ·o. ·auz regularly became ·a (§ 217). The OE. dat. sing. is originally the locative. It is difficult to account for the ending ·a of the nom. plural, which cannot be a normal development of prim. Germanic ·iwiz = Indg. ·ewes. The gen. pl. ending ·a is from the a· and the consonantal stems. The dat. pl. ending ·um is from older ·umiz. At a later period the ·u (·o) of the nom. acc. sing.
-was often extended to the dat. sing. and nom. acc. pl. in the short stems; and likewise the .a of the gen. and dat. sing. to the nom. acc. In late OE. the short stems also often formed their gen. sing. and nom. acc. pl. after the analogy of the masc. a-stems. Already at an early period the long stems were often declined entirely like the a-stems. Many nouns which originally belonged to this class went over into the a-declension in prehistoric OE. without leaving any trace of the u-declension, as ār (Goth. áirus), messenger; dēap (Goth. dáuþus), death; feorh (also neut.), life; flōd, flood; grund, ground; lust, pleasure, desire; scield, shield; þorn, thorn; beofor, beaver; esol, ass; hungor, hunger; fiscoþ, fishing; huntoþ, hunting; for further examples, see § 595.
+PLUR.
+<table>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>suna</td>
+		<td>felda</td>
+	<tr>
+		<td>Gen.</td>
+		<td>suna</td>
+		<td>felda</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>sunum</td>
+		<td>feldum</td>
+	</tr>
+</table>
 
-§ 396. Like sumu are declined bregu, prince, ruler; heoru, sword; lagu, sea, flood; magu, son, man; medu, meodu, mead (gen. meda beside medwes); sīdu, custom; spitu, spit; wudu, wood.
+The prim. Germanic forms were: Sing. nom. *sunuz (Goth. sunus), acc. *sunun (Goth. sunu), gen. *sunauz (Goth. sunáus), dat. *suniwai (*sunwai), loc. *sunau (Goth. sunáu); Plur. nom. *suniwiz (Goth. sunjus), acc. *sununz (Goth. sununs), gen. *suniwȭn (*sunwȭn), dat. *sunumiz. The endings ·uz, ·un regularly became ·u in prehistoric OE., and then disappeared after long stems (§§ 211, 215), but remained after short stems and later became ·o. ·auz regularly became ·a (§ 217). The OE. dat. sing. is originally the locative. It is difficult to account for the ending ·a of the nom. plural, which cannot be a normal development of prim. Germanic ·iwiz = Indg. ·ewes. The gen. pl. ending ·a is from the a· and the consonantal stems. The dat. pl. ending ·um is from older ·umiz. At a later period the ·u (·o) of the nom. acc. sing. was often extended to the dat. sing. and nom. acc. pl. in the short stems; and likewise the .a of the gen. and dat. sing. to the nom. acc. In late OE. the short stems also often formed their gen. sing. and nom. acc. pl. after the analogy of the masc. a-stems. Already at an early period the long stems were often declined entirely like the a-stems. Many nouns which originally belonged to this class went over into the a-declension in prehistoric OE. without leaving any trace of the u-declension, as ār (Goth. áirus), messenger; dēaþ (Goth. dáuþus), death; feorh (also neut.), life; flōd, flood; grund, ground; lust, pleasure, desire; scield, shield; þorn, thorn; beofor, beaver; esol, ass; hungor, hunger; fiscoþ, fishing; huntoþ, hunting; for further examples, see § 595.
+
+§ 396. Like sumu are declined bregu, prince, ruler; heoru, sword; lagu, sea, flood; magu, son, man; medu, meodu, mead (gen. meda beside medwes); sidu, custom; spitu, spit; wudu, wood.
 
 § 397. Like feld are declined eard, native country; ford, ford; gār (mostly in compounds), spear; hād, rank, condition (for compounds in -hād, see § 605); hearg, temple; sēaþ, pit, spring; weald, forest; sumor, summer; æppel (gen. æp(p)les, pl. ap(p)la beside æp(p)las, and neut. ap(p)lu), apple; winter (pl. neut. wintru beside winter), winter.
 
