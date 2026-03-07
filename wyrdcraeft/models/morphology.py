@@ -223,6 +223,43 @@ class GeneratedForm(BaseModel):
 
 
 @dataclass(frozen=True)
+class _ParadigmVariantDispatchContext:
+    """
+    Immutable context for paradigm-level variant callback dispatch.
+
+    Args:
+        word: Source lexical entry owning the active paradigm.
+        paradigm: Active verb paradigm whose variants are being dispatched.
+
+    """
+
+    #: Source lexical entry owning the active paradigm.
+    word: Word
+    #: Active verb paradigm whose variants are being dispatched.
+    paradigm: VerbParadigm
+
+
+@dataclass(frozen=True)
+class _VariantPartDispatchContext:
+    """
+    Immutable context for variant-level part callback dispatch.
+
+    Args:
+        word: Source lexical entry owning the active paradigm.
+        paradigm: Active verb paradigm whose parts are being dispatched.
+        variant: Active variant whose parts are being dispatched.
+
+    """
+
+    #: Source lexical entry owning the active paradigm.
+    word: Word
+    #: Active verb paradigm whose parts are being dispatched.
+    paradigm: VerbParadigm
+    #: Active variant whose parts are being dispatched.
+    variant: ParadigmVariant
+
+
+@dataclass(frozen=True)
 class _StrongPrincipalPartContext:
     """
     Immutable context for strong principal-part callback bindings.

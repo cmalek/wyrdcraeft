@@ -5,8 +5,10 @@ from typing import Final
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
     ParadigmVariant,
+    _ParadigmVariantDispatchContext,
     _StrongPrincipalPartContext,
     _StrongInfDerivationContext,
+    _VariantPartDispatchContext,
     _WeakPrincipalPartContext,
     _WeakInfDerivationContext,
     _WeakPainsg1DerivationContext,
@@ -295,6 +297,7 @@ class VerbFormGenerator:
         """  # noqa: E501
         formhash_base = build_verb_formhash_base(word, vp)
         boundary_inf, vowel_inf, vowel_pa = derive_paradigm_seed_vowels(vp)
+        context = _ParadigmVariantDispatchContext(word=word, paradigm=vp)
 
         dispatch_paradigm_variants(
             variants=vp.variants,
@@ -302,7 +305,41 @@ class VerbFormGenerator:
             boundary_inf=boundary_inf,
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
-            on_variant=partial(self._process_variant, word, vp),
+            on_variant=partial(self._dispatch_variant_context, context),
+        )
+
+    def _dispatch_variant_context(
+        self,
+        context: _ParadigmVariantDispatchContext,
+        variant: ParadigmVariant,
+        formhash_base: dict[str, str],
+        boundary_inf: str,
+        vowel_inf: str,
+        vowel_pa: str,
+    ) -> None:
+        """
+        Dispatch one paradigm variant using shared typed callback context.
+
+        Side Effects:
+            Delegates one variant traversal through ``_process_variant``.
+
+        Args:
+            context: Shared paradigm-level dispatch context.
+            variant: Active variant being dispatched.
+            formhash_base: Variant-scoped form hash payload.
+            boundary_inf: Infinitive boundary from variant ``0``.
+            vowel_inf: Infinitive vowel from variant ``0``.
+            vowel_pa: Preterite singular vowel from variant ``0``.
+
+        """
+        self._process_variant(
+            context.word,
+            context.paradigm,
+            variant,
+            formhash_base,
+            boundary_inf,
+            vowel_inf,
+            vowel_pa,
         )
 
     def _process_variant(
@@ -335,13 +372,53 @@ class VerbFormGenerator:
             boundary_inf: The boundary information.
 
         """  # noqa: E501
+        context = _VariantPartDispatchContext(
+            word=word,
+            paradigm=vp,
+            variant=variant,
+        )
         dispatch_variant_parts(
             variant=variant,
             formhash_var=formhash_base,
             boundary_inf=boundary_inf,
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
-            on_part=partial(self._process_part, word, vp, variant),
+            on_part=partial(self._dispatch_part_context, context),
+        )
+
+    def _dispatch_part_context(
+        self,
+        context: _VariantPartDispatchContext,
+        item: ParadigmPart,
+        formhash_var: dict[str, str],
+        boundary_inf: str,
+        vowel_inf: str,
+        vowel_pa: str,
+    ) -> None:
+        """
+        Dispatch one variant part using shared typed callback context.
+
+        Side Effects:
+            Delegates one part traversal through ``_process_part``.
+
+        Args:
+            context: Shared variant-level dispatch context.
+            item: Active part being dispatched.
+            formhash_var: Variant-scoped form hash payload.
+            boundary_inf: Infinitive boundary from variant ``0``.
+            vowel_inf: Infinitive vowel from variant ``0``.
+            vowel_pa: Preterite singular vowel from variant ``0``.
+
+        """
+        self._process_part(
+            context.word,
+            context.paradigm,
+            context.variant,
+            item,
+            formhash_var,
+            boundary_inf,
+            vowel_inf,
+            vowel_pa,
         )
 
     def _process_part(  # noqa: PLR0913
