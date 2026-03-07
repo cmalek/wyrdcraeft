@@ -78,6 +78,7 @@ Issues = "https://github.com/cmalek/oe_json_extractor/issues"
 
 [project.scripts]
 wyrdcraeft = "wyrdcraeft.main:main"
+olmocr_hf = "scripts.ocr.olmocr_hf:main"
 
 [tool.uv]
 python-preference = "only-system"

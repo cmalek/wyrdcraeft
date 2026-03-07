@@ -7,6 +7,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 THORN_CHARS = {"þ", "ð", "Þ", "Ð"}
+THORN_ONLY_CHARS = {"þ", "Þ"}
+ETH_CHARS = {"ð", "Ð"}
+AE_CHARS = {"æ", "Æ"}
 MACRON_CHARS = {
     "ā",
     "ē",
@@ -109,7 +112,19 @@ def _align_characters(
     return alignment
 
 
-def compute_ocr_metrics(
+def _recall(*, expected: int, preserved: int) -> float:
+    if expected == 0:
+        return 1.0
+    return preserved / expected
+
+
+def _precision(*, observed: int, preserved: int, expected: int) -> float:
+    if observed == 0:
+        return 1.0 if expected == 0 else 0.0
+    return preserved / observed
+
+
+def compute_ocr_metrics(  # noqa: PLR0915
     expected_text: str, observed_text: str
 ) -> dict[str, float | int]:
     normalized_expected = preprocess_ocr_text(expected_text)
@@ -129,6 +144,12 @@ def compute_ocr_metrics(
     thorn_expected = 0
     thorn_preserved = 0
     thorn_to_p = 0
+    thorn_letter_expected = 0
+    thorn_letter_preserved = 0
+    eth_expected = 0
+    eth_preserved = 0
+    ae_expected = 0
+    ae_preserved = 0
     macron_expected = 0
     macron_preserved = 0
     for expected_char, observed_char in alignment:
@@ -138,20 +159,74 @@ def compute_ocr_metrics(
                 thorn_preserved += 1
             if observed_char in {"p", "P"}:
                 thorn_to_p += 1
+        if expected_char in THORN_ONLY_CHARS:
+            thorn_letter_expected += 1
+            if observed_char in THORN_ONLY_CHARS:
+                thorn_letter_preserved += 1
+        if expected_char in ETH_CHARS:
+            eth_expected += 1
+            if observed_char in ETH_CHARS:
+                eth_preserved += 1
+        if expected_char in AE_CHARS:
+            ae_expected += 1
+            if observed_char in AE_CHARS:
+                ae_preserved += 1
         if expected_char in MACRON_CHARS:
             macron_expected += 1
             if observed_char == expected_char:
                 macron_preserved += 1
 
+    observed_thorn_letters = sum(1 for ch in observed_chars if ch in THORN_ONLY_CHARS)
+    observed_eth = sum(1 for ch in observed_chars if ch in ETH_CHARS)
+    observed_ae = sum(1 for ch in observed_chars if ch in AE_CHARS)
+
     thorn_to_p_rate = 0.0 if thorn_expected == 0 else thorn_to_p / thorn_expected
     macron_recall = 1.0 if macron_expected == 0 else macron_preserved / macron_expected
+    thorn_recall = _recall(expected=thorn_expected, preserved=thorn_preserved)
+    thorn_letter_recall = _recall(
+        expected=thorn_letter_expected,
+        preserved=thorn_letter_preserved,
+    )
+    eth_recall = _recall(expected=eth_expected, preserved=eth_preserved)
+    ae_recall = _recall(expected=ae_expected, preserved=ae_preserved)
+    thorn_letter_precision = _precision(
+        observed=observed_thorn_letters,
+        preserved=thorn_letter_preserved,
+        expected=thorn_letter_expected,
+    )
+    eth_precision = _precision(
+        observed=observed_eth,
+        preserved=eth_preserved,
+        expected=eth_expected,
+    )
+    ae_precision = _precision(
+        observed=observed_ae,
+        preserved=ae_preserved,
+        expected=ae_expected,
+    )
 
     return {
         "cer": character_distance / cer_denominator,
         "wer": word_distance / wer_denominator,
         "thorn_expected": thorn_expected,
         "thorn_preserved": thorn_preserved,
+        "thorn_recall": thorn_recall,
         "thorn_to_p_rate": thorn_to_p_rate,
+        "thorn_letter_expected": thorn_letter_expected,
+        "thorn_letter_preserved": thorn_letter_preserved,
+        "thorn_letter_observed": observed_thorn_letters,
+        "thorn_letter_recall": thorn_letter_recall,
+        "thorn_letter_precision": thorn_letter_precision,
+        "eth_expected": eth_expected,
+        "eth_preserved": eth_preserved,
+        "eth_observed": observed_eth,
+        "eth_recall": eth_recall,
+        "eth_precision": eth_precision,
+        "ae_expected": ae_expected,
+        "ae_preserved": ae_preserved,
+        "ae_observed": observed_ae,
+        "ae_recall": ae_recall,
+        "ae_precision": ae_precision,
         "macron_expected": macron_expected,
         "macron_preserved": macron_preserved,
         "macron_recall": macron_recall,
