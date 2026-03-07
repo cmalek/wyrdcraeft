@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -21,7 +22,40 @@ from tests.ocr_metrics import compute_ocr_metrics
 LLAMA_READINESS_POLL_SECONDS = 0.25
 LLAMA_STARTUP_TIMEOUT_SECONDS = 120.0
 LLAMA_SHUTDOWN_TIMEOUT_SECONDS = 10.0
-DEFAULT_FIXTURE_STEMS = ("wright1", "wright2", "wright3", "wright4", "wright5")
+DEFAULT_FIXTURE_STEMS = (
+    "wright1",
+    "wright2",
+    "wright3",
+    "wright4",
+    "wright_germanic_vowels",
+    "wright_markup",
+    "wright_nouns",
+    "wright_nouns2",
+    "wright_phonology",
+    "wright_skew_table",
+    "wright_table",
+    "wright_toc",
+    "wright_umlaut_skew",
+    "wright_umlaut",
+)
+#: Trait tags used for fixture-sliced benchmark summaries.
+FIXTURE_TRAITS: dict[str, tuple[str, ...]] = {
+    "wright1": ("diacritics-heavy",),
+    "wright2": ("diacritics-heavy",),
+    "wright3": ("diacritics-heavy",),
+    "wright4": ("diacritics-heavy",),
+    "wright5": ("diacritics-heavy",),
+    "wright_germanic_vowels": ("diacritics-heavy",),
+    "wright_markup": (),
+    "wright_nouns": ("diacritics-heavy",),
+    "wright_nouns2": ("diacritics-heavy",),
+    "wright_phonology": ("diacritics-heavy", "long-doc"),
+    "wright_skew_table": ("skew", "table"),
+    "wright_table": ("table",),
+    "wright_toc": ("toc",),
+    "wright_umlaut_skew": ("diacritics-heavy", "skew"),
+    "wright_umlaut": ("diacritics-heavy",),
+}
 DEFAULT_PROXY_CAP = 1500
 DEFAULT_STAGE4_PROXY_CAPS = (1500, 2000, 2500, 3000, 4000)
 DEFAULT_PROXY_OVERRIDE_LENGTH_TO_STOP = False
@@ -288,10 +322,16 @@ def _threshold_for(stem: str, threshold_payload: dict[str, Any]) -> dict[str, fl
     }
 
 
+def fixture_traits_for(stem: str) -> list[str]:
+    """Return normalized fixture-trait tags used by benchmark report slicing."""
+    return sorted(FIXTURE_TRAITS.get(stem, ()))
+
+
 def _run_ocr_once(  # noqa: PLR0913, PLR0915
     *,
     repo_root: Path,
     fixture_stem: str,
+    input_pdf_path: Path | None,
     output_dir: Path,
     proxy_cap: int,
     proxy_override_length_to_stop: bool,
@@ -304,8 +344,19 @@ def _run_ocr_once(  # noqa: PLR0913, PLR0915
     upstream_base_url: str,
     snapshot_interval_seconds: float,
     print_live_snapshots: bool,
-) -> tuple[float, int, RunDiagnostics, dict[str, float | int] | None, str | None]:
-    input_pdf = repo_root / f"tests/fixtures/ocr/{fixture_stem}.pdf"
+) -> tuple[
+    float,
+    int,
+    RunDiagnostics,
+    dict[str, float | int] | None,
+    str | None,
+    str | None,
+]:
+    input_pdf = (
+        input_pdf_path
+        if input_pdf_path is not None
+        else repo_root / f"tests/fixtures/ocr/{fixture_stem}.pdf"
+    )
     expected_path = repo_root / f"tests/fixtures/ocr/{fixture_stem}.md"
     command = [
         sys.executable,
@@ -423,7 +474,14 @@ def _run_ocr_once(  # noqa: PLR0913, PLR0915
                 f"Command: {' '.join(command)}\n"
                 f"Output:\n{combined_output[-4000:]}"
             )
-            return elapsed_seconds, retry_events, diagnostics, None, message
+            return (
+                elapsed_seconds,
+                retry_events,
+                diagnostics,
+                None,
+                message,
+                "ocr_command_timeout",
+            )
 
         if return_code != 0:
             message = (
@@ -431,16 +489,61 @@ def _run_ocr_once(  # noqa: PLR0913, PLR0915
                 f"Command: {' '.join(command)}\n"
                 f"Output:\n{combined_output[-4000:]}"
             )
-            return elapsed_seconds, retry_events, diagnostics, None, message
+            return (
+                elapsed_seconds,
+                retry_events,
+                diagnostics,
+                None,
+                message,
+                "ocr_command_exit_nonzero",
+            )
 
         observed_path = output_dir / "02_raw.txt"
+        if not observed_path.exists():
+            message = (
+                f"OCR run did not produce expected raw text for {fixture_stem}: "
+                f"{observed_path}"
+            )
+            return (
+                elapsed_seconds,
+                retry_events,
+                diagnostics,
+                None,
+                message,
+                "ocr_output_missing",
+            )
+        if not expected_path.exists():
+            message = f"Expected markdown fixture missing: {expected_path}"
+            return (
+                elapsed_seconds,
+                retry_events,
+                diagnostics,
+                None,
+                message,
+                "expected_markdown_missing",
+            )
         observed_text = observed_path.read_text(encoding="utf-8")
         expected_text = expected_path.read_text(encoding="utf-8")
-        metrics = compute_ocr_metrics(
-            expected_text=expected_text,
-            observed_text=observed_text,
-        )
-        return elapsed_seconds, retry_events, diagnostics, metrics, None
+        try:
+            metrics = compute_ocr_metrics(
+                expected_text=expected_text,
+                observed_text=observed_text,
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            message = (
+                f"Metric computation failed for {fixture_stem}: {exc}\n"
+                f"Observed path: {observed_path}\n"
+                f"Expected path: {expected_path}"
+            )
+            return (
+                elapsed_seconds,
+                retry_events,
+                diagnostics,
+                None,
+                message,
+                "metrics_computation_failed",
+            )
+        return elapsed_seconds, retry_events, diagnostics, metrics, None, None
 
 
 def _quality_passes(
@@ -476,7 +579,84 @@ def _p95(values: list[float]) -> float:
     return ordered[index]
 
 
-def _evaluate_candidate(  # noqa: PLR0913, PLR0915
+def _median(values: list[float]) -> float:
+    """Return median of values or zero when empty."""
+    if not values:
+        return 0.0
+    return statistics.median(values)
+
+
+def _run_apple_vision_preprocess(
+    *, source_pdf: Path, destination_pdf: Path, timeout_seconds: float
+) -> tuple[bool, str | None]:
+    """
+    Run optional PDF preprocessing before VLM OCR.
+
+    Side Effects:
+        Spawns ``ocrmypdf`` and writes a transformed PDF to ``destination_pdf``.
+
+    Args:
+        source_pdf: Source PDF fixture path.
+        destination_pdf: Destination path for transformed PDF.
+        timeout_seconds: Subprocess timeout budget in seconds.
+
+    Returns:
+        Tuple ``(ok, error_message)``.
+
+    """
+    command = [
+        "ocrmypdf",
+        "--skip-text",
+        "--rotate-pages",
+        "--deskew",
+        "--clean",
+        "--optimize",
+        "0",
+        str(source_pdf),
+        str(destination_pdf),
+    ]
+    try:
+        result = subprocess.run(
+            command,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except FileNotFoundError:
+        return (
+            False,
+            "Apple Vision preprocess requested but "
+            "'ocrmypdf' is not installed.",
+        )
+    except subprocess.TimeoutExpired:
+        return (
+            False,
+            "Apple Vision preprocess timed out after "
+            f"{timeout_seconds:.1f}s for {source_pdf.name}.",
+        )
+    if result.returncode != 0:
+        stderr = result.stderr.strip()
+        stdout = result.stdout.strip()
+        message = stderr or stdout or "unknown ocrmypdf preprocessing failure"
+        return False, message
+    if not destination_pdf.exists():
+        return (
+            False,
+            "Apple Vision preprocess did not produce output PDF: "
+            f"{destination_pdf}",
+        )
+    return True, None
+
+
+def _mean_or_default(values: list[float], *, default: float = 0.0) -> float:
+    """Return arithmetic mean or caller-provided default when empty."""
+    if not values:
+        return default
+    return statistics.fmean(values)
+
+
+def _evaluate_candidate(  # noqa: PLR0912, PLR0913, PLR0915
     *,
     repo_root: Path,
     profile: LlamaProfile,
@@ -492,11 +672,14 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
     proxy_upstream_retry_backoff_seconds: float,
     olmocr_max_page_retries: int,
     ocr_command_timeout_seconds: float,
+    fixture_timeout_seconds: float,
     upstream_base_url: str,
     snapshot_interval_seconds: float,
     print_live_snapshots: bool,
     show_llama_server_logs: bool,
     print_progress: bool,
+    vision_preprocess_mode: str,
+    vision_preprocess_timeout_seconds: float,
 ) -> dict[str, Any]:
     process = _start_llama_server(
         repo_root,
@@ -517,14 +700,104 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
     wer_values: list[float] = []
     thorn_to_p_values: list[float] = []
     macron_recall_values: list[float] = []
+    ae_recall_values: list[float] = []
+    ae_precision_values: list[float] = []
+    eth_recall_values: list[float] = []
+    eth_precision_values: list[float] = []
+    thorn_recall_values: list[float] = []
+    thorn_precision_values: list[float] = []
+
+    fixture_latencies: dict[str, list[float]] = defaultdict(list)
+    fixture_cer_values: dict[str, list[float]] = defaultdict(list)
+    fixture_wer_values: dict[str, list[float]] = defaultdict(list)
+    fixture_thorn_to_p_values: dict[str, list[float]] = defaultdict(list)
+    fixture_macron_recall_values: dict[str, list[float]] = defaultdict(list)
+    fixture_retry_events_total: Counter[str] = Counter()
+    fixture_pages_measured: Counter[str] = Counter()
+    fixture_failed_pages: Counter[str] = Counter()
+    fixture_failure_reasons: dict[str, Counter[str]] = defaultdict(Counter)
+    fixture_elapsed_seconds: dict[str, float] = defaultdict(float)
+    failure_reasons: Counter[str] = Counter()
 
     try:
         with tempfile.TemporaryDirectory(prefix=f"ocr-bench-{profile.name}-") as tmp:
             temp_root = Path(tmp)
+            preprocessed_dir = temp_root / "vision_preprocessed"
+            preprocessed_dir.mkdir(parents=True, exist_ok=True)
+            fixture_input_paths: dict[str, Path] = {}
+            fixture_preprocess_errors: dict[str, str] = {}
+            for stem in fixture_stems:
+                source_pdf = repo_root / f"tests/fixtures/ocr/{stem}.pdf"
+                if not source_pdf.exists():
+                    fixture_preprocess_errors[stem] = (
+                        f"Fixture input PDF not found: {source_pdf}"
+                    )
+                    continue
+                if vision_preprocess_mode == "off":
+                    fixture_input_paths[stem] = source_pdf
+                    continue
+                if vision_preprocess_mode != "apple-vision":
+                    fixture_preprocess_errors[stem] = (
+                        f"Unsupported vision preprocess mode: {vision_preprocess_mode}"
+                    )
+                    continue
+                destination_pdf = preprocessed_dir / f"{stem}.pdf"
+                ok, preprocess_error = _run_apple_vision_preprocess(
+                    source_pdf=source_pdf,
+                    destination_pdf=destination_pdf,
+                    timeout_seconds=vision_preprocess_timeout_seconds,
+                )
+                if not ok:
+                    fixture_preprocess_errors[stem] = preprocess_error or (
+                        f"Unknown preprocess failure for {stem}"
+                    )
+                    continue
+                fixture_input_paths[stem] = destination_pdf
+
             total_runs = warmup_runs + measured_runs
             for run_index in range(total_runs):
                 is_warmup = run_index < warmup_runs
                 for stem in fixture_stems:
+                    if stem in fixture_preprocess_errors:
+                        if is_warmup:
+                            continue
+                        elapsed_seconds = (
+                            fixture_timeout_seconds
+                            if fixture_timeout_seconds > 0
+                            else (
+                                ocr_command_timeout_seconds
+                                if ocr_command_timeout_seconds > 0
+                                else 1.0
+                            )
+                        )
+                        pages_measured += 1
+                        failed_pages += 1
+                        quality_ok = False
+                        latencies.append(elapsed_seconds)
+                        fixture_latencies[stem].append(elapsed_seconds)
+                        fixture_pages_measured[stem] += 1
+                        fixture_failed_pages[stem] += 1
+                        failure_reasons["vision_preprocess_failed"] += 1
+                        fixture_failure_reasons[stem]["vision_preprocess_failed"] += 1
+                        continue
+                    if (
+                        not is_warmup
+                        and fixture_timeout_seconds > 0
+                        and fixture_elapsed_seconds[stem] >= fixture_timeout_seconds
+                    ):
+                        elapsed_seconds = fixture_timeout_seconds
+                        pages_measured += 1
+                        failed_pages += 1
+                        quality_ok = False
+                        latencies.append(elapsed_seconds)
+                        fixture_latencies[stem].append(elapsed_seconds)
+                        fixture_pages_measured[stem] += 1
+                        fixture_failed_pages[stem] += 1
+                        failure_reasons["fixture_timeout_budget_exceeded"] += 1
+                        fixture_failure_reasons[stem][
+                            "fixture_timeout_budget_exceeded"
+                        ] += 1
+                        continue
                     output_dir = temp_root / f"run_{run_index}_{stem}"
                     output_dir.mkdir(parents=True, exist_ok=True)
                     (
@@ -533,9 +806,11 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
                         diagnostics,
                         metrics,
                         run_error,
+                        run_error_kind,
                     ) = _run_ocr_once(
                         repo_root=repo_root,
                         fixture_stem=stem,
+                        input_pdf_path=fixture_input_paths.get(stem),
                         output_dir=output_dir,
                         proxy_cap=proxy_cap,
                         proxy_override_length_to_stop=proxy_override_length_to_stop,
@@ -554,8 +829,12 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
                     if is_warmup:
                         continue
                     pages_measured += 1
+                    fixture_pages_measured[stem] += 1
                     latencies.append(elapsed_seconds)
+                    fixture_latencies[stem].append(elapsed_seconds)
+                    fixture_elapsed_seconds[stem] += elapsed_seconds
                     retry_events_total += retry_events
+                    fixture_retry_events_total[stem] += retry_events
                     proxy_request_count_total += diagnostics.proxy_request_count
                     proxy_prompt_tokens_total += diagnostics.proxy_prompt_tokens
                     proxy_completion_tokens_total += diagnostics.proxy_completion_tokens
@@ -582,7 +861,11 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
                         )
                     if metrics is None:
                         failed_pages += 1
+                        fixture_failed_pages[stem] += 1
                         quality_ok = False
+                        failure_reason = run_error_kind or "run_failed"
+                        failure_reasons[failure_reason] += 1
+                        fixture_failure_reasons[stem][failure_reason] += 1
                         if run_error:
                             error_excerpt = "\n".join(run_error.splitlines()[:10])
                             print(
@@ -591,15 +874,34 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
                             )
                         continue
                     cer_values.append(float(metrics["cer"]))
+                    fixture_cer_values[stem].append(float(metrics["cer"]))
                     wer_values.append(float(metrics["wer"]))
+                    fixture_wer_values[stem].append(float(metrics["wer"]))
                     thorn_to_p_values.append(float(metrics["thorn_to_p_rate"]))
+                    fixture_thorn_to_p_values[stem].append(
+                        float(metrics["thorn_to_p_rate"])
+                    )
                     macron_recall_values.append(float(metrics["macron_recall"]))
+                    fixture_macron_recall_values[stem].append(
+                        float(metrics["macron_recall"])
+                    )
+                    ae_recall_values.append(float(metrics["ae_recall"]))
+                    ae_precision_values.append(float(metrics["ae_precision"]))
+                    eth_recall_values.append(float(metrics["eth_recall"]))
+                    eth_precision_values.append(float(metrics["eth_precision"]))
+                    thorn_recall_values.append(float(metrics["thorn_letter_recall"]))
+                    thorn_precision_values.append(
+                        float(metrics["thorn_letter_precision"])
+                    )
                     if not _quality_passes(stem, metrics, threshold_payload):
                         quality_ok = False
+                        failure_reasons["quality_threshold_failed"] += 1
+                        fixture_failure_reasons[stem]["quality_threshold_failed"] += 1
     finally:
         _stop_llama_server(process)
 
     mean_sec_per_page = _mean(latencies)
+    median_sec_per_page = _median(latencies)
     retries_per_page = retry_events_total / max(pages_measured, 1)
     stddev_sec_per_page = (
         statistics.pstdev(latencies) if len(latencies) > 1 else 0.0
@@ -609,11 +911,46 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
         if proxy_request_elapsed_seconds_total > 0
         else 0.0
     )
+    fixture_results: dict[str, dict[str, Any]] = {}
+    for stem in fixture_stems:
+        fixture_pages = int(fixture_pages_measured[stem])
+        fixture_failed = int(fixture_failed_pages[stem])
+        fixture_mean = _mean(fixture_latencies[stem])
+        fixture_results[stem] = {
+            "traits": fixture_traits_for(stem),
+            "pages_measured": fixture_pages,
+            "failed_pages": fixture_failed,
+            "quality_pass": fixture_failed == 0
+            and fixture_failure_reasons[stem].get("quality_threshold_failed", 0) == 0,
+            "mean_sec_per_page": fixture_mean,
+            "median_sec_per_page": _median(fixture_latencies[stem]),
+            "p95_sec_per_page": _p95(fixture_latencies[stem]),
+            "pages_per_minute": 60.0 / fixture_mean if fixture_mean > 0 else 0.0,
+            "retries_per_page": fixture_retry_events_total[stem]
+            / max(fixture_pages, 1),
+            "mean_cer": _mean(fixture_cer_values[stem]),
+            "mean_wer": _mean(fixture_wer_values[stem]),
+            "mean_thorn_to_p_rate": _mean(fixture_thorn_to_p_values[stem]),
+            "mean_macron_recall": _mean(fixture_macron_recall_values[stem]),
+            "failure_reasons": dict(sorted(fixture_failure_reasons[stem].items())),
+        }
+
+    old_english_fidelity = {
+        "ae_recall": _mean_or_default(ae_recall_values, default=1.0),
+        "ae_precision": _mean_or_default(ae_precision_values, default=1.0),
+        "eth_recall": _mean_or_default(eth_recall_values, default=1.0),
+        "eth_precision": _mean_or_default(eth_precision_values, default=1.0),
+        "thorn_recall": _mean_or_default(thorn_recall_values, default=1.0),
+        "thorn_precision": _mean_or_default(thorn_precision_values, default=1.0),
+        "macron_recall": _mean_or_default(macron_recall_values, default=1.0),
+    }
     return {
         "profile": asdict(profile),
         "proxy_max_tokens_cap": proxy_cap,
+        "vision_preprocess_mode": vision_preprocess_mode,
         "quality_pass": quality_ok,
         "mean_sec_per_page": mean_sec_per_page,
+        "median_sec_per_page": median_sec_per_page,
         "p95_sec_per_page": _p95(latencies),
         "stddev_sec_per_page": stddev_sec_per_page,
         "pages_per_minute": 60.0 / mean_sec_per_page if mean_sec_per_page > 0 else 0.0,
@@ -629,6 +966,9 @@ def _evaluate_candidate(  # noqa: PLR0913, PLR0915
         "proxy_completion_tokens_per_second": proxy_completion_tokens_per_second,
         "pages_measured": pages_measured,
         "failed_pages": failed_pages,
+        "failure_reasons": dict(sorted(failure_reasons.items())),
+        "fixture_results": fixture_results,
+        "old_english_fidelity": old_english_fidelity,
     }
 
 
@@ -648,9 +988,11 @@ def _print_summary(title: str, result: dict[str, Any]) -> None:
     summary = (
         f"{title}: profile={result['profile']['name']} "
         f"cap={result['proxy_max_tokens_cap']} "
+        f"vision={result.get('vision_preprocess_mode', 'off')} "
         f"quality_pass={result['quality_pass']} "
         f"failed_pages={result['failed_pages']} "
         f"mean={result['mean_sec_per_page']:.3f}s "
+        f"median={result.get('median_sec_per_page', 0.0):.3f}s "
         f"p95={result['p95_sec_per_page']:.3f}s "
         f"pages/min={result['pages_per_minute']:.2f} "
         f"retries/page={result['retries_per_page']:.2f} "
@@ -689,7 +1031,10 @@ def main() -> int:  # noqa: PLR0915
         "--fixtures",
         nargs="+",
         default=list(DEFAULT_FIXTURE_STEMS),
-        help="Fixture stems under tests/fixtures/ocr (default: wright1..wright5).",
+        help=(
+            "Fixture stems under tests/fixtures/ocr "
+            "(default: core single-page plus new multi-page Wright corpus)."
+        ),
     )
     parser.add_argument(
         "--warmup-runs",
@@ -764,6 +1109,15 @@ def main() -> int:  # noqa: PLR0915
         help="Optional timeout for each OCR command invocation (0 disables timeout).",
     )
     parser.add_argument(
+        "--fixture-timeout-seconds",
+        type=float,
+        default=0.0,
+        help=(
+            "Optional hard timeout budget per fixture across measured runs "
+            "(0 disables)."
+        ),
+    )
+    parser.add_argument(
         "--upstream-base-url",
         default="http://127.0.0.1:8080/v1",
         help="Upstream llama.cpp OpenAI-compatible base URL used by managed proxy.",
@@ -791,6 +1145,21 @@ def main() -> int:  # noqa: PLR0915
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Expose raw llama-server logs (includes per-request eval tokens/sec).",
+    )
+    parser.add_argument(
+        "--vision-preprocess-mode",
+        choices=("off", "apple-vision"),
+        default="off",
+        help=(
+            "Optional preprocess transform mode applied before VLM OCR. "
+            "Default is off."
+        ),
+    )
+    parser.add_argument(
+        "--vision-preprocess-timeout-seconds",
+        type=float,
+        default=120.0,
+        help="Timeout for one preprocess invocation when preprocess mode is enabled.",
     )
     parser.add_argument(
         "--quick",
@@ -821,11 +1190,14 @@ def main() -> int:  # noqa: PLR0915
         ),
         "olmocr_max_page_retries": args.olmocr_max_page_retries,
         "ocr_command_timeout_seconds": args.ocr_command_timeout_seconds,
+        "fixture_timeout_seconds": args.fixture_timeout_seconds,
         "upstream_base_url": args.upstream_base_url,
         "snapshot_interval_seconds": args.snapshot_interval_seconds,
         "print_live_snapshots": args.print_live_snapshots,
         "show_llama_server_logs": args.show_llama_server_logs,
         "print_progress": args.print_progress,
+        "vision_preprocess_mode": args.vision_preprocess_mode,
+        "vision_preprocess_timeout_seconds": args.vision_preprocess_timeout_seconds,
     }
 
     print("Running baseline candidate...")
@@ -1034,6 +1406,9 @@ def main() -> int:  # noqa: PLR0915
     _print_summary("Final best", final_best)
 
     report = {
+        "fixtures": list(fixture_stems),
+        "fixture_traits": {stem: fixture_traits_for(stem) for stem in fixture_stems},
+        "controls": run_controls,
         "baseline": baseline_result,
         "stage1": {"results": stage1_results, "best": stage1_best},
         "stage2": {"results": stage2_results, "best": stage2_best},
