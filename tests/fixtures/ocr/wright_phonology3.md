@@ -1,0 +1,9 @@
+abbâtem), abbot; assa, donkey; catte (OHG. kazza), cat; cassuc, sedge; gaffetung, scoffing; habban (§ 538), to have; hassuc, coarse grass; maffa, caul; mattoc, mattock; sacc, sack; paccian, to flap, pat; flasce (flaxe), flask; masc (max), net; wascan (waxan), to wash; brastlian, to crackle. But a few words have æ beside a, as æsce, ash, cinders; æppel, apple; hnæppian, to doze; læppa, lappet, beside asce (axe), appla, apples, hnappian, lappa.
+
+Note.—sca· was often written sce·a· with e to denote the palatal pronunciation of the sc, as sceacan, to shake; sceadu, shadow; sceafan, to shave; scealu, scale (balance); sceamu (sceomu, § 59), shame, beside scacan, scadu, scafan, scalu, scamu (scomu). See § 51, Note.
+
+§ 58. a became æ when followed by an umlauted vowel in the next syllable, as æces (æx) from *akysi, older *akusi-, axe; and similarly æpele from *aþali (OS. aðali), noble; æbeling from *aþuling, nobleman; æt., tō-gædere from *-gaðuri, together; fæsten (OS. fastunnia, fasting), fortress; gædeling (OS. gaduling), companion; hæleþ from *χalupi-, hero; hærfest from *χaruβist, harvest; mægden from *magadîn (OHG. magatin), maiden. The æ in the above examples is a kind of umlaut.
+
+Note.—The a in the stem-syllable of the present participle and gerund of strong verbs belonging to class VI (§ 508) is due to the a of the infinitive, as farende for *færrende from *farandi, farenne for *færenne from *farannjai.
+
+§ 59. Germanic a was probably a mid-back-wide vowel like the a in German Mann. In OE. it became a low-back-wide vowel before nasals like the â in French pâte, and the a as pronounced in many Scotch dialects in such words as ant, man, pass, which English people often mistake for o especially when lengthened. In the oldest OE. it was nearly always written a, in the ninth century it was mostly written o, and in late OE. mostly a again, but
