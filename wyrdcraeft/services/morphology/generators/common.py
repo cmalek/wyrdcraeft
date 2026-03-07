@@ -1303,10 +1303,15 @@ class VerbFormGenerator:
             ending: The ending.
             function: The function.
             prob: The probability.
+            sound_change_prob_delta: Probability increment for derived rows.
 
         """  # noqa: E501
-        def emit_source_form() -> tuple[str, str]:
-            return self._generate_and_print_form(
+        emit_sound_changed_from_source(
+            function=function,
+            probability=prob,
+            sound_change_prob_delta=sound_change_prob_delta,
+            emit_source_form=partial(
+                self._emit_source_form_with_sound_context,
                 formhash,
                 prefix,
                 pre_vowel,
@@ -1317,28 +1322,89 @@ class VerbFormGenerator:
                 ending,
                 function,
                 prob,
-            )
-
-        def emit_manual(
-            sound_changed_form: str,
-            source_form_parts: str,
-            source_function: str,
-            source_probability: str | int | None,
-        ) -> None:
-            self._generate_and_print_manual(
+            ),
+            emit_manual=partial(
+                self._emit_manual_sound_changed_context,
                 formhash,
-                sound_changed_form,
-                source_form_parts,
-                source_function,
-                source_probability,
-            )
+            ),
+        )
 
-        emit_sound_changed_from_source(
-            function=function,
-            probability=prob,
-            sound_change_prob_delta=sound_change_prob_delta,
-            emit_source_form=emit_source_form,
-            emit_manual=emit_manual,
+    def _emit_source_form_with_sound_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit the source row used for downstream sound-change derivations.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            formhash: The form hash.
+            prefix: The prefix segment.
+            pre_vowel: The pre-vowel segment.
+            vowel: The active vowel segment.
+            post_vowel: The post-vowel segment.
+            boundary: The boundary segment.
+            dental: The optional weak dental segment.
+            ending: The ending segment.
+            function: The function code.
+            prob: Optional source-row probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._generate_and_print_form(
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_manual_sound_changed_context(
+        self,
+        formhash: dict[str, str],
+        sound_changed_form: str,
+        source_form_parts: str,
+        source_function: str,
+        source_probability: str | int | None,
+    ) -> None:
+        """
+        Emit one manually assembled row for a sound-changed derivative.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            formhash: The form hash.
+            sound_changed_form: The emitted sound-changed form text.
+            source_form_parts: The source form-parts payload.
+            source_function: The morphology function code.
+            source_probability: Optional probability annotation.
+
+        """
+        self._generate_and_print_manual(
+            formhash,
+            sound_changed_form,
+            source_form_parts,
+            source_function,
+            source_probability,
         )
 
     def _generate_and_print_manual(
