@@ -1,4 +1,4 @@
-# ruff: noqa: I001,ERA001
+# ruff: noqa: ERA001
 """
 Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 """
@@ -9,8 +9,8 @@ from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
+from .form_rows import print_one_form
 from .shared import FormOutput
-from .common import print_one_form
 
 #: The vowel regex, saved here for convenience.
 VOWEL = OENormalizer.VOWEL

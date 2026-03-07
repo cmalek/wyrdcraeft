@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-from .common import print_one_form
+from .form_rows import print_one_form
 
 if TYPE_CHECKING:
     from ..session import GeneratorSession

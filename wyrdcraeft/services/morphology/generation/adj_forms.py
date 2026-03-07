@@ -10,8 +10,8 @@ from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
+from .form_rows import print_one_form
 from .shared import FormOutput
-from .common import print_one_form
 
 def _dedupe_preserve_first(values: Iterable[str]) -> list[str]:
     """

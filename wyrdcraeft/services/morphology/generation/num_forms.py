@@ -1,4 +1,3 @@
-# ruff: noqa: I001
 """
 Numeral form generation. Port of Perl generate_numforms from create_dict31.pl
 (lines 7927-8429).
@@ -8,8 +7,8 @@ import re
 
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
+from .form_rows import print_one_form
 from .shared import FormOutput
-from .common import print_one_form
 
 
 def _form_from_parts(form_parts: str) -> str:

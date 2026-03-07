@@ -459,59 +459,47 @@ The prim. Germanic forms were: Sing. nom. *sunuz (Goth. sunus), acc. *sunun (Got
 
 b. Feminine.
 
-§ 398. Sing.
+§ 398. SING.
 <table>
   <tr>
-    <th></th>
-    <th>Nom. Acc.</th>
-    <th>Gen.</th>
-    <th>Dat.</th>
-    <th>Plur.</th>
-  </tr>
-  <tr>
-    <td rowspan="3">Nom. Acc.</td>
-    <td>duru, ·o, door</td>
-    <td></td>
-    <td></td>
-    <td>hand, hand</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>dura</td>
-    <td></td>
-    <td>handa</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>dura</td>
-    <td></td>
-    <td>handa</td>
-  </tr>
-  <tr>
-    <td rowspan="3">Plur.</td>
-    <td>Nom. Acc.</td>
-    <td>dura</td>
-    <td></td>
-    <td>handa</td>
-  </tr>
-  <tr>
-    <td>Gen.</td>
-    <td>dura</td>
-    <td></td>
-    <td>handa</td>
-  </tr>
-  <tr>
-    <td>Dat.</td>
-    <td>durum</td>
-    <td></td>
-    <td>handum</td>
-  </tr>
+   	<td>Nom. Acc.</td>
+		<td>duru, ·o, door</td>
+		<td>hand, hand</td>
+	<tr>
+		<td>Gen.</td>
+		<td>dura</td>
+		<td>handa</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>dura</td>
+		<td>handa</td>
+	</tr>
 </table>
+
+PLUR.
+<table>
+  <tr>
+   	<td>Nom. Acc.</td>
+		<td>dura</td>
+		<td>handa</td>
+	<tr>
+		<td>Gen.</td>
+		<td>dura</td>
+		<td>handa</td>
+	</tr>
+	<tr>
+		<td>Dat.</td>
+		<td>durum</td>
+		<td>handum</td>
+	</tr>
+</table>
+
 The masculine and feminine u-stems were originally declined alike. In the short stems the nom. acc. sing. was also sometimes used for the dat. sing. and nom. acc. plural; and the gen. and dat. sing. often had ·e after the analogy of the short ō-stems. Beside the regular gen. and dat sing. dura, there also occurs dyre, dyru with i-umlaut after the analogy of the i-declension. In the long stems the nom. acc. sing. was sometimes used for the gen. and dative. To the short stems also belongs nosu, nose; and to the long stems: cweorn (also ō-declension), Goth. -qaírnus, hand-mill; flōr (also masc.), floor; and originally also cin(n) (Goth. kinnus, Gr. γένος), chin.
 
 c. Neuter.
 
-§ 399. The neuter u-stems had originally the same endings as the masculine except in the nom. acc. sing. and plural, the former of which ended in ·u and the latter in ·ū. Nth. feolū, ·o, and the WS. isolated inflected form fela, feola, much, many, are the only remnants of this declension in OE. feoh (Goth. faíhu), cattle, went over into the a-declension in prehistoric OE.
+§ 399. The neuter u-stems had originally the same endings as the masculine except in the nom. acc. sing. and plural, the former of which ended in ·u and the latter in ·ū. Nth. feolu, ·o, and the WS. isolated inflected form fela, feola, much, many, are the only remnants of this declension in OE. feoh (Goth. faíhu), cattle, went over into the a-declension in prehistoric OE.
 
 B. THE WEAK DECLENSION (N-STEMS).
 
@@ -520,14 +508,9 @@ a. Masculine.
 § 400. Sing.
 <table>
   <tr>
-    <th></th>
-    <th>guma, man</th>
-    <th>frēa, lord</th>
-  </tr>
-  <tr>
     <td>Nom.</td>
-    <td>guman</td>
-    <td>frēan</td>
+    <td>guma, man</td>
+    <td>frēa, lord</td>
   </tr>
   <tr>
     <td>Acc.</td>
@@ -549,11 +532,6 @@ a. Masculine.
 Plur.
 <table>
   <tr>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-  <tr>
     <td>Nom., Acc.</td>
     <td>guman</td>
     <td>frēan</td>
@@ -569,7 +547,8 @@ Plur.
     <td>frēa(u)m</td>
   </tr>
 </table>
-The prim. Germanic forms were: Sing. nom. *zumō, acc. *zumanun, gen. *zumenaz (Goth. gumins), dat., properly locative, *zumini (Goth. gumin); Plur. nom. *zumaniz (Goth. gumans), acc. *zumanunz, gen. *zumnōn (cp. Goth. aúhs-nē, OE. ox-na, of oxen) beside West Germanic *zumōnōn (OHG. gomōno, OS. gumono) with -ōnōn from the fem. nouns, dat. *zumunmiz beside West Germanic *zumō(n)miz (OHG. gomōm) with -ō- from the genitive. In OE. the nom. and acc. sing. and the nom. pl. were regularly developed from the corresponding prim. Germanic forms. The regular form of the gen. and dat. sing. would be *gumen, *gymen, but OE. had levelled out the -an of the acc. sing. before the period of i-umlaut. The gen. pl. can be either from *zumanōn with a from the sing. and the nom. plural, or from West Germanic *zumōnōn (§§ 217, 222). The dat. pl. was formed direct from zum + -um, the ending of the a-stems and the other consonantal stems, or else it is from West Germanic *zumō(n)miz. Beside the regular gen. pl. ending -ena, the forms -ana, -ona sometimes occur. The e in -ena was generally syncopated after long stems in poetry and in the names of peoples. On the loss of final -n in Nth., see § 288.
+
+The prim. Germanic forms were: Sing. nom. *ʒumȭ, acc. *ʒumanun, gen. *ʒumenaz (Goth. gumins), dat., properly locative, *ʒumini (Goth. gumin); Plur. nom. *ʒumaniz (Goth. gumans), acc. *ʒumanunz, gen. *ʒumnȭn (cp. Goth. aúhs-nē, OE. ox-na, of oxen) beside West Germanic *ʒumōnȭn (OHG. gomōno, OS. gumono) with -ōnȭn from the fem. nouns, dat. *ʒumunmiz beside West Germanic *ʒumō(n)miz (OHG. gomōm) with -ō- from the genitive. In OE. the nom. and acc. sing. and the nom. pl. were regularly developed from the corresponding prim. Germanic forms. The regular form of the gen. and dat. sing. would be *gumen, *gymen, but OE. had levelled out the -an of the acc. sing. before the period of i-umlaut. The gen. pl. can be either from *ʒumanōn with a from the sing. and the nom. plural, or from West Germanic *zumōnōn (§§ 217, 222). The dat. pl. was formed direct from ʒum + -um, the ending of the a-stems and the other consonantal stems, or else it is from West Germanic *ʒumō(n)miz. Beside the regular gen. pl. ending -ena, the forms -ana, -ona sometimes occur. The e in -ena was generally syncopated after long stems in poetry and in the names of peoples. On the loss of final -n in Nth., see § 288.
 
 From a morphological point of view the n-stems should be divided into -an, -jan, and -wan stems, but in OE. as in the other Germanic languages all three classes were declined alike. The -jan stems have i-umlaut in the stem-syllable and also gemination of consonants when the stem was originally short, as dēma, judge, cŷta, kite, becca, pickaxe, brytta, distributor, prince, from prim. Germanic *dōmjō, kūtjō, *bakjō, *brutjō.
 

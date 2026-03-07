@@ -1,7 +1,7 @@
 # ruff: noqa: I001,PLR0913,ARG002,D417,RUF100,PLC0415
 import re
 from functools import partial
-from typing import Final, cast
+from typing import Final
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
@@ -21,6 +21,8 @@ from wyrdcraeft.models.morphology import (
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .form_assembly import assemble_form_parts, materialize_form
+from .form_rows import output_manual_forms as _output_manual_forms
+from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
     build_verb_formhash_base,
     derive_paradigm_seed_vowels,
@@ -31,8 +33,7 @@ from .participles import build_participle_adjective
 from .probability import (
     format_probability,
 )
-from .shared import FormOutput, FormWriter
-from .sinks import TsvParitySink
+from .shared import FormOutput
 from .sound_changes import (
     emit_sound_changed_from_source,
 )
@@ -96,26 +97,7 @@ def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> N
         output_file: The output file handle.
 
     """
-    for mf in session.manual_forms:
-        form_data = {
-            "BT": mf.BT,
-            "title": mf.title,
-            "stem": mf.stem,
-            "form": mf.form,
-            "formParts": mf.form_parts,
-            "var": mf.var,
-            "probability": mf.probability,
-            "function": mf.function,
-            "wright": mf.wright,
-            "paradigm": mf.paradigm,
-            "paraID": mf.para_id,
-            "wordclass": mf.wordclass,
-            "class1": mf.class1,
-            "class2": mf.class2,
-            "class3": mf.class3,
-            "comment": mf.comment,
-        }
-        print_one_form(session, form_data, output_file)
+    _output_manual_forms(session, output_file)
 
 
 def print_one_form(
@@ -141,11 +123,7 @@ def print_one_form(
         output_file: The output file.
 
     """  # noqa: E501
-    emit_form_data = getattr(output_file, "emit_form_data", None)
-    if callable(emit_form_data):
-        emit_form_data(session, form_data)
-        return
-    TsvParitySink(cast("FormWriter", output_file)).emit_form_data(session, form_data)
+    _print_one_form(session, form_data, output_file)
 
 
 class VerbFormGenerator:
