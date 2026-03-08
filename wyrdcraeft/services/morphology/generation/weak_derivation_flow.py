@@ -62,6 +62,16 @@ WeakInfFormEmitter = Callable[
     ],
     tuple[str, str],
 ]
+#: Callback signature for one weak ``PaInSg1`` raw row emission.
+WeakPainsg1RawFormEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str, str, str, str | int | None],
+    tuple[str, str],
+]
+#: Callback signature for one weak ``PaInSg1`` routed-context row emission.
+WeakPainsg1ContextFormEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str, str, str | int | None, str],
+    tuple[str, str],
+]
 #: Callback signature for one context-aware weak infinitive-derived row emission.
 WeakDerivedInfFormAction = Callable[
     [_WeakInfDerivationContext, str | None, str, str, str | int | None],
@@ -91,6 +101,172 @@ WeakPsinsg2SoundAction = Callable[
     [_WeakPsinsg2DerivationContext, str, str, str | int | None, int, str],
     None,
 ]
+
+
+def emit_weak_inf_form(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    dental: str | None,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_weak_principal_form: WeakInfFormEmitter,
+) -> tuple[str, str]:
+    """
+    Emit one weak infinitive-derived row by delegating to principal-form output.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        formhash: Form metadata hash for the active branch.
+        prefix: Prefix segment for the active part.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment for this derivation branch.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        dental: Optional weak-dental segment for this emitted row.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_weak_principal_form: Callback for one weak principal-form row.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak dental-based derivation;
+        this helper only forwards the legacy argument slots unchanged.
+
+    """
+    return emit_weak_principal_form(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        dental,
+        ending,
+        function,
+        prob,
+    )
+
+
+def emit_weak_painsg1_form_for_vowel(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    boundary: str,
+    dental: str,
+    current_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    post_vowel_simple: str,
+    *,
+    emit_form: WeakPainsg1RawFormEmitter,
+) -> tuple[str, str]:
+    """
+    Emit one weak ``PaInSg1`` row for a selected vowel variant.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        formhash: Form metadata hash for the active branch.
+        prefix: Prefix segment for the active part.
+        pre_vowel: Stem segment before the active vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        dental: Weak preterite dental segment for this derivation branch.
+        current_vowel: Selected vowel for the emitted branch.
+        ending: Morphological ending.
+        function: Morphology function code.
+        prob: Optional probability annotation.
+        post_vowel_simple: Simplified post-vowel segment for this branch.
+
+    Keyword Args:
+        emit_form: Callback that emits one weak form row.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak ``PaInSg1`` variants;
+        this helper preserves callback slot ordering and probability flow.
+
+    """
+    return emit_form(
+        formhash,
+        prefix,
+        pre_vowel,
+        current_vowel,
+        post_vowel_simple,
+        boundary,
+        dental,
+        ending,
+        function,
+        prob,
+    )
+
+
+def emit_weak_painsg1_form_for_vowel_from_context(  # noqa: PLR0913
+    context: _WeakPainsg1DerivationContext,
+    current_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    post_vowel_simple: str,
+    *,
+    emit_form_for_vowel: WeakPainsg1ContextFormEmitter,
+) -> tuple[str, str]:
+    """
+    Route one weak ``PaInSg1`` form emission through derivation context payload.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        context: Shared weak ``PaInSg1`` derivation context.
+        current_vowel: Selected vowel for the emitted branch.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+        post_vowel_simple: Simplified post-vowel segment for this branch.
+
+    Keyword Args:
+        emit_form_for_vowel: Callback that emits one weak ``PaInSg1`` row.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak preterite routing;
+        this helper only unpacks stored context and forwards it in order.
+
+    """
+    return emit_form_for_vowel(
+        context.formhash,
+        context.prefix,
+        context.pre_vowel,
+        context.boundary,
+        context.dental,
+        current_vowel,
+        ending,
+        function,
+        prob,
+        post_vowel_simple,
+    )
 
 
 def emit_weak_derived_inf_form(  # noqa: PLR0913

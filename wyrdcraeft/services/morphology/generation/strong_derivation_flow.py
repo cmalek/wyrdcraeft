@@ -63,6 +63,11 @@ StrongImSgEmitter = Callable[
     [dict[str, str], str, str, str, str, str, str | int | None],
     None,
 ]
+#: Callback signature for routing one strong infinitive-derived branch.
+StrongInfDerivationRouter = Callable[
+    [dict[str, str], Word, str, str, str, str, str, str, str | int | None],
+    None,
+]
 #: Callback signature for one context-aware strong infinitive-derived form action.
 StrongDerivedInfFormAction = Callable[
     [_StrongInfDerivationContext, str, str, str, str | int | None],
@@ -80,6 +85,59 @@ StrongDerivedInfImsgAction = Callable[
     [_StrongInfDerivationContext, str | int | None],
     None,
 ]
+
+
+def emit_strong_inf_derivation_for_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    word: Word,
+    prefix: str,
+    pre_vowel: str,
+    post_vowel: str,
+    boundary: str,
+    ending: str,
+    active_vowel: str,
+    prob: str | int | None,
+    *,
+    generate_strong_derived_from_inf: StrongInfDerivationRouter,
+) -> None:
+    """
+    Route one strong principal-part branch into infinitive-derived generation.
+
+    Side Effects:
+        Writes generated rows and participle side effects via callback.
+
+    Args:
+        formhash: Form metadata hash for the active branch.
+        word: Lexeme record currently being generated.
+        prefix: Prefix segment for the active part.
+        pre_vowel: Stem segment before the active vowel.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        ending: Source ending from the principal-part branch.
+        active_vowel: Selected active vowel from principal-part sequencing.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        generate_strong_derived_from_inf: Callback that emits infinitive-derived
+            strong rows.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe strong ablaut branch routing;
+        this helper preserves legacy slot ordering and probability forwarding.
+
+    """
+    generate_strong_derived_from_inf(
+        formhash,
+        word,
+        prefix,
+        pre_vowel,
+        active_vowel,
+        post_vowel,
+        boundary,
+        ending,
+        prob,
+    )
 
 
 def emit_strong_derived_inf_form_for_vowel(  # noqa: PLR0913
