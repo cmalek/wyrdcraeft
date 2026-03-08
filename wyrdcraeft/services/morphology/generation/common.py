@@ -37,9 +37,15 @@ from .shared import FormOutput
 from .sound_changes import (
     emit_sound_changed_from_source,
 )
+from .strong_derivation_flow import (
+    emit_strong_derived_inf_form_for_vowel as _emit_strong_derived_inf_form_for_vowel,
+    emit_strong_derived_inf_imsg as _emit_strong_derived_inf_imsg,
+    emit_strong_derived_inf_participle as _emit_strong_derived_inf_participle,
+    emit_strong_derived_inf_sound_for_vowel as _emit_strong_derived_inf_sound_for_vowel,
+    generate_strong_derived_from_inf as _generate_strong_derived_from_inf_flow,
+)
 from .strong_inflections import (
     emit_strong_principal_part_sequence,
-    emit_strong_derived_from_inf_sequence,
 )
 from .weak_derivation_flow import (
     emit_weak_derived_inf_form as _emit_weak_derived_inf_form,
@@ -1484,36 +1490,20 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        context = _StrongInfDerivationContext(
+        _generate_strong_derived_from_inf_flow(
             formhash=formhash,
             word=word,
             prefix=prefix,
             pre_vowel=pre_vowel,
-            base_vowel=vowel,
+            vowel=vowel,
             post_vowel=post_vowel,
             boundary=boundary,
-        )
-        emit_strong_derived_from_inf_sequence(
             ending=ending,
-            vowel=vowel,
             probability=prob,
-            umlaut_vowels=OENormalizer.iumlaut([vowel]),
-            emit_form_for_vowel=partial(
-                self._emit_strong_derived_inf_form_for_vowel_context,
-                context,
-            ),
-            emit_sound_for_vowel=partial(
-                self._emit_strong_derived_inf_sound_for_vowel_context,
-                context,
-            ),
-            on_participle=partial(
-                self._emit_strong_derived_inf_participle_context,
-                context,
-            ),
-            emit_imsg=partial(
-                self._emit_strong_derived_inf_imsg_context,
-                context,
-            ),
+            emit_form_for_vowel=self._emit_strong_derived_inf_form_for_vowel_context,
+            emit_sound_for_vowel=self._emit_strong_derived_inf_sound_for_vowel_context,
+            on_participle=self._emit_strong_derived_inf_participle_context,
+            emit_imsg=self._emit_strong_derived_inf_imsg_context,
         )
 
     def _emit_strong_derived_inf_form_for_vowel_context(
@@ -1541,16 +1531,13 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._emit_strong_vowel_form_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.post_vowel,
-            context.boundary,
+        return _emit_strong_derived_inf_form_for_vowel(
+            context,
             active_vowel,
             ending,
             function,
             prob,
+            emit_strong_vowel_form=self._emit_strong_vowel_form_context,
         )
 
     def _emit_strong_derived_inf_sound_for_vowel_context(
@@ -1575,16 +1562,13 @@ class VerbFormGenerator:
             prob: Optional probability annotation.
 
         """
-        self._emit_strong_vowel_sound_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.post_vowel,
-            context.boundary,
+        _emit_strong_derived_inf_sound_for_vowel(
+            context,
             active_vowel,
             ending,
             function,
             prob,
+            emit_strong_vowel_sound=self._emit_strong_vowel_sound_context,
         )
 
     def _emit_strong_derived_inf_participle_context(
@@ -1601,11 +1585,10 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        self._add_participle_to_adjectives(
-            context.word,
-            context.prefix,
+        _emit_strong_derived_inf_participle(
+            context,
             form_parts,
-            is_past=False,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
         )
 
     def _emit_strong_derived_inf_imsg_context(
@@ -1622,14 +1605,10 @@ class VerbFormGenerator:
             prob: Optional probability annotation.
 
         """
-        self._emit_imsg_for_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.base_vowel,
-            context.post_vowel,
-            context.boundary,
+        _emit_strong_derived_inf_imsg(
+            context,
             prob,
+            emit_imsg_for_context=self._emit_imsg_for_context,
         )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913
