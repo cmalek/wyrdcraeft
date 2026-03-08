@@ -170,7 +170,7 @@ It is necessary to distinguish between those stems which were originally long an
 
 § 376. Like gierd are declined æx, axe; bend (also masc. and neut.), band; bliþs, bliss, bliss; hild, war, battle; hind, doe; līþs, liss, favour, kindness; milts, mercy, kindness; nift, niece; rest, rest; sprǣc, speech, language; wrǣc, vengeance; wylf, she-wolf; ȳßp, wave. On the g in cǣg, key; īeg, island, see §§ 270, 272.
 
-§ 377. SING.                PLUR.
+§ 377.
 <table>
 	<thead>
 		<tr>
@@ -548,45 +548,97 @@ Plur.
   </tr>
 </table>
 
-The prim. Germanic forms were: Sing. nom. *ʒumȭ, acc. *ʒumanun, gen. *ʒumenaz (Goth. gumins), dat., properly locative, *ʒumini (Goth. gumin); Plur. nom. *ʒumaniz (Goth. gumans), acc. *ʒumanunz, gen. *ʒumnȭn (cp. Goth. aúhs-nē, OE. ox-na, of oxen) beside West Germanic *ʒumōnȭn (OHG. gomōno, OS. gumono) with -ōnȭn from the fem. nouns, dat. *ʒumunmiz beside West Germanic *ʒumō(n)miz (OHG. gomōm) with -ō- from the genitive. In OE. the nom. and acc. sing. and the nom. pl. were regularly developed from the corresponding prim. Germanic forms. The regular form of the gen. and dat. sing. would be *gumen, *gymen, but OE. had levelled out the -an of the acc. sing. before the period of i-umlaut. The gen. pl. can be either from *ʒumanōn with a from the sing. and the nom. plural, or from West Germanic *zumōnōn (§§ 217, 222). The dat. pl. was formed direct from ʒum + -um, the ending of the a-stems and the other consonantal stems, or else it is from West Germanic *ʒumō(n)miz. Beside the regular gen. pl. ending -ena, the forms -ana, -ona sometimes occur. The e in -ena was generally syncopated after long stems in poetry and in the names of peoples. On the loss of final -n in Nth., see § 288.
+The prim. Germanic forms were: Sing. nom. *ʒumȭ, acc. *ʒumanun, gen. *ʒumenaz (Goth. gumins), dat., properly locative, *ʒumini (Goth. gumin); Plur. nom. *ʒumaniz (Goth. gumans), acc. *ʒumanunz, gen. *ʒumnȭn (cp. Goth. aúhs-nē, OE. ox-na, of oxen) beside West Germanic *ʒumōnȭn (OHG. gomōno, OS. gumono) with -ōnȭn from the fem. nouns, dat. *ʒumunmiz beside West Germanic *ʒumō(n)miz (OHG. gomōm) with -ō- from the genitive. In OE. the nom. and acc. sing. and the nom. pl. were regularly developed from the corresponding prim. Germanic forms. The regular form of the gen. and dat. sing. would be *gumen, *gymen, but OE. had levelled out the -an of the acc. sing. before the period of i-umlaut. The gen. pl. can be either from *ʒumanȭn with a from the sing. and the nom. plural, or from West Germanic *zumōnȭn (§§ 217, 222). The dat. pl. was formed direct from ʒum + -um, the ending of the a-stems and the other consonantal stems, or else it is from West Germanic *ʒumō(n)miz. Beside the regular gen. pl. ending -ena, the forms -ana, -ona sometimes occur. The e in -ena was generally syncopated after long stems in poetry and in the names of peoples. On the loss of final -n in Nth., see § 288.
 
-From a morphological point of view the n-stems should be divided into -an, -jan, and -wan stems, but in OE. as in the other Germanic languages all three classes were declined alike. The -jan stems have i-umlaut in the stem-syllable and also gemination of consonants when the stem was originally short, as dēma, judge, cŷta, kite, becca, pickaxe, brytta, distributor, prince, from prim. Germanic *dōmjō, kūtjō, *bakjō, *brutjō.
+From a morphological point of view the n-stems should be divided into -an, -jan, and -wan stems, but in OE. as in the other Germanic languages all three classes were declined alike. The -jan stems have i-umlaut in the stem-syllable and also gemination of consonants when the stem was originally short, as dēma, judge, cȳta, kite, becca, pickaxe, brytta, distributor, prince, from prim. Germanic *đōmjȭ, kūtjȭ, *ƀakjȭ, *ƀrutjȭ.
 
-§ 401. Like guma are declined a large number of nouns, as ācumba, oakum; āera, strigil; ārendra, messenger; āglāeca, monster; anda, envy; andsaca, adversary; anga, goad; apa, ape; assa, ass; bana, slayer; bēna, suppliant;
-beorma, barm, yeast ; bera, bear ; bes(e)ma, besom ; bita, bit, morsel ; blanca, horse ; blöstma, blossom ; boda, messenger ; boga, bow ; bolla, bowl ; brōga, terror ; bucca, he-goat ; bylda, builder ; byrga, surety ; cleofa, cleft, cave ; cinapa, boy ; cnotta, knot ; cofa, chamber ; crabba, crab ; cruma, crumb ; cuma, guest, stranger ; dogga, dog ; dora, bumble-bee ; dropa, drop ; dwolma, chaos ; eafora, son ; fana, banner ; fēpa, band of infantry ; fliema, fugitive ; flota, sailor ; fola, foal ; freca, warrior ; frogga, frog ; fruma, beginning ; gāra, corner ; gealga, gallows ; gealla, gall ; gefēra, companion ; gehola, protector ; gerēfa, reeve ; gerūna, councillor ; gesaca, adversary ; geþofta, companion ; gewuna, custom ; haca, hook ; hafela, head ; hana, cock ; hara, hare ; hunta, hunter ; inca, grudge ; lēoma, ray of light ; lida, sailor ; loca, enclosure ; maga, stomach ; mōna, moon ; naca, boat ; nama, name ; nefa, nephew ; ōga, terror ; ōretta, warrior ; oxa (pl. œxen exen, beside oxan, § 107), ox ; plega, play ; pohha, pouch, bag ; prica, prick, point ; rima, rim ; ryþpa, mastiff ; sāda, cord, snare ; scanca, shank ; scaþa, foe, enemy ; scrēawa, shrew-mouse ; scucca, demon ; scu(w)a, shadow ; sefa, mind, heart ; slaga, slayer ; snaca, snake ; sopa, sup ; spāca, spoke of a wheel ; spearwa, sparrow ; staca, stake ; stela, stalk ; steorra, star ; swēora, neck ; swica, deceiver ; swīma, giddiness ; telga, branch ; trega, grief, affliction ; pearfa, pauper ; þūma, thumb ; wela, prosperity ; wita, sage, wise man ; witega, prophet ; wræcc(e)a (§ 55, Note 3), exile ; wyrhta, worker ; and the pl. hīwan (gen. hīna beside hīwna), members of a household.
+§ 401. Like guma are declined a large number of nouns, as ācumba, oakum; ǣra, strigil; ǣrendra, messenger; āglǣca, monster; anda, envy; andsaca, adversary; anga, goad; apa, ape; assa, ass; bana, slayer; bēna, suppliant; beorma, barm, yeast ; bera, bear ; bes(e)ma, besom ; bita, bit, morsel ; blanca, horse ; blōstma, blossom ; boda, messenger ; boga, bow ; bolla, bowl ; brōga, terror ; bucca, he-goat ; bylda, builder ; byrga, surety ; cleofa, cleft, cave ; cinapa, boy ; cnotta, knot ; cofa, chamber ; crabba, crab ; cruma, crumb ; cuma, guest, stranger ; dogga, dog ; dora, bumble-bee ; dropa, drop ; dwolma, chaos ; eafora, son ; fana, banner ; fēþa, band of infantry ; fliema, fugitive ; flota, sailor ; fola, foal ; freca, warrior ; frogga, frog ; fruma, beginning ; gāra, corner ; gealga, gallows ; gealla, gall ; gefēra, companion ; gehola, protector ; gerēfa, reeve ; gerūna, councillor ; gesaca, adversary ; geþofta, companion ; gewuna, custom ; haca, hook ; hafela, head ; hana, cock ; hara, hare ; hunta, hunter ; inca, grudge ; lēoma, ray of light ; lida, sailor ; loca, enclosure ; maga, stomach ; mōna, moon ; naca, boat ; nama, name ; nefa, nephew ; ōga, terror ; ōretta, warrior ; oxa (pl. œxen exen, beside oxan, § 107), ox ; plega, play ; pohha, pouch, bag ; prica, prick, point ; rima, rim ; ryþpa, mastiff ; sāda, cord, snare ; scanca, shank ; scaþa, foe, enemy ; scrēawa, shrew-mouse ; scucca, demon ; scu(w)a, shadow ; sefa, mind, heart ; slaga, slayer ; snaca, snake ; sopa, sup ; spāca, spoke of a wheel ; spearwa, sparrow ; staca, stake ; stela, stalk ; steorra, star ; swēora, neck ; swica, deceiver ; swīma, giddiness ; telga, branch ; trega, grief, affliction ; þearfa, pauper ; þūma, thumb ; wela, prosperity ; wita, sage, wise man ; wītega, prophet ; wræcc(e)a (§ 55, Note 3), exile ; wyrhta, worker ; and the pl. hīwan (gen. hīna beside hīwna), members of a household.
 
 § 402. Like frēa are declined flēa, flea ; gefā, foe ; (ge)fēa, joy ; lēo, lion ; rā, roe ; twēo, doubt ; wēa, woe ; and the plural Swēon, Swedes. See § 139.
+
 b. Feminine.
 
 § 403. Sing.
-    Nom.   tunge, tongue        bēo, bee
-    Acc.   tungan              bēon
-    Gen.   tungan              bēon
-    Dat.   tungan              bēon
+<table>
+  <tr>
+    <td>Nom.</td>
+    <td>tunge, tongue</td>
+    <td>bēo, bee</td>
+  </tr>
+  <tr>
+    <td>Acc.</td>
+    <td>tungan</td>
+    <td>bēon</td>
+  </tr>
+  <tr>
+    <td>Gen.</td>
+    <td>tungan</td>
+    <td>bēon</td>
+  </tr>
+  <tr>
+    <td>Dat.</td>
+    <td>tungan</td>
+    <td>bēon</td>
+  </tr>
+</table>
 
 Plur.
-    Nom. Acc.   tungan         bēon
-    Gen.       tungena          bēona
-    Dat.       tungum           bēom
+<table>
+  <tr>
+    <td>Nom., Acc.</td>
+    <td>tungan</td>
+    <td>bēon</td>
+  </tr>
+  <tr>
+    <td>Gen.</td>
+    <td>tungena</td>
+    <td>bēona</td>
+  </tr>
+  <tr>
+    <td>Dat.</td>
+    <td>tungum</td>
+    <td>bēom</td>
+  </tr>
+</table>
 
-The feminine n-stems were originally declined like the masculine, as in Latin, Greek and Sanskrit, but already in the prehistoric period of the Germanic languages, they became differentiated in some of the cases by partly generalizing one or other of the forms, thus the nom. sing. originally ended in ·ō or ·ōn in both genders, the West Germanic languages restricted ·ō to the masculine and ·ōn to the feminine, but in Gothic the reverse took place. In the fem. Goth. O.Icel. OS. and OHG. levelled out the long vowel of the nom. into the oblique cases, whereas O.E. had the same forms as the masculine except in the nom. sing. ·e from prim. Germanic ·ōn (§ 217). The general remarks made in § 400 concerning the masculine n-stems also apply to the feminine.
+The feminine n-stems were originally declined like the masculine, as in Latin, Greek and Sanskrit, but already in the prehistoric period of the Germanic languages, they became differentiated in some of the cases by partly generalizing one or other of the forms, thus the nom. sing. originally ended in ·ȭ or ·ōn in both genders, the West Germanic languages restricted ·ȭ to the masculine and ·ōn to the feminine, but in Gothic the reverse took place. In the fem. Goth. O.Icel. OS. and OHG. levelled out the long vowel of the nom. into the oblique cases, whereas O.E. had the same forms as the masculine except in the nom. sing. ·e from prim. Germanic ·ōn (§ 217). The general remarks made in § 400 concerning the masculine n-stems also apply to the feminine.
 
 The fem. nouns with short stems began to form their nom. sing. after the analogy of the short ō-stems (§ 365) already in early OE., as cinu, chink, spadu, spade, beside cine, spade.
 
-§ 404. Like tunge are declined ādre, artery, vein; ælmesse, alms; ēsce, inquiry; ampre, sorrel; ar(e)we, arrow; asse, she-ass; asce, ash, cinders; āþexe, lizard; bæcestre (also masc.), baker (for other examples containing the suffix ·estre, see § 603); bēce, beech-tree; belle,
-bell; berige, berry; bieme, trumpet; bicce, bitch; binde, head-band; blædre, bladder; blæse, blaze, firebrand, torch; burne, stream, brook; byrne, corslet; canne, can, cup; cēace, cheek, jaw; ceole, throat; cirice, church; clugge, bell; crāwe, crow; cuppe, cup; cūslyppe, -sloppe, cowslip; cwene, woman; docce, dock (plant); dūce, duck; eorþe, earth; fæcele, torch; faþe, aunt; fipele, fiddle; flēoge, fly; fliete, cream; folde, earth; hacele, cloak; hearpe, harp; heofone, heaven; heorte (orig. neut.), heart; hlǣfdige, lady; hrūse, earth; loppe, flea; māge, māge, kinswoman; meowle, maiden; miere, mare; mōdrige, maternal aunt; molde, earth; more, parsnip; moppē, moth; nādre, snake; ōsle, ousel; panne, pan; pere, pear; pipe, pipe; pirige, pear-tree; pise, pea; racente, chain; seohhe, sieve; sīde, side; slyppe, paste; smiþpe, smithy; sunne, sun; swealwe, swallow; swipe, scourge; þrote, throat; þyrne, thornbush; ūle, owl; wæcce (§ 55, Note 3), vigil; wāse, mud; wicce, witch; wise, way, manner; wice, wuce, week; wulle, wool; wuduwe, widow; ŷce, toad, frog.
+§ 404. Like tunge are declined ǣdre, artery, vein; ælmesse, alms; ǣsce, inquiry; ampre, sorrel; ar(e)we, arrow; asse, she-ass; asce, ash, cinders; āþexe, lizard; bæcestre (also masc.), baker (for other examples containing the suffix ·estre, see § 603); bēce, beech-tree; belle, bell; berige, berry; bieme, trumpet; bicce, bitch; binde, head-band; blǣdre, bladder; blæse, blaze, firebrand, torch; burne, stream, brook; byrne, corslet; canne, can, cup; cēace, cheek, jaw; ceole, throat; cirice, church; clugge, bell; crāwe, crow; cuppe, cup; cūslyppe, -sloppe, cowslip; cwene, woman; docce, dock (plant); dūce, duck; eorþe, earth; fæcele, torch; faþe, aunt; fiþele, fiddle; flēoge, fly; flīete, cream; folde, earth; hacele, cloak; hearpe, harp; heofone, heaven; heorte (orig. neut.), heart; hlǣfdige, lady; hrūse, earth; loppe, flea; mǣge, māge, kinswoman; meowle, maiden; mīere, mare; mōdrige, maternal aunt; molde, earth; more, parsnip; moþþē, moth; nǣdre, snake; ōsle, ousel; panne, pan; pere, pear; pīpe, pipe; pirige, pear-tree; pise, pea; racente, chain; seohhe, sieve; sīde, side; slyppe, paste; smiþþe, smithy; sunne, sun; swealwe, swallow; swipe, scourge; þrote, throat; þyrne, thornbush; ūle, owl; wæcce (§ 55, Note 3), vigil; wāse, mud; wicce, witch; wīse, way, manner; wice, wuce, week; wulle, wool; wuduwe, widow; ȳce, toad, frog.
 
-§ 405. Like bēo are declined cēo, jackdaw, chough; flā, arrow; sēo, pupil of the eye; slā, slāh, sloe; tā, toe; pō, clay. See § 139.
+§ 405. Like bēo are declined cēo, jackdaw, chough; flā, arrow; sēo, pupil of the eye; slā, slāh, sloe; tā, toe; þō, clay. See § 139.
 
 c. Neuter.
 
-§ 406. SING.        PLUR.
-Nom. Acc. ēage, eye    ēagan
-Gen. ēagan            ēagena
-Dat. ēagan            ēagum
+§ 406. 
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom. Acc.</td>
+			<td>ēage, eye</td>
+			<td>ēagan</td>
+		<tr>
+			<td>Gen.</td>
+			<td>ēagan</td>
+			<td>ēagena</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>ēagan</td>
+			<td>ēagum</td>
+		</tr>
+	</tbody>
+</table>
 
-The neuter n-stems had originally the same endings as the masculine and feminine except in the acc. sing. and the nom. acc. plural. The nom. acc. sing. had ·ōn which regularly became ·e in OE. (§ 217). The nom. acc. pl. had ·ōnə in the Indg. parent language. This was changed in prim. Germanic into ·ōnō with ·ō from the neuter a-stems. ·ōnō regularly became ·ōna in Goth., as áugō, eye, nom.
-acc. pl. áugōna. The OE. ending ·an was due to the analogy of the masc. and fem. n-stems.
+The neuter n-stems had originally the same endings as the masculine and feminine except in the acc. sing. and the nom. acc. plural. The nom. acc. sing. had ·ōn which regularly became ·e in OE. (§ 217). The nom. acc. pl. had ·ōnə in the Indg. parent language. This was changed in prim. Germanic into ·ōnō with ·ō from the neuter a-stems. ·ōnō regularly became ·ōna in Goth., as áugō, eye, nom. acc. pl. áugōna. The OE. ending ·an was due to the analogy of the masc. and fem. n-stems.
 
 § 407. Like ēage are only declined ēare, ear; wange (also with strong forms), cheek.
 
@@ -596,30 +648,81 @@ I. MONOSYLLABIC CONSONANT STEMS.
 
 a. Masculine.
 
-§ 408. SING.                PLUR.
-Nom. Acc.   fōt, foot        fēt
-Gen.         fōtes            fōta
-Dat.          fēt             fōtum
+§ 408. 
+<table>
+	<thead>
+		<tr>
+			<th>Case</th>
+			<th>Sing.</th>
+			<th>Plur.</th>
+		</tr>
+	</thead>
+  <tbody>
+	  <tr>
+	   	<td>Nom. Acc.</td>
+			<td>fōt, foot</td>
+			<td>fēt</td>
+		<tr>
+			<td>Gen.</td>
+			<td>fōtes</td>
+			<td>fōta</td>
+		</tr>
+		<tr>
+			<td>Dat.</td>
+			<td>fēt</td>
+			<td>fōtum</td>
+		</tr>
+	</tbody>
+</table>
 
-The prim. Germanic forms were: Sing. nom. fōt for older *fōs(s) (Gr. Dor. πός) with t from the inflected forms (§ 240), and similarly tōb for older *tōs(s), acc. *fōtun (Goth. fōtu), gen. *fōtaz, dat., properly loc., *fōti; Plur. nom. *fōtiz, acc. *fōtunz (Goth. fōtuns), gen. *fōtōn, dat. *fōtumiz. The OE. correspond to the prim. Germanic forms except in the gen. sing. which is a new formation after the analogy of the a-stems. The regular form would be *fōt.
+The prim. Germanic forms were: Sing. nom. fōt for older *fōs(s) (Gr. Dor. πός) with t from the inflected forms (§ 240), and similarly tōþ for older *tōs(s), acc. *fōtun (Goth. fōtu), gen. *fōtaz, dat., properly loc., *fōti; Plur. nom. *fōtiz, acc. *fōtunz (Goth. fōtuns), gen. *fōtȭn, dat. *fōtumiz. The OE. correspond to the prim. Germanic forms except in the gen. sing. which is a new formation after the analogy of the a-stems. The regular form would be *fōt.
 
-§ 409. Like fōt are declined tōb, tooth; man(n) (beside manna, acc. mannan, n-declension), man; and wifman, wimman, woman.
+§ 409. Like fōt are declined tōþ, tooth; man(n) (beside manna, acc. mannan, n-declension), man; and wīfman, wimman, woman.
 
 b. Feminine.
 
 § 410. SING.
-Nom. Acc.   bōc, book        hnutu, nut
-Gen.         bēc; bōce        hnute
-Dat.          bēc             hnyte
+<table>
+  <tr>
+    <td>Nom. Acc.</td>
+    <td>bōc, book</td>
+    <td>hnutu, nut</td>
+  </tr>
+  <tr>
+    <td>Gen.</td>
+    <td>bēc; bōce</td>
+    <td>hnute</td>
+  </tr>
+  <tr>
+    <td>Dat.</td>
+    <td>bēc</td>
+    <td>hnyte</td>
+  </tr>
+</table>
 
-PLUR.
-Nom. Acc.   bēc              hnyte
-Gen.         bōca             hnuta
-Dat.          bōcum            hnutum
-The OE. forms of bōc are regularly developed from prim. Germanic: Sing. nom. *bōks, acc. *bōkun, gen. *bōkaz, dat. *bōki; Plur. nom. *bōkiz, acc. *bōkunz, gen. *bōkōn, dat. *bōkumiz. The gen. sing. bōce was a new formation after the analogy of the ō-stems, and bēc is the dat. used for the gen. The regular nom. sing. of hnutu would be *hnuss (§ 240), hnutu (prim. Germ. *χnutun) is the acc. used for the nominative. The gen. sing. was formed after the analogy of the ō-stems; the dat. sing. and nom. pl. correspond to prim. Germanic *χnuti, *χnutiz, the final ·i (later ·e) being retained after a short stem (§ 215).
+Plur.
+<table>
+  <tr>
+    <td>Nom., Acc.</td>
+    <td>bēc</td>
+    <td>hnyte</td>
+  </tr>
+  <tr>
+    <td>Gen.</td>
+    <td>bōca</td>
+    <td>hnuta</td>
+  </tr>
+  <tr>
+    <td>Dat.</td>
+    <td>bōcum</td>
+    <td>hnutum</td>
+  </tr>
+</table>
 
-In nouns belonging to this class the stem-vowels ā, ō, u, ū were regularly umlauted to æ, ē (Nth. æ), y, ŷ in the dat. sing. and nom. acc. plural. In nearly all the nouns belonging to this class, beside the gen. sing. with umlaut there exists a form ending in ·e without umlaut which was made after the analogy of the ō-stems. In late OE. the dat. sing. was often like the nominative.
+The OE. forms of bōc are regularly developed from prim. Germanic: Sing. nom. *ƀōks, acc. *ƀōkun, gen. *ƀōkaz, dat. *ƀōki; Plur. nom. *ƀōkiz, acc. *ƀōkunz, gen. *ƀōkȭn, dat. *ƀōkumiz. The gen. sing. bōce was a new formation after the analogy of the ō-stems, and bēc is the dat. used for the gen. The regular nom. sing. of hnutu would be *hnuss (§ 240), hnutu (prim. Germ. *χnutun) is the acc. used for the nominative. The gen. sing. was formed after the analogy of the ō-stems; the dat. sing. and nom. pl. correspond to prim. Germanic *χnuti, *χnutiz, the final ·i (later ·e) being retained after a short stem (§ 215).
 
-§ 411. Like bōc are declined āc, oak; brōc, trousers; burg, city (gen. dat. sing. and nom. acc. pl. byrig beside byrg, § 220; also declined like cwēn (§ 389), but without i-umlaut); cū, cow (also gen. sing. cūe, cūs; nom. acc. pl. cŷ, cŷe, gen. cūa, cūna, cŷna); dung, prison; gāt, goat; gōs, goose; grūt, coarse meal, groats; lūs, louse; meol(u)c, milk; mūs, mouse; neaht, niht, night (also gen. dat. sing. nihte; adv. gen. nihtes, ānes nihtes, at night, by night, formed after the analogy of dæges); turf, turf; furh, furrow (gen. sing. fūre beside fyrh, pl. gen. fūra, dat. fūrum, § 115); sulh, plough (gen. sing. sūles on analogy with the a-stems, pl. gen. sūla, dat. sūlum); þrūh, trough (dat. pl. þrūm, § 320); wlōh, fringe.
+In nouns belonging to this class the stem-vowels ā, ō, u, ū were regularly umlauted to ǣ, ē (Nth. æ), y, ȳ in the dat. sing. and nom. acc. plural. In nearly all the nouns belonging to this class, beside the gen. sing. with umlaut there exists a form ending in ·e without umlaut which was made after the analogy of the ō-stems. In late OE. the dat. sing. was often like the nominative.
+
+§ 411. Like bōc are declined āc, oak; brōc, trousers; burg, city (gen. dat. sing. and nom. acc. pl. byrig beside byrg, § 220; also declined like cwēn (§ 389), but without i-umlaut); cū, cow (also gen. sing. cūe, cūs; nom. acc. pl. cȳ, cȳe, gen. cūa, cūna, cȳna); dung, prison; gāt, goat; gōs, goose; grūt, coarse meal, groats; lūs, louse; meol(u)c, milk; mūs, mouse; neaht, niht, night (also gen. dat. sing. nihte; adv. gen. nihtes, ānes nihtes, at night, by night, formed after the analogy of dæges); turf, turf; furh, furrow (gen. sing. fūre beside fyrh, pl. gen. fūra, dat. fūrum, § 115); sulh, plough (gen. sing. sūles on analogy with the a-stems, pl. gen. sūla, dat. sūlum); þrūh, trough (dat. pl. þrūm, § 320); wlōh, fringe.
 
 § 412. Like hnutu are declined hnutu, nit; studu, stuþu, pillar.
