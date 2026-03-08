@@ -101,6 +101,67 @@ WeakPsinsg2SoundAction = Callable[
     [_WeakPsinsg2DerivationContext, str, str, str | int | None, int, str],
     None,
 ]
+#: Callback signature for one manual weak row emission.
+WeakManualEmitter = Callable[
+    [dict[str, str], str, str, str, str | int | None],
+    None,
+]
+#: Callback signature for one weak ``PsInSg2`` row with simplified post-vowel.
+WeakPsinsg2FormWithPostEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str | None, str, str, str | int | None],
+    tuple[str, str],
+]
+#: Callback signature for one weak ``PsInSg2`` derivation-context form emission.
+WeakPsinsg2DerivationFormContextEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str, str | int | None, str],
+    None,
+]
+#: Callback signature for one weak ``PsInSg2`` derivation-context sound emission.
+WeakPsinsg2DerivationSoundContextEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str, str | int | None, int, str],
+    None,
+]
+
+
+class WeakPsinsg2SoundWithPostEmitter(Protocol):
+    """
+    Protocol for weak ``PsInSg2`` sound-change row emission with probability delta.
+    """
+
+    def __call__(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        """
+        Emit sound-changed weak rows for one ``PsInSg2`` branch.
+
+        Args:
+            formhash: Form metadata hash for the active branch.
+            prefix: Prefix segment for the active part.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment for this derivation branch.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Stem-boundary marker used in form-parts payloads.
+            dental: Optional weak-dental segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        Keyword Args:
+            sound_change_prob_delta: Probability delta applied to sound-changed
+                alternatives.
+
+        """
 
 
 def emit_weak_inf_form(  # noqa: PLR0913
@@ -269,6 +330,79 @@ def emit_weak_painsg1_form_for_vowel_from_context(  # noqa: PLR0913
     )
 
 
+def emit_weak_painsg1_manual_context(  # noqa: PLR0913
+    context: _WeakPainsg1DerivationContext,
+    form: str,
+    form_parts: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_manual: WeakManualEmitter,
+) -> None:
+    """
+    Emit one manual row from a pre-bound weak ``PaInSg1`` context.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        context: Shared weak ``PaInSg1`` derivation context.
+        form: Emitted surface form.
+        form_parts: Structured form-parts payload.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_manual: Callback that emits one manual morphology row.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak ``PaInSg1`` output as
+        regular branch emission; this helper preserves ordering and slots.
+
+    """
+    emit_manual(
+        context.formhash,
+        form,
+        form_parts,
+        function,
+        prob,
+    )
+
+
+def emit_weak_painsg1_participle_context(
+    context: _WeakPainsg1DerivationContext,
+    form_parts: str,
+    *,
+    add_participle_to_adjectives: WeakParticipleAdder,
+) -> None:
+    """
+    Attach a past participle emitted from a weak ``PaInSg1`` branch.
+
+    Side Effects:
+        Adds one adjective-row candidate to session state.
+
+    Args:
+        context: Shared weak ``PaInSg1`` derivation context.
+        form_parts: Form-parts payload for the derived participle.
+
+    Keyword Args:
+        add_participle_to_adjectives: Callback that stores the participle row.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe participle derivation in weak
+        paradigms; this helper forwards payloads without altering sequencing.
+
+    """
+    add_participle_to_adjectives(
+        context.word,
+        context.prefix,
+        form_parts,
+        is_past=True,
+    )
+
+
 def emit_weak_derived_inf_form(  # noqa: PLR0913
     context: _WeakInfDerivationContext,
     dental: str | None,
@@ -314,6 +448,209 @@ def emit_weak_derived_inf_form(  # noqa: PLR0913
         ending,
         function,
         prob,
+    )
+
+
+def emit_weak_psinsg2_form_with_post_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    boundary: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    post_vowel_simple: str,
+    *,
+    emit_form_with_post: WeakPsinsg2FormWithPostEmitter,
+) -> None:
+    """
+    Emit one weak ``PsInSg2``-branch form row with simplified post-vowel.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        formhash: The mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        boundary: Boundary consonant segment.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+        post_vowel_simple: Simplified post-vowel segment.
+
+    Keyword Args:
+        emit_form_with_post: Callback that emits one weak row with a simplified
+            post-vowel slot.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak ``PsInSg2`` branching;
+        this helper preserves argument ordering and probability flow.
+
+    """
+    emit_form_with_post(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel_simple,
+        boundary,
+        None,
+        ending,
+        function,
+        prob,
+    )
+
+
+def emit_weak_psinsg2_sound_with_post_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    boundary: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    consonant_change_prob: int,
+    post_vowel_simple: str,
+    *,
+    emit_sound_with_post: WeakPsinsg2SoundWithPostEmitter,
+) -> None:
+    """
+    Emit one weak ``PsInSg2`` sound-change branch with simplified post-vowel.
+
+    Side Effects:
+        Writes generated and sound-changed rows to the output stream.
+
+    Args:
+        formhash: The mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        boundary: Boundary consonant segment.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+        consonant_change_prob: Probability delta used by sound changes.
+        post_vowel_simple: Simplified post-vowel segment.
+
+    Keyword Args:
+        emit_sound_with_post: Callback that emits sound-changed weak rows.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe deterministic weak
+        sound-change alternations; this helper keeps branch payloads intact.
+
+    """
+    emit_sound_with_post(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel_simple,
+        boundary,
+        None,
+        ending,
+        function,
+        prob,
+        sound_change_prob_delta=consonant_change_prob,
+    )
+
+
+def emit_weak_psinsg2_form_with_post_derivation_context(  # noqa: PLR0913
+    context: _WeakPsinsg2DerivationContext,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    post_vowel_simple: str,
+    *,
+    emit_form_with_post_context: WeakPsinsg2DerivationFormContextEmitter,
+) -> None:
+    """
+    Emit one weak ``PsInSg2`` form row from a pre-bound derivation context.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        context: Shared weak ``PsInSg2`` derivation context.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+        post_vowel_simple: Simplified post-vowel segment.
+
+    Keyword Args:
+        emit_form_with_post_context: Callback that emits one weak ``PsInSg2``
+            row for a provided context payload.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak ``PsInSg2`` branch
+        propagation; this helper unpacks context without changing row order.
+
+    """
+    emit_form_with_post_context(
+        context.formhash,
+        context.prefix,
+        context.pre_vowel,
+        context.vowel,
+        context.boundary,
+        ending,
+        function,
+        prob,
+        post_vowel_simple,
+    )
+
+
+def emit_weak_psinsg2_sound_with_post_derivation_context(  # noqa: PLR0913
+    context: _WeakPsinsg2DerivationContext,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    consonant_change_prob: int,
+    post_vowel_simple: str,
+    *,
+    emit_sound_with_post_context: WeakPsinsg2DerivationSoundContextEmitter,
+) -> None:
+    """
+    Emit one weak ``PsInSg2`` sound-change row from a pre-bound context.
+
+    Side Effects:
+        Writes generated and sound-changed rows to the output stream.
+
+    Args:
+        context: Shared weak ``PsInSg2`` derivation context.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+        consonant_change_prob: Probability delta used by sound changes.
+        post_vowel_simple: Simplified post-vowel segment.
+
+    Keyword Args:
+        emit_sound_with_post_context: Callback that emits one weak sound-change
+            row for a provided context payload.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak sound-change branch
+        routing; this helper preserves callback order and probability plumbing.
+
+    """
+    emit_sound_with_post_context(
+        context.formhash,
+        context.prefix,
+        context.pre_vowel,
+        context.vowel,
+        context.boundary,
+        ending,
+        function,
+        prob,
+        consonant_change_prob,
+        post_vowel_simple,
     )
 
 

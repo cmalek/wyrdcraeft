@@ -85,6 +85,158 @@ StrongDerivedInfImsgAction = Callable[
     [_StrongInfDerivationContext, str | int | None],
     None,
 ]
+class StrongFormContextEmitter(Protocol):
+    """Protocol for one low-level form-context row emission."""
+
+    def __call__(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = None,
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        """
+        Emit one stem-context form row.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+
+        Keyword Args:
+            dental: Optional weak-dental segment.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+#: Callback signature for one low-level sound-context row emission.
+StrongSoundContextEmitter = Callable[
+    [dict[str, str], str, str, str, str, str, str, str, str | int | None],
+    None,
+]
+
+
+def emit_strong_vowel_form_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    post_vowel: str,
+    boundary: str,
+    active_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_form_for_context: StrongFormContextEmitter,
+) -> tuple[str, str]:
+    """
+    Emit one strong-form row for a pre-bound stem context.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        formhash: The mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        active_vowel: Active ablaut/umlaut vowel.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_form_for_context: Callback that emits one row for the provided
+            vowel/context payload.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe strong-vowel slot routing;
+        this helper preserves the same argument ordering and probability flow.
+
+    """
+    return emit_form_for_context(
+        formhash,
+        prefix,
+        pre_vowel,
+        active_vowel,
+        post_vowel,
+        boundary,
+        ending,
+        function,
+        prob=prob,
+    )
+
+
+def emit_strong_vowel_sound_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    post_vowel: str,
+    boundary: str,
+    active_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_sound_for_context: StrongSoundContextEmitter,
+) -> None:
+    """
+    Emit strong sound-changed rows for one pre-bound stem context.
+
+    Side Effects:
+        Writes generated and sound-changed rows to the output stream.
+
+    Args:
+        formhash: The mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        active_vowel: Active ablaut/umlaut vowel.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_sound_for_context: Callback that emits sound-change rows for the
+            provided vowel/context payload.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe predictable strong sound
+        outcomes; this helper only forwards context slots unchanged.
+
+    """
+    emit_sound_for_context(
+        formhash,
+        prefix,
+        pre_vowel,
+        active_vowel,
+        post_vowel,
+        boundary,
+        ending,
+        function,
+        prob,
+    )
 
 
 def emit_strong_inf_derivation_for_context(  # noqa: PLR0913
@@ -187,6 +339,51 @@ def emit_strong_derived_inf_form_for_vowel(  # noqa: PLR0913
     )
 
 
+def emit_strong_derived_inf_form_for_vowel_context(  # noqa: PLR0913
+    context: _StrongInfDerivationContext,
+    active_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_strong_vowel_form_context: StrongVowelFormEmitter,
+) -> tuple[str, str]:
+    """
+    Emit one strong infinitive-derived row for a selected active vowel.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        context: Shared strong-derivation emission context.
+        active_vowel: Active vowel used for the emitted row.
+        ending: Ending segment for the emitted row.
+        function: Morphology function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_strong_vowel_form_context: Callback that emits one strong
+            infinitive-derived form row.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe strong derivation branch
+        propagation; this helper preserves callback sequencing.
+
+    """
+    return emit_strong_derived_inf_form_for_vowel(
+        context,
+        active_vowel,
+        ending,
+        function,
+        prob,
+        emit_strong_vowel_form=emit_strong_vowel_form_context,
+    )
+
+
 def emit_strong_derived_inf_sound_for_vowel(  # noqa: PLR0913
     context: _StrongInfDerivationContext,
     active_vowel: str,
@@ -231,6 +428,48 @@ def emit_strong_derived_inf_sound_for_vowel(  # noqa: PLR0913
     )
 
 
+def emit_strong_derived_inf_sound_for_vowel_context(  # noqa: PLR0913
+    context: _StrongInfDerivationContext,
+    active_vowel: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_strong_vowel_sound_context: StrongVowelSoundEmitter,
+) -> None:
+    """
+    Emit sound-change rows for one strong infinitive-derived vowel branch.
+
+    Side Effects:
+        Writes one or more rows to the morphology output stream.
+
+    Args:
+        context: Shared strong-derivation emission context.
+        active_vowel: Active vowel used for source-row assembly.
+        ending: Ending segment for the source row.
+        function: Morphology function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_strong_vowel_sound_context: Callback that emits strong
+            sound-change rows for one selected vowel branch.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe strong branch phonological
+        outcomes; this helper only routes existing callback payloads.
+
+    """
+    emit_strong_derived_inf_sound_for_vowel(
+        context,
+        active_vowel,
+        ending,
+        function,
+        prob,
+        emit_strong_vowel_sound=emit_strong_vowel_sound_context,
+    )
+
+
 def emit_strong_derived_inf_participle(
     context: _StrongInfDerivationContext,
     form_parts: str,
@@ -261,6 +500,38 @@ def emit_strong_derived_inf_participle(
         context.prefix,
         form_parts,
         is_past=False,
+    )
+
+
+def emit_strong_derived_inf_participle_context(
+    context: _StrongInfDerivationContext,
+    form_parts: str,
+    *,
+    add_participle_to_adjectives: StrongParticipleAdder,
+) -> None:
+    """
+    Attach a present participle emitted from infinitive-derived strong rows.
+
+    Side Effects:
+        Adds one adjective-row candidate to session state.
+
+    Args:
+        context: Shared strong-derivation emission context.
+        form_parts: Form-parts payload for the derived participle.
+
+    Keyword Args:
+        add_participle_to_adjectives: Callback that stores the participle row.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe participle projection from
+        strong stems; this helper preserves payload forwarding semantics.
+
+    """
+    emit_strong_derived_inf_participle(
+        context,
+        form_parts,
+        add_participle_to_adjectives=add_participle_to_adjectives,
     )
 
 
@@ -297,6 +568,38 @@ def emit_strong_derived_inf_imsg(
         context.post_vowel,
         context.boundary,
         prob,
+    )
+
+
+def emit_strong_derived_inf_imsg_context(
+    context: _StrongInfDerivationContext,
+    prob: str | int | None,
+    *,
+    emit_imsg_for_context: StrongImSgEmitter,
+) -> None:
+    """
+    Emit the strong imperative-singular derivative for infinitive branches.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        context: Shared strong-derivation emission context.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_imsg_for_context: Callback that emits the imperative-singular row.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) treat imperative rows as part of the
+        regular strong paradigm; this helper keeps callback ordering unchanged.
+
+    """
+    emit_strong_derived_inf_imsg(
+        context,
+        prob,
+        emit_imsg_for_context=emit_imsg_for_context,
     )
 
 
