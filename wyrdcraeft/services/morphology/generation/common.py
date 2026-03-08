@@ -41,10 +41,12 @@ from .strong_inflections import (
     emit_strong_principal_part_sequence,
     emit_strong_derived_from_inf_sequence,
 )
-from .weak_inflections import (
-    emit_weak_derived_from_inf_sequence,
-    emit_weak_derived_from_painsg1_context,
-    emit_weak_derived_from_psinsg2_context,
+from .weak_derivation_flow import (
+    emit_weak_derived_inf_form as _emit_weak_derived_inf_form,
+    emit_weak_derived_inf_participle as _emit_weak_derived_inf_participle,
+    generate_weak_derived_from_inf as _generate_weak_derived_from_inf,
+    generate_weak_derived_from_painsg1 as _generate_weak_derived_from_painsg1,
+    generate_weak_derived_from_psinsg2 as _generate_weak_derived_from_psinsg2,
 )
 from .weak_principal_flow import (
     emit_weak_principal_inf_derivation as _emit_weak_principal_inf_derivation,
@@ -2040,7 +2042,7 @@ class VerbFormGenerator:
             prob: The probability.
 
         """
-        context = _WeakInfDerivationContext(
+        _generate_weak_derived_from_inf(
             formhash=formhash,
             word=word,
             prefix=prefix,
@@ -2048,24 +2050,10 @@ class VerbFormGenerator:
             vowel=vowel,
             post_vowel=post_vowel,
             boundary=boundary,
-        )
-        emit_weak_derived_from_inf_sequence(
-            class2=formhash.get("class2"),
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            vowel=vowel,
-            post_vowel=post_vowel,
-            boundary=boundary,
             original_ending=original_ending,
             probability=prob,
-            emit_form=partial(
-                self._emit_weak_derived_inf_form_context,
-                context,
-            ),
-            on_participle=partial(
-                self._emit_weak_derived_inf_participle_context,
-                context,
-            ),
+            emit_form=self._emit_weak_derived_inf_form_context,
+            on_participle=self._emit_weak_derived_inf_participle_context,
         )
 
     def _emit_weak_derived_inf_form_context(
@@ -2093,17 +2081,13 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._emit_weak_inf_form_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.vowel,
-            context.post_vowel,
-            context.boundary,
+        return _emit_weak_derived_inf_form(
+            context,
             dental,
             ending,
             function,
             prob,
+            emit_weak_inf_form=self._emit_weak_inf_form_context,
         )
 
     def _emit_weak_derived_inf_participle_context(
@@ -2120,11 +2104,10 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        self._add_participle_to_adjectives(
-            context.word,
-            context.prefix,
+        _emit_weak_derived_inf_participle(
+            context,
             form_parts,
-            is_past=False,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
         )
 
     def _generate_weak_derived_from_painsg1(  # noqa: PLR0913
@@ -2158,15 +2141,9 @@ class VerbFormGenerator:
             vowel_pa: The preterite singular vowel from variant 0.
 
         """
-        context = _WeakPainsg1DerivationContext(
+        _generate_weak_derived_from_painsg1(
             formhash=formhash,
             word=word,
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            boundary=boundary,
-            dental=dental,
-        )
-        emit_weak_derived_from_painsg1_context(
             prefix=prefix,
             pre_vowel=pre_vowel,
             vowel=vowel,
@@ -2176,18 +2153,9 @@ class VerbFormGenerator:
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
             probability=prob,
-            emit_form_for_vowel=partial(
-                self._emit_weak_painsg1_form_for_vowel_derivation_context,
-                context,
-            ),
-            emit_manual=partial(
-                self._emit_weak_painsg1_manual_context,
-                context,
-            ),
-            on_participle=partial(
-                self._emit_weak_painsg1_participle_context,
-                context,
-            ),
+            emit_form_for_vowel=self._emit_weak_painsg1_form_for_vowel_derivation_context,
+            emit_manual=self._emit_weak_painsg1_manual_context,
+            on_participle=self._emit_weak_painsg1_participle_context,
         )
 
     def _generate_weak_derived_from_psinsg2(  # noqa: PLR0913
@@ -2213,24 +2181,16 @@ class VerbFormGenerator:
             prob: The probability annotation.
 
         """
-        context = _WeakPsinsg2DerivationContext(
+        _generate_weak_derived_from_psinsg2(
             formhash=formhash,
             prefix=prefix,
             pre_vowel=pre_vowel,
             vowel=vowel,
-            boundary=boundary,
-        )
-        emit_weak_derived_from_psinsg2_context(
-            probability=prob,
             post_vowel=post_vowel,
-            emit_form_with_post=partial(
-                self._emit_weak_psinsg2_form_with_post_derivation_context,
-                context,
-            ),
-            emit_sound_with_post=partial(
-                self._emit_weak_psinsg2_sound_with_post_derivation_context,
-                context,
-            ),
+            boundary=boundary,
+            probability=prob,
+            emit_form_with_post=self._emit_weak_psinsg2_form_with_post_derivation_context,
+            emit_sound_with_post=self._emit_weak_psinsg2_sound_with_post_derivation_context,
         )
 
 
