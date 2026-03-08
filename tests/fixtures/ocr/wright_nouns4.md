@@ -4,22 +4,22 @@ a. Pure ō-stems.
 
 <table>
 	<tr>
-		<td>Nom.</td>
+		<th>Nom.</th>
 		<td>giefu, -o, gift</td>
 		<td>ār, honour</td>
 	</tr>
 	<tr>
-		<td>Acc.</td>
+		<th>Acc.</th>
 		<td>giefe</td>
 		<td>āre</td>
 	</tr>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>giefe</td>
 		<td>āre</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>giefe</td>
 		<td>āre</td>
 	</tr>
@@ -29,17 +29,17 @@ Plur.
 
 <table>
 	<tr>
-		<td>Nom. Acc.</td>
+		<th>Nom. Acc.</th>
 		<td>giefe, -a</td>
 		<td>āre, -a</td>
 	</tr>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>giefa, (-ena)</td>
 		<td>āra, (-na, -ena)</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>giefum</td>
 		<td>ārum</td>
 	</tr>
@@ -79,7 +79,7 @@ The prim. Germanic forms were: Sing. nom. *ʒeƀō, acc. *gebōn (cp. Gr. χώρ
 PLUR.
 <table>
 	<tr>
-		<td>Nom. Acc.</td>
+		<th>Nom. Acc.</th>
 		<td>firene, -a</td>
 		<td>sāwle, -a</td>
 	</tr>
@@ -89,7 +89,7 @@ PLUR.
 		<td>sāwla</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>firenum</td>
 		<td>sāwlum</td>
 	</tr>
@@ -104,12 +104,12 @@ In originally trisyllabic words the final -u regularly disappeared in the nom. s
 § 371. 
 <table>
 	<tr>
-		<td>Nom.</td>
+		<th>Nom.</th>
 		<td>strengþu, -o, strength</td>
 		<td>leornung, learning</td>
 	</tr?
 	<tr>
-		<td>Acc. Gen. Dat.</td>
+		<th>Acc. Gen. Dat.</th>
 		<td>strengþe</td>
 		<td>leornunge, -a</td>
 	</tr>
@@ -126,21 +126,21 @@ b. jō-STEMS.
 § 374. SING.
 <table>
   <tr>
-   	<td>Nom.</td>
+   	<th>Nom.</th>
 		<td>hen(n), hen</td>
 		<td>gierd, rod</td>
 	</tr>
-		<td>Acc.</td>
+		<th>Acc.</th>
 		<td>henne</td>
 		<td>gierde</td>
 	</tr>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>henne</td>
 		<td>gierde</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>henne</td>
 		<td>gierde</td>
 	</tr>
@@ -149,16 +149,16 @@ b. jō-STEMS.
 PLUR.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>henne, -a</td>
 		<td>gierde, -a</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>henna</td>
 		<td>gierda</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>hennum</td>
 		<td>gierdum</td>
 	</tr>
@@ -181,21 +181,21 @@ It is necessary to distinguish between those stems which were originally long an
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom.</td>
+	   	<th>Nom.</th>
 			<td>byrþen(n), burden</td>
 			<td>byrþenne, -a</td>
 		</tr>
-			<td>Acc.</td>
+			<th>Acc.</th>
 			<td>byrþenne</td>
 			<td>byrþenne, -a</td>
 		</tr>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>byrþenne</td>
 			<td>byrþenna</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>byrþenne</td>
 			<td>byrþennum</td>
 		</tr>
@@ -213,11 +213,11 @@ c. wō·STEMS.
 § 379. SING.
 <table>
   <tr>
-   	<td>Nom.</td>
+   	<th>Nom.</th>
 		<td>beadu, ·o, battle</td>
 		<td>mǣd, meadow</td>
 	<tr>
-		<td>Acc. Gen. Dat.</td>
+		<th>Acc. Gen. Dat.</th>
 		<td>beadwe</td>
 		<td>mǣdwe</td>
 	</tr>
@@ -226,16 +226,16 @@ c. wō·STEMS.
 PLUR.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>beadwe, ·a</td>
 		<td>mǣdwe, ·a</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>beadwa</td>
 		<td>mǣdwa</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>beadwum</td>
 		<td>mǣdwum</td>
 	</tr>
@@ -263,21 +263,21 @@ In the inflected forms the wō-stems had the same endings as the ō-stems except
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom.</td>
+	   	<th>Nom.</th>
 			<td>strengu, ·o, strength</td>
 			<td>strenge, ·a ; ·u, ·o</td>
 		</tr>
-			<td>Acc.</td>
+			<th>Acc.</th>
 			<td>strenge, ·u, ·o</td>
 			<td>"</td>
 		</tr>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>"</td>
 			<td>strenga</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>"</td>
 			<td>strengum</td>
 		</tr>
@@ -295,16 +295,16 @@ a. Masculine.
 § 385. SING.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>wine, friend</td>
 		<td>giest, guest</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>wines</td>
 		<td>giestes</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>wine</td>
 		<td>gieste</td>
 	</tr>
@@ -313,16 +313,16 @@ a. Masculine.
 PLUR.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>wine, -as</td>
 		<td>giestas</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>wini(ge)a</td>
 		<td>giesta</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>winum</td>
 		<td>giestum</td>
 	</tr>
@@ -350,16 +350,16 @@ b. Feminine.
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom. Acc.</td>
+	   	<th>Nom. Acc.</th>
 			<td>cwēn, queen</td>
 			<td>cwēne</td>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>cwēne</td>
 			<td>cwēna</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>cwēne</td>
 			<td>cwēnum</td>
 		</tr>
@@ -387,16 +387,16 @@ c. Neuter.
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom. Acc.</td>
+	   	<th>Nom. Acc.</th>
 			<td>spere, spear</td>
 			<td>speru, -o</td>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>speres</td>
 			<td>spera</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>spere</td>
 			<td>sperum</td>
 		</tr>
@@ -418,16 +418,16 @@ a. Masculine.
 § 395. SING.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>sunu, ·o, son</td>
 		<td>feld, field</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>suna</td>
 		<td>felda</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>suna</td>
 		<td>felda</td>
 	</tr>
@@ -436,16 +436,16 @@ a. Masculine.
 PLUR.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>suna</td>
 		<td>felda</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>suna</td>
 		<td>felda</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>sunum</td>
 		<td>feldum</td>
 	</tr>
@@ -462,16 +462,16 @@ b. Feminine.
 § 398. SING.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>duru, ·o, door</td>
 		<td>hand, hand</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>dura</td>
 		<td>handa</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>dura</td>
 		<td>handa</td>
 	</tr>
@@ -480,16 +480,16 @@ b. Feminine.
 PLUR.
 <table>
   <tr>
-   	<td>Nom. Acc.</td>
+   	<th>Nom. Acc.</th>
 		<td>dura</td>
 		<td>handa</td>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>dura</td>
 		<td>handa</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>durum</td>
 		<td>handum</td>
 	</tr>
@@ -508,22 +508,22 @@ a. Masculine.
 § 400. Sing.
 <table>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>guma, man</td>
     <td>frēa, lord</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>guman</td>
     <td>frēan</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>guman</td>
     <td>frēan</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>guman</td>
     <td>frēan</td>
   </tr>
@@ -532,17 +532,17 @@ a. Masculine.
 Plur.
 <table>
   <tr>
-    <td>Nom., Acc.</td>
+    <th>Nom. Acc.</th>
     <td>guman</td>
     <td>frēan</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>gumena</td>
     <td>frēana</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>gumum</td>
     <td>frēa(u)m</td>
   </tr>
@@ -561,22 +561,22 @@ b. Feminine.
 § 403. Sing.
 <table>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>tunge, tongue</td>
     <td>bēo, bee</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>tungan</td>
     <td>bēon</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>tungan</td>
     <td>bēon</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>tungan</td>
     <td>bēon</td>
   </tr>
@@ -585,17 +585,17 @@ b. Feminine.
 Plur.
 <table>
   <tr>
-    <td>Nom., Acc.</td>
+    <td>Nom. Acc.</td>
     <td>tungan</td>
     <td>bēon</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>tungena</td>
     <td>bēona</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>tungum</td>
     <td>bēom</td>
   </tr>
@@ -622,16 +622,16 @@ c. Neuter.
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom. Acc.</td>
+	   	<th>Nom. Acc.</th>
 			<td>ēage, eye</td>
 			<td>ēagan</td>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>ēagan</td>
 			<td>ēagena</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>ēagan</td>
 			<td>ēagum</td>
 		</tr>
@@ -659,16 +659,16 @@ a. Masculine.
 	</thead>
   <tbody>
 	  <tr>
-	   	<td>Nom. Acc.</td>
+	   	<th>Nom. Acc.</th>
 			<td>fōt, foot</td>
 			<td>fēt</td>
 		<tr>
-			<td>Gen.</td>
+			<th>Gen.</th>
 			<td>fōtes</td>
 			<td>fōta</td>
 		</tr>
 		<tr>
-			<td>Dat.</td>
+			<th>Dat.</th>
 			<td>fēt</td>
 			<td>fōtum</td>
 		</tr>
@@ -684,17 +684,17 @@ b. Feminine.
 § 410. SING.
 <table>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>bōc, book</td>
     <td>hnutu, nut</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>bēc; bōce</td>
     <td>hnute</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>bēc</td>
     <td>hnyte</td>
   </tr>
@@ -708,12 +708,12 @@ Plur.
     <td>hnyte</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>bōca</td>
     <td>hnuta</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>bōcum</td>
     <td>hnutum</td>
   </tr>

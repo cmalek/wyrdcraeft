@@ -4,19 +4,19 @@
 Sing.
 <table>
   <tr>
-    <td>Nom Acc.</td>
+    <th>Nom. Acc.</th>
     <td>cyn(n), race</td>
     <td>wīte, punishment</td>
     <td>wēsten, desert</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>cynnes</td>
     <td>wites</td>
     <td>wēstennes</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>cynne</td>
     <td>wīte</td>
     <td>wēstenne</td>
@@ -26,19 +26,19 @@ Sing.
 Plur.
 <table>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>cyn(n)</td>
     <td>witu</td>
     <td>wēstennu</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>cynna</td>
     <td>wīta</td>
     <td>wēstenna</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>cynnunum</td>
     <td>witum</td>
     <td>wēstennum</td>
@@ -60,17 +60,17 @@ c. wa-stems.
 Masculine. SING.
 <table>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>bearu, -o, grove</td>
     <td>þēo, servant</td>
   <tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>bearwes</td>
     <td>þeowes</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>bearwe</td>
     <td>þewe</td>
   <tr>
@@ -79,23 +79,23 @@ Masculine. SING.
 PLUR.
 <table>
   <tr>
-  	 <td>Nom. Acc.</td>
+  	 <th>Nom. Acc.</th>
     <td>bearwas</td>
     <td>þeowas</td>
   <tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>bearwa</td>
     <td>þeowa</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>bearwum</td>
     <td>þeowum</td>
   </tr>
 </table>
 
-In the inflected forms the masc. wa-stems have the same endings as the pure a-stems. After the loss of prim. Germanic ·az, ·an in the nom. and acc. singular, the w being final became vocalized to ·u which remained after short vowels followed by a consonant, but with a preceding short vowel it combined to form a diphthong (§§ 264–5); thus prim. Germanic *barwaz, ·an, *þewaz, ·an regularly became bearu (later bearo), þēo. After a long vowel the ·u regularly disappeared, as in snā, snow, from *snaiwaz, ·an. At a later period the w in the inflected forms was levelled out into the nom. acc. singular, whence þēow, snāw beside older þēo, snā. And then from þēow there was often formed a new gen. þēowes beside the regular form þeowes (§ 265). On forms like gen. bearuwes beside bearwes, see § 220.
+In the inflected forms the masc. wa-stems have the same endings as the pure a-stems. After the loss of prim. Germanic ·az, ·an in the nom. and acc. singular, the w being final became vocalized to ·u which remained after short vowels followed by a consonant, but with a preceding short vowel it combined to form a diphthong (§§ 264–5); thus prim. Germanic *ƀarwaz, ·an, *þewaz, ·an regularly became bearu (later bearo), þēo. After a long vowel the ·u regularly disappeared, as in snā, snow, from *snaiwaz, ·an. At a later period the w in the inflected forms was levelled out into the nom. acc. singular, whence þēow, snāw beside older þēo, snā. And then from þēow there was often formed a new gen. þēowes beside the regular form þeowes (§ 265). On forms like gen. bearuwes beside bearwes, see § 220.
 
 § 360. Like þēo, þēow are declined bēaw, gadfly; dēaw (also neut.), dew; lārēow from lād + þēow, teacher; lāttēow from lād + þēow, leader; þēaw, custom; brīw (Goth. *breiws), pottage, porridge; gīw, gēow, griffin, vulture; īw, īow, ēow, yew; slīw (Goth. *sleiws), tench (a fish).
 § 361. Neuter.
@@ -103,17 +103,17 @@ In the inflected forms the masc. wa-stems have the same endings as the pure a-st
 SING.
 <table>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>bealu, -o, evil</td>
     <td>cnēo, knee</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>bealwes</td>
     <td>cneowes</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>bealwe</td>
     <td>cneowe</td>
   </tr>
@@ -122,17 +122,17 @@ SING.
 PLUR.
 <table>
 	<tr>
-		<td>Nom. Acc.</td>
+		<th>Nom. Acc.</th>
 		<td>bealu, -o</td>
 		<td>cnēo</td>
 	</tr>
 	<tr>
-		<td>Gen.</td>
+		<th>Gen.</th>
 		<td>bealwa</td>
 		<td>cneowa</td>
 	</tr>
 	<tr>
-		<td>Dat.</td>
+		<th>Dat.</th>
 		<td>bealwum</td>
 		<td>cneowum</td>
 	</tr>
