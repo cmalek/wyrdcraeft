@@ -44,8 +44,11 @@ from .strong_derivation_flow import (
     emit_strong_derived_inf_sound_for_vowel as _emit_strong_derived_inf_sound_for_vowel,
     generate_strong_derived_from_inf as _generate_strong_derived_from_inf_flow,
 )
-from .strong_inflections import (
-    emit_strong_principal_part_sequence,
+from .strong_principal_flow import (
+    emit_strong_principal_form_for_vowel as _emit_strong_principal_form_for_vowel,
+    emit_strong_principal_inf_derivation as _emit_strong_principal_inf_derivation,
+    emit_strong_principal_participle as _emit_strong_principal_participle,
+    generate_strong_verb_parts as _generate_strong_verb_parts,
 )
 from .weak_derivation_flow import (
     emit_weak_derived_inf_form as _emit_weak_derived_inf_form,
@@ -1330,16 +1333,13 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._emit_strong_vowel_form_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.post_vowel,
-            context.boundary,
+        return _emit_strong_principal_form_for_vowel(
+            context,
             active_vowel,
             ending,
             function,
             prob,
+            emit_strong_vowel_form=self._emit_strong_vowel_form_context,
         )
 
     def _emit_strong_principal_participle_context(
@@ -1356,11 +1356,10 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        self._add_participle_to_adjectives(
-            context.word,
-            context.prefix,
+        _emit_strong_principal_participle(
+            context,
             form_parts,
-            is_past=True,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
         )
 
     def _emit_strong_principal_inf_derivation_context(
@@ -1381,16 +1380,11 @@ class VerbFormGenerator:
             prob: Optional probability annotation.
 
         """
-        self._emit_strong_inf_derivation_context(
-            context.formhash,
-            context.word,
-            context.prefix,
-            context.pre_vowel,
-            context.post_vowel,
-            context.boundary,
-            context.ending,
+        _emit_strong_principal_inf_derivation(
+            context,
             active_vowel,
             prob,
+            emit_strong_inf_derivation_for_context=self._emit_strong_inf_derivation_context,
         )
 
     def _generate_strong_verb_parts(  # noqa: PLR0913
@@ -1421,34 +1415,16 @@ class VerbFormGenerator:
             variant_id: The variant ID.
 
         """
-        para_id = item.para_id
-        ending = item.ending
-        boundary = item.boundary
-        context = _StrongPrincipalPartContext(
+        _generate_strong_verb_parts(
             formhash=formhash,
             word=word,
+            item=item,
             prefix=prefix,
             pre_vowel=pre_vowel,
             post_vowel=post_vowel,
-            boundary=boundary,
-            ending=ending,
-        )
-        emit_strong_principal_part_sequence(
-            para_id=para_id,
-            ending=ending,
-            vowels=[item.vowel],
-            emit_form_for_vowel=partial(
-                self._emit_strong_principal_form_for_vowel_context,
-                context,
-            ),
-            on_papt_form_parts=partial(
-                self._emit_strong_principal_participle_context,
-                context,
-            ),
-            on_inf=partial(
-                self._emit_strong_principal_inf_derivation_context,
-                context,
-            ),
+            emit_form_for_vowel=self._emit_strong_principal_form_for_vowel_context,
+            on_papt_participle=self._emit_strong_principal_participle_context,
+            on_inf=self._emit_strong_principal_inf_derivation_context,
         )
 
     def _generate_strong_derived_from_inf(  # noqa: PLR0913
