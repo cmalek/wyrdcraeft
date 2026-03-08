@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
+from .form_assembly import assemble_form_parts, materialize_form
+from .probability import format_probability
 from .sinks import TsvParitySink
 
 if TYPE_CHECKING:
@@ -77,3 +79,99 @@ def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> N
             "comment": mf.comment,
         }
         print_one_form(session, form_data, output_file)
+
+
+def generate_and_print_form(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    dental: str | None,
+    ending: str,
+    function: str,
+    *,
+    prob: str | int | None = None,
+) -> tuple[str, str]:
+    """
+    Assemble one generated form row and emit it to the output sink.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        dental: Optional weak-form dental segment.
+        ending: Morphological ending segment.
+        function: Morphological function code.
+
+    Keyword Args:
+        prob: Optional probability annotation.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    """
+    fh = formhash.copy()
+    fh["function"] = function
+
+    form_parts_raw = assemble_form_parts(
+        class1=fh["class1"],
+        prefix=prefix,
+        pre_vowel=pre_vowel,
+        vowel=vowel,
+        post_vowel=post_vowel,
+        boundary=boundary,
+        dental=dental,
+        ending=ending,
+    )
+    form, form_parts = materialize_form(form_parts_raw)
+
+    fh["form"] = form
+    fh["formParts"] = form_parts
+    fh["probability"] = format_probability(prob)
+    print_one_form(session, fh, output_file)
+    return form, form_parts
+
+
+def generate_and_print_manual(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    form: str,
+    form_parts: str,
+    function: str,
+    prob: str | int | None,
+) -> None:
+    """
+    Emit one manually assembled form row.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        form: Generated form text.
+        form_parts: Generated form-parts payload.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    """
+    fh = formhash.copy()
+    fh["form"] = form
+    fh["formParts"] = form_parts
+    fh["function"] = function
+    fh["probability"] = format_probability(prob)
+    print_one_form(session, fh, output_file)

@@ -20,7 +20,8 @@ from wyrdcraeft.models.morphology import (
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
-from .form_assembly import assemble_form_parts, materialize_form
+from .form_rows import generate_and_print_form as _generate_and_print_form
+from .form_rows import generate_and_print_manual as _generate_and_print_manual
 from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
@@ -30,9 +31,6 @@ from .paradigm_flow import (
     dispatch_variant_parts,
 )
 from .participles import build_participle_adjective
-from .probability import (
-    format_probability,
-)
 from .shared import FormOutput
 from .sound_changes import (
     emit_sound_changed_from_source,
@@ -584,27 +582,20 @@ class VerbFormGenerator:
             The form and form parts as a tuple.
 
         """  # noqa: E501
-        fh = formhash.copy()
-        fh["function"] = function
-
-        form_parts_raw = assemble_form_parts(
-            class1=fh["class1"],
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            vowel=vowel,
-            post_vowel=post_vowel,
-            boundary=boundary,
-            dental=dental,
-            ending=ending,
+        return _generate_and_print_form(
+            self.session,
+            self.output_file,
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob=prob,
         )
-        form, form_parts = materialize_form(form_parts_raw)
-
-        fh["form"] = form
-        fh["formParts"] = form_parts
-        fh["probability"] = format_probability(prob)
-
-        print_one_form(self.session, fh, self.output_file)
-        return form, form_parts
 
     def _emit_form_for_context(  # noqa: PLR0913
         self,
@@ -1855,12 +1846,15 @@ class VerbFormGenerator:
             prob: The probability annotation.
 
         """
-        fh = formhash.copy()
-        fh["form"] = form
-        fh["formParts"] = form_parts
-        fh["function"] = function
-        fh["probability"] = format_probability(prob)
-        print_one_form(self.session, fh, self.output_file)
+        _generate_and_print_manual(
+            self.session,
+            self.output_file,
+            formhash,
+            form,
+            form_parts,
+            function,
+            prob,
+        )
 
     def _emit_weak_principal_pspt_participle_context(
         self, context: _WeakPrincipalPartContext, form_parts: str
