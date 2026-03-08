@@ -34,9 +34,6 @@ from .participles import build_participle_adjective
 from .scalar_utils import nz as _nz_scalar
 from .scalar_utils import perl_numify as _perl_numify
 from .shared import FormOutput
-from .sound_changes import (
-    emit_sound_changed_from_source,
-)
 from .strong_derivation_flow import (
     emit_strong_derived_inf_form_for_vowel as _emit_strong_derived_inf_form_for_vowel,
     emit_strong_derived_inf_imsg as _emit_strong_derived_inf_imsg,
@@ -57,14 +54,8 @@ from .weak_derivation_flow import (
     generate_weak_derived_from_painsg1 as _generate_weak_derived_from_painsg1,
     generate_weak_derived_from_psinsg2 as _generate_weak_derived_from_psinsg2,
 )
-from .weak_principal_flow import (
-    emit_weak_principal_inf_derivation as _emit_weak_principal_inf_derivation,
-    emit_weak_principal_painsg1_derivation as _emit_weak_principal_painsg1_derivation,
-    emit_weak_principal_papt_participle as _emit_weak_principal_papt_participle,
-    emit_weak_principal_psinsg2_derivation as _emit_weak_principal_psinsg2_derivation,
-    emit_weak_principal_pspt_participle as _emit_weak_principal_pspt_participle,
-    generate_weak_verb_parts as _generate_weak_verb_parts,
-)
+from . import sound_dispatch_flow as _sound_dispatch_flow
+from . import weak_principal_flow as _weak_principal_flow
 from ..text_utils import OENormalizer
 
 
@@ -1622,7 +1613,7 @@ class VerbFormGenerator:
             sound_change_prob_delta: Probability increment for derived rows.
 
         """  # noqa: E501
-        context = _SoundChangeDispatchContext(
+        _sound_dispatch_flow.generate_and_print_form_with_sound_changes(
             formhash=formhash,
             prefix=prefix,
             pre_vowel=pre_vowel,
@@ -1633,19 +1624,9 @@ class VerbFormGenerator:
             ending=ending,
             function=function,
             probability=prob,
-        )
-        emit_sound_changed_from_source(
-            function=function,
-            probability=prob,
             sound_change_prob_delta=sound_change_prob_delta,
-            emit_source_form=partial(
-                self._emit_source_form_with_sound_dispatch_context,
-                context,
-            ),
-            emit_manual=partial(
-                self._emit_manual_sound_changed_dispatch_context,
-                context,
-            ),
+            emit_source_form_with_context=self._emit_source_form_with_sound_dispatch_context,
+            emit_manual_with_context=self._emit_manual_sound_changed_dispatch_context,
         )
 
     def _emit_source_form_with_sound_dispatch_context(
@@ -1664,17 +1645,9 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._emit_source_form_with_sound_context(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.vowel,
-            context.post_vowel,
-            context.boundary,
-            context.dental,
-            context.ending,
-            context.function,
-            context.probability,
+        return _sound_dispatch_flow.emit_source_form_with_sound_dispatch_context(
+            context,
+            emit_source_form_with_sound_context_callback=self._emit_source_form_with_sound_context,
         )
 
     def _emit_source_form_with_sound_context(  # noqa: PLR0913
@@ -1747,12 +1720,13 @@ class VerbFormGenerator:
             source_probability: Optional probability annotation.
 
         """
-        self._emit_manual_sound_changed_context(
-            context.formhash,
+        _sound_dispatch_flow.emit_manual_sound_changed_dispatch_context(
+            context,
             sound_changed_form,
             source_form_parts,
             source_function,
             source_probability,
+            emit_manual_sound_changed_context_callback=self._emit_manual_sound_changed_context,
         )
 
     def _emit_manual_sound_changed_context(
@@ -1828,7 +1802,7 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        _emit_weak_principal_pspt_participle(
+        _weak_principal_flow.emit_weak_principal_pspt_participle_context(
             context,
             form_parts,
             add_participle_to_adjectives=self._add_participle_to_adjectives,
@@ -1848,7 +1822,7 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        _emit_weak_principal_papt_participle(
+        _weak_principal_flow.emit_weak_principal_papt_participle_context(
             context,
             form_parts,
             add_participle_to_adjectives=self._add_participle_to_adjectives,
@@ -1867,7 +1841,7 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        _emit_weak_principal_inf_derivation(
+        _weak_principal_flow.emit_weak_principal_inf_derivation_context(
             context,
             generate_weak_derived_from_inf=self._generate_weak_derived_from_inf,
         )
@@ -1885,7 +1859,7 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        _emit_weak_principal_psinsg2_derivation(
+        _weak_principal_flow.emit_weak_principal_psinsg2_derivation_context(
             context,
             generate_weak_derived_from_psinsg2=self._generate_weak_derived_from_psinsg2,
         )
@@ -1903,7 +1877,7 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        _emit_weak_principal_painsg1_derivation(
+        _weak_principal_flow.emit_weak_principal_painsg1_derivation_context(
             context,
             generate_weak_derived_from_painsg1=self._generate_weak_derived_from_painsg1,
         )
@@ -1939,7 +1913,7 @@ class VerbFormGenerator:
             vowel_pa: The preterite singular vowel from variant 0.
 
         """
-        _generate_weak_verb_parts(
+        _weak_principal_flow.generate_weak_verb_parts_with_context(
             formhash=formhash,
             word=word,
             item=item,
@@ -1951,12 +1925,11 @@ class VerbFormGenerator:
             para_id_num=para_id_num,
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
-            emit_form=partial(self._emit_weak_principal_form_context, formhash),
-            on_pspt_participle=self._emit_weak_principal_pspt_participle_context,
-            on_papt_participle=self._emit_weak_principal_papt_participle_context,
-            on_inf=self._emit_weak_principal_inf_derivation_context,
-            on_psinsg2=self._emit_weak_principal_psinsg2_derivation_context,
-            on_painsg1=self._emit_weak_principal_painsg1_derivation_context,
+            emit_form_for_context=self._emit_weak_principal_form_context,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
+            generate_weak_derived_from_inf=self._generate_weak_derived_from_inf,
+            generate_weak_derived_from_psinsg2=self._generate_weak_derived_from_psinsg2,
+            generate_weak_derived_from_painsg1=self._generate_weak_derived_from_painsg1,
         )
 
     def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
