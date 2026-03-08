@@ -10,7 +10,7 @@ NOUNS
 
 § 331. Owing to the loss of final short vowels, and consonants, in prehistoric OE. (§§ 211–16), several different kinds of stems regularly fell together in the nom. and acc. singular, so that, from the point of view of OE., the nom. and acc. singular end in consonants, and we are only able to classify such stems either by starting out from prim. Germanic, or from the plural, or from a comparison with the other old Germanic languages; thus the OE. nom. and acc. singular of dæg, day; word, word; dǣl, part; hand, hand; lamb, lamb, correspond to prim. Germanic *đaʒaz, *đagan, older ·os, ·om; *wurđan, older ·om; *đailiz, *đailin, older ·is, ·im; *χanđuz (Goth. handus), *χanđun (Goth. handu), older ·us, ·um; *lamƀaz, older ·os (cp. Lat. genus, gen. generis). The original distinction between the nom. and acc. singular of masculine and feminine nouns had disappeared in the oldest period of the English language except in the ō- and the n-stems. And the original distinction between the nom. and acc. plural of masculine and feminine nouns had also disappeared, as nom. acc. dagas, days, ēste, favours, suna, sons, but Goth. nom. dagōs, ansteis, sunjus; acc. dagans, anstins, sununs; guman, men, prim. Germanic nom. *ʒumaniz, acc. *ʒumanunz; fēt, feet, prim. Germanic nom. *fōtiz, acc. Goth. fotuns. In like manner the original case endings of the n-stems, with the exception of the nom. singular and the gen. and dat. plural, had also disappeared in the oldest English, so that the element which originally formed part of the stem came to be regarded as a case ending (§§ 211–15), cp. the similar process in the plural of the neuter ·os-stems (§§ 419–20). Before attempting the OE. declensions from a philological point of view, the student should master the chapter on the vowels of unaccented syllables, because it is impossible to restate in this chapter all the details dealt with there.
 
-§ 332. OE.' nouns have two numbers: singular and plural; three genders: masculine, feminine, and neuter, as in the other old Germanic languages from which the gender of nouns in OE. does not materially differ; five cases: Nominative, Accusative, Genitive, Dative, and Instrumental. The dat. is generally used for the instr. in OE., so that this case is omitted in the paradigms, see § 334, Note. The vocative is like the nominative. The nom. and acc. plural are always alike; in those declensions which would regularly have different forms for the nom. and acc., the acc. disappeared and the nom. was used in its stead. Traces of an old locative occur in what is called the uninflected dat. singular of hām, home. In Northumbrian both the declension and gender of nouns fluctuated considerably as compared with the other OE. dialects.
+§ 332. OE. nouns have two numbers: singular and plural; three genders: masculine, feminine, and neuter, as in the other old Germanic languages from which the gender of nouns in OE. does not materially differ; five cases: Nominative, Accusative, Genitive, Dative, and Instrumental. The dat. is generally used for the instr. in OE., so that this case is omitted in the paradigms, see § 334, Note. The vocative is like the nominative. The nom. and acc. plural are always alike; in those declensions which would regularly have different forms for the nom. and acc., the acc. disappeared and the nom. was used in its stead. Traces of an old locative occur in what is called the uninflected dat. singular of hām, home. In Northumbrian both the declension and gender of nouns fluctuated considerably as compared with the other OE. dialects.
 A. The Vocalic or Strong Declension.
 
 1. The a-declension.
@@ -24,25 +24,19 @@ a. Pure a-stems.
 SING.
 <table>
   <tr>
-    <th></th>
     <th>Nom. Acc.</th>
-    <th>Gen.</th>
-    <th>Dat.</th>
-  </tr>
-  <tr>
-    <td></td>
     <td>stān, stone</td>
     <td>dæg, day</td>
     <td>mearh, horse</td>
   </tr>
   <tr>
-    <td></td>
+    <th>Gen.</th>
     <td>stānes</td>
     <td>dæges</td>
     <td>mēares</td>
   </tr>
   <tr>
-    <td></td>
+    <th>Dat.</th>
     <td>stāne</td>
     <td>dæge</td>
     <td>mēare</td>
@@ -52,25 +46,19 @@ SING.
 PLUR.
 <table>
   <tr>
-    <th></th>
     <th>Nom. Acc.</th>
-    <th>Gen.</th>
-    <th>Dat.</th>
-  </tr>
-  <tr>
-    <td></td>
     <td>stānas</td>
     <td>dagas</td>
     <td>mēaras</td>
   </tr>
   <tr>
-    <td></td>
+    <th>Gen.</th>
     <td>stāna</td>
     <td>daga</td>
     <td>mēara</td>
   </tr>
   <tr>
-    <td></td>
+    <th>Dat.</th>
     <td>stānum</td>
     <td>dagum</td>
     <td>mēarum</td>
@@ -92,19 +80,19 @@ See § 259 on nouns whose stems ended in double consonants: bucc, buck; cocc, co
 § 338. SING.
 <table>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>cyning, king</td>
     <td>engel, angel</td>
     <td>heofon, heaven</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>cyninges</td>
     <td>engles</td>
     <td>heofones</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>cyninge</td>
     <td>engle</td>
     <td>heofone</td>
