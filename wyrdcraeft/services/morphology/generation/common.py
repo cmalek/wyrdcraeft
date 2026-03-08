@@ -45,7 +45,14 @@ from .weak_inflections import (
     emit_weak_derived_from_inf_sequence,
     emit_weak_derived_from_painsg1_context,
     emit_weak_derived_from_psinsg2_context,
-    emit_weak_principal_part_sequence,
+)
+from .weak_principal_flow import (
+    emit_weak_principal_inf_derivation as _emit_weak_principal_inf_derivation,
+    emit_weak_principal_painsg1_derivation as _emit_weak_principal_painsg1_derivation,
+    emit_weak_principal_papt_participle as _emit_weak_principal_papt_participle,
+    emit_weak_principal_psinsg2_derivation as _emit_weak_principal_psinsg2_derivation,
+    emit_weak_principal_pspt_participle as _emit_weak_principal_pspt_participle,
+    generate_weak_verb_parts as _generate_weak_verb_parts,
 )
 from ..text_utils import OENormalizer
 
@@ -1864,11 +1871,10 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        self._add_participle_to_adjectives(
-            context.word,
-            context.prefix,
+        _emit_weak_principal_pspt_participle(
+            context,
             form_parts,
-            is_past=False,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
         )
 
     def _emit_weak_principal_papt_participle_context(
@@ -1885,11 +1891,10 @@ class VerbFormGenerator:
             form_parts: Form-parts payload for the derived participle.
 
         """
-        self._add_participle_to_adjectives(
-            context.word,
-            context.prefix,
+        _emit_weak_principal_papt_participle(
+            context,
             form_parts,
-            is_past=True,
+            add_participle_to_adjectives=self._add_participle_to_adjectives,
         )
 
     def _emit_weak_principal_inf_derivation_context(
@@ -1905,16 +1910,9 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        self._generate_weak_derived_from_inf(
-            context.formhash,
-            context.word,
-            context.prefix,
-            context.pre_vowel,
-            context.vowel,
-            context.post_vowel,
-            context.boundary,
-            context.ending,
-            context.probability,
+        _emit_weak_principal_inf_derivation(
+            context,
+            generate_weak_derived_from_inf=self._generate_weak_derived_from_inf,
         )
 
     def _emit_weak_principal_psinsg2_derivation_context(
@@ -1930,14 +1928,9 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        self._generate_weak_derived_from_psinsg2(
-            context.formhash,
-            context.prefix,
-            context.pre_vowel,
-            context.vowel,
-            context.post_vowel,
-            context.boundary,
-            context.probability,
+        _emit_weak_principal_psinsg2_derivation(
+            context,
+            generate_weak_derived_from_psinsg2=self._generate_weak_derived_from_psinsg2,
         )
 
     def _emit_weak_principal_painsg1_derivation_context(
@@ -1953,18 +1946,9 @@ class VerbFormGenerator:
             context: Shared weak principal-part context.
 
         """
-        self._generate_weak_derived_from_painsg1(
-            context.formhash,
-            context.word,
-            context.prefix,
-            context.pre_vowel,
-            context.vowel,
-            context.post_vowel,
-            context.boundary,
-            context.dental,
-            context.probability,
-            context.vowel_inf,
-            context.vowel_pa,
+        _emit_weak_principal_painsg1_derivation(
+            context,
+            generate_weak_derived_from_painsg1=self._generate_weak_derived_from_painsg1,
         )
 
     def _generate_weak_verb_parts(  # noqa: PLR0913
@@ -1998,55 +1982,24 @@ class VerbFormGenerator:
             vowel_pa: The preterite singular vowel from variant 0.
 
         """
-        para_id = item.para_id
-        ending = item.ending
-        dental = item.dental
-        boundary = item.boundary
-        prob: str | int | None = 0
-        context = _WeakPrincipalPartContext(
+        _generate_weak_verb_parts(
             formhash=formhash,
             word=word,
+            item=item,
             prefix=prefix,
             pre_vowel=pre_vowel,
-            vowel=root_vowel_actual,
+            root_vowel_actual=root_vowel_actual,
             post_vowel=post_vowel,
-            boundary=boundary,
-            ending=ending,
-            dental=dental,
-            probability=prob,
+            variant_id=variant_id,
+            para_id_num=para_id_num,
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
-        )
-        emit_weak_principal_part_sequence(
-            para_id=para_id,
-            para_id_num=para_id_num,
-            variant_id=variant_id,
-            prefix=prefix,
-            default_parts=(pre_vowel, root_vowel_actual, post_vowel, boundary),
-            item_parts=(item.pre_vowel, item.vowel, item.post_vowel, item.boundary),
-            dental=dental,
-            ending=ending,
             emit_form=partial(self._emit_weak_principal_form_context, formhash),
-            on_pspt_participle=partial(
-                self._emit_weak_principal_pspt_participle_context,
-                context,
-            ),
-            on_papt_participle=partial(
-                self._emit_weak_principal_papt_participle_context,
-                context,
-            ),
-            on_inf=partial(
-                self._emit_weak_principal_inf_derivation_context,
-                context,
-            ),
-            on_psinsg2=partial(
-                self._emit_weak_principal_psinsg2_derivation_context,
-                context,
-            ),
-            on_painsg1=partial(
-                self._emit_weak_principal_painsg1_derivation_context,
-                context,
-            ),
+            on_pspt_participle=self._emit_weak_principal_pspt_participle_context,
+            on_papt_participle=self._emit_weak_principal_papt_participle_context,
+            on_inf=self._emit_weak_principal_inf_derivation_context,
+            on_psinsg2=self._emit_weak_principal_psinsg2_derivation_context,
+            on_painsg1=self._emit_weak_principal_painsg1_derivation_context,
         )
 
     def _generate_weak_derived_from_inf(  # noqa: PLR0912, PLR0913
