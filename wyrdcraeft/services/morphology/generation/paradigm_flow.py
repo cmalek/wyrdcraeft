@@ -11,6 +11,8 @@ from wyrdcraeft.models.morphology import (
     Word,
 )
 
+from .scalar_utils import nz as _nz
+
 #: Callback used when dispatching one variant context.
 VariantDispatcher = Callable[
     [ParadigmVariant, dict[str, str], str, str, str],
@@ -136,19 +138,3 @@ def dispatch_variant_parts(  # noqa: PLR0913
     """
     for item in variant.parts.values():
         on_part(item, formhash_var, boundary_inf, vowel_inf, vowel_pa)
-
-
-def _nz(val: str | int | None) -> str:
-    """
-    Treat ``None`` and Perl-falsy ``0`` values as empty string.
-
-    Args:
-        val: Raw scalar value from a parsed paradigm slot.
-
-    Returns:
-        Empty string for ``None``/``0``; otherwise stringified ``val``.
-
-    """
-    if val is None or val in {"0", 0}:
-        return ""
-    return str(val)

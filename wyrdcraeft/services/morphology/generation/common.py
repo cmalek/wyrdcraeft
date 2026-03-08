@@ -31,6 +31,8 @@ from .paradigm_flow import (
     dispatch_variant_parts,
 )
 from .participles import build_participle_adjective
+from .scalar_utils import nz as _nz_scalar
+from .scalar_utils import perl_numify as _perl_numify
 from .shared import FormOutput
 from .sound_changes import (
     emit_sound_changed_from_source,
@@ -60,9 +62,7 @@ def nz(val: str | int | None) -> str:
         The value as a string.
 
     """
-    if val is None or val in {"0", 0}:
-        return ""
-    return str(val)
+    return _nz_scalar(val)
 
 
 def perl_numify(val: str) -> float:
@@ -76,13 +76,7 @@ def perl_numify(val: str) -> float:
         Numeric value extracted from the start of ``val``, or ``0.0``.
 
     """
-    match = re.match(r"^\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))", val)
-    if not match:
-        return 0.0
-    try:
-        return float(match.group(1))
-    except ValueError:
-        return 0.0
+    return _perl_numify(val)
 
 
 def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
