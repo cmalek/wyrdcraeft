@@ -1,5 +1,4 @@
 # ruff: noqa: I001,PLR0913,ARG002,D417,RUF100,PLC0415
-import re
 from functools import partial
 from typing import Final
 
@@ -22,10 +21,16 @@ from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .form_rows import generate_and_print_form as _generate_and_print_form
 from .form_rows import generate_and_print_manual as _generate_and_print_manual
+from .form_rows import emit_form_for_context as _emit_form_for_context_row
+from .form_rows import emit_imsg_for_context as _emit_imsg_for_context_row
 from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
     build_verb_formhash_base,
+    derive_part_post_vowel as _derive_part_post_vowel,
+    derive_part_pre_vowel as _derive_part_pre_vowel,
+    derive_part_prefix as _derive_part_prefix,
+    derive_part_stem_segments as _derive_part_stem_segments,
     derive_paradigm_seed_vowels,
     dispatch_paradigm_variants,
     dispatch_variant_parts,
@@ -44,7 +49,6 @@ from .strong_principal_flow import (
 from . import weak_derivation_flow as _weak_derivation_flow
 from . import sound_dispatch_flow as _sound_dispatch_flow
 from . import weak_principal_flow as _weak_principal_flow
-from ..text_utils import OENormalizer
 
 
 def nz(val: str | int | None) -> str:
@@ -424,10 +428,7 @@ class VerbFormGenerator:
             Four-item tuple ``(prefix, pre_vowel, vowel, post_vowel)``.
 
         """
-        prefix = self._get_prefix(word, item)
-        post_vowel = self._get_post_vowel(word, item, boundary_inf)
-        pre_vowel, actual_vowel = self._get_pre_vowel(word)
-        return prefix, pre_vowel, actual_vowel, post_vowel
+        return _derive_part_stem_segments(word, item, boundary_inf)
 
     def _get_prefix(self, word: Word, item: ParadigmPart) -> str:
         """
@@ -450,10 +451,7 @@ class VerbFormGenerator:
             The prefix.
 
         """
-        prefix = word.prefix
-        if prefix != item.prefix:
-            prefix = f"{prefix}-{item.prefix}"
-        return prefix
+        return _derive_part_prefix(word, item)
 
     def _get_post_vowel(self, word: Word, item: ParadigmPart, boundary_inf: str) -> str:
         """
@@ -483,22 +481,7 @@ class VerbFormGenerator:
             The post-vowel.
 
         """
-        if not nz(item.post_vowel):
-            return ""
-
-        if boundary_inf:
-            pattern = (
-                f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
-                f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){re.escape(boundary_inf)}"
-                f"{OENormalizer.VOWEL_REGEX.pattern}+n$"
-            )
-        else:
-            pattern = (
-                f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
-                f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){OENormalizer.VOWEL_REGEX.pattern}+n$"
-            )
-        match = re.search(pattern, word.stem)
-        return match.group(1) if match else ""
+        return _derive_part_post_vowel(word, item, boundary_inf)
 
     def _get_pre_vowel(self, word: Word) -> tuple[str, str]:
         """
@@ -519,14 +502,7 @@ class VerbFormGenerator:
             The pre-vowel and actual vowel.
 
         """
-        pattern = (
-            f"^({OENormalizer.VOWEL_REGEX.pattern}*?.*?)"
-            f"({OENormalizer.VOWEL_REGEX.pattern}{{1,2}})"
-        )
-        match = re.search(pattern, word.stem)
-        if match:
-            return match.group(1), match.group(2)
-        return "", ""
+        return _derive_part_pre_vowel(word)
 
     def _generate_and_print_form(  # noqa: PLR0913
         self,
@@ -626,17 +602,19 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._generate_and_print_form(
+        return _emit_form_for_context_row(
+            self.session,
+            self.output_file,
             formhash,
             prefix,
             pre_vowel,
             vowel,
             post_vowel,
             boundary,
-            dental,
             ending,
             function,
-            prob,
+            dental=dental,
+            prob=prob,
         )
 
     def _emit_sound_changed_form_for_context(  # noqa: PLR0913
@@ -676,18 +654,19 @@ class VerbFormGenerator:
             sound_change_prob_delta: Probability delta used on derived forms.
 
         """
-        self._generate_and_print_form_with_sound_changes(
+        _sound_dispatch_flow.emit_sound_changed_form_for_context(
             formhash,
             prefix,
             pre_vowel,
             vowel,
             post_vowel,
             boundary,
-            dental,
             ending,
             function,
             prob,
+            dental=dental,
             sound_change_prob_delta=sound_change_prob_delta,
+            emit_with_sound_changes=self._generate_and_print_form_with_sound_changes,
         )
 
     def _emit_imsg_for_context(  # noqa: PLR0913
@@ -716,16 +695,16 @@ class VerbFormGenerator:
             prob: Optional probability annotation.
 
         """
-        self._emit_form_for_context(
+        _emit_imsg_for_context_row(
+            self.session,
+            self.output_file,
             formhash,
             prefix,
             pre_vowel,
             vowel,
             post_vowel,
             boundary,
-            "0",
-            "ImSg",
-            prob=prob,
+            prob,
         )
 
     def _add_participle_to_adjectives(

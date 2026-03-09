@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Sequence
 
 from wyrdcraeft.models.morphology import (
@@ -10,6 +11,7 @@ from wyrdcraeft.models.morphology import (
     VerbParadigm,
     Word,
 )
+from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .scalar_utils import nz as _nz
 
@@ -68,6 +70,122 @@ def derive_paradigm_seed_vowels(vp: VerbParadigm) -> tuple[str, str, str]:
     vowel_inf = _nz(inf_part.vowel if inf_part else "")
     vowel_pa = _nz(painsg1_part.vowel if painsg1_part else "")
     return boundary_inf, vowel_inf, vowel_pa
+
+
+def derive_part_prefix(word: Word, item: ParadigmPart) -> str:
+    """
+    Derive the effective prefix for one emitted paradigm part.
+
+    Args:
+        word: Active lexeme record being generated.
+        item: Active paradigm part.
+
+    Returns:
+        Prefix segment used by downstream form assembly.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both model prefixed compounds as
+        compositional segments; this preserves legacy prefix join behavior.
+
+    """
+    prefix = word.prefix
+    if prefix != item.prefix:
+        prefix = f"{prefix}-{item.prefix}"
+    return prefix
+
+
+def derive_part_post_vowel(
+    word: Word, item: ParadigmPart, boundary_inf: str
+) -> str:
+    """
+    Derive the post-vowel stem segment for one paradigm part.
+
+    Args:
+        word: Active lexeme record being generated.
+        item: Active paradigm part.
+        boundary_inf: Infinitive boundary captured from variant ``0``.
+
+    Returns:
+        Post-vowel segment used by downstream form assembly.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe vowel/consonant boundary
+        segmentation in strong/weak paradigms; this keeps the legacy regex
+        extraction unchanged.
+
+    """
+    if not _nz(item.post_vowel):
+        return ""
+
+    if boundary_inf:
+        pattern = (
+            f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
+            f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){re.escape(boundary_inf)}"
+            f"{OENormalizer.VOWEL_REGEX.pattern}+n$"
+        )
+    else:
+        pattern = (
+            f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
+            f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){OENormalizer.VOWEL_REGEX.pattern}+n$"
+        )
+    match = re.search(pattern, word.stem)
+    return match.group(1) if match else ""
+
+
+def derive_part_pre_vowel(word: Word) -> tuple[str, str]:
+    """
+    Derive stem segments before and at the active root vowel.
+
+    Args:
+        word: Active lexeme record being generated.
+
+    Returns:
+        Two-item tuple ``(pre_vowel, vowel)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both rely on stable stem-vowel
+        identification; this preserves the legacy extraction regex.
+
+    """
+    pattern = (
+        f"^({OENormalizer.VOWEL_REGEX.pattern}*?.*?)"
+        f"({OENormalizer.VOWEL_REGEX.pattern}{{1,2}})"
+    )
+    match = re.search(pattern, word.stem)
+    if match:
+        return match.group(1), match.group(2)
+    return "", ""
+
+
+def derive_part_stem_segments(
+    word: Word,
+    item: ParadigmPart,
+    boundary_inf: str,
+) -> tuple[str, str, str, str]:
+    """
+    Derive stem segments consumed by strong and weak part generators.
+
+    Args:
+        word: Active lexeme record being generated.
+        item: Active paradigm part.
+        boundary_inf: Infinitive boundary captured from variant ``0``.
+
+    Returns:
+        Four-item tuple ``(prefix, pre_vowel, vowel, post_vowel)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe segment-level stem parsing;
+        this orchestration wrapper preserves the same deterministic slot order.
+
+    """
+    prefix = derive_part_prefix(word, item)
+    post_vowel = derive_part_post_vowel(word, item, boundary_inf)
+    pre_vowel, actual_vowel = derive_part_pre_vowel(word)
+    return prefix, pre_vowel, actual_vowel, post_vowel
 
 
 def dispatch_paradigm_variants(  # noqa: PLR0913

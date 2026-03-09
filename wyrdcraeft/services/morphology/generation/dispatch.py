@@ -4,14 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .adj_forms import generate_adjforms as _generate_adjforms
-from .adv_forms import generate_advforms as _generate_advforms
-from .common import (
-    generate_vbforms as _generate_vbforms,
-)
-from .form_rows import output_manual_forms as _output_manual_forms
-from .noun_forms import generate_nounforms as _generate_nounforms
-from .num_forms import generate_numforms as _generate_numforms
+from .facade import MorphologyGenerationFacade
 
 if TYPE_CHECKING:
     from ..contracts import FormOutput
@@ -32,7 +25,7 @@ def generate_vbforms(session: GeneratorSession, output_file: FormOutput) -> None
         output_file: Form output sink.
 
     """
-    _generate_vbforms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).generate_verbs()
 
 
 def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
@@ -49,7 +42,7 @@ def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> N
         output_file: Form output sink.
 
     """
-    _output_manual_forms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).output_manual_forms()
 
 
 def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> None:
@@ -66,7 +59,7 @@ def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> Non
         output_file: Form output sink.
 
     """
-    _generate_adjforms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).generate_adjectives()
 
 
 def generate_advforms(session: GeneratorSession, output_file: FormOutput) -> None:
@@ -83,7 +76,7 @@ def generate_advforms(session: GeneratorSession, output_file: FormOutput) -> Non
         output_file: Form output sink.
 
     """
-    _generate_advforms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).generate_adverbs()
 
 
 def generate_numforms(session: GeneratorSession, output_file: FormOutput) -> None:
@@ -100,7 +93,7 @@ def generate_numforms(session: GeneratorSession, output_file: FormOutput) -> Non
         output_file: Form output sink.
 
     """
-    _generate_numforms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).generate_numerals()
 
 
 def generate_nounforms(session: GeneratorSession, output_file: FormOutput) -> None:
@@ -117,4 +110,4 @@ def generate_nounforms(session: GeneratorSession, output_file: FormOutput) -> No
         output_file: Form output sink.
 
     """
-    _generate_nounforms(session, output_file)
+    MorphologyGenerationFacade(session, output_file).generate_nouns()

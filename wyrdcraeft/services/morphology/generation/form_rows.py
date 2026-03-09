@@ -175,3 +175,116 @@ def generate_and_print_manual(  # noqa: PLR0913
     fh["function"] = function
     fh["probability"] = format_probability(prob)
     print_one_form(session, fh, output_file)
+
+
+def emit_form_for_context(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    ending: str,
+    function: str,
+    *,
+    dental: str | None = "",
+    prob: str | int | None = None,
+) -> tuple[str, str]:
+    """
+    Emit one generated verb form row for a fixed stem context.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        ending: Morphological ending segment.
+        function: Morphology function code.
+
+    Keyword Args:
+        dental: Dental segment for weak forms.
+        prob: Optional probability annotation.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both describe deterministic inflection
+        slot materialization; this helper preserves the existing row payload
+        shape and slot ordering.
+
+    """
+    return generate_and_print_form(
+        session,
+        output_file,
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        dental,
+        ending,
+        function,
+        prob=prob,
+    )
+
+
+def emit_imsg_for_context(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    prob: str | int | None,
+) -> None:
+    """
+    Emit one imperative-singular verb row for a fixed stem context.
+
+    Side Effects:
+        Writes one ``ImSg`` row to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        prob: Optional probability annotation.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) treat imperative forms as regular
+        paradigm outputs; this helper keeps the same ImSg function tag and
+        payload flow.
+
+    """
+    emit_form_for_context(
+        session,
+        output_file,
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        "0",
+        "ImSg",
+        prob=prob,
+    )

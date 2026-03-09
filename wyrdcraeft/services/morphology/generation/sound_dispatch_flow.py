@@ -26,6 +26,8 @@ SoundManualDispatchAction = Callable[
     [_SoundChangeDispatchContext, str, str, str, str | int | None],
     None,
 ]
+#: Callback signature for one full sound-change emission sequence.
+SoundChangeSequenceEmitter = Callable[..., None]
 
 
 def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
@@ -92,6 +94,64 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         sound_change_prob_delta=sound_change_prob_delta,
         emit_source_form=partial(emit_source_form_with_context, context),
         emit_manual=partial(emit_manual_with_context, context),
+    )
+
+
+def emit_sound_changed_form_for_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    ending: str,
+    function: str,
+    probability: str | int | None,
+    *,
+    dental: str | None = "",
+    sound_change_prob_delta: int = 1,
+    emit_with_sound_changes: SoundChangeSequenceEmitter,
+) -> None:
+    """
+    Emit source and derived sound-change rows for one fixed stem context.
+
+    Side Effects:
+        Writes generated and derived rows to the morphology output stream.
+
+    Args:
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        ending: Morphological ending segment.
+        function: Morphology function code.
+        probability: Optional source-row probability annotation.
+
+    Keyword Args:
+        dental: Dental segment for weak-form contexts.
+        sound_change_prob_delta: Probability delta used on derived forms.
+        emit_with_sound_changes: Callback that emits source and derived rows.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe deterministic ordering for
+        phonological alternation branches; this helper preserves that ordering.
+
+    """
+    emit_with_sound_changes(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        dental,
+        ending,
+        function,
+        probability,
+        sound_change_prob_delta=sound_change_prob_delta,
     )
 
 
