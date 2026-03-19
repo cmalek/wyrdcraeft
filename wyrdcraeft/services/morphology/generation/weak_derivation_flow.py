@@ -62,6 +62,51 @@ WeakInfFormEmitter = Callable[
     ],
     tuple[str, str],
 ]
+
+
+class WeakFormContextEmitter(Protocol):
+    """
+    Protocol for emitting one weak row from a pre-bound stem context.
+
+    The callback shape mirrors ``VerbFormGenerator._emit_form_for_context`` so
+    low-level weak bridge helpers can delegate without rebuilding the payload.
+    """
+
+    def __call__(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        """
+        Emit one weak row for a provided stem context.
+
+        Args:
+            formhash: Form metadata hash for the active branch.
+            prefix: Prefix segment for the active part.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment for this derivation branch.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Stem-boundary marker used in form-parts payloads.
+            ending: Morphological ending.
+            function: Morphological function code.
+
+        Keyword Args:
+            dental: Optional weak-dental segment.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
 #: Callback signature for one weak ``PaInSg1`` raw row emission.
 WeakPainsg1RawFormEmitter = Callable[
     [dict[str, str], str, str, str, str, str, str, str, str, str | int | None],
@@ -219,6 +264,66 @@ def emit_weak_inf_form(  # noqa: PLR0913
         ending,
         function,
         prob,
+    )
+
+
+def emit_weak_principal_form_context(  # noqa: PLR0913
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    dental: str | None,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    emit_form_for_context: WeakFormContextEmitter,
+) -> tuple[str, str]:
+    """
+    Emit one weak principal-form row for a pre-bound stem context.
+
+    Side Effects:
+        Writes one row to the morphology output stream.
+
+    Args:
+        formhash: Form metadata hash for the active branch.
+        prefix: Prefix segment for the active part.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment for this derivation branch.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Stem-boundary marker used in form-parts payloads.
+        dental: Optional weak-dental segment for this emitted row.
+        ending: Morphological ending.
+        function: Morphological function code.
+        prob: Optional probability annotation.
+
+    Keyword Args:
+        emit_form_for_context: Callback that emits one weak row from the
+            already-selected stem context.
+
+    Returns:
+        Two-item tuple of emitted ``(form, form_parts)``.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak dental-row emission;
+        this helper only forwards the legacy slots unchanged so callback order,
+        probability flow, and form-part assembly remain parity-locked.
+
+    """
+    return emit_form_for_context(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        ending,
+        function,
+        dental=dental,
+        prob=prob,
     )
 
 

@@ -34,6 +34,9 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     emit_weak_principal_form,
     is_weak_item_shape_window,
 )
+from wyrdcraeft.services.morphology.generation.weak_derivation_flow import (
+    emit_weak_principal_form_context,
+)
 from wyrdcraeft.services.morphology.generation.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
@@ -699,6 +702,59 @@ def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
     assert form_parts == "ge-l-a-m-t-ed-e"
     assert observed == [
         ("ge", "l", "a", "m", "t", "ed", "e", "PaInSg1", None),
+    ]
+
+
+def test_emit_weak_principal_form_context_forwards_dental_and_probability() -> None:
+    observed: list[tuple[object, ...]] = []
+
+    def _emit_form_for_context(  # noqa: PLR0913
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        observed.append(
+            (
+                formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                ending,
+                function,
+                dental,
+                prob,
+            )
+        )
+        return "form", "fp"
+
+    formhash = _base_formhash()
+    result = emit_weak_principal_form_context(
+        formhash,
+        "ge",
+        "l",
+        "a",
+        "m",
+        "t",
+        "ed",
+        "e",
+        "PaInSg1",
+        1,
+        emit_form_for_context=_emit_form_for_context,
+    )
+
+    assert result == ("form", "fp")
+    assert observed == [
+        (formhash, "ge", "l", "a", "m", "t", "e", "PaInSg1", "ed", 1),
     ]
 
 

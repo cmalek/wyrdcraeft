@@ -913,17 +913,18 @@ class VerbFormGenerator:
             Two-item tuple of emitted ``(form, form_parts)``.
 
         """
-        return self._emit_form_for_context(
+        return _weak_derivation_flow.emit_weak_principal_form_context(
             formhash,
             prefix,
             pre_vowel,
             vowel,
             post_vowel,
             boundary,
+            dental,
             ending,
             function,
-            dental=dental,
-            prob=prob,
+            prob,
+            emit_form_for_context=self._emit_form_for_context,
         )
 
     def _emit_weak_inf_form_context(  # noqa: PLR0913
