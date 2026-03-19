@@ -129,3 +129,25 @@ class MorphologyGenerationFacade:
 
         """
         _generate_nounforms(self._session, self._output_file)
+
+    def generate_all_forms(self) -> None:
+        """
+        Emit the default full morphology generation flow in stable order.
+
+        Side Effects:
+            Writes rows to the morphology output stream.
+
+        Note:
+            Cross-PoS scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+            (``data/Ondej_Tich_40-54-1.pdf``) both rely on deterministic
+            sequencing across manual overrides and generated paradigms. This
+            facade method preserves the existing external order: manual, verb,
+            adjective, adverb, numeral, noun.
+
+        """
+        self.output_manual_forms()
+        self.generate_verbs()
+        self.generate_adjectives()
+        self.generate_adverbs()
+        self.generate_numerals()
+        self.generate_nouns()

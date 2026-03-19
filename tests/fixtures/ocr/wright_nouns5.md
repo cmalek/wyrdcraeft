@@ -2,180 +2,231 @@ c. Neuter.
 
 § 413. The only remnant of this class is scrūd, garment, dat. scrūd; gen. scrūdes and late OE. dat. scrūde were formed after the analogy of the neuter a-stems, and also the nom. acc. pl. scrūd; gen. pl. scrūda, dat. scrūdum.
 
-2. Stems in ·þ.
+2. Stems in -þ.
 
 § 414. Of the nouns which originally belonged to this declension only four have been preserved: masc. hæleþ (OHG. helid), hæle, hero, man, mōnaþ (Goth. mēnōþs), month; fem. mæg(e)þ (Goth. magaþs), maiden; neut. ealu, ale. hæleþ, hæle, mōnaþ, and mæg(e)þ originally had the same endings as the prim. Germanic forms of fōt (§ 408) and bōc (§ 410). The þ was reintroduced into the nom. sing. from the inflected forms. The old nom. acc. sing. has been preserved in ealu. The gen. and dat. sing. of hæleþ and mōnaþ were formed on analogy with the a-declension; and beside the nom. acc. pl. hæleþ, mōnaþ, there also exist hæleþas, mōn(e)þas. Those forms which did not originally have umlaut were generalized in OE. They are declined as follows:—
 
+Sing.
 <table>
   <tr>
-    <th>Sing.</th>
-    <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-  <tr>
-    <td>Nom. Acc.</td>
-    <td>hæle</td>
-    <td>hæleþ</td>
+    <th>Nom. Acc.</th>
+    <td>hæle, hæleþ</td>
     <td>mōnaþ</td>
     <td>mæg(e)þ</td>
     <td>ealu</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>hæleþes</td>
     <td>mōn(e)þes</td>
     <td>mæg(e)þ</td>
     <td>ealoþ</td>
-    <td></td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>hæleþe</td>
     <td>mōn(e)þe</td>
     <td>mæg(e)þ</td>
     <td>ealoþ</td>
-    <td></td>
   </tr>
+</table>
+
+Plur.
+<table>
   <tr>
-    <th colspan="6">Plur.</th>
-  </tr>
-  <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>hæleþ</td>
     <td>mōnaþ</td>
     <td>mæg(e)þ</td>
     <td></td>
-    <td></td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>hæleþa</td>
     <td>mōn(e)þa</td>
     <td>mæg(e)þa</td>
     <td>ealeþa</td>
-    <td></td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>hæleþum</td>
     <td>mōn(e)þum</td>
     <td>mæg(e)þum</td>
-    <td></td>
     <td></td>
   </tr>
 </table>
 
 3. Stems in ·r.
 
-§ 415. To this class belong the nouns of relationship: fæder, father; brōþor, brother; mōdor, mother; dohtor, daughter; sweostor, sister; and the collective plurals,
-gebrōþor, gebrōþru, brethren; gesweostor, -tru, -tra, sisters.
+§ 415. To this class belong the nouns of relationship: fæder, father; brōþor, brother; mōdor, mother; dohtor, daughter; sweostor, sister; and the collective plurals, gebrōþor, gebrōþru, brethren; gesweostor, -tru, -tra, sisters.
 
-SING.
-Nom. Acc. fæder    brōþor    mōdor
-Gen.      fæder, -eres   brōþor    mōdor
-Dat.      fæder         brēþer    mēder
+Sing.
+<table>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>fæder</td>
+    <td>brōþor</td>
+    <td>mōdor</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>fæder, -eres</td>
+    <td>brōþor</td>
+    <td>mōdor</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>fæder</td>
+    <td>brēþer</td>
+    <td>mēder</td>
+  </tr>
+</table>
 
-PLUR.
-Nom. Acc. fæderas    brōþor, -þru   mōdor, -dru, -dra
-Gen.      fædera       brōþra     mōdra
-Dat.      fæderum      brōþrum    mōdrum
+Plur.
+<table>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>fæderas</td>
+    <td>brōþor, -þru</td>
+    <td>mōdor, -dru, -dra</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>fædera</td>
+    <td>brōþra</td>
+    <td>mōdra</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>fæderum</td>
+    <td>brōþrum</td>
+    <td>mōdrum</td>
+  </tr>
+</table>
 
-SING.
-Nom. Acc. dohtor        swestor
-Gen.      dohtor         sweostor
-Dat.      dehter          sweostor
+Sing.
+<table>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>dohtor</td>
+    <td>swestor</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>dohtor</td>
+    <td>sweostor</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>dehter</td>
+    <td>sweostor</td>
+  </tr>
+</table>
 
-PLUR.
-Nom. Acc. dohtor, -tru, -tra   sweostor
-Gen.      dohtra           sweostra
-Dat.      dohtrum          sweostrum
+Plur.
+<table>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>dohtor, -tru, -tra</td>
+    <td>sweostor</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>dohtra</td>
+    <td>sweostra</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>dohtrum</td>
+    <td>sweostrum</td>
+  </tr>
+</table>
 
-The prim. Germanic forms of fæder were: Sing. nom. *faðēr (Gr. πατήρ), acc. *faðerun (Gr. πατέρα), gen. *faðras (Gr. πατρός, Lat. patris), dat. *faðri (Gr. πατρί); Plur. nom. *faðeriz (Gr. πατέρες), acc. *faðrunz (cp. Goth. brōþruns), gen. *faðrōn (Gr. πατρών), dat. *faðrumiz (cp. Goth. brōþrum). The OE. nom. acc. and gen. sing. fæder is normally developed from the corresponding prim. Germanic forms. On the gen. fæder from *faðras, see § 219; fæderes was formed on analogy with the a-stems. The prim. Germanic pl. forms (except the acc.) regularly became *fæder, fædra, fædrum, the last two of which were common in the oldest period of the language; then later -er was levelled out into the gen. and dat., and the nom. pl. *fæder became fæd(e)ras on analogy with the a-stems.
+The prim. Germanic forms of fæder were: Sing. nom. *fađēr (Gr. πατήρ), acc. *fađerun (Gr. πατέρα), gen. *fađras (Gr. πατρός, Lat. patris), dat. *fađri (Gr. πατρί); Plur. nom. *fađeriz (Gr. πατέρες), acc. *faðrunz (cp. Goth. brōþruns), gen. *fađrȭn (Gr. πατρών), dat. *fađrumiz (cp. Goth. brōþrum). The OE. nom. acc. and gen. sing. fæder is normally developed from the corresponding prim. Germanic forms. On the gen. fæder from *faðras, see § 219; fæderes was formed on analogy with the a-stems. The prim. Germanic pl. forms (except the acc.) regularly became *fæder, fædra, fædrum, the last two of which were common in the oldest period of the language; then later -er was levelled out into the gen. and dat., and the nom. pl. *fæder became fæd(e)ras on analogy with the a-stems.
 
-The prim. Germanic case endings of brōþor, mōdor, dohtor, and sweostor were the same as those of fæder
-except that brōþor and sweostor having originally the chief accent on the stem had ·raz in the gen. singular. The dat. forms *brōþri, *mōðri, *doxtri (older *duxtri) with o from the nom. acc. and gen., *swestri (older *swistri) with e from the nom. acc. and gen., regularly became brēþer, mēder, dehter, sweostor (cp. § 219). In late OE. the dat. mēder, dehter were often used for the gen. and vice versa. The gen. sing. *brōþraz, *mōðras, *doxtras, *swestraz, regularly became brōþor, mōdor, dohtor, sweostor (§ 219). The gen. and dat. pl. were regularly developed from the corresponding prim. Germanic forms. The nom. sing. and pl. were in prim. OE. *brōþer, *mōder, *doxter, *swestor, then ·er became ·or (older ·ur) through the influence of the guttural vowel in the stem (cp. § 222), but the ending ·er (rarely ·ar) often occurs both in early and late OE. sweostor had ·or in prim. Germanic, as nom. sing. *swesor, Indg. *swesōr, pl. *swesoriz, Indg. *swesores; the t was developed between the s and r in the gen. sing. *swestraz, pl. *swestrōn, and then became generalized (§ 240).
+The prim. Germanic case endings of brōþor, mōdor, dohtor, and sweostor were the same as those of fæder except that brōþor and sweostor having originally the chief accent on the stem had ·raz in the gen. singular. The dat. forms *ƀrōþri, *mōđri, *đoχtri (older *đuχtri) with o from the nom. acc. and gen., *swestri (older *swistri) with e from the nom. acc. and gen., regularly became brēþer, mēder, dehter, sweostor (cp. § 219). In late OE. the dat. mēder, dehter were often used for the gen. and vice versa. The gen. sing. *ƀrōþraz, *mōđras, *đoχtras, *swestraz, regularly became brōþor, mōdor, dohtor, sweostor (§ 219). The gen. and dat. pl. were regularly developed from the corresponding prim. Germanic forms. The nom. sing. and pl. were in prim. OE. *brōþer, *mōder, *doχter, *swestor, then ·er became ·or (older ·ur) through the influence of the guttural vowel in the stem (cp. § 222), but the ending ·er (rarely ·ar) often occurs both in early and late OE. sweostor had ·or in prim. Germanic, as nom. sing. *swesor, Indg. *swesōr, pl. *swesoriz, Indg. *swesores; the t was developed between the s and r in the gen. sing. *swestraz, pl. *swestrȭn, and then became generalized (§ 240).
 
 gebrōþor and gesweostor were originally neuter collective nouns and were declined like wīte (§ 355), whence the plural endings gebrōþru, gesweostru, ·tra, which were afterwards extended to the plural of mōdor and dohtor.
 
-4. THE MASCULINE STEMS IN ·nd.
+4. THE MASCULINE STEMS IN -nd.
 
-§ 416. SING.
+§ 416. 
+Sing.
 <table>
   <tr>
     <th></th>
     <th>Nom. Acc.</th>
-    <th>Gen.</th>
-    <th>Dat.</th>
-    <th>Plur. Nom. Acc.</th>
-    <th>Plur. Gen.</th>
-    <th>Plur. Dat.</th>
-  </tr>
-  <tr>
-    <td></td>
     <td>frēond, friend</td>
+    <td>wīgend, warrior</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
     <td>frēondes</td>
-    <td>friend, frēonde</td>
-    <td>friend, frēond, ·as</td>
-    <td>frēonda</td>
-    <td>frēondum</td>
+    <td>wīgendes</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>frīend, frēonde</td>
+    <td>wīgende</td>
   </tr>
   <tr>
     <td></td>
     <td></td>
     <td></td>
     <td></td>
-    <td>wigend, warrior</td>
-    <td>wigendes</td>
-    <td>wigende</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td>wigend, ·e, ·as</td>
-    <td>wigendra</td>
-    <td>wigendum</td>
   </tr>
 </table>
+
+Plur.
+<table>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>frīend, frēond, ·as</td>
+    <td>wīgend, ·e, ·as</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>frēonda</td>
+    <td>wīgendra</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>frēondum</td>
+    <td>wīgendum</td>
+  </tr>
+</table>
+
+
 The nouns of this declension are old present participles, like Lat. ferēns, bearing, gen. ferentis, and originally had the same case endings as the other consonantal stems. But in OE. as in the other Germanic languages they underwent various new formations. The OE. present participles had passed over into the ja-declension of adjectives (§§ 438–4) in the oldest period of the language.
 
-The nom. sing. was a new formation with d from the inflected forms, cp. Lat. ferēns from *ferenss older *ferents (§ 240). The gen. sing. frēondes, wigendes, dat. frēonde, wigende, nom. acc. pl. frēondas, wigendas were formed after the analogy of the masc. a-stems. The dat. friend with umlaut is from *friondi older *frijōndi; and the nom. pl. friend is also from *friondi older *frijōndiz (Goth. frijōnds). The nom. and gen. pl. endings -e, -ra are adjectival (§ 424).
+The nom. sing. was a new formation with d from the inflected forms, cp. Lat. ferēns from *ferenss older *ferents (§ 240). The gen. sing. frēondes, wīgendes, dat. frēonde, wīgende, nom. acc. pl. frēondas, wīgendas were formed after the analogy of the masc. a-stems. The dat. friend with umlaut is from *frīondi older *frijōndi; and the nom. pl. friend is also from *frīondi older *frijōndiz (Goth. frijōnds). The nom. and gen. pl. endings -e, -ra are adjectival (§ 424).
 
-§ 417. Like frēond are declined féond, enemy; tēond, accuser; the compound noun gōddōnd (pl. -dōnd, beside -dēnd), benefactor; and the collective plurals gefiend, enemies; gefriend, friends, which were originally neuter collective nouns and declined like wīte (§ 355).
+§ 417. Like frēond are declined fēond, enemy; tēond, accuser; the compound noun gōddōnd (pl. -dōnd, beside -dēnd), benefactor; and the collective plurals gefīend, enemies; gefrīend, friends, which were originally neuter collective nouns and declined like wīte (§ 355).
 
-§ 418. Like wigend are declined āgend, owner; beswícend, deceiver; ēhtend, persecutor; haelend, Saviour; helpend, helper; hettend, enemy; ner(i)gend, Saviour; sēmend, arbitrator; wealdend, ruler; for further examples, see § 601.
+§ 418. Like wīgend are declined āgend, owner; beswīcend, deceiver; ēhtend, persecutor; hǣlend, Saviour; helpend, helper; hettend, enemy; ner(i)gend, Saviour; sēmend, arbitrator; wealdend, ruler; for further examples, see § 601.
 
 5. STEMS IN ·os, ·es.
 
-§ 419. This class of nouns corresponds to the Gr. neuters in ·os, Lat. ·us, as Gr. γένος, race, gen. γένεος older *γένεος, Lat. genus, gen. generis, pl. genera. A fairly large number of nouns originally belonged to this class, but owing to various levellings and new formations, of which some took place in the prehistoric period of all the Germanic languages, nearly all the nouns belonging here went over into other declensions in OE. The prim. Ger-
-manic forms of a word like lamb were: Sing. nom. acc. *lambaz, gen. *lambezaz, *lambiziz, dat. *lambizi; Plur. nom. acc. *lambōzō, gen. *lambezōn, dat. *lambezumiz. After the loss of the singular endings ·az, ·iz, ·i, the following changes took place: from the gen. and dat. sing a new nom. *lambiz beside lamb was formed. This accounts for the preservation of the i in Gothic in such words as hatis = OE. hete, hate, sigis = OE. sige, victory, which would have been *hats and *sigs in Gothic, had these words ended in ·iz in prim. Germanic. The new nom. ending ·iz regularly became ·i in OE., then it caused umlaut in the stem-syllable and disappeared after long stems, but remained after short stems and later became ·e, whence forms like nom. sing. lemb, gāest, hlāew, hete, sige beside lamb, gāst, hlāw. After medial ·z· in the gen. and dat. sing. had become r (§ 252) it was levelled out into the nom. sing. in some nouns, as *dōgr, *hālr beside *dōgi, *hāli, then later dōgor, hālor, older ·ur, beside dēg (Nth.), hāl. All the nouns which underwent these new formations passed into other declensions partly with change of gender also. Thus, gāst, gāest, spirit, breath, sigor, victory, went into the masc. a-declension; hlāew, hlāw, mound, hill, hrā(w), hrā(w), also neut., corpse, carrion, into the masc. wa-declension; dēg (Nth.), day, ge-ban(n), summons, gefōg, joining, joint, geheald, keeping, custody, gehnāst, conflict, strife, gewealc, rolling, sæl, hall, dōgor, day, ēagor, flood, tide, ēar, ear of corn, hālor, salvation, health, hriþer, hrýþer, ox, salor, hall, stulor, theft, pl. hāteru, clothes, into the neut. a-declension; bere, barley, ege, fear, hete, hate, mene, necklace, sige, victory into the masc. i-declension; oferslege, lintel, orlege, fate, sife, sieve, spere, spear, flæsc, flesh, flies, fleece, hāl, health, salvation, hilt, hilt, lān, loan, sweng, blow, into the neuter i-declension.
+§ 419. This class of nouns corresponds to the Gr. neuters in ·os, Lat. ·us, as Gr. γένος, race, gen. γένεος older *γένεος, Lat. genus, gen. generis, pl. genera. A fairly large number of nouns originally belonged to this class, but owing to various levellings and new formations, of which some took place in the prehistoric period of all the Germanic languages, nearly all the nouns belonging here went over into other declensions in OE. The prim. Germanic forms of a word like lamb were: Sing. nom. acc. *lamƀaz, gen. *lamƀezaz, *lamƀiziz, dat. *lamƀizi; Plur. nom. acc. *lamƀōzō, gen. *lamƀezȭn, dat. *lamƀezumiz. After the loss of the singular endings ·az, ·iz, ·i, the following changes took place: from the gen. and dat. sing a new nom. *lamƀiz beside lamb was formed. This accounts for the preservation of the i in Gothic in such words as hatis = OE. hete, hate, sigis = OE. sige, victory, which would have been *hats and *sigs in Gothic, had these words ended in ·iz in prim. Germanic. The new nom. ending ·iz regularly became ·i in OE., then it caused umlaut in the stem-syllable and disappeared after long stems, but remained after short stems and later became ·e, whence forms like nom. sing. lemb, gǣst, hlǣw, hete, sige beside lamb, gāst, hlāw. After medial ·z· in the gen. and dat. sing. had become r (§ 252) it was levelled out into the nom. sing. in some nouns, as *dōʒr, *hālr beside *dōʒi, *hāli, then later dōgor, hālor, older ·ur, beside dœg (Nth.), hāl. All the nouns which underwent these new formations passed into other declensions partly with change of gender also. Thus, gāst, gǣst, spirit, breath, sigor, victory, went into the masc. a-declension; hlǣw, hlāw, mound, hill, hrǣ(w), hrā(w), also neut., corpse, carrion, into the masc. wa-declension; dœg (Nth.), day, ge-ban(n), summons, gefōg, joining, joint, geheald, keeping, custody, gehnāst, conflict, strife, gewealc, rolling, sæl, hall, dōgor, day, ēagor, flood, tide, ēar, ear of corn, hālor, salvation, health, hriþer, hrýþer, ox, salor, hall, stulor, theft, pl. hāteru, clothes, into the neut. a-declension; bere, barley, ege, fear, hete, hate, mene, necklace, sige, victory into the masc. i-declension; oferslege, lintel, orlege, fate, sife, sieve, spere, spear, flǣsc, flesh, flies, fleece, hǣl, health, salvation, hilt, hilt, lǣn, loan, sweng, blow, into the neuter i-declension.
 
-§ 420. The few remaining nouns formed their gen. and
-dat. sing. after the analogy of the neuter a-stems. The cases of the plural were regularly developed from the corresponding prim. Germanic forms.
+§ 420. The few remaining nouns formed their gen. and dat. sing. after the analogy of the neuter a-stems. The cases of the plural were regularly developed from the corresponding prim. Germanic forms.
 
 SING.
 <table>
   <tr>
-    <th></th>
     <th>Nom. Acc.</th>
-    <th>lamb, lamb</th>
-    <th>cealf, calf</th>
-    <th>ǣg, egg</th>
+    <td>lamb, lamb</td>
+    <td>cealf, calf</td>
+    <td>ǣg, egg</td>
   </tr>
   <tr>
-    <td></td>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>lambes</td>
     <td>cealfes</td>
     <td>ǣges</td>
   </tr>
   <tr>
-    <td></td>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>lambe</td>
     <td>cealfe</td>
     <td>ǣge</td>
@@ -187,19 +238,18 @@ PLUR.
   <tr>
     <th></th>
     <th>Nom. Acc.</th>
-    <th>cealfru</th>
-    <th>ǣgru</th>
+    <td>lambru</td
+    <td>cealfru</td>
+    <td>ǣgru</td>
   </tr>
   <tr>
-    <td></td>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>lambra</td>
     <td>cealfra</td>
     <td>ǣgra</td>
   </tr>
   <tr>
-    <td></td>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>lambrum</td>
     <td>cealfrum</td>
     <td>ǣgrum</td>
@@ -216,24 +266,23 @@ ADJECTIVES
 
 A. THE DECLENSION OF ADJECTIVES.
 
-§ 421. In the parent Indg. language nouns and adjectives were declined alike without any distinction in endings, as in Latin, Greek, and Sanskrit. What is called the uninflected form of adjectives in the Germanic languages is a remnant of the time when nouns and adjectives were declined alike. But already in Indo-Germanic the pronominal adjectives had partly nominal and partly pronominal endings as in Sanskrit. In prim. Germanic the endings of the pronominal adjectives were extended to all adjectives.
-These remarks apply to what is called in the Germanic languages the strong declension of adjectives.
+§ 421. In the parent Indg. language nouns and adjectives were declined alike without any distinction in endings, as in Latin, Greek, and Sanskrit. What is called the uninflected form of adjectives in the Germanic languages is a remnant of the time when nouns and adjectives were declined alike. But already in Indo-Germanic the pronominal adjectives had partly nominal and partly pronominal endings as in Sanskrit. In prim. Germanic the endings of the pronominal adjectives were extended to all adjectives. These remarks apply to what is called in the Germanic languages the strong declension of adjectives.
 
-The so-called weak declension of adjectives is a special Germanic formation by means of the suffixes -en-, -on-, which were originally used to form nomina agentis, and attributive nouns, as Lat. edō (gen. edōnis), glutton, OE. slaga, slayer, wyrhta, worker, gen. slagan, wyrhtan; Lat. adjectives catus, sly, cunning, rūfus, red, red-haired, silus, pug-nosed, beside the proper names Catō (gen. Catōnis), lit. the sly one, Rūfō, the red-haired man, Silō, the pug-nosed man; and similarly in OE. blæc, black, frōd, wise, old, hālig, holy, beside the proper names Blaca, Frōda, Hālga. In like manner Goth. blinds, OE. blind, blind, beside Goth. OE. blinda, which originally meant, the blind man; Goth. ahma sa weiha, lit. ghost the holy one Such nouns came to be used attributively at an early period, and then later as adjectives. And already in prim. Germanic this weak declension became the rule when the adjective followed the definite article, as Wulfmær se geonga, Wulfmær the Young, OHG. Ludowig ther snello, Ludwig the Brave, cp. NHG. Karl der Grosse. At—a later period, but still in prim. Germanic, the two kinds of adjectives—strong and weak—became differentiated in use. When the one and when the other form was used in OE. is a question of syntax. There were adjectival n-stems in the parent Indg. language, but they did not have vocalic stems beside them as is the case in the Germanic languages. eall, all, genōg, enough, manig, many, and ōper, second, were always declined according to the strong declension. Nearly all other adjectives can be declined according to either declension.
+The so-called weak declension of adjectives is a special Germanic formation by means of the suffixes -en-, -on-, which were originally used to form nomina agentis, and attributive nouns, as Lat. edō (gen. edōnis), glutton, OE. slaga, slayer, wyrhta, worker, gen. slagan, wyrhtan; Lat. adjectives catus, sly, cunning, rūfus, red, red-haired, silus, pug-nosed, beside the proper names Catō (gen. Catōnis), lit. the sly one, Rūfō, the red-haired man, Silō, the pug-nosed man; and similarly in OE. blæc, black, frōd, wise, old, hālig, holy, beside the proper names Blaca, Frōda, Hālga. In like manner Goth. blinds, OE. blind, blind, beside Goth. OE. blinda, which originally meant, the blind man; Goth. "ahma sa weiha" (lit. ghost the holy one). Such nouns came to be used attributively at an early period, and then later as adjectives. And already in prim. Germanic this weak declension became the rule when the adjective followed the definite article, as "Wulfmær se geonga"  (Wulfmǣr the Young), OHG. "Ludowig ther snello" (Ludwig the Brave), cp. NHG. "Karl der Grosse". At a later period, but still in prim. Germanic, the two kinds of adjectives—strong and weak—became differentiated in use. When the one and when the other form was used in OE. is a question of syntax. There were adjectival n-stems in the parent Indg. language, but they did not have vocalic stems beside them as is the case in the Germanic languages. eall, all, genōg, enough, manig, many, and ōþer, second, were always declined according to the strong declension. Nearly all other adjectives can be declined according to either declension.
 
-The strong form is used predicatively in the positive and superlative degrees; and when the adjective is used attributively without any other defining word, as wæs sēo fǣmne geong, the woman was young; þā menn sindon
-gōde, the men are good; þus wāeron þā latestan fyr-meste, thus were the last, first. In the vocative the weak form exists beside the strong, as þū lēofa dryhten, thou dear Lord; þū riht cyning, thou just king.
+The strong form is used predicatively in the positive and superlative degrees; and when the adjective is used attributively without any other defining word, as "wæs sēo fǣmne geong" (the woman was young); "þā menn sindon gōde" (the men are good); "þus wǣron þā latestan fyrmeste" (thus were the last, first). In the vocative the weak form exists beside the strong, as "þū lēofa dryhten" (thou dear Lord); "þū riht cyning" (thou just king).
 
-The weak form is used after the definite article, and after demonstrative and possessive pronouns, as se ofermōda cyning, the proud king; þæs ēadigan weres, of the blessed man; þes ealda mann, this old man; on þissum andweardan dæge, on this present day; min lēofa sunu, my dear son; þurh þīne æpelan hand, through thy noble hand. In poetry the weak form often occurs where in prose the strong form would be used.
+The weak form is used after the definite article, and after demonstrative and possessive pronouns, as "se ofermōda cyning" (the proud king); "þæs ēadigan weres" (of the blessed man); "þes ealda mann" (this old man); "on þissum andweardan dæge" (on this present day); "min lēofa sunu" (my dear son); "þurh þīne æpelan hand" (through thy noble hand). In poetry the weak form often occurs where in prose the strong form would be used.
 
-Note.—When the same adjective refers both to masc. and fem. beings, it is put in the neut. plural, as Wit þus baru ne magon būtū ætsomne wesan, We (Adam and Eve) may not both together be thus here naked; cp. Goth. wēsun garaihta ba in andwairþja gups, O.Icel. þau vōro rētlōt bǣpe fyr gupe, OHG. siu wārun rehtiui beidu fora gote, they (Zacharias and Elizabeth) were both righteous before God.
+Note.—When the same adjective refers both to masc. and fem. beings, it is put in the neut. plural, as "Wit þus baru ne magon būtū ætsomne wesan" (We (Adam and Eve) may not both together be thus here naked); cp. Goth. "wēsun garaíhta ba in andwaírþja gups", O.Icel. "þau vǭro rētlǭt bǣpe fyr gupe", OHG. "siu wārun rehtiui beidu fora gote" (they (Zacharias and Elizabeth) were both righteous before God).
 
 § 422. In OE. the adjectives are declined as strong or weak. They have three genders, and the same cases as nouns with the addition of an instrumental in the masc. and neuter singular.
 
 1. The Strong Declension.
 
 § 423. The endings of the strong declension are partly nominal and partly pronominal, the latter are printed in italics for glæd, glad, and blind, blind. The nominal endings are those of the a-, ō-declensions. The strong declension is divided into pure a-, ō-stems, ja-, jō-stems, and wa-, wō-stems, like the corresponding nouns. The original i- and u-stems passed over almost entirely into this declension in prehistoric OE. In OE. the ja-, jō-stems and the wa-, wō-stems only differed from the pure a-, ō-stems in the masc. and fem. nom. singular and the neut. nom. acc. singular.
-§ 424.    a. Pure a-, ō-stems.
+
+§ 424. a. Pure a-, ō-stems.
 
 SING.
 <table>
@@ -244,31 +293,31 @@ SING.
     <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>glæd, glad</td>
     <td>glæd</td>
     <td>gladu, -o</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>glædne</td>
     <td>glæd</td>
     <td>glade</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>glades</td>
     <td>glades</td>
     <td>glædre</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>gladum</td>
     <td>gladum</td>
     <td>glædre</td>
   </tr>
   <tr>
-    <td>Instr.</td>
+    <th>Instr.</th>
     <td>glade</td>
     <td>glade</td>
     <td></td>
@@ -279,24 +328,24 @@ PLUR.
 <table>
   <tr>
     <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>glade</td>
     <td>gladu, -o</td>
     <td>glade, -a</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>glædra</td>
     <td>glædra</td>
     <td>glædra</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>gladum</td>
     <td>gladum</td>
     <td>gladum</td>
@@ -307,36 +356,36 @@ SING.
 <table>
   <tr>
     <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>blind, blind</td>
     <td>blind</td>
     <td>blind</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>blindne</td>
     <td>blind</td>
     <td>blinde</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>blindes</td>
     <td>blindes</td>
     <td>blindre</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>blindum</td>
     <td>blindum</td>
     <td>blindre</td>
   </tr>
   <tr>
-    <td>Instr.</td>
+    <th>Instr.</th>
     <td>blinde</td>
     <td>blinde</td>
     <td></td>
@@ -347,37 +396,35 @@ PLUR.
 <table>
   <tr>
     <th></th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom. Acc</td>
+    <th>Nom. Acc</th>
     <td>blinde</td>
     <td>blind</td>
     <td>blinde, -a</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>blindra</td>
     <td>blindra</td>
     <td>blindra</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>blindum</td>
     <td>blindum</td>
     <td>blindum</td>
   </tr>
 </table>
 
-The prim. Germanic forms of blind were: Masc. sing. nom. *blindaz (Goth. blinds), acc. *blindanōn (Goth. blindana), gen. *blindesa, -asa, dat. *blindommō, -ē (Goth. blindamma), instr. (loc) *blindai; plur. nom. *blindai (Goth. blindái), acc. *blindanz (Goth. blindans), gen *blindaizōn, dat. *blindomiz. Neut. nom. acc. sing. *blindan (Goth. blind), nom. acc. pl. *blindō (Goth. blinda). Fem. sing. nom. *blindō (Goth. blinda), acc. *blindōn (Goth. blinda), gen. *blindizōz (cp. Goth. pizōs, of the), dat. *blindizai (cp. Goth. pizái, to the); pl. nom. acc. *blindōz (Goth. blindōs), gen.*blindaizōn,dat.*blindōmiz.
-On the syncope of the medial vowel in blindne, blindra, blindre, see § 221; after the analogy of such forms it was also dropped in adjectives with short stem-syllables. In late OE. -era, -ere are common after both long and short stem-syllables. The nom. acc. neut. pl. and nom. sing. fem. go back to prim. Germanic *blindō, the ·ō of which became ·u (§ 214) and then disappeared after long stems (§ 215), whence blind beside glādu. In late WS. the masc. nom. acc. pl. form was generally used for the neuter; and occasionally the ·u of the short stems was extended to the long. On the u in blindum, see § 218; the ·um became ·un, ·on-, ·an in late OE. (§ 284). blindra goes back to prim. OE. *blindæra, *blindera, with æ, e from the masc. and neut. gen. singular. This form then came to be used for the feminine also. The remaining forms require no comment, as they are regularly developed from the corresponding prim. Germanic forms.
+The prim. Germanic forms of blind were: Masc. sing. nom. *ƀlinđaz (Goth. blinds), acc. *ƀlinđanōn (Goth. blindana), gen. *ƀlinđesa, -asa, dat. *ƀlinđommō, -ē (Goth. blindamma), instr. (loc) *ƀlinđai; plur. nom. *blindai (Goth. blindái), acc. *ƀlinđanz (Goth. blindans), gen *ƀlinđaizȭn, dat. *ƀlinđomiz. Neut. nom. acc. sing. *blindan (Goth. blind), nom. acc. pl. *ƀlinđō (Goth. blinda). Fem. sing. nom. *ƀlinđō (Goth. blinda), acc. *ƀlinđōn (Goth. blinda), gen. *ƀlinđizȭz (cp. Goth. þizōs, of the), dat. *ƀlinđizai (cp. Goth. þizái, to the); pl. nom. acc. *ƀlinđȭz (Goth. blindōs), gen.*ƀlinđaizȭn,dat.*ƀlinđōmiz. On the syncope of the medial vowel in blindne, blindra, blindre, see § 221; after the analogy of such forms it was also dropped in adjectives with short stem-syllables. In late OE. -era, -ere are common after both long and short stem-syllables. The nom. acc. neut. pl. and nom. sing. fem. go back to prim. Germanic *ƀlinđō, the -ō of which became -u (§ 214) and then disappeared after long stems (§ 215), whence blind beside glādu. In late WS. the masc. nom. acc. pl. form was generally used for the neuter; and occasionally the -u of the short stems was extended to the long. On the u in blindum, see § 218; the -um became -un, -on-, -an in late OE. (§ 284). blindra goes back to prim. OE. *blindæra, *blindera, with æ, e from the masc. and neut. gen. singular. This form then came to be used for the feminine also. The remaining forms require no comment, as they are regularly developed from the corresponding prim. Germanic forms.
 
-§ 425. On the interchange between æ and a in the declension of glæd, see § 54, Note 3. Like glæd are declined the monosyllabic adjectives with short stems, as bær, bare; blæc, black; hræd, quick; hwæt, brisk, active; læt, slow; smæl, tender, small; saed, satiated; wær, wary, cautious; dol, foolish; fram, active, bold; frec, bold; frum, original, first; gram, angry, fierce; hol, hollow; hnot, bald; til, good, useful; trum, firm, strong; wan, wanting, deficient; änlic, solitary (for other examples, see § 634); angsum, troublesome (for other examples, see § 636).
+§ 425. On the interchange between æ and a in the declension of glæd, see § 54, Note 3. Like glæd are declined the monosyllabic adjectives with short stems, as bær, bare; blæc, black; hræd, quick; hwæt, brisk, active; læt, slow; smæl, tender, small; sæd, satiated; wær, wary, cautious; dol, foolish; fram, active, bold; frec, bold; frum, original, first; gram, angry, fierce; hol, hollow; hnot, bald; til, good, useful; trum, firm, strong; wan, wanting, deficient; ānlic, solitary (for other examples, see § 634); angsum, troublesome (for other examples, see § 636).
 
-§ 426. Like blind are declined the monosyllabic adjectives with long stems, as beald, bold; beorht, bright; blāc, pale; brūn, brown; brād, broad; ceald, cold; cūp, known, familiar; dēad, dead; dēaf, deaf; dēop, deep; deorc, dark; dumb, dumb; eald, old; earg, cowardly; earm, poor; forht, fearful, timid; frōd, wise, old; fūl, foul; fūs, ready; gefōg (gefōh), joint; genōg (genōh), enough; geong, young; georn, eager; gnēap, niggardly; gōd, good; grāg,
-grey; grēat, large; hāl, whole, sound; hār, hoary; hās, hoarse; heait, halt, lame; hēan, lowly, despised; hold, gracious; hrōr, active, brave; hwit, white; lang, long; lāþ, hateful; lēas, free from, faithless; lēof, dear; ranc, proud; rēad, red; riht, right, straight; rōf, brave, strong; rōt, glad, cheerful; rūm, roomy; sār, sore; scearp, sharp; scīr, bright, shining; scort, short; sēoc, sick; sōþ, true; stēap, steep, lofty; stearc, stiff; stīþ, stiff, rigid; strang, strong; swift, swift; swīþ, strong; torht, bright; trāg, lazy, bad; þeart, severe; wēt, wet; wāc, weak; wealt, unsteady; wearm, warm; wid, wide; wīs, wise; wlanc, proud; wōd, mad; wræst, firm, strong; wrāþ, wroth, angry; wund, wounded; fyrn (orig. i-stem), old, ancient; cōl (orig. u-stem), cool; heard (orig. u-stem), hard. The double consonants were simplified in the inflected forms before other consonants (§ 259) in words like dunn, dun; eall, all; feorr, far; full, full; gewiss, certain, sure; grimm, grim; snell, ready, active. For examples of adjectives like æþelcund, of noble origin; ānfeald, single; ārfæst, virtuous; ārlēas, impious, see Adjectival Suffixes, §§ 623, 633.
+§ 426. Like blind are declined the monosyllabic adjectives with long stems, as beald, bold; beorht, bright; blāc, pale; brūn, brown; brād, broad; ceald, cold; cūþ, known, familiar; dēad, dead; dēaf, deaf; dēop, deep; deorc, dark; dumb, dumb; eald, old; earg, cowardly; earm, poor; forht, fearful, timid; frōd, wise, old; fūl, foul; fūs, ready; gefōg (gefōh), joint; genōg (genōh), enough; geong, young; georn, eager; gnēaþ, niggardly; gōd, good; grǣg, grey; grēat, large; hāl, whole, sound; hār, hoary; hās, hoarse; healt, halt, lame; hēan, lowly, despised; hold, gracious; hrōr, active, brave; hwīt, white; lang, long; lāþ, hateful; lēas, free from, faithless; lēof, dear; ranc, proud; rēad, red; riht, right, straight; rōf, brave, strong; rōt, glad, cheerful; rūm, roomy; sār, sore; scearp, sharp; scīr, bright, shining; scort, short; sēoc, sick; sōþ, true; stēap, steep, lofty; stearc, stiff; stīþ, stiff, rigid; strang, strong; swift, swift; swīþ, strong; torht, bright; trāg, lazy, bad; þearl, severe; wǣt, wet; wāc, weak; wealt, unsteady; wearm, warm; wīd, wide; wīs, wise; wlanc, proud; wōd, mad; wrǣst, firm, strong; wrāþ, wroth, angry; wund, wounded; fyrn (orig. i-stem), old, ancient; cōl (orig. u-stem), cool; heard (orig. u-stem), hard. The double consonants were simplified in the inflected forms before other consonants (§ 259) in words like dunn, dun; eall, all; feorr, far; full, full; gewiss, certain, sure; grimm, grim; snell, ready, active. For examples of adjectives like æþelcund, of noble origin; ānfeald, single; ārfæst, virtuous; ārlēas, impious, see Adjectival Suffixes, §§ 623, 633.
 
 § 427.
 
@@ -689,8 +736,7 @@ d. i-STEMS.
 
 e. u-STEMS.
 
-§ 439. Of the adjectives which originally belonged to this class only two have preserved traces of the old u-declension, namely nom. sing. cwicu, c(w)ucu, alive, masc. acc. sing. cucone, and nom. wlacu, warm, tepid. And even these two adjectives generally have nom. cwic, wlæc and are declined like short pure a-stems. All the other adjectives passed over into the a-, ja-, or wa-declension in prehistoric OE., as heard (Goth. hardus), hard; egle
-(Goth. aglus), troublesome; hnesce, hnæsce (Goth. hnas-qus), soft, tender; twelfwintre (Goth. twalibwintrus), twelve years old; þyrre (Goth. þaúrsus), dry, withered; glēaw (Goth. glaggwus), wise.
+§ 439. Of the adjectives which originally belonged to this class only two have preserved traces of the old u-declension, namely nom. sing. cwicu, c(w)ucu, alive, masc. acc. sing. cucone, and nom. wlacu, warm, tepid. And even these two adjectives generally have nom. cwic, wlæc and are declined like short pure a-stems. All the other adjectives passed over into the a-, ja-, or wa-declension in prehistoric OE., as heard (Goth. hardus), hard; egle (Goth. aglus), troublesome; hnesce, hnæsce (Goth. hnas-qus), soft, tender; twelfwintre (Goth. twalibwintrus), twelve years old; þyrre (Goth. þaúrsus), dry, withered; glēaw (Goth. glaggwus), wise.
 
 2. The Weak Declension.
 

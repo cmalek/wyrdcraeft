@@ -19,13 +19,6 @@ SoundManualContextEmitter = Callable[
     [dict[str, str], str, str, str, str | int | None],
     None,
 ]
-#: Callback signature for one context-aware source-row emission operation.
-SoundSourceDispatchAction = Callable[[_SoundChangeDispatchContext], tuple[str, str]]
-#: Callback signature for one context-aware manual-row emission operation.
-SoundManualDispatchAction = Callable[
-    [_SoundChangeDispatchContext, str, str, str, str | int | None],
-    None,
-]
 #: Callback signature for one full sound-change emission sequence.
 SoundChangeSequenceEmitter = Callable[..., None]
 
@@ -43,8 +36,8 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
     function: str,
     probability: str | int | None,
     sound_change_prob_delta: int,
-    emit_source_form_with_context: SoundSourceDispatchAction,
-    emit_manual_with_context: SoundManualDispatchAction,
+    emit_source_form: SoundSourceContextEmitter,
+    emit_manual: SoundManualContextEmitter,
 ) -> None:
     """
     Emit one source row and its sound-change derivatives with shared context.
@@ -64,8 +57,8 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         function: Morphology function code for source-row emission.
         probability: Optional source-row probability annotation.
         sound_change_prob_delta: Probability increment for derived rows.
-        emit_source_form_with_context: Callback that emits source form row.
-        emit_manual_with_context: Callback that emits one derived manual row.
+        emit_source_form: Callback that emits the source form row.
+        emit_manual: Callback that emits one derived manual row.
 
     Keyword Args:
         Uses keyword-only parameters for all inputs.
@@ -92,8 +85,16 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         function=function,
         probability=probability,
         sound_change_prob_delta=sound_change_prob_delta,
-        emit_source_form=partial(emit_source_form_with_context, context),
-        emit_manual=partial(emit_manual_with_context, context),
+        emit_source_form=partial(
+            emit_source_form_with_sound_context,
+            context,
+            emit_source_form=emit_source_form,
+        ),
+        emit_manual=partial(
+            emit_manual_sound_changed_context,
+            context,
+            emit_manual=emit_manual,
+        ),
     )
 
 
@@ -155,39 +156,6 @@ def emit_sound_changed_form_for_context(  # noqa: PLR0913
     )
 
 
-def emit_source_form_with_sound_dispatch_context(
-    context: _SoundChangeDispatchContext,
-    *,
-    emit_source_form_with_sound_context_callback: SoundSourceContextEmitter,
-) -> tuple[str, str]:
-    """
-    Emit one sound-change source row from shared dispatch context.
-
-    Side Effects:
-        Writes one row to the morphology output stream.
-
-    Args:
-        context: Shared source-row dispatch context.
-
-    Keyword Args:
-        emit_source_form_with_sound_context_callback: Callback that emits source
-            form.
-
-    Returns:
-        Two-item tuple of emitted ``(form, form_parts)``.
-
-    Note:
-        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
-        (``data/Ondej_Tich_40-54-1.pdf``) describe phonological alternation
-        paths; this wrapper keeps source-row argument ordering unchanged.
-
-    """
-    return emit_source_form_with_sound_context(
-        context,
-        emit_source_form=emit_source_form_with_sound_context_callback,
-    )
-
-
 def emit_source_form_with_sound_context(
     context: _SoundChangeDispatchContext,
     *,
@@ -225,48 +193,6 @@ def emit_source_form_with_sound_context(
         context.ending,
         context.function,
         context.probability,
-    )
-
-
-def emit_manual_sound_changed_dispatch_context(  # noqa: PLR0913
-    context: _SoundChangeDispatchContext,
-    sound_changed_form: str,
-    source_form_parts: str,
-    source_function: str,
-    source_probability: str | int | None,
-    *,
-    emit_manual_sound_changed_context_callback: SoundManualContextEmitter,
-) -> None:
-    """
-    Emit one manual sound-change row using shared dispatch context.
-
-    Side Effects:
-        Writes one row to the morphology output stream.
-
-    Args:
-        context: Shared source-row dispatch context.
-        sound_changed_form: The emitted sound-changed form text.
-        source_form_parts: The source form-parts payload.
-        source_function: The morphology function code.
-        source_probability: Optional probability annotation.
-
-    Keyword Args:
-        emit_manual_sound_changed_context_callback: Callback that emits manual
-            row.
-
-    Note:
-        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
-        (``data/Ondej_Tich_40-54-1.pdf``) describe deterministic branch
-        ordering for derived forms; this helper preserves that order.
-
-    """
-    emit_manual_sound_changed_context(
-        context,
-        sound_changed_form,
-        source_form_parts,
-        source_function,
-        source_probability,
-        emit_manual=emit_manual_sound_changed_context_callback,
     )
 
 

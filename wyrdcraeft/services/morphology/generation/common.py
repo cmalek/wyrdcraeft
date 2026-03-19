@@ -6,7 +6,6 @@ from wyrdcraeft.models.morphology import (
     ParadigmPart,
     ParadigmVariant,
     _ParadigmVariantDispatchContext,
-    _SoundChangeDispatchContext,
     _StrongPrincipalPartContext,
     _StrongInfDerivationContext,
     _VariantPartDispatchContext,
@@ -1588,138 +1587,8 @@ class VerbFormGenerator:
             function=function,
             probability=prob,
             sound_change_prob_delta=sound_change_prob_delta,
-            emit_source_form_with_context=self._emit_source_form_with_sound_dispatch_context,
-            emit_manual_with_context=self._emit_manual_sound_changed_dispatch_context,
-        )
-
-    def _emit_source_form_with_sound_dispatch_context(
-        self, context: _SoundChangeDispatchContext
-    ) -> tuple[str, str]:
-        """
-        Emit the source row for sound-change derivations using dispatch context.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            context: Shared source-row dispatch context.
-
-        Returns:
-            Two-item tuple of emitted ``(form, form_parts)``.
-
-        """
-        return _sound_dispatch_flow.emit_source_form_with_sound_dispatch_context(
-            context,
-            emit_source_form_with_sound_context_callback=self._emit_source_form_with_sound_context,
-        )
-
-    def _emit_source_form_with_sound_context(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        prefix: str,
-        pre_vowel: str,
-        vowel: str,
-        post_vowel: str,
-        boundary: str,
-        dental: str | None,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> tuple[str, str]:
-        """
-        Emit the source row used for downstream sound-change derivations.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            formhash: The form hash.
-            prefix: The prefix segment.
-            pre_vowel: The pre-vowel segment.
-            vowel: The active vowel segment.
-            post_vowel: The post-vowel segment.
-            boundary: The boundary segment.
-            dental: The optional weak dental segment.
-            ending: The ending segment.
-            function: The function code.
-            prob: Optional source-row probability annotation.
-
-        Returns:
-            Two-item tuple of emitted ``(form, form_parts)``.
-
-        """
-        return self._generate_and_print_form(
-            formhash,
-            prefix,
-            pre_vowel,
-            vowel,
-            post_vowel,
-            boundary,
-            dental,
-            ending,
-            function,
-            prob,
-        )
-
-    def _emit_manual_sound_changed_dispatch_context(
-        self,
-        context: _SoundChangeDispatchContext,
-        sound_changed_form: str,
-        source_form_parts: str,
-        source_function: str,
-        source_probability: str | int | None,
-    ) -> None:
-        """
-        Emit one manual sound-change row using shared dispatch context.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            context: Shared source-row dispatch context.
-            sound_changed_form: The emitted sound-changed form text.
-            source_form_parts: The source form-parts payload.
-            source_function: The morphology function code.
-            source_probability: Optional probability annotation.
-
-        """
-        _sound_dispatch_flow.emit_manual_sound_changed_dispatch_context(
-            context,
-            sound_changed_form,
-            source_form_parts,
-            source_function,
-            source_probability,
-            emit_manual_sound_changed_context_callback=self._emit_manual_sound_changed_context,
-        )
-
-    def _emit_manual_sound_changed_context(
-        self,
-        formhash: dict[str, str],
-        sound_changed_form: str,
-        source_form_parts: str,
-        source_function: str,
-        source_probability: str | int | None,
-    ) -> None:
-        """
-        Emit one manually assembled row for a sound-changed derivative.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            formhash: The form hash.
-            sound_changed_form: The emitted sound-changed form text.
-            source_form_parts: The source form-parts payload.
-            source_function: The morphology function code.
-            source_probability: Optional probability annotation.
-
-        """
-        self._generate_and_print_manual(
-            formhash,
-            sound_changed_form,
-            source_form_parts,
-            source_function,
-            source_probability,
+            emit_source_form=self._generate_and_print_form,
+            emit_manual=self._generate_and_print_manual,
         )
 
     def _generate_and_print_manual(
