@@ -20,8 +20,15 @@ from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .form_rows import generate_and_print_form as _generate_and_print_form
 from .form_rows import generate_and_print_manual as _generate_and_print_manual
+from .form_rows import (
+    generate_and_print_form_with_sound_changes
+    as _generate_and_print_form_with_sound_changes_row,
+)
 from .form_rows import emit_form_for_context as _emit_form_for_context_row
 from .form_rows import emit_imsg_for_context as _emit_imsg_for_context_row
+from .form_rows import (
+    emit_sound_changed_form_for_context as _emit_sound_changed_form_for_context_row,
+)
 from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
@@ -46,7 +53,6 @@ from .strong_principal_flow import (
     generate_strong_verb_parts as _generate_strong_verb_parts,
 )
 from . import weak_derivation_flow as _weak_derivation_flow
-from . import sound_dispatch_flow as _sound_dispatch_flow
 from . import weak_principal_flow as _weak_principal_flow
 
 
@@ -653,7 +659,9 @@ class VerbFormGenerator:
             sound_change_prob_delta: Probability delta used on derived forms.
 
         """
-        _sound_dispatch_flow.emit_sound_changed_form_for_context(
+        _emit_sound_changed_form_for_context_row(
+            self.session,
+            self.output_file,
             formhash,
             prefix,
             pre_vowel,
@@ -665,7 +673,6 @@ class VerbFormGenerator:
             prob,
             dental=dental,
             sound_change_prob_delta=sound_change_prob_delta,
-            emit_with_sound_changes=self._generate_and_print_form_with_sound_changes,
         )
 
     def _emit_imsg_for_context(  # noqa: PLR0913
@@ -1575,20 +1582,20 @@ class VerbFormGenerator:
             sound_change_prob_delta: Probability increment for derived rows.
 
         """  # noqa: E501
-        _sound_dispatch_flow.generate_and_print_form_with_sound_changes(
-            formhash=formhash,
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            vowel=vowel,
-            post_vowel=post_vowel,
-            boundary=boundary,
-            dental=dental,
-            ending=ending,
-            function=function,
-            probability=prob,
+        _generate_and_print_form_with_sound_changes_row(
+            self.session,
+            self.output_file,
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob,
             sound_change_prob_delta=sound_change_prob_delta,
-            emit_source_form=self._generate_and_print_form,
-            emit_manual=self._generate_and_print_manual,
         )
 
     def _generate_and_print_manual(

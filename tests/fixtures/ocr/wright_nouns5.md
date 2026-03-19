@@ -420,138 +420,148 @@ PLUR.
   </tr>
 </table>
 
-The prim. Germanic forms of blind were: Masc. sing. nom. *ƀlinđaz (Goth. blinds), acc. *ƀlinđanōn (Goth. blindana), gen. *ƀlinđesa, -asa, dat. *ƀlinđommō, -ē (Goth. blindamma), instr. (loc) *ƀlinđai; plur. nom. *blindai (Goth. blindái), acc. *ƀlinđanz (Goth. blindans), gen *ƀlinđaizȭn, dat. *ƀlinđomiz. Neut. nom. acc. sing. *blindan (Goth. blind), nom. acc. pl. *ƀlinđō (Goth. blinda). Fem. sing. nom. *ƀlinđō (Goth. blinda), acc. *ƀlinđōn (Goth. blinda), gen. *ƀlinđizȭz (cp. Goth. þizōs, of the), dat. *ƀlinđizai (cp. Goth. þizái, to the); pl. nom. acc. *ƀlinđȭz (Goth. blindōs), gen.*ƀlinđaizȭn,dat.*ƀlinđōmiz. On the syncope of the medial vowel in blindne, blindra, blindre, see § 221; after the analogy of such forms it was also dropped in adjectives with short stem-syllables. In late OE. -era, -ere are common after both long and short stem-syllables. The nom. acc. neut. pl. and nom. sing. fem. go back to prim. Germanic *ƀlinđō, the -ō of which became -u (§ 214) and then disappeared after long stems (§ 215), whence blind beside glādu. In late WS. the masc. nom. acc. pl. form was generally used for the neuter; and occasionally the -u of the short stems was extended to the long. On the u in blindum, see § 218; the -um became -un, -on-, -an in late OE. (§ 284). blindra goes back to prim. OE. *blindæra, *blindera, with æ, e from the masc. and neut. gen. singular. This form then came to be used for the feminine also. The remaining forms require no comment, as they are regularly developed from the corresponding prim. Germanic forms.
+The prim. Germanic forms of blind were: Masc. sing. nom. *ƀlinđaz (Goth. blinds), acc. *ƀlinđanōn (Goth. blindana), gen. *ƀlinđesa, -asa, dat. *ƀlinđommō, -ē (Goth. blindamma), instr. (loc) *ƀlinđai; plur. nom. *blindai (Goth. blindái), acc. *ƀlinđanz (Goth. blindans), gen *ƀlinđaizȭn, dat. *ƀlinđomiz. Neut. nom. acc. sing. *blindan (Goth. blind), nom. acc. pl. *ƀlinđō (Goth. blinda). Fem. sing. nom. *ƀlinđō (Goth. blinda), acc. *ƀlinđōn (Goth. blinda), gen. *ƀlinđizȭz (cp. Goth. þizōs, of the), dat. *ƀlinđizai (cp. Goth. þizái, to the); pl. nom. acc. *ƀlinđȭz (Goth. blindōs), gen. *ƀlinđaizȭn, dat. *ƀlinđōmiz. On the syncope of the medial vowel in blindne, blindra, blindre, see § 221; after the analogy of such forms it was also dropped in adjectives with short stem-syllables. In late OE. -era, -ere are common after both long and short stem-syllables. The nom. acc. neut. pl. and nom. sing. fem. go back to prim. Germanic *ƀlinđō, the -ō of which became -u (§ 214) and then disappeared after long stems (§ 215), whence blind beside glādu. In late WS. the masc. nom. acc. pl. form was generally used for the neuter; and occasionally the -u of the short stems was extended to the long. On the u in blindum, see § 218; the -um became -un, -on-, -an in late OE. (§ 284). blindra goes back to prim. OE. *blindæra, *blindera, with æ, e from the masc. and neut. gen. singular. This form then came to be used for the feminine also. The remaining forms require no comment, as they are regularly developed from the corresponding prim. Germanic forms.
 
 § 425. On the interchange between æ and a in the declension of glæd, see § 54, Note 3. Like glæd are declined the monosyllabic adjectives with short stems, as bær, bare; blæc, black; hræd, quick; hwæt, brisk, active; læt, slow; smæl, tender, small; sæd, satiated; wær, wary, cautious; dol, foolish; fram, active, bold; frec, bold; frum, original, first; gram, angry, fierce; hol, hollow; hnot, bald; til, good, useful; trum, firm, strong; wan, wanting, deficient; ānlic, solitary (for other examples, see § 634); angsum, troublesome (for other examples, see § 636).
 
 § 426. Like blind are declined the monosyllabic adjectives with long stems, as beald, bold; beorht, bright; blāc, pale; brūn, brown; brād, broad; ceald, cold; cūþ, known, familiar; dēad, dead; dēaf, deaf; dēop, deep; deorc, dark; dumb, dumb; eald, old; earg, cowardly; earm, poor; forht, fearful, timid; frōd, wise, old; fūl, foul; fūs, ready; gefōg (gefōh), joint; genōg (genōh), enough; geong, young; georn, eager; gnēaþ, niggardly; gōd, good; grǣg, grey; grēat, large; hāl, whole, sound; hār, hoary; hās, hoarse; healt, halt, lame; hēan, lowly, despised; hold, gracious; hrōr, active, brave; hwīt, white; lang, long; lāþ, hateful; lēas, free from, faithless; lēof, dear; ranc, proud; rēad, red; riht, right, straight; rōf, brave, strong; rōt, glad, cheerful; rūm, roomy; sār, sore; scearp, sharp; scīr, bright, shining; scort, short; sēoc, sick; sōþ, true; stēap, steep, lofty; stearc, stiff; stīþ, stiff, rigid; strang, strong; swift, swift; swīþ, strong; torht, bright; trāg, lazy, bad; þearl, severe; wǣt, wet; wāc, weak; wealt, unsteady; wearm, warm; wīd, wide; wīs, wise; wlanc, proud; wōd, mad; wrǣst, firm, strong; wrāþ, wroth, angry; wund, wounded; fyrn (orig. i-stem), old, ancient; cōl (orig. u-stem), cool; heard (orig. u-stem), hard. The double consonants were simplified in the inflected forms before other consonants (§ 259) in words like dunn, dun; eall, all; feorr, far; full, full; gewiss, certain, sure; grimm, grim; snell, ready, active. For examples of adjectives like æþelcund, of noble origin; ānfeald, single; ārfæst, virtuous; ārlēas, impious, see Adjectival Suffixes, §§ 623, 633.
 
 § 427.
-
+SING.
 <table>
   <tr>
-    <th>Sing.</th>
+    <th></th>
     <th>Masc.</th>
     <th>Neut.</th>
     <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>hēah, high</td>
     <td>hēah</td>
     <td>hēa</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>hēa(n)ne</td>
     <td>hēah</td>
     <td>hēa</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>hēas</td>
     <td>hēas</td>
     <td>hēa(r)re</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>hēa(u)m</td>
     <td>hēa(u)m</td>
     <td>hēa(r)re</td>
   </tr>
   <tr>
-    <td>Instr.</td>
+    <th>Instr.</th>
     <td>hēa</td>
     <td>hēa</td>
     <td></td>
   </tr>
+</table>
+
+PLUR.
+<table>
   <tr>
-    <th colspan="4">Plur.</th>
+    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>hēa</td>
     <td>hēa</td>
     <td>hēa</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>hēa(r)ra</td>
     <td>hēa(r)ra</td>
     <td>hēa(r)ra</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>hēa(u)m</td>
     <td>hēa(u)m</td>
     <td>hēa(u)m</td>
   </tr>
 </table>
 
-hēanne, hēarra, hēarre were due to the assimilation of hn and hr; and hēane, hēara, hēare arose from the regu-
-lar loss of h before n, r (§ 329, 2). In hēaum the u was restored after the analogy of forms like gladum, blindum. The instr., masc. and fem. nom. pl., and fem. acc. singular hēa was from older *hēahe; and the neut. nom. acc. pl. and fem. nom. singular from older *hēahu; masc. and neut. gen. sing. from *hēahes. See § 139. Late OE. forms like gen. hēages, dat. hēage, nom. pl. hēage beside older hēas, hēa(u)m, hēa were formed after the analogy of such words as gen. gefōges, genōges beside nom. gefōh, genōh (§ 323).
+hēanne, hēarra, hēarre were due to the assimilation of hn and hr; and hēane, hēara, hēare arose from the regular loss of h before n, r (§ 329, 2). In hēaum the u was restored after the analogy of forms like gladum, blindum. The instr., masc. and fem. nom. pl., and fem. acc. singular hēa was from older *hēahe; and the neut. nom. acc. pl. and fem. nom. singular from older *hēahu; masc. and neut. gen. sing. from *hēahes. See § 139. Late OE. forms like gen. hēages, dat. hēage, nom. pl. hēage beside older hēas, hēa(u)m, hēa were formed after the analogy of such words as gen. gefōges, genōges beside nom. gefōh, genōh (§ 323).
 
 § 428. Like hēah are declined fāh, hostile; flāh, deceitful; hrēoh, rude, rough, wild; nēah, nigh, near; rūh, rough; scēoh, shy; tōh, tough; wōh, crooked, bad. sceolh, awry, squinting; þweorh, cross, perverse, dropped the h and lengthened the diphthong in the inflected forms, as gen. scēoles, þwēores, dat. scēolum, þwēorum, cp. § 149.
 
 § 429.
-
+SING.
 <table>
   <tr>
-    <th>SING.</th>
+    <th></th>
     <th>Masc.</th>
     <th>Neut.</th>
     <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>manig, many</td>
     <td>manig</td>
     <td>manig</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>manigne</td>
     <td>manig</td>
     <td>manige</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>maniges</td>
     <td>maniges</td>
     <td>manigre</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>manigum</td>
     <td>manigum</td>
     <td>manigre</td>
   </tr>
   <tr>
-    <td>Instr.</td>
+    <th>Instr.</th>
     <td>manige</td>
     <td>manige</td>
     <td></td>
   </tr>
+</table>
+
+PLUR.
+<table>
   <tr>
-    <th>PLUR.</th>
     <th></th>
-    <th></th>
-    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom. Acc.</td>
+    <th>Nom. Acc.</th>
     <td>manige</td>
     <td>manig</td>
     <td>manige, -a</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>manigra</td>
     <td>manigra</td>
     <td>manigra</td>
   </tr>
   <tr>
-    <td>Dat.</td>
+    <th>Dat.</th>
     <td>manigum</td>
     <td>manigum</td>
     <td>manigum</td>
@@ -559,26 +569,72 @@ lar loss of h before n, r (§ 329, 2). In hēaum the u was restored after the an
 </table>
 
 SING.
-Nom. hālig, holy
-Acc. hāligne
-Gen. hālges
-Dat. hālgum
-Instr. hālge
+<table>
+  <tr>
+    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
+  </tr>
+  <tr>
+    <th>Nom.</th>
+    <td>hālig, holy</td>
+    <td>hālig</td>
+    <td>hāligu, -o</td>
+  </tr>
+  <tr>
+    <th>Acc.</th>
+    <td>hāligne</td>
+    <td>hālig</td>
+    <td>hālige</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>hālges</td>
+    <td>hālges</td>
+    <td>hāligre</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>hālgum</td>
+    <td>hālgum</td>
+    <td>hāligre</td>
+  </tr>
+  <tr>
+    <th>Instr.</th>
+    <td>hālge</td>
+    <td>hālge</td>
+    <td></td>
+  </tr>
+</table>
 
-hālig
-hālig
-hālges
-hālgum
-hālge
-
-hāligu, -o
-hālge
-hāligre
-hāligre
-Plur.
-Nom. Acc. hālge    hāligu, -o    hālge, -a
-Gen. hāligra    hāligra    hāligra
-Dat. hālgum    hālgum    hālgum
+PLUR.
+<table>
+  <tr>
+    <th></th>
+    <th>Masc.</th>
+    <th>Neut.</th>
+    <th>Fem.</th>
+  </tr>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>hālge</td>
+    <td>hāligu, -o</td>
+    <td>hālge, -a</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>hāligra</td>
+    <td>hāligra</td>
+    <td>hāligra</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>hālgum</td>
+    <td>hālgum</td>
+    <td>hālgum</td>
+  </tr>
+</table>
 
 Original short medial vowels in open syllables regularly remained in trisyllabic forms when the stem-syllable was short. They also remained in closed syllables irrespectively as to whether the stem-syllable was long or short. But they disappeared when the stem-syllable was long. See § 221. Final ·u regularly disappeared after a long medial syllable, and also when the stem and the medial syllable were short, but remained when the stem-syllable was long and the medial syllable short. See § 216. There are many exceptions to the above rules due to analogical formations, as yfles, hāliges, hāligu beside older yfeles, hāliges, hāligu, see § 223, Note 1. In adjectives ending in ·en, ·er, the combinations ·enne (masc. acc. sing.), ·erra (gen. pl.), and ·erre (fem. gen. dat. sing.) were often simplified to ·ene, ·era, ·ere especially in late OE. (§ 259, 4).
 

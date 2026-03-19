@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from functools import partial
 from typing import TYPE_CHECKING, cast
 
+from . import sound_dispatch_flow as _sound_dispatch_flow
 from .form_assembly import assemble_form_parts, materialize_form
 from .probability import format_probability
 from .sinks import TsvParitySink
@@ -287,4 +289,187 @@ def emit_imsg_for_context(  # noqa: PLR0913
         "0",
         "ImSg",
         prob=prob,
+    )
+
+
+def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    dental: str | None,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    sound_change_prob_delta: int = 1,
+) -> None:
+    """
+    Emit one source row and its sound-change derivatives for a stem context.
+
+    Side Effects:
+        Writes generated and derived rows to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        dental: Optional weak-form dental segment.
+        ending: Morphological ending segment.
+        function: Morphological function code.
+        prob: Optional source-row probability annotation.
+
+    Keyword Args:
+        sound_change_prob_delta: Probability increment applied to derived rows.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe phonological alternation as
+        a deterministic continuation of one emitted source form; this helper
+        preserves the existing callback order and payload flow.
+
+    """
+
+    def _emit_source_form(  # noqa: PLR0913
+        source_formhash: dict[str, str],
+        source_prefix: str,
+        source_pre_vowel: str,
+        source_vowel: str,
+        source_post_vowel: str,
+        source_boundary: str,
+        source_dental: str | None,
+        source_ending: str,
+        source_function: str,
+        source_prob: str | int | None,
+    ) -> tuple[str, str]:
+        return generate_and_print_form(
+            session,
+            output_file,
+            source_formhash,
+            source_prefix,
+            source_pre_vowel,
+            source_vowel,
+            source_post_vowel,
+            source_boundary,
+            source_dental,
+            source_ending,
+            source_function,
+            prob=source_prob,
+        )
+
+    _sound_dispatch_flow.generate_and_print_form_with_sound_changes(
+        formhash=formhash,
+        prefix=prefix,
+        pre_vowel=pre_vowel,
+        vowel=vowel,
+        post_vowel=post_vowel,
+        boundary=boundary,
+        dental=dental,
+        ending=ending,
+        function=function,
+        probability=prob,
+        sound_change_prob_delta=sound_change_prob_delta,
+        emit_source_form=_emit_source_form,
+        emit_manual=partial(generate_and_print_manual, session, output_file),
+    )
+
+
+def emit_sound_changed_form_for_context(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    prefix: str,
+    pre_vowel: str,
+    vowel: str,
+    post_vowel: str,
+    boundary: str,
+    ending: str,
+    function: str,
+    prob: str | int | None,
+    *,
+    dental: str | None = "",
+    sound_change_prob_delta: int = 1,
+) -> None:
+    """
+    Emit source and derived sound-change rows for one fixed stem context.
+
+    Side Effects:
+        Writes generated and derived rows to the morphology output stream.
+
+    Args:
+        session: Active generation session containing output counters.
+        output_file: Output sink receiving emitted rows.
+        formhash: Mutable form metadata hash.
+        prefix: Prefix segment.
+        pre_vowel: Stem segment before the active vowel.
+        vowel: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        boundary: Boundary consonant segment.
+        ending: Morphological ending segment.
+        function: Morphology function code.
+        prob: Optional source-row probability annotation.
+
+    Keyword Args:
+        dental: Dental segment for weak-form contexts.
+        sound_change_prob_delta: Probability increment applied to derived rows.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe deterministic ordering for
+        phonological alternation branches; this helper preserves that ordering.
+
+    """
+
+    def _emit_with_sound_changes(  # noqa: PLR0913
+        source_formhash: dict[str, str],
+        source_prefix: str,
+        source_pre_vowel: str,
+        source_vowel: str,
+        source_post_vowel: str,
+        source_boundary: str,
+        source_dental: str | None,
+        source_ending: str,
+        source_function: str,
+        source_prob: str | int | None,
+        *,
+        sound_change_prob_delta: int,
+    ) -> None:
+        generate_and_print_form_with_sound_changes(
+            session,
+            output_file,
+            source_formhash,
+            source_prefix,
+            source_pre_vowel,
+            source_vowel,
+            source_post_vowel,
+            source_boundary,
+            source_dental,
+            source_ending,
+            source_function,
+            source_prob,
+            sound_change_prob_delta=sound_change_prob_delta,
+        )
+
+    _sound_dispatch_flow.emit_sound_changed_form_for_context(
+        formhash,
+        prefix,
+        pre_vowel,
+        vowel,
+        post_vowel,
+        boundary,
+        ending,
+        function,
+        prob,
+        dental=dental,
+        sound_change_prob_delta=sound_change_prob_delta,
+        emit_with_sound_changes=_emit_with_sound_changes,
     )
