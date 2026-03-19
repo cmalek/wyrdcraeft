@@ -95,7 +95,7 @@ PLUR.
   </tr>
 </table>
 
-In the inflected forms the masc. wa-stems have the same endings as the pure a-stems. After the loss of prim. Germanic ·az, ·an in the nom. and acc. singular, the w being final became vocalized to ·u which remained after short vowels followed by a consonant, but with a preceding short vowel it combined to form a diphthong (§§ 264–5); thus prim. Germanic *ƀarwaz, ·an, *þewaz, ·an regularly became bearu (later bearo), þēo. After a long vowel the ·u regularly disappeared, as in snā, snow, from *snaiwaz, ·an. At a later period the w in the inflected forms was levelled out into the nom. acc. singular, whence þēow, snāw beside older þēo, snā. And then from þēow there was often formed a new gen. þēowes beside the regular form þeowes (§ 265). On forms like gen. bearuwes beside bearwes, see § 220.
+In the inflected forms the masc. wa-stems have the same endings as the pure a-stems. After the loss of prim. Germanic -az, -an in the nom. and acc. singular, the w being final became vocalized to -u which remained after short vowels followed by a consonant, but with a preceding short vowel it combined to form a diphthong (§§ 264–5); thus prim. Germanic *ƀarwaz, -an, *þewaz, -an regularly became bearu (later bearo), þēo. After a long vowel the -u regularly disappeared, as in snā, snow, from *snaiwaz, -an. At a later period the w in the inflected forms was levelled out into the nom. acc. singular, whence þēow, snāw beside older þēo, snā. And then from þēow there was often formed a new gen. þēowes beside the regular form þeowes (§ 265). On forms like gen. bearuwes beside bearwes, see § 220.
 
 § 360. Like þēo, þēow are declined bēaw, gadfly; dēaw (also neut.), dew; lārēow from lād + þēow, teacher; lāttēow from lād + þēow, leader; þēaw, custom; brīw (Goth. *breiws), pottage, porridge; gīw, gēow, griffin, vulture; īw, īow, ēow, yew; slīw (Goth. *sleiws), tench (a fish).
 § 361. Neuter.
@@ -146,4 +146,4 @@ The neuter wa-stems have the same endings as the masculine except in the nom. ac
 
 2. The ō-declension.
 
-§ 364. The ō-declension contains feminine nouns only, and corresponds to the Latin and Greek ā-declension, for which reason it is sometimes called the ā-declension. The ō-declension is divided into pure ō-stems, jō-stems, and wō-stems.
+§ 364. The ō-declension contains feminine nouns only, and corresponds to the Latin and Greek ā-declension, for which reason it is sometimes called the ā-declension. The ō-declension is divided into pure ō-stems, jō-stems, and wō-stems.-

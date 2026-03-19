@@ -5,6 +5,7 @@ import io
 
 from wyrdcraeft.models.morphology import ParadigmPart, Word
 from wyrdcraeft.services.morphology.generation.participles import (
+    add_participle_to_adjectives,
     build_participle_adjective,
 )
 from wyrdcraeft.services.morphology.generation.sound_changes import (
@@ -440,6 +441,62 @@ def test_add_participle_to_adjectives_respects_prefix_numeric_match() -> None:
         word,
         "ge",
         "ge-l-a-m",
+        is_past=False,
+    )
+
+    assert session.adjectives == []
+
+
+def test_add_participle_to_adjectives_helper_appends_present_participle() -> None:
+    session = GeneratorSession()
+    word = _make_word(prefix="0", title="lemma", wright="W")
+
+    add_participle_to_adjectives(
+        session,
+        word=word,
+        prefix="ge",
+        form_parts="ge-l-a-m-0\n",
+        is_past=False,
+    )
+
+    assert len(session.adjectives) == 1
+    adjective = session.adjectives[0]
+    assert adjective.title == "gelam"
+    assert adjective.stem == "lam"
+    assert adjective.pspart == 1
+    assert adjective.papart == 0
+    assert adjective.prefix == "ge"
+
+
+def test_add_participle_to_adjectives_helper_appends_past_participle() -> None:
+    session = GeneratorSession()
+    word = _make_word(prefix="0", title="lemma", wright="W")
+
+    add_participle_to_adjectives(
+        session,
+        word=word,
+        prefix="0",
+        form_parts="0-l-a-m-0\n",
+        is_past=True,
+    )
+
+    assert len(session.adjectives) == 1
+    adjective = session.adjectives[0]
+    assert adjective.title == "lam"
+    assert adjective.stem == "lam"
+    assert adjective.pspart == 0
+    assert adjective.papart == 1
+
+
+def test_add_participle_to_adjectives_helper_skips_mismatched_prefix() -> None:
+    session = GeneratorSession()
+    word = _make_word(prefix="1")
+
+    add_participle_to_adjectives(
+        session,
+        word=word,
+        prefix="ge",
+        form_parts="ge-l-a-m",
         is_past=False,
     )
 

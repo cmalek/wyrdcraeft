@@ -41,7 +41,9 @@ from .paradigm_flow import (
     dispatch_paradigm_variants,
     dispatch_variant_parts,
 )
-from .participles import build_participle_adjective
+from .participles import (
+    add_participle_to_adjectives as _add_participle_to_adjectives_session,
+)
 from .scalar_utils import nz as _nz_scalar
 from .scalar_utils import perl_numify as _perl_numify
 from .shared import FormOutput
@@ -736,17 +738,13 @@ class VerbFormGenerator:
             The stem.
 
         """
-        # Perl uses numeric ``==`` here, not string ``eq``.
-        if perl_numify(prefix) != perl_numify(word.prefix):
-            return
-
-        new_adj = build_participle_adjective(
+        _add_participle_to_adjectives_session(
+            self.session,
             word=word,
             prefix=prefix,
             form_parts=form_parts,
             is_past=is_past,
         )
-        self.session.adjectives.append(new_adj)
 
     def _emit_strong_vowel_form_context(  # noqa: PLR0913
         self,

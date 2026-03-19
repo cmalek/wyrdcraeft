@@ -45,7 +45,7 @@ Plur.
 	</tr>
 </table>
 
-The prim. Germanic forms were: Sing. nom. *ʒeƀō, acc. *gebōn (cp. Gr. χώραν), gen. *ʒeƀȭz (Goth. gibōs), dat. *ʒeƀai; Plur. nom. acc. *ʒeƀȭz (Goth. gibōs), gen. *ʒeƀȭn (Goth. gibō), dat. *ʒeƀōmiz (Goth. gibōm). The acc. gen. and dat. sing. and the nom. acc. pl. regularly fell together in ·æ in prehistoric OE. (§ 217). The ·æ remained in the oldest period of the language and then later regularly became ·e. In the nom. sing. the -ō became ·u and then regularly disappeared after long stem-syllables (§ 215). In late OE. the gen. sing. often ended in ·es after the analogy of the masc. a-stems; and sometimes the nom. of the short stems was used for all cases of the singular. The regular ending of the gen. pl. is ·a, but in late OE. the gen. pl. often ended in ·(e)na after the analogy of the n-stems (§ 403). On the ending ·um of the dat. plural, see § 218, 5. It is difficult to account for the ·a in the nom. acc. pl. in WS. and Ken., and for the ·a in the oblique cases of the fem. nouns ending in ·ung in these dialects. Seeing that the gen. sing. and nom. pl. originally had the same ending ·ȭz and that both cases ended in ·æ in the oldest OE., the ·a in the nom. pl. cannot be a regular development from older ·æ. It is sometimes assumed that ·a is the regular development of prim. Germanic -ȭz in OE., and that what is called the gen. sing. is morphologically the dat., but against this assumption it should be pointed out that in the oldest period of the language the gen. and dat. sing. and nom. plural had all the same ending. Short stems with a often have æ beside a in the acc. gen. and dat. sing. and nom. acc. pl., as lǣþe, ræce, beside lāþe, race.
+The prim. Germanic forms were: Sing. nom. *ʒeƀō, acc. *gebōn (cp. Gr. χώραν), gen. *ʒeƀȭz (Goth. gibōs), dat. *ʒeƀai; Plur. nom. acc. *ʒeƀȭz (Goth. gibōs), gen. *ʒeƀȭn (Goth. gibō), dat. *ʒeƀōmiz (Goth. gibōm). The acc. gen. and dat. sing. and the nom. acc. pl. regularly fell together in -æ in prehistoric OE. (§ 217). The -æ remained in the oldest period of the language and then later regularly became -e. In the nom. sing. the -ō became -u and then regularly disappeared after long stem-syllables (§ 215). In late OE. the gen. sing. often ended in -es after the analogy of the masc. a-stems; and sometimes the nom. of the short stems was used for all cases of the singular. The regular ending of the gen. pl. is -a, but in late OE. the gen. pl. often ended in -(e)na after the analogy of the n-stems (§ 403). On the ending -um of the dat. plural, see § 218, 5. It is difficult to account for the -a in the nom. acc. pl. in WS. and Ken., and for the -a in the oblique cases of the fem. nouns ending in -ung in these dialects. Seeing that the gen. sing. and nom. pl. originally had the same ending -ȭz and that both cases ended in -æ in the oldest OE., the -a in the nom. pl. cannot be a regular development from older -æ. It is sometimes assumed that -a is the regular development of prim. Germanic -ȭz in OE., and that what is called the gen. sing. is morphologically the dat., but against this assumption it should be pointed out that in the oldest period of the language the gen. and dat. sing. and nom. plural had all the same ending. Short stems with a often have æ beside a in the acc. gen. and dat. sing. and nom. acc. pl., as lǣþe, ræce, beside lāþe, race.
 
 § 366. Like giefu are declined caru, care; coþu, disease; cwalu, violent death; daru, injury; denu, valley; faru, journey; hogu, solicitude; laþu, invitation; lufu (also weak), love; nafu, nave (of wheel); notu, use; racu, account, narrative; rudu, redness; sacu, strife; sagu, saw; sc(e)amu, shame; scinu, shin; scolu, troop; snoru, daughter-in-law; stalu, theft; swaþu, track; talu, tale, number; þracu, violence, combat; waru, people; wracu, revenge; &c.
 
@@ -115,7 +115,7 @@ In originally trisyllabic words the final -u regularly disappeared in the nom. s
 	</tr>
 </table>
 
-The fem. abstract nouns ending in prim. Germanic ·iþō regularly syncopated the medial i (§ 221) and in the oldest period of the language retained the final ·u in the nom. (§ 216). Then at a later period the ·u (-o) was often dropped after the analogy of words like ār (§ 367). At a still later period the nom. with and without the final ·o came to be used for all cases. The abstract nouns in ·ung regularly syncopated the final ·u in the nom. (§ 216).
+The fem. abstract nouns ending in prim. Germanic -iþō regularly syncopated the medial i (§ 221) and in the oldest period of the language retained the final -u in the nom. (§ 216). Then at a later period the -u (-o) was often dropped after the analogy of words like ār (§ 367). At a still later period the nom. with and without the final -o came to be used for all cases. The abstract nouns in -ung regularly syncopated the final -u in the nom. (§ 216).
 
 § 372. Like strengþu, -o, strengþ are declined cȳþþu, cȳþ(þ), native country; fæhþ(u), feud; gesǣlþ(u), prosperity; hliewþ(u), shelter; māgþ(u), family, kindred; þiefþ(u), theft; wrāþþ(u), anger, wrath; for further examples, see § 613.
 
@@ -164,7 +164,7 @@ PLUR.
 	</tr>
 </table>
 
-It is necessary to distinguish between those stems which were originally long and those which became long by the West Germanic doubling of consonants (§ 254). The j regularly disappeared after causing umlaut of the preceding vowel, and then the ·u in the nom. sing. being preceded by a long stem also disappeared (§ 215), so that the endings of the jō-stems are the same as the long ō-stems except that the gen. pl. never has the ending -(e)na (§ 365). On the final double consonants in the nom. singular, see § 259.
+It is necessary to distinguish between those stems which were originally long and those which became long by the West Germanic doubling of consonants (§ 254). The j regularly disappeared after causing umlaut of the preceding vowel, and then the -u in the nom. sing. being preceded by a long stem also disappeared (§ 215), so that the endings of the jō-stems are the same as the long ō-stems except that the gen. pl. never has the ending -(e)na (§ 365). On the final double consonants in the nom. singular, see § 259.
 
 § 375. Like hen(n) are declined benn, wound; brycg, bridge; bytt, flagon; cribb, crib; crycc, crutch; ecg, edge; hell, hell; nytt, use, profit; sciell, shell; secg, sword; sibb, relationship; slecg, sledge-hammer; synn, sin; syll, sill, threshold; wynn, joy. On hæcc, gate, hatch; sæcc, strife, see § 55, Note 3.
 
@@ -202,19 +202,19 @@ It is necessary to distinguish between those stems which were originally long an
 	</tbody>
 </table>
 
-In originally trisyllabic words the final ·u in the nom. singular also regularly disappeared after the medial syllable which became long by the West Germanic doubling of consonants (§§ 216, 254). The nouns ending in ·en(n) sometimes took ·u again in the nom. sing. after the analogy of the short ō-stems. In late OE, the double consonants were often simplified in the inflected forms.
+In originally trisyllabic words the final -u in the nom. singular also regularly disappeared after the medial syllable which became long by the West Germanic doubling of consonants (§§ 216, 254). The nouns ending in -en(n) sometimes took -u again in the nom. sing. after the analogy of the short ō-stems. In late OE, the double consonants were often simplified in the inflected forms.
 
 § 378. Like byrþen(n) are declined candel (Lat. candēla), candle; cnēoris(s), generation; hægtes(s), witch; biren, she-bear; fyxen, she-fox; gyden, goddess; þyften, female servant; wiergen, she-wolf; byrgen, tomb; for further examples, see § 599. cōlnes(s), coolness; swiftnes(s), swiftness; þrīnes(s), trinity; for further examples, see § 609. rǣden(n), arrangement, rule; hūsrǣden(n), household; for further examples, see § 610.
 
-NOTE.—A few words simplified the double consonants at an early period and then added ·u in the nom. singular after the analogy of the short ō-stems, as hyrnetu beside hyrnet, hornet; ielfetu, swan.
+NOTE.—A few words simplified the double consonants at an early period and then added -u in the nom. singular after the analogy of the short ō-stems, as hyrnetu beside hyrnet, hornet; ielfetu, swan.
 
-c. wō·STEMS.
+c. wō-STEMS.
 
 § 379. SING.
 <table>
   <tr>
    	<th>Nom.</th>
-		<td>beadu, ·o, battle</td>
+		<td>beadu, -o, battle</td>
 		<td>mǣd, meadow</td>
 	<tr>
 		<th>Acc. Gen. Dat.</th>
@@ -227,8 +227,8 @@ PLUR.
 <table>
   <tr>
    	<th>Nom. Acc.</th>
-		<td>beadwe, ·a</td>
-		<td>mǣdwe, ·a</td>
+		<td>beadwe, -a</td>
+		<td>mǣdwe, -a</td>
 	<tr>
 		<th>Gen.</th>
 		<td>beadwa</td>
@@ -241,7 +241,7 @@ PLUR.
 	</tr>
 </table>
 
-In the nom. singular the prim. Germanic ending ·wō regularly became ·wu (§ 214), then the w disappeared before the ·u (§ 266). The ·u remained after consonants preceded by an original short vowel, but disappeared after consonants preceded by a long vowel (§ 215). When the ·u was preceded by a it combined with it to form a diphthong, as clēa from *cla(w)u, claw, þrēa from *þra(w)u, threat (§ 75), pl. nom. acc. clēa, dat. clēam from *cla(w)um; beside the regular nom. sing. forms clēa, þrēa new nominatives clawu, þrawu were made from the stem-form of the oblique cases. The final ·u also regularly disappeared after long vowels and diphthongs (§ 215), but was restored again from the inflected forms already in the oldest period of the language, as hrēow, repentance; stōw, place; trēow (§ 90), faith, truth.
+In the nom. singular the prim. Germanic ending -wō regularly became -wu (§ 214), then the w disappeared before the -u (§ 266). The -u remained after consonants preceded by an original short vowel, but disappeared after consonants preceded by a long vowel (§ 215). When the -u was preceded by a it combined with it to form a diphthong, as clēa from *cla(w)u, claw, þrēa from *þra(w)u, threat (§ 75), pl. nom. acc. clēa, dat. clēam from *cla(w)um; beside the regular nom. sing. forms clēa, þrēa new nominatives clawu, þrawu were made from the stem-form of the oblique cases. The final -u also regularly disappeared after long vowels and diphthongs (§ 215), but was restored again from the inflected forms already in the oldest period of the language, as hrēow, repentance; stōw, place; trēow (§ 90), faith, truth.
 
 In the inflected forms the wō-stems had the same endings as the ō-stems except that they never had the ending -(e)na in the gen. plural. On the svarabhakti vowel in forms like gen. beaduwe beside beadwe, see § 220.
 
@@ -251,7 +251,7 @@ In the inflected forms the wō-stems had the same endings as the ō-stems except
 
 3. Feminine Abstract Nouns in -ī.
 
-§ 382. This declension comprises the fem. abstract nouns formed from adjectives. The stem originally ended in ·īn, and the nom. in ·ī, cp. Goth. mikilei, greatness, diupei, depth, formed from mikils, great, diups, deep, gen. mikileins, diupeins (weak declension). The ·in, ·i were shortened to ·īn, ·ī in prehistoric OE. (§§ 211, 214), and then the i caused umlaut of the stem-vowel. But already in the oldest period of the language this class of nouns was remodelled on analogy with the short ō-stems (§ 365), so that the nom. came to end in ·u, later ·o, and the oblique cases of the singular in ·e. At a later period the new nominative came to be used for all forms of the singular and for the nom. acc. plural. Few nouns belonging to this class have a plural.
+§ 382. This declension comprises the fem. abstract nouns formed from adjectives. The stem originally ended in -īn, and the nom. in -ī, cp. Goth. mikilei, greatness, diupei, depth, formed from mikils, great, diups, deep, gen. mikileins, diupeins (weak declension). The -in, -i were shortened to -īn, -ī in prehistoric OE. (§§ 211, 214), and then the i caused umlaut of the stem-vowel. But already in the oldest period of the language this class of nouns was remodelled on analogy with the short ō-stems (§ 365), so that the nom. came to end in -u, later -o, and the oblique cases of the singular in -e. At a later period the new nominative came to be used for all forms of the singular and for the nom. acc. plural. Few nouns belonging to this class have a plural.
 
 <table>
 	<thead>
@@ -264,11 +264,11 @@ In the inflected forms the wō-stems had the same endings as the ō-stems except
   <tbody>
 	  <tr>
 	   	<th>Nom.</th>
-			<td>strengu, ·o, strength</td>
-			<td>strenge, ·a ; ·u, ·o</td>
+			<td>strengu, -o, strength</td>
+			<td>strenge, -a ; -u, -o</td>
 		</tr>
 			<th>Acc.</th>
-			<td>strenge, ·u, ·o</td>
+			<td>strenge, -u, -o</td>
 			<td>"</td>
 		</tr>
 		<tr>
@@ -288,7 +288,7 @@ In the inflected forms the wō-stems had the same endings as the ō-stems except
 
 4. The i-declension.
 
-§ 384. The i-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. i-declension (nom. masc. and fem. Lat. ·ις, Gr. ·vs, acc. ·im, ·ιν; neut. nom. acc. ·e, ·ι).
+§ 384. The i-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. i-declension (nom. masc. and fem. Lat. -ις, Gr. -vs, acc. -im, -ιν; neut. nom. acc. -e, -ι).
 
 a. Masculine.
 
@@ -366,7 +366,7 @@ b. Feminine.
 	</tbody>
 </table>
 
-The masc. and fem. i-stems were originally declined alike in the sing. and plural. The nom. pl. and the whole of the sing. are regularly developed from the corresponding prim. Germanic forms, as sing. *kwǣniz, *kwǣnin, *kwǣnaiz, *kwǣnai, nom. pl. *kwǣniz. The gen. and dat. pl. were new formations as in the masc. i-stems. In early Nth, and then later also in WS. and Ken. the acc. sing. often had ·e after the analogy of the ō-stems; and in like manner the nom. acc. pl. often had ·a already in early OE.
+The masc. and fem. i-stems were originally declined alike in the sing. and plural. The nom. pl. and the whole of the sing. are regularly developed from the corresponding prim. Germanic forms, as sing. *kwǣniz, *kwǣnin, *kwǣnaiz, *kwǣnai, nom. pl. *kwǣniz. The gen. and dat. pl. were new formations as in the masc. i-stems. In early Nth, and then later also in WS. and Ken. the acc. sing. often had -e after the analogy of the ō-stems; and in like manner the nom. acc. pl. often had -a already in early OE.
 
 § 390. Like cwēn are declined ǣht, property; ansīen, face; bēn, prayer; benc, bench; brȳd, bride; cȳf, tub; cyst, choice; dǣd, deed; dryht, troop; ēst, favour; fierd, army; fȳst, fist; glēd, live coal; hǣs, command; hȳd, hide, skin; hȳf, hive; hyrst, ornament; meaht, miht, might, power; nīed, need; scyld, guilt; spēd, success; sȳl, pillar; tīd, time; þrȳþ, strength; wǣd, garment; wēn, hope, expectation; wist, sustenance, food; wyrd, fate; wyrt, vegetable, herb; ȳst, storm. duguþ, strength, geoguþ, youth, ides, woman, which originally belonged to this declension, went over into the ō-declension.
 
@@ -411,7 +411,7 @@ A certain number of neuter nouns which originally belonged partly to the neut. j
 
 5. The u-declension.
 
-§ 394. The u-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. u-declension (nom. masc. and fem. Lat. ·us, Gr. ·us, acc. ·um, ·uv; neut. nom. acc. ·ū, ·u).
+§ 394. The u-declension comprises masculine, feminine and neuter nouns, and corresponds to the Lat. and Gr. u-declension (nom. masc. and fem. Lat. -us, Gr. -us, acc. -um, -uv; neut. nom. acc. -ū, -u).
 
 a. Masculine.
 
@@ -419,7 +419,7 @@ a. Masculine.
 <table>
   <tr>
    	<th>Nom. Acc.</th>
-		<td>sunu, ·o, son</td>
+		<td>sunu, -o, son</td>
 		<td>feld, field</td>
 	<tr>
 		<th>Gen.</th>
@@ -451,7 +451,7 @@ PLUR.
 	</tr>
 </table>
 
-The prim. Germanic forms were: Sing. nom. *sunuz (Goth. sunus), acc. *sunun (Goth. sunu), gen. *sunauz (Goth. sunáus), dat. *suniwai (*sunwai), loc. *sunau (Goth. sunáu); Plur. nom. *suniwiz (Goth. sunjus), acc. *sununz (Goth. sununs), gen. *suniwȭn (*sunwȭn), dat. *sunumiz. The endings ·uz, ·un regularly became ·u in prehistoric OE., and then disappeared after long stems (§§ 211, 215), but remained after short stems and later became ·o. ·auz regularly became ·a (§ 217). The OE. dat. sing. is originally the locative. It is difficult to account for the ending ·a of the nom. plural, which cannot be a normal development of prim. Germanic ·iwiz = Indg. ·ewes. The gen. pl. ending ·a is from the a· and the consonantal stems. The dat. pl. ending ·um is from older ·umiz. At a later period the ·u (·o) of the nom. acc. sing. was often extended to the dat. sing. and nom. acc. pl. in the short stems; and likewise the .a of the gen. and dat. sing. to the nom. acc. In late OE. the short stems also often formed their gen. sing. and nom. acc. pl. after the analogy of the masc. a-stems. Already at an early period the long stems were often declined entirely like the a-stems. Many nouns which originally belonged to this class went over into the a-declension in prehistoric OE. without leaving any trace of the u-declension, as ār (Goth. áirus), messenger; dēaþ (Goth. dáuþus), death; feorh (also neut.), life; flōd, flood; grund, ground; lust, pleasure, desire; scield, shield; þorn, thorn; beofor, beaver; esol, ass; hungor, hunger; fiscoþ, fishing; huntoþ, hunting; for further examples, see § 595.
+The prim. Germanic forms were: Sing. nom. *sunuz (Goth. sunus), acc. *sunun (Goth. sunu), gen. *sunauz (Goth. sunáus), dat. *suniwai (*sunwai), loc. *sunau (Goth. sunáu); Plur. nom. *suniwiz (Goth. sunjus), acc. *sununz (Goth. sununs), gen. *suniwȭn (*sunwȭn), dat. *sunumiz. The endings -uz, -un regularly became -u in prehistoric OE., and then disappeared after long stems (§§ 211, 215), but remained after short stems and later became -o. -auz regularly became -a (§ 217). The OE. dat. sing. is originally the locative. It is difficult to account for the ending -a of the nom. plural, which cannot be a normal development of prim. Germanic -iwiz = Indg. -ewes. The gen. pl. ending -a is from the a- and the consonantal stems. The dat. pl. ending -um is from older -umiz. At a later period the -u (-o) of the nom. acc. sing. was often extended to the dat. sing. and nom. acc. pl. in the short stems; and likewise the .a of the gen. and dat. sing. to the nom. acc. In late OE. the short stems also often formed their gen. sing. and nom. acc. pl. after the analogy of the masc. a-stems. Already at an early period the long stems were often declined entirely like the a-stems. Many nouns which originally belonged to this class went over into the a-declension in prehistoric OE. without leaving any trace of the u-declension, as ār (Goth. áirus), messenger; dēaþ (Goth. dáuþus), death; feorh (also neut.), life; flōd, flood; grund, ground; lust, pleasure, desire; scield, shield; þorn, thorn; beofor, beaver; esol, ass; hungor, hunger; fiscoþ, fishing; huntoþ, hunting; for further examples, see § 595.
 
 § 396. Like sumu are declined bregu, prince, ruler; heoru, sword; lagu, sea, flood; magu, son, man; medu, meodu, mead (gen. meda beside medwes); sidu, custom; spitu, spit; wudu, wood.
 
@@ -463,7 +463,7 @@ b. Feminine.
 <table>
   <tr>
    	<th>Nom. Acc.</th>
-		<td>duru, ·o, door</td>
+		<td>duru, -o, door</td>
 		<td>hand, hand</td>
 	<tr>
 		<th>Gen.</th>
@@ -495,11 +495,11 @@ PLUR.
 	</tr>
 </table>
 
-The masculine and feminine u-stems were originally declined alike. In the short stems the nom. acc. sing. was also sometimes used for the dat. sing. and nom. acc. plural; and the gen. and dat. sing. often had ·e after the analogy of the short ō-stems. Beside the regular gen. and dat sing. dura, there also occurs dyre, dyru with i-umlaut after the analogy of the i-declension. In the long stems the nom. acc. sing. was sometimes used for the gen. and dative. To the short stems also belongs nosu, nose; and to the long stems: cweorn (also ō-declension), Goth. -qaírnus, hand-mill; flōr (also masc.), floor; and originally also cin(n) (Goth. kinnus, Gr. γένος), chin.
+The masculine and feminine u-stems were originally declined alike. In the short stems the nom. acc. sing. was also sometimes used for the dat. sing. and nom. acc. plural; and the gen. and dat. sing. often had -e after the analogy of the short ō-stems. Beside the regular gen. and dat sing. dura, there also occurs dyre, dyru with i-umlaut after the analogy of the i-declension. In the long stems the nom. acc. sing. was sometimes used for the gen. and dative. To the short stems also belongs nosu, nose; and to the long stems: cweorn (also ō-declension), Goth. -qaírnus, hand-mill; flōr (also masc.), floor; and originally also cin(n) (Goth. kinnus, Gr. γένος), chin.
 
 c. Neuter.
 
-§ 399. The neuter u-stems had originally the same endings as the masculine except in the nom. acc. sing. and plural, the former of which ended in ·u and the latter in ·ū. Nth. feolu, ·o, and the WS. isolated inflected form fela, feola, much, many, are the only remnants of this declension in OE. feoh (Goth. faíhu), cattle, went over into the a-declension in prehistoric OE.
+§ 399. The neuter u-stems had originally the same endings as the masculine except in the nom. acc. sing. and plural, the former of which ended in -u and the latter in -ū. Nth. feolu, -o, and the WS. isolated inflected form fela, feola, much, many, are the only remnants of this declension in OE. feoh (Goth. faíhu), cattle, went over into the a-declension in prehistoric OE.
 
 B. THE WEAK DECLENSION (N-STEMS).
 
@@ -601,11 +601,11 @@ Plur.
   </tr>
 </table>
 
-The feminine n-stems were originally declined like the masculine, as in Latin, Greek and Sanskrit, but already in the prehistoric period of the Germanic languages, they became differentiated in some of the cases by partly generalizing one or other of the forms, thus the nom. sing. originally ended in ·ȭ or ·ōn in both genders, the West Germanic languages restricted ·ȭ to the masculine and ·ōn to the feminine, but in Gothic the reverse took place. In the fem. Goth. O.Icel. OS. and OHG. levelled out the long vowel of the nom. into the oblique cases, whereas O.E. had the same forms as the masculine except in the nom. sing. ·e from prim. Germanic ·ōn (§ 217). The general remarks made in § 400 concerning the masculine n-stems also apply to the feminine.
+The feminine n-stems were originally declined like the masculine, as in Latin, Greek and Sanskrit, but already in the prehistoric period of the Germanic languages, they became differentiated in some of the cases by partly generalizing one or other of the forms, thus the nom. sing. originally ended in -ȭ or -ōn in both genders, the West Germanic languages restricted -ȭ to the masculine and -ōn to the feminine, but in Gothic the reverse took place. In the fem. Goth. O.Icel. OS. and OHG. levelled out the long vowel of the nom. into the oblique cases, whereas O.E. had the same forms as the masculine except in the nom. sing. -e from prim. Germanic -ōn (§ 217). The general remarks made in § 400 concerning the masculine n-stems also apply to the feminine.
 
 The fem. nouns with short stems began to form their nom. sing. after the analogy of the short ō-stems (§ 365) already in early OE., as cinu, chink, spadu, spade, beside cine, spade.
 
-§ 404. Like tunge are declined ǣdre, artery, vein; ælmesse, alms; ǣsce, inquiry; ampre, sorrel; ar(e)we, arrow; asse, she-ass; asce, ash, cinders; āþexe, lizard; bæcestre (also masc.), baker (for other examples containing the suffix ·estre, see § 603); bēce, beech-tree; belle, bell; berige, berry; bieme, trumpet; bicce, bitch; binde, head-band; blǣdre, bladder; blæse, blaze, firebrand, torch; burne, stream, brook; byrne, corslet; canne, can, cup; cēace, cheek, jaw; ceole, throat; cirice, church; clugge, bell; crāwe, crow; cuppe, cup; cūslyppe, -sloppe, cowslip; cwene, woman; docce, dock (plant); dūce, duck; eorþe, earth; fæcele, torch; faþe, aunt; fiþele, fiddle; flēoge, fly; flīete, cream; folde, earth; hacele, cloak; hearpe, harp; heofone, heaven; heorte (orig. neut.), heart; hlǣfdige, lady; hrūse, earth; loppe, flea; mǣge, māge, kinswoman; meowle, maiden; mīere, mare; mōdrige, maternal aunt; molde, earth; more, parsnip; moþþē, moth; nǣdre, snake; ōsle, ousel; panne, pan; pere, pear; pīpe, pipe; pirige, pear-tree; pise, pea; racente, chain; seohhe, sieve; sīde, side; slyppe, paste; smiþþe, smithy; sunne, sun; swealwe, swallow; swipe, scourge; þrote, throat; þyrne, thornbush; ūle, owl; wæcce (§ 55, Note 3), vigil; wāse, mud; wicce, witch; wīse, way, manner; wice, wuce, week; wulle, wool; wuduwe, widow; ȳce, toad, frog.
+§ 404. Like tunge are declined ǣdre, artery, vein; ælmesse, alms; ǣsce, inquiry; ampre, sorrel; ar(e)we, arrow; asse, she-ass; asce, ash, cinders; āþexe, lizard; bæcestre (also masc.), baker (for other examples containing the suffix -estre, see § 603); bēce, beech-tree; belle, bell; berige, berry; bieme, trumpet; bicce, bitch; binde, head-band; blǣdre, bladder; blæse, blaze, firebrand, torch; burne, stream, brook; byrne, corslet; canne, can, cup; cēace, cheek, jaw; ceole, throat; cirice, church; clugge, bell; crāwe, crow; cuppe, cup; cūslyppe, -sloppe, cowslip; cwene, woman; docce, dock (plant); dūce, duck; eorþe, earth; fæcele, torch; faþe, aunt; fiþele, fiddle; flēoge, fly; flīete, cream; folde, earth; hacele, cloak; hearpe, harp; heofone, heaven; heorte (orig. neut.), heart; hlǣfdige, lady; hrūse, earth; loppe, flea; mǣge, māge, kinswoman; meowle, maiden; mīere, mare; mōdrige, maternal aunt; molde, earth; more, parsnip; moþþē, moth; nǣdre, snake; ōsle, ousel; panne, pan; pere, pear; pīpe, pipe; pirige, pear-tree; pise, pea; racente, chain; seohhe, sieve; sīde, side; slyppe, paste; smiþþe, smithy; sunne, sun; swealwe, swallow; swipe, scourge; þrote, throat; þyrne, thornbush; ūle, owl; wæcce (§ 55, Note 3), vigil; wāse, mud; wicce, witch; wīse, way, manner; wice, wuce, week; wulle, wool; wuduwe, widow; ȳce, toad, frog.
 
 § 405. Like bēo are declined cēo, jackdaw, chough; flā, arrow; sēo, pupil of the eye; slā, slāh, sloe; tā, toe; þō, clay. See § 139.
 
@@ -638,7 +638,7 @@ c. Neuter.
 	</tbody>
 </table>
 
-The neuter n-stems had originally the same endings as the masculine and feminine except in the acc. sing. and the nom. acc. plural. The nom. acc. sing. had ·ōn which regularly became ·e in OE. (§ 217). The nom. acc. pl. had ·ōnə in the Indg. parent language. This was changed in prim. Germanic into ·ōnō with ·ō from the neuter a-stems. ·ōnō regularly became ·ōna in Goth., as áugō, eye, nom. acc. pl. áugōna. The OE. ending ·an was due to the analogy of the masc. and fem. n-stems.
+The neuter n-stems had originally the same endings as the masculine and feminine except in the acc. sing. and the nom. acc. plural. The nom. acc. sing. had -ōn which regularly became -e in OE. (§ 217). The nom. acc. pl. had -ōnə in the Indg. parent language. This was changed in prim. Germanic into -ōnō with -ō from the neuter a-stems. -ōnō regularly became -ōna in Goth., as áugō, eye, nom. acc. pl. áugōna. The OE. ending -an was due to the analogy of the masc. and fem. n-stems.
 
 § 407. Like ēage are only declined ēare, ear; wange (also with strong forms), cheek.
 
@@ -719,10 +719,10 @@ Plur.
   </tr>
 </table>
 
-The OE. forms of bōc are regularly developed from prim. Germanic: Sing. nom. *ƀōks, acc. *ƀōkun, gen. *ƀōkaz, dat. *ƀōki; Plur. nom. *ƀōkiz, acc. *ƀōkunz, gen. *ƀōkȭn, dat. *ƀōkumiz. The gen. sing. bōce was a new formation after the analogy of the ō-stems, and bēc is the dat. used for the gen. The regular nom. sing. of hnutu would be *hnuss (§ 240), hnutu (prim. Germ. *χnutun) is the acc. used for the nominative. The gen. sing. was formed after the analogy of the ō-stems; the dat. sing. and nom. pl. correspond to prim. Germanic *χnuti, *χnutiz, the final ·i (later ·e) being retained after a short stem (§ 215).
+The OE. forms of bōc are regularly developed from prim. Germanic: Sing. nom. *ƀōks, acc. *ƀōkun, gen. *ƀōkaz, dat. *ƀōki; Plur. nom. *ƀōkiz, acc. *ƀōkunz, gen. *ƀōkȭn, dat. *ƀōkumiz. The gen. sing. bōce was a new formation after the analogy of the ō-stems, and bēc is the dat. used for the gen. The regular nom. sing. of hnutu would be *hnuss (§ 240), hnutu (prim. Germ. *χnutun) is the acc. used for the nominative. The gen. sing. was formed after the analogy of the ō-stems; the dat. sing. and nom. pl. correspond to prim. Germanic *χnuti, *χnutiz, the final -i (later -e) being retained after a short stem (§ 215).
 
-In nouns belonging to this class the stem-vowels ā, ō, u, ū were regularly umlauted to ǣ, ē (Nth. æ), y, ȳ in the dat. sing. and nom. acc. plural. In nearly all the nouns belonging to this class, beside the gen. sing. with umlaut there exists a form ending in ·e without umlaut which was made after the analogy of the ō-stems. In late OE. the dat. sing. was often like the nominative.
+In nouns belonging to this class the stem-vowels ā, ō, u, ū were regularly umlauted to ǣ, ē (Nth. æ), y, ȳ in the dat. sing. and nom. acc. plural. In nearly all the nouns belonging to this class, beside the gen. sing. with umlaut there exists a form ending in -e without umlaut which was made after the analogy of the ō-stems. In late OE. the dat. sing. was often like the nominative.
 
 § 411. Like bōc are declined āc, oak; brōc, trousers; burg, city (gen. dat. sing. and nom. acc. pl. byrig beside byrg, § 220; also declined like cwēn (§ 389), but without i-umlaut); cū, cow (also gen. sing. cūe, cūs; nom. acc. pl. cȳ, cȳe, gen. cūa, cūna, cȳna); dung, prison; gāt, goat; gōs, goose; grūt, coarse meal, groats; lūs, louse; meol(u)c, milk; mūs, mouse; neaht, niht, night (also gen. dat. sing. nihte; adv. gen. nihtes, ānes nihtes, at night, by night, formed after the analogy of dæges); turf, turf; furh, furrow (gen. sing. fūre beside fyrh, pl. gen. fūra, dat. fūrum, § 115); sulh, plough (gen. sing. sūles on analogy with the a-stems, pl. gen. sūla, dat. sūlum); þrūh, trough (dat. pl. þrūm, § 320); wlōh, fringe.
 
-§ 412. Like hnutu are declined hnutu, nit; studu, stuþu, pillar.
+§ 412. Like hnutu are declined hnutu, nit; studu, stuþu, pillar.-

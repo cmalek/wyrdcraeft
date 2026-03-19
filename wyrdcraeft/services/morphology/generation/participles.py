@@ -3,8 +3,14 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from wyrdcraeft.models.morphology import Word
+
+from .scalar_utils import perl_numify
+
+if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.session import GeneratorSession
 
 
 def _sanitize_form_text(value: str) -> str:
@@ -95,4 +101,49 @@ def build_participle_adjective(
         n_uncert=0,
         prefix=prefix,
         stem=stem,
+    )
+
+
+def add_participle_to_adjectives(
+    session: GeneratorSession,
+    *,
+    word: Word,
+    prefix: str,
+    form_parts: str,
+    is_past: bool,
+) -> None:
+    """
+    Append one generated participle to the session adjective sink.
+
+    Side Effects:
+        Appends one adjective ``Word`` row to ``session.adjectives`` when the
+        Perl-style numeric prefix check matches.
+
+    Args:
+        session: Active generation session that stores derived adjectives.
+
+    Keyword Args:
+        word: Source lexical entry.
+        prefix: Prefix used for the generated participle.
+        form_parts: Generated ``formParts`` payload.
+        is_past: Whether this participle should set past-participle flags.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichy
+        (``data/Ondej_Tich_40-54-1.pdf``) both preserve participles as verb
+        outputs that can be reused adjectivally; this helper keeps the legacy
+        Perl numeric-prefix gate and then stores the derived adjective row
+        without changing payload shape or ordering.
+
+    """
+    if perl_numify(prefix) != perl_numify(word.prefix):
+        return
+
+    session.adjectives.append(
+        build_participle_adjective(
+            word=word,
+            prefix=prefix,
+            form_parts=form_parts,
+            is_past=is_past,
+        )
     )

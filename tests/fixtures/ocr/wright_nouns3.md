@@ -144,7 +144,7 @@ Note.—In the later period of the language there was great fluctuation in the f
 
 § 350. Like hēafod are declined clīwen, clīwen, ball of thread, clew; mǣden, mægden, maiden; nīeten, animal.
 
-b. ja·STEMS.
+b. ja-STEMS.
 
 § 351. Masculine.
 
@@ -190,4 +190,4 @@ It is necessary to distinguish between those stems which were originally long an
 
 § 352. Like secg are declined bridd, young bird; cnyll, knell; dyn(n), noise; hlyn(n), loud sound; hrycg, back, ridge; hyll, hill; mæcg (§ 55, Note 3), man; mycg, midge; wecg, wedge. See § 259.
 
-§ 353. The j (written i, g, ig; also ige before a guttural vowel, § 268) remained medially after r preceded by a short vowel, as nom. acc. here, army; gen. heries, herges, heriges; dat. herie, herge, herige; pl. nom. acc. herias, hergas, herigas, herigeas; gen. heria, heriga, herigea; dat. herium, herigum. Forms without j also occur occasionally, as gen. heres, dat. here, pl. heras.
+§ 353. The j (written i, g, ig; also ige before a guttural vowel, § 268) remained medially after r preceded by a short vowel, as nom. acc. here, army; gen. heries, herges, heriges; dat. herie, herge, herige; pl. nom. acc. herias, hergas, herigas, herigeas; gen. heria, heriga, herigea; dat. herium, herigum. Forms without j also occur occasionally, as gen. heres, dat. here, pl. heras.-
