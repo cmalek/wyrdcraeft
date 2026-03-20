@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import io
+from typing import TYPE_CHECKING, cast
 
 from wyrdcraeft.models.morphology import ParadigmPart, Word
 from wyrdcraeft.services.morphology.generation.participles import (
     add_participle_to_adjectives,
     build_participle_adjective,
+)
+from wyrdcraeft.services.morphology.generation.strong_principal_flow import (
+    generate_strong_verb_parts_with_emitters,
 )
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
@@ -35,12 +39,29 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     is_weak_item_shape_window,
 )
 from wyrdcraeft.services.morphology.generation.weak_derivation_flow import (
+    WeakFormContextEmitter,
+    WeakParticipleAdder,
+    WeakPsinsg2SoundWithPostEmitter,
     emit_weak_principal_form_context,
+    generate_weak_derived_from_inf,
+    generate_weak_derived_from_painsg1,
+    generate_weak_derived_from_psinsg2,
+)
+from wyrdcraeft.services.morphology.generation.weak_principal_flow import (
+    generate_weak_verb_parts_with_emitters,
 )
 from wyrdcraeft.services.morphology.generation.common import VerbFormGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .snapshot_io import parse_form_output
+
+if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.generation.strong_derivation_flow import (
+        StrongFormContextEmitter,
+    )
+    from wyrdcraeft.services.morphology.generation.strong_principal_flow import (
+        StrongParticipleAdder,
+    )
 
 
 def _make_word(**overrides: object) -> Word:
@@ -849,6 +870,225 @@ def test_emit_weak_derived_from_inf_sequence_normalizes_none_probability() -> No
     assert participles == ["fp-ende-PsPt"]
 
 
+def test_generate_weak_derived_from_inf_routes_direct_context_emitter() -> None:
+    observed: list[tuple[object, ...]] = []
+    participles: list[tuple[str, str, str, bool]] = []
+    formhash = _base_formhash()
+    word = _make_word(prefix="ge", stem="lam")
+
+    def _emit_form_for_context(  # noqa: PLR0913
+        captured_formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        observed.append(
+            (
+                captured_formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                ending,
+                function,
+                dental,
+                prob,
+            )
+        )
+        return "form", f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{ending}"
+
+    def _add_participle_to_adjectives(
+        captured_word: Word,
+        prefix: str,
+        form_parts: str,
+        *,
+        is_past: bool,
+    ) -> None:
+        participles.append((captured_word.stem, prefix, form_parts, is_past))
+
+    generate_weak_derived_from_inf(
+        formhash=formhash,
+        word=word,
+        prefix="ge",
+        pre_vowel="l",
+        vowel="a",
+        post_vowel="m",
+        boundary="t",
+        original_ending="ian",
+        probability=None,
+        emit_form_for_context=cast("WeakFormContextEmitter", _emit_form_for_context),
+        add_participle_to_adjectives=cast(
+            "WeakParticipleAdder", _add_participle_to_adjectives
+        ),
+    )
+
+    assert observed[0] == (formhash, "ge", "l", "a", "m", "t", "ian", "if", None, "")
+    assert (formhash, "ge", "l", "a", "m", "t", "u", "PsInSg1", "i", 1) in observed
+    assert participles == [("lam", "ge", "ge-l-a-m-t-ende", False)]
+
+
+def test_generate_strong_verb_parts_with_emitters_routes_direct_derivation_stack(
+) -> None:
+    observed_forms: list[tuple[object, ...]] = []
+    observed_sounds: list[tuple[object, ...]] = []
+    observed_imsg: list[tuple[object, ...]] = []
+    participles: list[tuple[str, str, str, bool]] = []
+    word = _make_word(prefix="ge", stem="lam")
+    item = ParadigmPart(
+        para_id="if",
+        prefix="0",
+        pre_vowel="0",
+        vowel="a",
+        post_vowel="m",
+        boundary="t",
+        dental="0",
+        ending="an",
+    )
+
+    def _emit_form_for_context(  # noqa: PLR0913
+        captured_formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        observed_forms.append(
+            (
+                captured_formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                ending,
+                function,
+                dental,
+                prob,
+            )
+        )
+        return "form", f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{ending}"
+
+    def _emit_sound_for_context(  # noqa: PLR0913
+        captured_formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        *,
+        dental: str | None = "",
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        observed_sounds.append(
+            (
+                captured_formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                ending,
+                function,
+                prob,
+                dental,
+                sound_change_prob_delta,
+            )
+        )
+
+    def _emit_imsg_for_context(  # noqa: PLR0913
+        captured_formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        prob: str | int | None,
+    ) -> None:
+        observed_imsg.append(
+            (
+                captured_formhash,
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                prob,
+            )
+        )
+
+    def _add_participle_to_adjectives(
+        captured_word: Word,
+        prefix: str,
+        form_parts: str,
+        *,
+        is_past: bool,
+    ) -> None:
+        participles.append((captured_word.stem, prefix, form_parts, is_past))
+
+    formhash = _base_formhash()
+    generate_strong_verb_parts_with_emitters(
+        formhash=formhash,
+        word=word,
+        item=item,
+        prefix="ge",
+        pre_vowel="l",
+        post_vowel="m",
+        emit_form_for_context=cast(
+            "StrongFormContextEmitter", _emit_form_for_context
+        ),
+        emit_sound_for_context=_emit_sound_for_context,
+        emit_imsg_for_context=_emit_imsg_for_context,
+        add_participle_to_adjectives=cast(
+            "StrongParticipleAdder", _add_participle_to_adjectives
+        ),
+    )
+
+    assert observed_forms[0] == (
+        formhash,
+        "ge",
+        "l",
+        "a",
+        "m",
+        "t",
+        "an",
+        "if",
+        "",
+        None,
+    )
+    assert (
+        formhash,
+        "ge",
+        "l",
+        "a",
+        "m",
+        "t",
+        "anne",
+        "IdIf",
+        "",
+        None,
+    ) in observed_forms
+    assert observed_imsg == [(formhash, "ge", "l", "a", "m", "t", None)]
+    assert participles == [("lam", "ge", "ge-l-a-m-t-ende", False)]
+    assert observed_sounds
+
+
 def test_dispatch_weak_derived_forms_selects_psinsg2_branch() -> None:
     calls: list[str] = []
 
@@ -932,6 +1172,232 @@ def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:
     }.issubset(emitted_forms)
 
 
+def test_generate_weak_derived_from_painsg1_routes_manuals_and_participles() -> None:
+    forms: list[tuple[object, ...]] = []
+    manuals: list[tuple[object, ...]] = []
+    participles: list[tuple[str, str, str, bool]] = []
+    word = _make_word(prefix="ge", stem="lam")
+
+    def _emit_form(  # noqa: PLR0913
+        _formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        forms.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+            )
+        )
+        return "form", f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{dental}"
+
+    def _emit_manual(
+        _formhash: dict[str, str],
+        form: str,
+        form_parts: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        manuals.append((form, form_parts, function, prob))
+
+    def _add_participle_to_adjectives(
+        captured_word: Word,
+        prefix: str,
+        form_parts: str,
+        *,
+        is_past: bool,
+    ) -> None:
+        participles.append((captured_word.stem, prefix, form_parts, is_past))
+
+    generate_weak_derived_from_painsg1(
+        formhash=_base_formhash(),
+        word=word,
+        prefix="ge",
+        pre_vowel="l",
+        vowel="a",
+        post_vowel="mm",
+        boundary="t",
+        dental="ed",
+        probability=0,
+        vowel_inf="a",
+        vowel_pa="o",
+        emit_form=_emit_form,
+        emit_manual=_emit_manual,
+        add_participle_to_adjectives=cast(
+            "WeakParticipleAdder", _add_participle_to_adjectives
+        ),
+    )
+
+    assert forms[0] == ("ge", "l", "o", "m", "t", "ed", "e", "PaInSg1", 0)
+    assert manuals[0] == ("gelomted", "ge-l-o-m-t-ed", "PaPt", 0)
+    assert participles == [
+        ("lam", "ge", "ge-l-o-m-t-ed", True),
+        ("lam", "ge", "ge-l-a-m-t-ed", True),
+    ]
+
+
+def test_generate_weak_verb_parts_with_emitters_routes_direct_painsg1_stack() -> None:
+    forms: list[tuple[object, ...]] = []
+    manuals: list[tuple[object, ...]] = []
+    participles: list[tuple[str, str, str, bool]] = []
+    word = _make_word(prefix="ge", stem="lam")
+    item = ParadigmPart(
+        para_id="PaInSg1",
+        prefix="0",
+        pre_vowel="0",
+        vowel="a",
+        post_vowel="mm",
+        boundary="t",
+        dental="ed",
+        ending="e",
+    )
+
+    def _emit_form_for_context(  # noqa: PLR0913
+        _captured_formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        forms.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+            )
+        )
+        return "form", f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{dental}"
+
+    def _emit_form(  # noqa: PLR0913
+        _formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        forms.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+            )
+        )
+        return "form", f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{dental}"
+
+    def _emit_manual(
+        _formhash: dict[str, str],
+        form: str,
+        form_parts: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        manuals.append((form, form_parts, function, prob))
+
+    def _emit_sound(  # noqa: PLR0913
+        _formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        forms.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+                sound_change_prob_delta,
+            )
+        )
+
+    def _add_participle_to_adjectives(
+        captured_word: Word,
+        prefix: str,
+        form_parts: str,
+        *,
+        is_past: bool,
+    ) -> None:
+        participles.append((captured_word.stem, prefix, form_parts, is_past))
+
+    generate_weak_verb_parts_with_emitters(
+        formhash=_base_formhash(),
+        word=word,
+        item=item,
+        prefix="ge",
+        pre_vowel="l",
+        root_vowel_actual="a",
+        post_vowel="mm",
+        variant_id=0,
+        para_id_num="87",
+        vowel_inf="a",
+        vowel_pa="o",
+        emit_form_for_context=cast("WeakFormContextEmitter", _emit_form_for_context),
+        emit_painsg1_form=_emit_form,
+        emit_painsg1_manual=_emit_manual,
+        emit_psinsg2_form=_emit_form,
+        emit_psinsg2_sound=cast("WeakPsinsg2SoundWithPostEmitter", _emit_sound),
+        add_participle_to_adjectives=cast(
+            "WeakParticipleAdder", _add_participle_to_adjectives
+        ),
+    )
+
+    assert forms[0] == ("ge", "l", "a", "mm", "t", "ed", "e", "PaInSg1", None)
+    assert ("ge", "l", "o", "m", "t", "ed", "e", "PaInSg1", 0) in forms
+    assert manuals[0] == ("gelomted", "ge-l-o-m-t-ed", "PaPt", 0)
+    assert participles == [
+        ("lam", "ge", "ge-l-o-m-t-ed", True),
+        ("lam", "ge", "ge-l-a-m-t-ed", True),
+    ]
+
+
 def test_generate_weak_verb_parts_uses_item_shape_for_id_window() -> None:
     session = GeneratorSession()
     output = io.StringIO()
@@ -968,3 +1434,78 @@ def test_generate_weak_verb_parts_uses_item_shape_for_id_window() -> None:
     assert rows[0]["formParts"] == "0-X-Y-Z-B-d-e"
     assert len(session.adjectives) == 1
     assert session.adjectives[0].pspart == 1
+
+
+def test_generate_weak_derived_from_psinsg2_routes_simplified_post_vowel() -> None:
+    forms: list[tuple[object, ...]] = []
+    sounds: list[tuple[object, ...]] = []
+
+    def _emit_form(  # noqa: PLR0913
+        _formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        forms.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+            )
+        )
+        return "form", "fp"
+
+    def _emit_sound(  # noqa: PLR0913
+        _formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        sounds.append(
+            (
+                prefix,
+                pre_vowel,
+                vowel,
+                post_vowel,
+                boundary,
+                dental,
+                ending,
+                function,
+                prob,
+                sound_change_prob_delta,
+            )
+        )
+
+    generate_weak_derived_from_psinsg2(
+        formhash=_base_formhash(),
+        prefix="ge",
+        pre_vowel="l",
+        vowel="a",
+        post_vowel="mm",
+        boundary="t",
+        probability=None,
+        emit_form=_emit_form,
+        emit_sound=cast("WeakPsinsg2SoundWithPostEmitter", _emit_sound),
+    )
+
+    assert forms[0] == ("ge", "l", "a", "m", "t", None, "est", "PsInSg2", 1)
+    assert sounds[0] == ("ge", "l", "a", "m", "t", None, "st", "PsInSg2", "", 1)

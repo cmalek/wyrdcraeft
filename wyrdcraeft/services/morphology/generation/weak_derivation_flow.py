@@ -803,8 +803,8 @@ def generate_weak_derived_from_inf(  # noqa: PLR0913
     boundary: str,
     original_ending: str,
     probability: str | int | None,
-    emit_form: WeakDerivedInfFormAction,
-    on_participle: WeakDerivedInfParticipleAction,
+    emit_form_for_context: WeakFormContextEmitter,
+    add_participle_to_adjectives: WeakParticipleAdder,
 ) -> None:
     """
     Emit weak infinitive-derived branches for one principal-part context.
@@ -822,8 +822,10 @@ def generate_weak_derived_from_inf(  # noqa: PLR0913
         boundary: Stem-boundary marker used in form-parts payloads.
         original_ending: Source infinitive ending from the principal part.
         probability: Base probability annotation for the branch.
-        emit_form: Callback that emits one infinitive-derived row.
-        on_participle: Callback for each derived participle payload.
+        emit_form_for_context: Callback that emits one weak row from the
+            selected stem context.
+        add_participle_to_adjectives: Callback that stores derived
+            participles.
 
     Keyword Args:
         Uses keyword-only parameters for all inputs.
@@ -843,6 +845,58 @@ def generate_weak_derived_from_inf(  # noqa: PLR0913
         post_vowel=post_vowel,
         boundary=boundary,
     )
+
+    def _emit_inf_form_from_context(  # noqa: PLR0913
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        return emit_weak_inf_form(
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            dental,
+            ending,
+            function,
+            prob,
+            emit_weak_principal_form=partial(
+                emit_weak_principal_form_context,
+                emit_form_for_context=emit_form_for_context,
+            ),
+        )
+
+    def _emit_form(
+        dental: str | None,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        return emit_weak_derived_inf_form(
+            context,
+            dental,
+            ending,
+            function,
+            prob,
+            emit_weak_inf_form=_emit_inf_form_from_context,
+        )
+
+    def _on_participle(form_parts: str) -> None:
+        emit_weak_derived_inf_participle(
+            context,
+            form_parts,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        )
+
     emit_weak_derived_from_inf_sequence(
         class2=formhash.get("class2"),
         prefix=prefix,
@@ -852,8 +906,8 @@ def generate_weak_derived_from_inf(  # noqa: PLR0913
         boundary=boundary,
         original_ending=original_ending,
         probability=probability,
-        emit_form=partial(emit_form, context),
-        on_participle=partial(on_participle, context),
+        emit_form=_emit_form,
+        on_participle=_on_participle,
     )
 
 
@@ -870,9 +924,9 @@ def generate_weak_derived_from_painsg1(  # noqa: PLR0913
     probability: str | int | None,
     vowel_inf: str,
     vowel_pa: str,
-    emit_form_for_vowel: WeakPainsg1FormAction,
-    emit_manual: WeakPainsg1ManualAction,
-    on_participle: WeakPainsg1ParticipleAction,
+    emit_form: WeakPainsg1RawFormEmitter,
+    emit_manual: WeakManualEmitter,
+    add_participle_to_adjectives: WeakParticipleAdder,
 ) -> None:
     """
     Emit weak ``PaInSg1``-derived branches for one principal-part context.
@@ -892,9 +946,10 @@ def generate_weak_derived_from_painsg1(  # noqa: PLR0913
         probability: Base probability annotation for the branch.
         vowel_inf: Infinitive vowel from variant 0.
         vowel_pa: Preterite singular vowel from variant 0.
-        emit_form_for_vowel: Callback for vowel-selected row emission.
+        emit_form: Callback for direct row emission.
         emit_manual: Callback for manual row emission.
-        on_participle: Callback for each derived participle payload.
+        add_participle_to_adjectives: Callback for storing derived
+            participles.
 
     Keyword Args:
         Uses keyword-only parameters for all inputs.
@@ -913,6 +968,49 @@ def generate_weak_derived_from_painsg1(  # noqa: PLR0913
         boundary=boundary,
         dental=dental,
     )
+
+    def _emit_form_for_vowel(
+        current_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        post_vowel_simple: str,
+    ) -> tuple[str, str] | None:
+        return emit_weak_painsg1_form_for_vowel_from_context(
+            context,
+            current_vowel,
+            ending,
+            function,
+            prob,
+            post_vowel_simple,
+            emit_form_for_vowel=partial(
+                emit_weak_painsg1_form_for_vowel,
+                emit_form=emit_form,
+            ),
+        )
+
+    def _emit_manual(
+        form: str,
+        form_parts: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        emit_weak_painsg1_manual_context(
+            context,
+            form,
+            form_parts,
+            function,
+            prob,
+            emit_manual=emit_manual,
+        )
+
+    def _on_participle(form_parts: str) -> None:
+        emit_weak_painsg1_participle_context(
+            context,
+            form_parts,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        )
+
     emit_weak_derived_from_painsg1_context(
         prefix=prefix,
         pre_vowel=pre_vowel,
@@ -923,9 +1021,9 @@ def generate_weak_derived_from_painsg1(  # noqa: PLR0913
         vowel_inf=vowel_inf,
         vowel_pa=vowel_pa,
         probability=probability,
-        emit_form_for_vowel=partial(emit_form_for_vowel, context),
-        emit_manual=partial(emit_manual, context),
-        on_participle=partial(on_participle, context),
+        emit_form_for_vowel=_emit_form_for_vowel,
+        emit_manual=_emit_manual,
+        on_participle=_on_participle,
     )
 
 
@@ -938,8 +1036,8 @@ def generate_weak_derived_from_psinsg2(  # noqa: PLR0913
     post_vowel: str,
     boundary: str,
     probability: str | int | None,
-    emit_form_with_post: WeakPsinsg2FormAction,
-    emit_sound_with_post: WeakPsinsg2SoundAction,
+    emit_form: WeakPsinsg2FormWithPostEmitter,
+    emit_sound: WeakPsinsg2SoundWithPostEmitter,
 ) -> None:
     """
     Emit weak ``PsInSg2``-derived branches for one principal-part context.
@@ -955,8 +1053,8 @@ def generate_weak_derived_from_psinsg2(  # noqa: PLR0913
         post_vowel: Stem segment after the active vowel.
         boundary: Stem-boundary marker used in form-parts payloads.
         probability: Base probability annotation for the branch.
-        emit_form_with_post: Callback for direct form emission.
-        emit_sound_with_post: Callback for sound-change emission.
+        emit_form: Callback for direct form emission.
+        emit_sound: Callback for sound-change emission.
 
     Keyword Args:
         Uses keyword-only parameters for all inputs.
@@ -974,9 +1072,48 @@ def generate_weak_derived_from_psinsg2(  # noqa: PLR0913
         vowel=vowel,
         boundary=boundary,
     )
+
+    def _emit_form_with_post(
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        post_vowel_simple: str,
+    ) -> None:
+        emit_weak_psinsg2_form_with_post_derivation_context(
+            context,
+            ending,
+            function,
+            prob,
+            post_vowel_simple,
+            emit_form_with_post_context=partial(
+                emit_weak_psinsg2_form_with_post_context,
+                emit_form_with_post=emit_form,
+            ),
+        )
+
+    def _emit_sound_with_post(
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        consonant_change_prob: int,
+        post_vowel_simple: str,
+    ) -> None:
+        emit_weak_psinsg2_sound_with_post_derivation_context(
+            context,
+            ending,
+            function,
+            prob,
+            consonant_change_prob,
+            post_vowel_simple,
+            emit_sound_with_post_context=partial(
+                emit_weak_psinsg2_sound_with_post_context,
+                emit_sound_with_post=emit_sound,
+            ),
+        )
+
     emit_weak_derived_from_psinsg2_context(
         probability=probability,
         post_vowel=post_vowel,
-        emit_form_with_post=partial(emit_form_with_post, context),
-        emit_sound_with_post=partial(emit_sound_with_post, context),
+        emit_form_with_post=_emit_form_with_post,
+        emit_sound_with_post=_emit_sound_with_post,
     )

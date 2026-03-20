@@ -39,7 +39,7 @@ In Gothic the superlative had both the strong and the weak declension, but in OE
   </tr>
 </table>
 
-Note. — 1. On the tt in bettra (Goth. batiza), see § 260. bet(e)st = Goth. batists. sēlla with assimilation of Ir to ll (§ 281). lǣssa from *lǣs(i)ra, prim. Germanic laisiszȭ (§ 281); lǣst(a) rom *lǣsist-. māra = Goth. máiza; mǣst(a) (Goth. máists) with ǣ from analogy with lǣst(a), Anglian māst(a). wiersa (Goth. waírsiza) from *wiers(i)ra; wierrest(a), wierst(a) from *wiersist-.
+Note 1. On the tt in bettra (Goth. batiza), see § 260. bet(e)st = Goth. batists. sēlla with assimilation of Ir to ll (§ 281). lǣssa from *lǣs(i)ra, prim. Germanic laisiszȭ (§ 281); lǣst(a) rom *lǣsist-. māra = Goth. máiza; mǣst(a) (Goth. máists) with ǣ from analogy with lǣst(a), Anglian māst(a). wiersa (Goth. waírsiza) from *wiers(i)ra; wierrest(a), wierst(a) from *wiersist-.
 
 2. In a few words comparative and superlative adjectives were formed from adverbs: ǣr, before, ǣrra, former, earlier, ǣrest(a), first; fyrest(a) from *furist-, first, related to fore, before; furþra, higher, greater, related to forþ, forth.
 
@@ -149,7 +149,7 @@ C. Numerals.
     <td>fīfta</td>
   </tr>
   <tr>
-    <td>siex, six, six></td>
+    <td>siex, six, six</td>
     <td>siexta, sixta</td>
   </tr>
   <tr>
@@ -494,8 +494,7 @@ we, prim. Germanic *wīs (Goth. weis) beside the unaccented form *wiz (OHG. wir)
 
 The pronoun of the third person is originally a demonstrative pronoun formed from the Indg. stem *ki-, this, which occurs in Lat. hī-ce (later hīc), this, ci-s, ci-ter, on this side. It has been preserved in Goth. in only a few isolated phrases, as und hina dag, to this day; himma daga, on this day, to-day; und hita nu, till now.
 
-hē, prim. Germanic *χis beside unaccented *χiz; *χiz became *χi in prim. OE. and then later he from which a new accented hē was formed; hine (Goth. hina), prim. Germanic *χinōn, beside hiene with ie from hiere, hiera; his from *χisa; him from *χimi (orig. instrumental), hit (cp. Goth.hita, where the t = Lat. -d in id, that). hio later hēo, formed from *hi + ū with ū from sīo, sēo (§ 465); hīe later hī, hỹ, from *hi + ōn; gen. hire from *χizȭz, dat. hire from *χizai; hiere had ie from the gen. plural; cp. the prim. Germanic endings of the fem. adjectives (§ 424); the acc. form was often used for the nom. and vice versa. hī later hī, from *χī, unaccented *χi, beside hie with e from the adjectives (§ 424); hī was often written hig (see § 6, Note) in late OE. The masc. form was used for all genders, but
-sometimes the old fem. sing. hēo was used instead of it; hira from *χizȭn, beside hiora, heora, hiera with o/a-umlaut (§ 102). him from *χimiz, beside late WS. heom with eo from the genitive. All the forms with i often had y in late WS.
+hē, prim. Germanic *χis beside unaccented *χiz; *χiz became *χi in prim. OE. and then later he from which a new accented hē was formed; hine (Goth. hina), prim. Germanic *χinōn, beside hiene with ie from hiere, hiera; his from *χisa; him from *χimi (orig. instrumental), hit (cp. Goth.hita, where the t = Lat. -d in id, that). hio later hēo, formed from *hi + ū with ū from sīo, sēo (§ 465); hīe later hī, hỹ, from *hi + ōn; gen. hire from *χizȭz, dat. hire from *χizai; hiere had ie from the gen. plural; cp. the prim. Germanic endings of the fem. adjectives (§ 424); the acc. form was often used for the nom. and vice versa. hī later hī, from *χī, unaccented *χi, beside hie with e from the adjectives (§ 424); hī was often written hig (see § 6, Note) in late OE. The masc. form was used for all genders, but sometimes the old fem. sing. hēo was used instead of it; hira from *χizȭn, beside hiora, heora, hiera with o/a-umlaut (§ 102). him from *χimiz, beside late WS. heom with eo from the genitive. All the forms with i often had y in late WS.
 
 2. Reflexive.
 
@@ -503,34 +502,33 @@ sometimes the old fem. sing. hēo was used instead of it; hira from *χizȭn, be
 
 3. Possessive.
 
-§ 464. The possessive pronouns mīn, my, pīn, thy, sīn (mostly used in poetry), his, her, its, are originally old locatives, Indg. *mei, *tei, *sei with the addition of the nominal suffix -no-, whence prim. Germanic masc. nom. *mīnaz, *þīnaz, *sīnaz; fem. nom. *mīnō, *pīnō, *sīnō, which were declined in the sing. and plural, all genders, like blind (§ 424); but instead of sīn, the gen. of the personal pronoun was often used as in Lat. eius, gen. pl. eorum, earum. The remaining possessive pronouns were formed from the personal pronouns by means of the Indg.
-comparative suffix -ero-, prim. Germanic -era-, as uncer, incer, ūser, ēower, all of which were declined like hālig (§ 429). ūre was declined like wilde (§ 433) except that the fem. nom. sing. was ūre not *ūru. It is difficult to account for the form ūre. In the fem. gen. and dat. sing. and gen. pl. ūrre, ūrra, the rr was often simplified to r. In those cases which had syncope of the medial vowel, the sr became ss (§ 281) in the declension of ūser, and then the ss was sometimes extended by analogy to the other cases, as nom. sing. ūsser, masc. acc. sing. ūsserne beside the regular forms ūser, ūserne.
+§ 464. The possessive pronouns mīn, my, pīn, thy, sīn (mostly used in poetry), his, her, its, are originally old locatives, Indg. *mei, *tei, *sei with the addition of the nominal suffix -no-, whence prim. Germanic masc. nom. *mīnaz, *þīnaz, *sīnaz; fem. nom. *mīnō, *þīnō, *sīnō, which were declined in the sing. and plural, all genders, like blind (§ 424); but instead of sīn, the gen. of the personal pronoun was often used as in Lat. eius, gen. pl. eorum, earum. The remaining possessive pronouns were formed from the personal pronouns by means of the Indg. comparative suffix -ero-, prim. Germanic -era-, as uncer, incer, ūser, ēower, all of which were declined like hālig (§ 429). ūre was declined like wilde (§ 433) except that the fem. nom. sing. was ūre not *ūru. It is difficult to account for the form ūre. In the fem. gen. and dat. sing. and gen. pl. ūrre, ūrra, the rr was often simplified to r. In those cases which had syncope of the medial vowel, the sr became ss (§ 281) in the declension of ūser, and then the ss was sometimes extended by analogy to the other cases, as nom. sing. ūsser, masc. acc. sing. ūsserne beside the regular forms ūser, ūserne.
 
 4. Demonstrative.
 
 § 465. In the parent Indg. language the nom. sing. masc. and fem. of the simple demonstrative was *so, *sā = Gr. ὅ, ἥ, Goth. sa, sō. All the other cases of the sing. and pl. were formed from the stems te-, to-, toi-; tā-, tai-, as acc. sing. Gr. τόν, τήν, Lat. is-tum, is-tam, Goth. þan-a, þō; nom. pl. Gr. τοῖ, ταῖ, Lat. is-tī, is-tae, Goth. þái, þōs.
 
+SING.
 <table>
   <tr>
-    <th>Sing.</th>
     <th>Masc.</th>
     <th>Neut.</th>
     <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
-    <td>sě, the, that</td>
+    <th>Nom.</th>
+    <td>sē, the, that</td>
     <td>þæt</td>
-    <td>sío, sēo</td>
+    <td>sīo, sēo</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>þone</td>
     <td>þæt</td>
     <td>þā</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>þæs</td>
     <td>þæs</td>
     <td>þǣre</td>
@@ -544,43 +542,54 @@ comparative suffix -ero-, prim. Germanic -era-, as uncer, incer, ūser, ēower, 
   <tr>
     <td>Instr.</td>
     <td></td>
-    <td>þŷ, þon</td>
+    <td>þȳ, þon</td>
     <td></td>
   </tr>
 </table>
 
-Plur. all Genders.
-Nom. Acc. þā
-Gen. þāra, þǣra
-Dat. þǣm, þām
-
-se was the unaccented form of prim. Germanic *sa (Goth. sa) to which a new accented form sē was made (§ 144); þone (Goth. þana) the unaccented form of prim. Germanic *þanōn, beside late OE. þane, þane; þæs from prim. Germanic *þasa (§ 54), beside *þesa (Anglian þes, Goth.
-bis, OHG. des); þæm from the prim. Germanic instrumental *þaimi, beside þām with ā from the plural þā, þara, as in the dat. pl. þām. þæt (Goth. þata, Lat. istud, Indg. *tod); þy, þon are difficult to explain satisfactorily; they were chiefly used before the comparative of adverbs and as a factor in adverbial and conjunctional phrases like the Goth. instrumental þē, as þon mā, the more, cp. Gothic ni þē haldis, none the more; for þy, for þon, because, on that account. sīo, sēo does not correspond to Goth. sō, but like OHG. siu, she, it was a new formation from the prim. Germanic fem. pronoun *sī (= Gr. ἐ, Goth. si, OHG. sī), she + the Germanic fem. ending -ō; *sīō regularly became sīo, sēo through the intermediate stage of sīu which is found in the Anglian dialect. The reason why the new formation took place was probably due to the fact that the unaccented form of *sī would have become sē in OE. and thus have fallen together with the masc. nom. sing., cp. OE. wē, hē from the prim. Germanic unaccented forms *wiz, *xiz (§ 462); acc. þā (prim. Germanic *þōn, Goth. þō, Gr. Dor. τάν, Indg. *tām) is from the unaccented form *þa from which a new accented form þā was formed; gen. þǣre from *þaizjōz (cp. Skr. tāsyās, Indg. *tēsjās) with ai from the gen. plural; and similarly in the dat. þǣre from *þaizjai (cp. Skr. tāsyāi, Indg. *tēsjāi), beside þǣre from *þaizai. Pl. nom. masc. þā (= Goth. þái, Gr. τοῖ); the old nom. was also used for the nom. and acc. all genders; gen. þara from prim. Germanic *þaizōn, Indg. *toisōm (cp. the Goth. gen. pl. of adjectives, as blindaizē, -ō), beside þǣra with æ from þæm; þæm (Goth. þaim) from prim. Germanic *þaimiz, beside þām with ā from the genitive, which became þān in late WS.
-
-§ 466. The compound demonstrative pronoun þēs, þis, þīos (þēos), this, was originally formed from the simple demonstrative + the deictic particle -se, -si which is probably related to Goth. sái, OHG. sē, lo!, behold! Its earliest
-usage was that of an emphatic demonstrative pronoun and then later it came to be used also as a simple demonstrative adjective in much the same way that this here, these here, that there, them there (= those) are used in most Modern English dialects. Originally only the first element was inflected as in OHG. masc. nom. sing. de-se, gen. des-se, pl. de-se. At a later period the -se came to be inflected also, as masc. gen. sing. OHG. des-ses = OE. þis-ses. At this stage the gen. þis- (= Goth. þis) became extended to most of the other cases. And lastly the first element ceased to be inflected and the second element took in most cases the endings of the simple demonstrative. This compound demonstrative pronoun exists in all the Germanic languages except Gothic. The nom. sing. þěs, þios (þēos) were new formations made from the oblique stem-form with þ (§ 465). The old nom. forms were preserved in the oldest Norse inscriptions, as masc. sa-si, fem. su-si, neut. þat-si.
-
+PlUR. all Genders.
 <table>
   <tr>
-    <th>Sing.</th>
+    <th>Nom. Acc.</th>
+    <td>þā</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>þāra, þǣra</td>
+  </tr>
+  <tr>
+    <td>Dat.</td>
+    <td>þǣm, þām</td>
+  </tr>
+</table>
+
+se was the unaccented form of prim. Germanic *sa (Goth. sa) to which a new accented form sē was made (§ 144); þone (Goth. þana) the unaccented form of prim. Germanic *þanōn, beside late OE. þane, þane; þæs from prim. Germanic *þasa (§ 54), beside *þesa (Anglian þes, Goth.
+bis, OHG. des); þæm from the prim. Germanic instrumental *þaimi, beside þām with ā from the plural þā, þara, as in the dat. pl. þām. þæt (Goth. þata, Lat. istud, Indg. *tod); þȳ, þon are difficult to explain satisfactorily; they were chiefly used before the comparative of adverbs and as a factor in adverbial and conjunctional phrases like the Goth. instrumental þē, as þon mā, the more, cp. Gothic ni þē haldis, none the more; for þy, for þon, because, on that account. sīo, sēo does not correspond to Goth. sō, but like OHG. siu, she, it was a new formation from the prim. Germanic fem. pronoun *sī (= Gr. ί, Goth. si, OHG. sī), she + the Germanic fem. ending -ō; *sīō regularly became sīo, sēo through the intermediate stage of sīu which is found in the Anglian dialect. The reason why the new formation took place was probably due to the fact that the unaccented form of *sī would have become sē in OE. and thus have fallen together with the masc. nom. sing., cp. OE. wē, hē from the prim. Germanic unaccented forms *wiz, *χiz (§ 462); acc. þā (prim. Germanic *þōn, Goth. þō, Gr. Dor. τάν, Indg. *tām) is from the unaccented form *þa from which a new accented form þā was formed; gen. þǣre from *þaizjȭz (cp. Skr. tásyās, Indg. *tésjās) with ai from the gen. plural; and similarly in the dat. þǣre from *þaizjai (cp. Skr. tésyāi, Indg. *tésjāi), beside þāre from *þaizai. Pl. nom. masc. þā (= Goth. þái, Gr. τοῖ); the old nom. was also used for the nom. and acc. all genders; gen. þāra from prim. Germanic *þaizȭn, Indg. *toisȭm (cp. the Goth. gen. pl. of adjectives, as blindaizē, -ō), beside þǣra with ǣ from þǣm; þǣm (Goth. þaim) from prim. Germanic *þaimiz, beside þām with ā from the genitive, which became þān in late WS.
+
+§ 466. The compound demonstrative pronoun þēs, þis, þīos (þēos), this, was originally formed from the simple demonstrative + the deictic particle -se, -si which is probably related to Goth. sái, OHG. sē, lo!, behold! Its earliest usage was that of an emphatic demonstrative pronoun and then later it came to be used also as a simple demonstrative adjective in much the same way that this here, these here, that there, them there (= those) are used in most Modern English dialects. Originally only the first element was inflected as in OHG. masc. nom. sing. de-se, gen. des-se, pl. de-se. At a later period the -se came to be inflected also, as masc. gen. sing. OHG. des-ses = OE. þis-ses. At this stage the gen. þis- (= Goth. þis) became extended to most of the other cases. And lastly the first element ceased to be inflected and the second element took in most cases the endings of the simple demonstrative. This compound demonstrative pronoun exists in all the Germanic languages except Gothic. The nom. sing. þēs, þios (þēos) were new formations made from the oblique stem-form with þ (§ 465). The old nom. forms were preserved in the oldest Norse inscriptions, as masc. sa-si, fem. su-si, neut. þat-si.
+
+SING.
+<table>
+  <tr>
+    <th>Case</th>
     <th>Masc.</th>
     <th>Neut.</th>
     <th>Fem.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
-    <td>þěs</td>
+    <th>Nom.</th>
+    <td>þēs</td>
     <td>þis</td>
-    <td>þios, þēos</td>
+    <td>þīos, þēos</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>þisne</td>
     <td>þis</td>
     <td>þās</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>þis(s)es</td>
     <td>þis(s)es</td>
     <td>þisse</td>
@@ -594,31 +603,43 @@ usage was that of an emphatic demonstrative pronoun and then later it came to be
   <tr>
     <td>Instr.</td>
     <td></td>
-    <td>þīs, þīs</td>
+    <td>þȳs, þīs</td>
     <td></td>
   </tr>
 </table>
 
-Plur. All Genders.
-Nom. Acc. þās
-Gen. þissa
-Dat. þis(s)um
+PLUR. all Genders.
+<table>
+  <tr>
+    <th>Case</th>
+  </tr>
+  <tr>
+    <th>Nom. Acc.</th>
+    <td>þās</td>
+  </tr>
+  <tr>
+    <th>Gen.</th>
+    <td>þissa</td>
+  </tr>
+  <tr>
+    <th>Dat.</th>
+    <td>þis(s)um</td>
+  </tr>
+</table>
 
-þěs from older *þe-se (= OHG. de-se) was the unaccented form from which a new accented form þěs was made. þīos from þīus (preserved in the Anglian dialect), older *þīu + se (cp. sio, § 465). The fem. acc. sing., instr., and nom. pl. represent the simple demonstrative forms + -se which regularly became -s. The other cases singular and plural generalized the þis-, the i of which
-later became y. ss was often simplified to s. In the dat. sing. and pl. Anglian has þios(s)um, þeos(s)um with u-umlaut (§ 101) beside þis(s)um. Fem. gen. and dat. sing. þisse from older *þisre, gen. pl. þissa from older *þisra (§ 281); in late OE. there also occur þissere, þissera with -re, -ra from the simple demonstrative, beside þisre, þisra with syncope of the medial vowel and simplification of the ss.
+þēs from older *þe-se (= OHG. de-se) was the unaccented form from which a new accented form þēs was made. þīos from þīus (preserved in the Anglian dialect), older *þīū + se (cp. sio, § 465). The fem. acc. sing., instr., and nom. pl. represent the simple demonstrative forms + -se which regularly became -s. The other cases singular and plural generalized the þis-, the i of which later became y. ss was often simplified to s. In the dat. sing. and pl. Anglian has þios(s)um, þeos(s)um with u-umlaut (§ 101) beside þis(s)um. Fem. gen. and dat. sing. þisse from older *þisre, gen. pl. þissa from older *þisra (§ 281); in late OE. there also occur þissere, þissera with -re, -ra from the simple demonstrative, beside þisre, þisra with syncope of the medial vowel and simplification of the ss.
 
 § 467. ilca, same, which only occurs in combination with the def. art., as sē ilca, þæt ilce, sēo ilce, the same, is always declined weak.
 
-self, seolf, sylf, silf, self, was declined according to the strong or weak declension of adjectives. In combination with the def. art., as sē selfa, seolfa, it meant the selfsame. See § 463.
+self, seolf, sylf, silf, self, was declined according to the strong or weak declension of adjectives. In combination with the def. art., as sē selfa, χseolfa, it meant the selfsame. See § 463.
 
 5. Relative.
 
-§ 468. A relative pronoun proper did not exist in prim. Germanic. The separate Germanic languages expressed it in various ways. In Goth. it was expressed by suffixing the relative particle ei to the personal pronouns for the first and second persons, and to the simple demonstrative for the third person; in O.Norse by the particles sem and es (later er) in combination with the simple demonstrative; in OS. and OHG. generally by the simple demonstrative; and in OE. by the relative particle þē alone or in combination with the personal or the simple demonstrative pronoun, as se mon-dryhten, sē ēow þā māþmas geaf, the lord who gave you the treasures; þonne tōdǣlap hī his feoh þæt tō lāfe bīp, then they divide his property which is left. ic hit ēom, þe wīp þē sprece, it is I who speak with thee; idesa scēnōst þe on woruld cōme, the fairest one of ladies who came into the world; gē þe yfle synt, ye who are evil. sē þe brŷd hæfþ, sē is brŷdguma, he who hath the bride is the bridegroom; gehŷre, sē þe ēaran hæbbe, let him hear who hath ears; þæt þe ācenned is of flǣsce, þæt is flǣsc, that which is born of the flesh is flesh. wē þās
-word sprecap, þe wē in carcerne sittap, we who sit in prison speak these words; saga hwæt ic hätté, þe ic lond rēafige, say what I am called, I who lay waste the land; þæt se mon ne wāt, þe him on foldan fægrost limpeþ, the man to whom on earth the fairest happens knows not that.
+§ 468. A relative pronoun proper did not exist in prim. Germanic. The separate Germanic languages expressed it in various ways. In Goth. it was expressed by suffixing the relative particle ei to the personal pronouns for the first and second persons, and to the simple demonstrative for the third person; in O.Norse by the particles sem and es (later er) in combination with the simple demonstrative; in OS. and OHG. generally by the simple demonstrative; and in OE. by the relative particle þē alone or in combination with the personal or the simple demonstrative pronoun, as "se mon-dryhten, sē ēow þā māþmas geaf", the lord who gave you the treasures; "þonne tōdǣlaþ hī his feoh þæt tō lāfe bīþ", then they divide his property which is left. "ic hit ēom, þe wīp þē sprece", it is I who speak with thee; "idesa scēnōst þe on woruld cōme", the fairest one of ladies who came into the world; "gē þe yfle synt", ye who are evil. "sē þe brȳd hæfþ, sē is brȳdguma", he who hath the bride is the bridegroom; "gehȳre, sē þe ēaran hæbbe", let him hear who hath ears; "þæt þe ācenned is of flǣsce, þæt is flǣsc", that which is born of the flesh is flesh. "wē þās word sprecaþ, þe wē in carcerne sittaþ", we who sit in prison speak these words; "saga hwæt ic hātte, þe ic lond rēafige", say what I am called, I who lay waste the land; "þæt se mon ne wāt, þe him on foldan fægrost limpeþ", the man to whom on earth the fairest happens knows not that.
 
 6. Interrogative.
 
-§ 469. The parent Indg. language had two stems from which the interrogative pronoun was formed, viz. qo- and qi- with labialized q (§ 237). The former occurs in Gr. πό-τερος, which of two?, Goth. hvas, OE. hwā, who?, from an original form *qos; Lat. quod, Goth. hra, O.Icel. huat, OS. hwat, OHG. hwaz, OE. hwæt, what?, from an original form *qod. And the latter occurs in Gr. τίς, Lat. quis, who?, from an original form *qis; Goth. hvileiks, OE. hwilc, what sort of?
+§ 469. The parent Indg. language had two stems from which the interrogative pronoun was formed, viz. qo- and qi- with labialized q (§ 237). The former occurs in Gr. πό-τερος, which of two?, Goth. hvas, OE. hwā, who?, from an original form *qos; Lat. quod, Goth. ƕa, O.Icel. huat, OS. hwat, OHG. hwaȥ, OE. hwæt, what?, from an original form *qod. And the latter occurs in Gr. τίς, Lat. quis, who?, from an original form *qis; Goth. ƕileiks, OE. hwilc, what sort of?
 
 The OE. simple interrogative pronoun had no independent form for the feminine, and was declined in the singular only.
 
@@ -629,39 +650,39 @@ The OE. simple interrogative pronoun had no independent form for the feminine, a
     <th>Neut.</th>
   </tr>
   <tr>
-    <td>Nom.</td>
+    <th>Nom.</th>
     <td>hwā</td>
     <td>hwæt</td>
   </tr>
   <tr>
-    <td>Acc.</td>
+    <th>Acc.</th>
     <td>hwone</td>
     <td>hwæt</td>
   </tr>
   <tr>
-    <td>Gen.</td>
+    <th>Gen.</th>
     <td>hwæs</td>
     <td>hwæs</td>
   </tr>
   <tr>
-    <td>Dat.</td>
-    <td>hwām, hwām</td>
-    <td>hwām, hwām</td>
+    <th>Dat.</th>
+    <td>hwǣm, hwām</td>
+    <td>hwǣm, hwām</td>
   </tr>
   <tr>
-    <td>Instr.</td>
+    <th>Instr.</th>
     <td></td>
-    <td>hwŷ, hwī</td>
+    <td>hwȳ, hwī</td>
   </tr>
 </table>
 
-On the long vowel in hwā, see § 79. hwone (Goth. hvana) from prim. Germanic *χwanōn, is the old unaccented form, beside this there rarely occurs the accented form hwane, later hwāne. hwæs from prim. Germanic *χwasa beside Goth. hūs from *χwesa. hwām from prim. Germanic *χwaimi (instrumental) beside hwām, a new formation from hwā. Beside the instr. hwŷ, hwī which are difficult to explain, there also occur hwon, in such adverbial phrases as for hwon, tō hwon, why?, and hū (§ 130), how?
-§ 470. hwæßer (Goth. hvajar), which of two?, and hlwelc, hwlíc (Goth. hvileiks), what sort of?, were declined according to the strong declension of adjectives.
+On the long vowel in hwā, see § 79. hwone (Goth. hvana) from prim. Germanic *χwanōn, is the old unaccented form, beside this there rarely occurs the accented form hwane, later hwāne. hwæs from prim. Germanic *χwasa beside Goth. ƕis from *χwesa. hwǣm from prim. Germanic *χwaimi (instrumental) beside hwām, a new formation from hwā. Beside the instr. hwȳ, hwī which are difficult to explain, there also occur hwon, in such adverbial phrases as "for hwon", "tō hwon", why?, and hū (§ 130), how?
+
+§ 470. hwæþer (Goth. ƕaþar), which of two?, and hlwelc, hwlic (Goth. ƕileiks), what sort of?, were declined according to the strong declension of adjectives.
 
 7. Indefinite.
 
-§ 471. OE. had the following indefinite pronouns:—
-āghwā, each one, every one, from ā, ever + gi + hwa; and similarly āghhwæßer, each of two, both; āghwelc, āghwilc, each one, every one. ālc, each, every; ānig, any, nānig, not any one, no one; æthwā, each; āhwā, any one; āhwæßer, ōhwæßer, āwþer, ōwþer, one of two, nāhwæßer, nōhwæßer, nāwþer, nōwþer, neither of two; ān, some one, a certain one, in plur. each, every, all, nān, no one, nānjing, nothing; āwiht, ōwiht, āwuht, ōwuht, āht, ōht, anything; nāwiht, nōwiht, nāwuht, nōwuht, nāht, nōht, nothing; gehwā, each one, every one; gehwæßer, each of two, both; gehwilc, each, every one; h welchwugu, any, some, some one; hwæthwugu, somewhat, something; lōc, lōca + pronoun hwā, hwæßer, as lōc hwæßer þēra gebrōpra, whichever of the two brothers, bide me lōce hwæs þū wille, ask me for whatever thou wilt; man, one; nāt + hwā, hlwelc, some one I know not who, which; samhwilc, some; sum, some one; swā . . . swā, as swā hwā swā, whosoever, whoever, swā hwæt swā, whatsoever, whatever, swā hwæßer swā, whichever of two, swā hlwelc swā, whichever; swelc, swilc, such; þyslic, þuslic, þyllic, þullic, such.
+§ 471. OE. had the following indefinite pronouns: ǣghwā, each one, every one, from ā, ever + gi + hwa; and similarly ǣghhwæþer, each of two, both; ǣghwelc, ǣghwilc, each one, every one. ǣlc, each, every; ǣnig, any, nǣnig, not any one, no one; æthwā, each; āhwā, any one; āhwæþer, ōhwæþer, āwþer, ōwþer, one of two, nāhwæþer, nōhwæþer, nāwþer, nōwþer, neither of two; ān, some one, a certain one, in plur. each, every, all, nān, no one, nānþing, nothing; āwiht, ōwiht, āwuht, ōwuht, āht, ōht, anything; nāwiht, nōwiht, nāwuht, nōwuht, nāht, nōht, nothing; gehwā, each one, every one; gehwæþer, each of two, both; gehwilc, each, every one; h welchwugu, any, some, some one; hwæthwugu, somewhat, something; lōc, lōca + pronoun hwā, hwæþer, as "lōc hwæßer þēra gebrōpra", whichever of the two brothers, "bide me lōce hwæs þū wille", ask me for whatever thou wilt; man, one; nāt + hwā, hwelc, some one I know not who, which; samhwilc, some; sum, some one; "swā . . . swā", as "swā hwā swā", whosoever, whoever, "swā hwæt swā", whatsoever, whatever, "swā hwæþer swā", whichever of two, "swā hlwelc swā", whichever; swelc, swilc, such; þyslic, þuslic, þyllic, þullic, such.
 
 CHAPTER XIV
 

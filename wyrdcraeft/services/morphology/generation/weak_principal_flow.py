@@ -4,11 +4,21 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from functools import partial
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from wyrdcraeft.models.morphology import ParadigmPart, Word, _WeakPrincipalPartContext
 
+from . import weak_derivation_flow as _weak_derivation_flow
 from .weak_inflections import emit_weak_principal_part_sequence
+
+if TYPE_CHECKING:
+    from .weak_derivation_flow import (
+        WeakFormContextEmitter,
+        WeakManualEmitter,
+        WeakPainsg1RawFormEmitter,
+        WeakPsinsg2FormWithPostEmitter,
+        WeakPsinsg2SoundWithPostEmitter,
+    )
 
 
 #: Callback signature for attaching one participle row to adjective storage.
@@ -255,6 +265,132 @@ def emit_weak_principal_painsg1_derivation(
     )
 
 
+def emit_weak_principal_inf_derivation_with_emitters(
+    context: _WeakPrincipalPartContext,
+    *,
+    emit_form_for_context: WeakFormContextEmitter,
+    add_participle_to_adjectives: WeakParticipleAdder,
+) -> None:
+    """
+    Emit weak infinitive-derived rows from principal context via low-level emitters.
+
+    Side Effects:
+        Writes generated rows and participle side effects to output/session.
+
+    Args:
+        context: Shared weak principal-part context.
+
+    Keyword Args:
+        emit_form_for_context: Low-level row emitter for direct form output.
+        add_participle_to_adjectives: Callback that stores derived participles.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak dental derivation from
+        principal parts; this helper preserves that branch order while moving
+        emitter binding out of ``generation.common``.
+
+    """
+    _weak_derivation_flow.generate_weak_derived_from_inf(
+        formhash=context.formhash,
+        word=context.word,
+        prefix=context.prefix,
+        pre_vowel=context.pre_vowel,
+        vowel=context.vowel,
+        post_vowel=context.post_vowel,
+        boundary=context.boundary,
+        original_ending=context.ending,
+        probability=context.probability,
+        emit_form_for_context=emit_form_for_context,
+        add_participle_to_adjectives=add_participle_to_adjectives,
+    )
+
+
+def emit_weak_principal_psinsg2_derivation_with_emitters(
+    context: _WeakPrincipalPartContext,
+    *,
+    emit_form: WeakPsinsg2FormWithPostEmitter,
+    emit_sound: WeakPsinsg2SoundWithPostEmitter,
+) -> None:
+    """
+    Emit weak ``PsInSg2``-derived rows from principal context via low-level emitters.
+
+    Side Effects:
+        Writes generated and sound-changed rows to the morphology output stream.
+
+    Args:
+        context: Shared weak principal-part context.
+
+    Keyword Args:
+        emit_form: Low-level direct form emitter.
+        emit_sound: Low-level sound-change emitter.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak branch alternations for
+        present singular forms; this helper preserves that routing while
+        centralizing emitter binding in the principal-flow module.
+
+    """
+    _weak_derivation_flow.generate_weak_derived_from_psinsg2(
+        formhash=context.formhash,
+        prefix=context.prefix,
+        pre_vowel=context.pre_vowel,
+        vowel=context.vowel,
+        post_vowel=context.post_vowel,
+        boundary=context.boundary,
+        probability=context.probability,
+        emit_form=emit_form,
+        emit_sound=emit_sound,
+    )
+
+
+def emit_weak_principal_painsg1_derivation_with_emitters(
+    context: _WeakPrincipalPartContext,
+    *,
+    emit_form: WeakPainsg1RawFormEmitter,
+    emit_manual: WeakManualEmitter,
+    add_participle_to_adjectives: WeakParticipleAdder,
+) -> None:
+    """
+    Emit weak ``PaInSg1``-derived rows from principal context via low-level emitters.
+
+    Side Effects:
+        Writes generated rows and participle side effects to output/session.
+
+    Args:
+        context: Shared weak principal-part context.
+
+    Keyword Args:
+        emit_form: Low-level direct form emitter.
+        emit_manual: Low-level manual row emitter.
+        add_participle_to_adjectives: Callback that stores derived participles.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak dental-preterite
+        derivation; this helper keeps callback order intact while removing
+        compatibility-layer adapter assembly from ``generation.common``.
+
+    """
+    _weak_derivation_flow.generate_weak_derived_from_painsg1(
+        formhash=context.formhash,
+        word=context.word,
+        prefix=context.prefix,
+        pre_vowel=context.pre_vowel,
+        vowel=context.vowel,
+        post_vowel=context.post_vowel,
+        boundary=context.boundary,
+        dental=context.dental or "",
+        probability=context.probability,
+        vowel_inf=context.vowel_inf,
+        vowel_pa=context.vowel_pa,
+        emit_form=emit_form,
+        emit_manual=emit_manual,
+        add_participle_to_adjectives=add_participle_to_adjectives,
+    )
+
+
 def emit_weak_principal_pspt_participle_context(
     context: _WeakPrincipalPartContext,
     form_parts: str,
@@ -419,7 +555,7 @@ def generate_weak_verb_parts_with_context(  # noqa: PLR0913
     para_id_num: str,
     vowel_inf: str,
     vowel_pa: str,
-    emit_form_for_context: WeakPrincipalFormContextEmitter,
+    emit_form_for_context: WeakFormContextEmitter,
     add_participle_to_adjectives: WeakParticipleAdder,
     generate_weak_derived_from_inf: WeakInfBranchGenerator,
     generate_weak_derived_from_psinsg2: WeakPsinsg2BranchGenerator,
@@ -471,7 +607,11 @@ def generate_weak_verb_parts_with_context(  # noqa: PLR0913
         para_id_num=para_id_num,
         vowel_inf=vowel_inf,
         vowel_pa=vowel_pa,
-        emit_form=partial(emit_form_for_context, formhash),
+        emit_form=partial(
+            _weak_derivation_flow.emit_weak_principal_form_context,
+            formhash,
+            emit_form_for_context=emit_form_for_context,
+        ),
         on_pspt_participle=partial(
             emit_weak_principal_pspt_participle_context,
             add_participle_to_adjectives=add_participle_to_adjectives,
@@ -584,4 +724,104 @@ def generate_weak_verb_parts(  # noqa: PLR0913
         on_inf=partial(on_inf, context),
         on_psinsg2=partial(on_psinsg2, context),
         on_painsg1=partial(on_painsg1, context),
+    )
+
+
+def generate_weak_verb_parts_with_emitters(  # noqa: PLR0913
+    *,
+    formhash: dict[str, str],
+    word: Word,
+    item: ParadigmPart,
+    prefix: str,
+    pre_vowel: str,
+    root_vowel_actual: str,
+    post_vowel: str,
+    variant_id: int,
+    para_id_num: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    emit_form_for_context: WeakFormContextEmitter,
+    emit_painsg1_form: WeakPainsg1RawFormEmitter,
+    emit_painsg1_manual: WeakManualEmitter,
+    emit_psinsg2_form: WeakPsinsg2FormWithPostEmitter,
+    emit_psinsg2_sound: WeakPsinsg2SoundWithPostEmitter,
+    add_participle_to_adjectives: WeakParticipleAdder,
+) -> None:
+    """
+    Generate weak principal parts by binding low-level emitters once.
+
+    Side Effects:
+        Emits generated rows and participle side effects via callbacks.
+
+    Args:
+        formhash: Form metadata hash for the active branch.
+        word: Lexeme record currently being generated.
+        item: Active paradigm part.
+        prefix: Prefix segment for the active part.
+        pre_vowel: Stem segment before the active vowel.
+        root_vowel_actual: Active vowel segment.
+        post_vowel: Stem segment after the active vowel.
+        variant_id: Variant identifier of the active part.
+        para_id_num: Numeric paradigm identifier used in branch routing.
+        vowel_inf: Exemplar infinitive vowel from the seed variant.
+        vowel_pa: Exemplar preterite singular vowel from the seed variant.
+        emit_form_for_context: Low-level row emitter for direct form output.
+        emit_painsg1_form: Low-level direct form emitter for ``PaInSg1`` rows.
+        emit_painsg1_manual: Low-level manual-row emitter for ``PaInSg1`` rows.
+        emit_psinsg2_form: Low-level direct form emitter for ``PsInSg2`` rows.
+        emit_psinsg2_sound: Low-level sound-change emitter for ``PsInSg2`` rows.
+        add_participle_to_adjectives: Callback that stores derived participles.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) describe weak principal-part
+        sequencing as a fixed order of row emission and branch derivation; this
+        helper preserves that order while keeping callback assembly out of
+        ``generation.common``.
+
+    """
+    generate_weak_verb_parts(
+        formhash=formhash,
+        word=word,
+        item=item,
+        prefix=prefix,
+        pre_vowel=pre_vowel,
+        root_vowel_actual=root_vowel_actual,
+        post_vowel=post_vowel,
+        variant_id=variant_id,
+        para_id_num=para_id_num,
+        vowel_inf=vowel_inf,
+        vowel_pa=vowel_pa,
+        emit_form=partial(
+            _weak_derivation_flow.emit_weak_principal_form_context,
+            formhash,
+            emit_form_for_context=emit_form_for_context,
+        ),
+        on_pspt_participle=partial(
+            emit_weak_principal_pspt_participle_context,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        ),
+        on_papt_participle=partial(
+            emit_weak_principal_papt_participle_context,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        ),
+        on_inf=partial(
+            emit_weak_principal_inf_derivation_with_emitters,
+            emit_form_for_context=emit_form_for_context,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        ),
+        on_psinsg2=partial(
+            emit_weak_principal_psinsg2_derivation_with_emitters,
+            emit_form=emit_psinsg2_form,
+            emit_sound=emit_psinsg2_sound,
+        ),
+        on_painsg1=partial(
+            emit_weak_principal_painsg1_derivation_with_emitters,
+            emit_form=emit_painsg1_form,
+            emit_manual=emit_painsg1_manual,
+            add_participle_to_adjectives=add_participle_to_adjectives,
+        ),
     )

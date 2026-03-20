@@ -1,18 +1,16 @@
-ablaut in the singular, but the weak grade in the dual and plural. Thus for example the singular and plural of the verbs for 'to be', and 'to go' were: *és-mi, *és-si, *és-ti, *s-més or *s-mós, *s-té, *s-énti; *éi-mi, *éi-si, *éi-ti, *i-més or *i-mós, *i-té, *j-énti. Verbs of this class are often called mi-verbs because the first person singular ends in ·mi. The Germanic languages have only preserved a few traces of the mi-conjugation (§ 547). Nearly all the verbal forms, which originally belonged to this class, passed over into the ō-conjugation in the prim. Germanic period.
+ablaut in the singular, but the weak grade in the dual and plural. Thus for example the singular and plural of the verbs for "to be", and "to go" were: *és-mi, *és-si, *és-ti, *s-més or *s-mós, *s-té, *s-énti; *éi-mi, *éi-si, *éi-ti, *i-més or *i-mós, *i-té, *j-énti. Verbs of this class are often called mi-verbs because the first person singular ends in -mi. The Germanic languages have only preserved a few traces of the mi-conjugation (§ 547). Nearly all the verbal forms, which originally belonged to this class, passed over into the ō-conjugation in the prim. Germanic period.
 
-In the thematic verbs the stem-vowel, which could be either of the strong or weak grade of ablaut, remained unchanged throughout the present; in the former case they are called imperfect presents (as cēosan, to choose; helpan, to help; etan, to eat; &c.), and in the latter case aorist presents (as OE. lūcan, to close; murnan, to mourn; &c.). The present was formed by means of the thematic vowels, e, o, which came between the root and the personal endings, thus the present singular and plural of the verb for 'to bear' was *bhérō (from *bhér-o-a), *bhér-e-si, *bhér-e-ti, *bhér-o-mes, (-mos), *bhér-e-te, *bhér-o-nti. Verbs of this class are generally called ō-verbs because the first person singular ends in ·ō. The old distinction between the mi- and the ō-conjugation was fairly well preserved in Greek, as εἰμί, I am, εἴμι, I go, δίδωμι, I give; μένω, I remain, πείθω, I persuade; τρίβω, I rub, τύφω, I smoke.
+In the thematic verbs the stem-vowel, which could be either of the strong or weak grade of ablaut, remained unchanged throughout the present; in the former case they are called imperfect presents (as cēosan, to choose; helpan, to help; etan, to eat; &c.), and in the latter case aorist presents (as OE. lūcan, to close; murnan, to mourn; &c.). The present was formed by means of the thematic vowels, e, o, which came between the root and the personal endings, thus the present singular and plural of the verb for "to bear" was *bhérō (from *bhér-o-a), *bhér-e-si, *bhér-e-ti, *bhér-o-mes, (-mos), *bhér-e-te, *bhér-o-nti. Verbs of this class are generally called ō-verbs because the first person singular ends in -ō. The old distinction between the mi- and the ō-conjugation was fairly well preserved in Greek, as εἰμί, I am, εἴμι, I go, δίδωμι, I give; μένω, I remain, πείθω, I persuade; τρίβω, I rub, τύφω, I smoke.
 
-§ 473. In treating the history of the verbal forms in OE. it is advisable to start out partly from prim. Germanic and partly from the oldest OE. The Indg. verbal system underwent so many radical changes in prim. Germanic that it would be necessary to treat here in detail the verbal system of the non-Germanic languages such as Sanskrit, Greek, and Latin in order to account for all the changes.
-In the Germanic languages the verbs are divided into two great classes:—Strong and Weak. The strong verbs form their preterite (originally perfect) and past participle by means of ablaut (§ 224). The weak verbs form their preterite by the addition of a syllable containing a dental (Goth. -da, (-ta), OE. -de, -te), and their past participle by means of a dental suffix (Goth. -p, (-t), OE. -d, (-t)).
+§ 473. In treating the history of the verbal forms in OE. it is advisable to start out partly from prim. Germanic and partly from the oldest OE. The Indg. verbal system underwent so many radical changes in prim. Germanic that it would be necessary to treat here in detail the verbal system of the non-Germanic languages such as Sanskrit, Greek, and Latin in order to account for all the changes. In the Germanic languages the verbs are divided into two great classes: Strong and Weak. The strong verbs form their preterite (originally perfect) and past participle by means of ablaut (§ 224). The weak verbs form their preterite by the addition of a syllable containing a dental (Goth. -da, (-ta), OE. -de, -te), and their past participle by means of a dental suffix (Goth. -þ, (-t), OE. -d, (-t)).
 
-Besides these two great classes of strong and weak verbs, there are a few others which will be treated under the general heading of Minor Groups.
+Besides these two great classes of strong and weak verbs, there are a few others which will be treated under the general heading of "Minor Groups".
 
 The strong verbs were originally further sub-divided into reduplicated and non-reduplicated verbs, as Goth. haldan, to hold, lētan, to let, preterite haíhald, laílōt; niman, to take, hilpan, to help, preterite nam, halp. In OE. the reduplication almost entirely disappeared in the prehistoric period of the language (§ 511). The non-reduplicated verbs are divided into six classes according to the six ablaut-series (§ 226). The originally reduplicated verbs are put together in this book and called class VII.
 
-§ 474. The OE. verb has the following independent forms:—one voice (active), two numbers, three persons, two tenses (present and preterite), two complete moods (indicative, and subjunctive, the latter originally the optative), besides an imperative which is only used in the present tense; two verbal nouns (present infinitive and present participle), and one verbal adjective (the past participle).
+§ 474. The OE. verb has the following independent forms: one voice (active), two numbers, three persons, two tenses (present and preterite), two complete moods (indicative, and subjunctive, the latter originally the optative), besides an imperative which is only used in the present tense; two verbal nouns (present infinitive and present participle), and one verbal adjective (the past participle).
 
-The simple future was generally expressed by the present tense as in the oldest periods of the other Germanic languages, but already in OE. the present forms of bēon, to be, sculan, shall, willan, will, with the infinitive began to be used to express the future. In the oldest OE. the perfect of transitive verbs was formed by means of the forms of habban, to have, and the past participle, and that of intransitive verbs by means of wesan, to be, and the past
-participle. At a later period habban came to be used to form the perfect of intransitive verbs also. The only trace of the old passive voice preserved in OE. is hātte (Goth. háitada), is or was called, pl. hātton. Otherwise the passive was expressed by the forms of bēon, wesan, to be, occasionally also weorpan, to become, and the past participle.
+The simple future was generally expressed by the present tense as in the oldest periods of the other Germanic languages, but already in OE. the present forms of bēon, to be, sculan, shall, willan, will, with the infinitive began to be used to express the future. In the oldest OE. the perfect of transitive verbs was formed by means of the forms of habban, to have, and the past participle, and that of intransitive verbs by means of wesan, to be, and the past participle. At a later period habban came to be used to form the perfect of intransitive verbs also. The only trace of the old passive voice preserved in OE. is hātte (Goth. háitada), is or was called, pl. hātton. Otherwise the passive was expressed by the forms of bēon, wesan, to be, occasionally also weorþan, to become, and the past participle.
 
 A. Strong Verbs.
 
@@ -24,66 +22,72 @@ Indicative.
 
 <table>
   <tr>
-    <th></th>
-    <th>ber</th>
-    <th>helpe</th>
-    <th>binde</th>
-    <th>ride</th>
+    <th>Number</th>
+    <th>Person</th>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
-    <td>Sing.</td>
-    <td>1. bere</td>
+    <th>Sing.</th>
+    <th>1</th>
+    <td>bere</td>
     <td>helpe</td>
     <td>binde</td>
     <td>ride</td>
   </tr>
   <tr>
-    <td></td>
-    <td>2. bir(e)st</td>
+    <th>Sing.</th>
+    <th>2</th>
+    <td>bir(e)st</td>
     <td>hilpst</td>
     <td>bintst</td>
     <td>ritst</td>
   </tr>
   <tr>
-    <td></td>
-    <td>3. bir(e)þ</td>
+    <th>Sing</th>
+    <th>3</th>
+    <td>bir(e)þ</td>
     <td>hilpþ</td>
     <td>bint</td>
     <td>rit(t)</td>
   </tr>
   <tr>
-    <td>Plur.</td>
+    <th>Plur.</th>
+    <td></td>
     <td>beraþ</td>
     <td>helpaþ</td>
     <td>bindaþ</td>
     <td>rídaþ</td>
   </tr>
 </table>
+
 § 475] Verbs
 
 Subjunctive.
 
 <table>
   <tr>
-    <th></th>
+    <th>Number</th>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <th>Sing</th>
     <th>bere</th>
     <th>helpe</th>
     <th>binde</th>
     <th>ride</th>
   </tr>
   <tr>
-    <th>Sing.</th>
+    <th>Plur.</th>
     <td>beren</td>
     <td>helpen</td>
     <td>binden</td>
     <td>rīden</td>
-  </tr>
-  <tr>
-    <th>Plur.</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
   </tr>
 </table>
 
@@ -91,57 +95,90 @@ Imperative.
 
 <table>
   <tr>
-    <th></th>
+    <th>Number</th>
+    <th>Person</th>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <th>Sing.</th>
+    <th>2</th>
     <th>ber</th>
     <th>help</th>
     <th>bind</th>
     <th>rīd</th>
   </tr>
   <tr>
-    <th>Sing. 2.</th>
+    <th>Plur</th>
+    <th>2</th>
     <td>beraþ</td>
     <td>helpaþ</td>
     <td>bindaþ</td>
     <td>rīdaþ</td>
   </tr>
-  <tr>
-    <th>Plur. 2.</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
 </table>
 
 Infinitive.
 
-beran   helpan   bindan   rīdan
+<table>
+  <tr>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+</table>
 
-Participle.
 
-berende   helpende   bindende   rīdende
+Present Participle.
+<table>
+  <tr>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <td>berende</td>
+    <td>helpende</td>
+    <td>bidende</td>
+    <td>rīdende</td>
+</table>
 
-Preterite.
+Preterite (Past).
 
 Indicative.
 
 <table>
   <tr>
-    <th></th>
-    <th>bær</th>
-    <th>healp</th>
-    <th>band</th>
-    <th>rād</th>
+    <th>Number</th>
+    <th>Person</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <th>Sing</th>
+    <th>1</th>
+    <td>bær</td>
+    <td>healp</td>
+    <td>band</td>
+    <td>rād</td>
   </tr>
   <tr>
     <th>Sing.</th>
-    <td>bære</td>
+    <th>2</th>
+    <td>bǣre</td>
     <td>hulpe</td>
     <td>bunde</td>
     <td>ride</td>
   </tr>
   <tr>
-    <th></th>
+    <th>Sing</th>
+    <th>3</th>
     <td>bær</td>
     <td>healp</td>
     <td>band</td>
@@ -149,9 +186,10 @@ Indicative.
   </tr>
   <tr>
     <th>Plur.</th>
-    <td>bēron</td>
+    <th></th>
+    <td>bǣron</td>
     <td>hulpon</td>
-    <td>bunden</td>
+    <td>bundon</td>
     <td>ridon</td>
   </tr>
 </table>
@@ -160,31 +198,43 @@ Subjunctive.
 
 <table>
   <tr>
-    <th></th>
-    <th>bære</th>
+    <th>Number</th>
+    <th>beren, to bear</th>
+    <th>helpan, to hel</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <th>Sing.</th>
+    <th>bǣre</th>
     <th>hulpe</th>
     <th>bunde</th>
     <th>ride</th>
   </tr>
   <tr>
-    <th>Sing.</th>
-    <td>bāren</td>
+    <th>Plur.</th>
+    <td>bǣren</td>
     <td>hulpen</td>
     <td>bunden</td>
     <td>riden</td>
   </tr>
-  <tr>
-    <th>Plur.</th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
 </table>
 
-Participle.
-
-boren   holpen   bunden   ridden
+Past Participle.
+<table>
+  <tr>
+    <th>beran,to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
+  </tr>
+  <tr>
+    <td>boren</td>
+    <td>holpen</td>
+    <td>bunden</td>
+    <td>ridden</td>
+  </tr>
+</table>
 
 Present.
 
@@ -220,6 +270,7 @@ Indicative.
     <td>biddaþ</td>
   </tr>
 </table>
+
 Accidence
 
 Subjunctive.
@@ -294,32 +345,32 @@ The prim. Germanic forms of the third pers. sing. of beran and bindan were *biri
 In the second and third pers. sing. the -i- (-e-) was regularly syncopated after long stems, as hilpst, hilpþ, ritst, rit(t), tiehst, tiehþ, &c., and remained after short stems, as birest, bireþ, færest, færepþ, &c. (§ 221), but there are many exceptions to this rule, especially in WS. and Ken., owing to new formations in both directions, as bindest, bindepþ, hilpest, hilpeþ, &c., and on the other hand birst, birþ, færst, færþ, &c. In Anglian the forms without syncope were almost entirely generalized, but in
 WS. and Ken. syncope was almost quite general, especially after voiceless consonants and after d, f (= b), and g, but as a rule not after a single liquid or a nasal.
 
-The loss of ·e· in the second and third pers. sing. gave rise to various consonantal changes: Double consonants were simplified before the personal endings (§ 259), as fielst, fielp, spinst, spinþ, beside inf. feallan, spinnan.
+The loss of -e- in the second and third pers. sing. gave rise to various consonantal changes: Double consonants were simplified before the personal endings (§ 259), as fielst, fielp, spinst, spinþ, beside inf. feallan, spinnan.
 
-d became t before ·st, as bintst, bitst, ritst, wielst beside wealdan, to wield. d and t + þ became tt (common in the older period), later t, as bint, bit(t), rit(t); birst, it(t), beside inf. berstan, to burst, etan, to eat, see § 300. Forms like bindest, bidst, wieldst; bindep, bid(e)þ, &c. were new formations after the analogy of forms which regularly had d.
+d became t before -st, as bintst, bitst, ritst, wielst beside wealdan, to wield. d and t + þ became tt (common in the older period), later t, as bint, bit(t), rit(t); birst, it(t), beside inf. berstan, to burst, etan, to eat, see § 300. Forms like bindest, bidst, wieldst; bindep, bid(e)þ, &c. were new formations after the analogy of forms which regularly had d.
 
-After a long vowel, diphthong, or liquid, g became h before ·st, ·þ (§ 320, Note), as stihst, stihþ, inf. stigan, to ascend, fliehst, fliehþ, inf. flēogan, to fly, swilhst, swilhþ, inf. swelgan, to swallow, but the g was often restored from forms which regularly had g.
+After a long vowel, diphthong, or liquid, g became h before -st, -þ (§ 320, Note), as stihst, stihþ, inf. stigan, to ascend, fliehst, fliehþ, inf. flēogan, to fly, swilhst, swilhþ, inf. swelgan, to swallow, but the g was often restored from forms which regularly had g.
 
-s, ss, st + ·st, ·þ became ·st (§§ 259, 805), as ciest; cyst beside inf. wv. cyssan, to kiss, birst beside birstest, birsteþ (new formations); x (= hs)+·st, ·þ became xt, as wiext beside inf. weaxan, to grow. In verbs of this type the second and third pers. singular regularly fell together.
+s, ss, st + -st, -þ became -st (§§ 259, 805), as ciest; cyst beside inf. wv. cyssan, to kiss, birst beside birstest, birsteþ (new formations); x (= hs)+-st, -þ became xt, as wiext beside inf. weaxan, to grow. In verbs of this type the second and third pers. singular regularly fell together.
 
-þ disappeared before ·st (§ 305), as cwist, wierst, beside inf. cweþan, to say, weorþan, to become. Forms like cwipst, wierþst, snipst (inf. snipan, to cut), were new formations after the analogy of the other forms of the present. þ + ·þ became þ, as cwip, wierþ.
+þ disappeared before -st (§ 305), as cwist, wierst, beside inf. cweþan, to say, weorþan, to become. Forms like cwipst, wierþst, snipst (inf. snipan, to cut), were new formations after the analogy of the other forms of the present. þ + -þ became þ, as cwip, wierþ.
 
 The forms of the first and second pers. plural had disappeared already in the oldest period of the language, their place having been taken by the form of the third person. The prim. Germanic forms of the third pers. pl. of beran, bindan were *berandi, *bindandi = Indg. *bhéronti, *bhéndhonti, which would regularly have
-become in OE. *berand, *bindand = Goth. baírand, bindand, but, as in the second and third pers. singular, the third pers. pl. was remodelled on analogy with the first class of weak verbs which regularly had -ánþi in prim. Germanic. -ánþi became ·aþ in OE. through the intermediate stages ·anþ, ·onþ, ·ōþ (§ 218). ·aþ became ·as in late Nth. This ·s plural has been preserved in the Modern northern dialects when the subject is not a simple personal pronoun placed immediately before or after the verb.
+become in OE. *berand, *bindand = Goth. baírand, bindand, but, as in the second and third pers. singular, the third pers. pl. was remodelled on analogy with the first class of weak verbs which regularly had -ánþi in prim. Germanic. -ánþi became -aþ in OE. through the intermediate stages -anþ, -onþ, -ōþ (§ 218). -aþ became -as in late Nth. This -s plural has been preserved in the Modern northern dialects when the subject is not a simple personal pronoun placed immediately before or after the verb.
 
-§ 477. Pres. subjunctive: This tense is properly an old optative. The original forms of the singular and plural of beran were *bhéroi-, *bhérois, *bhéroit, *bhéroim-, *bhéroite, *bhéroint. The final ·t was regularly dropped in prim. Germanic (§ 211) and the oi became ai during the same period (§ 30). Then ai became æ which was shortened to æ (§ 217). The æ was preserved in the oldest period of the language and afterwards became e. In OE. the original forms of the singular regularly fell together in bere. The old forms of the first and second pers. plural disappeared and their place was taken by the third pers. beren. Beside ·en there also occurs in late WS. ·an, and also ·un, ·on taken over from the pret. pl. indicative. On the loss of final ·n in Nth., see § 288. The final ·n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bere wě, wit, gě, git. Then bere wě, &c., came to be used also for the indicative and imperative.
+§ 477. Pres. subjunctive: This tense is properly an old optative. The original forms of the singular and plural of beran were *bhéroi-, *bhérois, *bhéroit, *bhéroim-, *bhéroite, *bhéroint. The final -t was regularly dropped in prim. Germanic (§ 211) and the oi became ai during the same period (§ 30). Then ai became æ which was shortened to æ (§ 217). The æ was preserved in the oldest period of the language and afterwards became e. In OE. the original forms of the singular regularly fell together in bere. The old forms of the first and second pers. plural disappeared and their place was taken by the third pers. beren. Beside -en there also occurs in late WS. -an, and also -un, -on taken over from the pret. pl. indicative. On the loss of final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bere wě, wit, gě, git. Then bere wě, &c., came to be used also for the indicative and imperative.
 
-§ 478. Imperative: The original ending of the second pers. sing. was ·e which regularly disappeared without leaving any trace of its former existence (§ 213), whence OE. ber = Gr. φέρε, Indg. *bhére. On the ·e in bide beside its absence in ber, bind, &c., see § 273. In OE. the third pers. plural of the pres. indicative was used for the second pers. plural. A form in ·an, as beran, bindan, was occasionally used in the oldest period of the language for
+§ 478. Imperative: The original ending of the second pers. sing. was -e which regularly disappeared without leaving any trace of its former existence (§ 213), whence OE. ber = Gr. φέρε, Indg. *bhére. On the -e in bide beside its absence in ber, bind, &c., see § 273. In OE. the third pers. plural of the pres. indicative was used for the second pers. plural. A form in -an, as beran, bindan, was occasionally used in the oldest period of the language for
 the first pers. plural. This form was originally identical with the first pers. pl. pres. indic. which disappeared in OE. The first pers. pl. is generally expressed by the pres. subjunctive, as beren, binden, &c.
 
-§ 479. Pres. participle: In the parent language the stem of the pres. participle ended in ·nt, as in Lat. ferent-, Gr. φέροντ-, Indg. *bhéront- = OE. berend-e, Goth. baírand-s. The masc. and neut. were originally declined like consonant stems (§ 416). The fem. nom. sing. originally ended in ·i which was shortened to ·i (§ 214) in prehistoric OE., cp. Goth. fem. frijōndi, friend. The ·i of the feminine was extended to the masc. and neut. which was the cause of their passing over into the ja-declension (§ 433). See § 441. The oldest OE. ending is ·ændi, ·endi, later ·ende.
+§ 479. Pres. participle: In the parent language the stem of the pres. participle ended in -nt, as in Lat. ferent-, Gr. φέροντ-, Indg. *bhéront- = OE. berend-e, Goth. baírand-s. The masc. and neut. were originally declined like consonant stems (§ 416). The fem. nom. sing. originally ended in -i which was shortened to -i (§ 214) in prehistoric OE., cp. Goth. fem. frijōndi, friend. The -i of the feminine was extended to the masc. and neut. which was the cause of their passing over into the ja-declension (§ 433). See § 441. The oldest OE. ending is -ændi, -endi, later -ende.
 
-§ 480. Infinitive: The inf. was originally a nomen actionis, formed by means of various suffixes in the different Indg. languages. The suffix ·ono·, to which was added the nom. acc. neuter ending ·m, became generalized in prim. Germanic, thus the original form of beran was *bhéronom, the ·onom of which regularly became ·an in OE. Goth. OS. and OHG. On the loss of the final ·n in Nth., see § 288. In prim. West Germanic the inf. was inflected in the gen. and dat. like an ordinary noun of the ja-declension (§ 355), gen. ·ennes, dat. ·enne. The inflected forms of the inf. are sometimes called the gerund. The gen. disappeared in prehistoric OE. The dat. tō berenne generally became ·anne through the influence of the inf. ending ·an. Beside ·enne, ·anne there also occur in late OE. ·ene, ·ane, and ·ende with d from the present participle.
+§ 480. Infinitive: The inf. was originally a nomen actionis, formed by means of various suffixes in the different Indg. languages. The suffix -ono-, to which was added the nom. acc. neuter ending -m, became generalized in prim. Germanic, thus the original form of beran was *bhéronom, the -onom of which regularly became -an in OE. Goth. OS. and OHG. On the loss of the final -n in Nth., see § 288. In prim. West Germanic the inf. was inflected in the gen. and dat. like an ordinary noun of the ja-declension (§ 355), gen. -ennes, dat. -enne. The inflected forms of the inf. are sometimes called the gerund. The gen. disappeared in prehistoric OE. The dat. tō berenne generally became -anne through the influence of the inf. ending -an. Beside -enne, -anne there also occur in late OE. -ene, -ane, and -ende with d from the present participle.
 
-§ 481. Pret. indicative: The pret. indic. is morphologically an old perfect, which already in prim. Germanic was chiefly used to express the past tense. The original endings of the perf. singular were ·a, ·tha, ·e, cp. Gr. ὤδα, ὠδαθα, ὠδε. The ·a and ·e regularly disappeared in pre-
-historic OE. (§§ 212–13), whence OE. first and third pers. singular bær, band, &c. The ending of the second pers. singular would regularly have become ·þ (§ 233) in OE. OS. O.Icel. and Goth., except after prim. Germanic s, f, h where it regularly became t (§ 231, Notes), as in Goth. last, thou didst gather, slōht, thou didst slay, þarft (OE. þearft), thou needest. This ·t became generalized in prim. Germanic, as Goth. O.Icel. namt, thou tookest. But in the West Germanic languages the old ending was only preserved in the preterite-present verbs, as OE. þearft, thou needest, scealt, thou shalt, meaht, thou mayest, &c. See § 539 ff. The third pers. plural ended in the parent language in ·nt (with vocalic n) which regularly became ·un in prim. Germanic (§§ 35, 211). ·un remained in the oldest OE. and then later became ·on, and in late OE. ·an beside ·on occurs, whence bæron, bundon, &c.
+§ 481. Pret. indicative: The pret. indic. is morphologically an old perfect, which already in prim. Germanic was chiefly used to express the past tense. The original endings of the perf. singular were -a, -tha, -e, cp. Gr. ὤδα, ὠδαθα, ὠδε. The -a and -e regularly disappeared in pre-
+historic OE. (§§ 212–13), whence OE. first and third pers. singular bær, band, &c. The ending of the second pers. singular would regularly have become -þ (§ 233) in OE. OS. O.Icel. and Goth., except after prim. Germanic s, f, h where it regularly became t (§ 231, Notes), as in Goth. last, thou didst gather, slōht, thou didst slay, þarft (OE. þearft), thou needest. This -t became generalized in prim. Germanic, as Goth. O.Icel. namt, thou tookest. But in the West Germanic languages the old ending was only preserved in the preterite-present verbs, as OE. þearft, thou needest, scealt, thou shalt, meaht, thou mayest, &c. See § 539 ff. The third pers. plural ended in the parent language in -nt (with vocalic n) which regularly became -un in prim. Germanic (§§ 35, 211). -un remained in the oldest OE. and then later became -on, and in late OE. -an beside -on occurs, whence bæron, bundon, &c.
 
-§ 482. Pret. subjunctive: The original endings were: singular ·jēm, ·jēs, ·jēt, plural ·im, ·ite, ·int, consisting of the optative element ·jē-, (·i-) and the personal endings. Already in prim. Germanic the ·i- of the plural was levelled out into the singular. The new sing. endings ·im, ·is, ·it would regularly have become ·i (§§ 214, 218) in the oldest OE. The ·i would have caused umlaut in the stem-syllable and then have disappeared after long stems and have remained (later ·e) after short stems. Regular forms would have been *bynd, *hylp, *fēr, &c., but *cyre, *tyge, &c. The pl. ending ·int would regularly have become ·in (later ·en) with umlaut in the stem-syllable, as *bynden, *cyren, &c. But real old pret. subjunctive forms have only been preserved in OE. in a few isolated instances as in the preterite-presents, dyge, scyle, þyrfe. In OE. the old endings of the pres. subjunctive came to be used for the preterite some time before the operation of i-umlaut. This accounts for the absence of umlaut in the pret. subjunctive in OE., as bunde, bunden, &c. Already
+§ 482. Pret. subjunctive: The original endings were: singular -jēm, -jēs, -jēt, plural -im, -ite, -int, consisting of the optative element -jē-, (-i-) and the personal endings. Already in prim. Germanic the -i- of the plural was levelled out into the singular. The new sing. endings -im, -is, -it would regularly have become -i (§§ 214, 218) in the oldest OE. The -i would have caused umlaut in the stem-syllable and then have disappeared after long stems and have remained (later -e) after short stems. Regular forms would have been *bynd, *hylp, *fēr, &c., but *cyre, *tyge, &c. The pl. ending -int would regularly have become -in (later -en) with umlaut in the stem-syllable, as *bynden, *cyren, &c. But real old pret. subjunctive forms have only been preserved in OE. in a few isolated instances as in the preterite-presents, dyge, scyle, þyrfe. In OE. the old endings of the pres. subjunctive came to be used for the preterite some time before the operation of i-umlaut. This accounts for the absence of umlaut in the pret. subjunctive in OE., as bunde, bunden, &c. Already
 in early OE. the pret. subjunctive began to take the endings of the pret. indicative. On the loss of the final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bǣre wē, wit, gē, git. Then later bǣre wē, &c., came to be used also for the indicative.
 
 § 483. Past participle: The past participle was formed in various ways in the parent language. In prim. Germanic the suffix -éno-, -óno- became restricted to strong verbs, and the suffix -tó- to weak verbs. In the strong verbs OE. and O.Icel. generalized the form -éno-, and Goth. OS. and OHG. the form -óno-. Beside the suffix -éno-, -óno- there also existed in prim. Germanic -ini- = Indg. -éni- which was preserved in a few OE. past participles with umlaut in the stem-syllable, see § 442. Prim. Germanic -énaz, -íniz = Indg. -énos, -énis regularly fell together in -en in OE., but they were still kept apart in the oldest period of the language, the former being -æn (-en) and the latter -in.
@@ -329,20 +380,20 @@ GENERAL REMARKS ON THE STRONG VERBS.
 § 484. Present indicative: On the interchange between i in the second and third pers. sing. and e in the other forms of the present in verbs belonging to classes III, IV, and V, as hilpst, hilpp: helpan, to help; bir(e)st, bir(e)p: beran, to bear; cwist, cwip: cwẽpan, to say, see § 41. i-umlaut took place in the second and third pers. sing. of all verbs containing a vowel or diphthong capable of being umlauted. On the i-umlaut in verbs of class VI, as fær(e)st, fær(e)p, see § 55, Note 2. On the Anglian forms of the second and third pers. sing. of verbs like cēosan, tēon, see § 138. The regular forms of the second and third pers. sing. were often remodelled on analogy with
 the other forms of the present, especially in the Anglian dialect, as help(e)st, help(e)þ; fealst, fealþ, feallest, fealleþ; weorpest, weorpeþ, beside older hilpst, hilpþ; fielst, fielþ; wierpst, wierpþ.
 
-On u· or o/a·umlaut of a, e in the first pers. sing., and the pl. in the non-WS. dialects, see § 48. On the breaking of Germanic a to ea, as in feallan, healp, wearp, and of e to eo, as in weorpan, see § 49. On the vowel contraction in the present of the contracted verbs, see § 139.
+On u- or o/a-umlaut of a, e in the first pers. sing., and the pl. in the non-WS. dialects, see § 48. On the breaking of Germanic a to ea, as in feallan, healp, wearp, and of e to eo, as in weorpan, see § 49. On the vowel contraction in the present of the contracted verbs, see § 139.
 
 Strong verbs like biddan, to pray, hliehhan, to laugh, licgan, to lie down, sittan, to sit, had single medial consonants in the second and third pers. sing., because the j, which caused the doubling of the consonants in the other forms of the present, had disappeared before the West Germanic doubling of consonants took place, whence bitst, bit(t); hliehst, hliehþ; lig(e)st, lig(e)þ; sitst, sit(t).
 
-§ 485. Infinitive: On the o/a·umlaut in the non-WS. dialects, see § 48.
+§ 485. Infinitive: On the o/a-umlaut in the non-WS. dialects, see § 48.
 
-§ 486. Pret. indicative: The West Germanic languages only preserved the old pret. (originally perfect) of the second pers. sing. in the preterite-present verbs (see §§ 481, 539). In all other strong verbs the OE. second pers. sing. was formed direct from the pret. subjunctive, which accounts for the absence of i·umlaut in the stem-syllable and the preservation of the final ·e after both short and long stems, as ride, cure, &c., and bāre, hulpe, bunde, &c. The regular forms would have been ride, *cyre, and *bār, *hylp, *bynd.
+§ 486. Pret. indicative: The West Germanic languages only preserved the old pret. (originally perfect) of the second pers. sing. in the preterite-present verbs (see §§ 481, 539). In all other strong verbs the OE. second pers. sing. was formed direct from the pret. subjunctive, which accounts for the absence of i-umlaut in the stem-syllable and the preservation of the final -e after both short and long stems, as ride, cure, &c., and bāre, hulpe, bunde, &c. The regular forms would have been ride, *cyre, and *bār, *hylp, *bynd.
 
-On the question of u·umlaut in the plural of verbs belonging to class I, see § 101.
+On the question of u-umlaut in the plural of verbs belonging to class I, see § 101.
 
-§ 487. Pret. subjunctive: If the OE. pret. subjunctive had been normally developed from the corresponding prim. Germanic forms, it would have had i·umlaut in the stem-syllable as in O. Icelandic. But this tense took the endings of the pres. subjunctive in the prehistoric period
+§ 487. Pret. subjunctive: If the OE. pret. subjunctive had been normally developed from the corresponding prim. Germanic forms, it would have had i-umlaut in the stem-syllable as in O. Icelandic. But this tense took the endings of the pres. subjunctive in the prehistoric period
 of the language before the operation of i-umlaut. See § 482.
 
-§ 488. Past Participle: The ending of the past participle has already been explained in § 442. In prim. Germanic the prefix *zi· was added to the past participle to impart to it a perfective meaning. Verbs which were already perfective in meaning, such as bringan, to bring, cuman, to come, findan, to find, niman, to take, weorjan, to become, did not originally have it. But in OE. the simple past participle generally had ge-, irrespectively as to whether it was perfective or imperfective in meaning. On past participles which have i-umlaut, see § 442.
+§ 488. Past Participle: The ending of the past participle has already been explained in § 442. In prim. Germanic the prefix *zi- was added to the past participle to impart to it a perfective meaning. Verbs which were already perfective in meaning, such as bringan, to bring, cuman, to come, findan, to find, niman, to take, weorjan, to become, did not originally have it. But in OE. the simple past participle generally had ge-, irrespectively as to whether it was perfective or imperfective in meaning. On past participles which have i-umlaut, see § 442.
 
 § 489. On the parts of strong verbs which exhibit Verner's law in OE., see § 238.
 
