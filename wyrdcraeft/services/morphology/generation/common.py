@@ -1,5 +1,4 @@
 # ruff: noqa: I001,PLR0913,ARG002,D417,RUF100,PLC0415
-from functools import partial
 from typing import Final
 
 from wyrdcraeft.models.morphology import (
@@ -32,14 +31,15 @@ from .form_rows import (
 from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
-    build_verb_formhash_base,
+    dispatch_paradigm_variant_context as _dispatch_paradigm_variant_context,
+    dispatch_variant_part_context as _dispatch_variant_part_context,
     derive_part_post_vowel as _derive_part_post_vowel,
     derive_part_pre_vowel as _derive_part_pre_vowel,
     derive_part_prefix as _derive_part_prefix,
     derive_part_stem_segments as _derive_part_stem_segments,
-    derive_paradigm_seed_vowels,
-    dispatch_paradigm_variants,
-    dispatch_variant_parts,
+    process_paradigm as _process_paradigm_flow,
+    process_part as _process_part_flow,
+    process_variant as _process_variant_flow,
 )
 from .participles import (
     add_participle_to_adjectives as _add_participle_to_adjectives_session,
@@ -192,49 +192,17 @@ class VerbFormGenerator:
 
     def _process_paradigm(self, word: Word, vp: VerbParadigm) -> None:
         """
-        Process a single paradigm.
-
-        Notes:
-            Matches Perl implementation of ``process_paradigm`` function:
-
-            .. code-block:: perl
-
-                my $formhash_base = {
-                    title => $word->title,
-                    stem => $word->stem,
-                    BT => sprintf("%06d", $word->nid),
-                    wordclass => "verb",
-                    class1 => $vp->type,
-                    class2 => $vp->class_,
-                    class3 => $vp->subclass,
-                    paradigm => $vp->title,
-                    paraID => $vp->ID,
-                    wright => $word->wright,
-                    comment => "",
-                };
-
-                my $boundary_inf = $_->{variant}[0]{if}{boundary};
-
-                foreach my $variant (@{ $vp->variants }) {
-                    process_variant($word, $vp, $variant, $formhash_base, $boundary_inf);
-                }
+        Process a single paradigm through the shared traversal flow.
 
         Args:
             word: The word to process.
             vp: The paradigm to process.
 
-        """  # noqa: E501
-        formhash_base = build_verb_formhash_base(word, vp)
-        boundary_inf, vowel_inf, vowel_pa = derive_paradigm_seed_vowels(vp)
-        context = _ParadigmVariantDispatchContext(word=word, paradigm=vp)
-
-        dispatch_paradigm_variants(
-            variants=vp.variants,
-            formhash_base=formhash_base,
-            boundary_inf=boundary_inf,
-            vowel_inf=vowel_inf,
-            vowel_pa=vowel_pa,
-            on_variant=partial(self._dispatch_variant_context, context),
+        """
+        _process_paradigm_flow(
+            word=word,
+            vp=vp,
+            on_variant=self._process_variant,
         )
 
     def _dispatch_variant_context(
@@ -247,7 +215,7 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Dispatch one paradigm variant using shared typed callback context.
+        Dispatch one paradigm variant using the shared traversal flow.
 
         Side Effects:
             Delegates one variant traversal through ``_process_variant``.
@@ -261,14 +229,14 @@ class VerbFormGenerator:
             vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
-        self._process_variant(
-            context.word,
-            context.paradigm,
+        _dispatch_paradigm_variant_context(
             variant,
             formhash_base,
             boundary_inf,
             vowel_inf,
             vowel_pa,
+            context=context,
+            on_variant=self._process_variant,
         )
 
     def _process_variant(
@@ -282,16 +250,7 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Process a single variant of a paradigm.
-
-        Notes:
-            Matches Perl implementation of process_variant function:
-
-            .. code-block:: perl
-
-                foreach my $item (@{ $variant->parts }) {
-                    process_part($word, $vp, $variant, $item, $formhash_var, $boundary_inf);
-                }
+        Process a single variant through the shared traversal flow.
 
         Args:
             word: The word to process.
@@ -300,19 +259,16 @@ class VerbFormGenerator:
             formhash_base: The base form hash.
             boundary_inf: The boundary information.
 
-        """  # noqa: E501
-        context = _VariantPartDispatchContext(
+        """
+        _process_variant_flow(
             word=word,
-            paradigm=vp,
             variant=variant,
-        )
-        dispatch_variant_parts(
-            variant=variant,
+            vp=vp,
             formhash_var=formhash_base,
             boundary_inf=boundary_inf,
             vowel_inf=vowel_inf,
             vowel_pa=vowel_pa,
-            on_part=partial(self._dispatch_part_context, context),
+            on_part=self._process_part,
         )
 
     def _dispatch_part_context(
@@ -325,7 +281,7 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Dispatch one variant part using shared typed callback context.
+        Dispatch one variant part using the shared traversal flow.
 
         Side Effects:
             Delegates one part traversal through ``_process_part``.
@@ -339,15 +295,14 @@ class VerbFormGenerator:
             vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
-        self._process_part(
-            context.word,
-            context.paradigm,
-            context.variant,
+        _dispatch_variant_part_context(
             item,
             formhash_var,
             boundary_inf,
             vowel_inf,
             vowel_pa,
+            context=context,
+            on_part=self._process_part,
         )
 
     def _process_part(  # noqa: PLR0913
@@ -362,16 +317,7 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Process a single part of a variant.
-
-        Notes:
-            Matches Perl implementation of process_part function:
-
-            .. code-block:: perl
-
-                foreach my $item (@{ $variant->parts }) {
-                    process_part($word, $vp, $variant, $item, $formhash_var, $boundary_inf);
-                }
+        Process a single part through the shared traversal flow.
 
         Args:
             word: The word to process.
@@ -383,38 +329,20 @@ class VerbFormGenerator:
             vowel_inf: Infinitive vowel from variant ``0``.
             vowel_pa: Preterite singular vowel from variant ``0``.
 
-        """  # noqa: E501
-        prefix, pre_vowel, actual_vowel, post_vowel = self._derive_part_stem_segments(
-            word,
-            item,
-            boundary_inf,
+        """
+        _process_part_flow(
+            word=word,
+            vp=vp,
+            variant=variant,
+            item=item,
+            formhash_var=formhash_var,
+            boundary_inf=boundary_inf,
+            vowel_inf=vowel_inf,
+            vowel_pa=vowel_pa,
+            derive_part_stem_segments=self._derive_part_stem_segments,
+            generate_strong_verb_parts=self._generate_strong_verb_parts,
+            generate_weak_verb_parts=self._generate_weak_verb_parts,
         )
-
-        if vp.type == "s":
-            self._generate_strong_verb_parts(
-                formhash_var,
-                word,
-                item,
-                prefix,
-                pre_vowel,
-                actual_vowel,
-                post_vowel,
-                variant.variant_id,
-            )
-        else:
-            self._generate_weak_verb_parts(
-                formhash_var,
-                word,
-                item,
-                prefix,
-                pre_vowel,
-                actual_vowel,
-                post_vowel,
-                variant.variant_id,
-                vp.ID,
-                vowel_inf,
-                vowel_pa,
-            )
 
     def _derive_part_stem_segments(
         self,

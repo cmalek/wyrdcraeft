@@ -4,7 +4,16 @@ from __future__ import annotations
 import io
 from typing import TYPE_CHECKING, cast
 
-from wyrdcraeft.models.morphology import ParadigmPart, Word
+from wyrdcraeft.models.morphology import (
+    ParadigmPart,
+    ParadigmVariant,
+    VerbParadigm,
+    Word,
+)
+from wyrdcraeft.services.morphology.generation.paradigm_flow import (
+    process_paradigm,
+    process_part,
+)
 from wyrdcraeft.services.morphology.generation.participles import (
     add_participle_to_adjectives,
     build_participle_adjective,
@@ -116,9 +125,210 @@ def _base_formhash() -> dict[str, str]:
     }
 
 
+def _make_part(**overrides: object) -> ParadigmPart:
+    payload: dict[str, object] = {
+        "para_id": "if",
+        "prefix": "0",
+        "pre_vowel": "0",
+        "vowel": "a",
+        "post_vowel": "m",
+        "boundary": "n",
+        "dental": "0",
+        "ending": "an",
+    }
+    payload.update(overrides)
+    return ParadigmPart(**payload)
+
+
+def _make_variant(
+    *,
+    variant_id: int = 0,
+    parts: dict[str, ParadigmPart] | None = None,
+) -> ParadigmVariant:
+    return ParadigmVariant(
+        variant_id=variant_id,
+        parts=parts if parts is not None else {"if": _make_part()},
+    )
+
+
+def _make_verb_paradigm(**overrides: object) -> VerbParadigm:
+    payload: dict[str, object] = {
+        "ID": "90",
+        "title": "test-paradigm",
+        "type": "w",
+        "class": "1",
+        "subdivision": "0",
+        "subclass": "0",
+        "wright": "0",
+        "variants": [_make_variant()],
+    }
+    payload.update(overrides)
+    return VerbParadigm(**payload)
+
+
 def test_derive_sound_changed_forms_psinsg2_ngst_chain() -> None:
     observed = derive_sound_changed_forms(function="PsInSg2", form="angst")
     assert observed == ["ancst", "anst"]
+
+
+def test_process_paradigm_routes_variant_payload_from_flow() -> None:
+    word = _make_word(prefix="ge")
+    vp = _make_verb_paradigm(
+        ID="87",
+        type="w",
+        variants=[
+            _make_variant(
+                variant_id=0,
+                parts={
+                    "if": _make_part(
+                        para_id="if",
+                        boundary="n",
+                        vowel="a",
+                        ending="an",
+                    ),
+                    "painsg1": _make_part(
+                        para_id="painsg1",
+                        boundary="t",
+                        vowel="o",
+                        ending="e",
+                    ),
+                },
+            ),
+            _make_variant(
+                variant_id=2,
+                parts={
+                    "if": _make_part(
+                        para_id="if",
+                        boundary="n",
+                        vowel="a",
+                        ending="an",
+                    ),
+                },
+            ),
+        ],
+    )
+    observed: list[tuple[str, int, str, str, str, str]] = []
+
+    def _on_variant(  # noqa: PLR0913
+        captured_word: Word,
+        captured_vp: VerbParadigm,
+        variant: ParadigmVariant,
+        formhash: dict[str, str],
+        boundary_inf: str,
+        vowel_inf: str,
+        vowel_pa: str,
+    ) -> None:
+        observed.append(
+            (
+                captured_word.title,
+                variant.variant_id,
+                formhash["var"],
+                captured_vp.ID,
+                boundary_inf,
+                f"{vowel_inf}/{vowel_pa}",
+            )
+        )
+
+    process_paradigm(
+        word=word,
+        vp=vp,
+        on_variant=_on_variant,
+    )
+
+    assert observed == [
+        ("test", 0, "0", "87", "n", "a/o"),
+        ("test", 2, "2", "87", "n", "a/o"),
+    ]
+
+
+def test_process_part_routes_strong_generation_from_flow() -> None:
+    word = _make_word(prefix="ge")
+    vp = _make_verb_paradigm(ID="91", type="s")
+    variant = _make_variant(variant_id=3)
+    item = _make_part(para_id="papt", prefix="be")
+    formhash = _base_formhash()
+    strong_calls: list[tuple[object, ...]] = []
+    weak_calls: list[tuple[object, ...]] = []
+
+    def _derive_segments(
+        captured_word: Word,
+        captured_item: ParadigmPart,
+        captured_boundary_inf: str,
+    ) -> tuple[str, str, str, str]:
+        assert captured_word is word
+        assert captured_item is item
+        assert captured_boundary_inf == "n"
+        return "ge-be", "l", "a", "m"
+
+    def _generate_strong(*args: object) -> None:
+        strong_calls.append(args)
+
+    def _generate_weak(*args: object) -> None:
+        weak_calls.append(args)
+
+    process_part(
+        word=word,
+        vp=vp,
+        variant=variant,
+        item=item,
+        formhash_var=formhash,
+        boundary_inf="n",
+        vowel_inf="a",
+        vowel_pa="o",
+        derive_part_stem_segments=_derive_segments,
+        generate_strong_verb_parts=_generate_strong,
+        generate_weak_verb_parts=_generate_weak,
+    )
+
+    assert strong_calls == [
+        (formhash, word, item, "ge-be", "l", "a", "m", 3),
+    ]
+    assert weak_calls == []
+
+
+def test_process_part_routes_weak_generation_from_flow() -> None:
+    word = _make_word(prefix="ge")
+    vp = _make_verb_paradigm(ID="87", type="w")
+    variant = _make_variant(variant_id=4)
+    item = _make_part(para_id="if", prefix="0")
+    formhash = _base_formhash()
+    strong_calls: list[tuple[object, ...]] = []
+    weak_calls: list[tuple[object, ...]] = []
+
+    def _derive_segments(
+        captured_word: Word,
+        captured_item: ParadigmPart,
+        captured_boundary_inf: str,
+    ) -> tuple[str, str, str, str]:
+        assert captured_word is word
+        assert captured_item is item
+        assert captured_boundary_inf == "n"
+        return "ge", "l", "a", "m"
+
+    def _generate_strong(*args: object) -> None:
+        strong_calls.append(args)
+
+    def _generate_weak(*args: object) -> None:
+        weak_calls.append(args)
+
+    process_part(
+        word=word,
+        vp=vp,
+        variant=variant,
+        item=item,
+        formhash_var=formhash,
+        boundary_inf="n",
+        vowel_inf="a",
+        vowel_pa="o",
+        derive_part_stem_segments=_derive_segments,
+        generate_strong_verb_parts=_generate_strong,
+        generate_weak_verb_parts=_generate_weak,
+    )
+
+    assert strong_calls == []
+    assert weak_calls == [
+        (formhash, word, item, "ge", "l", "a", "m", 4, "87", "a", "o"),
+    ]
 
 
 def test_derive_sound_changed_forms_psinsg2_gst_chain() -> None:

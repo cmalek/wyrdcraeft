@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Sequence
+from functools import partial
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
     ParadigmVariant,
     VerbParadigm,
     Word,
+    _ParadigmVariantDispatchContext,
+    _VariantPartDispatchContext,
 )
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
@@ -22,6 +25,40 @@ VariantDispatcher = Callable[
 ]
 #: Callback used when dispatching one part context.
 PartDispatcher = Callable[[ParadigmPart, dict[str, str], str, str, str], None]
+#: Callback used when processing one fully-expanded variant traversal.
+VariantProcessor = Callable[
+    [Word, VerbParadigm, ParadigmVariant, dict[str, str], str, str, str],
+    None,
+]
+#: Callback used when processing one fully-expanded part traversal.
+PartProcessor = Callable[
+    [
+        Word,
+        VerbParadigm,
+        ParadigmVariant,
+        ParadigmPart,
+        dict[str, str],
+        str,
+        str,
+        str,
+    ],
+    None,
+]
+#: Callback used to derive shared stem segments for one paradigm part.
+PartStemSegmentDeriver = Callable[
+    [Word, ParadigmPart, str],
+    tuple[str, str, str, str],
+]
+#: Callback used for strong-verb part generation.
+StrongPartGenerator = Callable[
+    [dict[str, str], Word, ParadigmPart, str, str, str, str, int],
+    None,
+]
+#: Callback used for weak-verb part generation.
+WeakPartGenerator = Callable[
+    [dict[str, str], Word, ParadigmPart, str, str, str, str, int, str, str, str],
+    None,
+]
 
 
 def build_verb_formhash_base(word: Word, vp: VerbParadigm) -> dict[str, str]:
@@ -186,6 +223,278 @@ def derive_part_stem_segments(
     post_vowel = derive_part_post_vowel(word, item, boundary_inf)
     pre_vowel, actual_vowel = derive_part_pre_vowel(word)
     return prefix, pre_vowel, actual_vowel, post_vowel
+
+
+def process_paradigm(
+    *,
+    word: Word,
+    vp: VerbParadigm,
+    on_variant: VariantProcessor,
+) -> None:
+    """
+    Process one paradigm and expand each variant into full traversal context.
+
+    Side Effects:
+        Invokes ``on_variant`` once per variant in source order.
+
+    Args:
+        word: Lexeme record currently being generated.
+        vp: Verb paradigm record currently being generated.
+        on_variant: Callback receiving the expanded variant traversal payload.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both describe paradigm generation as
+        ordered traversal over variants and parts; this helper keeps that same
+        human-readable walk while moving the orchestration shell out of
+        ``common.py``.
+
+    """
+    formhash_base = build_verb_formhash_base(word, vp)
+    boundary_inf, vowel_inf, vowel_pa = derive_paradigm_seed_vowels(vp)
+    context = _ParadigmVariantDispatchContext(word=word, paradigm=vp)
+    dispatch_paradigm_variants(
+        variants=vp.variants,
+        formhash_base=formhash_base,
+        boundary_inf=boundary_inf,
+        vowel_inf=vowel_inf,
+        vowel_pa=vowel_pa,
+        on_variant=partial(
+            dispatch_paradigm_variant_context,
+            context=context,
+            on_variant=on_variant,
+        ),
+    )
+
+
+def dispatch_paradigm_variant_context(  # noqa: PLR0913
+    variant: ParadigmVariant,
+    formhash_base: dict[str, str],
+    boundary_inf: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    *,
+    context: _ParadigmVariantDispatchContext,
+    on_variant: VariantProcessor,
+) -> None:
+    """
+    Expand one variant callback into the full paradigm traversal payload.
+
+    Side Effects:
+        Invokes ``on_variant`` with word/paradigm context preserved.
+
+    Args:
+        variant: Active variant being dispatched.
+        formhash_base: Variant-scoped form hash payload.
+        boundary_inf: Infinitive boundary from variant ``0``.
+        vowel_inf: Infinitive vowel from variant ``0``.
+        vowel_pa: Preterite singular vowel from variant ``0``.
+
+    Keyword Args:
+        context: Shared paradigm-level dispatch context.
+        on_variant: Callback receiving the expanded traversal payload.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both present paradigm traversal as a
+        stable sequence over the same lexical entry and paradigm; this helper
+        keeps that context intact while handing each variant off to the next
+        stage.
+
+    """
+    on_variant(
+        context.word,
+        context.paradigm,
+        variant,
+        formhash_base,
+        boundary_inf,
+        vowel_inf,
+        vowel_pa,
+    )
+
+
+def process_variant(  # noqa: PLR0913
+    *,
+    word: Word,
+    vp: VerbParadigm,
+    variant: ParadigmVariant,
+    formhash_var: dict[str, str],
+    boundary_inf: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    on_part: PartProcessor,
+) -> None:
+    """
+    Process one variant and expand each part into full traversal context.
+
+    Side Effects:
+        Invokes ``on_part`` once per part in source order.
+
+    Args:
+        word: Lexeme record currently being generated.
+        vp: Verb paradigm record currently being generated.
+        variant: Active paradigm variant.
+        formhash_var: Variant-scoped form hash payload.
+        boundary_inf: Infinitive boundary from variant ``0``.
+        vowel_inf: Infinitive vowel from variant ``0``.
+        vowel_pa: Preterite singular vowel from variant ``0``.
+        on_part: Callback receiving the expanded part traversal payload.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both describe each variant as an
+        ordered set of principal or derived parts; this helper preserves that
+        exact traversal order while moving the dispatch shell into
+        ``paradigm_flow.py``.
+
+    """
+    context = _VariantPartDispatchContext(
+        word=word,
+        paradigm=vp,
+        variant=variant,
+    )
+    dispatch_variant_parts(
+        variant=variant,
+        formhash_var=formhash_var,
+        boundary_inf=boundary_inf,
+        vowel_inf=vowel_inf,
+        vowel_pa=vowel_pa,
+        on_part=partial(
+            dispatch_variant_part_context,
+            context=context,
+            on_part=on_part,
+        ),
+    )
+
+
+def dispatch_variant_part_context(  # noqa: PLR0913
+    item: ParadigmPart,
+    formhash_var: dict[str, str],
+    boundary_inf: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    *,
+    context: _VariantPartDispatchContext,
+    on_part: PartProcessor,
+) -> None:
+    """
+    Expand one part callback into the full variant traversal payload.
+
+    Side Effects:
+        Invokes ``on_part`` with word/paradigm/variant context preserved.
+
+    Args:
+        item: Active part being dispatched.
+        formhash_var: Variant-scoped form hash payload.
+        boundary_inf: Infinitive boundary from variant ``0``.
+        vowel_inf: Infinitive vowel from variant ``0``.
+        vowel_pa: Preterite singular vowel from variant ``0``.
+
+    Keyword Args:
+        context: Shared variant-level dispatch context.
+        on_part: Callback receiving the expanded traversal payload.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both keep each part attached to its
+        owning variant; this helper simply carries that stable context forward
+        without changing emission order or morphology decisions.
+
+    """
+    on_part(
+        context.word,
+        context.paradigm,
+        context.variant,
+        item,
+        formhash_var,
+        boundary_inf,
+        vowel_inf,
+        vowel_pa,
+    )
+
+
+def process_part(  # noqa: PLR0913
+    *,
+    word: Word,
+    vp: VerbParadigm,
+    variant: ParadigmVariant,
+    item: ParadigmPart,
+    formhash_var: dict[str, str],
+    boundary_inf: str,
+    vowel_inf: str,
+    vowel_pa: str,
+    derive_part_stem_segments: PartStemSegmentDeriver,
+    generate_strong_verb_parts: StrongPartGenerator,
+    generate_weak_verb_parts: WeakPartGenerator,
+) -> None:
+    """
+    Process one part and route it into strong or weak generation flow.
+
+    Side Effects:
+        Invokes the supplied strong or weak generator exactly once.
+
+    Args:
+        word: Lexeme record currently being generated.
+        vp: Verb paradigm record currently being generated.
+        variant: Active paradigm variant.
+        item: Active paradigm part.
+        formhash_var: Variant-scoped form hash payload.
+        boundary_inf: Infinitive boundary from variant ``0``.
+        vowel_inf: Infinitive vowel from variant ``0``.
+        vowel_pa: Preterite singular vowel from variant ``0``.
+        derive_part_stem_segments: Callback deriving shared stem slots.
+        generate_strong_verb_parts: Callback handling strong-verb branches.
+        generate_weak_verb_parts: Callback handling weak-verb branches.
+
+    Keyword Args:
+        Uses keyword-only parameters for all inputs.
+
+    Note:
+        Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+        (``data/Ondej_Tich_40-54-1.pdf``) both organize inflectional behavior
+        around stem segments plus strong-vs-weak branch families; in plain
+        terms, this helper computes the shared stem pieces once and then sends
+        the part down the same legacy branch it would have taken before.
+
+    """
+    prefix, pre_vowel, actual_vowel, post_vowel = derive_part_stem_segments(
+        word,
+        item,
+        boundary_inf,
+    )
+
+    if vp.type == "s":
+        generate_strong_verb_parts(
+            formhash_var,
+            word,
+            item,
+            prefix,
+            pre_vowel,
+            actual_vowel,
+            post_vowel,
+            variant.variant_id,
+        )
+        return
+
+    generate_weak_verb_parts(
+        formhash_var,
+        word,
+        item,
+        prefix,
+        pre_vowel,
+        actual_vowel,
+        post_vowel,
+        variant.variant_id,
+        vp.ID,
+        vowel_inf,
+        vowel_pa,
+    )
 
 
 def dispatch_paradigm_variants(  # noqa: PLR0913
