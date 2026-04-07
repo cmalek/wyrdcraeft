@@ -54,6 +54,7 @@ The OE. forms with double consonants in the nom. acc. singular are all new forma
 § 357. Like wīte are declined ǣrende, errand; fēþe, walking, power of motion; ierfe, inheritance; ierre, anger; rīce, kingdom; rȳne, mystery; stīele, steel; wǣge, cup; nouns with the prefix ge-, as gefilde, plain; gefylce, troop; getīeme, yoke (of oxen), team; getimbre, building; gemierce, boundary; gewǣde, dress, clothing; geþīode, geþēode, language. flicce, prim. Germanic *flikkja-, flitch; stycce, prim. Germanic *stukkja-, piece. See § 270, Note, on nouns like hīeg (Goth. hawi), hay, hiēw, hīw (Goth. hiwi), shape, appearance, glīg, glīw (Goth. *gliwi), glee, gen. hīeges, hīewes (hīowes), glīges, glīwes.
 
 § 358. Like wēsten are declined fæsten(n), fortress, cp. § 600; bærnet(t), arson; nierwet(t), narrowness; sǣwet(t), sowing; þēowet(t), slavery; for further examples, see § 604. To this class probably also belong the diminutives in -incel, which generally syncopate the e in the inflected forms, as cofincel, little chamber, gen. cofincles; and similarly hæftincel, slave; hūsincel, little house; scipincel, little ship; sūlincel, small furrow; for further examples, see § 606. fīþere, wing.
+
 c. wa-stems.
 
 § 359.

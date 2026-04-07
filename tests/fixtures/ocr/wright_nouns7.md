@@ -20,10 +20,10 @@ Infinitive.
 
 <table>
   <tr>
-    <th>beran, to bear</th>
-    <th>helpan, to help</th>
-    <th>bindan, to bind</th>
-    <th>rīdan, to ride</th>
+    <td>beran, to bear</td>
+    <td>helpan, to help</td>
+    <td>bindan, to bind</td>
+    <td>rīdan, to ride</td>
   </tr>
 </table>
 
@@ -35,10 +35,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
     <th>Sing.</th>
@@ -81,10 +81,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -108,10 +108,10 @@ Imperative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
     <th>Sing.</th>
@@ -136,12 +136,6 @@ Imperative.
 Present Participle.
 <table>
   <tr>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
-  </tr>
-  <tr>
     <td>berende</td>
     <td>helpende</td>
     <td>bidende</td>
@@ -156,10 +150,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -200,10 +194,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>beren</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
+    <th>beran, to bear</th>
+    <th>helpan, to help</th>
+    <th>bindan, to bind</th>
+    <th>rīdan, to ride</th>
   </tr>
   <tr>
     <th>Sing.</th>
@@ -224,12 +218,6 @@ Subjunctive.
 Past Participle.
 <table>
   <tr>
-    <th>beran</th>
-    <th>helpan</th>
-    <th>bindan</th>
-    <th>rīdan</th>
-  </tr>
-  <tr>
     <td>boren</td>
     <td>holpen</td>
     <td>bunden</td>
@@ -243,10 +231,10 @@ Infinitive.
 
 <table>
   <tr>
-    <th>cēosan, to choose</th>
-    <th>weorpan, to throw</th>
-    <th>faran, to go</th>
-    <th>biddan, to pray</th>
+    <td>cēosan, to choose</td>
+    <td>weorpan, to throw</td>
+    <td>faran, to go</td>
+    <td>biddan, to pray</td>
   </tr>
 </table>
 
@@ -256,10 +244,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
+    <th>cēosan, to choose</th>
+    <th>weorpan, to throw</th>
+    <th>faran, to go</th>
+    <th>biddan, to pray</th>
   </tr>
     <th>Sing.</th>
     <th>1</th>
@@ -299,10 +287,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
+    <th>cēosan, to choose</th>
+    <th>weorpan, to throw</th>
+    <th>faran, to go</th>
+    <th>biddan, to pray</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -326,10 +314,10 @@ Imperative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
+    <th>cēosan, to choose</th>
+    <th>weorpan, to throw</th>
+    <th>faran, to go</th>
+    <th>biddan, to pray</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -353,12 +341,6 @@ Present Participle.
 
 <table>
   <tr>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
-  </tr>
-  <tr>
     <td>cēosende</td>
     <td>weoprende</td>
     <td>fareende</td>
@@ -374,10 +356,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
+    <th>cēosan, to choose</th>
+    <th>weorpan, to throw</th>
+    <th>faran, to go</th>
+    <th>biddan, to pray</th>
   </tr>
     <th>Sing.</th>
     <th>1</th>
@@ -417,10 +399,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
+    <th>cēosan, to choose</th>
+    <th>weorpan, to throw</th>
+    <th>faran, to go</th>
+    <th>biddan, to pray</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -442,12 +424,6 @@ Past Participle.
 
 <table>
   <tr>
-    <th>cēosan</th>
-    <th>weorpan</th>
-    <th>faran</th>
-    <th>biddan</th>
-  </tr>
-  <tr>
     <td>curen</td>
     <td>wurpen</td>
     <td>fōren</td>
@@ -461,10 +437,10 @@ Infinitive.
 
 <table>
   <tr>
-    <th>cēosan, to choose</th>
-    <th>weorpan, to throw</th>
-    <th>faran, to go</th>
-    <th>biddan, to pray</th>
+    <td>feallan, to fall</td>
+    <td>tēon, to draw</td>
+    <td>slēan, to slay</td>
+    <td>fōn, to sieze</td>
   </tr>
 </table>
 
@@ -474,10 +450,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
+    <th>feallan, to fall</th>
+    <th>tēon, to draw</th>
+    <th>slēan, to slay</th>
+    <th>fōn, to sieze</th>
   </tr>
     <th>Sing.</th>
     <th>1</th>
@@ -517,10 +493,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
+    <th>feallan, to fall</th>
+    <th>tēon, to draw</th>
+    <th>slēan, to slay</th>
+    <th>fōn, to sieze</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -544,10 +520,10 @@ Imperative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
+    <th>feallan, to fall</th>
+    <th>tēon, to draw</th>
+    <th>slēan, to slay</th>
+    <th>fōn, to sieze</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -571,12 +547,6 @@ Present Participle.
 
 <table>
   <tr>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
-  </tr>
-  <tr>
     <td>feallende</td>
     <td>tēonde</td>
     <td>slēande</td>
@@ -592,10 +562,10 @@ Indicative.
   <tr>
     <th>Number</th>
     <th>Person</th>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
+    <th>feallan, to fall</th>
+    <th>tēon, to draw</th>
+    <th>slēan, to slay</th>
+    <th>fōn, to sieze</th>
   </tr>
     <th>Sing.</th>
     <th>1</th>
@@ -636,10 +606,10 @@ Subjunctive.
 <table>
   <tr>
     <th>Number</th>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
+    <th>feallan, to fall</th>
+    <th>tēon, to draw</th>
+    <th>slēan, to slay</th>
+    <th>fōn, to sieze</th>
   </tr>
   <tr>
     <th>Sing</th>
@@ -661,12 +631,6 @@ Subjunctive.
 Pastt Participle.
 
 <table>
-  <tr>
-    <th>feallan</th>
-    <th>tēon</th>
-    <th>slēan</th>
-    <th>fōn</th>
-  </tr>
   <tr>
     <td>feallen</td>
     <td>togen</td>
@@ -698,7 +662,7 @@ s, ss, st + -st, -þ became -st (§§ 259, 805), as cīest; cyst beside inf. wv.
 
 The forms of the first and second pers. plural had disappeared already in the oldest period of the language, their place having been taken by the form of the third person. The prim. Germanic forms of the third pers. pl. of beran, bindan were *ƀeranđi, *ƀinđanđi = Indg. *bhéronti, *bhéndhonti, which would regularly have become in OE. *berand, *bindand = Goth. baírand, bindand, but, as in the second and third pers. singular, the third pers. pl. was remodelled on analogy with the first class of weak verbs which regularly had -ánþi in prim. Germanic. -ánþi became -aþ in OE. through the intermediate stages -anþ, -onþ, -ōþ (§ 218). -aþ became -as in late Nth. This -s plural has been preserved in the Modern northern dialects when the subject is not a simple personal pronoun placed immediately before or after the verb.
 
-§ 477. Pres. subjunctive: This tense is properly an old optative. The original forms of the singular and plural of beran were *bhéroi-, *bhérois, *bhéroit, *bhéroim-, *bhéroite, *bhéroint. The final -t was regularly dropped in prim. Germanic (§ 211) and the oi became ai during the same period (§ 30). Then ai became ǣ which was shortened to æ (§ 217). The æ was preserved in the oldest period of the language and afterwards became e. In OE. the original forms of the singular regularly fell together in bere. The old forms of the first and second pers. plural disappeared and their place was taken by the third pers. beren. Beside -en there also occurs in late WS. -an, and also -un, -on taken over from the pret. pl. indicative. On the loss of final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bere wē, wit, gē, git. Then bere wē, &c., came to be used also for the indicative and imperative.
+§ 477. Pres. subjunctive: This tense is properly an old optative. The original forms of the singular and plural of beran were *bhéroi-, *bhérois, *bhéroit, *bhéroim-, *bhéroite, *bhéroint. The final -t was regularly dropped in prim. Germanic (§ 211) and the oi became ai during the same period (§ 30). Then ai became ǣ which was shortened to æ (§ 217). The æ was preserved in the oldest period of the language and afterwards became e. In OE. the original forms of the singular regularly fell together in bere. The old forms of the first and second pers. plural disappeared and their place was taken by the third pers. beren. Beside -en there also occurs in late WS. -an, and also -un, -on taken over from the pret. pl. indicative. On the loss of final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bere wē̆, wit, gē̆, git. Then bere wē̆, &c., came to be used also for the indicative and imperative.
 
 § 478. Imperative: The original ending of the second pers. sing. was -e which regularly disappeared without leaving any trace of its former existence (§ 213), whence OE. ber = Gr. φέρε, Indg. *bhére. On the -e in bide beside its absence in ber, bind, &c., see § 273. In OE. the third pers. plural of the pres. indicative was used for the second pers. plural. A form in -an, as beran, bindan, was occasionally used in the oldest period of the language for the first pers. plural. This form was originally identical with the first pers. pl. pres. indic. which disappeared in OE. The first pers. pl. is generally expressed by the pres. subjunctive, as beren, binden, &c.
 
@@ -709,7 +673,7 @@ The forms of the first and second pers. plural had disappeared already in the ol
 § 481. Pret. indicative: The pret. indic. is morphologically an old perfect, which already in prim. Germanic was chiefly used to express the past tense. The original endings of the perf. singular were -a, -tha, -e, cp. Gr. οίδα, οίσθα, οίδε. The -a and -e regularly disappeared in pre-
 historic OE. (§§ 212–13), whence OE. first and third pers. singular bær, band, &c. The ending of the second pers. singular would regularly have become -þ (§ 233) in OE. OS. O.Icel. and Goth., except after prim. Germanic s, f, h where it regularly became t (§ 231, Notes), as in Goth. last, thou didst gather, slōht, thou didst slay, þarft (OE. þearft), thou needest. This -t became generalized in prim. Germanic, as Goth. O.Icel. namt, thou tookest. But in the West Germanic languages the old ending was only preserved in the preterite-present verbs, as OE. þearft, thou needest, scealt, thou shalt, meaht, thou mayest, &c. See § 539 ff. The third pers. plural ended in the parent language in -nt (with vocalic n) which regularly became -un in prim. Germanic (§§ 35, 211). -un remained in the oldest OE. and then later became -on, and in late OE. -an beside -on occurs, whence bæron, bundon, &c.
 
-§ 482. Pret. subjunctive: The original endings were: singular -jēm, -jēs, -jēt, plural -īm, -īte, -īnt, consisting of the optative element -jē-, (-ī-) and the personal endings. Already in prim. Germanic the -ī- of the plural was levelled out into the singular. The new sing. endings -īm, -īs, -īt would regularly have become -i (§§ 214, 218) in the oldest OE. The -i would have caused umlaut in the stem-syllable and then have disappeared after long stems and have remained (later -e) after short stems. Regular forms would have been *bynd, *hylp, *fēr, &c., but *cyre, *tyge, &c. The pl. ending -īnt would regularly have become -in (later -en) with umlaut in the stem-syllable, as *bynden, *cyren, &c. But real old pret. subjunctive forms have only been preserved in OE. in a few isolated instances as in the preterite-presents, dyge, scyle, þyrfe. In OE. the old endings of the pres. subjunctive came to be used for the preterite some time before the operation of i-umlaut. This accounts for the absence of umlaut in the pret. subjunctive in OE., as bunde, bunden, &c. Already in early OE. the pret. subjunctive began to take the endings of the pret. indicative. On the loss of the final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bǣre wē, wit, gē, git. Then later bǣre wē, &c., came to be used also for the indicative.
+§ 482. Pret. subjunctive: The original endings were: singular -jēm, -jēs, -jēt, plural -īm, -īte, -īnt, consisting of the optative element -jē-, (-ī-) and the personal endings. Already in prim. Germanic the -ī- of the plural was levelled out into the singular. The new sing. endings -īm, -īs, -īt would regularly have become -i (§§ 214, 218) in the oldest OE. The -i would have caused umlaut in the stem-syllable and then have disappeared after long stems and have remained (later -e) after short stems. Regular forms would have been *bynd, *hylp, *fēr, &c., but *cyre, *tyge, &c. The pl. ending -īnt would regularly have become -in (later -en) with umlaut in the stem-syllable, as *bynden, *cyren, &c. But real old pret. subjunctive forms have only been preserved in OE. in a few isolated instances as in the preterite-presents, dyge, scyle, þyrfe. In OE. the old endings of the pres. subjunctive came to be used for the preterite some time before the operation of i-umlaut. This accounts for the absence of umlaut in the pret. subjunctive in OE., as bunde, bunden, &c. Already in early OE. the pret. subjunctive began to take the endings of the pret. indicative. On the loss of the final -n in Nth., see § 288. The final -n also disappeared in WS. and Ken. when a personal pronoun of the first or second person came immediately after the verb, as bǣre wē̆, wit, gē̆, git. Then later bǣre wē̆, &c., came to be used also for the indicative.
 
 § 483. Past participle: The past participle was formed in various ways in the parent language. In prim. Germanic the suffix -éno-, -óno- became restricted to strong verbs, and the suffix -tó- to weak verbs. In the strong verbs OE. and O.Icel. generalized the form -éno-, and Goth. OS. and OHG. the form -óno-. Beside the suffix -éno-, -óno- there also existed in prim. Germanic -ini- = Indg. -éni- which was preserved in a few OE. past participles with umlaut in the stem-syllable, see § 442. Prim. Germanic -énaz, -íniz = Indg. -énos, -énis regularly fell together in -en in OE., but they were still kept apart in the oldest period of the language, the former being -æn (-en) and the latter -in.
 
@@ -756,8 +720,7 @@ CLASS I.
   </tr>
 </table>
 
-And similarly ætwītan, to blame, reproach; ācwīnan, to dwindle away; behlīdan, to cover; belīfan, to remain; bescītan, to befoul; besmītan, to pollute; bītan, to bite; blīcan, to shine; cīnan, to crack; clīfan, to stick, adhere; cnīdan, to beat; drīfan, to drive; dwīnan, to dwindle; flītan, to strive, quarrel; gewītan, to depart; gīnan, to yawn; glīdan, to glide; gnīdan, to rub together; grīpan, to seize; hnītan, to knock; hrīnan, to touch; hwīnan, to whizz; nīpan, to grow dark; rīdan, to ride; sīcan, to sigh; scīnan (§ 133, Note 2), to shine; scrīfan, to prescribe; slīdan, to slide; slītan, to slit; snīcan, to crawl; spīwan (§ 265), to spew, spit; strīcan, to stroke; strīdan, to stride; swīcan,
-to cease from; swīfan, to sweep; tōslīfan, to split; þwīnan, to grow soft; wītan, to hew; wīcan, to yield, give way; wlītan, to gaze; wrīdan, to grow, flourish; wrītan, to write. stīgan, to ascend, pret. sing. stāg beside stāh (§ 323); and similarly hnīgan, to incline; mīgan, to make water; sīgan, to sink.
+And similarly ætwītan, to blame, reproach; ācwīnan, to dwindle away; behlīdan, to cover; belīfan, to remain; bescītan, to befoul; besmītan, to pollute; bītan, to bite; blīcan, to shine; cīnan, to crack; clīfan, to stick, adhere; cnīdan, to beat; drīfan, to drive; dwīnan, to dwindle; flītan, to strive, quarrel; gewītan, to depart; gīnan, to yawn; glīdan, to glide; gnīdan, to rub together; grīpan, to seize; hnītan, to knock; hrīnan, to touch; hwīnan, to whizz; nīpan, to grow dark; rīdan, to ride; sīcan, to sigh; scīnan (§ 133, Note 2), to shine; scrīfan, to prescribe; slīdan, to slide; slītan, to slit; snīcan, to crawl; spīwan (§ 265), to spew, spit; strīcan, to stroke; strīdan, to stride; swīcan, to cease from; swīfan, to sweep; tōslīfan, to split; þwīnan, to grow soft; wītan, to hew; wīcan, to yield, give way; wlītan, to gaze; wrīdan, to grow, flourish; wrītan, to write. stīgan, to ascend, pret. sing. stāg beside stāh (§ 323); and similarly hnīgan, to incline; mīgan, to make water; sīgan, to sink.
 
 § 491. snīþan, to cut   snāþ   snidon   sniden
 And similarly līþan, to go; scrīþan, to go, proceed. See § 239. In ārīsan, to arise; gerīsan, to befit; mīþan, to avoid; wrīþan, to twist, the s, þ of the present was extended to all forms of the verb.

@@ -1,9 +1,8 @@
-ægerra, gearora, glædra, grimra, hāligra, lēofra, nēahra (nēarra).
+fægerra, gearora, glædra, grimra, hāligra, lēofra, nēahra (nēarra).
 
 2. The Superlative Degree.
 
-§ 444. The superlative, like the comparative degree, was formed in the Indg. parent language by means of several suffixes. But in the individual branches of the parent language, one of the suffixes generally became more productive than the rest, and in the course of time came to be the principal one from which the superlative degree was formed, the other suffixes only being preserved in isolated forms. The only superlative suffix which remained productive in the Germanic languages is -to- in the combination -isto-, formed by adding the original superlative suffix -to- to the comparative suffix -is-, as in Sanskrit and Greek, as Gr. ἡδιστος = Goth. sutists, OHG. suoȥisto, OE. swētest(a), sweetest. The simple superlative suffix -to- has been preserved in Gr., Lat., and the Germanic languages in the formation of the ordinal numerals, as Gr. ἕκτος, Lat. sextus, Goth. saíhsta, OHG. sehsto, OE. siexta, sixth. The Germanic suffix -ōst- was a new formation like -ōz- in the comparative. -ōst-, -ist- regularly became -ost-, -est- in OE., and the medial vowel in the superlative being in a closed syllable remained (§ 221). It is difficult to account for its early loss in hīehst(a), highest, and nīehst(a), nearest (see § 221). In late OE. the medial vowel was often syncopated, as lengsta, strengsta (§ 223, Note 2). On the interchange of the medial vowel in forms like lēofesta beside lēofosta, see § 222. The adjectives which had i-umlaut in the comparative generally had -est(a), but sometimes also -ost(a), in the superlative, and those which did not have umlaut in the comparative generally had -ost(a), rarely -ust(a), -ast(a), as ieldest(a), fierrest(a), giengest(a), gingest(a), grīetest(a),
-lengest(a), sciertest(a), strengest(a), but earmost(a), fægnost(a), gearwost(a), hāligost(a), lēofost(a), &c.
+§ 444. The superlative, like the comparative degree, was formed in the Indg. parent language by means of several suffixes. But in the individual branches of the parent language, one of the suffixes generally became more productive than the rest, and in the course of time came to be the principal one from which the superlative degree was formed, the other suffixes only being preserved in isolated forms. The only superlative suffix which remained productive in the Germanic languages is -to- in the combination -isto-, formed by adding the original superlative suffix -to- to the comparative suffix -is-, as in Sanskrit and Greek, as Gr. ἡδιστος = Goth. sutists, OHG. suoȥisto, OE. swētest(a), sweetest. The simple superlative suffix -to- has been preserved in Gr., Lat., and the Germanic languages in the formation of the ordinal numerals, as Gr. ἕκτος, Lat. sextus, Goth. saíhsta, OHG. sehsto, OE. siexta, sixth. The Germanic suffix -ōst- was a new formation like -ōz- in the comparative. -ōst-, -ist- regularly became -ost-, -est- in OE., and the medial vowel in the superlative being in a closed syllable remained (§ 221). It is difficult to account for its early loss in hīehst(a), highest, and nīehst(a), nearest (see § 221). In late OE. the medial vowel was often syncopated, as lengsta, strengsta (§ 223, Note 2). On the interchange of the medial vowel in forms like lēofesta beside lēofosta, see § 222. The adjectives which had i-umlaut in the comparative generally had -est(a), but sometimes also -ost(a), in the superlative, and those which did not have umlaut in the comparative generally had -ost(a), rarely -ust(a), -ast(a), as ieldest(a), fierrest(a), giengest(a), gingest(a), grīetest(a), lengest(a), sciertest(a), strengest(a), but earmost(a), fægnost(a), gearwost(a), hāligost(a), lēofost(a), &c.
 
 In Gothic the superlative had both the strong and the weak declension, but in OE. it generally had only the latter except in the nom. acc. neut. which had both forms -est, -ost, beside -este, -oste.
 
@@ -39,12 +38,11 @@ In Gothic the superlative had both the strong and the weak declension, but in OE
   </tr>
 </table>
 
-Note 1. On the tt in bettra (Goth. batiza), see § 260. bet(e)st = Goth. batists. sēlla with assimilation of Ir to ll (§ 281). lǣssa from *lǣs(i)ra, prim. Germanic laisiszȭ (§ 281); lǣst(a) rom *lǣsist-. māra = Goth. máiza; mǣst(a) (Goth. máists) with ǣ from analogy with lǣst(a), Anglian māst(a). wiersa (Goth. waírsiza) from *wiers(i)ra; wierrest(a), wierst(a) from *wiersist-.
+Note 1. On the tt in bettra (Goth. batiza), see § 260. bet(e)st = Goth. batists. sēlla with assimilation of Ir to ll (§ 281). lǣssa from *lǣs(i)ra, prim. Germanic laisiszō̃ (§ 281); lǣst(a) rom *lǣsist-. māra = Goth. máiza; mǣst(a) (Goth. máists) with ǣ from analogy with lǣst(a), Anglian māst(a). wiersa (Goth. waírsiza) from *wiers(i)ra; wierrest(a), wierst(a) from *wiersist-.
 
 2. In a few words comparative and superlative adjectives were formed from adverbs: ǣr, before, ǣrra, former, earlier, ǣrest(a), first; fyrest(a) from *furist-, first, related to fore, before; furþra, higher, greater, related to forþ, forth.
 
-§ 446. In a number of words the comparative was formed from an adverb or preposition, with a superlative in -um-, -uma (prim. Germanic -umȭ), cp. Lat. optimus, best, summus, highest. The simple superlative suffix was preserved in OE. forma (Goth. fruma), first, beside fore, before; hindema, last, hindmost, beside hindan, behind; and meduma, medema, midway in size, related to midd, middle. But in prehistoric OE., as in Gothic, to -um- was added the ordinary superlative suffix -ist- which gave rise
-to the double superlative suffix -umist-, as Goth. frumists, first; hindumists, hindmost. In OE. -umist- became -ymist- (§ 47), later -imest-, -emest-, -mest-, as
+§ 446. In a number of words the comparative was formed from an adverb or preposition, with a superlative in -um-, -uma (prim. Germanic -umō̃), cp. Lat. optimus, best, summus, highest. The simple superlative suffix was preserved in OE. forma (Goth. fruma), first, beside fore, before; hindema, last, hindmost, beside hindan, behind; and meduma, medema, midway in size, related to midd, middle. But in prehistoric OE., as in Gothic, to -um- was added the ordinary superlative suffix -ist- which gave rise to the double superlative suffix -umist-, as Goth. frumists, first; hindumists, hindmost. In OE. -umist- became -ymist- (§ 47), later -imest-, -emest-, -mest-, as
 
 <table>
     <tr>
@@ -268,7 +266,7 @@ The decades 20 to 60 were formed in prim. Germanic from the units 2 to 6 and the
 
 The decades, and hund, hundred, and þūsend, being nouns, governed a following noun in the genitive case.
 
-The forms for "first" are old superlatives of adverbs (§§ 445, Note 2, 446). ōþer (Goth. anþar, cp. NE. "every other day") was always declined according to the strong declension of adjectives (§ 429). þridda (Goth. þridja, Gr. τρίτος) with weak stem-form from Indg. *tri- the weak form of *trei-, three. All the other ordinals were formed from the cardinals by means of the Indg. superlative suffix -to- (§ 444), the t of which regularly remained unshifted in fīfta, siexta, endleofta, twelfta (§ 231, Notes). In other positions the t became þ by the first sound-shifting (§ 231), then þ became đ by Verner's law (§ 288) in those ordinals which did not originally have the chief accent immediately before the þ, and later nđ became nd (§ 253), as Goth. *sibunda, niunda, taíhunda, from Indg. *septmtós, *neuntós, *dekmtós. The regular forms of these would have been in OE. *seofonda, *nigonda, *tēonda, but OE. generalized those ordinal forms which in prim. Germanic had the chief accent immediately before the þ, whence the OE. new formations seofoþa, nigoþa, tēoþa from older *sebunþō, *nijunþȭ, teχunþȭ. In the decades the medial o may represent the older u in *teʒu- (see above). In compound ordinals the cardinal units were generally used, as fēower and fiftigoþa, fifty-fourth, but sometimes the ordinal forms of the units were used with the cardinal decades in the dative, as fēo(we)rþa ēac fīftigum. hund, hundred, and þūsend had no corresponding ordinals. All the ordinals, except ōþer, were declined according to the weak declension of adjectives.
+The forms for "first" are old superlatives of adverbs (§§ 445, Note 2, 446). ōþer (Goth. anþar, cp. NE. "every other day") was always declined according to the strong declension of adjectives (§ 429). þridda (Goth. þridja, Gr. τρίτος) with weak stem-form from Indg. *tri- the weak form of *trei-, three. All the other ordinals were formed from the cardinals by means of the Indg. superlative suffix -to- (§ 444), the t of which regularly remained unshifted in fīfta, siexta, endleofta, twelfta (§ 231, Notes). In other positions the t became þ by the first sound-shifting (§ 231), then þ became đ by Verner's law (§ 288) in those ordinals which did not originally have the chief accent immediately before the þ, and later nđ became nd (§ 253), as Goth. *sibunda, niunda, taíhunda, from Indg. *septmtós, *neuntós, *dekmtós. The regular forms of these would have been in OE. *seofonda, *nigonda, *tēonda, but OE. generalized those ordinal forms which in prim. Germanic had the chief accent immediately before the þ, whence the OE. new formations seofoþa, nigoþa, tēoþa from older *sebunþō̃, *nijunþō̃, teχunþō̃. In the decades the medial o may represent the older u in *teʒu- (see above). In compound ordinals the cardinal units were generally used, as fēower and fiftigoþa, fifty-fourth, but sometimes the ordinal forms of the units were used with the cardinal decades in the dative, as fēo(we)rþa ēac fīftigum. hund, hundred, and þūsend had no corresponding ordinals. All the ordinals, except ōþer, were declined according to the weak declension of adjectives.
 
 § 448. In OE. the cardinals 1 to 3 were declinable in all cases and genders as in the other Germanic languages. ān was declined according to the strong (§ 424) or weak declension (§ 440) of adjectives. The strong masc. acc. sing. is generally ǣnne (shortened later to ænne, enne) from prim. Germanic *aininōn, beside the less common form ānne from *ainanōn. Strong pl. forms are rare, but they occur occasionally, meaning each, all, every one, ānra gehwilc, each one. When declined weak it means alone, solus.
 
@@ -300,7 +298,7 @@ The forms for "first" are old superlatives of adverbs (§§ 445, Note 2, 446). �
   </tr>
 </table>
 
-The formation of twēgen and of the genitive are difficult to explain. twēg(e)a cannot correspond to Goth. twaddjē, prim. Germanic *twajjȭn, which would have become *twēg(e)a in OE., cp. § 275. twǣm from prim. Germanic *twaimiz; twām was a new formation from twā. tū from prim. Germanic *twō (§ 130); twā corresponds to the Goth. masc. form twái.
+The formation of twēgen and of the genitive are difficult to explain. twēg(e)a cannot correspond to Goth. twaddjē, prim. Germanic *twajjō̃n, which would have become *twēg(e)a in OE., cp. § 275. twǣm from prim. Germanic *twaimiz; twām was a new formation from twā. tū from prim. Germanic *twō (§ 130); twā corresponds to the Goth. masc. form twái.
 
 § 450. Like twēgen is also declined bēgen (shortened later to beggen), bū (§ 130), bā (Goth. masc. bái), both. Also in the combination masc. and fem. bā twā, neut. bū tū, often written in one word būtū, both.
 
@@ -353,7 +351,7 @@ CHAPTER XIII
 PRONOUNS
 
 § 458. The most difficult chapter in works on comparative grammar is the one dealing with the pronouns. It is impossible to state with any degree of certainty how many pronouns the parent Indg. language had and what
-forms they had assumed at the time it became differentiated into the various branches which constitute the Indg. family of languages. The difficulty is rendered still more complicated by the fact that most of the pronouns, especially the personal and demonstrative, must have had accented and unaccented forms existing side by side in the parent language itself; and that one or other of the forms became generalized already in the prehistoric period of the individual branches of the parent language. And then at a later period, but still in prehistoric times, there arose new accented and unaccented forms side by side in the individual branches, as e.g. in prim. Germanic ek, mek beside ik, mik. The separate Germanic languages generalized one or other of these forms before the beginning of the oldest literary monuments and then new accented beside unaccented forms came into existence again. And similarly during the historic periods of the different languages. Thus, e.g. the OE. for I is ic, this became in ME. ich accented form beside i unaccented form, ich then disappeared in standard ME. (but it is still preserved in one of the modern dialects of Somersetshire) and i came to be used as the accented and unaccented form. At a later period it became i when accented and remained i when unaccented. The former has become NE. I, and the latter has disappeared from the literary language, but it is still preserved in many northern Engl. dialects, as i. In these dialects i is regularly used in interrogative and subordinate sentences; the ME. accented form ī has become ai and is only used in the dialects to express special emphasis, and from it a new unaccented form a has been developed which can only be used in making direct assertions. Thus in one and the same dialect (Windhill, Yorks.) we arrive at three forms: ai, a, i, which are never mixed up syntactically by genuine native dialect speakers. Something similar to what has happened and still is happening in the modern dialects must also have taken place in the prehistoric and historic periods of all the Indg. languages; hence in the prehistoric forms of the pronouns given below, it must not be assumed that they were the only ones existing in prim. Germanic. They are merely given as the nearest ascertainable forms from which the OE. forms were descended.
+forms they had assumed at the time it became differentiated into the various branches which constitute the Indg. family of languages. The difficulty is rendered still more complicated by the fact that most of the pronouns, especially the personal and demonstrative, must have had accented and unaccented forms existing side by side in the parent language itself; and that one or other of the forms became generalized already in the prehistoric period of the individual branches of the parent language. And then at a later period, but still in prehistoric times, there arose new accented and unaccented forms side by side in the individual branches, as e.g. in prim. Germanic ek, mek beside ik, mik. The separate Germanic languages generalized one or other of these forms before the beginning of the oldest literary monuments and then new accented beside unaccented forms came into existence again. And similarly during the historic periods of the different languages. Thus, e.g. the OE. for I is ic, this became in ME. ich accented form beside i unaccented form, ich then disappeared in standard ME. (but it is still preserved in one of the modern dialects of Somersetshire) and i came to be used as the accented and unaccented form. At a later period it became ī when accented and remained i when unaccented. The former has become NE. I, and the latter has disappeared from the literary language, but it is still preserved in many northern Engl. dialects, as i. In these dialects i is regularly used in interrogative and subordinate sentences; the ME. accented form ī has become ai and is only used in the dialects to express special emphasis, and from it a new unaccented form a has been developed which can only be used in making direct assertions. Thus in one and the same dialect (Windhill, Yorks.) we arrive at three forms: ai, a, i, which are never mixed up syntactically by genuine native dialect speakers. Something similar to what has happened and still is happening in the modern dialects must also have taken place in the prehistoric and historic periods of all the Indg. languages; hence in the prehistoric forms of the pronouns given below, it must not be assumed that they were the only ones existing in prim. Germanic. They are merely given as the nearest ascertainable forms from which the OE. forms were descended.
 
 1. Personal.
 
@@ -370,11 +368,11 @@ forms they had assumed at the time it became differentiated into the various bra
     <th>Nom.</th>
     <td>ic, I</td>
     <td>wit</td>
-    <td>wē</td>
+    <td>wē̆</td>
   </tr>
   <tr>
     <th>Acc.</th>
-    <td>mec, mē</td>
+    <td>mec, mē̆</td>
     <td>uncit, unc</td>
     <td>ūsic, ūs</td>
   </tr>
@@ -386,7 +384,7 @@ forms they had assumed at the time it became differentiated into the various bra
   </tr>
   <tr>
     <th>Dat.</th>
-    <td>mē</td>
+    <td>mē̆</td>
     <td>unc</td>
     <td>s</td>
   </tr>
@@ -403,13 +401,13 @@ forms they had assumed at the time it became differentiated into the various bra
   </tr>
   <tr>
     <th>Nom.</th>
-    <td>pū, thou</td>
+    <td>pū̆, thou</td>
     <td>git</td>
-    <td>gē</td>
+    <td>gē̆</td>
   </tr>
   <tr>
     <th>Acc.</th>
-    <td>pec, pē</td>
+    <td>pec, pē̆</td>
     <td>incit, inc</td>
     <td>ēowic, ēow, iow</td>
   </tr>
@@ -421,7 +419,7 @@ forms they had assumed at the time it became differentiated into the various bra
   </tr>
   <tr>
     <th>Dat.</th>
-    <td>pē</td>
+    <td>pē̆</td>
     <td>inc</td>
     <td>ēow, iow</td>
   </tr>
@@ -438,7 +436,7 @@ forms they had assumed at the time it became differentiated into the various bra
   </tr>
   <tr>
     <th>Nom.</th>
-    <td>hē, he</td>
+    <td>hē̆, he</td>
     <td>hit</td>
     <td>hīo, hēo</td>
   </tr>
@@ -471,7 +469,7 @@ Plur. All Genders.
   </tr>
   <tr>
     <td>Nom. Acc.</td>
-    <td>hīe, hī</td>
+    <td>hīe, hī̆</td>
   </tr>
   <tr>
     <td>Gen.</td>
@@ -485,16 +483,16 @@ Plur. All Genders.
 
 § 462. In the parent language the nom. was rarely used except to express emphasis (cp. Skr., Lat., and Gr.), because it was sufficiently indicated by the personal endings of the verb. Beside the accented form of each case of the personal pronouns, there also existed one or more unaccented forms just as in many modern dialects, where we often find three or even four forms for the nom. case of each pronoun. Most of the OE. forms of the personal pronouns represent prim. Germanic unaccented forms.
 
-In forms marked with both long and short vowels, as in mē, þē, gē, &c., those with long vowels were the accented, and those with short vowels were the unaccented forms, see § 85. In the pronouns of the first and second persons the gen. case sing. and pl. were formed from the stem-forms of the possessive pronouns. The c in the acc.-forms mec, þec, ūsic, ēowic, goes back to a prim. Germanic emphatic particle, *ke = Indg. *ge, which is found in Gr. pronominal forms like ἐμέγε. The acc. forms with c only occur in the oldest records and in poetry. ic is the old unaccented form, the accented form was preserved in O.Icel. ek (cp. Lat. ego, Gr. ἐγώ). The e in me, þe may represent Indg. e, cp. Gr. ἐμέ (μέ), τέ, but it is far more likely that me, þe are old datives used for the accusative. þu (OHG. du) beside þū (OHG. dū), NE. has preserved the old accented, and NHG. the old unaccented form. Dat. me (Goth. mis, OHG. mir), þe (OHG. dir), prim. Germanic *mes, *þes beside unaccented *miz, *þiz, with -s, -z from the dat. plural; OE. me, þe can represent either form, probably the latter, cp. wē, gē.
+In forms marked with both long and short vowels, as in mē̆, þē̆, gē̆, &c., those with long vowels were the accented, and those with short vowels were the unaccented forms, see § 85. In the pronouns of the first and second persons the gen. case sing. and pl. were formed from the stem-forms of the possessive pronouns. The c in the acc.-forms mec, þec, ūsic, ēowic, goes back to a prim. Germanic emphatic particle, *ke = Indg. *ge, which is found in Gr. pronominal forms like ἐμέγε. The acc. forms with c only occur in the oldest records and in poetry. ic is the old unaccented form, the accented form was preserved in O.Icel. ek (cp. Lat. ego, Gr. ἐγώ). The e in me, þe may represent Indg. e, cp. Gr. ἐμέ (μέ), τέ, but it is far more likely that me, þe are old datives used for the accusative. þu (OHG. du) beside þū (OHG. dū), NE. has preserved the old accented, and NHG. the old unaccented form. Dat. me (Goth. mis, OHG. mir), þe (OHG. dir), prim. Germanic *mes, *þes beside unaccented *miz, *þiz, with -s, -z from the dat. plural; OE. me, þe can represent either form, probably the latter, cp. wē̆, gē̆.
 
 wit (Goth. OS. wit), and git (OS. git) were unaccented plurals with the addition of -t which is of obscure origin. There are grave phonological difficulties against assuming that the -t is related to the numeral for two. Acc. uncit, incit were formed from unc, inc with -it from the nominative. unc, inc are old accusatives also used for the dative;
 unc (Goth. ugk, OS. unc) from un (which occurs in the acc. pl. ūs = Goth. uns = Indg. ns with vocalic n)+the particle *ke = prim. Germanic *uŋki; inc (OS. ink, cp. Goth. igq-is), prim. Germanic *iŋq- which is of unknown origin.
 
-we, prim. Germanic *wīs (Goth. weis) beside the unaccented form *wiz (OHG. wir); *wiz became *wi in prim. OE. and then later we, from which a new accented form wē was formed. gē for *gū (= Goth. jus, prim. Germanic *jūs beside *juz) with ē from wē. ūsic from older *unsek (with e from mec); ūs (Goth. OHG. uns, Indg. ns with vocalic n). ēowic from older *īuwek (with e from þec); dat. ēow (OHG. iu, eu) from older *īuw, prim. Germanic *iwwiz; ēow, īow is the old dat. also used for the accusative.
+we, prim. Germanic *wīs (Goth. weis) beside the unaccented form *wiz (OHG. wir); *wiz became *wi in prim. OE. and then later we, from which a new accented form wē was formed. gē̆ for *gū̆ (= Goth. jus, prim. Germanic *jūs beside *juz) with ē̆ from wē̆. ūsic from older *unsek (with e from mec); ūs (Goth. OHG. uns, Indg. ns with vocalic n). ēowic from older *īuwek (with e from þec); dat. ēow (OHG. iu, eu) from older *īuw, prim. Germanic *iwwiz; ēow, īow is the old dat. also used for the accusative.
 
-The pronoun of the third person is originally a demonstrative pronoun formed from the Indg. stem *ki-, this, which occurs in Lat. hī-ce (later hīc), this, ci-s, ci-ter, on this side. It has been preserved in Goth. in only a few isolated phrases, as und hina dag, to this day; himma daga, on this day, to-day; und hita nu, till now.
+The pronoun of the third person is originally a demonstrative pronoun formed from the Indg. stem *ki-, this, which occurs in Lat. hī-ce (later hī̆c), this, ci-s, ci-ter, on this side. It has been preserved in Goth. in only a few isolated phrases, as und hina dag, to this day; himma daga, on this day, to-day; und hita nu, till now.
 
-hē, prim. Germanic *χis beside unaccented *χiz; *χiz became *χi in prim. OE. and then later he from which a new accented hē was formed; hine (Goth. hina), prim. Germanic *χinōn, beside hiene with ie from hiere, hiera; his from *χisa; him from *χimi (orig. instrumental), hit (cp. Goth.hita, where the t = Lat. -d in id, that). hio later hēo, formed from *hi + ū with ū from sīo, sēo (§ 465); hīe later hī, hỹ, from *hi + ōn; gen. hire from *χizȭz, dat. hire from *χizai; hiere had ie from the gen. plural; cp. the prim. Germanic endings of the fem. adjectives (§ 424); the acc. form was often used for the nom. and vice versa. hī later hī, from *χī, unaccented *χi, beside hie with e from the adjectives (§ 424); hī was often written hig (see § 6, Note) in late OE. The masc. form was used for all genders, but sometimes the old fem. sing. hēo was used instead of it; hira from *χizȭn, beside hiora, heora, hiera with o/a-umlaut (§ 102). him from *χimiz, beside late WS. heom with eo from the genitive. All the forms with i often had y in late WS.
+hē̆, prim. Germanic *χis beside unaccented *χiz; *χiz became *χi in prim. OE. and then later he from which a new accented hē was formed; hine (Goth. hina), prim. Germanic *χinōn, beside hiene with ie from hiere, hiera; his from *χisa; him from *χimi (orig. instrumental), hit (cp. Goth.hita, where the t = Lat. -d in id, that). hio later hēo, formed from *hi + ū̆ with ū̆ from sīo, sēo (§ 465); hīe later hī, hỹ, from *hi + ōn; gen. hire from *χizō̃z, dat. hire from *χizai; hiere had ie from the gen. plural; cp. the prim. Germanic endings of the fem. adjectives (§ 424); the acc. form was often used for the nom. and vice versa. hī̆ later hȳ̆, from *χī, unaccented *χi, beside hie with e from the adjectives (§ 424); hī was often written hig (see § 6, Note) in late OE. The masc. form was used for all genders, but sometimes the old fem. sing. hēo was used instead of it; hira from *χizō̃n, beside hiora, heora, hiera with o/a-umlaut (§ 102). him from *χimiz, beside late WS. heom with eo from the genitive. All the forms with i often had y in late WS.
 
 2. Reflexive.
 
@@ -563,10 +561,9 @@ PlUR. all Genders.
   </tr>
 </table>
 
-se was the unaccented form of prim. Germanic *sa (Goth. sa) to which a new accented form sē was made (§ 144); þone (Goth. þana) the unaccented form of prim. Germanic *þanōn, beside late OE. þane, þane; þæs from prim. Germanic *þasa (§ 54), beside *þesa (Anglian þes, Goth.
-bis, OHG. des); þæm from the prim. Germanic instrumental *þaimi, beside þām with ā from the plural þā, þara, as in the dat. pl. þām. þæt (Goth. þata, Lat. istud, Indg. *tod); þȳ, þon are difficult to explain satisfactorily; they were chiefly used before the comparative of adverbs and as a factor in adverbial and conjunctional phrases like the Goth. instrumental þē, as þon mā, the more, cp. Gothic ni þē haldis, none the more; for þy, for þon, because, on that account. sīo, sēo does not correspond to Goth. sō, but like OHG. siu, she, it was a new formation from the prim. Germanic fem. pronoun *sī (= Gr. ί, Goth. si, OHG. sī), she + the Germanic fem. ending -ō; *sīō regularly became sīo, sēo through the intermediate stage of sīu which is found in the Anglian dialect. The reason why the new formation took place was probably due to the fact that the unaccented form of *sī would have become sē in OE. and thus have fallen together with the masc. nom. sing., cp. OE. wē, hē from the prim. Germanic unaccented forms *wiz, *χiz (§ 462); acc. þā (prim. Germanic *þōn, Goth. þō, Gr. Dor. τάν, Indg. *tām) is from the unaccented form *þa from which a new accented form þā was formed; gen. þǣre from *þaizjȭz (cp. Skr. tásyās, Indg. *tésjās) with ai from the gen. plural; and similarly in the dat. þǣre from *þaizjai (cp. Skr. tésyāi, Indg. *tésjāi), beside þāre from *þaizai. Pl. nom. masc. þā (= Goth. þái, Gr. τοῖ); the old nom. was also used for the nom. and acc. all genders; gen. þāra from prim. Germanic *þaizȭn, Indg. *toisȭm (cp. the Goth. gen. pl. of adjectives, as blindaizē, -ō), beside þǣra with ǣ from þǣm; þǣm (Goth. þaim) from prim. Germanic *þaimiz, beside þām with ā from the genitive, which became þān in late WS.
+se was the unaccented form of prim. Germanic *sa (Goth. sa) to which a new accented form sē was made (§ 144); þone (Goth. þana) the unaccented form of prim. Germanic *þanōn, beside late OE. þane, þane; þæs from prim. Germanic *þasa (§ 54), beside *þesa (Anglian þes, Goth. bis, OHG. des); þæm from the prim. Germanic instrumental *þaimi, beside þām with ā from the plural þā, þara, as in the dat. pl. þām. þæt (Goth. þata, Lat. istud, Indg. *tod); þȳ, þon are difficult to explain satisfactorily; they were chiefly used before the comparative of adverbs and as a factor in adverbial and conjunctional phrases like the Goth. instrumental þē, as þon mā, the more, cp. Gothic ni þē haldis, none the more; for þy, for þon, because, on that account. sīo, sēo does not correspond to Goth. sō, but like OHG. siu, she, it was a new formation from the prim. Germanic fem. pronoun *sī (= Gr. ί, Goth. si, OHG. sī̆), she + the Germanic fem. ending -ō; *sīō regularly became sīo, sēo through the intermediate stage of sīu which is found in the Anglian dialect. The reason why the new formation took place was probably due to the fact that the unaccented form of *sī would have become sē̆ in OE. and thus have fallen together with the masc. nom. sing., cp. OE. wē̆, hē̆ from the prim. Germanic unaccented forms *wiz, *χiz (§ 462); acc. þā (prim. Germanic *þōn, Goth. þō, Gr. Dor. τάν, Indg. *tām) is from the unaccented form *þa from which a new accented form þā was formed; gen. þǣre from *þaizjō̃z (cp. Skr. tásyās, Indg. *tésjā̃s) with ai from the gen. plural; and similarly in the dat. þǣre from *þaizjai (cp. Skr. tésyāi, Indg. *tésjāi), beside þāre from *þaizai. Pl. nom. masc. þā (= Goth. þái, Gr. τοῖ); the old nom. was also used for the nom. and acc. all genders; gen. þāra from prim. Germanic *þaizō̃n, Indg. *toisō̃m (cp. the Goth. gen. pl. of adjectives, as blindaizē, -ō), beside þǣra with ǣ from þǣm; þǣm (Goth. þaim) from prim. Germanic *þaimiz, beside þām with ā from the genitive, which became þān in late WS.
 
-§ 466. The compound demonstrative pronoun þēs, þis, þīos (þēos), this, was originally formed from the simple demonstrative + the deictic particle -se, -si which is probably related to Goth. sái, OHG. sē, lo!, behold! Its earliest usage was that of an emphatic demonstrative pronoun and then later it came to be used also as a simple demonstrative adjective in much the same way that this here, these here, that there, them there (= those) are used in most Modern English dialects. Originally only the first element was inflected as in OHG. masc. nom. sing. de-se, gen. des-se, pl. de-se. At a later period the -se came to be inflected also, as masc. gen. sing. OHG. des-ses = OE. þis-ses. At this stage the gen. þis- (= Goth. þis) became extended to most of the other cases. And lastly the first element ceased to be inflected and the second element took in most cases the endings of the simple demonstrative. This compound demonstrative pronoun exists in all the Germanic languages except Gothic. The nom. sing. þēs, þios (þēos) were new formations made from the oblique stem-form with þ (§ 465). The old nom. forms were preserved in the oldest Norse inscriptions, as masc. sa-si, fem. su-si, neut. þat-si.
+§ 466. The compound demonstrative pronoun þē̆s, þis, þīos (þēos), this, was originally formed from the simple demonstrative + the deictic particle -se, -si which is probably related to Goth. sái, OHG. sē, lo!, behold! Its earliest usage was that of an emphatic demonstrative pronoun and then later it came to be used also as a simple demonstrative adjective in much the same way that this here, these here, that there, them there (= those) are used in most Modern English dialects. Originally only the first element was inflected as in OHG. masc. nom. sing. de-se, gen. des-se, pl. de-se. At a later period the -se came to be inflected also, as masc. gen. sing. OHG. des-ses = OE. þis-ses. At this stage the gen. þis- (= Goth. þis) became extended to most of the other cases. And lastly the first element ceased to be inflected and the second element took in most cases the endings of the simple demonstrative. This compound demonstrative pronoun exists in all the Germanic languages except Gothic. The nom. sing. þē̆s, þios (þēos) were new formations made from the oblique stem-form with þ (§ 465). The old nom. forms were preserved in the oldest Norse inscriptions, as masc. sa-si, fem. su-si, neut. þat-si.
 
 SING.
 <table>
@@ -578,7 +575,7 @@ SING.
   </tr>
   <tr>
     <th>Nom.</th>
-    <td>þēs</td>
+    <td>þē̆s</td>
     <td>þis</td>
     <td>þīos, þēos</td>
   </tr>
@@ -639,7 +636,7 @@ self, seolf, sylf, silf, self, was declined according to the strong or weak decl
 
 6. Interrogative.
 
-§ 469. The parent Indg. language had two stems from which the interrogative pronoun was formed, viz. qo- and qi- with labialized q (§ 237). The former occurs in Gr. πό-τερος, which of two?, Goth. hvas, OE. hwā, who?, from an original form *qos; Lat. quod, Goth. ƕa, O.Icel. huat, OS. hwat, OHG. hwaȥ, OE. hwæt, what?, from an original form *qod. And the latter occurs in Gr. τίς, Lat. quis, who?, from an original form *qis; Goth. ƕileiks, OE. hwilc, what sort of?
+§ 469. The parent Indg. language had two stems from which the interrogative pronoun was formed, viz. qo- and qi- with labialized q (§ 237). The former occurs in Gr. πό-τερος, which of two?, Goth. ƕas, OE. hwā̆, who?, from an original form *qos; Lat. quod, Goth. ƕa, O.Icel. huat, OS. hwat, OHG. hwaȥ, OE. hwæt, what?, from an original form *qod. And the latter occurs in Gr. τίς, Lat. quis, who?, from an original form *qis; Goth. ƕileiks, OE. hwilc, what sort of?
 
 The OE. simple interrogative pronoun had no independent form for the feminine, and was declined in the singular only.
 
@@ -651,7 +648,7 @@ The OE. simple interrogative pronoun had no independent form for the feminine, a
   </tr>
   <tr>
     <th>Nom.</th>
-    <td>hwā</td>
+    <td>hwā̆</td>
     <td>hwæt</td>
   </tr>
   <tr>
@@ -676,7 +673,7 @@ The OE. simple interrogative pronoun had no independent form for the feminine, a
   </tr>
 </table>
 
-On the long vowel in hwā, see § 79. hwone (Goth. hvana) from prim. Germanic *χwanōn, is the old unaccented form, beside this there rarely occurs the accented form hwane, later hwāne. hwæs from prim. Germanic *χwasa beside Goth. ƕis from *χwesa. hwǣm from prim. Germanic *χwaimi (instrumental) beside hwām, a new formation from hwā. Beside the instr. hwȳ, hwī which are difficult to explain, there also occur hwon, in such adverbial phrases as "for hwon", "tō hwon", why?, and hū (§ 130), how?
+On the long vowel in hwā, see § 79. hwone (Goth. hvana) from prim. Germanic *χwanōn, is the old unaccented form, beside this there rarely occurs the accented form hwane, later hwāne. hwæs from prim. Germanic *χwasa beside Goth. ƕis from *χwesa. hwǣm from prim. Germanic *χwaimi (instrumental) beside hwām, a new formation from hwā̆. Beside the instr. hwȳ, hwī which are difficult to explain, there also occur hwon, in such adverbial phrases as "for hwon", "tō hwon", why?, and hū (§ 130), how?
 
 § 470. hwæþer (Goth. ƕaþar), which of two?, and hlwelc, hwlic (Goth. ƕileiks), what sort of?, were declined according to the strong declension of adjectives.
 
