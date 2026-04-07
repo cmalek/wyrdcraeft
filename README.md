@@ -57,7 +57,7 @@ uv sync --dev
 
 ## Documentation
 
-Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://oe_json_extractor.readthedocs.io](https://oe_json_extractor.readthedocs.io)
+Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://wyrdcraeft.readthedocs.io](https://wyrdcraeft.readthedocs.io)
 
 ## Local olmocr proxy (llama.cpp / LM Studio)
 
