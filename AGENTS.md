@@ -1,18 +1,5 @@
 # AGENTS.md
 
-## Local Overrides
-
-This repository inherits shared defaults from:
-- `../AGENTS.md` (workspace-root shared instructions)
-
-## Repository Bootstrap Requirements
-
-These requirements apply at the start of every new session in this repository.
-
-1. Read `../AGENTS.md` before planning or implementation.
-2. Treat the shared file as mandatory for this repository, not optional guidance.
-3. Confirm in an early progress update that the shared file was read.
-
 ## Tooling Preflight Evidence (Required)
 
 Before planning or implementation, every agent must provide concise evidence of:
@@ -30,9 +17,45 @@ If a tool is not relevant for the task, state that explicitly in one line.
 After implementation edits are complete:
 
 1. Run `ruff` on the touched files (or broader target if the task requires it).
-2. Run `mypy` on the touched files (or broader target if the task requires it).
+2. Run `mypy` on the touched files (or broader target if the task requires it).  Use this commandline for mypy: `.venv/bin/mypy`
 3. Run `make napoleon-gate` to enforce no new Napoleon documentation violations.
 4. Fix all problems reported by those runs before finishing the task.
+
+## Implementation Priority (Required)
+
+Always choose the correct, direct implementation of product code over workarounds
+added only to avoid doc-gate noise, baseline drift, or other documentation-tool
+friction.
+
+Specifically:
+
+1. Do not add runtime patching, indirection, monkey-patching, startup hooks, or
+   similar architectural workarounds solely to avoid touching the correct source
+   file.
+2. If the correct implementation lives in a legacy file with noisy documentation
+   or baseline issues, implement it there anyway.
+3. Then report the quality-gate blocker clearly and separately, including which
+   failures are pre-existing or unrelated.
+4. Architecture and code correctness take priority over avoiding documentation
+   churn.
+
+## Human-Comprehensible Architecture Preference (Required)
+
+For most non-trivial behavior in this repository, prefer implementing cohesive,
+human-comprehensible classes over large collections of loosely related free
+functions, even when those classes are mostly stateless.
+
+Reason:
+
+1. Clear class responsibilities and interactions make it easier for humans to
+   cognitively model the system.
+2. Prefer classes that represent real workflow boundaries, owned
+   responsibilities, or stable concepts in the domain.
+3. Avoid creating classes that are just arbitrary namespaces, but when the
+   alternative is a mass of individual functions with shared implicit context,
+   prefer the class-oriented design.
+4. Favor constructor injection and explicit collaborators when that improves
+   readability and makes the system easier for humans to follow.
 
 ## Documentation Contract (Required)
 

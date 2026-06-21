@@ -205,6 +205,11 @@ class Settings(BaseSettings):
         default=5,
         description="Max rows shown in Attested Forms table (diacritic disambiguate).",
     )
+    #: Lemma cadence for live morphology generation progress updates.
+    morphology_progress_every_words: int = Field(
+        default=5,
+        description="Lemma cadence for live morphology generation progress updates.",
+    )
 
     # Logging settings
     #: Logging verbosity level.

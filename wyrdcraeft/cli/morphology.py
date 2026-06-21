@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from importlib import resources
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 
@@ -25,11 +26,67 @@ from wyrdcraeft.services.morphology.processors import (
     set_noun_paradigm,
     set_verb_paradigm,
 )
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+)
 from wyrdcraeft.services.morphology.reference_snapshots import (
     format_reference_snapshot_result,
     generate_reference_snapshots,
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from wyrdcraeft.settings import Settings
+
+
+def _current_stage_total(
+    session: GeneratorSession,
+    stage: MorphologyStage,
+) -> int:
+    """
+    Return the current input-word total for one progress stage.
+
+    Args:
+        session: Active morphology generation session.
+        stage: Stage whose current total should be computed.
+
+    Returns:
+        Source-word total for the requested stage.
+
+    """
+    return MorphologyGenerateProgressCoordinator.compute_stage_totals_for_session(
+        session
+    )[stage]
+
+
+def _run_generation_stage(
+    *,
+    session: GeneratorSession,
+    output_sink: CompositeSink,
+    progress: MorphologyGenerateProgressCoordinator,
+    stage: MorphologyStage,
+    generator: Callable[..., None],
+) -> None:
+    """
+    Run one morphology stage with synchronized progress start and finish hooks.
+
+    Keyword Args:
+        session: Active morphology generation session.
+        output_sink: Composite sink receiving generated rows.
+        progress: Live progress coordinator.
+        stage: Stage being executed.
+        generator: Callable that performs the stage work.
+
+    Side Effects:
+        Updates stderr progress and writes generated rows to output sinks.
+
+    """
+    progress.start_stage(stage, total=_current_stage_total(session, stage))
+    generator(session, output_sink, progress=progress)
+    progress.finish_stage(stage)
 
 
 def _default_morphology_data_dir() -> Path:
@@ -173,6 +230,13 @@ def morphology_group() -> None:
     help="Limit number of words processed.",
 )
 @click.option(
+    "--progress-every",
+    type=int,
+    default=None,
+    metavar="INTEGER",
+    help="Update visible lemma banner every N processed words.",
+)
+@click.option(
     "--enable-r-stem-nouns",
     is_flag=True,
     default=False,
@@ -184,7 +248,9 @@ def morphology_group() -> None:
     show_default=True,
     help="Generate full dictionary output (equivalent to legacy generate-full).",
 )
+@click.pass_context
 def generate(  # noqa: PLR0913
+    ctx: click.Context,
     data_dir: Path | None,
     dictionary: Path | None,
     manual_forms: Path | None,
@@ -193,6 +259,7 @@ def generate(  # noqa: PLR0913
     output: Path,
     index_db: Path | None,
     limit: int | None,
+    progress_every: int | None,
     enable_r_stem_nouns: bool,
     full: bool,
 ) -> None:
@@ -206,6 +273,7 @@ def generate(  # noqa: PLR0913
         adjectives, adverbs, and numerals.
 
     Args:
+        ctx: Click context carrying loaded settings and global flags.
         data_dir: Optional base directory for default morphology files.
         dictionary: Optional dictionary file path override.
         manual_forms: Optional manual forms file path override.
@@ -214,6 +282,7 @@ def generate(  # noqa: PLR0913
         output: TSV output file path.
         index_db: Optional SQLite index output file path override.
         limit: Optional cap for non-full mode processed words.
+        progress_every: Optional visible-lemma update cadence override.
         enable_r_stem_nouns: Enables non-parity r-stem noun generation.
         full: Enables full-dictionary generation mode.
 
@@ -263,23 +332,71 @@ def generate(  # noqa: PLR0913
     set_adj_paradigm(session)
     set_noun_paradigm(session)
 
+    settings = ctx.obj.get("settings")
+    resolved_progress_every = _resolve_progress_every(
+        settings=settings,
+        progress_every=progress_every,
+    )
+    progress = MorphologyGenerateProgressCoordinator(
+        progress_every_words=resolved_progress_every,
+        enabled=not bool(ctx.obj.get("quiet")),
+    )
+
     resolved_index_db = index_db or output.with_suffix(".sqlite3")
     sqlite_sink: SqliteIndexSink | None = None
     try:
         output.parent.mkdir(parents=True, exist_ok=True)
         sqlite_sink = SqliteIndexSink(resolved_index_db)
+        progress.start()
         with output.open("w", encoding="utf-8") as out_handle:
             output_sink = CompositeSink(TsvParitySink(out_handle), sqlite_sink)
-            output_manual_forms(session, output_sink)
-            generate_vbforms(session, output_sink)
-            generate_adjforms(session, output_sink)
-            generate_advforms(session, output_sink)
-            generate_numforms(session, output_sink)
-            generate_nounforms(session, output_sink)
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.MANUAL,
+                generator=output_manual_forms,
+            )
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.VERBS,
+                generator=generate_vbforms,
+            )
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.ADJECTIVES,
+                generator=generate_adjforms,
+            )
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.ADVERBS,
+                generator=generate_advforms,
+            )
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.NUMERALS,
+                generator=generate_numforms,
+            )
+            _run_generation_stage(
+                session=session,
+                output_sink=output_sink,
+                progress=progress,
+                stage=MorphologyStage.NOUNS,
+                generator=generate_nounforms,
+            )
     except OSError as e:
         msg = f"Failed to write morphology output to {output}: {e}"
         raise click.ClickException(msg) from e
     finally:
+        progress.stop()
         if sqlite_sink is not None:
             sqlite_sink.close()
 
@@ -295,6 +412,38 @@ def generate(  # noqa: PLR0913
             ]
         )
     )
+
+
+def _resolve_progress_every(
+    *,
+    settings: Settings | None,
+    progress_every: int | None,
+) -> int:
+    """
+    Resolve morphology progress cadence from CLI override or settings.
+
+    Keyword Args:
+        settings: Loaded application settings, when available.
+        progress_every: Optional CLI override value.
+
+    Returns:
+        Positive cadence used for visible lemma updates.
+
+    Raises:
+        click.ClickException: The resolved value is not positive.
+
+    """
+    resolved = progress_every
+    if resolved is None:
+        resolved = (
+            settings.morphology_progress_every_words
+            if settings is not None
+            else 5
+        )
+    if resolved <= 0:
+        msg = "--progress-every must be a positive integer."
+        raise click.ClickException(msg)
+    return resolved
 
 
 @morphology_group.command(

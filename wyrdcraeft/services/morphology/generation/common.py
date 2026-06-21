@@ -15,6 +15,10 @@ from wyrdcraeft.models.morphology import (
     VerbParadigm,
     Word,
 )
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .form_rows import generate_and_print_form as _generate_and_print_form
@@ -159,7 +163,13 @@ class VerbFormGenerator:
         (r"gþ$", "hþ"),
     ]
 
-    def __init__(self, session: GeneratorSession, output_file: FormOutput) -> None:
+    def __init__(
+        self,
+        session: GeneratorSession,
+        output_file: FormOutput,
+        *,
+        progress: MorphologyGenerateProgressCoordinator | None = None,
+    ) -> None:
         """
         Initialize the verb-form generator context.
 
@@ -167,16 +177,28 @@ class VerbFormGenerator:
             session: Active generation session containing loaded lexemes.
             output_file: Output handle receiving generated form rows.
 
+        Keyword Args:
+            progress: Optional live progress coordinator.
+
         """
         #: The generator session.
         self.session = session
         #: The output file.
         self.output_file = output_file
+        #: Optional live progress coordinator.
+        self.progress = progress
 
     def generate(self) -> None:
         """Main entry point to generate all verb forms."""
         for word in self.session.words:
             if word.verb == 1 and (word.pspart + word.papart == 0):
+                if self.progress is not None:
+                    self.progress.advance(
+                        MorphologyStage.VERBS,
+                        lemma=word.title,
+                        wright=word.wright,
+                        forms_written=self.session.output_counter,
+                    )
                 self._process_word(word)
 
     def _process_word(self, word: Word) -> None:
@@ -1899,7 +1921,12 @@ class VerbFormGenerator:
         )
 
 
-def generate_vbforms(session: GeneratorSession, output_file: FormOutput) -> None:
+def generate_vbforms(
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
+) -> None:
     """
     Wrapper for VerbFormGenerator.
 
@@ -1907,10 +1934,13 @@ def generate_vbforms(session: GeneratorSession, output_file: FormOutput) -> None
         session: The session.
         output_file: The output file.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     from .verb_engine import VerbFormOrchestrator
 
-    orchestrator = VerbFormOrchestrator(session, output_file)
+    orchestrator = VerbFormOrchestrator(session, output_file, progress=progress)
     orchestrator.generate()
 
 

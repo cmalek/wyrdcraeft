@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from io import StringIO
 from pathlib import Path
 
+from rich.console import Console
+
 from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+    MorphologyStageCounts,
+    MorphologyStageSnapshot,
+)
 
 
 def _morphology_data_dir() -> Path:
@@ -32,6 +41,7 @@ def test_morphology_generate_help(runner) -> None:
     assert result.exit_code == 0
     assert "--full / --no-full" in result.output
     assert "--data-dir" in result.output
+    assert "--progress-every INTEGER" in result.output
 
 
 def test_morphology_generate_limit(runner, temp_dir) -> None:
@@ -57,6 +67,8 @@ def test_morphology_generate_limit(runner, temp_dir) -> None:
     assert index_db.exists()
     assert f"index_db={index_db}" in result.output
     assert "forms_written=" in result.output
+    assert "Morphology generation complete." in result.output
+    assert "verbs" in result.stderr
 
 
 def test_morphology_generate_full_with_subset_inputs(runner, temp_dir) -> None:
@@ -83,6 +95,201 @@ def test_morphology_generate_full_with_subset_inputs(runner, temp_dir) -> None:
     assert result.exit_code == 0
     assert output_file.exists()
     assert "full_mode=True" in result.output
+
+
+def test_morphology_generate_quiet_suppresses_progress(runner, temp_dir) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "--quiet",
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert result.stderr == ""
+
+
+def test_morphology_generate_rejects_non_positive_progress_every(
+    runner,
+    temp_dir,
+) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            "--progress-every",
+            "0",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code != 0
+    assert "positive" in result.output.lower()
+
+
+def test_morphology_generate_progress_stays_on_stderr(runner, temp_dir) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Morphology generation complete." in result.output
+    assert "forms_written=" in result.output
+    assert "Morphology generation complete." not in result.stderr
+    assert "verbs" in result.stderr
+
+
+def test_morphology_generate_progress_shows_wright_when_present(
+    runner,
+    temp_dir,
+) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            "--progress-every",
+            "1",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert "wright=" in result.stderr
+
+
+def test_progress_coordinator_omits_empty_wright_and_throttles_lemma() -> None:
+    stream = StringIO()
+    console = Console(file=stream, force_terminal=False, color_system=None)
+    progress = MorphologyGenerateProgressCoordinator(
+        console=console,
+        progress_every_words=5,
+    )
+
+    progress.start()
+    progress.start_stage(MorphologyStage.ADJECTIVES, total=7)
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-1",
+        wright="",
+        forms_written=3,
+    )
+    assert progress._visible_lemmas[MorphologyStage.ADJECTIVES] == "word-1"
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-2",
+        wright="",
+        forms_written=4,
+    )
+    assert progress._visible_lemmas[MorphologyStage.ADJECTIVES] == "word-1"
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-3",
+        wright="",
+        forms_written=5,
+    )
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-4",
+        wright="",
+        forms_written=7,
+    )
+    assert progress._visible_lemmas[MorphologyStage.ADJECTIVES] == "word-1"
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-5",
+        wright="",
+        forms_written=9,
+    )
+    assert progress._visible_lemmas[MorphologyStage.ADJECTIVES] == "word-5"
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-6",
+        wright="",
+        forms_written=11,
+    )
+    progress.advance(
+        MorphologyStage.ADJECTIVES,
+        lemma="word-7",
+        wright="",
+        forms_written=12,
+    )
+    assert progress._visible_lemmas[MorphologyStage.ADJECTIVES] == "word-7"
+    progress.finish_stage(MorphologyStage.ADJECTIVES)
+    progress.stop()
+
+    description = progress._build_description(
+        stage=MorphologyStage.ADJECTIVES,
+        snapshot=MorphologyStageSnapshot(
+            completed=7,
+            total=7,
+            lemma="word-7",
+            wright="",
+            forms_written=12,
+        ),
+    )
+    assert "wright=" not in description
+
+
+def test_progress_coordinator_stage_totals() -> None:
+    progress = MorphologyGenerateProgressCoordinator(progress_every_words=5)
+
+    totals = progress.compute_stage_totals_from_counts(
+        MorphologyStageCounts(
+            manual_forms=3,
+            verbs=4,
+            adjectives=5,
+            adverbs=6,
+            numerals=7,
+            nouns=8,
+        )
+    )
+
+    assert totals == {
+        MorphologyStage.MANUAL: 3,
+        MorphologyStage.VERBS: 4,
+        MorphologyStage.ADJECTIVES: 5,
+        MorphologyStage.ADVERBS: 6,
+        MorphologyStage.NUMERALS: 7,
+        MorphologyStage.NOUNS: 8,
+    }
 
 
 def test_morphology_query_by_form(runner, temp_dir) -> None:

@@ -6,6 +6,10 @@ Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 import re
 
 from wyrdcraeft.models.morphology import Word
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
@@ -1313,7 +1317,10 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
 
 
 def generate_nounforms(  # noqa: PLR0912, PLR0915
-    session: GeneratorSession, output_file: FormOutput
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
 ) -> None:
     """
     Generate noun forms.
@@ -1325,10 +1332,20 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
         session: The generator session.
         output_file: The output file handle.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     for word in session.words:
         if not word.noun_paradigm:
             continue
+        if progress is not None:
+            progress.advance(
+                MorphologyStage.NOUNS,
+                lemma=word.title,
+                wright=word.wright,
+                forms_written=session.output_counter,
+            )
         bt_id = f"{word.nid:06d}"
         formhash_base = {
             "title": word.title,

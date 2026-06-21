@@ -5,14 +5,21 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
+from ..progress import MorphologyStage
 from .form_rows import print_one_form
 
 if TYPE_CHECKING:
+    from ..progress import MorphologyGenerateProgressCoordinator
     from ..session import GeneratorSession
     from .shared import FormOutput
 
 
-def generate_advforms(session: GeneratorSession, output_file: FormOutput) -> None:
+def generate_advforms(
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
+) -> None:
     """
     Generate adverb forms and comparative/superlative derivatives.
 
@@ -20,9 +27,19 @@ def generate_advforms(session: GeneratorSession, output_file: FormOutput) -> Non
         session: Active morphology generator session.
         output_file: Output stream receiving generated rows.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     for word in session.words:
         if word.adverb == 1:
+            if progress is not None:
+                progress.advance(
+                    MorphologyStage.ADVERBS,
+                    lemma=word.title,
+                    wright=word.wright,
+                    forms_written=session.output_counter,
+                )
             bt_id = f"{word.nid:06d}"
             formhash = {
                 "title": word.title,

@@ -5,12 +5,16 @@ from __future__ import annotations
 from functools import partial
 from typing import TYPE_CHECKING, cast
 
+from ..progress import MorphologyStage
 from . import sound_dispatch_flow as _sound_dispatch_flow
 from .form_assembly import assemble_form_parts, materialize_form
 from .probability import format_probability
 from .sinks import TsvParitySink
 
 if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.progress import (
+        MorphologyGenerateProgressCoordinator,
+    )
     from wyrdcraeft.services.morphology.session import GeneratorSession
 
     from .shared import FormOutput, FormWriter
@@ -52,7 +56,12 @@ def print_one_form(
     TsvParitySink(cast("FormWriter", output_file)).emit_form_data(session, form_data)
 
 
-def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
+def output_manual_forms(
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
+) -> None:
     """
     Emit manually curated forms before generated paradigmatic forms.
 
@@ -60,8 +69,18 @@ def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> N
         session: Active generation session containing ``manual_forms`` rows.
         output_file: Output sink receiving emitted rows.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     for mf in session.manual_forms:
+        if progress is not None:
+            progress.advance(
+                MorphologyStage.MANUAL,
+                lemma=mf.title,
+                wright=mf.wright,
+                forms_written=session.output_counter,
+            )
         form_data = {
             "BT": mf.BT,
             "title": mf.title,

@@ -10,6 +10,17 @@ console = Console()
 stderr_console = Console(file=sys.stderr)
 
 
+def create_stderr_console() -> Console:
+    """
+    Create one Rich console bound to current stderr stream.
+
+    Returns:
+        Console writing to the current stderr stream.
+
+    """
+    return Console(file=sys.stderr)
+
+
 def create_progress() -> Progress:
     """
     Create a rich progress indicator for long-running operations.
@@ -75,4 +86,3 @@ def print_info(message: str):
         border_style="blue",
     )
     stderr_console.print(info_panel)
-

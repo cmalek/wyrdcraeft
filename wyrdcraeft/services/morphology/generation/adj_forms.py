@@ -7,6 +7,10 @@ import re
 from collections.abc import Iterable
 
 from wyrdcraeft.models.morphology import Word
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
@@ -1107,7 +1111,12 @@ def _gen_superlative(
             print_one_form(session, fh, output_file)
 
 
-def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> None:  # noqa: PLR0912
+def generate_adjforms(  # noqa: PLR0912
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
+) -> None:
     """
     Generate adjective forms.
 
@@ -1118,6 +1127,9 @@ def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> Non
         session: The generator session.
         output_file: The output file handle.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     # Perl main flow calls generate_adjforms on a mutable adjective pool that
     # starts as all words and then gets additional generated participles.
@@ -1127,6 +1139,13 @@ def generate_adjforms(session: GeneratorSession, output_file: FormOutput) -> Non
         if (w.adjective == 1 or (w.pspart + w.papart) > 0) and w.numeral != 1
     ]
     for word in words:
+        if progress is not None:
+            progress.advance(
+                MorphologyStage.ADJECTIVES,
+                lemma=word.title,
+                wright=word.wright,
+                forms_written=session.output_counter,
+            )
         paradigm = (
             word.adj_paradigm[0]
             if word.adj_paradigm

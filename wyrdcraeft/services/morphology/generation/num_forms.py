@@ -5,6 +5,10 @@ Numeral form generation. Port of Perl generate_numforms from create_dict31.pl
 
 import re
 
+from wyrdcraeft.services.morphology.progress import (
+    MorphologyGenerateProgressCoordinator,
+    MorphologyStage,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .form_rows import print_one_form
@@ -84,7 +88,12 @@ def _stem_no_ea(stem: str) -> str:
     return re.sub(r"[ea]$", "", stem)
 
 
-def generate_numforms(session: GeneratorSession, output_file: FormOutput) -> None:  # noqa: PLR0912, PLR0915
+def generate_numforms(  # noqa: PLR0912, PLR0915
+    session: GeneratorSession,
+    output_file: FormOutput,
+    *,
+    progress: MorphologyGenerateProgressCoordinator | None = None,
+) -> None:
     """
     Generate numeral forms.  Processes words where numeral==1. For noun
     numerals: cardinals as nouns (wine, cwēne, spere paradigms). For all
@@ -99,10 +108,20 @@ def generate_numforms(session: GeneratorSession, output_file: FormOutput) -> Non
         session: Active generation session containing loaded words.
         output_file: Form output sink.
 
+    Keyword Args:
+        progress: Optional live progress coordinator.
+
     """
     for word in session.words:
         if word.numeral != 1:
             continue
+        if progress is not None:
+            progress.advance(
+                MorphologyStage.NUMERALS,
+                lemma=word.title,
+                wright=word.wright,
+                forms_written=session.output_counter,
+            )
 
         bt_id = f"{word.nid:06d}"
         prefix = word.prefix
