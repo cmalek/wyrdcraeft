@@ -189,6 +189,13 @@ class Settings(BaseSettings):
 
     # Write-able settings
 
+    # Application data settings
+    #: Override OS-specific application data directory.
+    app_data_dir: Path | None = Field(
+        default=None,
+        description="Override OS-specific application data directory.",
+    )
+
     # Output settings
     #: Default output rendering format.
     default_output_format: Literal["table", "json", "text"] = Field(

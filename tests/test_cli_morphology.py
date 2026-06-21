@@ -1,13 +1,16 @@
 from __future__ import annotations
 
+import os
 from io import StringIO
 from pathlib import Path
 
 from rich.console import Console
 
 from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.paths import MORPHOLOGY_INDEX_FILENAME
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
+    MorphologySetupStep,
     MorphologyStage,
     MorphologyStageCounts,
     MorphologyStageSnapshot,
@@ -28,6 +31,21 @@ def _subset_dictionary() -> Path:
     )
 
 
+def _isolated_generate_args(temp_dir: Path) -> list[str]:
+    return [
+        "--data-dir",
+        str(_morphology_data_dir()),
+        "--dictionary",
+        str(_subset_dictionary()),
+        "--index-dir",
+        str(temp_dir),
+    ]
+
+
+def _index_db_path(temp_dir: Path) -> Path:
+    return temp_dir / MORPHOLOGY_INDEX_FILENAME
+
+
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
@@ -41,12 +59,13 @@ def test_morphology_generate_help(runner) -> None:
     assert result.exit_code == 0
     assert "--full / --no-full" in result.output
     assert "--data-dir" in result.output
+    assert "--index-dir" in result.output
     assert "--progress-every INTEGER" in result.output
 
 
 def test_morphology_generate_limit(runner, temp_dir) -> None:
     output_file = temp_dir / "morph.tsv"
-    index_db = output_file.with_suffix(".sqlite3")
+    index_db = _index_db_path(temp_dir)
     result = runner.invoke(
         cli,
         [
@@ -54,10 +73,7 @@ def test_morphology_generate_limit(runner, temp_dir) -> None:
             "generate",
             "--limit",
             "50",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -65,7 +81,7 @@ def test_morphology_generate_limit(runner, temp_dir) -> None:
     assert result.exit_code == 0
     assert output_file.exists()
     assert index_db.exists()
-    assert f"index_db={index_db}" in result.output
+    assert f"index_db={index_db.resolve()}" in result.output
     assert "forms_written=" in result.output
     assert "Morphology generation complete." in result.output
     assert "verbs" in result.stderr
@@ -88,6 +104,8 @@ def test_morphology_generate_full_with_subset_inputs(runner, temp_dir) -> None:
             str(data_dir / "para_vb.txt"),
             "--prefixes",
             str(data_dir / "prefixes.txt"),
+            "--index-dir",
+            str(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -107,10 +125,7 @@ def test_morphology_generate_quiet_suppresses_progress(runner, temp_dir) -> None
             "generate",
             "--limit",
             "20",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -133,10 +148,7 @@ def test_morphology_generate_rejects_non_positive_progress_every(
             "20",
             "--progress-every",
             "0",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -154,10 +166,7 @@ def test_morphology_generate_progress_stays_on_stderr(runner, temp_dir) -> None:
             "generate",
             "--limit",
             "20",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -166,6 +175,9 @@ def test_morphology_generate_progress_stays_on_stderr(runner, temp_dir) -> None:
     assert "Morphology generation complete." in result.output
     assert "forms_written=" in result.output
     assert "Morphology generation complete." not in result.stderr
+    assert "setup" in result.stderr
+    assert "load data" in result.stderr
+    assert "assign noun paradigms" in result.stderr
     assert "verbs" in result.stderr
 
 
@@ -183,10 +195,7 @@ def test_morphology_generate_progress_shows_wright_when_present(
             "20",
             "--progress-every",
             "1",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -292,9 +301,19 @@ def test_progress_coordinator_stage_totals() -> None:
     }
 
 
+def test_progress_coordinator_setup_descriptions() -> None:
+    progress = MorphologyGenerateProgressCoordinator(progress_every_words=5)
+
+    description = progress._build_setup_description(
+        step=MorphologySetupStep.COUNT_SYLLABLES,
+    )
+
+    assert description == "setup | count syllables"
+
+
 def test_morphology_query_by_form(runner, temp_dir) -> None:
     output_file = temp_dir / "morph_query.tsv"
-    index_db = output_file.with_suffix(".sqlite3")
+    index_db = _index_db_path(temp_dir)
 
     generate_result = runner.invoke(
         cli,
@@ -303,10 +322,7 @@ def test_morphology_query_by_form(runner, temp_dir) -> None:
             "generate",
             "--limit",
             "50",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
+            *_isolated_generate_args(temp_dir),
             "--output",
             str(output_file),
         ],
@@ -332,6 +348,90 @@ def test_morphology_query_by_form(runner, temp_dir) -> None:
     )
     assert query_result.exit_code == 0
     assert query_result.output.strip()
+
+
+def test_morphology_generate_default_index_uses_app_data_dir(
+    runner,
+    temp_dir,
+) -> None:
+    app_data_dir = temp_dir / "app-data"
+    output_file = temp_dir / "morph.tsv"
+    index_db = app_data_dir / MORPHOLOGY_INDEX_FILENAME
+    os.environ["WYRDCRAEFT_APP_DATA_DIR"] = str(app_data_dir)
+    try:
+        result = runner.invoke(
+            cli,
+            [
+                "morphology",
+                "generate",
+                "--limit",
+                "20",
+                "--data-dir",
+                str(_morphology_data_dir()),
+                "--dictionary",
+                str(_subset_dictionary()),
+                "--output",
+                str(output_file),
+            ],
+        )
+    finally:
+        del os.environ["WYRDCRAEFT_APP_DATA_DIR"]
+
+    assert result.exit_code == 0
+    assert index_db.exists()
+    assert f"index_db={index_db.resolve()}" in result.output
+
+
+def test_morphology_generate_index_dir_writes_morphology_sqlite3(
+    runner,
+    temp_dir,
+) -> None:
+    index_dir = temp_dir / "custom-index"
+    output_file = temp_dir / "morph.tsv"
+    index_db = index_dir / MORPHOLOGY_INDEX_FILENAME
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--index-dir",
+            str(index_dir),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+    assert index_db.exists()
+    assert f"index_db={index_db.resolve()}" in result.output
+
+
+def test_morphology_generate_rejects_index_db_and_index_dir(
+    runner,
+    temp_dir,
+) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "generate",
+            "--limit",
+            "20",
+            *_isolated_generate_args(temp_dir),
+            "--index-db",
+            str(temp_dir / "custom.sqlite3"),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code != 0
+    assert "at most one" in result.output.lower()
 
 
 def test_morphology_generate_reference_snapshots_help(runner) -> None:

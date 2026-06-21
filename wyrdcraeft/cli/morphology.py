@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import click
 
+from wyrdcraeft.paths import resolve_morphology_index_db_path
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -28,6 +29,7 @@ from wyrdcraeft.services.morphology.processors import (
 )
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
+    MorphologySetupStep,
     MorphologyStage,
 )
 from wyrdcraeft.services.morphology.reference_snapshots import (
@@ -87,6 +89,34 @@ def _run_generation_stage(
     progress.start_stage(stage, total=_current_stage_total(session, stage))
     generator(session, output_sink, progress=progress)
     progress.finish_stage(stage)
+
+
+def _apply_limit(session: GeneratorSession, *, full: bool, limit: int | None) -> None:
+    """
+    Apply optional subset limiting and recategorize cached POS pools.
+
+    Keyword Args:
+        session: Active morphology generation session.
+        full: Whether full-dataset generation is enabled.
+        limit: Optional cap for non-full mode processed words.
+
+    Side Effects:
+        Mutates session word pools when subset limiting is active.
+
+    """
+    if full or not limit:
+        return
+
+    session.words = session.words[:limit]
+    session.verbs = [
+        w for w in session.words if w.verb == 1 and (w.pspart + w.papart == 0)
+    ]
+    session.adjectives = [
+        w
+        for w in session.words
+        if w.adjective == 1 and (w.pspart + w.papart + w.numeral == 0)
+    ]
+    session.nouns = [w for w in session.words if w.noun == 1]
 
 
 def _default_morphology_data_dir() -> Path:
@@ -221,7 +251,17 @@ def morphology_group() -> None:
     "--index-db",
     type=click.Path(path_type=Path),
     default=None,
-    help="SQLite index output path (defaults to output path with .sqlite3 suffix).",
+    help=(
+        "SQLite index file path (overrides --index-dir and the OS app-data default)."
+    ),
+)
+@click.option(
+    "--index-dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "Directory for morphology.sqlite3 (overrides the OS app-data default)."
+    ),
 )
 @click.option(
     "--limit",
@@ -249,7 +289,7 @@ def morphology_group() -> None:
     help="Generate full dictionary output (equivalent to legacy generate-full).",
 )
 @click.pass_context
-def generate(  # noqa: PLR0913
+def generate(  # noqa: PLR0913, PLR0915
     ctx: click.Context,
     data_dir: Path | None,
     dictionary: Path | None,
@@ -258,6 +298,7 @@ def generate(  # noqa: PLR0913
     prefixes: Path | None,
     output: Path,
     index_db: Path | None,
+    index_dir: Path | None,
     limit: int | None,
     progress_every: int | None,
     enable_r_stem_nouns: bool,
@@ -281,6 +322,7 @@ def generate(  # noqa: PLR0913
         prefixes: Optional prefixes file path override.
         output: TSV output file path.
         index_db: Optional SQLite index output file path override.
+        index_dir: Optional SQLite index output directory override.
         limit: Optional cap for non-full mode processed words.
         progress_every: Optional visible-lemma update cadence override.
         enable_r_stem_nouns: Enables non-parity r-stem noun generation.
@@ -303,35 +345,6 @@ def generate(  # noqa: PLR0913
     )
     _validate_inputs(resolved_paths)
 
-    session = GeneratorSession()
-    try:
-        session.load_all(*(str(path) for path in resolved_paths))
-    except OSError as e:
-        msg = f"Unable to read morphology input data: {e}"
-        raise click.ClickException(msg) from e
-
-    session.enable_r_stem_nouns = enable_r_stem_nouns
-
-    if not full and limit:
-        session.words = session.words[:limit]
-        session.verbs = [
-            w for w in session.words if w.verb == 1 and (w.pspart + w.papart == 0)
-        ]
-        session.adjectives = [
-            w
-            for w in session.words
-            if w.adjective == 1 and (w.pspart + w.papart + w.numeral == 0)
-        ]
-        session.nouns = [w for w in session.words if w.noun == 1]
-
-    session.remove_prefixes()
-    session.remove_hyphens()
-    session.count_syllables()
-
-    set_verb_paradigm(session)
-    set_adj_paradigm(session)
-    set_noun_paradigm(session)
-
     settings = ctx.obj.get("settings")
     resolved_progress_every = _resolve_progress_every(
         settings=settings,
@@ -341,13 +354,44 @@ def generate(  # noqa: PLR0913
         progress_every_words=resolved_progress_every,
         enabled=not bool(ctx.obj.get("quiet")),
     )
+    progress.start()
 
-    resolved_index_db = index_db or output.with_suffix(".sqlite3")
+    session = GeneratorSession()
+    try:
+        session.load_all(*(str(path) for path in resolved_paths))
+        progress.advance_setup(MorphologySetupStep.LOAD_DATA)
+    except OSError as e:
+        progress.stop()
+        msg = f"Unable to read morphology input data: {e}"
+        raise click.ClickException(msg) from e
+
+    session.enable_r_stem_nouns = enable_r_stem_nouns
+    _apply_limit(session, full=full, limit=limit)
+    progress.advance_setup(MorphologySetupStep.APPLY_LIMIT)
+
+    session.remove_prefixes()
+    session.remove_hyphens()
+    progress.advance_setup(MorphologySetupStep.NORMALIZE_FORMS)
+    session.count_syllables()
+    progress.advance_setup(MorphologySetupStep.COUNT_SYLLABLES)
+
+    set_verb_paradigm(session)
+    progress.advance_setup(MorphologySetupStep.ASSIGN_VERB_PARADIGMS)
+    set_adj_paradigm(session)
+    progress.advance_setup(MorphologySetupStep.ASSIGN_ADJ_PARADIGMS)
+    set_noun_paradigm(session)
+    progress.advance_setup(MorphologySetupStep.ASSIGN_NOUN_PARADIGMS)
+
+    app_data_dir = settings.app_data_dir if settings is not None else None
+    resolved_index_db = resolve_morphology_index_db_path(
+        index_db=index_db,
+        index_dir=index_dir,
+        app_data_dir=app_data_dir,
+    )
     sqlite_sink: SqliteIndexSink | None = None
     try:
         output.parent.mkdir(parents=True, exist_ok=True)
         sqlite_sink = SqliteIndexSink(resolved_index_db)
-        progress.start()
         with output.open("w", encoding="utf-8") as out_handle:
             output_sink = CompositeSink(TsvParitySink(out_handle), sqlite_sink)
             _run_generation_stage(

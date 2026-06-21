@@ -36,6 +36,7 @@ Basic Help
     # Old English morphology commands
     wyrdcraeft morphology --help
     wyrdcraeft morphology generate --help
+    wyrdcraeft morphology query --help
     wyrdcraeft morphology generate-reference-snapshots --help
 
 Command Structure
@@ -103,4 +104,5 @@ The following pages document the CLI commands in detail:
    command_diacritic_delete
    command_settings
    command_morphology_generate
+   command_morphology_query
    command_morphology_generate_reference_snapshots

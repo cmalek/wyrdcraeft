@@ -104,6 +104,34 @@ class MorphologyStage(StrEnum):
     NOUNS = "nouns"
 
 
+class MorphologySetupStep(StrEnum):
+    """
+    Stable setup-step labels for pre-generation morphology work.
+
+    Note:
+        Cross-PoS scope. These setup phases prepare the morphology session used
+        by ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+        In plain terms, they name the startup work that happens before any
+        generation stage begins.
+
+    """
+
+    #: Input data loading step label.
+    LOAD_DATA = "load data"
+    #: Optional limiting and recategorization step label.
+    APPLY_LIMIT = "apply limit"
+    #: Prefix and hyphen cleanup step label.
+    NORMALIZE_FORMS = "normalize forms"
+    #: Syllable counting step label.
+    COUNT_SYLLABLES = "count syllables"
+    #: Verb paradigm assignment step label.
+    ASSIGN_VERB_PARADIGMS = "assign verb paradigms"
+    #: Adjective paradigm assignment step label.
+    ASSIGN_ADJ_PARADIGMS = "assign adjective paradigms"
+    #: Noun paradigm assignment step label.
+    ASSIGN_NOUN_PARADIGMS = "assign noun paradigms"
+
+
 class MorphologyGenerateProgressCoordinator:
     """
     Coordinate stable stderr-only live progress for morphology generation.
@@ -124,6 +152,16 @@ class MorphologyGenerateProgressCoordinator:
         MorphologyStage.ADVERBS,
         MorphologyStage.NUMERALS,
         MorphologyStage.NOUNS,
+    )
+    #: Stable startup step order before generation begins.
+    SETUP_ORDER: tuple[MorphologySetupStep, ...] = (
+        MorphologySetupStep.LOAD_DATA,
+        MorphologySetupStep.APPLY_LIMIT,
+        MorphologySetupStep.NORMALIZE_FORMS,
+        MorphologySetupStep.COUNT_SYLLABLES,
+        MorphologySetupStep.ASSIGN_VERB_PARADIGMS,
+        MorphologySetupStep.ASSIGN_ADJ_PARADIGMS,
+        MorphologySetupStep.ASSIGN_NOUN_PARADIGMS,
     )
 
     def __init__(
@@ -167,6 +205,8 @@ class MorphologyGenerateProgressCoordinator:
         )
         #: Rich task ids keyed by stable morphology stage.
         self._task_ids: dict[MorphologyStage, TaskID] = {}
+        #: Rich task ids keyed by stable setup step.
+        self._setup_task_ids: dict[MorphologySetupStep, TaskID] = {}
         #: Last lemma kept in banner for each stage.
         self._visible_lemmas: dict[MorphologyStage, str] = {}
 
@@ -244,6 +284,12 @@ class MorphologyGenerateProgressCoordinator:
             return
 
         self._progress.start()
+        for step in self.SETUP_ORDER:
+            self._setup_task_ids[step] = self._progress.add_task(
+                self._build_setup_description(step=step),
+                total=1,
+                completed=0,
+            )
         for stage in self.STAGE_ORDER:
             self._visible_lemmas[stage] = ""
             self._task_ids[stage] = self._progress.add_task(
@@ -265,6 +311,23 @@ class MorphologyGenerateProgressCoordinator:
         """Stop Rich progress rendering."""
         if self.enabled:
             self._progress.stop()
+
+    def advance_setup(self, step: MorphologySetupStep) -> None:
+        """
+        Advance setup progress for one completed startup step.
+
+        Args:
+            step: Setup step that has just completed.
+
+        """
+        if not self.enabled:
+            return
+
+        self._progress.update(
+            self._setup_task_ids[step],
+            completed=1,
+            refresh=True,
+        )
 
     def start_stage(self, stage: MorphologyStage, *, total: int) -> None:
         """
@@ -407,3 +470,20 @@ class MorphologyGenerateProgressCoordinator:
             parts.append(f"wright={snapshot.wright}")
         parts.append(f"forms_written={snapshot.forms_written}")
         return " | ".join(parts)
+
+    def _build_setup_description(
+        self,
+        *,
+        step: MorphologySetupStep,
+    ) -> str:
+        """
+        Build one setup-status banner string for startup work.
+
+        Keyword Args:
+            step: Setup step that is currently complete or active.
+
+        Returns:
+            Human-readable setup progress text.
+
+        """
+        return f"setup | {step.value}"
