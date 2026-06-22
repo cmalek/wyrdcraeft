@@ -1,4 +1,13 @@
 from .bosworth_toller import BTSearchEntry
+from .dictionary import (
+    BTConsolidatedEntry,
+    BTEditorialOp,
+    BTGender,
+    BTLineKind,
+    BTPos,
+    BTSense,
+    RawBTLine,
+)
 from .diacritics import (
     POS_CODE_LABELS,
     POS_CODES,
@@ -38,7 +47,14 @@ __all__ = [
     "POS_CODE_LABELS",
     "AmbiguityOption",
     "AnyLLMConfig",
+    "BTConsolidatedEntry",
+    "BTEditorialOp",
+    "BTGender",
+    "BTLineKind",
+    "BTPos",
     "BTSearchEntry",
+    "BTSense",
+    "RawBTLine",
     "Confidence",
     "DiacriticRestorationResult",
     "GeneratedForm",

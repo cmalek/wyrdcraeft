@@ -9,6 +9,8 @@ import click
 
 #: Default morphology SQLite index filename written by ``morphology generate``.
 MORPHOLOGY_INDEX_FILENAME = "morphology.sqlite3"
+#: Default Bosworth-Toller dictionary SQLite index filename.
+DICTIONARY_INDEX_FILENAME = "dictionary.sqlite3"
 
 
 def get_app_data_path(*, app_data_dir: Path | None = None) -> Path:
@@ -94,6 +96,64 @@ def resolve_morphology_index_db_path(
         )
     else:
         resolved = get_morphology_index_db_path(app_data_dir=app_data_dir)
+
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    return resolved
+
+
+def get_dictionary_index_db_path(*, app_data_dir: Path | None = None) -> Path:
+    """
+    Resolve the default dictionary SQLite index path under app data.
+
+    Keyword Args:
+        app_data_dir: Optional settings override for the app data directory.
+
+    Returns:
+        Absolute path to ``dictionary.sqlite3`` under the app data directory.
+
+    Side Effects:
+        Creates the parent application data directory when missing.
+
+    """
+    db_path = get_app_data_path(app_data_dir=app_data_dir) / DICTIONARY_INDEX_FILENAME
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    return db_path.resolve()
+
+
+def resolve_dictionary_index_db_path(
+    *,
+    index_db: Path | None = None,
+    index_dir: Path | None = None,
+    app_data_dir: Path | None = None,
+) -> Path:
+    """
+    Resolve the dictionary SQLite index path from CLI and settings overrides.
+
+    Keyword Args:
+        index_db: Optional explicit SQLite index file path from ``--index-db``.
+        index_dir: Optional index directory override from ``--index-dir``.
+        app_data_dir: Optional settings override for the app data directory.
+
+    Returns:
+        Absolute path to the dictionary SQLite index file.
+
+    Raises:
+        click.ClickException: Both ``--index-db`` and ``--index-dir`` were provided.
+
+    Side Effects:
+        Creates parent directories for the resolved index path when missing.
+
+    """
+    if index_db is not None and index_dir is not None:
+        msg = "Provide at most one of --index-db or --index-dir."
+        raise click.ClickException(msg)
+
+    if index_db is not None:
+        resolved = index_db.expanduser().resolve()
+    elif index_dir is not None:
+        resolved = index_dir.expanduser().resolve() / DICTIONARY_INDEX_FILENAME
+    else:
+        resolved = get_dictionary_index_db_path(app_data_dir=app_data_dir)
 
     resolved.parent.mkdir(parents=True, exist_ok=True)
     return resolved

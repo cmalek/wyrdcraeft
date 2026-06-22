@@ -39,6 +39,10 @@ Basic Help
     wyrdcraeft morphology query --help
     wyrdcraeft morphology generate-reference-snapshots --help
 
+    # Bosworth-Toller dictionary commands
+    wyrdcraeft dictionary --help
+    wyrdcraeft dictionary index-bt --help
+
 Command Structure
 -----------------
 
@@ -106,3 +110,4 @@ The following pages document the CLI commands in detail:
    command_morphology_generate
    command_morphology_query
    command_morphology_generate_reference_snapshots
+   command_dictionary_index_bt

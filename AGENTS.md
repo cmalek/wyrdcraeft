@@ -83,3 +83,25 @@ For all non-test Python code in this repository:
 Enforcement command:
 - `make napoleon-gate` (no new violations vs baseline)
 - `make napoleon-gate-strict` (all violations; use when explicitly requested)
+
+## Morphology SQLite Test Safety (Required)
+
+**Warning:** `wyrdcraeft morphology generate` writes `morphology.sqlite3` to the
+user's OS application-data directory by default (for example
+`~/Library/Application Support/wyrdcraeft/morphology.sqlite3` on macOS). Tests
+that invoke morphology generation without relocating that path **will overwrite
+real user data**.
+
+Any test that runs `morphology generate`, calls morphology generation entry
+points that write the SQLite index, or otherwise resolves the default morphology
+index path **must** isolate output first. Use one of:
+
+1. **`isolated_morphology_app_data` fixture** (preferred for default-path
+   behavior) — sets `WYRDCRAEFT_APP_DATA_DIR` to a temporary directory for the
+   test via `tests/conftest.py`.
+2. **`--index-dir` with a temporary directory** — pass `--index-dir` pointing
+   at `temp_dir` or `tmp_path` when exercising explicit CLI overrides.
+
+Do not invoke `morphology generate` in tests without one of the above unless
+the test mocks or patches path resolution and never touches the real app-data
+location.

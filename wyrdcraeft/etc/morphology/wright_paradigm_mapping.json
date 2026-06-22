@@ -1,0 +1,289 @@
+{
+    "masculine": {
+      "a-stem declension": {
+        "paradigmatic_word": "stān",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [334, 335, 336, 337, 338, 339, 340, 341],
+        "mapping_rationale": "Wright treats masculine a-stems in §§334-341. The paradigmatic noun stān is the standard heavy masculine a-stem example."
+      },
+      "ja-stem declension": {
+        "paradigmatic_word": "secg",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [351, 352, 353, 354],
+        "mapping_rationale": "Wright treats masculine ja-stems in §§351-354 as a subclass of the broader masculine a-stem system. Secg is a representative masculine ja-stem."
+      },
+      "wa-stem declension": {
+        "paradigmatic_word": "bearu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [359, 360],
+        "mapping_rationale": "Wright treats masculine wa-stems in §§359-360. Bearu is a representative masculine wa-stem noun."
+      },
+      "i-stem declension": {
+        "paradigmatic_word": "gæst",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [385, 386, 387, 388],
+        "mapping_rationale": "Wright treats masculine i-stems in §§385-388. Gæst is a standard masculine i-stem example, though many masculine i-stems partially merged with a-stem forms."
+      },
+      "u-stem declension": {
+        "paradigmatic_word": "sunu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html",
+          "STELLA. (n.d.). Essentials of Old English: Basic paradigms. Retrieved June 21, 2026, from https://stella.glasgow.ac.uk/eoe/basic-paradigms-4.html"
+        ],
+        "wright_paradigms": [395, 396, 397],
+        "mapping_rationale": "Wright treats masculine u-stems in §§395-397. Sunu is the standard masculine u-stem paradigm noun."
+      },
+      "weak (n-stem) declension": {
+        "paradigmatic_word": "guma",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html",
+          "STELLA. (n.d.). Essentials of Old English: Basic paradigms. Retrieved June 21, 2026, from https://stella.glasgow.ac.uk/eoe/basic-paradigms-1.html"
+        ],
+        "wright_paradigms": [400, 401, 402],
+        "mapping_rationale": "This collapses n-stem, weak declension, and an-declension. Wright treats the historical class as masculine n-stems in §§400-402; modern teaching grammars usually call the same class weak nouns because most oblique forms contain -an."
+      },
+      "root-noun declension": {
+        "paradigmatic_word": "fōt",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [408, 409],
+        "mapping_rationale": "This collapses root-noun declension and monosyllabic consonant-stem declension. Wright's masculine monosyllabic consonant stems correspond to root nouns. Fōt, with plural fēt, is the standard masculine root-noun example."
+      },
+      "þ-stem declension": {
+        "paradigmatic_word": "hæleþ",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [414],
+        "mapping_rationale": "Wright §414 treats stems in -þ. Hæleþ is the representative masculine þ-stem noun."
+      },
+      "r-stem declension": {
+        "paradigmatic_word": "fæder",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [415],
+        "mapping_rationale": "This collapses r-stem, kinship-noun, and family-noun labels. Wright §415 treats stems in -r and lists kinship nouns. Fæder is the paradigmatic masculine r-stem; brōþor belongs here as well."
+      },
+      "nd-stem declension": {
+        "paradigmatic_word": "frēond",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [416, 417, 418],
+        "mapping_rationale": "This collapses nd-stem and present-participle noun labels. Wright §§416-418 treat stems in -nd, historically present participial nouns. Frēond is the standard representative noun."
+      }
+    },
+    "feminine": {
+      "ō-stem declension": {
+        "paradigmatic_word": "giefu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [364, 365, 366, 367, 368, 369, 370, 371, 372, 373],
+        "mapping_rationale": "This collapses Wright's o-stem spelling into the normalized modern label ō-stem. Wright's feminine o-stems correspond to modern ō-stems. Giefu is the standard short feminine ō-stem paradigm noun."
+      },
+      "jō-stem declension": {
+        "paradigmatic_word": "synn",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [374, 375, 376, 377, 378],
+        "mapping_rationale": "This collapses jo-stem into the normalized modern label jō-stem. Wright's feminine jo-stems correspond to modern jō-stems. Synn is a representative feminine jō-stem."
+      },
+      "wō-stem declension": {
+        "paradigmatic_word": "sǣ",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [379, 380, 381],
+        "mapping_rationale": "This collapses wo-stem into the normalized modern label wō-stem. Wright's feminine wo-stems correspond to modern wō-stems. Sǣ is a representative feminine wō-stem."
+      },
+      "feminine abstract -i declension": {
+        "paradigmatic_word": "mǣgþ",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [382, 383],
+        "mapping_rationale": "Wright separately treats feminine abstract nouns in -i in §§382-383. Mǣgþ is a representative abstract-type noun."
+      },
+      "i-stem declension": {
+        "paradigmatic_word": "dǣd",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [389, 390, 391],
+        "mapping_rationale": "Wright treats feminine i-stems in §§389-391. Dǣd is a standard feminine i-stem example."
+      },
+      "u-stem declension": {
+        "paradigmatic_word": "duru",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [398],
+        "mapping_rationale": "Wright treats feminine u-stems in §398. Duru is the standard feminine u-stem paradigm noun."
+      },
+      "weak (n-stem) declension": {
+        "paradigmatic_word": "tunge",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html",
+          "STELLA. (n.d.). Essentials of Old English: Basic paradigms. Retrieved June 21, 2026, from https://stella.glasgow.ac.uk/eoe/basic-paradigms-1.html"
+        ],
+        "wright_paradigms": [403, 404, 405],
+        "mapping_rationale": "This collapses n-stem, weak declension, and an-declension. Wright treats the historical class as feminine n-stems in §§403-405; modern teaching grammars usually call the same class weak nouns because most oblique forms contain -an."
+      },
+      "root-noun declension": {
+        "paradigmatic_word": "bōc",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [410, 411, 412],
+        "mapping_rationale": "This collapses root-noun declension and monosyllabic consonant-stem declension. Wright's feminine monosyllabic consonant stems correspond to feminine root nouns. Bōc, with plural bēc, is the standard feminine root-noun example."
+      },
+      "þ-stem declension": {
+        "paradigmatic_word": "mægþ",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [414],
+        "mapping_rationale": "Wright §414 treats stems in -þ. Mægþ is the representative feminine þ-stem noun."
+      },
+      "r-stem declension": {
+        "paradigmatic_word": "mōdor",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [415],
+        "mapping_rationale": "This collapses r-stem, kinship-noun, and family-noun labels. Wright §415 treats stems in -r and lists kinship nouns. Mōdor/mōþor is the paradigmatic feminine r-stem; sweostor belongs here as well."
+      }
+    },
+    "neuter": {
+      "a-stem declension": {
+        "paradigmatic_word": "word",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946",
+          "Old English Online. (n.d.). Strong nouns. Retrieved June 21, 2026, from https://oldenglish.info/naf7.html"
+        ],
+        "wright_paradigms": [342, 343, 344, 345, 346, 347, 348, 349, 350],
+        "mapping_rationale": "Wright treats neuter a-stems in §§342-350. Word is a standard heavy neuter a-stem example."
+      },
+      "ja-stem declension": {
+        "paradigmatic_word": "cynn",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [355, 356, 357, 358],
+        "mapping_rationale": "Wright treats neuter ja-stems in §§355-358. Cynn is a representative neuter ja-stem."
+      },
+      "wa-stem declension": {
+        "paradigmatic_word": "treow",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Kastovsky, D. (n.d.). Old English noun declensions. SELIM. Retrieved June 21, 2026, from https://reunido.uniovi.es/index.php/SELIM/article/download/13622/12327/28946"
+        ],
+        "wright_paradigms": [361, 362, 363],
+        "mapping_rationale": "Wright treats neuter wa-stems in §§361-363. Treow is the standard neuter wa-stem example."
+      },
+      "i-stem declension": {
+        "paradigmatic_word": "spere",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [392, 393],
+        "mapping_rationale": "Wright treats neuter i-stems in §§392-393. Spere is the representative neuter i-stem."
+      },
+      "u-stem declension": {
+        "paradigmatic_word": "feolu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [399],
+        "mapping_rationale": "Wright §399 treats neuter u-stem remnants. Feolu/fela is the representative remnant rather than a productive paradigm noun."
+      },
+      "weak (n-stem) declension": {
+        "paradigmatic_word": "ēage",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html",
+          "STELLA. (n.d.). Essentials of Old English: Basic paradigms. Retrieved June 21, 2026, from https://stella.glasgow.ac.uk/eoe/basic-paradigms-1.html"
+        ],
+        "wright_paradigms": [406, 407],
+        "mapping_rationale": "This collapses n-stem, weak declension, and an-declension. Wright treats the historical class as neuter n-stems in §§406-407; modern teaching grammars usually call the same class weak nouns because most oblique forms contain -an."
+      },
+      "root-noun declension": {
+        "paradigmatic_word": "scrūd",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [413],
+        "mapping_rationale": "This collapses root-noun declension and monosyllabic consonant-stem declension. Wright §413 treats the rare neuter root-noun/consonant-stem remnant. Scrūd is the representative example."
+      },
+      "þ-stem declension": {
+        "paradigmatic_word": "ealu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [414],
+        "mapping_rationale": "Wright §414 treats stems in -þ and includes neuter remnants. Ealu is the representative neuter item in this small class."
+      },
+      "s-stem declension": {
+        "paradigmatic_word": "lamb",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar",
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html"
+        ],
+        "wright_paradigms": [419, 420],
+        "mapping_rationale": "Wright's os/es stems are the historical s-stem/z-stem type that yields Old English r-plurals. Lamb is the standard representative noun."
+      },
+      "z-stem declension": {
+        "paradigmatic_word": "lamb",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [419, 420],
+        "mapping_rationale": "The z-stem label reflects the Germanic development of earlier s-stems; Wright's corresponding Old English paradigms are the os/es stems in §§419-420."
+      },
+      "os-es stem declension": {
+        "paradigmatic_word": "lamb",
+        "references": [
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [419, 420],
+        "mapping_rationale": "Os-es stem is Wright's own historical label for the neuter nouns whose plural forms contain -r-, such as lamb, plural lambru."
+      },
+      "r-plural declension": {
+        "paradigmatic_word": "lamb",
+        "references": [
+          "Old English Online. (n.d.). Weak and minor nouns. Retrieved June 21, 2026, from https://oldenglish.info/wam5.html",
+          "Wright, J., & Wright, E. M. (1925). Old English grammar (3rd ed.). Oxford University Press. Retrieved June 21, 2026, from https://archive.org/details/OldEnglishGrammar"
+        ],
+        "wright_paradigms": [419, 420],
+        "mapping_rationale": "The pedagogical label r-plural maps to Wright's os/es stems because the class forms plurals with inherited -r-, as in lamb/lambru."
+      }
+    }
+  }

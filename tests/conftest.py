@@ -19,6 +19,8 @@ import pytest
 from click.testing import CliRunner
 from rich.console import Console
 
+from wyrdcraeft.paths import MORPHOLOGY_INDEX_FILENAME
+
 LLAMA_HEALTHCHECK_URL = "http://127.0.0.1:8080/v1/models"
 LLAMA_READINESS_POLL_SECONDS = 0.25
 LLAMA_STARTUP_TIMEOUT_SECONDS = 120.0
@@ -39,6 +41,36 @@ def temp_dir():
     """Create a temporary directory for testing."""
     with tempfile.TemporaryDirectory() as temp_dir:
         yield Path(temp_dir)
+
+
+@pytest.fixture
+def isolated_morphology_app_data(tmp_path, monkeypatch) -> Path:
+    """
+    Relocate default morphology.sqlite3 to a temporary app-data directory.
+
+    Side Effects:
+        Sets ``WYRDCRAEFT_APP_DATA_DIR`` for the duration of the test.
+
+    Returns:
+        Directory that will contain ``morphology.sqlite3`` when generate runs
+        without ``--index-dir`` or ``--index-db``.
+
+    """
+    app_data_dir = tmp_path / "wyrdcraeft-app-data"
+    monkeypatch.setenv("WYRDCRAEFT_APP_DATA_DIR", str(app_data_dir))
+    return app_data_dir
+
+
+@pytest.fixture
+def isolated_morphology_index_db(isolated_morphology_app_data: Path) -> Path:
+    """
+    Expected morphology SQLite path under ``isolated_morphology_app_data``.
+
+    Returns:
+        Path to ``morphology.sqlite3`` inside the isolated app-data directory.
+
+    """
+    return isolated_morphology_app_data / MORPHOLOGY_INDEX_FILENAME
 
 
 @pytest.fixture
