@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from wyrdcraeft.cli.cli import cli
@@ -19,6 +20,79 @@ def test_dictionary_group_help(runner) -> None:
     result = runner.invoke(cli, ["dictionary", "--help"])
     assert result.exit_code == 0
     assert "index-bt" in result.output
+    assert "lookup" in result.output
+
+
+def test_dictionary_lookup_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "lookup", "--help"])
+    assert result.exit_code == 0
+    assert "--pos" in result.output
+    assert "--index-db" in result.output
+    assert "--index-dir" in result.output
+    assert "--json-output" in result.output
+
+
+def test_dictionary_lookup_smoke(runner, temp_dir) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    index_result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "index-bt",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--index-db",
+            str(index_db),
+        ],
+    )
+    assert index_result.exit_code == 0, index_result.output
+
+    lookup_result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "lookup",
+            "abbod",
+            "--index-db",
+            str(index_db),
+        ],
+    )
+    assert lookup_result.exit_code == 0, lookup_result.output
+    assert "Lemma:" in lookup_result.output
+    assert "POS: noun" in lookup_result.output
+    assert "Senses:" in lookup_result.output
+    assert "Variants:" in lookup_result.output
+
+
+def test_dictionary_lookup_json_output(runner, temp_dir) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "index-bt",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--index-db",
+            str(index_db),
+        ],
+    )
+
+    lookup_result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "lookup",
+            "abbod",
+            "--index-db",
+            str(index_db),
+            "--json-output",
+        ],
+    )
+    assert lookup_result.exit_code == 0, lookup_result.output
+    payload = json.loads(lookup_result.output)
+    assert payload[0]["norm_key"] == "abbad"
+    assert payload[0]["pos"] == "noun"
 
 
 def test_dictionary_index_bt_help(runner) -> None:

@@ -71,6 +71,31 @@ _LEADING_GRAM_PREFIX_RE: Final[re.Pattern[str]] = re.compile(
 #: Maximum length considered "short abbreviation-only" for citation-span detection.
 _MAX_ABBREV_LEN: Final[int] = 6
 
+#: Minimum plain-text length for substantive sense-body warning heuristics.
+_MIN_SUBSTANTIVE_BODY_LEN: Final[int] = 20
+#: Minimum gloss length before low-confidence attestation warnings fire.
+_MIN_GLOSS_LEN: Final[int] = 3
+#: Minimum source body length for short-gloss low-confidence warnings.
+_MIN_BODY_LEN_FOR_SHORT_GLOSS: Final[int] = 80
+#: Maximum gloss length paired with long source bodies for low-confidence warnings.
+_MAX_SHORT_GLOSS_LEN: Final[int] = 10
+
+
+def _substantive_html_content(sense_body: str) -> bool:
+    """
+    Return ``True`` when *sense_body* still contains meaningful text after cleanup.
+
+    Args:
+        sense_body: Raw HTML sense block.
+
+    Returns:
+        ``True`` when enough non-tag content remains to expect a gloss.
+
+    """
+    plain = _TAG_RE.sub(" ", _BRACKET_BLOCK_RE.sub("", sense_body))
+    plain = _WS_RE.sub(" ", plain).strip(" ,;.:-()")
+    return len(plain) >= _MIN_SUBSTANTIVE_BODY_LEN
+
 
 def _is_grammatical_abbrev(text: str) -> bool:
     """
@@ -224,6 +249,36 @@ class BTAttestationStripper:
         body = _BRACKET_BLOCK_RE.sub("", sense_body)
         pre_attest = self._cut_at_separator(body)
         return self._extract_gloss(pre_attest)
+
+    def is_low_confidence(self, sense_body: str, gloss: str) -> bool:
+        """
+        Return ``True`` when attestation stripping likely left noisy or
+        incomplete glosses.
+
+        Heuristics include residual attestation separators, very short glosses relative
+        to the source body, and empty glosses when the body still contains substantive
+        HTML content after bracket removal.
+
+        Args:
+            sense_body: Raw HTML sense block passed to :meth:`strip`.
+            gloss: Gloss returned by :meth:`strip`.
+
+        Returns:
+            ``True`` when the strip result should be flagged for optional LLM repair.
+
+        """
+        if not gloss.strip():
+            return _substantive_html_content(sense_body)
+        if len(gloss.strip()) < _MIN_GLOSS_LEN:
+            return True
+        if _ATTEST_SEP_RE.search(gloss):
+            return True
+        plain_body = _TAG_RE.sub(" ", _BRACKET_BLOCK_RE.sub("", sense_body))
+        plain_body = _WS_RE.sub(" ", plain_body).strip()
+        return (
+            len(plain_body) >= _MIN_BODY_LEN_FOR_SHORT_GLOSS
+            and len(gloss.strip()) < _MAX_SHORT_GLOSS_LEN
+        )
 
     def _cut_at_separator(self, text: str) -> str:
         r"""

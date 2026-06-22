@@ -8,8 +8,17 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from wyrdcraeft.models.dictionary import BTLineKind, BTPos
+from wyrdcraeft.services.dictionary.attestation_stripper import (
+    _substantive_html_content,
+)
 from wyrdcraeft.services.dictionary.editorial_merger import BTEditorialMerger
 from wyrdcraeft.services.dictionary.line_parser import BTLineParser, ParsedBTLine
+from wyrdcraeft.services.dictionary.llm_fix_pass import (
+    BTLLMFixPass,
+    BTParseWarning,
+    write_parse_warnings,
+)
 from wyrdcraeft.services.dictionary.sense_segmenter import BTSenseSegmenter
 
 if TYPE_CHECKING:
@@ -152,7 +161,14 @@ class BTIndexPipeline:
         #: Editorial merge collaborator.
         self.editorial_merger = editorial_merger or BTEditorialMerger()
 
-    def run(self, source: Path, sink: BTSqliteSink) -> IndexReport:
+    def run(
+        self,
+        source: Path,
+        sink: BTSqliteSink,
+        *,
+        warnings_path: Path | None = None,
+        llm_fix_pass: BTLLMFixPass | None = None,
+    ) -> IndexReport:
         """
         Index one Bosworth-Toller source file into SQLite.
 
@@ -164,15 +180,21 @@ class BTIndexPipeline:
             source: Path to ``oe_bt.txt`` or a stratified corpus fixture.
             sink: SQLite sink receiving consolidated entries.
 
+        Keyword Args:
+            warnings_path: Optional path for ``parse_warnings.jsonl`` output.
+            llm_fix_pass: Optional LLM repair pass applied to warning lines only.
+
         Returns:
             Summary report with parse, merge, and write statistics.
 
         Side Effects:
-            Writes consolidated dictionary rows through ``sink``.
+            Writes consolidated dictionary rows through ``sink`` and optionally
+            emits ``parse_warnings.jsonl``.
 
         """
         parsed_lines: list[ParsedBTLine] = []
         skipped_by_reason: Counter[str] = Counter()
+        parse_warnings: list[BTParseWarning] = []
         lines_read = 0
 
         with source.open(encoding="utf-8") as handle:
@@ -184,7 +206,15 @@ class BTIndexPipeline:
                 parsed = self._parse_and_segment(line_no, stripped)
                 if parsed.skip_reason is not None:
                     skipped_by_reason[parsed.skip_reason] += 1
+                else:
+                    parse_warnings.extend(self._collect_parse_warnings(parsed))
                 parsed_lines.append(parsed)
+
+        if warnings_path is not None:
+            write_parse_warnings(warnings_path, parse_warnings)
+
+        if llm_fix_pass is not None and warnings_path is not None:
+            llm_fix_pass.apply_fixes(warnings_path, parsed_lines)
 
         entries, edit_records = self.editorial_merger.merge(parsed_lines)
         (
@@ -198,6 +228,8 @@ class BTIndexPipeline:
         warning_counts: Counter[str] = Counter(
             {f"skip:{reason}": count for reason, count in skipped_by_reason.items()}
         )
+        for warning in parse_warnings:
+            warning_counts[f"parse:{warning.failure_reason}"] += 1
         for record in edit_records:
             if not record.applied:
                 warning_counts[f"edit_unapplied:{record.op.value}"] += 1
@@ -234,3 +266,81 @@ class BTIndexPipeline:
             return parsed
         senses = self.sense_segmenter.segment_parsed_line(parsed.raw_line.raw_text)
         return dataclasses.replace(parsed, senses=senses)
+
+    def _collect_parse_warnings(self, parsed: ParsedBTLine) -> list[BTParseWarning]:
+        """
+        Collect parse warnings for one accepted parsed line.
+
+        Args:
+            parsed: Parsed and segmented line payload.
+
+        Returns:
+            Warning records for optional LLM repair.
+
+        """
+        if parsed.raw_line is None:
+            return []
+
+        body = parsed.raw_line.raw_text
+        headword = parsed.headword_macronized or parsed.raw_line.headword_raw
+        pos_hint = parsed.pos.value
+        line_no = parsed.raw_line.line_no
+        warnings: list[BTParseWarning] = []
+
+        if parsed.raw_line.kind == BTLineKind.MAIN and parsed.pos == BTPos.UNKNOWN:
+            warnings.append(
+                BTParseWarning(
+                    line_no=line_no,
+                    body=body,
+                    headword=headword,
+                    pos_hint=pos_hint,
+                    failure_reason="pos_unknown_main",
+                )
+            )
+
+        if not parsed.senses and _substantive_html_content(body):
+            warnings.append(
+                BTParseWarning(
+                    line_no=line_no,
+                    body=body,
+                    headword=headword,
+                    pos_hint=pos_hint,
+                    failure_reason="empty_senses_nonempty_body",
+                )
+            )
+
+        if self._attestation_strip_low_confidence(parsed):
+            warnings.append(
+                BTParseWarning(
+                    line_no=line_no,
+                    body=body,
+                    headword=headword,
+                    pos_hint=pos_hint,
+                    failure_reason="attestation_strip_low_confidence",
+                )
+            )
+
+        return warnings
+
+    def _attestation_strip_low_confidence(self, parsed: ParsedBTLine) -> bool:
+        """
+        Return ``True`` when attestation stripping likely produced weak glosses.
+
+        Args:
+            parsed: Parsed and segmented line payload.
+
+        Returns:
+            ``True`` when the stripper confidence heuristic fires.
+
+        """
+        if parsed.raw_line is None:
+            return False
+
+        body = parsed.raw_line.raw_text
+        stripper = self.sense_segmenter.stripper
+        if parsed.senses:
+            return any(
+                stripper.is_low_confidence(body, sense.gloss_en)
+                for sense in parsed.senses
+            )
+        return stripper.is_low_confidence(body, stripper.strip(body))

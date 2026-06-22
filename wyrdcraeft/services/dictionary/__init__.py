@@ -5,26 +5,38 @@ from .bt_spelling import BTSpellingNormalizer
 from .editorial_merger import BTEditorialMerger, BTEditRecord
 from .line_parser import BTLineParser, ParsedBTLine
 from .line_splitter import BTLineSplitter, BTSplitLine
+from .llm_fix_pass import (
+    DEFAULT_OLLAMA_ENDPOINT,
+    BTLLMFixPass,
+    BTParseWarning,
+    LLMFixStats,
+)
 from .pipeline import BTIndexPipeline, IndexReport
 from .pos_gender import BTPosGenderExtractor, PosGenderResult
+from .query import BTQueryService
 from .sense_segmenter import BTSenseSegmenter
 from .sinks import BTSqliteSink
 from .target_resolver import BTTargetResolver
 
 __all__ = [
+    "DEFAULT_OLLAMA_ENDPOINT",
     "BTAttestationStripper",
     "BTEditRecord",
     "BTEditorialMerger",
     "BTIndexPipeline",
+    "BTLLMFixPass",
     "BTLineParser",
     "BTLineSplitter",
+    "BTParseWarning",
     "BTPosGenderExtractor",
+    "BTQueryService",
     "BTSenseSegmenter",
     "BTSpellingNormalizer",
     "BTSplitLine",
     "BTSqliteSink",
     "BTTargetResolver",
     "IndexReport",
+    "LLMFixStats",
     "ParsedBTLine",
     "PosGenderResult",
 ]

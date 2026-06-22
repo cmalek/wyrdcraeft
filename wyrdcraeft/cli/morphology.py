@@ -16,7 +16,9 @@ from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_vbforms,
     output_manual_forms,
 )
-from wyrdcraeft.services.morphology.generation.query import MorphologyQueryService
+from wyrdcraeft.services.morphology.generation.query import (
+    MorphologyQueryService,
+)
 from wyrdcraeft.services.morphology.generation.sinks import (
     CompositeSink,
     SqliteIndexSink,
@@ -490,6 +492,44 @@ def _resolve_progress_every(
     return resolved
 
 
+def _format_dictionary_join_text(entry: dict[str, object]) -> str:
+    """
+    Render one dictionary join entry as human-readable text.
+
+    Args:
+        entry: Dictionary join payload from ``dictionary_join_entry_to_dict``.
+
+    Returns:
+        Multi-line text block without attestations.
+
+    """
+    headword = str(entry["headword"])
+    pos = str(entry["pos"])
+    genders = entry.get("genders", [])
+    gender_text = ""
+    if isinstance(genders, list) and genders:
+        gender_text = f"  Gender: {', '.join(str(value) for value in genders)}"
+
+    lines = [f"Dictionary: {headword}", f"POS: {pos}{gender_text}", "Senses:"]
+    senses = entry.get("senses", [])
+    if isinstance(senses, list):
+        for sense in senses:
+            if not isinstance(sense, dict):
+                continue
+            label = str(sense.get("sense_label", "")).strip()
+            gloss = str(sense.get("gloss_en", "")).strip()
+            prefix = f"  {label}. " if label and not label.endswith(".") else "  "
+            if label and label.endswith("."):
+                prefix = f"  {label} "
+            lines.append(f"{prefix}{gloss}".rstrip())
+
+    etymology = str(entry.get("etymology", "")).strip()
+    if etymology:
+        lines.append(f"Etymology: {etymology}")
+
+    return "\n".join(lines)
+
+
 @morphology_group.command(
     name="query",
     help="Query generated morphology rows from a SQLite index.",
@@ -515,12 +555,29 @@ def _resolve_progress_every(
     show_default=True,
     help="Render query output as JSON.",
 )
-def query(
+@click.option(
+    "--with-dictionary",
+    is_flag=True,
+    default=False,
+    help="Attach matching Bosworth-Toller dictionary entries to the output.",
+)
+@click.option(
+    "--dictionary-db",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help=(
+        "Dictionary SQLite index path (defaults to sibling dictionary.sqlite3 "
+        "or bt_* tables inside the morphology database)."
+    ),
+)
+def query(  # noqa: PLR0913
     db_path: Path,
     lemma: str | None,
     surface_form: str | None,
     limit: int,
     json_output: bool,
+    with_dictionary: bool,
+    dictionary_db: Path | None,
 ) -> None:
     """
     Query morphology rows by lemma or surface form.
@@ -536,6 +593,8 @@ def query(
         surface_form: Optional surface form lookup key.
         limit: Maximum number of rows to emit.
         json_output: When true, print JSON instead of tab-separated rows.
+        with_dictionary: When true, attach Bosworth-Toller dictionary entries.
+        dictionary_db: Optional explicit dictionary SQLite index path.
 
     Side Effects:
         Reads the SQLite morphology index and writes rows to stdout.
@@ -552,21 +611,49 @@ def query(
     try:
         if lemma is not None:
             rows = query_service.lookup_by_lemma(lemma, limit=max(1, limit))
+            lookup_token = lemma
         else:
             rows = query_service.lookup_by_form(surface_form or "", limit=max(1, limit))
+            lookup_token = rows[0].BT if rows else (surface_form or "")
+
+        dictionary_entries: list[dict[str, object]] = []
+        if with_dictionary:
+            dictionary_entries = query_service.lookup_dictionary_entries(
+                lookup_token,
+                rows,
+                dictionary_db_path=dictionary_db,
+            )
     finally:
         query_service.close()
 
     if json_output:
-        click.echo(
-            json.dumps([row.model_dump() for row in rows], ensure_ascii=False, indent=2)
-        )
+        if with_dictionary:
+            payload: dict[str, object] = {
+                "forms": [row.model_dump() for row in rows],
+                "dictionary": dictionary_entries,
+            }
+            click.echo(json.dumps(payload, ensure_ascii=False, indent=2))
+        else:
+            click.echo(
+                json.dumps(
+                    [row.model_dump() for row in rows],
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         return
 
     for row in rows:
         click.echo(
             f"{row.counter}\t{row.form}\t{row.BT}\t{row.function}\t{row.probability}"
         )
+
+    if with_dictionary and dictionary_entries:
+        click.echo("")
+        for index, entry in enumerate(dictionary_entries):
+            if index:
+                click.echo("")
+            click.echo(_format_dictionary_join_text(entry))
 
 
 @morphology_group.command(
