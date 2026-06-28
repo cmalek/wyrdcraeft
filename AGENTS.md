@@ -1,107 +1,63 @@
 # AGENTS.md
 
-## Tooling Preflight Evidence (Required)
+## Agent skills
 
-Before planning or implementation, every agent must provide concise evidence of:
+- Tracker: Trello `wyrdcraft`. See `docs/agents/issue-tracker.md`.
+- Labels: `needs-triage`, `needs-info`, `ready-for-agent`,
+  `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+- Domain: single-context; read root `CONTEXT.md` and `docs/adr/` when present.
+  See `docs/agents/domain.md`.
 
-1. `memory_search` for relevant prior context.
-2. At least one `aidex` call (`aidex_session` plus a query/signature/tree/files/status call as useful).
-3. At least one `code-index` call (search/find/symbol/summary as useful).
-4. `context7` and/or `package-registry-mcp` when external library/package behavior, versioning, or package details are relevant.
+## Required workflow
 
-In an early progress update, include the tool names used and one line on what each returned.
-If a tool is not relevant for the task, state that explicitly in one line.
+- Before plan/code: run one `memory_search`, `aidex_session` plus one more
+  `aidex` call, and one `code-index` call. Use `context7` and/or
+  `package-registry-mcp` only for external package behavior/version details.
+- Early update: name tools used plus one-line result for each. If tool not
+  relevant, say so.
+- After edits, if any Python files were touched, run `ruff check` on touched
+  files or a broader needed target, `.venv/bin/mypy` on touched files or a
+  broader needed target, and `make napoleon-gate`.
+- Fix failures you introduced. Report unrelated/pre-existing failures
+  separately.
 
-## Post-Implementation Quality Gate (Required)
+## Implementation priorities
 
-After implementation edits are complete:
+- Ship direct product-code fix, not workaround for doc-gate/baseline noise.
+- No runtime patching, indirection, monkey-patching, startup hooks, or similar
+  tricks just to avoid real source.
+- If right fix lives in noisy legacy file, edit it there.
+- For non-trivial behavior, prefer cohesive classes over loose function piles.
+  Avoid namespace-only classes. Use explicit collaborators/constructor
+  injection when clearer.
 
-1. Run `ruff` on the touched files (or broader target if the task requires it).
-2. Run `mypy` on the touched files (or broader target if the task requires it).  Use this commandline for mypy: `.venv/bin/mypy`
-3. Run `make napoleon-gate` to enforce no new Napoleon documentation violations.
-4. Fix all problems reported by those runs before finishing the task.
+## Python documentation contract
 
-## Implementation Priority (Required)
+For non-test Python:
 
-Always choose the correct, direct implementation of product code over workarounds
-added only to avoid doc-gate noise, baseline drift, or other documentation-tool
-friction.
+- Class docstring: class contract; ctor `Args:` when needed.
+- Fn/method docstring: brief desc; add only real `Side Effects:`, `Args:`,
+  `Keyword Args:`, `Raises:`, `Returns:`, `Yields:`. No empty sections. No
+  placeholder `None.`
+- Add Napoleon `#:` for module globals, class attrs, and `__init__` instance
+  attrs.
+- Morphology logic needs `Note:` citing
+  `data/OldEnglishGrammar.pdf` and `data/Ondej_Tich_40-54-1.pdf`, explaining
+  behavior plainly, and naming PoS scope: `verb`, `noun`, `adjective`,
+  `adverb`, `numeral`, or `cross-PoS`.
+- `make napoleon-gate` = no new baseline violations.
+- `make napoleon-gate-strict` only if asked.
 
-Specifically:
+## Morphology test safety
 
-1. Do not add runtime patching, indirection, monkey-patching, startup hooks, or
-   similar architectural workarounds solely to avoid touching the correct source
-   file.
-2. If the correct implementation lives in a legacy file with noisy documentation
-   or baseline issues, implement it there anyway.
-3. Then report the quality-gate blocker clearly and separately, including which
-   failures are pre-existing or unrelated.
-4. Architecture and code correctness take priority over avoiding documentation
-   churn.
-
-## Human-Comprehensible Architecture Preference (Required)
-
-For most non-trivial behavior in this repository, prefer implementing cohesive,
-human-comprehensible classes over large collections of loosely related free
-functions, even when those classes are mostly stateless.
-
-Reason:
-
-1. Clear class responsibilities and interactions make it easier for humans to
-   cognitively model the system.
-2. Prefer classes that represent real workflow boundaries, owned
-   responsibilities, or stable concepts in the domain.
-3. Avoid creating classes that are just arbitrary namespaces, but when the
-   alternative is a mass of individual functions with shared implicit context,
-   prefer the class-oriented design.
-4. Favor constructor injection and explicit collaborators when that improves
-   readability and makes the system easier for humans to follow.
-
-## Documentation Contract (Required)
-
-For all non-test Python code in this repository:
-
-1. Class docstrings must describe the class contract and include constructor `Args:` when constructor arguments exist.
-2. Function/method docstrings must include:
-   - brief description
-   - `Side Effects:` (only when there are real side effects; omit otherwise)
-   - `Args:` (only when positional args exist; omit otherwise)
-   - `Keyword Args:` (only when keyword args exist; omit otherwise)
-   - `Raises:` (only when meaningful exceptions are raised; omit otherwise)
-   - `Returns:` or `Yields:` (only when applicable; omit otherwise)
-   - Do not add placeholder content such as `None.` for empty/inapplicable sections.
-   - Never add `Args:`/`Keyword Args:`/`Returns:`/`Yields:` sections when they would be empty or semantically `None`.
-3. Document all of the following with Napoleon `#:` comments:
-   - class attributes
-   - instance attributes assigned in `__init__`
-   - module-level global variables
-4. Linguistic `Note:` blocks are required for morphology logic and must:
-   - cite both `data/OldEnglishGrammar.pdf` and `data/Ondej_Tich_40-54-1.pdf`
-   - explain the function/method behavior in clear layman terms
-   - state the Part of Speech scope explicitly (verb, noun, adjective, adverb, numeral, or cross-PoS)
-
-Enforcement command:
-- `make napoleon-gate` (no new violations vs baseline)
-- `make napoleon-gate-strict` (all violations; use when explicitly requested)
-
-## Morphology SQLite Test Safety (Required)
-
-**Warning:** `wyrdcraeft morphology generate` writes `morphology.sqlite3` to the
-user's OS application-data directory by default (for example
-`~/Library/Application Support/wyrdcraeft/morphology.sqlite3` on macOS). Tests
-that invoke morphology generation without relocating that path **will overwrite
-real user data**.
-
-Any test that runs `morphology generate`, calls morphology generation entry
-points that write the SQLite index, or otherwise resolves the default morphology
-index path **must** isolate output first. Use one of:
-
-1. **`isolated_morphology_app_data` fixture** (preferred for default-path
-   behavior) — sets `WYRDCRAEFT_APP_DATA_DIR` to a temporary directory for the
-   test via `tests/conftest.py`.
-2. **`--index-dir` with a temporary directory** — pass `--index-dir` pointing
-   at `temp_dir` or `tmp_path` when exercising explicit CLI overrides.
-
-Do not invoke `morphology generate` in tests without one of the above unless
-the test mocks or patches path resolution and never touches the real app-data
-location.
+- `wyrdcraeft morphology generate` writes real app-data `morphology.sqlite3` by
+  default. Can overwrite user data.
+- Any test that triggers morphology generation, writes SQLite index, or
+  resolves default index path must isolate output with one of:
+  1. `isolated_morphology_app_data` fixture
+     - preferred for default-path behavior
+     - sets `WYRDCRAEFT_APP_DATA_DIR` to temp dir
+  2. `--index-dir <temp dir>`
+     - use for CLI tests with explicit override
+- Never hit real default path unless path resolution mocked and no real write
+  happens.
