@@ -8,7 +8,10 @@ from typing import TYPE_CHECKING
 
 import click
 
-from wyrdcraeft.paths import resolve_dictionary_index_db_path
+from wyrdcraeft.paths import (
+    resolve_dictionary_index_db_path,
+    resolve_morphology_index_db_path,
+)
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     DEFAULT_OLLAMA_ENDPOINT,
     BTLLMFixPass,
@@ -32,6 +35,25 @@ def _default_source_path() -> Path:
 
     """
     return Path("data/oe_bt.txt")
+
+
+def _missing_morphology_index_message(db_path: Path) -> str:
+    """
+    Build the CLI error shown when ``morphology.sqlite3`` is absent.
+
+    Args:
+        db_path: Resolved morphology SQLite path that was not found.
+
+    Returns:
+        User-facing error message with recovery steps.
+
+    """
+    return (
+        f"Morphology index not found: {db_path}. "
+        "Run `wyrdcraeft morphology generate` to build it, or pass "
+        "--index-db PATH or --index-dir PATH to point at an existing "
+        "morphology.sqlite3."
+    )
 
 
 @click.group(
@@ -65,15 +87,18 @@ def dictionary_group() -> None:
     "--index-dir",
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
-    help="Directory for dictionary.sqlite3 (overrides the OS app-data default).",
+    help=(
+        "Directory for morphology.sqlite3 by default, or dictionary.sqlite3 "
+        "with --standalone (overrides the OS app-data default)."
+    ),
 )
 @click.option(
-    "--attach-morphology-db",
-    type=click.Path(path_type=Path),
-    default=None,
+    "--standalone",
+    is_flag=True,
+    default=False,
     help=(
-        "Write bt_* tables into an existing morphology.sqlite3 without modifying "
-        "forms (mutually exclusive with --index-db and --index-dir)."
+        "Write a fresh dictionary.sqlite3 instead of attaching bt_* tables to "
+        "morphology.sqlite3."
     ),
 )
 @click.option(
@@ -112,7 +137,7 @@ def index_bt(  # noqa: PLR0913
     source: Path,
     index_db: Path | None,
     index_dir: Path | None,
-    attach_morphology_db: Path | None,
+    standalone: bool,
     report: Path | None,
     llm_fix_pass: bool,
     llm_model: str,
@@ -127,7 +152,7 @@ def index_bt(  # noqa: PLR0913
         source: Bosworth-Toller source file to index.
         index_db: Optional SQLite index output file path override.
         index_dir: Optional SQLite index output directory override.
-        attach_morphology_db: Optional morphology SQLite file for attach mode.
+        standalone: When true, write a fresh ``dictionary.sqlite3`` index file.
         report: Optional JSON statistics report path.
         llm_fix_pass: When true, repair warning lines with a local LLM.
         llm_model: Ollama model identifier for the repair pass.
@@ -135,34 +160,33 @@ def index_bt(  # noqa: PLR0913
         warnings_file: Optional parse warnings JSONL output path.
 
     Side Effects:
-        Reads the source dictionary file and writes ``dictionary.sqlite3`` or
-        attaches ``bt_*`` tables to ``morphology.sqlite3``.
+        By default, attaches ``bt_*`` tables to ``morphology.sqlite3``. With
+        ``--standalone``, writes a fresh ``dictionary.sqlite3`` instead.
 
     Raises:
         click.ClickException: Source reading or SQLite writing fails.
 
     """
-    if attach_morphology_db is not None and (
-        index_db is not None or index_dir is not None
-    ):
-        msg = (
-            "Provide either --attach-morphology-db or one of --index-db / "
-            "--index-dir, not both."
-        )
-        raise click.ClickException(msg)
-
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
-    if attach_morphology_db is not None:
-        resolved_index_db = attach_morphology_db.expanduser().resolve()
-        attach_mode = True
-    else:
+    if standalone:
         resolved_index_db = resolve_dictionary_index_db_path(
             index_db=index_db,
             index_dir=index_dir,
             app_data_dir=app_data_dir,
         )
         attach_mode = False
+    else:
+        resolved_index_db = resolve_morphology_index_db_path(
+            index_db=index_db,
+            index_dir=index_dir,
+            app_data_dir=app_data_dir,
+        )
+        attach_mode = True
+        if not resolved_index_db.is_file():
+            raise click.ClickException(
+                _missing_morphology_index_message(resolved_index_db)
+            )
 
     resolved_warnings_file = (
         warnings_file.expanduser().resolve()
@@ -307,7 +331,19 @@ def _format_entry_text(
     "--index-dir",
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
-    help="Directory for dictionary.sqlite3 (overrides the OS app-data default).",
+    help=(
+        "Directory for morphology.sqlite3 by default, or dictionary.sqlite3 "
+        "with --standalone (overrides the OS app-data default)."
+    ),
+)
+@click.option(
+    "--standalone",
+    is_flag=True,
+    default=False,
+    help=(
+        "Read from dictionary.sqlite3 instead of bt_* tables in "
+        "morphology.sqlite3."
+    ),
 )
 @click.option(
     "--json-output/--no-json-output",
@@ -322,6 +358,7 @@ def lookup(  # noqa: PLR0913
     pos: str | None,
     index_db: Path | None,
     index_dir: Path | None,
+    standalone: bool,
     json_output: bool,
 ) -> None:
     """
@@ -333,10 +370,12 @@ def lookup(  # noqa: PLR0913
         pos: Optional POS filter.
         index_db: Optional SQLite index file path override.
         index_dir: Optional SQLite index directory override.
+        standalone: When true, read from a standalone ``dictionary.sqlite3`` file.
         json_output: When true, print JSON instead of formatted text.
 
     Side Effects:
-        Reads the dictionary SQLite index and writes entries to stdout.
+        Reads Bosworth-Toller ``bt_*`` tables from the resolved SQLite database
+        and writes entries to stdout.
 
     Raises:
         click.ClickException: The index database cannot be opened.
@@ -344,14 +383,25 @@ def lookup(  # noqa: PLR0913
     """
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = resolve_dictionary_index_db_path(
-        index_db=index_db,
-        index_dir=index_dir,
-        app_data_dir=app_data_dir,
-    )
-    if not resolved_index_db.is_file():
-        msg = f"Dictionary index not found: {resolved_index_db}"
-        raise click.ClickException(msg)
+    if standalone:
+        resolved_index_db = resolve_dictionary_index_db_path(
+            index_db=index_db,
+            index_dir=index_dir,
+            app_data_dir=app_data_dir,
+        )
+        if not resolved_index_db.is_file():
+            msg = f"Dictionary index not found: {resolved_index_db}"
+            raise click.ClickException(msg)
+    else:
+        resolved_index_db = resolve_morphology_index_db_path(
+            index_db=index_db,
+            index_dir=index_dir,
+            app_data_dir=app_data_dir,
+        )
+        if not resolved_index_db.is_file():
+            raise click.ClickException(
+                _missing_morphology_index_message(resolved_index_db)
+            )
 
     lookup_key = normalize_old_english(lemma) or ""
     query_service = BTQueryService(resolved_index_db)

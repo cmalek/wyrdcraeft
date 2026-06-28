@@ -15,7 +15,7 @@ and expose lookup helpers for dictionary-only and morphology-joined queries.
 - `wyrdcraeft.cli.dictionary`
 - `wyrdcraeft.services.dictionary.pipeline:BTIndexPipeline`
 - `wyrdcraeft.services.dictionary.query:BTQueryService`
-- `wyrdcraeft.paths:resolve_dictionary_index_db_path`
+- `wyrdcraeft.paths:resolve_morphology_index_db_path`
 
 ## Key Files
 
@@ -39,15 +39,17 @@ Inputs:
 
 Outputs:
 
-- `dictionary.sqlite3` by default
-- or attached `bt_*` tables inside existing morphology DB
+- attached `bt_*` tables inside `morphology.sqlite3` by default
+- or a standalone `dictionary.sqlite3` with `--standalone`
 - optional JSON report and parse warnings file
 
 ## Invariants And Sharp Edges
 
-- Attach mode is mutually exclusive with standalone index path options.
-- Default output path is app-data unless caller overrides `--index-db` or
-  `--index-dir`.
+- Default mode attaches `bt_*` tables to an existing morphology database and
+  preserves `forms`.
+- `--standalone` writes a fresh `dictionary.sqlite3` instead.
+- `--index-db` / `--index-dir` target `morphology.sqlite3` by default, or
+  `dictionary.sqlite3` with `--standalone`.
 - Dictionary lookup normalizes forms; display spelling and normalized key are
   intentionally different concerns.
 - Dictionary indexing is separate from morphology generation even when data is

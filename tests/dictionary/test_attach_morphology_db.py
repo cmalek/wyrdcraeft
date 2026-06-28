@@ -112,29 +112,7 @@ def test_attach_missing_db_creates_bt_only(temp_dir: Path) -> None:
     assert merged > 0
 
 
-def test_cli_attach_morphology_db_mutually_exclusive(runner, temp_dir: Path) -> None:
-    morphology_db = temp_dir / "morphology.sqlite3"
-    _seed_forms_table(morphology_db, row_count=1)
-
-    result = runner.invoke(
-        cli,
-        [
-            "dictionary",
-            "index-bt",
-            "--source",
-            str(_SAMPLE_LINES),
-            "--attach-morphology-db",
-            str(morphology_db),
-            "--index-db",
-            str(temp_dir / "dictionary.sqlite3"),
-        ],
-    )
-
-    assert result.exit_code != 0
-    assert "attach-morphology-db" in result.output.lower()
-
-
-def test_cli_attach_morphology_db_smoke(runner, temp_dir: Path) -> None:
+def test_cli_index_bt_defaults_to_morphology_attach(runner, temp_dir: Path) -> None:
     morphology_db = temp_dir / "morphology.sqlite3"
     initial_forms = _seed_forms_table(morphology_db, row_count=3)
 
@@ -145,7 +123,7 @@ def test_cli_attach_morphology_db_smoke(runner, temp_dir: Path) -> None:
             "index-bt",
             "--source",
             str(_SAMPLE_LINES),
-            "--attach-morphology-db",
+            "--index-db",
             str(morphology_db),
         ],
     )
@@ -160,3 +138,56 @@ def test_cli_attach_morphology_db_smoke(runner, temp_dir: Path) -> None:
 
     assert forms_count == initial_forms
     assert bt_count > 0
+
+
+def test_cli_index_bt_missing_morphology_db_fails(runner, temp_dir: Path) -> None:
+    morphology_db = temp_dir / "missing.sqlite3"
+    assert not morphology_db.exists()
+
+    result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "index-bt",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--index-db",
+            str(morphology_db),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "Morphology index not found" in result.output
+    assert "morphology generate" in result.output
+
+
+def test_cli_standalone_writes_dictionary_db(runner, temp_dir: Path) -> None:
+    dictionary_db = temp_dir / "dictionary.sqlite3"
+
+    result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "index-bt",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--standalone",
+            "--index-db",
+            str(dictionary_db),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "attach_mode=no" in result.output
+    assert dictionary_db.is_file()
+
+    with sqlite3.connect(dictionary_db) as conn:
+        tables = {
+            row[0]
+            for row in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+        }
+
+    assert "forms" not in tables
+    assert "bt_entries" in tables
