@@ -75,9 +75,9 @@ def cli(
         print_error(f"Failed to load configuration: {e}")
         sys.exit(1)
 
-    # Configure console based on quiet mode
-    if quiet:
-        console.quiet = True
+    # Reset global console state on every invocation so one quiet run does not
+    # leak into later commands in the same Python process.
+    console.quiet = quiet
 
 
 @cli.command(name="version", help="Print some version info.")

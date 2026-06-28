@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 
 from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.cli.utils import console
 
 
 class TestCLIVersion:
@@ -80,6 +81,16 @@ class TestCLIGlobalOptions:
         result = runner.invoke(cli, ["--quiet", "version"])
         assert result.exit_code == 0
 
+    def test_quiet_flag_does_not_leak_between_invocations(self, runner):
+        """Quiet mode should reset on next non-quiet CLI invocation."""
+        quiet_result = runner.invoke(cli, ["--quiet", "version"])
+        assert quiet_result.exit_code == 0
+        assert console.quiet is True
+
+        normal_result = runner.invoke(cli, ["version"])
+        assert normal_result.exit_code == 0
+        assert console.quiet is False
+
     def test_output_format_default(self, runner):
         """Test default output format is table."""
         result = runner.invoke(cli, ["settings"])
@@ -110,7 +121,7 @@ class TestCLIErrorHandling:
         """Test CLI without arguments shows help."""
         result = runner.invoke(cli, [])
         # Click expects a command, so exit code 2 is correct for missing command
-        assert result.exit_code == 2  # noqa: PLR2004
+        assert result.exit_code == 2
         assert "Usage:" in result.output
 
     def test_invalid_command(self, runner):
