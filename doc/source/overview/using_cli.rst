@@ -44,6 +44,11 @@ Basic Help
     wyrdcraeft dictionary index-bt --help
     wyrdcraeft dictionary lookup abbod --help
 
+    # Lexicon browse workflow commands
+    wyrdcraeft lexicon --help
+    wyrdcraeft lexicon build --help
+    wyrdcraeft lexicon browse --help
+
 Command Structure
 -----------------
 
@@ -113,3 +118,5 @@ The following pages document the CLI commands in detail:
    command_morphology_generate_reference_snapshots
    command_dictionary_index_bt
    command_dictionary_lookup
+   command_lexicon_build
+   command_lexicon_browse

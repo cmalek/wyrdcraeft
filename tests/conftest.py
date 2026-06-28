@@ -74,6 +74,20 @@ def isolated_morphology_index_db(isolated_morphology_app_data: Path) -> Path:
 
 
 @pytest.fixture
+def lexicon_source_db(tmp_path: Path) -> Path:
+    """
+    Morphology SQLite seeded with both ``forms`` and attached ``bt_*`` tables.
+
+    Returns:
+        Path to a source database ready for lexicon CLI and rebuild tests.
+
+    """
+    from tests.lexicon.source_db import make_lexicon_source_db
+
+    return make_lexicon_source_db(tmp_path / "lexicon-source.sqlite3")
+
+
+@pytest.fixture
 def mock_console():
     """Create a mock console for testing."""
     return Mock(spec=Console)

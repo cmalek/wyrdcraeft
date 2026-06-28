@@ -1,0 +1,92 @@
+{
+  "project": "lexicon-browse",
+  "spec_dir": "docs/superpowers/specs/2026-06-28-lexicon-browse",
+  "spec_path": "docs/superpowers/specs/2026-06-28-lexicon-browse/ORCHESTRATION.md",
+  "log_path": "docs/superpowers/lexicon/orchestrator.log",
+  "model_policy": "composer-2.5-fast-only",
+  "dispatch_model": "composer-2.5-fast",
+  "dispatch_model_tier": "fast",
+  "context_compact_threshold": 0.60,
+  "context_last_compact_at": null,
+  "context_checkpoint_path": "docs/superpowers/lexicon/orchestrator.checkpoint.md",
+  "current_phase": "08",
+  "phases": {
+    "01": {
+      "status": "complete",
+      "model_used": "composer-2.5-fast",
+      "spec": "ORCHESTRATION.md#phase-01-lexicon-schema",
+      "recommended_model": "composer-2.5-fast",
+      "model_tier": "fast",
+      "retry_count": 0
+    },
+    "02": {
+      "status": "complete",
+      "model_used": "gpt-5.3-codex",
+      "spec": "ORCHESTRATION.md#phase-02-lexicon-builder",
+      "recommended_model": "gpt-5.3-codex",
+      "model_tier": "standard",
+      "retry_count": 0
+    },
+    "03": {
+      "status": "complete",
+      "model_used": "gpt-5.4-medium",
+      "spec": "ORCHESTRATION.md#phase-03-lexicon-query-service",
+      "recommended_model": "gpt-5.4-medium",
+      "model_tier": "standard",
+      "retry_count": 0
+    },
+    "04": {
+      "status": "complete",
+      "model_used": "composer-2.5-fast",
+      "spec": "ORCHESTRATION.md#phase-04-lexicon-cli-build",
+      "recommended_model": "composer-2.5-fast",
+      "model_tier": "fast",
+      "retry_count": 0
+    },
+    "05": {
+      "status": "complete",
+      "model_used": "gpt-5.3-codex",
+      "spec": "ORCHESTRATION.md#phase-05-textual-shell",
+      "recommended_model": "gpt-5.3-codex",
+      "model_tier": "standard",
+      "retry_count": 0
+    },
+    "06": {
+      "status": "complete",
+      "model_used": "composer-2.5-fast",
+      "spec": "ORCHESTRATION.md#phase-06-results-and-details-ux",
+      "recommended_model": "composer-2.5-fast",
+      "model_tier": "fast",
+      "retry_count": 0
+    },
+    "07": {
+      "status": "complete",
+      "model_used": "composer-2.5-fast",
+      "spec": "ORCHESTRATION.md#phase-07-polish-and-docs",
+      "recommended_model": "composer-2.5-fast",
+      "model_tier": "fast",
+      "retry_count": 0
+    },
+    "08": {
+      "status": "complete",
+      "approval_granted": true,
+      "spec": "ORCHESTRATION.md#phase-08-core-service-changes-optional-approval-gated",
+      "optional": true,
+      "approval_required": true,
+      "recommended_model": "composer-2.5-fast",
+      "model_tier": "fast",
+      "model_used": "composer-2.5-fast",
+      "retry_count": 0,
+      "notes": "No-op: additive lexicon code satisfies browse; no core-service edits"
+    }
+  },
+  "blockers": [],
+  "cost_guardrails": {
+    "max_heavy_dispatches": 0,
+    "lint_fail_retry_same_model": true,
+    "logic_fail_upgrade_tier": false,
+    "approval_required_phases": [
+      "08"
+    ]
+  }
+}
