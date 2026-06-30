@@ -2,6 +2,7 @@
 
 from .build import (
     BuildReport,
+    LexiconBuildCancelledError,
     LexiconBuilder,
     LexiconBuildMeta,
     LexiconStalenessReport,
@@ -10,6 +11,7 @@ from .build import (
     read_lexicon_build_meta,
     rebuild_lexicon,
 )
+from .progress import LexiconBrowseStartupStage, run_browse_startup_progress
 from .query import (
     EntryDetails,
     EntrySense,
@@ -41,7 +43,9 @@ from .schema import (
     TABLE_LEXICON_ENTRIES,
     TABLE_LEXICON_FORMS,
     TABLE_LEXICON_SEARCH_KEYS,
+    apply_lexicon_schema,
     create_lexicon_tables,
+    migrate_lexicon_schema,
 )
 
 __all__ = [
@@ -67,6 +71,8 @@ __all__ = [
     "BuildReport",
     "EntryDetails",
     "EntrySense",
+    "LexiconBrowseStartupStage",
+    "LexiconBuildCancelledError",
     "LexiconBuildMeta",
     "LexiconBuilder",
     "LexiconQueryService",
@@ -78,8 +84,11 @@ __all__ = [
     "OrphanHit",
     "SearchHit",
     "SearchResults",
+    "apply_lexicon_schema",
     "check_lexicon_staleness",
     "create_lexicon_tables",
+    "migrate_lexicon_schema",
     "read_lexicon_build_meta",
     "rebuild_lexicon",
+    "run_browse_startup_progress",
 ]

@@ -18,7 +18,7 @@ def create_stderr_console() -> Console:
         Console writing to the current stderr stream.
 
     """
-    return Console(file=sys.stderr)
+    return Console(file=sys.stderr, force_terminal=sys.stderr.isatty())
 
 
 def create_progress() -> Progress:

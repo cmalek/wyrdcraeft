@@ -111,8 +111,9 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 probability,
                 class1,
                 class2,
-                class3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                class3,
+                paradigm
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 10,
@@ -126,6 +127,7 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 "genitive singular",
                 "1",
                 "m",
+                "",
                 "",
                 "",
             ),
@@ -145,8 +147,9 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 probability,
                 class1,
                 class2,
-                class3
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                class3,
+                paradigm
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 11,
@@ -160,6 +163,7 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 "nominative singular",
                 "1",
                 "m",
+                "",
                 "",
                 "",
             ),

@@ -44,7 +44,7 @@ Out of scope:
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
 | morphology | `wyrdcraeft morphology generate`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService` |
 | dictionary | `wyrdcraeft dictionary index-bt`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
-| lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `wyrdcraeft.services.lexicon.build`, `LexiconQueryService`, `LexiconBrowseApp` |
+| lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
@@ -68,6 +68,21 @@ Out of scope:
   or Bosworth-Toller source data
 - orphan morphology hit: morphology match that does not join to a real
   dictionary entry and is shown outside the main lemma result list
+- morphology function code: compact tag on a generated form row (for example
+  `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
+  other inflectional dimensions depending on part of speech
+- morphology table: browse sidebar view that expands function codes into
+  human-readable columns filtered to the headword's part of speech
+- Old English search bar: lexicon browse input with clickable insert buttons for
+  æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
+- POS inference: lexicon build step that fills empty dictionary POS from
+  unambiguous morphology wordclass when one clear mapping exists
+- lexicon build progress: live stderr stage progress during `lexicon build`
+- lexicon build monitor: default full-screen Textual monitor for `lexicon build`
+  showing typed stage progress, counters, structured logs, and cooperative
+  cancel state
+- lexicon browse startup progress: live stderr progress while opening browse
+  tables before the Textual shell appears
 - OCR proxy: local OpenAI-compatible proxy used to clamp and normalize OCR model traffic
 - app-data directory: OS-specific writable directory for default SQLite outputs
 
@@ -87,9 +102,13 @@ Out of scope:
 
 ### Lexicon browse
 
-`wyrdcraeft.cli.lexicon:build` -> `rebuild_lexicon` -> `lexicon_*` tables in `morphology.sqlite3`
+`wyrdcraeft.cli.lexicon:build` -> `rebuild_lexicon` (optional POS inference,
+worker-thread runtime + typed build events -> default Textual build monitor or
+plain `--no-tui` renderer -> `lexicon_*` tables in `morphology.sqlite3`
 
-`wyrdcraeft.cli.lexicon:browse` -> `LexiconQueryService` -> Textual `LexiconBrowseApp`
+`wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService` ->
+Textual `LexiconBrowseApp` with Old English search bar, POS-filtered morphology
+table sidebar, and dimensional function-code columns
 
 Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sqlite3`
 (from morphology generation plus dictionary attach/index flows).
@@ -106,8 +125,20 @@ Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sq
   a separate `dictionary.sqlite3`.
 - Lexicon build defaults to the same `morphology.sqlite3` path and fails clearly if
   required `bt_*` tables are missing.
+- Lexicon build now launches a full-screen Textual monitor by default on an
+  interactive terminal; use `--no-tui` for the plain renderer and `--quiet`
+  for final-summary-only output.
+- Lexicon build stages stream typed progress through a worker-thread runtime.
+  Single-step stages such as `verify sources` emit an explicit terminal
+  progress event so the monitor does not appear stuck at `0/1`.
 - Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` after morphology or
   dictionary source data changes.
+- Lexicon build may infer missing dictionary POS from morphology when wordclass is
+  unambiguous; ambiguous lemmas stay POS-empty.
+- Lexicon browse search accepts pasted Unicode; use the character bar when the
+  terminal cannot emit æ, þ, ð, macrons, or dotted letters directly.
+- Morphology sidebar shows only forms matching the headword POS and renders
+  function codes as a scrollable dimensional table.
 - OCR `--pages` is currently not supported in `olmocr` mode.
 - Diacritic workflows use packaged JSON/TXT data under `wyrdcraeft/etc/diacritic`.
 - Settings docs in Sphinx are not always current; prefer code in `wyrdcraeft/settings.py` and CLI wiring in `wyrdcraeft/cli/cli.py`.

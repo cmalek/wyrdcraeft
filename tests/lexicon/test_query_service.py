@@ -6,7 +6,7 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
-from wyrdcraeft.services.lexicon.query import LexiconQueryService
+from wyrdcraeft.services.lexicon.query import LexiconQueryService, SearchHit, _main_results_sort_key
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -109,7 +109,7 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
     assert details.entry_id == entry_id
     assert details.headword == "abbad"
     assert details.pos == "noun"
-    assert details.variants == ["abbod", "abbud", "abbot", "es"]
+    assert details.variants == ["abbod", "abbud", "abbot"]
     assert details.summary_sense == "an abbot; abbot"
     assert [sense.gloss_en for sense in details.senses] == [
         "an abbot; abbot",
@@ -123,3 +123,29 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
     assert details.morphology_groups[0].wordclass == "noun"
     assert details.morphology_groups[0].function == "genitive singular"
     assert details.morphology_groups[1].function == "nominative plural"
+
+
+def test_main_results_sort_key_orders_by_lexical_distance() -> None:
+    closer = SearchHit(
+        entry_id=1,
+        headword="mōd",
+        pos="noun",
+        summary_sense="",
+        rank_tier=2,
+        key_kind="stem",
+        matched_text="mōd",
+    )
+    farther = SearchHit(
+        entry_id=2,
+        headword="acol-mōd",
+        pos="adj",
+        summary_sense="",
+        rank_tier=2,
+        key_kind="stem",
+        matched_text="acol-mōd",
+    )
+
+    assert _main_results_sort_key("mōd", closer) < _main_results_sort_key(
+        "mōd",
+        farther,
+    )

@@ -13,7 +13,9 @@ from wyrdcraeft.services.lexicon.schema import (
     META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
     SCHEMA_VERSION,
+    apply_lexicon_schema,
     create_lexicon_tables,
+    migrate_lexicon_schema,
 )
 
 if TYPE_CHECKING:
@@ -50,6 +52,43 @@ def test_create_lexicon_tables_is_idempotent(tmp_path: Path) -> None:
         second_tables = _table_names(connection)
 
     assert first_tables == second_tables
+
+
+def test_apply_lexicon_schema_adds_paradigm_to_legacy_forms_table(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "legacy-lexicon.sqlite3"
+    with sqlite3.connect(db_path) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE lexicon_forms (
+                form_id INTEGER PRIMARY KEY,
+                entry_id INTEGER,
+                bt TEXT NOT NULL,
+                title TEXT NOT NULL,
+                stem TEXT NOT NULL,
+                form TEXT NOT NULL,
+                formi TEXT NOT NULL,
+                wordclass TEXT NOT NULL,
+                function TEXT NOT NULL,
+                probability TEXT NOT NULL,
+                class1 TEXT NOT NULL,
+                class2 TEXT NOT NULL,
+                class3 TEXT NOT NULL
+            );
+            """
+        )
+        connection.commit()
+
+    with sqlite3.connect(db_path) as connection:
+        migrate_lexicon_schema(connection)
+        connection.commit()
+        columns = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
+        }
+
+    assert "paradigm" in columns
 
 
 def test_lexicon_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
@@ -169,8 +208,9 @@ def test_orphan_form_without_entry_is_allowed(
             probability,
             class1,
             class2,
-            class3
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            class3,
+            paradigm
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             99,
@@ -183,6 +223,7 @@ def test_orphan_form_without_entry_is_allowed(
             "verb",
             "present",
             "1",
+            "",
             "",
             "",
             "",

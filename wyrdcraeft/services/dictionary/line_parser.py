@@ -272,6 +272,8 @@ class BTLineParser:
                 continue
             if candidate.lower() == headword_raw.lower():
                 continue
+            if candidate.casefold() in {"es", "as", "an", "a", "e", "um"}:
+                continue
             lowered = candidate.lower()
             if lowered in seen:
                 continue

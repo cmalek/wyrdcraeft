@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS lexicon_forms (
     probability TEXT NOT NULL,
     class1 TEXT NOT NULL,
     class2 TEXT NOT NULL,
-    class3 TEXT NOT NULL
+    class3 TEXT NOT NULL,
+    paradigm TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS lexicon_search_keys (
@@ -109,7 +110,52 @@ CREATE INDEX IF NOT EXISTS idx_lexicon_search_keys_entry_id
     ON lexicon_search_keys(entry_id);
 CREATE INDEX IF NOT EXISTS idx_lexicon_search_keys_form_id
     ON lexicon_search_keys(form_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lexicon_search_keys_dedupe
+    ON lexicon_search_keys(
+        TRIM(key_text),
+        key_kind,
+        rank_tier,
+        COALESCE(entry_id, -1),
+        COALESCE(form_id, -1),
+        TRIM(display_text)
+    );
 """
+
+
+def migrate_lexicon_schema(connection: sqlite3.Connection) -> None:
+    """
+    Add missing columns to existing lexicon tables without committing.
+
+    Args:
+        connection: Open SQLite connection containing ``lexicon_*`` tables.
+
+    Side Effects:
+        Executes additive ``ALTER TABLE`` statements when legacy columns are absent.
+
+    """
+    columns = connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
+    column_names = {str(row[1]) for row in columns}
+    if not column_names:
+        return
+    if "paradigm" not in column_names:
+        connection.execute(
+            "ALTER TABLE lexicon_forms ADD COLUMN paradigm TEXT NOT NULL DEFAULT ''"
+        )
+
+
+def apply_lexicon_schema(connection: sqlite3.Connection) -> None:
+    """
+    Apply lexicon DDL and additive column migrations without committing.
+
+    Args:
+        connection: Open SQLite connection receiving the ``lexicon_*`` schema.
+
+    Side Effects:
+        Executes ``LEXICON_SCHEMA_DDL`` and adds missing ``lexicon_forms`` columns.
+
+    """
+    connection.executescript(LEXICON_SCHEMA_DDL)
+    migrate_lexicon_schema(connection)
 
 
 def create_lexicon_tables(connection: sqlite3.Connection) -> None:
@@ -120,8 +166,8 @@ def create_lexicon_tables(connection: sqlite3.Connection) -> None:
         connection: Open SQLite connection receiving the ``lexicon_*`` schema.
 
     Side Effects:
-        Executes ``LEXICON_SCHEMA_DDL`` and commits the connection.
+        Executes ``apply_lexicon_schema`` and commits the connection.
 
     """
-    connection.executescript(LEXICON_SCHEMA_DDL)
+    apply_lexicon_schema(connection)
     connection.commit()

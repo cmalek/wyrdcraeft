@@ -8,10 +8,22 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.lexicon.form_decode import (
+    filter_display_variants,
+    lexical_distance,
+    normalized_query_at_affix,
+)
 from wyrdcraeft.services.markup import normalize_old_english
 
 from .build import _normalize_dictionary_key, _normalize_morph_key
-from .schema import KEY_KIND_FORM, KEY_KIND_LEMMA, KEY_KIND_STEM, KEY_KIND_VARIANT
+from .schema import (
+    KEY_KIND_FORM,
+    KEY_KIND_LEMMA,
+    KEY_KIND_STEM,
+    KEY_KIND_VARIANT,
+    RANK_TIER_EXACT_ENTRY,
+    migrate_lexicon_schema,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -163,6 +175,7 @@ class MorphologyRow:
         class1: First morphology class label.
         class2: Second morphology class label.
         class3: Third morphology class label.
+        paradigm: Morphology paradigm exemplar label.
 
     """
 
@@ -190,6 +203,8 @@ class MorphologyRow:
     class2: str
     #: Third morphology class label.
     class3: str
+    #: Morphology paradigm exemplar label.
+    paradigm: str
 
 
 @dataclass(frozen=True)
@@ -230,6 +245,7 @@ class EntryDetails:
         senses: Ordered full sense list.
         etymology: Dictionary etymology text.
         morphology_groups: Morphology rows grouped for sidebar rendering.
+        declension_paradigm: Dominant morphology paradigm exemplar for the entry.
 
     """
 
@@ -257,6 +273,8 @@ class EntryDetails:
     etymology: str
     #: Morphology rows grouped for sidebar rendering.
     morphology_groups: list[MorphologyGroup]
+    #: Dominant morphology paradigm exemplar for the entry.
+    declension_paradigm: str
 
 
 @dataclass(frozen=True)
@@ -455,7 +473,143 @@ def _row_to_morphology(row: sqlite3.Row) -> MorphologyRow:
         class1=str(row["class1"]),
         class2=str(row["class2"]),
         class3=str(row["class3"]),
+        paradigm=str(row["paradigm"]) if "paradigm" in row else "",
     )
+
+
+def _hit_sort_key(hit: SearchHit) -> tuple[int, int]:
+    """
+    Return the sortable rank tuple for one search hit.
+
+    Args:
+        hit: Candidate search hit.
+
+    Returns:
+        Tuple of ``(rank_tier, key_kind_order)`` for dedupe comparisons.
+
+    """
+    return (hit.rank_tier, _KEY_KIND_ORDER.get(hit.key_kind, 99))
+
+
+def _hit_lexical_distance(query: str, hit: SearchHit) -> int:
+    """
+    Return the closest lexical distance between a query and one search hit.
+
+    Args:
+        query: Raw user query.
+        hit: Candidate dictionary-backed search hit.
+
+    Returns:
+        Minimum edit distance across headword and matched surface text.
+
+    """
+    distances = [
+        lexical_distance(text, query)
+        for text in (hit.headword, hit.matched_text)
+        if text.strip()
+    ]
+    return min(distances) if distances else 9999
+
+
+def _orphan_lexical_distance(query: str, hit: OrphanHit) -> int:
+    """
+    Return the closest lexical distance between a query and one orphan hit.
+
+    Args:
+        query: Raw user query.
+        hit: Candidate orphan morphology hit.
+
+    Returns:
+        Minimum edit distance across lemma and matched surface text.
+
+    """
+    distances = [
+        lexical_distance(text, query)
+        for text in (hit.lemma, hit.matched_text)
+        if text.strip()
+    ]
+    return min(distances) if distances else 9999
+
+
+def _main_results_sort_key(query: str, hit: SearchHit) -> tuple[int, int, int, str]:
+    """
+    Return the browse sort key for one dictionary-backed search hit.
+
+    Args:
+        query: Raw user query.
+        hit: Candidate dictionary-backed search hit.
+
+    Returns:
+        Sort tuple ordered by rank tier, key kind, lexical distance, headword.
+
+    """
+    return (
+        hit.rank_tier,
+        _KEY_KIND_ORDER.get(hit.key_kind, 99),
+        _hit_lexical_distance(query, hit),
+        normalize_old_english(hit.headword) or hit.headword.casefold(),
+    )
+
+
+def _orphan_results_sort_key(query: str, hit: OrphanHit) -> tuple[int, int, int, str]:
+    """
+    Return the browse sort key for one orphan morphology hit.
+
+    Args:
+        query: Raw user query.
+        hit: Candidate orphan morphology hit.
+
+    Returns:
+        Sort tuple ordered by rank tier, key kind, lexical distance, lemma.
+
+    """
+    return (
+        hit.rank_tier,
+        _KEY_KIND_ORDER.get(hit.key_kind, 99),
+        _orphan_lexical_distance(query, hit),
+        normalize_old_english(hit.lemma) or hit.lemma.casefold(),
+    )
+
+
+def _hit_matches_query_intent(query: str, hit: SearchHit) -> bool:
+    """
+    Return whether one dictionary-backed hit matches the user's search intent.
+
+    Args:
+        query: Raw user query.
+        hit: Candidate dictionary-backed search hit.
+
+    Returns:
+        ``True`` when the hit should remain in main results.
+
+    """
+    if hit.rank_tier == RANK_TIER_EXACT_ENTRY:
+        return True
+    matched = normalized_query_at_affix(hit.matched_text, query)
+    headword = normalized_query_at_affix(hit.headword, query)
+    return matched or headword
+
+
+def _dominant_paradigm(rows: list[MorphologyRow]) -> str:
+    """
+    Pick the most common non-empty morphology paradigm label for one entry.
+
+    Args:
+        rows: Morphology rows linked to one dictionary entry.
+
+    Returns:
+        Dominant paradigm exemplar, or an empty string when none exist.
+
+    """
+    counts: dict[str, int] = {}
+    for row in rows:
+        paradigm = row.paradigm.strip()
+        if not paradigm:
+            continue
+        counts[paradigm] = counts.get(paradigm, 0) + 1
+    if not counts:
+        return ""
+    return max(counts, key=lambda key: counts[key])
 
 
 def _group_morphology_rows(rows: list[MorphologyRow]) -> list[MorphologyGroup]:
@@ -512,6 +666,8 @@ class LexiconQueryService:
         #: Active SQLite connection for search and details lookups.
         self._connection = sqlite3.connect(str(db_path.expanduser().resolve()))
         self._connection.row_factory = sqlite3.Row
+        migrate_lexicon_schema(self._connection)
+        self._connection.commit()
         #: Dictionary spelling normalizer reused for unified query normalization.
         self._spelling_normalizer = BTSpellingNormalizer()
 
@@ -569,7 +725,8 @@ class LexiconQueryService:
 
         main_entries: list[SearchHit] = []
         orphans: list[OrphanHit] = []
-        seen_entry_ids: set[int] = set()
+        best_main_hits: dict[tuple[str, str], SearchHit] = {}
+        main_hit_order: list[tuple[str, str]] = []
         seen_form_ids: set[int] = set()
 
         for row in rows:
@@ -580,20 +737,29 @@ class LexiconQueryService:
             matched_text = str(row["display_text"])
             if entry_id is not None:
                 entry_id_int = int(entry_id)
-                if entry_id_int in seen_entry_ids:
-                    continue
-                seen_entry_ids.add(entry_id_int)
-                main_entries.append(
-                    SearchHit(
-                        entry_id=entry_id_int,
-                        headword=str(row["headword"]),
-                        pos=str(row["pos"]),
-                        summary_sense=str(row["summary_sense"]),
-                        rank_tier=rank_tier,
-                        key_kind=key_kind,
-                        matched_text=matched_text,
-                    )
+                hit = SearchHit(
+                    entry_id=entry_id_int,
+                    headword=str(row["headword"]),
+                    pos=str(row["pos"]),
+                    summary_sense=str(row["summary_sense"]),
+                    rank_tier=rank_tier,
+                    key_kind=key_kind,
+                    matched_text=matched_text,
                 )
+                if not _hit_matches_query_intent(query, hit):
+                    continue
+                dedupe_key = (
+                    normalize_old_english(hit.headword) or "",
+                    hit.pos.strip().casefold(),
+                )
+                existing = best_main_hits.get(dedupe_key)
+                if existing is not None and _hit_sort_key(hit) >= _hit_sort_key(
+                    existing
+                ):
+                    continue
+                if existing is None:
+                    main_hit_order.append(dedupe_key)
+                best_main_hits[dedupe_key] = hit
                 continue
 
             if form_id is None:
@@ -613,6 +779,10 @@ class LexiconQueryService:
                     matched_text=matched_text,
                 )
             )
+
+        main_entries = [best_main_hits[key] for key in main_hit_order]
+        main_entries.sort(key=lambda hit: _main_results_sort_key(query, hit))
+        orphans.sort(key=lambda hit: _orphan_results_sort_key(query, hit))
 
         return SearchResults(main_entries=main_entries, orphans=orphans)
 
@@ -660,7 +830,8 @@ class LexiconQueryService:
                 probability,
                 class1,
                 class2,
-                class3
+                class3,
+                paradigm
             FROM lexicon_forms
             WHERE entry_id = ?
             ORDER BY wordclass ASC, function ASC, form_id ASC
@@ -686,7 +857,9 @@ class LexiconQueryService:
         return EntryDetails(
             entry_id=int(entry_row["entry_id"]),
             headword=str(entry_row["headword"]),
-            variants=_json_string_list(str(entry_row["variants_json"])),
+            variants=filter_display_variants(
+                _json_string_list(str(entry_row["variants_json"]))
+            ),
             pos=str(entry_row["pos"]),
             class_summary=class_summary,
             genders=genders,
@@ -696,6 +869,7 @@ class LexiconQueryService:
             senses=_entry_senses_from_json(str(entry_row["senses_json"])),
             etymology=str(entry_row["etymology"]),
             morphology_groups=_group_morphology_rows(morphology_rows),
+            declension_paradigm=_dominant_paradigm(morphology_rows),
         )
 
     def get_orphan_details(self, form_id: int) -> OrphanDetails | None:
@@ -723,7 +897,8 @@ class LexiconQueryService:
                 probability,
                 class1,
                 class2,
-                class3
+                class3,
+                paradigm
             FROM lexicon_forms
             WHERE form_id = ? AND entry_id IS NULL
             """,

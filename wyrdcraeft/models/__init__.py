@@ -1,13 +1,4 @@
 from .bosworth_toller import BTSearchEntry
-from .dictionary import (
-    BTConsolidatedEntry,
-    BTEditorialOp,
-    BTGender,
-    BTLineKind,
-    BTPos,
-    BTSense,
-    RawBTLine,
-)
 from .diacritics import (
     POS_CODE_LABELS,
     POS_CODES,
@@ -18,6 +9,29 @@ from .diacritics import (
     MacronFormSense,
     MacronIndexPayload,
     UnknownToken,
+)
+from .dictionary import (
+    BTConsolidatedEntry,
+    BTEditorialOp,
+    BTGender,
+    BTLineKind,
+    BTPos,
+    BTSense,
+    RawBTLine,
+)
+from .lexicon_build import (
+    BuildCancelled,
+    BuildCounters,
+    BuildCounterUpdated,
+    BuildEvent,
+    BuildFailed,
+    BuildFinished,
+    BuildLog,
+    BuildSnapshot,
+    BuildStageProgress,
+    BuildStageStarted,
+    LexiconBuildEvent,
+    LexiconBuildStage,
 )
 from .llm import AnyLLMConfig
 from .macron_index import MacronIndex
@@ -54,10 +68,21 @@ __all__ = [
     "BTPos",
     "BTSearchEntry",
     "BTSense",
-    "RawBTLine",
+    "BuildCancelled",
+    "BuildCounterUpdated",
+    "BuildCounters",
+    "BuildEvent",
+    "BuildFailed",
+    "BuildFinished",
+    "BuildLog",
+    "BuildSnapshot",
+    "BuildStageProgress",
+    "BuildStageStarted",
     "Confidence",
     "DiacriticRestorationResult",
     "GeneratedForm",
+    "LexiconBuildEvent",
+    "LexiconBuildStage",
     "Line",
     "MacronAmbiguity",
     "MacronFormAnnotation",
@@ -72,6 +97,7 @@ __all__ = [
     "Paragraph",
     "PreParsedDocument",
     "ProvisionalSection",
+    "RawBTLine",
     "RawBlock",
     "Section",
     "Sentence",

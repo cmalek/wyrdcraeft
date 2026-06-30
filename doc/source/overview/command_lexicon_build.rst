@@ -32,6 +32,8 @@ Options
 
 - ``--index-db PATH``: explicit SQLite index file path.
 - ``--index-dir PATH``: directory where ``morphology.sqlite3`` is stored.
+- ``--no-tui``: force the plain stderr/stdout renderer.
+- ``--quiet``: suppress live progress output while keeping the final summary.
 
 Default database location
 -------------------------
@@ -57,6 +59,16 @@ Each run replaces these read-model tables only:
 - ``lexicon_build_meta`` — rebuild timestamp and source row counts
 
 The command never modifies ``forms`` or ``bt_*`` source tables.
+
+Monitor behavior
+----------------
+
+By default, ``wyrdcraeft lexicon build`` launches a full-screen Textual build
+monitor when the terminal is interactive. The monitor shows live stage
+progress, structured log output, and the final build summary.
+
+Use ``--no-tui`` to force the plain renderer instead. Use ``--quiet`` when you
+want the final summary without the live progress stream.
 
 Build metadata and staleness
 ----------------------------

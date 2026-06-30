@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import sqlite3
+from types import SimpleNamespace
 from typing import TYPE_CHECKING
 
+from wyrdcraeft.cli import lexicon as lexicon_module
 from wyrdcraeft.cli.cli import cli
 from wyrdcraeft.paths import MORPHOLOGY_INDEX_FILENAME
 
@@ -23,6 +25,10 @@ def test_lexicon_build_help(runner) -> None:
     assert result.exit_code == 0
     assert "--index-db" in result.output
     assert "--index-dir" in result.output
+    assert "--no-tui" in result.output
+    assert "--quiet" in result.output
+    assert "--force" in result.output
+    assert "--no-progress" not in result.output
 
 
 def test_lexicon_build_smoke(runner, lexicon_source_db: Path) -> None:
@@ -31,6 +37,8 @@ def test_lexicon_build_smoke(runner, lexicon_source_db: Path) -> None:
         [
             "lexicon",
             "build",
+            "--no-tui",
+            "--force",
             "--index-db",
             str(lexicon_source_db),
         ],
@@ -52,6 +60,62 @@ def test_lexicon_build_smoke(runner, lexicon_source_db: Path) -> None:
             connection.execute("SELECT COUNT(*) FROM lexicon_search_keys").fetchone()[0]
             > 0
         )
+    assert "[info] stage started:" in result.stderr
+
+
+def test_lexicon_build_quiet_smoke(runner, lexicon_source_db: Path) -> None:
+    result = runner.invoke(
+        cli,
+        [
+            "lexicon",
+            "build",
+            "--no-tui",
+            "--quiet",
+            "--force",
+            "--index-db",
+            str(lexicon_source_db),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert "Lexicon build complete." in result.output
+    assert "[info] stage started:" not in result.stderr
+
+
+def test_lexicon_build_uses_tui_on_tty(
+    runner,
+    lexicon_source_db: Path,
+    monkeypatch,
+) -> None:
+    called: list[bool] = []
+
+    monkeypatch.setattr(
+        lexicon_module,
+        "sys",
+        SimpleNamespace(
+            stdout=SimpleNamespace(isatty=lambda: True),
+            stderr=SimpleNamespace(isatty=lambda: True),
+        ),
+    )
+
+    def fake_run(_self) -> int:
+        called.append(True)
+        return 0
+
+    monkeypatch.setattr(lexicon_module.LexiconBuildMonitorApp, "run", fake_run)
+
+    result = runner.invoke(
+        cli,
+        [
+            "lexicon",
+            "build",
+            "--force",
+            "--index-db",
+            str(lexicon_source_db),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert called == [True]
 
 
 def test_lexicon_build_index_dir_smoke(runner, lexicon_source_db: Path, tmp_path: Path) -> None:
@@ -65,6 +129,7 @@ def test_lexicon_build_index_dir_smoke(runner, lexicon_source_db: Path, tmp_path
         [
             "lexicon",
             "build",
+            "--force",
             "--index-dir",
             str(index_dir),
         ],
@@ -91,6 +156,49 @@ def test_lexicon_build_fails_on_missing_bt_tables(runner, tmp_path: Path) -> Non
     assert result.exit_code != 0
     assert "Lexicon rebuild requires source tables:" in result.output
     assert "bt_entries" in result.output
+
+
+def test_lexicon_build_refuses_existing_data_without_force(
+    runner,
+    lexicon_source_db: Path,
+) -> None:
+    first = runner.invoke(
+        cli,
+        [
+            "lexicon",
+            "build",
+            "--no-tui",
+            "--index-db",
+            str(lexicon_source_db),
+        ],
+    )
+    assert first.exit_code == 0, first.output
+
+    blocked = runner.invoke(
+        cli,
+        [
+            "lexicon",
+            "build",
+            "--no-tui",
+            "--index-db",
+            str(lexicon_source_db),
+        ],
+    )
+    assert blocked.exit_code != 0
+    assert "--force" in blocked.output
+
+    forced = runner.invoke(
+        cli,
+        [
+            "lexicon",
+            "build",
+            "--no-tui",
+            "--force",
+            "--index-db",
+            str(lexicon_source_db),
+        ],
+    )
+    assert forced.exit_code == 0, forced.output
 
 
 def test_lexicon_browse_help(runner) -> None:
