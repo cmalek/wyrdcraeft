@@ -26,7 +26,11 @@ from wyrdcraeft.models.lexicon_build import (
     LexiconBuildEvent,
     LexiconBuildStage,
 )
-from wyrdcraeft.paths import resolve_morphology_index_db_path
+from wyrdcraeft.paths import (
+    CANONICAL_DB_FILENAME,
+    _resolve_db_path,
+    get_canonical_db_path,
+)
 from wyrdcraeft.services.lexicon.build import (
     BuildReport,
     LexiconBuildCancelledError,
@@ -80,7 +84,7 @@ def lexicon_group() -> None:
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
-        "Directory for morphology.sqlite3 (overrides the OS app-data default)."
+        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
     ),
 )
 @click.option(
@@ -130,10 +134,11 @@ def build(  # noqa: PLR0912, PLR0913, PLR0915
     """
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = resolve_morphology_index_db_path(
+    resolved_index_db = _resolve_db_path(
         index_db=index_db,
         index_dir=index_dir,
-        app_data_dir=app_data_dir,
+        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
+        filename=CANONICAL_DB_FILENAME,
     )
 
     if not force:
@@ -327,7 +332,7 @@ def build(  # noqa: PLR0912, PLR0913, PLR0915
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
-        "Directory for morphology.sqlite3 (overrides the OS app-data default)."
+        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
     ),
 )
 @click.pass_context
@@ -350,10 +355,11 @@ def browse(
     """
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = resolve_morphology_index_db_path(
+    resolved_index_db = _resolve_db_path(
         index_db=index_db,
         index_dir=index_dir,
-        app_data_dir=app_data_dir,
+        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
+        filename=CANONICAL_DB_FILENAME,
     )
 
     try:

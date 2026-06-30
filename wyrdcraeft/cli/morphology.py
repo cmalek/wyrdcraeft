@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING
 
 import click
 
-from wyrdcraeft.paths import resolve_morphology_index_db_path
+from wyrdcraeft.paths import (
+    CANONICAL_DB_FILENAME,
+    _resolve_db_path,
+    get_canonical_db_path,
+)
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -262,7 +266,7 @@ def morphology_group() -> None:
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
-        "Directory for morphology.sqlite3 (overrides the OS app-data default)."
+        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
     ),
 )
 @click.option(
@@ -385,10 +389,11 @@ def generate(  # noqa: PLR0913, PLR0915
     progress.advance_setup(MorphologySetupStep.ASSIGN_NOUN_PARADIGMS)
 
     app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = resolve_morphology_index_db_path(
+    resolved_index_db = _resolve_db_path(
         index_db=index_db,
         index_dir=index_dir,
-        app_data_dir=app_data_dir,
+        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
+        filename=CANONICAL_DB_FILENAME,
     )
     sqlite_sink: SqliteIndexSink | None = None
     try:

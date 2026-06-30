@@ -18,6 +18,7 @@ from pydantic_settings import (
 
 from .exc import ConfigurationError
 from .models import AnyLLMConfig
+from .paths import get_canonical_db_path
 
 
 class Settings(BaseSettings):
@@ -31,6 +32,7 @@ class Settings(BaseSettings):
 
     """
 
+    #: Pydantic settings configuration for env, dotenv, and config file loading.
     model_config = SettingsConfigDict(
         extra="ignore",
         env_prefix="wyrdcraeft_",
@@ -353,6 +355,17 @@ class Settings(BaseSettings):
             paths.append(local_config)
 
         return paths
+
+    def get_canonical_db_path(self) -> Path:
+        """
+        Resolve the canonical SQLite database path for these settings.
+
+        Returns:
+            Absolute path to ``wyrdcraeft.sqlite3`` under the configured
+            application data directory.
+
+        """
+        return get_canonical_db_path(app_data_dir=self.app_data_dir)
 
     def validate_settings(self) -> None:  # noqa: PLR0912, PLR0915
         """

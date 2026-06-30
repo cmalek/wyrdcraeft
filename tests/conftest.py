@@ -19,7 +19,7 @@ import pytest
 from click.testing import CliRunner
 from rich.console import Console
 
-from wyrdcraeft.paths import MORPHOLOGY_INDEX_FILENAME
+from wyrdcraeft.paths import CANONICAL_DB_FILENAME
 
 LLAMA_HEALTHCHECK_URL = "http://127.0.0.1:8080/v1/models"
 LLAMA_READINESS_POLL_SECONDS = 0.25
@@ -46,13 +46,13 @@ def temp_dir():
 @pytest.fixture
 def isolated_morphology_app_data(tmp_path, monkeypatch) -> Path:
     """
-    Relocate default morphology.sqlite3 to a temporary app-data directory.
+    Relocate the canonical SQLite database to a temporary app-data directory.
 
     Side Effects:
         Sets ``WYRDCRAEFT_APP_DATA_DIR`` for the duration of the test.
 
     Returns:
-        Directory that will contain ``morphology.sqlite3`` when generate runs
+        Directory that will contain ``wyrdcraeft.sqlite3`` when generate runs
         without ``--index-dir`` or ``--index-db``.
 
     """
@@ -64,13 +64,13 @@ def isolated_morphology_app_data(tmp_path, monkeypatch) -> Path:
 @pytest.fixture
 def isolated_morphology_index_db(isolated_morphology_app_data: Path) -> Path:
     """
-    Expected morphology SQLite path under ``isolated_morphology_app_data``.
+    Expected canonical SQLite path under ``isolated_morphology_app_data``.
 
     Returns:
-        Path to ``morphology.sqlite3`` inside the isolated app-data directory.
+        Path to ``wyrdcraeft.sqlite3`` inside the isolated app-data directory.
 
     """
-    return isolated_morphology_app_data / MORPHOLOGY_INDEX_FILENAME
+    return isolated_morphology_app_data / CANONICAL_DB_FILENAME
 
 
 @pytest.fixture

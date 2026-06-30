@@ -7,8 +7,10 @@ from pathlib import Path
 
 import click
 
-#: Default morphology SQLite index filename written by ``morphology generate``.
-MORPHOLOGY_INDEX_FILENAME = "morphology.sqlite3"
+#: Canonical SQLite database filename stored under the app data directory.
+CANONICAL_DB_FILENAME = "wyrdcraeft.sqlite3"
+#: Legacy morphology SQLite filename retained for compatibility with callers.
+MORPHOLOGY_INDEX_FILENAME = CANONICAL_DB_FILENAME
 #: Default Bosworth-Toller dictionary SQLite index filename.
 DICTIONARY_INDEX_FILENAME = "dictionary.sqlite3"
 
@@ -41,47 +43,46 @@ def get_app_data_path(*, app_data_dir: Path | None = None) -> Path:
     raise ValueError(msg)
 
 
-def get_morphology_index_db_path(*, app_data_dir: Path | None = None) -> Path:
+def get_canonical_db_path(*, app_data_dir: Path | None = None) -> Path:
     """
-    Resolve the default morphology SQLite index path under app data.
+    Resolve the canonical SQLite database path under app data.
 
     Keyword Args:
         app_data_dir: Optional settings override for the app data directory.
 
     Returns:
-        Absolute path to ``morphology.sqlite3`` under the app data directory.
+        Absolute path to ``wyrdcraeft.sqlite3`` under the app data directory.
 
     Side Effects:
         Creates the parent application data directory when missing.
 
     """
-    db_path = get_app_data_path(app_data_dir=app_data_dir) / MORPHOLOGY_INDEX_FILENAME
+    db_path = get_app_data_path(app_data_dir=app_data_dir) / CANONICAL_DB_FILENAME
     db_path.parent.mkdir(parents=True, exist_ok=True)
     return db_path.resolve()
 
 
-def resolve_morphology_index_db_path(
+def _resolve_db_path(
     *,
-    index_db: Path | None = None,
-    index_dir: Path | None = None,
-    app_data_dir: Path | None = None,
+    index_db: Path | None,
+    index_dir: Path | None,
+    default_path: Path,
+    filename: str,
 ) -> Path:
     """
-    Resolve the morphology SQLite index path from CLI and settings overrides.
+    Resolve one SQLite database path from explicit overrides or a default path.
 
     Keyword Args:
-        index_db: Optional explicit SQLite index file path from ``--index-db``.
-        index_dir: Optional index directory override from ``--index-dir``.
-        app_data_dir: Optional settings override for the app data directory.
+        index_db: Optional explicit SQLite file path override.
+        index_dir: Optional explicit directory override.
+        default_path: Fallback path used when no explicit override is provided.
+        filename: SQLite filename appended when resolving ``index_dir``.
 
     Returns:
-        Absolute path to the morphology SQLite index file.
+        Absolute SQLite path with parent directories created.
 
     Raises:
-        click.ClickException: Both ``--index-db`` and ``--index-dir`` were provided.
-
-    Side Effects:
-        Creates parent directories for the resolved index path when missing.
+        click.ClickException: Both explicit overrides were provided.
 
     """
     if index_db is not None and index_dir is not None:
@@ -90,15 +91,15 @@ def resolve_morphology_index_db_path(
 
     if index_db is not None:
         resolved = index_db.expanduser().resolve()
-    elif index_dir is not None:
-        resolved = (
-            index_dir.expanduser().resolve() / MORPHOLOGY_INDEX_FILENAME
-        )
-    else:
-        resolved = get_morphology_index_db_path(app_data_dir=app_data_dir)
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        return resolved
+    if index_dir is not None:
+        resolved_dir = index_dir.expanduser().resolve()
+        resolved_dir.mkdir(parents=True, exist_ok=True)
+        return (resolved_dir / filename).resolve()
 
-    resolved.parent.mkdir(parents=True, exist_ok=True)
-    return resolved
+    default_path.parent.mkdir(parents=True, exist_ok=True)
+    return default_path.resolve()
 
 
 def get_dictionary_index_db_path(*, app_data_dir: Path | None = None) -> Path:
@@ -118,42 +119,3 @@ def get_dictionary_index_db_path(*, app_data_dir: Path | None = None) -> Path:
     db_path = get_app_data_path(app_data_dir=app_data_dir) / DICTIONARY_INDEX_FILENAME
     db_path.parent.mkdir(parents=True, exist_ok=True)
     return db_path.resolve()
-
-
-def resolve_dictionary_index_db_path(
-    *,
-    index_db: Path | None = None,
-    index_dir: Path | None = None,
-    app_data_dir: Path | None = None,
-) -> Path:
-    """
-    Resolve the dictionary SQLite index path from CLI and settings overrides.
-
-    Keyword Args:
-        index_db: Optional explicit SQLite index file path from ``--index-db``.
-        index_dir: Optional index directory override from ``--index-dir``.
-        app_data_dir: Optional settings override for the app data directory.
-
-    Returns:
-        Absolute path to the dictionary SQLite index file.
-
-    Raises:
-        click.ClickException: Both ``--index-db`` and ``--index-dir`` were provided.
-
-    Side Effects:
-        Creates parent directories for the resolved index path when missing.
-
-    """
-    if index_db is not None and index_dir is not None:
-        msg = "Provide at most one of --index-db or --index-dir."
-        raise click.ClickException(msg)
-
-    if index_db is not None:
-        resolved = index_db.expanduser().resolve()
-    elif index_dir is not None:
-        resolved = index_dir.expanduser().resolve() / DICTIONARY_INDEX_FILENAME
-    else:
-        resolved = get_dictionary_index_db_path(app_data_dir=app_data_dir)
-
-    resolved.parent.mkdir(parents=True, exist_ok=True)
-    return resolved

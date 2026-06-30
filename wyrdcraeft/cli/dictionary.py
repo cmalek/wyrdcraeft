@@ -9,8 +9,11 @@ from typing import TYPE_CHECKING
 import click
 
 from wyrdcraeft.paths import (
-    resolve_dictionary_index_db_path,
-    resolve_morphology_index_db_path,
+    CANONICAL_DB_FILENAME,
+    DICTIONARY_INDEX_FILENAME,
+    _resolve_db_path,
+    get_canonical_db_path,
+    get_dictionary_index_db_path,
 )
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     DEFAULT_OLLAMA_ENDPOINT,
@@ -37,22 +40,22 @@ def _default_source_path() -> Path:
     return Path("data/oe_bt.txt")
 
 
-def _missing_morphology_index_message(db_path: Path) -> str:
+def _missing_canonical_index_message(db_path: Path) -> str:
     """
-    Build the CLI error shown when ``morphology.sqlite3`` is absent.
+    Build the CLI error shown when the canonical database is absent.
 
     Args:
-        db_path: Resolved morphology SQLite path that was not found.
+        db_path: Resolved canonical SQLite path that was not found.
 
     Returns:
         User-facing error message with recovery steps.
 
     """
     return (
-        f"Morphology index not found: {db_path}. "
+        f"Canonical database not found: {db_path}. "
         "Run `wyrdcraeft morphology generate` to build it, or pass "
         "--index-db PATH or --index-dir PATH to point at an existing "
-        "morphology.sqlite3."
+        f"{CANONICAL_DB_FILENAME}."
     )
 
 
@@ -88,8 +91,9 @@ def dictionary_group() -> None:
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
-        "Directory for morphology.sqlite3 by default, or dictionary.sqlite3 "
-        "with --standalone (overrides the OS app-data default)."
+        f"Directory for {CANONICAL_DB_FILENAME} by default, or "
+        f"{DICTIONARY_INDEX_FILENAME} with --standalone "
+        "(overrides the OS app-data default)."
     ),
 )
 @click.option(
@@ -98,7 +102,7 @@ def dictionary_group() -> None:
     default=False,
     help=(
         "Write a fresh dictionary.sqlite3 instead of attaching bt_* tables to "
-        "morphology.sqlite3."
+        f"{CANONICAL_DB_FILENAME}."
     ),
 )
 @click.option(
@@ -160,7 +164,7 @@ def index_bt(  # noqa: PLR0913
         warnings_file: Optional parse warnings JSONL output path.
 
     Side Effects:
-        By default, attaches ``bt_*`` tables to ``morphology.sqlite3``. With
+        By default, attaches ``bt_*`` tables to ``wyrdcraeft.sqlite3``. With
         ``--standalone``, writes a fresh ``dictionary.sqlite3`` instead.
 
     Raises:
@@ -170,22 +174,24 @@ def index_bt(  # noqa: PLR0913
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
     if standalone:
-        resolved_index_db = resolve_dictionary_index_db_path(
+        resolved_index_db = _resolve_db_path(
             index_db=index_db,
             index_dir=index_dir,
-            app_data_dir=app_data_dir,
+            default_path=get_dictionary_index_db_path(app_data_dir=app_data_dir),
+            filename=DICTIONARY_INDEX_FILENAME,
         )
         attach_mode = False
     else:
-        resolved_index_db = resolve_morphology_index_db_path(
+        resolved_index_db = _resolve_db_path(
             index_db=index_db,
             index_dir=index_dir,
-            app_data_dir=app_data_dir,
+            default_path=get_canonical_db_path(app_data_dir=app_data_dir),
+            filename=CANONICAL_DB_FILENAME,
         )
         attach_mode = True
         if not resolved_index_db.is_file():
             raise click.ClickException(
-                _missing_morphology_index_message(resolved_index_db)
+                _missing_canonical_index_message(resolved_index_db)
             )
 
     resolved_warnings_file = (
@@ -332,8 +338,9 @@ def _format_entry_text(
     type=click.Path(file_okay=False, path_type=Path),
     default=None,
     help=(
-        "Directory for morphology.sqlite3 by default, or dictionary.sqlite3 "
-        "with --standalone (overrides the OS app-data default)."
+        f"Directory for {CANONICAL_DB_FILENAME} by default, or "
+        f"{DICTIONARY_INDEX_FILENAME} with --standalone "
+        "(overrides the OS app-data default)."
     ),
 )
 @click.option(
@@ -342,7 +349,7 @@ def _format_entry_text(
     default=False,
     help=(
         "Read from dictionary.sqlite3 instead of bt_* tables in "
-        "morphology.sqlite3."
+        f"{CANONICAL_DB_FILENAME}."
     ),
 )
 @click.option(
@@ -384,23 +391,25 @@ def lookup(  # noqa: PLR0913
     settings: Settings | None = ctx.obj.get("settings")
     app_data_dir = settings.app_data_dir if settings is not None else None
     if standalone:
-        resolved_index_db = resolve_dictionary_index_db_path(
+        resolved_index_db = _resolve_db_path(
             index_db=index_db,
             index_dir=index_dir,
-            app_data_dir=app_data_dir,
+            default_path=get_dictionary_index_db_path(app_data_dir=app_data_dir),
+            filename=DICTIONARY_INDEX_FILENAME,
         )
         if not resolved_index_db.is_file():
             msg = f"Dictionary index not found: {resolved_index_db}"
             raise click.ClickException(msg)
     else:
-        resolved_index_db = resolve_morphology_index_db_path(
+        resolved_index_db = _resolve_db_path(
             index_db=index_db,
             index_dir=index_dir,
-            app_data_dir=app_data_dir,
+            default_path=get_canonical_db_path(app_data_dir=app_data_dir),
+            filename=CANONICAL_DB_FILENAME,
         )
         if not resolved_index_db.is_file():
             raise click.ClickException(
-                _missing_morphology_index_message(resolved_index_db)
+                _missing_canonical_index_message(resolved_index_db)
             )
 
     lookup_key = normalize_old_english(lemma) or ""

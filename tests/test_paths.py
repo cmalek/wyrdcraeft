@@ -8,11 +8,12 @@ from unittest.mock import patch
 import click
 import pytest
 
+from wyrdcraeft import paths
 from wyrdcraeft.paths import (
-    MORPHOLOGY_INDEX_FILENAME,
+    CANONICAL_DB_FILENAME,
+    DICTIONARY_INDEX_FILENAME,
     get_app_data_path,
-    get_morphology_index_db_path,
-    resolve_morphology_index_db_path,
+    get_canonical_db_path,
 )
 from wyrdcraeft.settings import Settings
 
@@ -52,41 +53,61 @@ def test_get_app_data_path_unsupported_platform() -> None:
         get_app_data_path()
 
 
-def test_get_morphology_index_db_path_creates_parent(tmp_path: Path) -> None:
+def test_get_canonical_db_path_creates_parent(tmp_path: Path) -> None:
     app_data = tmp_path / "app-data"
-    db_path = get_morphology_index_db_path(app_data_dir=app_data)
-    assert db_path == (app_data / MORPHOLOGY_INDEX_FILENAME).resolve()
+    db_path = get_canonical_db_path(app_data_dir=app_data)
+    assert db_path == (app_data / CANONICAL_DB_FILENAME).resolve()
     assert app_data.exists()
 
 
-def test_resolve_morphology_index_db_path_index_db(tmp_path: Path) -> None:
-    explicit = tmp_path / "custom.sqlite3"
-    resolved = resolve_morphology_index_db_path(index_db=explicit)
+def test_canonical_db_filename_is_wyrdcraeft_sqlite3() -> None:
+    assert CANONICAL_DB_FILENAME == "wyrdcraeft.sqlite3"
+
+
+def test_resolve_db_path_explicit_file_mkdirs_parent(tmp_path: Path) -> None:
+    explicit = tmp_path / "nested" / "custom.sqlite3"
+    resolved = paths._resolve_db_path(
+        index_db=explicit,
+        index_dir=None,
+        default_path=get_canonical_db_path(app_data_dir=tmp_path / "app-data"),
+        filename=CANONICAL_DB_FILENAME,
+    )
     assert resolved == explicit.resolve()
     assert resolved.parent.exists()
 
 
-def test_resolve_morphology_index_db_path_index_dir(tmp_path: Path) -> None:
+def test_resolve_db_path_explicit_dir_mkdirs_target(tmp_path: Path) -> None:
     index_dir = tmp_path / "index-dir"
-    resolved = resolve_morphology_index_db_path(index_dir=index_dir)
-    assert resolved == (index_dir / MORPHOLOGY_INDEX_FILENAME).resolve()
+    resolved = paths._resolve_db_path(
+        index_db=None,
+        index_dir=index_dir,
+        default_path=tmp_path / "unused.sqlite3",
+        filename=DICTIONARY_INDEX_FILENAME,
+    )
+    assert resolved == (index_dir / DICTIONARY_INDEX_FILENAME).resolve()
     assert index_dir.exists()
 
 
-def test_resolve_morphology_index_db_path_app_data_override(tmp_path: Path) -> None:
-    app_data = tmp_path / "settings-app-data"
-    resolved = resolve_morphology_index_db_path(app_data_dir=app_data)
-    assert resolved == (app_data / MORPHOLOGY_INDEX_FILENAME).resolve()
-
-
-def test_resolve_morphology_index_db_path_rejects_both_overrides(
-    tmp_path: Path,
-) -> None:
+def test_resolve_db_path_rejects_both_explicit_overrides(tmp_path: Path) -> None:
     with pytest.raises(click.ClickException, match="at most one"):
-        resolve_morphology_index_db_path(
-            index_db=tmp_path / "a.sqlite3",
+        paths._resolve_db_path(
+            index_db=tmp_path / "one.sqlite3",
             index_dir=tmp_path / "dir",
+            default_path=get_canonical_db_path(app_data_dir=tmp_path / "app-data"),
+            filename=CANONICAL_DB_FILENAME,
         )
+
+
+def test_isolated_morphology_index_db_uses_canonical_filename(
+    isolated_morphology_index_db: Path,
+) -> None:
+    assert isolated_morphology_index_db.name == CANONICAL_DB_FILENAME
+
+
+def test_paths_module_has_no_per_command_db_override_helper() -> None:
+    assert not hasattr(paths, "resolve_morphology_index_db_path")
+    assert not hasattr(paths, "resolve_dictionary_index_db_path")
+    assert not hasattr(paths, "get_morphology_index_db_path")
 
 
 def test_settings_app_data_dir_env_override(tmp_path: Path) -> None:
