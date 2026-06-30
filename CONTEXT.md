@@ -72,9 +72,17 @@ Out of scope:
   `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
   other inflectional dimensions depending on part of speech
 - morphology table: browse sidebar view that expands function codes into
-  human-readable columns filtered to the headword's part of speech
-- Old English search bar: lexicon browse input with clickable insert buttons for
-  æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
+  POS-aware paradigm grids (verb/noun/adjective/pronoun) filtered to the
+  headword's part of speech; falls back to a flat table when no grid applies
+- paradigm grid: case-by-number or person-by-number table built from morphology
+  function codes; instrumental forms use code `Is` displayed as `Inst`
+- lexical distance: Levenshtein distance between normalized query and candidate
+  text; lexicon browse uses it to sort search results after rank tier and key kind
+- Old English search bar: lexicon browse input (`OldEnglishSearchInput`) with
+  keyboard entry as the primary path; optional character bar below the field
+  inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
+- lexicon schema migration: additive upgrade of existing `lexicon_*` tables
+  (for example adding `lexicon_forms.paradigm`) on browse connect and build
 - POS inference: lexicon build step that fills empty dictionary POS from
   unambiguous morphology wordclass when one clear mapping exists
 - lexicon build progress: live stderr stage progress during `lexicon build`
@@ -106,9 +114,9 @@ Out of scope:
 worker-thread runtime + typed build events -> default Textual build monitor or
 plain `--no-tui` renderer -> `lexicon_*` tables in `morphology.sqlite3`
 
-`wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService` ->
-Textual `LexiconBrowseApp` with Old English search bar, POS-filtered morphology
-table sidebar, and dimensional function-code columns
+`wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
+(with `migrate_lexicon_schema`) -> Textual `LexiconBrowseApp` with search bar
+at top, results pane left, details plus POS-filtered paradigm grids right
 
 Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sqlite3`
 (from morphology generation plus dictionary attach/index flows).
@@ -125,6 +133,8 @@ Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sq
   a separate `dictionary.sqlite3`.
 - Lexicon build defaults to the same `morphology.sqlite3` path and fails clearly if
   required `bt_*` tables are missing.
+- Lexicon build refuses to overwrite existing lexicon read-model data unless
+  `--force` is passed; the build can take ~30 minutes.
 - Lexicon build now launches a full-screen Textual monitor by default on an
   interactive terminal; use `--no-tui` for the plain renderer and `--quiet`
   for final-summary-only output.
@@ -133,12 +143,18 @@ Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sq
   progress event so the monitor does not appear stuck at `0/1`.
 - Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` after morphology or
   dictionary source data changes.
+- Opening lexicon browse on an older database auto-migrates missing `lexicon_*`
+  columns (for example `lexicon_forms.paradigm`); rebuild to populate derived data.
 - Lexicon build may infer missing dictionary POS from morphology when wordclass is
   unambiguous; ambiguous lemmas stay POS-empty.
-- Lexicon browse search accepts pasted Unicode; use the character bar when the
-  terminal cannot emit æ, þ, ð, macrons, or dotted letters directly.
+- Lexicon browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
+  dotted letters when the search field is focused; the character bar below the
+  field is a fallback for terminals that cannot emit those keys.
+- Lexicon browse search results sort by rank tier and key kind, then lexical
+  distance from the query string.
 - Morphology sidebar shows only forms matching the headword POS and renders
-  function codes as a scrollable dimensional table.
+  paradigm grids from function codes; scrollable details and morphology panes
+  share the right column below the search bar.
 - OCR `--pages` is currently not supported in `olmocr` mode.
 - Diacritic workflows use packaged JSON/TXT data under `wyrdcraeft/etc/diacritic`.
 - Settings docs in Sphinx are not always current; prefer code in `wyrdcraeft/settings.py` and CLI wiring in `wyrdcraeft/cli/cli.py`.

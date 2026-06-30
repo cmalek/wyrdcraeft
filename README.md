@@ -59,6 +59,12 @@ uv sync --dev
 
 Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://wyrdcraeft.readthedocs.io](https://wyrdcraeft.readthedocs.io)
 
+For `wyrdcraeft lexicon browse`, the search field accepts direct Old English
+characters including `æ Æ ð Ð þ Þ ā Ā ē Ē ī Ī ō Ō ū Ū ȳ Ȳ ǣ Ǣ ċ Ċ ġ Ġ`. On macOS
+with the `ABC Extended` keyboard layout, those keys are supported directly in
+the browse input; on other terminals or keyboard layouts, direct typing may
+also work, and the on-screen character buttons remain available as a fallback.
+
 ## Local olmocr proxy (llama.cpp / LM Studio)
 
 When using `olmocr` against local OpenAI-compatible servers, this repository includes a local proxy that clamps oversized token limits and can conservatively rewrite `finish_reason="length"` to `finish_reason="stop"` when output appears complete enough for `olmocr`.

@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 from textual import events
-from textual.containers import Vertical
-from textual.widgets import DataTable, Input, ListView, Static
+from textual.containers import Horizontal, Vertical
+from textual.widgets import Button, DataTable, Input, ListView, Static
 
 from wyrdcraeft.models.lexicon_build import (
     BuildCancelled,
@@ -27,7 +27,6 @@ from wyrdcraeft.services.lexicon.query import LexiconQueryService
 from wyrdcraeft.services.lexicon.tui import (
     LexiconBrowseApp,
     LexiconBrowseDataError,
-    OldEnglishSearchInput,
     _MainResultItem,
     _OrphanResultItem,
     create_lexicon_browse_app,
@@ -78,8 +77,10 @@ async def test_shell_layout_exposes_search_and_two_panes(lexicon_source_db: Path
     app = create_lexicon_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
-            assert isinstance(app.query_one("#search-box"), OldEnglishSearchInput)
-            assert isinstance(app.query_one("#search-input"), Input)
+            search = app.query_one("#search-input", Input)
+            assert isinstance(search, Input)
+            oe_char_bar = app.query_one("#oe-char-bar", Horizontal)
+            assert isinstance(oe_char_bar, Horizontal)
             body = app.query_one("#body")
             ids = _collect_widget_ids(body)
             assert "results-pane" in ids
@@ -90,9 +91,10 @@ async def test_shell_layout_exposes_search_and_two_panes(lexicon_source_db: Path
             assert "morphology-sidebar" in ids
             details_body = app.query_one("#details-body")
             assert isinstance(details_body, Vertical)
-            search_box = app.query_one("#search-box", OldEnglishSearchInput)
-            search_box_children = list(search_box.children)
-            assert isinstance(search_box_children[0], Input)
+            assert not list(app.query("#search-box"))
+            char_buttons = list(oe_char_bar.children)
+            assert char_buttons
+            assert all(isinstance(button, Button) for button in char_buttons)
     finally:
         app.query_service.close()
 
@@ -353,7 +355,7 @@ async def test_browse_oe_character_bar_inserts_into_search(
             search = app.query_one("#search-input", Input)
             assert search.value == "æ"
 
-            thorn_button = app.query(".oe-char-button")[2]
+            thorn_button = app.query(".oe-char-button")[1]
             await pilot.click(thorn_button)
             await pilot.pause()
             assert search.value == "æþ"
@@ -372,10 +374,164 @@ async def test_browse_search_accepts_keyboard_unicode_characters(
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
             assert search.has_focus
-            for character in ("æ", "Þ", "ð", "ā", "ċ"):
-                app.post_message(events.Key(character, character))
+            await pilot.press(
+                "æ",
+                "Æ",
+                "ð",
+                "Ð",
+                "þ",
+                "Þ",
+                "ā",
+                "ē",
+                "ī",
+                "ō",
+                "ū",
+                "ȳ",
+                "ǣ",
+                "ċ",
+                "ġ",
+            )
+            assert search.value == "æÆðÐþÞāēīōūȳǣċġ"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_oe_character_buttons_use_light_text_on_dark_background(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test():
+            screenshot = app.export_screenshot()
+            for character in ("æ", "þ"):
+                assert character in screenshot
+            button_labels = [
+                getattr(button.label, "plain", str(button.label))
+                for button in app.query(".oe-char-button")
+                if isinstance(button, Button)
+            ]
+            assert "ȳ" in button_labels
+            assert "ǣ" in button_labels
+            assert button_labels.count("æ") == 1
+            assert "Æ" not in button_labels
+            assert "Þ" not in button_labels
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_search_accepts_app_level_unicode_key_fallback(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            search = app.query_one("#search-input", Input)
+            assert search.has_focus
+            app.post_message(events.Key("æ", "æ"))
+            await pilot.pause()
+            app.post_message(events.Key("ċ", "ċ"))
+            await pilot.pause()
+            assert search.value == "æċ"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_search_accepts_input_level_oe_key_aliases(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            search = app.query_one("#search-input", Input)
+            assert search.has_focus
+            search.post_message(events.Key("latin_small_letter_ae", None))
+            await pilot.pause()
+            search.post_message(events.Key("combining_macron", None))
+            await pilot.pause()
+            search.post_message(events.Key("latin_small_letter_c_with_dot_above", None))
+            await pilot.pause()
+            assert search.value == "ǣċ"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_search_accepts_macos_abc_extended_alt_keys(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            search = app.query_one("#search-input", Input)
+            assert search.has_focus
+
+            for key in (
+                "alt+apostrophe",
+                "alt+shift+apostrophe",
+                "alt+d",
+                "alt+shift+d",
+                "alt+t",
+                "alt+shift+t",
+            ):
+                search.post_message(events.Key(key, None))
                 await pilot.pause()
-            assert search.value == "æÞðāċ"
+
+            search.post_message(events.Key("alt+a", None))
+            await pilot.pause()
+            await pilot.press("a")
+            search.post_message(events.Key("alt+a", None))
+            await pilot.pause()
+            await pilot.press("A")
+            search.post_message(events.Key("alt+a", None))
+            await pilot.pause()
+            search.post_message(events.Key("alt+apostrophe", None))
+            await pilot.pause()
+            search.post_message(events.Key("alt+a", None))
+            await pilot.pause()
+            search.post_message(events.Key("alt+shift+apostrophe", None))
+            await pilot.pause()
+
+            search.post_message(events.Key("alt+w", None))
+            await pilot.pause()
+            await pilot.press("c")
+            search.post_message(events.Key("alt+w", None))
+            await pilot.pause()
+            await pilot.press("G")
+
+            assert search.value == "æÆðÐþÞāĀǣǢċĠ"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_search_normalizes_combining_old_english_marks(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            search = app.query_one("#search-input", Input)
+            assert search.has_focus
+            await pilot.press("a")
+            app.post_message(events.Key("combining_macron", "\u0304"))
+            await pilot.pause()
+            await pilot.press("c")
+            app.post_message(events.Key("combining_dot_above", "\u0307"))
+            await pilot.pause()
+            assert search.value == "āċ"
     finally:
         app.query_service.close()
 

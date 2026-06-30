@@ -62,6 +62,40 @@ Search ranking:
 When exactly one dictionary entry matches, the details pane opens that entry
 immediately.
 
+Old English character input
+---------------------------
+
+When the search field has focus, you can type Old English characters directly.
+The browse shell accepts these characters:
+
+- ``æ``, ``Æ``
+- ``ð``, ``Ð``
+- ``þ``, ``Þ``
+- ``ā``, ``Ā``
+- ``ē``, ``Ē``
+- ``ī``, ``Ī``
+- ``ō``, ``Ō``
+- ``ū``, ``Ū``
+- ``ȳ``, ``Ȳ``
+- ``ǣ``, ``Ǣ``
+- ``ċ``, ``Ċ``
+- ``ġ``, ``Ġ``
+
+On macOS with the ``ABC Extended`` keyboard layout, ``wyrdcraeft lexicon browse``
+supports direct entry of those characters in the search box, including the
+dead-key compose paths for macrons and dotted letters.
+
+Other terminals and keyboard layouts may also pass these characters through,
+but terminal support varies. If direct typing does not work in your terminal,
+use the fallback character buttons shown below the search field.
+
+.. figure:: /_images/lexicon-browse-macos-abc-extended-keys.jpg
+   :alt: textual keys output showing macOS ABC Extended option-key events for Old English character entry
+   :width: 100%
+
+   ``textual keys`` on macOS ``ABC Extended`` shows the option-key events used
+   for direct Old English character entry in ``wyrdcraeft lexicon browse``.
+
 Staleness hints
 ---------------
 

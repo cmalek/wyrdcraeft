@@ -126,6 +126,15 @@ llama-test-latency:
 llama-test-throughput:
 	@$(MAKE) llama-test LLAMA_PARALLEL=2
 
+backup-database:: # Backup the database to the backups directory
+	cp ~/Library/Application\ Support/wyrdcraeft/morphology.sqlite3 ./backups/morphology-$(shell date +%Y-%m-%d-%H-%M-%S).sqlite3
+
+restore-database:: # Restore the latest backup to the application data directory
+	# find the latest backup in the backups directory
+	LATEST_BACKUP=$(shell ls -t ./backups/morphology-*.sqlite3 | head -n 1)
+	cp $(LATEST_BACKUP) ~/Library/Application\ Support/wyrdcraeft/morphology.sqlite3
+
+
 .PHONY: docs release compile dist clean list morphology-guardrails napoleon-gate napoleon-gate-strict napoleon-gate-baseline ocr-old-english-help download-models-macos llama llama-test llama-test-latency llama-test-throughput
 list:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs

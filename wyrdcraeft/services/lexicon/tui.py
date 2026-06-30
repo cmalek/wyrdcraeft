@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import sqlite3
+import unicodedata
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from textual import events
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, ScrollableContainer, Vertical
-from textual.message import Message
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
 
 from wyrdcraeft.services.lexicon.build import check_lexicon_staleness
@@ -42,126 +43,132 @@ from wyrdcraeft.services.markup import normalize_old_english
 if TYPE_CHECKING:
     from pathlib import Path
 
-#: Insertable Old English characters for the browse search bar.
-_OE_INSERT_CHARACTERS: tuple[str, ...] = (
-    "æ",
-    "Æ",
-    "þ",
-    "Þ",
-    "ð",
-    "Ð",
-    "ā",
-    "Ā",
-    "ē",
-    "Ē",
-    "ī",
-    "Ī",
-    "ō",
-    "Ō",
-    "ū",
-    "Ū",
-    "ȳ",
-    "Ȳ",
-    "ǣ",
-    "Ǣ",
-    "ċ",
-    "Ċ",
-    "ġ",
-    "Ġ",
+#: Insertable/searchable Old English characters plus button display text.
+_OE_BUTTONS: tuple[tuple[str, str], ...] = (
+    ("æ", "æ"),
+    ("þ", "þ"),
+    ("ð", "ð"),
+    ("ā", "ā"),
+    ("ē", "ē"),
+    ("ī", "ī"),
+    ("ō", "ō"),
+    ("ū", "ū"),
+    ("ȳ", "ȳ"),
+    ("ǣ", "ǣ"),
+    ("ċ", "ċ"),
+    ("ġ", "ġ"),
 )
+
+#: Canonical Old English characters inserted into the search field.
+_OE_INSERT_CHARACTERS = tuple(
+    insert_character for insert_character, _display in _OE_BUTTONS
+)
+
+#: Combining marks commonly produced by dead-key keyboard input for OE glyphs.
+_OE_COMBINING_MARKS: tuple[str, ...] = (
+    "\u0304",
+    "\u0307",
+)
+
+#: Printable characters that should be accepted by app-level keyboard fallback.
+_OE_KEYBOARD_CHARACTERS = frozenset(_OE_INSERT_CHARACTERS + _OE_COMBINING_MARKS)
+
+
+def _key_name(character: str) -> str:
+    """
+    Build a Textual-style descriptive key name for one Unicode character.
+
+    Args:
+        character: Unicode character used for terminal key alias lookup.
+
+    Returns:
+        Lowercase underscore-separated Unicode name.
+
+    """
+    return unicodedata.name(character).lower().replace("-", "_").replace(" ", "_")
+
+
+#: Non-printable terminal key aliases mapped to canonical insert text.
+_OE_KEY_ALIASES = {
+    **{_key_name(character): character for character in _OE_INSERT_CHARACTERS},
+    "alt+apostrophe": "æ",
+    "alt+shift+apostrophe": "Æ",
+    "alt+d": "ð",
+    "alt+shift+d": "Ð",
+    "alt+t": "þ",
+    "alt+shift+t": "Þ",
+    "alt+a": "\u0304",
+    "alt+w": "\u0307",
+    "combining_macron": "\u0304",
+    "combining_dot_above": "\u0307",
+}
 
 
 class LexiconBrowseDataError(RuntimeError):
     """Raised when lexicon browse data is unavailable for the TUI shell."""
 
 
-class OldEnglishSearchInput(Vertical):
-    """
-    Search input with optional Old English character insert buttons.
+class OldEnglishSearchInput(Input):
+    """Search input that accepts OE key aliases and paste-driven compose paths."""
 
-    Keyboard entry is the primary path: when the search field is focused,
-    printable æ/þ/ð/macron/dot characters from the terminal are accepted
-    directly. The character bar below the field is a fallback for terminals
-    that cannot deliver those keys as printable input.
-    """
+    #: Pending combining mark from a macOS dead-key event.
+    _pending_dead_key: str | None = None
 
-    class Submitted(Message):
-        """Posted when the search input is submitted."""
-
-        def __init__(self, value: str) -> None:
-            """
-            Initialize one submitted-search message.
-
-            Args:
-                value: Search string submitted by the user.
-
-            """
-            super().__init__()
-            #: Search string submitted by the user.
-            self.value = value
-
-    def compose(self) -> ComposeResult:
+    async def _on_key(self, event: events.Key) -> None:
         """
-        Compose the character bar and search input.
-
-        Returns:
-            Textual widget tree for Old English search entry.
-
-        """
-        yield Input(
-            placeholder="Search lexicon (press Enter)",
-            id="search-input",
-        )
-        with Horizontal(id="oe-char-bar"):
-            for character in _OE_INSERT_CHARACTERS:
-                yield Button(character, classes="oe-char-button")
-
-    def on_mount(self) -> None:
-        """
-        Focus the search input and keep character buttons mouse-only.
-
-        Side Effects:
-            Focuses ``#search-input`` and disables tab focus on OE buttons.
-
-        """
-        self.focus_search()
-        for button in self.query(".oe-char-button"):
-            button.can_focus = False
-
-    def focus_search(self) -> None:
-        """Return keyboard focus to the search input field."""
-        self.query_one("#search-input", Input).focus()
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        Insert one Old English character at the search input cursor.
+        Accept OE key aliases before Textual's default printable-key handling.
 
         Args:
-            event: Textual button press event.
+            event: Textual key event delivered to the focused input.
 
         Side Effects:
-            Inserts the pressed character into the search input.
+            Inserts mapped OE text for non-printable alias keys.
 
         """
-        if not event.button.has_class("oe-char-button"):
+        alias = _OE_KEY_ALIASES.get(event.key) if event.character is None else None
+        compose_target = event.character or alias
+        if self._pending_dead_key is not None and compose_target:
+            composed = unicodedata.normalize(
+                "NFC",
+                f"{compose_target}{self._pending_dead_key}",
+            )
+            self.insert_text_at_cursor(composed)
+            self._pending_dead_key = None
+            event.stop()
+            event.prevent_default()
             return
-        search = self.query_one("#search-input", Input)
-        character = getattr(event.button.label, "plain", str(event.button.label))
-        search.insert_text_at_cursor(character)
-        self.focus_search()
+        if event.character is None:
+            if alias is not None:
+                if event.key in {"alt+a", "alt+w"}:
+                    self._pending_dead_key = alias
+                    event.stop()
+                    event.prevent_default()
+                    return
+                self.insert_text_at_cursor(alias)
+                event.stop()
+                event.prevent_default()
+                return
+        await super()._on_key(event)
+
+    def _on_paste(self, event: events.Paste) -> None:
+        """
+        Normalize pasted text so terminal compose/paste paths keep OE glyphs.
+
+        Args:
+            event: Textual paste event delivered to the focused input.
+
+        Side Effects:
+            Inserts the first pasted line at the cursor in NFC form.
+
+        """
+        if event.text:
+            line = unicodedata.normalize("NFC", event.text.splitlines()[0])
+            selection = self.selection
+            if selection.is_empty:
+                self.insert_text_at_cursor(line)
+            else:
+                self.replace(line, *selection)
         event.stop()
-
-    def on_input_submitted(self, event: Input.Submitted) -> None:
-        """
-        Bubble search submission to browse app listeners.
-
-        Args:
-            event: Textual input submission event.
-
-        """
-        if event.input.id != "search-input":
-            return
-        self.post_message(self.Submitted(event.value))
 
 
 class _MainResultItem(ListItem):
@@ -682,10 +689,13 @@ class LexiconBrowseApp(App[None]):
   }
 
   .oe-char-button {
-      min-width: 3;
-      height: 1;
+      min-width: 4;
+      height: auto;
       margin: 0 1 0 0;
       padding: 0 1;
+      text-style: bold;
+      color: #f6f7f9;
+      background: #28313a;
   }
 
   #body {
@@ -831,7 +841,18 @@ class LexiconBrowseApp(App[None]):
             Textual widget tree for search, results, and details panes.
 
         """
-        yield OldEnglishSearchInput(id="search-box")
+        yield OldEnglishSearchInput(
+            placeholder="Search lexicon (press Enter)",
+            id="search-input",
+        )
+        with Horizontal(id="oe-char-bar"):
+            for insert_character, display_text in _OE_BUTTONS:
+                yield Button(
+                    display_text,
+                    name=insert_character,
+                    classes="oe-char-button",
+                    flat=True,
+                )
         with Horizontal(id="body"):
             with Vertical(id="results-pane"):
                 yield Static("Results", id="results-title")
@@ -854,7 +875,8 @@ class LexiconBrowseApp(App[None]):
         Cache browse pane widgets for stable access during event handling.
 
         Side Effects:
-            Stores references to results and details pane widgets.
+            Stores references to results and details pane widgets, focuses the
+            search input, and keeps OE buttons mouse-only.
 
         """
         self._main_results_list = self.query_one("#results-list", ListView)
@@ -863,23 +885,91 @@ class LexiconBrowseApp(App[None]):
         self._details_content = self.query_one("#details-content", Static)
         self._morphology_table = self.query_one("#morphology-table", DataTable)
         self._morphology_table.cursor_type = "none"
+        self.focus_search()
+        for button in self.query(".oe-char-button"):
+            button.can_focus = False
 
-    def on_old_english_search_input_submitted(
-        self,
-        event: OldEnglishSearchInput.Submitted,
-    ) -> None:
+    def focus_search(self) -> None:
+        """Return keyboard focus to the search input field."""
+        self.query_one("#search-input", Input).focus()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        Insert one Old English character at the search input cursor.
+
+        Args:
+            event: Textual button press event.
+
+        Side Effects:
+            Inserts the pressed character into the search input.
+
+        """
+        if not event.button.has_class("oe-char-button"):
+            return
+        search = self.query_one("#search-input", Input)
+        character = event.button.name
+        if character is None:
+            character = getattr(event.button.label, "plain", str(event.button.label))
+        search.insert_text_at_cursor(character)
+        self.focus_search()
+        event.stop()
+
+    def on_key(self, event: events.Key) -> None:
+        """
+        Accept Old English keyboard characters at app level as a terminal fallback.
+
+        Args:
+            event: Textual key event that bubbled past the focused widget.
+
+        Side Effects:
+            Inserts supported OE characters into the search input when it has focus.
+
+        """
+        if event.character not in _OE_KEYBOARD_CHARACTERS:
+            return
+        search = self.query_one("#search-input", Input)
+        if not search.has_focus:
+            return
+        search.insert_text_at_cursor(event.character)
+        event.stop()
+        event.prevent_default()
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """
+        Normalize search input text so dead-key combining marks become OE glyphs.
+
+        Args:
+            event: Textual input change event.
+
+        Side Effects:
+            Rewrites the search field value in NFC form when needed.
+
+        """
+        if event.input.id != "search-input":
+            return
+        normalized = unicodedata.normalize("NFC", event.value)
+        if normalized == event.value:
+            return
+        cursor = event.input.cursor_position
+        prefix = unicodedata.normalize("NFC", event.value[:cursor])
+        event.input.value = normalized
+        event.input.cursor_position = len(prefix)
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
         """
         Run unified search when the user submits the search box.
 
         Args:
-            event: Old English search submission event.
+            event: Textual input submission event.
 
         Side Effects:
             Rebuilds results lists and may auto-focus a single main hit.
 
         """
+        if event.input.id != "search-input":
+            return
         self._run_search(event.value)
-        self.query_one("#search-box", OldEnglishSearchInput).focus_search()
+        self.focus_search()
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         """
