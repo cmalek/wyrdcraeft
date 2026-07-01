@@ -1,0 +1,287 @@
+"""SQLAlchemy models for the canonical wyrdcraeft SQLite schema."""
+
+from __future__ import annotations
+
+from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint, text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from wyrdcraeft.db.base import Base
+
+
+class Form(Base):
+    """Canonical morphology form row used for generated form lookup."""
+
+    #: Canonical morphology forms table name.
+    __tablename__ = "forms"
+    #: Lookup indexes for normalized morphology search keys.
+    __table_args__ = (
+        Index("idx_forms_bt_key", "bt_key"),
+        Index("idx_forms_title_key", "title_key"),
+        Index("idx_forms_stem_key", "stem_key"),
+        Index("idx_forms_form_key", "form_key"),
+        Index("idx_forms_formi_key", "formi_key"),
+    )
+
+    #: Surrogate row identifier.
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    #: Legacy emitted row counter.
+    counter: Mapped[int] = mapped_column(nullable=False)
+    #: Normalized emitted form.
+    formi: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Bosworth-Toller lemma text.
+    BT: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Source lemma title.
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Morphological stem.
+    stem: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Emitted form text.
+    form: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Legacy form-part trace.
+    form_parts: Mapped[str] = mapped_column("formParts", Text, nullable=False)
+    #: Legacy variant marker.
+    var: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Generation probability marker.
+    probability: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Morphological function label.
+    function: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Wright source marker.
+    wright: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Paradigm label.
+    paradigm: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Paradigm identifier.
+    para_id: Mapped[str] = mapped_column("paraID", Text, nullable=False)
+    #: Part-of-speech word class.
+    wordclass: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Primary class label.
+    class1: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Secondary class label.
+    class2: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Tertiary class label.
+    class3: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Free-form generation comment.
+    comment: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized Bosworth-Toller lookup key.
+    bt_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized title lookup key.
+    title_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized stem lookup key.
+    stem_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized form lookup key.
+    form_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized formi lookup key.
+    formi_key: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class BTEntry(Base):
+    """Canonical Bosworth-Toller dictionary entry row."""
+
+    #: Canonical Bosworth-Toller dictionary entries table name.
+    __tablename__ = "bt_entries"
+    #: Dictionary entry uniqueness and lookup indexes.
+    __table_args__ = (
+        UniqueConstraint("norm_key", "pos"),
+        Index("idx_bt_entries_norm_key", "norm_key"),
+    )
+
+    #: Surrogate dictionary entry identifier.
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #: Normalized dictionary key.
+    norm_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Raw headword spelling.
+    headword_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Macronized display headword.
+    headword_macronized: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Part-of-speech label.
+    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded gender labels.
+    genders_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Etymology text.
+    etymology: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded cross references.
+    see_also_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded source line numbers.
+    source_line_nos_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class BTSense(Base):
+    """Canonical Bosworth-Toller sense row for one dictionary entry."""
+
+    #: Canonical Bosworth-Toller senses table name.
+    __tablename__ = "bt_senses"
+
+    #: Surrogate sense identifier.
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #: Owning dictionary entry identifier.
+    entry_id: Mapped[int] = mapped_column(
+        ForeignKey("bt_entries.id"), nullable=False
+    )
+    #: Source sense label.
+    sense_label: Mapped[str] = mapped_column(Text, nullable=False)
+    #: English gloss text.
+    gloss_en: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Sense ordering within the entry.
+    order_index: Mapped[int] = mapped_column(nullable=False)
+
+
+class BTVariant(Base):
+    """Canonical Bosworth-Toller spelling variant row."""
+
+    #: Canonical Bosworth-Toller spelling variants table name.
+    __tablename__ = "bt_variants"
+    #: Lookup index for macronized spelling variants.
+    __table_args__ = (Index("idx_bt_variants_spelling", "spelling_macronized"),)
+
+    #: Owning dictionary entry identifier.
+    entry_id: Mapped[int] = mapped_column(ForeignKey("bt_entries.id"), nullable=False)
+    #: Raw spelling variant.
+    spelling_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Macronized spelling variant.
+    spelling_macronized: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Mapper-only key for the legacy table, which has no declared primary key.
+    __mapper_args__ = {  # noqa: RUF012
+        "primary_key": [entry_id, spelling_raw]
+    }
+
+
+class BTEditLog(Base):
+    """Canonical Bosworth-Toller editorial merge audit row."""
+
+    #: Canonical Bosworth-Toller edit audit table name.
+    __tablename__ = "bt_edit_log"
+
+    #: Surrogate audit row identifier.
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #: Editorial operation name.
+    op: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Source line number for the edit instruction.
+    source_line_no: Mapped[int] = mapped_column(nullable=False)
+    #: Target normalized dictionary key.
+    target_norm_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Target part-of-speech label.
+    target_pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Edit scope label.
+    scope: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Integer boolean indicating whether the edit applied.
+    applied: Mapped[int] = mapped_column(nullable=False)
+    #: Human-readable edit note.
+    note: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class LexiconEntry(Base):
+    """Canonical lexicon browse entry row."""
+
+    #: Canonical lexicon entries table name.
+    __tablename__ = "lexicon_entries"
+    #: Lookup index for normalized lexicon entry keys by part of speech.
+    __table_args__ = (Index("idx_lexicon_entries_norm_pos", "norm_key", "pos"),)
+
+    #: Dictionary entry identifier reused by lexicon rows.
+    entry_id: Mapped[int] = mapped_column(primary_key=True)
+    #: Normalized dictionary key.
+    norm_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Part-of-speech label.
+    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Display headword.
+    headword: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Summary English sense.
+    summary_sense: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Etymology text.
+    etymology: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded variant spellings.
+    variants_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded gender labels.
+    genders_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded sense payload.
+    senses_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class LexiconForm(Base):
+    """Canonical lexicon morphology projection row."""
+
+    #: Canonical lexicon forms table name.
+    __tablename__ = "lexicon_forms"
+    #: Lookup index for forms joined to dictionary entries.
+    __table_args__ = (Index("idx_lexicon_forms_entry_id", "entry_id"),)
+
+    #: Morphology form identifier.
+    form_id: Mapped[int] = mapped_column(primary_key=True)
+    #: Optional joined dictionary entry identifier.
+    entry_id: Mapped[int | None] = mapped_column(
+        ForeignKey("lexicon_entries.entry_id")
+    )
+    #: Bosworth-Toller lemma text.
+    bt: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Source lemma title.
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Morphological stem.
+    stem: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Emitted form text.
+    form: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Normalized emitted form.
+    formi: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Part-of-speech word class.
+    wordclass: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Morphological function label.
+    function: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Generation probability marker.
+    probability: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Primary class label.
+    class1: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Secondary class label.
+    class2: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Tertiary class label.
+    class3: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Paradigm label.
+    paradigm: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+
+
+class LexiconSearchKey(Base):
+    """Canonical normalized search key row for lexicon browsing."""
+
+    #: Canonical lexicon search keys table name.
+    __tablename__ = "lexicon_search_keys"
+    #: Lookup and deduplication indexes for lexicon search keys.
+    __table_args__ = (
+        Index("idx_lexicon_search_keys_key_text", "key_text"),
+        Index("idx_lexicon_search_keys_entry_id", "entry_id"),
+        Index("idx_lexicon_search_keys_form_id", "form_id"),
+        Index(
+            "idx_lexicon_search_keys_dedupe",
+            text("TRIM(key_text)"),
+            "key_kind",
+            "rank_tier",
+            text("COALESCE(entry_id, -1)"),
+            text("COALESCE(form_id, -1)"),
+            text("TRIM(display_text)"),
+            unique=True,
+        ),
+    )
+
+    #: Surrogate search-key identifier.
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    #: Normalized search key text.
+    key_text: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Search key kind label.
+    key_kind: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Search ranking tier.
+    rank_tier: Mapped[int] = mapped_column(nullable=False)
+    #: Optional joined dictionary entry identifier.
+    entry_id: Mapped[int | None] = mapped_column(
+        ForeignKey("lexicon_entries.entry_id")
+    )
+    #: Optional joined morphology form identifier.
+    form_id: Mapped[int | None] = mapped_column(ForeignKey("lexicon_forms.form_id"))
+    #: Display text shown for search hits.
+    display_text: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class LexiconBuildMeta(Base):
+    """Canonical lexicon build metadata key/value row."""
+
+    #: Canonical lexicon build metadata table name.
+    __tablename__ = "lexicon_build_meta"
+
+    #: Metadata key.
+    key: Mapped[str] = mapped_column(Text, primary_key=True)
+    #: Metadata value.
+    value: Mapped[str] = mapped_column(Text, nullable=False)

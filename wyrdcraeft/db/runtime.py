@@ -328,10 +328,7 @@ class DatabaseStartupRuntime:
         if self.legacy_db_path.exists() and not self.db_path.exists():
             self._emit("found legacy database")
             backup_path = self._create_backup(self.legacy_db_path)
-            self._run_migration_attempt(
-                backup_path=None,
-                cleanup_paths=(self.db_path,),
-            )
+            self._reset_to_fresh_canonical_db()
             self._emit("rebuild required")
             raise LegacyDatabaseResetRequired(
                 backup_path=backup_path,
@@ -352,10 +349,7 @@ class DatabaseStartupRuntime:
             return
         if current_revision is None:
             backup_path = self._create_backup(self.db_path)
-            self._run_migration_attempt(
-                backup_path=None,
-                cleanup_paths=(self.db_path,),
-            )
+            self._reset_to_fresh_canonical_db()
             self._emit("rebuild required")
             raise LegacyDatabaseResetRequired(
                 backup_path=backup_path,
@@ -366,6 +360,20 @@ class DatabaseStartupRuntime:
 
         backup_path = self._create_backup(self.db_path)
         self._run_migration_attempt(backup_path=backup_path)
+
+    def _reset_to_fresh_canonical_db(self) -> None:
+        """
+        Replace any existing canonical DB with a fresh Alembic-managed file.
+
+        Side Effects:
+            Removes ``self.db_path`` before running the migration bootstrap.
+
+        """
+        _remove_file_if_present(self.db_path)
+        self._run_migration_attempt(
+            backup_path=None,
+            cleanup_paths=(self.db_path,),
+        )
 
     def _create_backup(self, source_path: Path) -> Path:
         """

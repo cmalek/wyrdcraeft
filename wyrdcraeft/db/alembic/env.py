@@ -7,14 +7,17 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+import wyrdcraeft.models.sqlalchemy  # noqa: F401
+from wyrdcraeft.db.base import Base
+
 #: Alembic configuration loaded from ``alembic.ini``.
 config = context.config
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-#: SQLAlchemy metadata registry for autogeneration. Phase 2 keeps this unset.
-target_metadata = None
+#: SQLAlchemy metadata registry for autogeneration.
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

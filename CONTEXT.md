@@ -57,7 +57,14 @@ Out of scope:
 - LLM ingest: extraction path using configured LLM settings
 - macron index: JSON payload used by diacritic tools for normalized-to-display mappings
 - morphology generation: TSV and SQLite production workflow for inflected forms
-- morphology index: `morphology.sqlite3` lookup database
+- build command: standard subcommand name for long-running database-producing
+  workflows; morphology, dictionary, and lexicon should all use `build`, but
+  each build remains explicit and separate
+- canonical database: the one app-data `wyrdcraeft.sqlite3` file that holds
+  morphology (`forms`), attached dictionary (`bt_*`), and derived lexicon
+  (`lexicon_*`) data for the product's lookup workflows
+- morphology index: morphology data stored inside canonical `wyrdcraeft.sqlite3`
+  database rather than a standalone morphology-only file
 - dictionary index: `dictionary.sqlite3` Bosworth-Toller lookup database
 - attach mode: writing dictionary tables into an existing morphology SQLite file
 - lexicon: combined dictionary-plus-morphology user workflow presented as one
@@ -83,6 +90,25 @@ Out of scope:
   inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
 - lexicon schema migration: additive upgrade of existing `lexicon_*` tables
   (for example adding `lexicon_forms.paradigm`) on browse connect and build
+- startup database readiness: mandatory startup step that ensures canonical
+  `wyrdcraeft.sqlite3` exists at expected schema before any DB-using command
+  reads or writes it
+- pre-migration backup: one retained full-copy backup of the canonical
+  `wyrdcraeft.sqlite3` created immediately before Alembic upgrades or
+  destructive legacy resets
+- migration backup prompt: next-invocation interactive cleanup prompt for a
+  retained migration backup, asking whether to delete it only after the user
+  has successfully used `wyrdcraeft` since the last migration
+- migration decision path: clear startup narration showing why migrations are
+  or are not being applied, what legacy condition was detected, and what stage
+  is currently running
+- legacy pre-Alembic database: older canonical SQLite database with product
+  tables but no `alembic_version`; current policy may back it up, delete it,
+  recreate it from migrations, and require rebuild commands for generated data
+- legacy morphology filename: older `morphology.sqlite3` file from before the
+  canonical rename to `wyrdcraeft.sqlite3`; current policy treats it as legacy
+  input, backs it up, resets to fresh canonical DB, stops, and prints rebuild
+  commands instead of trying in-place rename or migration
 - POS inference: lexicon build step that fills empty dictionary POS from
   unambiguous morphology wordclass when one clear mapping exists
 - lexicon build progress: live stderr stage progress during `lexicon build`
@@ -102,24 +128,24 @@ Out of scope:
 
 ### Morphology generation
 
-`wyrdcraeft.cli.morphology:generate` -> session/setup helpers -> generation dispatch -> TSV sink and SQLite sink -> `morphology.sqlite3`
+`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> generation dispatch -> TSV sink and SQLite sink -> `wyrdcraeft.sqlite3`
 
 ### Dictionary indexing
 
-`wyrdcraeft.cli.dictionary:index_bt` -> `BTIndexPipeline.run` -> SQLite sink -> attached `bt_*` tables in `morphology.sqlite3` by default, or `dictionary.sqlite3` with `--standalone`
+`wyrdcraeft.cli.dictionary:build` -> `BTIndexPipeline.run` -> SQLite sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
 
 ### Lexicon browse
 
 `wyrdcraeft.cli.lexicon:build` -> `rebuild_lexicon` (optional POS inference,
 worker-thread runtime + typed build events -> default Textual build monitor or
-plain `--no-tui` renderer -> `lexicon_*` tables in `morphology.sqlite3`
+plain `--no-tui` renderer -> `lexicon_*` tables in `wyrdcraeft.sqlite3`
 
 `wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
 (with `migrate_lexicon_schema`) -> Textual `LexiconBrowseApp` with search bar
 at top, results pane left, details plus POS-filtered paradigm grids right
 
-Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sqlite3`
-(from morphology generation plus dictionary attach/index flows).
+Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite3`
+(from morphology build plus dictionary build flows).
 
 ### OCR workflow
 
@@ -127,11 +153,11 @@ Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sq
 
 ## Sharp Edges
 
-- Morphology generation writes real app-data `morphology.sqlite3` by default.
-- Dictionary indexing attaches `bt_*` tables to app-data `morphology.sqlite3` by
+- Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default.
+- Dictionary indexing attaches `bt_*` tables to app-data `wyrdcraeft.sqlite3` by
   default and fails clearly when that database is missing; use `--standalone` for
   a separate `dictionary.sqlite3`.
-- Lexicon build defaults to the same `morphology.sqlite3` path and fails clearly if
+- Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
   required `bt_*` tables are missing.
 - Lexicon build refuses to overwrite existing lexicon read-model data unless
   `--force` is passed; the build can take ~30 minutes.
@@ -158,6 +184,9 @@ Prerequisite: `forms` and `bt_*` must already exist in the target `morphology.sq
 - OCR `--pages` is currently not supported in `olmocr` mode.
 - Diacritic workflows use packaged JSON/TXT data under `wyrdcraeft/etc/diacritic`.
 - Settings docs in Sphinx are not always current; prefer code in `wyrdcraeft/settings.py` and CLI wiring in `wyrdcraeft/cli/cli.py`.
+- TODO: add a real primary key or uniqueness constraint to `bt_variants` in a
+  future schema migration; the initial canonical migration preserves the legacy
+  table shape, which has no declared primary key.
 
 ## Context Docs
 

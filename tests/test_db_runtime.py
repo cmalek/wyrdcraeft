@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -19,6 +20,21 @@ from wyrdcraeft.settings import Settings
 
 def _make_settings(tmp_path: Path) -> Settings:
     return Settings(app_data_dir=tmp_path / "app-data")
+
+
+def _create_pre_alembic_forms_db(db_path: Path) -> None:
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(db_path) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE forms (
+                id INTEGER PRIMARY KEY,
+                lemma TEXT NOT NULL
+            );
+            INSERT INTO forms (lemma) VALUES ('legacy');
+            """
+        )
+        connection.commit()
 
 
 def test_fresh_missing_db_bootstraps_with_alembic_path(tmp_path: Path) -> None:
@@ -80,6 +96,83 @@ def test_pre_alembic_canonical_db_resets_and_requires_rebuild(
         "checking canonical database",
         "found canonical database",
         "checking alembic revision",
+        "creating backup",
+        "applying migrations",
+        "migration complete",
+        "rebuild required",
+    ]
+
+
+def test_pre_alembic_canonical_db_resets_before_real_initial_migration(
+    tmp_path: Path,
+) -> None:
+    messages: list[str] = []
+    settings = _make_settings(tmp_path)
+    runtime = DatabaseStartupRuntime(
+        settings=settings,
+        interactive=False,
+        echo=messages.append,
+        now=lambda: datetime(2026, 6, 30, 12, 0, tzinfo=UTC),
+    )
+    _create_pre_alembic_forms_db(runtime.db_path)
+
+    with pytest.raises(LegacyDatabaseResetRequired) as excinfo:
+        runtime.ensure_ready()
+
+    with sqlite3.connect(runtime.db_path) as connection:
+        revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()
+        forms_columns = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(forms)").fetchall()
+        }
+
+    assert revision is not None
+    assert "bt_key" in forms_columns
+    assert "lemma" not in forms_columns
+    assert Path(excinfo.value.backup_path).exists()
+    assert Path(excinfo.value.backup_path) != runtime.db_path
+    assert messages == [
+        "checking canonical database",
+        "found canonical database",
+        "checking alembic revision",
+        "creating backup",
+        "applying migrations",
+        "migration complete",
+        "rebuild required",
+    ]
+
+
+def test_legacy_morphology_db_creates_fresh_canonical_db_with_real_migration(
+    tmp_path: Path,
+) -> None:
+    messages: list[str] = []
+    settings = _make_settings(tmp_path)
+    runtime = DatabaseStartupRuntime(
+        settings=settings,
+        interactive=False,
+        echo=messages.append,
+        now=lambda: datetime(2026, 6, 30, 12, 0, tzinfo=UTC),
+    )
+    _create_pre_alembic_forms_db(runtime.legacy_db_path)
+
+    with pytest.raises(LegacyDatabaseResetRequired) as excinfo:
+        runtime.ensure_ready()
+
+    with sqlite3.connect(runtime.db_path) as connection:
+        revision = connection.execute("SELECT version_num FROM alembic_version").fetchone()
+        forms_columns = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(forms)").fetchall()
+        }
+
+    assert revision is not None
+    assert "bt_key" in forms_columns
+    assert "lemma" not in forms_columns
+    assert Path(excinfo.value.backup_path).exists()
+    assert Path(excinfo.value.backup_path) != runtime.db_path
+    assert messages == [
+        "checking canonical database",
+        "found legacy database",
         "creating backup",
         "applying migrations",
         "migration complete",

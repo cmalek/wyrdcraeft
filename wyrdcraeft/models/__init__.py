@@ -1,3 +1,4 @@
+from . import sqlalchemy
 from .bosworth_toller import BTSearchEntry
 from .diacritics import (
     POS_CODE_LABELS,
@@ -106,4 +107,5 @@ __all__ = [
     "UnknownToken",
     "VerbParadigm",
     "Word",
+    "sqlalchemy",
 ]

@@ -112,7 +112,12 @@ def test_attach_missing_db_creates_bt_only(temp_dir: Path) -> None:
     assert merged > 0
 
 
-def test_cli_index_bt_defaults_to_morphology_attach(runner, temp_dir: Path) -> None:
+def test_cli_index_bt_defaults_to_morphology_attach(
+    runner,
+    temp_dir: Path,
+    isolated_morphology_app_data: Path,
+) -> None:
+    isolated_morphology_app_data.mkdir(parents=True, exist_ok=True)
     morphology_db = temp_dir / "morphology.sqlite3"
     initial_forms = _seed_forms_table(morphology_db, row_count=3)
 
@@ -140,7 +145,12 @@ def test_cli_index_bt_defaults_to_morphology_attach(runner, temp_dir: Path) -> N
     assert bt_count > 0
 
 
-def test_cli_index_bt_missing_morphology_db_fails(runner, temp_dir: Path) -> None:
+def test_cli_index_bt_missing_morphology_db_fails(
+    runner,
+    temp_dir: Path,
+    isolated_morphology_app_data: Path,
+) -> None:
+    isolated_morphology_app_data.mkdir(parents=True, exist_ok=True)
     morphology_db = temp_dir / "missing.sqlite3"
     assert not morphology_db.exists()
 
@@ -157,11 +167,16 @@ def test_cli_index_bt_missing_morphology_db_fails(runner, temp_dir: Path) -> Non
     )
 
     assert result.exit_code != 0
-    assert "Morphology index not found" in result.output
+    assert "Canonical database not found" in result.output
     assert "morphology generate" in result.output
 
 
-def test_cli_standalone_writes_dictionary_db(runner, temp_dir: Path) -> None:
+def test_cli_standalone_writes_dictionary_db(
+    runner,
+    temp_dir: Path,
+    isolated_morphology_app_data: Path,
+) -> None:
+    isolated_morphology_app_data.mkdir(parents=True, exist_ok=True)
     dictionary_db = temp_dir / "dictionary.sqlite3"
 
     result = runner.invoke(

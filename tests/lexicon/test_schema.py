@@ -7,19 +7,50 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from wyrdcraeft.db.runtime import DatabaseStartupRuntime
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_LEMMA,
     LEXICON_TABLE_NAMES,
     META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
     SCHEMA_VERSION,
-    apply_lexicon_schema,
     create_lexicon_tables,
     migrate_lexicon_schema,
 )
+from wyrdcraeft.settings import Settings
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+EXPECTED_CANONICAL_TABLES = {
+    "alembic_version",
+    "forms",
+    "bt_entries",
+    "bt_senses",
+    "bt_variants",
+    "bt_edit_log",
+    "lexicon_entries",
+    "lexicon_forms",
+    "lexicon_search_keys",
+    "lexicon_build_meta",
+}
+
+EXPECTED_CANONICAL_INDEXES = {
+    "idx_forms_bt_key",
+    "idx_forms_title_key",
+    "idx_forms_stem_key",
+    "idx_forms_form_key",
+    "idx_forms_formi_key",
+    "idx_bt_entries_norm_key",
+    "idx_bt_variants_spelling",
+    "idx_lexicon_entries_norm_pos",
+    "idx_lexicon_forms_entry_id",
+    "idx_lexicon_search_keys_key_text",
+    "idx_lexicon_search_keys_entry_id",
+    "idx_lexicon_search_keys_form_id",
+    "idx_lexicon_search_keys_dedupe",
+}
 
 
 def _table_names(connection: sqlite3.Connection) -> set[str]:
@@ -32,6 +63,62 @@ def _table_names(connection: sqlite3.Connection) -> set[str]:
         """
     ).fetchall()
     return {str(row[0]) for row in rows}
+
+
+def _index_names(connection: sqlite3.Connection) -> set[str]:
+    rows = connection.execute(
+        """
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'index'
+        ORDER BY name
+        """
+    ).fetchall()
+    return {str(row[0]) for row in rows}
+
+
+def _fresh_canonical_db(tmp_path: Path) -> Path:
+    settings = Settings(app_data_dir=tmp_path / "app-data")
+    runtime = DatabaseStartupRuntime(
+        settings=settings,
+        interactive=False,
+    )
+
+    runtime.ensure_ready()
+
+    return runtime.db_path
+
+
+def test_fresh_canonical_db_has_expected_tables(tmp_path: Path) -> None:
+    db_path = _fresh_canonical_db(tmp_path)
+
+    with sqlite3.connect(db_path) as connection:
+        table_names = _table_names(connection)
+
+    assert table_names >= EXPECTED_CANONICAL_TABLES
+
+
+def test_fresh_canonical_db_lexicon_forms_include_paradigm(
+    tmp_path: Path,
+) -> None:
+    db_path = _fresh_canonical_db(tmp_path)
+
+    with sqlite3.connect(db_path) as connection:
+        columns = {
+            str(row[1])
+            for row in connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
+        }
+
+    assert "paradigm" in columns
+
+
+def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:
+    db_path = _fresh_canonical_db(tmp_path)
+
+    with sqlite3.connect(db_path) as connection:
+        index_names = _index_names(connection)
+
+    assert index_names >= EXPECTED_CANONICAL_INDEXES
 
 
 def test_create_lexicon_tables_creates_expected_tables(
