@@ -10,8 +10,47 @@ from rich.table import Table
 
 import wyrdcraeft
 
+from ..db.runtime import (
+    DatabaseMigrationError,
+    LegacyDatabaseResetRequired,
+    ensure_database_ready,
+)
 from ..settings import Settings
 from .utils import console, print_error
+
+#: Top-level commands that never need the canonical DB readiness gate.
+DATABASE_GATE_SKIP_COMMANDS = frozenset(
+    {"version", "settings", "source", "ocr", "diacritic"}
+)
+
+
+class _RootCLIGroup(click.Group):
+    """
+    Click group that preserves the raw argv for help-aware gate decisions.
+
+    Side Effects:
+        Stores raw CLI arguments in ``ctx.meta`` before Click parsing consumes
+        child help flags.
+
+    """
+
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+        """
+        Persist the raw argv before delegating to Click's normal parser.
+
+        Args:
+            ctx: Click context being populated.
+            args: Raw command-line arguments being parsed.
+
+        Returns:
+            Remaining unparsed arguments from Click.
+
+        Side Effects:
+            Saves the original argument vector in ``ctx.meta``.
+
+        """
+        ctx.meta["raw_argv"] = tuple(args)
+        return super().parse_args(ctx, args)
 
 
 def _configure_logging(settings: Settings) -> None:
@@ -33,7 +72,84 @@ def _configure_logging(settings: Settings) -> None:
     logging.getLogger("wyrdcraeft").setLevel(level)
 
 
-@click.group()
+def should_run_database_readiness_gate(command_name: str | None) -> bool:
+    """
+    Return whether one top-level CLI command should trigger DB readiness.
+
+    Args:
+        command_name: First subcommand chosen by Click, if any.
+
+    Returns:
+        ``True`` for DB-using top-level commands, otherwise ``False``.
+
+    """
+    return command_name is not None and command_name not in DATABASE_GATE_SKIP_COMMANDS
+
+
+def _prompt_backup_cleanup(text: str) -> str:
+    """
+    Read one backup-cleanup confirmation without forcing a re-prompt.
+
+    Args:
+        text: Full locked prompt text, including the ``[y/N]`` suffix.
+
+    Returns:
+        Raw trimmed user response, or an empty string when Enter is pressed.
+
+    Side Effects:
+        Writes the prompt once to stdout and reads a single stdin line.
+
+    """
+    click.echo(text, nl=False)
+    response = click.get_text_stream("stdin").readline()
+    click.echo()
+    return response.rstrip("\r\n")
+
+
+def _run_database_readiness_gate(ctx: click.Context) -> None:
+    """
+    Run the canonical DB startup gate once for DB-using command trees.
+
+    Args:
+        ctx: Root Click context for the current CLI invocation.
+
+    Side Effects:
+        Runs startup migration checks before DB-using commands are dispatched.
+
+    Raises:
+        click.ClickException: Startup migration work failed or requires rebuild.
+
+    """
+    if ctx.obj.get("_db_ready_checked"):
+        return
+    ctx.obj["_db_ready_checked"] = True
+
+    raw_argv = ctx.meta.get("raw_argv", ())
+    if ctx.resilient_parsing or any(arg in {"--help", "-h"} for arg in raw_argv):
+        return
+    if not should_run_database_readiness_gate(ctx.invoked_subcommand):
+        return
+
+    settings: Settings | None = ctx.obj.get("settings")
+    if settings is None:
+        return
+
+    try:
+        ensure_database_ready(
+            settings=settings,
+            interactive=sys.stdin.isatty() and sys.stdout.isatty(),
+            echo=click.echo,
+            prompt=_prompt_backup_cleanup,
+        )
+    except LegacyDatabaseResetRequired as exc:
+        raise click.ClickException(str(exc)) from exc
+    except DatabaseMigrationError as exc:
+        recipe = "\n".join(exc.rebuild_instructions)
+        msg = f"{exc}\n\n{exc.traceback_text}\nRebuild commands:\n{recipe}"
+        raise click.ClickException(msg) from exc
+
+
+@click.group(cls=_RootCLIGroup)
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option("--quiet", "-q", is_flag=True, help="Suppress all output except errors")
 @click.option(
@@ -51,6 +167,14 @@ def cli(
 ):
     """
     Wyrdcraeft command line interface.
+
+    Args:
+        ctx: Root Click context for the current CLI invocation.
+        verbose: Whether verbose mode is enabled.
+        quiet: Whether normal output should be suppressed.
+        config_file: Optional explicit configuration file path.
+        output: Output rendering format name.
+
     """
     # Ensure context object exists
     ctx.ensure_object(dict)
@@ -78,6 +202,7 @@ def cli(
     # Reset global console state on every invocation so one quiet run does not
     # leak into later commands in the same Python process.
     console.quiet = quiet
+    _run_database_readiness_gate(ctx)
 
 
 @cli.command(name="version", help="Print some version info.")
