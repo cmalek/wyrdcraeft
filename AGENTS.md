@@ -48,6 +48,24 @@ For non-test Python:
 - `make napoleon-gate` = no new baseline violations.
 - `make napoleon-gate-strict` only if asked.
 
+## Human-Comprehensible Architecture Preference (Required)
+
+For most non-trivial behavior in this repository, prefer implementing cohesive,
+human-comprehensible classes over large collections of loosely related free
+functions, even when those classes are mostly stateless.
+
+Reason:
+
+1. Clear class responsibilities and interactions make it easier for humans to
+   cognitively model the system.
+2. Prefer classes that represent real workflow boundaries, owned
+   responsibilities, or stable concepts in the domain.
+3. Avoid creating classes that are just arbitrary namespaces, but when the
+   alternative is a mass of individual functions with shared implicit context,
+   prefer the class-oriented design.
+4. Favor constructor injection and explicit collaborators when that improves
+   readability and makes the system easier for humans to follow.
+
 ## Morphology test safety
 
 - `wyrdcraeft morphology generate` writes real app-data `morphology.sqlite3` by
