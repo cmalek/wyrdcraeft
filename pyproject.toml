@@ -45,6 +45,8 @@ dependencies = [
   "ocrmypdf>=17.3.0",
   "ocrmypdf-appleocr>=0.3.3",
   "textual>=6.2.1",
+  "alembic>=1.18.5",
+  "sqlalchemy>=2.0.51",
 ]
 
 [dependency-groups]
