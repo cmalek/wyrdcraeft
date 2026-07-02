@@ -7,11 +7,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from wyrdcraeft.paths import (
-    CANONICAL_DB_FILENAME,
-    _resolve_db_path,
-    get_canonical_db_path,
-)
+from wyrdcraeft.paths import get_canonical_db_path
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -214,8 +210,8 @@ def morphology_group() -> None:
 
 
 @morphology_group.command(
-    name="generate",
-    help="Generate Old English morphological forms.",
+    name="build",
+    help="Build Old English morphological forms.",
 )
 @click.option(
     "--data-dir",
@@ -254,22 +250,6 @@ def morphology_group() -> None:
     help="Output file path.",
 )
 @click.option(
-    "--index-db",
-    type=click.Path(path_type=Path),
-    default=None,
-    help=(
-        "SQLite index file path (overrides --index-dir and the OS app-data default)."
-    ),
-)
-@click.option(
-    "--index-dir",
-    type=click.Path(file_okay=False, path_type=Path),
-    default=None,
-    help=(
-        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
-    ),
-)
-@click.option(
     "--limit",
     default=None,
     type=int,
@@ -295,7 +275,7 @@ def morphology_group() -> None:
     help="Generate full dictionary output (equivalent to legacy generate-full).",
 )
 @click.pass_context
-def generate(  # noqa: PLR0913, PLR0915
+def build(  # noqa: PLR0913, PLR0915
     ctx: click.Context,
     data_dir: Path | None,
     dictionary: Path | None,
@@ -303,8 +283,6 @@ def generate(  # noqa: PLR0913, PLR0915
     verbal_paradigms: Path | None,
     prefixes: Path | None,
     output: Path,
-    index_db: Path | None,
-    index_dir: Path | None,
     limit: int | None,
     progress_every: int | None,
     enable_r_stem_nouns: bool,
@@ -327,8 +305,6 @@ def generate(  # noqa: PLR0913, PLR0915
         verbal_paradigms: Optional verbal paradigms file path override.
         prefixes: Optional prefixes file path override.
         output: TSV output file path.
-        index_db: Optional SQLite index output file path override.
-        index_dir: Optional SQLite index output directory override.
         limit: Optional cap for non-full mode processed words.
         progress_every: Optional visible-lemma update cadence override.
         enable_r_stem_nouns: Enables non-parity r-stem noun generation.
@@ -388,12 +364,8 @@ def generate(  # noqa: PLR0913, PLR0915
     set_noun_paradigm(session)
     progress.advance_setup(MorphologySetupStep.ASSIGN_NOUN_PARADIGMS)
 
-    app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = _resolve_db_path(
-        index_db=index_db,
-        index_dir=index_dir,
-        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
-        filename=CANONICAL_DB_FILENAME,
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
     )
     sqlite_sink: SqliteIndexSink | None = None
     try:

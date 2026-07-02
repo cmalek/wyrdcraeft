@@ -1,7 +1,7 @@
-``wyrdcraeft morphology generate``
+``wyrdcraeft morphology build``
 ==================================
 
-This command generates Old English morphology forms using the migrated Python
+This command builds Old English morphology forms using the migrated Python
 implementation from Ondřej Tichý's original Perl-based generator workflow.
 
 Command usage
@@ -9,7 +9,7 @@ Command usage
 
 .. code-block:: bash
 
-    wyrdcraeft morphology generate [OPTIONS]
+    wyrdcraeft morphology build [OPTIONS]
 
 Options
 -------
@@ -20,8 +20,6 @@ Options
 - ``--verbal-paradigms PATH``: verbal paradigms file.
 - ``--prefixes PATH``: prefix list file.
 - ``--output PATH``: output TSV path.
-- ``--index-db PATH``: explicit SQLite index file path.
-- ``--index-dir PATH``: directory where ``morphology.sqlite3`` is written.
 - ``--limit INTEGER``: process only the first N words (ignored in full mode).
 - ``--enable-r-stem-nouns``: enable opt-in non-parity r-stem noun generation.
 - ``--full / --no-full``: full dictionary generation mode.
@@ -31,15 +29,15 @@ Options
 SQLite index database
 ---------------------
 
-``wyrdcraeft morphology generate`` writes two artifacts:
+``wyrdcraeft morphology build`` writes two artifacts:
 
 - a TSV file (``--output``)
-- a SQLite lookup index named ``morphology.sqlite3``
+- a SQLite lookup index named ``wyrdcraeft.sqlite3``
 
 The TSV and SQLite outputs are **independent** by default. The TSV still
 defaults to ``output.txt`` in the **current working directory**. The SQLite
-index no longer defaults next to the TSV file; it defaults to the OS
-application-data directory (see table below).
+database defaults to ``wyrdcraeft.sqlite3`` in the OS application-data
+directory (or the configured ``app_data_dir``).
 
 Default path by operating system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,32 +51,16 @@ Default path by operating system
      - Full default database path
    * - Windows
      - ``%USERPROFILE%\\AppData\\Local\\wyrdcraeft``
-     - ``%USERPROFILE%\\AppData\\Local\\wyrdcraeft\\morphology.sqlite3``
+     - ``%USERPROFILE%\\AppData\\Local\\wyrdcraeft\\wyrdcraeft.sqlite3``
    * - macOS
      - ``~/Library/Application Support/wyrdcraeft``
-     - ``~/Library/Application Support/wyrdcraeft/morphology.sqlite3``
+     - ``~/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3``
    * - Linux
      - ``~/.config/wyrdcraeft``
-     - ``~/.config/wyrdcraeft/morphology.sqlite3``
+     - ``~/.config/wyrdcraeft/wyrdcraeft.sqlite3``
 
-wyrdcraeft creates the application-data directory on first generate when it
+wyrdcraeft creates the application-data directory on first build when it
 does not already exist.
-
-Override precedence
-~~~~~~~~~~~~~~~~~~~
-
-When resolving where to write ``morphology.sqlite3``, wyrdcraeft applies the
-first matching option below:
-
-#. ``--index-db PATH`` — explicit SQLite file path
-#. ``--index-dir PATH`` — directory; file name is always ``morphology.sqlite3``
-#. ``WYRDCRAEFT_APP_DATA_DIR`` environment variable or ``app_data_dir`` in
-   ``.wyrdcraeft.toml`` — replaces the OS default **directory** (file name
-   stays ``morphology.sqlite3``)
-#. OS default (table above)
-
-When the command completes, it prints ``index_db=...`` with the resolved
-absolute path so you can confirm the database location without guessing.
 
 Defaults
 --------
@@ -93,17 +75,11 @@ Examples
 
 .. code-block:: bash
 
-    # Generate subset output with limit (TSV in cwd, SQLite in OS app-data dir)
-    wyrdcraeft morphology generate --limit 250 --output output.tsv
+    # Build subset output with limit (TSV in cwd, SQLite in OS app-data dir)
+    wyrdcraeft morphology build --limit 250 --output output.tsv
 
-    # Generate full output
-    wyrdcraeft morphology generate --full --output morphology_full.tsv
-
-    # Custom index directory (for example CI artifacts or a shared drive)
-    wyrdcraeft morphology generate --index-dir /tmp/wyrdcraeft-index
-
-    # Explicit index file path
-    wyrdcraeft morphology generate --index-db /var/lib/wyrdcraeft/morphology.sqlite3
+    # Build full output
+    wyrdcraeft morphology build --full --output morphology_full.tsv
 
 Background
 ----------

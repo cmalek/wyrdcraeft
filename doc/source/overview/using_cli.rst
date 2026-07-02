@@ -35,13 +35,13 @@ Basic Help
 
     # Old English morphology commands
     wyrdcraeft morphology --help
-    wyrdcraeft morphology generate --help
+    wyrdcraeft morphology build --help
     wyrdcraeft morphology query --help
     wyrdcraeft morphology generate-reference-snapshots --help
 
     # Bosworth-Toller dictionary commands
     wyrdcraeft dictionary --help
-    wyrdcraeft dictionary index-bt --help
+    wyrdcraeft dictionary build --help
     wyrdcraeft dictionary lookup abbod --help
 
     # Lexicon browse workflow commands

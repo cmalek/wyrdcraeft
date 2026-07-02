@@ -1,8 +1,8 @@
 ``wyrdcraeft morphology query``
 ===============================
 
-This command looks up generated morphology rows from the SQLite index produced
-by :doc:`command_morphology_generate`.
+This command looks up generated morphology rows from the canonical SQLite
+index produced by :doc:`command_morphology_generate`.
 
 Command usage
 -------------
@@ -46,15 +46,14 @@ Default database location
 -------------------------
 
 There is no implicit default for ``--db`` today. After running
-``wyrdcraeft morphology generate`` without ``--index-db`` or ``--index-dir``,
-the index is written to the OS application-data path documented in
-:ref:`morphology-sqlite-index-database`.
+``wyrdcraeft morphology build``, the index is written to the OS application-
+data path documented in :ref:`morphology-sqlite-index-database`.
 
 On macOS, that default file is typically:
 
 .. code-block:: text
 
-    ~/Library/Application Support/wyrdcraeft/morphology.sqlite3
+    ~/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3
 
 Examples
 --------
@@ -62,17 +61,17 @@ Examples
 .. code-block:: bash
 
     wyrdcraeft morphology query \
-      --db "$HOME/Library/Application Support/wyrdcraeft/morphology.sqlite3" \
+      --db "$HOME/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3" \
       --lemma helpan \
       --limit 20
 
     wyrdcraeft morphology query \
-      --db /tmp/wyrdcraeft-index/morphology.sqlite3 \
+      --db /tmp/wyrdcraeft-index/wyrdcraeft.sqlite3 \
       --form helpe \
       --json-output
 
     wyrdcraeft morphology query \
-      --db "$HOME/Library/Application Support/wyrdcraeft/morphology.sqlite3" \
+      --db "$HOME/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3" \
       --lemma abbod \
       --with-dictionary \
       --json-output

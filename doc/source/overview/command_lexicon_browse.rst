@@ -2,7 +2,8 @@
 ===============================
 
 This command opens a read-only Textual browse shell for unified lexicon search
-over the ``lexicon_*`` read-model inside ``morphology.sqlite3``.
+over the ``lexicon_*`` read-model inside the canonical ``wyrdcraeft.sqlite3``
+database.
 
 The TUI is browse-only in v1: there are no edit or provenance-editing flows.
 
@@ -25,21 +26,17 @@ Command usage
 Options
 -------
 
-- ``--index-db PATH``: explicit SQLite index file path.
-- ``--index-dir PATH``: directory where ``morphology.sqlite3`` is stored.
-
 Default database location
 -------------------------
 
-When neither ``--index-db`` nor ``--index-dir`` is supplied, wyrdcraeft opens
-the OS application-data ``morphology.sqlite3`` path documented in
-:ref:`morphology-sqlite-index-database`.
+The browse shell always opens the OS application-data ``wyrdcraeft.sqlite3``
+path documented in :ref:`morphology-sqlite-index-database`.
 
 On macOS, that default file is typically:
 
 .. code-block:: text
 
-    ~/Library/Application Support/wyrdcraeft/morphology.sqlite3
+    ~/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3
 
 Browse behavior
 ---------------
@@ -111,12 +108,8 @@ Examples
     # Open browse against the default app-data morphology database
     wyrdcraeft lexicon browse
 
-    # Open browse against an explicit morphology SQLite file
-    wyrdcraeft lexicon browse \
-      --index-db "$HOME/Library/Application Support/wyrdcraeft/morphology.sqlite3"
-
-    # Open browse using a custom index directory
-    wyrdcraeft lexicon browse --index-dir /tmp/wyrdcraeft-index
+    # Open browse against the default app-data database
+    wyrdcraeft lexicon browse
 
 See also
 --------

@@ -9,7 +9,7 @@ Primary capabilities:
 
 - ingest and convert source texts into structured document JSON
 - restore and disambiguate diacritics
-- generate and query Old English morphology
+- build and query Old English morphology
 - index and query Bosworth-Toller dictionary data
 - browse dictionary and morphology together via the lexicon workflow
 - run Old English OCR workflows for source PDFs
@@ -42,8 +42,8 @@ Out of scope:
 |-------|----------|----------|
 | ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
-| morphology | `wyrdcraeft morphology generate`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService` |
-| dictionary | `wyrdcraeft dictionary index-bt`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
+| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService` |
+| dictionary | `wyrdcraeft dictionary build`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
 | lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
@@ -65,11 +65,11 @@ Out of scope:
   (`lexicon_*`) data for the product's lookup workflows
 - morphology index: morphology data stored inside canonical `wyrdcraeft.sqlite3`
   database rather than a standalone morphology-only file
-- dictionary index: `dictionary.sqlite3` Bosworth-Toller lookup database
+- dictionary index: attached `bt_*` tables inside canonical `wyrdcraeft.sqlite3`
 - attach mode: writing dictionary tables into an existing morphology SQLite file
 - lexicon: combined dictionary-plus-morphology user workflow presented as one
   browse/search surface
-- lexicon read model: derived `lexicon_*` tables inside `morphology.sqlite3`
+- lexicon read model: derived `lexicon_*` tables inside `wyrdcraeft.sqlite3`
   rebuilt from existing `forms` and `bt_*` rows for fast lemma-centric browse/search
 - lexicon build: replaces only `lexicon_*` contents; does not regenerate morphology
   or Bosworth-Toller source data
@@ -155,8 +155,7 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
 
 - Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default.
 - Dictionary indexing attaches `bt_*` tables to app-data `wyrdcraeft.sqlite3` by
-  default and fails clearly when that database is missing; use `--standalone` for
-  a separate `dictionary.sqlite3`.
+  default and fails clearly when that database is missing.
 - Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
   required `bt_*` tables are missing.
 - Lexicon build refuses to overwrite existing lexicon read-model data unless

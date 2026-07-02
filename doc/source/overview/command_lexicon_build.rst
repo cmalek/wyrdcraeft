@@ -2,7 +2,7 @@
 ==============================
 
 This command rebuilds the lexicon browse read-model inside
-``morphology.sqlite3``. It replaces only ``lexicon_*`` tables derived from
+``wyrdcraeft.sqlite3``. It replaces only ``lexicon_*`` tables derived from
 existing morphology ``forms`` rows and existing Bosworth-Toller ``bt_*`` tables.
 
 It does **not** regenerate morphology or dictionary source data.
@@ -15,7 +15,7 @@ contain:
 
 - ``forms`` rows from :doc:`command_morphology_generate`
 - ``bt_*`` tables from :doc:`command_dictionary_index_bt` (default attach to
-  ``morphology.sqlite3``) or an equivalent in-database dictionary index
+  ``wyrdcraeft.sqlite3``) or an equivalent in-database dictionary index
 
 When ``bt_entries``, ``bt_senses``, or ``bt_variants`` are missing, the command
 fails with a clear error listing the absent source tables.
@@ -30,23 +30,20 @@ Command usage
 Options
 -------
 
-- ``--index-db PATH``: explicit SQLite index file path.
-- ``--index-dir PATH``: directory where ``morphology.sqlite3`` is stored.
 - ``--no-tui``: force the plain stderr/stdout renderer.
 - ``--quiet``: suppress live progress output while keeping the final summary.
 
 Default database location
 -------------------------
 
-When neither ``--index-db`` nor ``--index-dir`` is supplied, wyrdcraeft writes
-to the OS application-data ``morphology.sqlite3`` path documented in
-:ref:`morphology-sqlite-index-database`.
+The command always writes to the OS application-data ``wyrdcraeft.sqlite3``
+path documented in :ref:`morphology-sqlite-index-database`.
 
 On macOS, that default file is typically:
 
 .. code-block:: text
 
-    ~/Library/Application Support/wyrdcraeft/morphology.sqlite3
+    ~/Library/Application Support/wyrdcraeft/wyrdcraeft.sqlite3
 
 What gets rebuilt
 -----------------
@@ -101,20 +98,13 @@ Examples
     # Rebuild lexicon tables in the default app-data morphology database
     wyrdcraeft lexicon build
 
-    # Rebuild against an explicit morphology SQLite file
-    wyrdcraeft lexicon build \
-      --index-db "$HOME/Library/Application Support/wyrdcraeft/morphology.sqlite3"
-
-    # Rebuild using a custom index directory
-    wyrdcraeft lexicon build --index-dir /tmp/wyrdcraeft-index
-
 Typical bootstrap sequence
 --------------------------
 
 .. code-block:: bash
 
-    wyrdcraeft morphology generate
-    wyrdcraeft dictionary index-bt --source data/oe_bt.txt
+    wyrdcraeft morphology build
+    wyrdcraeft dictionary build --source data/oe_bt.txt
     wyrdcraeft lexicon build
 
 See also

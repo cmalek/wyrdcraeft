@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import os
 from io import StringIO
 from pathlib import Path
 
 from rich.console import Console
 
 from wyrdcraeft.cli.cli import cli
-from wyrdcraeft.paths import MORPHOLOGY_INDEX_FILENAME
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologySetupStep,
@@ -31,70 +29,78 @@ def _subset_dictionary() -> Path:
     )
 
 
-def _isolated_generate_args(temp_dir: Path) -> list[str]:
+def _isolated_generate_args() -> list[str]:
     return [
         "--data-dir",
         str(_morphology_data_dir()),
         "--dictionary",
         str(_subset_dictionary()),
-        "--index-dir",
-        str(temp_dir),
     ]
-
-
-def _index_db_path(temp_dir: Path) -> Path:
-    return temp_dir / MORPHOLOGY_INDEX_FILENAME
 
 
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
-    assert "generate" in result.output
+    assert "build" in result.output
     assert "query" in result.output
     assert "generate-reference-snapshots" in result.output
 
 
-def test_morphology_generate_help(runner) -> None:
-    result = runner.invoke(cli, ["morphology", "generate", "--help"])
+def test_morphology_build_help(runner) -> None:
+    result = runner.invoke(cli, ["morphology", "build", "--help"])
     assert result.exit_code == 0
     assert "--full / --no-full" in result.output
     assert "--data-dir" in result.output
-    assert "--index-dir" in result.output
+    assert "--index-db" not in result.output
+    assert "--index-dir" not in result.output
     assert "--progress-every INTEGER" in result.output
 
 
-def test_morphology_generate_limit(runner, temp_dir) -> None:
+def test_morphology_generate_command_is_gone(runner) -> None:
+    result = runner.invoke(cli, ["morphology", "generate", "--help"])
+    assert result.exit_code != 0
+    assert "No such command 'generate'" in result.output
+
+
+def test_morphology_generate_limit(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
     output_file = temp_dir / "morph.tsv"
-    index_db = _index_db_path(temp_dir)
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "50",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code == 0
     assert output_file.exists()
-    assert index_db.exists()
-    assert f"index_db={index_db.resolve()}" in result.output
+    assert isolated_morphology_index_db.exists()
+    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
     assert "forms_written=" in result.output
     assert "Morphology generation complete." in result.output
     assert "verbs" in result.stderr
 
 
-def test_morphology_generate_full_with_subset_inputs(runner, temp_dir) -> None:
+def test_morphology_generate_full_with_subset_inputs(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
     output_file = temp_dir / "morph_full.tsv"
     data_dir = _morphology_data_dir()
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--full",
             "--dictionary",
             str(_subset_dictionary()),
@@ -104,74 +110,85 @@ def test_morphology_generate_full_with_subset_inputs(runner, temp_dir) -> None:
             str(data_dir / "para_vb.txt"),
             "--prefixes",
             str(data_dir / "prefixes.txt"),
-            "--index-dir",
-            str(temp_dir),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code == 0
     assert output_file.exists()
+    assert isolated_morphology_index_db.exists()
     assert "full_mode=True" in result.output
 
 
-def test_morphology_generate_quiet_suppresses_progress(runner, temp_dir) -> None:
+def test_morphology_generate_quiet_suppresses_progress(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
     output_file = temp_dir / "morph.tsv"
     result = runner.invoke(
         cli,
         [
             "--quiet",
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "20",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code == 0
-    assert result.stderr == ""
+    assert isolated_morphology_index_db.exists()
+    assert "Morphology generation complete." not in result.stderr
 
 
 def test_morphology_generate_rejects_non_positive_progress_every(
     runner,
     temp_dir,
+    isolated_morphology_index_db: Path,
 ) -> None:
     output_file = temp_dir / "morph.tsv"
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "20",
             "--progress-every",
             "0",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code != 0
+    assert isolated_morphology_index_db.parent.exists()
     assert "positive" in result.output.lower()
 
 
-def test_morphology_generate_progress_stays_on_stderr(runner, temp_dir) -> None:
+def test_morphology_generate_progress_stays_on_stderr(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
     output_file = temp_dir / "morph.tsv"
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "20",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code == 0
+    assert isolated_morphology_index_db.exists()
     assert "Morphology generation complete." in result.output
     assert "forms_written=" in result.output
     assert "Morphology generation complete." not in result.stderr
@@ -184,23 +201,25 @@ def test_morphology_generate_progress_stays_on_stderr(runner, temp_dir) -> None:
 def test_morphology_generate_progress_shows_wright_when_present(
     runner,
     temp_dir,
+    isolated_morphology_index_db: Path,
 ) -> None:
     output_file = temp_dir / "morph.tsv"
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "20",
             "--progress-every",
             "1",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert result.exit_code == 0
+    assert isolated_morphology_index_db.exists()
     assert "wright=" in result.stderr
 
 
@@ -311,25 +330,28 @@ def test_progress_coordinator_setup_descriptions() -> None:
     assert description == "setup | count syllables"
 
 
-def test_morphology_query_by_form(runner, temp_dir) -> None:
+def test_morphology_query_by_form(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
     output_file = temp_dir / "morph_query.tsv"
-    index_db = _index_db_path(temp_dir)
 
     generate_result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "50",
-            *_isolated_generate_args(temp_dir),
+            *_isolated_generate_args(),
             "--output",
             str(output_file),
         ],
     )
     assert generate_result.exit_code == 0
     assert output_file.exists()
-    assert index_db.exists()
+    assert isolated_morphology_index_db.exists()
 
     first_row = output_file.read_text(encoding="utf-8").splitlines()[0].split("\t")
     form_value = first_row[5]
@@ -339,7 +361,7 @@ def test_morphology_query_by_form(runner, temp_dir) -> None:
             "morphology",
             "query",
             "--db",
-            str(index_db),
+            str(isolated_morphology_index_db),
             "--form",
             form_value,
             "--limit",
@@ -353,85 +375,28 @@ def test_morphology_query_by_form(runner, temp_dir) -> None:
 def test_morphology_generate_default_index_uses_app_data_dir(
     runner,
     temp_dir,
+    isolated_morphology_index_db: Path,
 ) -> None:
-    app_data_dir = temp_dir / "app-data"
     output_file = temp_dir / "morph.tsv"
-    index_db = app_data_dir / MORPHOLOGY_INDEX_FILENAME
-    os.environ["WYRDCRAEFT_APP_DATA_DIR"] = str(app_data_dir)
-    try:
-        result = runner.invoke(
-            cli,
-            [
-                "morphology",
-                "generate",
-                "--limit",
-                "20",
-                "--data-dir",
-                str(_morphology_data_dir()),
-                "--dictionary",
-                str(_subset_dictionary()),
-                "--output",
-                str(output_file),
-            ],
-        )
-    finally:
-        del os.environ["WYRDCRAEFT_APP_DATA_DIR"]
-
-    assert result.exit_code == 0
-    assert index_db.exists()
-    assert f"index_db={index_db.resolve()}" in result.output
-
-
-def test_morphology_generate_index_dir_writes_morphology_sqlite3(
-    runner,
-    temp_dir,
-) -> None:
-    index_dir = temp_dir / "custom-index"
-    output_file = temp_dir / "morph.tsv"
-    index_db = index_dir / MORPHOLOGY_INDEX_FILENAME
     result = runner.invoke(
         cli,
         [
             "morphology",
-            "generate",
+            "build",
             "--limit",
             "20",
             "--data-dir",
             str(_morphology_data_dir()),
             "--dictionary",
             str(_subset_dictionary()),
-            "--index-dir",
-            str(index_dir),
             "--output",
             str(output_file),
         ],
     )
+
     assert result.exit_code == 0
-    assert index_db.exists()
-    assert f"index_db={index_db.resolve()}" in result.output
-
-
-def test_morphology_generate_rejects_index_db_and_index_dir(
-    runner,
-    temp_dir,
-) -> None:
-    output_file = temp_dir / "morph.tsv"
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "generate",
-            "--limit",
-            "20",
-            *_isolated_generate_args(temp_dir),
-            "--index-db",
-            str(temp_dir / "custom.sqlite3"),
-            "--output",
-            str(output_file),
-        ],
-    )
-    assert result.exit_code != 0
-    assert "at most one" in result.output.lower()
+    assert isolated_morphology_index_db.exists()
+    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
 
 
 def test_morphology_generate_reference_snapshots_help(runner) -> None:

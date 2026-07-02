@@ -3,18 +3,13 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
 
-from wyrdcraeft.paths import (
-    CANONICAL_DB_FILENAME,
-    DICTIONARY_INDEX_FILENAME,
-    _resolve_db_path,
-    get_canonical_db_path,
-    get_dictionary_index_db_path,
-)
+from wyrdcraeft.paths import get_canonical_db_path
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     DEFAULT_OLLAMA_ENDPOINT,
     BTLLMFixPass,
@@ -40,6 +35,28 @@ def _default_source_path() -> Path:
     return Path("data/oe_bt.txt")
 
 
+def _count_table_rows(db_path: Path, table_name: str) -> int:
+    """
+    Count rows in one SQLite table when it exists.
+
+    Args:
+        db_path: SQLite database path to inspect.
+        table_name: Table whose rows should be counted.
+
+    Returns:
+        Row count, or ``0`` when the table is missing.
+
+    """
+    with sqlite3.connect(str(db_path)) as connection:
+        try:
+            row = connection.execute(
+                f"SELECT COUNT(*) FROM {table_name}"  # noqa: S608
+            ).fetchone()
+        except sqlite3.OperationalError:
+            return 0
+    return int(row[0]) if row is not None else 0
+
+
 def _missing_canonical_index_message(db_path: Path) -> str:
     """
     Build the CLI error shown when the canonical database is absent.
@@ -53,10 +70,43 @@ def _missing_canonical_index_message(db_path: Path) -> str:
     """
     return (
         f"Canonical database not found: {db_path}. "
-        "Run `wyrdcraeft morphology generate` to build it, or pass "
-        "--index-db PATH or --index-dir PATH to point at an existing "
-        f"{CANONICAL_DB_FILENAME}."
+        "Run `wyrdcraeft morphology build` to build it."
     )
+
+
+def _require_non_empty_tables(
+    db_path: Path,
+    table_names: tuple[str, ...],
+    *,
+    recovery_hint: str,
+) -> None:
+    """
+    Fail when any required canonical source table is missing or empty.
+
+    Args:
+        db_path: Canonical SQLite database path to inspect.
+        table_names: Required table names.
+
+    Keyword Args:
+        recovery_hint: User-facing command hint for rebuilding the source tables.
+
+    Raises:
+        click.ClickException: The required table is absent or has no rows.
+
+    """
+    missing = [
+        table_name
+        for table_name in table_names
+        if _count_table_rows(db_path, table_name) == 0
+    ]
+    if not missing:
+        return
+    missing_text = ", ".join(missing)
+    message = (
+        f"Canonical database {db_path} is missing required source tables: "
+        f"{missing_text}. {recovery_hint}"
+    )
+    raise click.ClickException(message)
 
 
 @click.group(
@@ -68,7 +118,7 @@ def dictionary_group() -> None:
 
 
 @dictionary_group.command(
-    name="index-bt",
+    name="build",
     help="Build the Bosworth-Toller dictionary SQLite index from oe_bt.txt.",
 )
 @click.option(
@@ -77,33 +127,6 @@ def dictionary_group() -> None:
     default=_default_source_path,
     show_default="data/oe_bt.txt",
     help="Bosworth-Toller source file to index.",
-)
-@click.option(
-    "--index-db",
-    type=click.Path(path_type=Path),
-    default=None,
-    help=(
-        "SQLite index file path (overrides --index-dir and the OS app-data default)."
-    ),
-)
-@click.option(
-    "--index-dir",
-    type=click.Path(file_okay=False, path_type=Path),
-    default=None,
-    help=(
-        f"Directory for {CANONICAL_DB_FILENAME} by default, or "
-        f"{DICTIONARY_INDEX_FILENAME} with --standalone "
-        "(overrides the OS app-data default)."
-    ),
-)
-@click.option(
-    "--standalone",
-    is_flag=True,
-    default=False,
-    help=(
-        "Write a fresh dictionary.sqlite3 instead of attaching bt_* tables to "
-        f"{CANONICAL_DB_FILENAME}."
-    ),
 )
 @click.option(
     "--report",
@@ -136,12 +159,9 @@ def dictionary_group() -> None:
     help="Optional parse_warnings.jsonl path (default: alongside index DB).",
 )
 @click.pass_context
-def index_bt(  # noqa: PLR0913
+def build(  # noqa: PLR0913
     ctx: click.Context,
     source: Path,
-    index_db: Path | None,
-    index_dir: Path | None,
-    standalone: bool,
     report: Path | None,
     llm_fix_pass: bool,
     llm_model: str,
@@ -154,9 +174,6 @@ def index_bt(  # noqa: PLR0913
     Args:
         ctx: Click context carrying loaded settings and global flags.
         source: Bosworth-Toller source file to index.
-        index_db: Optional SQLite index output file path override.
-        index_dir: Optional SQLite index output directory override.
-        standalone: When true, write a fresh ``dictionary.sqlite3`` index file.
         report: Optional JSON statistics report path.
         llm_fix_pass: When true, repair warning lines with a local LLM.
         llm_model: Ollama model identifier for the repair pass.
@@ -164,35 +181,24 @@ def index_bt(  # noqa: PLR0913
         warnings_file: Optional parse warnings JSONL output path.
 
     Side Effects:
-        By default, attaches ``bt_*`` tables to ``wyrdcraeft.sqlite3``. With
-        ``--standalone``, writes a fresh ``dictionary.sqlite3`` instead.
+        Attaches ``bt_*`` tables to ``wyrdcraeft.sqlite3``.
 
     Raises:
         click.ClickException: Source reading or SQLite writing fails.
 
     """
     settings: Settings | None = ctx.obj.get("settings")
-    app_data_dir = settings.app_data_dir if settings is not None else None
-    if standalone:
-        resolved_index_db = _resolve_db_path(
-            index_db=index_db,
-            index_dir=index_dir,
-            default_path=get_dictionary_index_db_path(app_data_dir=app_data_dir),
-            filename=DICTIONARY_INDEX_FILENAME,
-        )
-        attach_mode = False
-    else:
-        resolved_index_db = _resolve_db_path(
-            index_db=index_db,
-            index_dir=index_dir,
-            default_path=get_canonical_db_path(app_data_dir=app_data_dir),
-            filename=CANONICAL_DB_FILENAME,
-        )
-        attach_mode = True
-        if not resolved_index_db.is_file():
-            raise click.ClickException(
-                _missing_canonical_index_message(resolved_index_db)
-            )
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
+    )
+    if not resolved_index_db.is_file():
+        raise click.ClickException(_missing_canonical_index_message(resolved_index_db))
+    _require_non_empty_tables(
+        resolved_index_db,
+        ("forms",),
+        recovery_hint="Run `wyrdcraeft morphology build` to create them.",
+    )
+    attach_mode = True
 
     resolved_warnings_file = (
         warnings_file.expanduser().resolve()
@@ -326,46 +332,16 @@ def _format_entry_text(
     help="Optional POS filter (for example noun, adv, verb).",
 )
 @click.option(
-    "--index-db",
-    type=click.Path(path_type=Path),
-    default=None,
-    help=(
-        "SQLite index file path (overrides --index-dir and the OS app-data default)."
-    ),
-)
-@click.option(
-    "--index-dir",
-    type=click.Path(file_okay=False, path_type=Path),
-    default=None,
-    help=(
-        f"Directory for {CANONICAL_DB_FILENAME} by default, or "
-        f"{DICTIONARY_INDEX_FILENAME} with --standalone "
-        "(overrides the OS app-data default)."
-    ),
-)
-@click.option(
-    "--standalone",
-    is_flag=True,
-    default=False,
-    help=(
-        "Read from dictionary.sqlite3 instead of bt_* tables in "
-        f"{CANONICAL_DB_FILENAME}."
-    ),
-)
-@click.option(
     "--json-output/--no-json-output",
     default=False,
     show_default=True,
     help="Render query output as JSON.",
 )
 @click.pass_context
-def lookup(  # noqa: PLR0913
+def lookup(
     ctx: click.Context,
     lemma: str,
     pos: str | None,
-    index_db: Path | None,
-    index_dir: Path | None,
-    standalone: bool,
     json_output: bool,
 ) -> None:
     """
@@ -375,9 +351,6 @@ def lookup(  # noqa: PLR0913
         ctx: Click context carrying loaded settings and global flags.
         lemma: Headword or alternate spelling to resolve.
         pos: Optional POS filter.
-        index_db: Optional SQLite index file path override.
-        index_dir: Optional SQLite index directory override.
-        standalone: When true, read from a standalone ``dictionary.sqlite3`` file.
         json_output: When true, print JSON instead of formatted text.
 
     Side Effects:
@@ -389,28 +362,19 @@ def lookup(  # noqa: PLR0913
 
     """
     settings: Settings | None = ctx.obj.get("settings")
-    app_data_dir = settings.app_data_dir if settings is not None else None
-    if standalone:
-        resolved_index_db = _resolve_db_path(
-            index_db=index_db,
-            index_dir=index_dir,
-            default_path=get_dictionary_index_db_path(app_data_dir=app_data_dir),
-            filename=DICTIONARY_INDEX_FILENAME,
-        )
-        if not resolved_index_db.is_file():
-            msg = f"Dictionary index not found: {resolved_index_db}"
-            raise click.ClickException(msg)
-    else:
-        resolved_index_db = _resolve_db_path(
-            index_db=index_db,
-            index_dir=index_dir,
-            default_path=get_canonical_db_path(app_data_dir=app_data_dir),
-            filename=CANONICAL_DB_FILENAME,
-        )
-        if not resolved_index_db.is_file():
-            raise click.ClickException(
-                _missing_canonical_index_message(resolved_index_db)
-            )
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
+    )
+    if not resolved_index_db.is_file():
+        raise click.ClickException(_missing_canonical_index_message(resolved_index_db))
+    _require_non_empty_tables(
+        resolved_index_db,
+        ("bt_entries", "bt_senses", "bt_variants"),
+        recovery_hint=(
+            "Run `wyrdcraeft morphology build` and then "
+            "`wyrdcraeft dictionary build`."
+        ),
+    )
 
     lookup_key = normalize_old_english(lemma) or ""
     query_service = BTQueryService(resolved_index_db)

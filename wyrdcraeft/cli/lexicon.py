@@ -7,7 +7,6 @@ import sqlite3
 import sys
 import threading
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
@@ -27,8 +26,6 @@ from wyrdcraeft.models.lexicon_build import (
     LexiconBuildStage,
 )
 from wyrdcraeft.paths import (
-    CANONICAL_DB_FILENAME,
-    _resolve_db_path,
     get_canonical_db_path,
 )
 from wyrdcraeft.services.lexicon.build import (
@@ -72,22 +69,6 @@ def lexicon_group() -> None:
     help="Rebuild lexicon read-model tables from morphology and dictionary sources.",
 )
 @click.option(
-    "--index-db",
-    type=click.Path(path_type=Path),
-    default=None,
-    help=(
-        "SQLite index file path (overrides --index-dir and the OS app-data default)."
-    ),
-)
-@click.option(
-    "--index-dir",
-    type=click.Path(file_okay=False, path_type=Path),
-    default=None,
-    help=(
-        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
-    ),
-)
-@click.option(
     "--no-tui",
     is_flag=True,
     default=False,
@@ -106,10 +87,8 @@ def lexicon_group() -> None:
     help="Rebuild even when lexicon read-model data already exists.",
 )
 @click.pass_context
-def build(  # noqa: PLR0912, PLR0913, PLR0915
+def build(  # noqa: PLR0912, PLR0915
     ctx: click.Context,
-    index_db: Path | None,
-    index_dir: Path | None,
     no_tui: bool,
     quiet: bool,
     force: bool,
@@ -119,8 +98,6 @@ def build(  # noqa: PLR0912, PLR0913, PLR0915
 
     Args:
         ctx: Click context carrying loaded settings and global flags.
-        index_db: Optional SQLite index file path override.
-        index_dir: Optional SQLite index directory override.
         no_tui: When set, skip the full-screen Textual build monitor.
         quiet: When set, suppress live build output and keep the final summary.
         force: When set, rebuild even when lexicon read-model data already exists.
@@ -133,12 +110,8 @@ def build(  # noqa: PLR0912, PLR0913, PLR0915
 
     """
     settings: Settings | None = ctx.obj.get("settings")
-    app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = _resolve_db_path(
-        index_db=index_db,
-        index_dir=index_dir,
-        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
-        filename=CANONICAL_DB_FILENAME,
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
     )
 
     if not force:
@@ -319,47 +292,23 @@ def build(  # noqa: PLR0912, PLR0913, PLR0915
     name="browse",
     help="Open the lexicon browse Textual shell.",
 )
-@click.option(
-    "--index-db",
-    type=click.Path(path_type=Path),
-    default=None,
-    help=(
-        "SQLite index file path (overrides --index-dir and the OS app-data default)."
-    ),
-)
-@click.option(
-    "--index-dir",
-    type=click.Path(file_okay=False, path_type=Path),
-    default=None,
-    help=(
-        f"Directory for {CANONICAL_DB_FILENAME} (overrides the OS app-data default)."
-    ),
-)
 @click.pass_context
 def browse(
     ctx: click.Context,
-    index_db: Path | None,
-    index_dir: Path | None,
 ) -> None:
     """
     Launch the lexicon browse shell against the resolved morphology SQLite path.
 
     Args:
         ctx: Click context carrying loaded settings and global flags.
-        index_db: Optional SQLite index file path override.
-        index_dir: Optional SQLite index directory override.
 
     Raises:
         click.ClickException: Path resolution or browse app startup fails.
 
     """
     settings: Settings | None = ctx.obj.get("settings")
-    app_data_dir = settings.app_data_dir if settings is not None else None
-    resolved_index_db = _resolve_db_path(
-        index_db=index_db,
-        index_dir=index_dir,
-        default_path=get_canonical_db_path(app_data_dir=app_data_dir),
-        filename=CANONICAL_DB_FILENAME,
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
     )
 
     try:
