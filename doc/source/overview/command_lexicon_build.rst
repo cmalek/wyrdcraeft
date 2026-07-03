@@ -13,9 +13,9 @@ Prerequisites
 Before running ``lexicon build``, the target morphology database must already
 contain:
 
-- ``forms`` rows from :doc:`command_morphology_generate`
-- ``bt_*`` tables from :doc:`command_dictionary_index_bt` (default attach to
-  ``wyrdcraeft.sqlite3``) or an equivalent in-database dictionary index
+- ``forms`` rows from :doc:`command_morphology_generate` (``wyrdcraeft morphology build``)
+- ``bt_*`` tables from :doc:`command_dictionary_index_bt` (``wyrdcraeft dictionary build``,
+  default attach to ``wyrdcraeft.sqlite3``)
 
 When ``bt_entries``, ``bt_senses``, or ``bt_variants`` are missing, the command
 fails with a clear error listing the absent source tables.
@@ -77,8 +77,8 @@ After a successful rebuild, ``lexicon_build_meta`` stores:
 - source ``forms`` row count at rebuild time
 - source ``bt_entries`` row count at rebuild time
 
-Re-run ``lexicon build`` after you regenerate morphology or re-index dictionary
-tables so browse search stays aligned with the current database contents.
+Re-run ``lexicon build`` after you rebuild morphology or dictionary tables so
+browse search stays aligned with the current database contents.
 
 Completion output
 -----------------

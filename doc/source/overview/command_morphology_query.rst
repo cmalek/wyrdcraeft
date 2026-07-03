@@ -2,7 +2,7 @@
 ===============================
 
 This command looks up generated morphology rows from the canonical SQLite
-index produced by :doc:`command_morphology_generate`.
+index produced by :doc:`command_morphology_generate` (``wyrdcraeft morphology build``).
 
 Command usage
 -------------
@@ -27,12 +27,13 @@ Provide exactly one of ``--lemma`` or ``--form``.
 Dictionary join
 -----------------
 
-When ``--with-dictionary`` is set, the command resolves a dictionary SQLite
-database in this order:
+When ``--with-dictionary`` is set, the command resolves dictionary rows in
+this order:
 
 1. ``--dictionary-db PATH`` when provided.
-2. Sibling ``dictionary.sqlite3`` in the same directory as ``--db``.
-3. The morphology database itself when it contains ``bt_*`` tables (attach mode).
+2. ``bt_*`` tables inside ``--db`` when present (default attach mode on
+   ``wyrdcraeft.sqlite3``).
+3. Sibling ``dictionary.sqlite3`` in the same directory as ``--db`` (legacy layout).
 
 The lookup uses ``normalize_old_english`` on the lemma token. When all returned
 morphology rows share one unambiguous ``wordclass`` (for example ``noun``), the

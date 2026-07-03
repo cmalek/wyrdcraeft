@@ -68,14 +68,11 @@ Reason:
 
 ## Morphology test safety
 
-- `wyrdcraeft morphology generate` writes real app-data `morphology.sqlite3` by
-  default. Can overwrite user data.
-- Any test that triggers morphology generation, writes SQLite index, or
-  resolves default index path must isolate output with one of:
-  1. `isolated_morphology_app_data` fixture
-     - preferred for default-path behavior
-     - sets `WYRDCRAEFT_APP_DATA_DIR` to temp dir
-  2. `--index-dir <temp dir>`
-     - use for CLI tests with explicit override
+- `wyrdcraeft morphology build` writes real app-data `wyrdcraeft.sqlite3` by
+ default. Can overwrite user data.
+- Any test that triggers morphology build, writes SQLite index, or resolves
+ default canonical DB path must isolate output with:
+ 1. `isolated_morphology_app_data` fixture (preferred; sets
+ `WYRDCRAEFT_APP_DATA_DIR` to temp dir)
 - Never hit real default path unless path resolution mocked and no real write
   happens.

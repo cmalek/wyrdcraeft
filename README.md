@@ -55,6 +55,25 @@ cd wyrdcraeft
 uv sync --dev
 ```
 
+## Canonical database
+
+Morphology, dictionary, and lexicon data live in one SQLite file:
+**`wyrdcraeft.sqlite3`** under the OS application-data directory (override with
+`WYRDCRAEFT_APP_DATA_DIR` or `app_data_dir` in `.wyrdcraeft.toml`).
+
+On first run (or after a schema upgrade), wyrdcraeft checks the database,
+applies Alembic migrations, and keeps a backup copy. If an older
+**`morphology.sqlite3`** is found, it is backed up and replaced with a fresh
+canonical database; the CLI then prints a rebuild recipe.
+
+Rebuild from scratch:
+
+```bash
+wyrdcraeft morphology build
+wyrdcraeft dictionary build --source data/oe_bt.txt
+wyrdcraeft lexicon build
+```
+
 ## Documentation
 
 Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://wyrdcraeft.readthedocs.io](https://wyrdcraeft.readthedocs.io)

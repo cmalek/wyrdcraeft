@@ -124,9 +124,11 @@ Out of scope:
 
 ## Current Migration Progress
 
-- canonical DB migration plan is in progress under
+- canonical DB migration plan completed under
   `docs/superpowers/plans/2026-06-30-wyrdcraeft-canonical-db-migration.md`
-- completed through Phase 7 as of 2026-07-03
+  with orchestration handoff at
+  `docs/superpowers/specs/2026-06-30-wyrdcraeft-db-migration-orchestration.md`
+- completed through Phase 8 as of 2026-07-03
 - Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
 - Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
 - Phase 3 (`914a4bb`): initial Alembic-managed canonical schema
@@ -144,8 +146,9 @@ Out of scope:
   with Core bulk insert and SQLAlchemy `text()` lookups, preserved
   `ORDER BY counter ASC, id ASC`, and kept dictionary attach/join behavior
   inside canonical `wyrdcraeft.sqlite3`
-- next planned slice: Phase 8, full verification, docs sweep, and
-  orchestration handoff spec
+- Phase 8: documented and verified the full canonical DB migration flow,
+  added orchestration handoff spec, refreshed README/command docs, and passed
+  focused end-to-end migration tests plus mypy and napoleon-gate
 
 ## Key Flows
 

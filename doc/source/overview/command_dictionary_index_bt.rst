@@ -108,4 +108,4 @@ Examples
 See also
 --------
 
-- :doc:`command_morphology_generate` — morphology SQLite index in the same app-data directory
+- :doc:`command_morphology_generate` — morphology ``forms`` in the same app-data ``wyrdcraeft.sqlite3``
