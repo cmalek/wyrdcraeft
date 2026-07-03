@@ -75,8 +75,20 @@ Out of scope:
   browse/search surface
 - lexicon read model: derived `lexicon_*` tables inside `wyrdcraeft.sqlite3`
   rebuilt from existing `forms` and `bt_*` rows for fast lemma-centric browse/search
-- lexicon build: replaces only `lexicon_*` contents; does not regenerate morphology
-  or Bosworth-Toller source data
+- lexicon SQLAlchemy rebuild slice: post–Phase 8 work (commit `64c6223`) that moved
+  `lexicon build` to SQLAlchemy Core batched reads/writes with no raw `sqlite3`,
+  no TEMP staging tables, and cooperative cancel via DBAPI `interrupt`; join
+  resolver extraction remains pending in Slice 2
+- lexicon table DDL: Alembic-owned only (`20260630_01` initial schema plus later
+  revisions); `lexicon build` **truncates** existing `lexicon_*` rows and
+  repopulates them — it does not drop, recreate, or patch table shape
+- lexicon staleness: compares stored source row counts (`forms`, `bt_entries`)
+  against current counts; **no** lexicon `schema_version` meta key — app DDL
+  changes are handled by startup Alembic migrations, often with in-migration
+  backfill, without forcing a full read-model rebuild
+- lexicon build: replaces only `lexicon_*` row contents; does not regenerate morphology
+  or Bosworth-Toller source data; requires Alembic-managed lexicon tables to
+  already exist (startup readiness or `upgrade_canonical_db`)
 - orphan morphology hit: morphology match that does not join to a real
   dictionary entry and is shown outside the main lemma result list
 - norm_key: diacritic-stripped normalized Old English key used for generic
@@ -139,15 +151,25 @@ Out of scope:
   `docs/superpowers/plans/2026-06-30-wyrdcraeft-canonical-db-migration.md`
   with orchestration handoff at
   `docs/superpowers/specs/2026-06-30-wyrdcraeft-db-migration-orchestration.md`
-- completed through Phase 8 as of 2026-07-03
+- **Phases 1–8 complete** as of 2026-07-03
+- **Follow-on lexicon work (in progress on `codex/canonical-db-migration`):**
+  - Slice 1 **complete** (`64c6223`): lexicon rebuild on SQLAlchemy Core,
+    Alembic-owned lexicon DDL, truncate-not-drop rebuild, `SCHEMA_VERSION`
+    staleness removed; handoff at
+    `docs/superpowers/handoffs/2026-07-03-lexicon-slice1-session-state.md`
+  - Slice 2 **pending**: shared `NormalizedTitleJoinIndex` to unify morphology↔
+    dictionary joins and remove duplicated join SQL in lexicon build and
+    `BTQueryService`; plan at
+    `docs/superpowers/plans/2026-07-03-lexicon-sqlalchemy-normalized-title-join.md`
 - Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
 - Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
-- Phase 3 (`914a4bb`): initial Alembic-managed canonical schema
+- Phase 3 (`914a4bb`): initial Alembic-managed canonical schema (includes
+  `lexicon_*` tables)
 - Phase 4 (`7b07991`): renamed DB-producing commands to `build`; removed old
   per-command DB-path overrides and standalone dictionary mode
-- Phase 5 (`82b1479`): moved lexicon persistence/bootstrap/query startup to
-  SQLAlchemy-managed canonical tables; removed old lexicon-only ad hoc schema
-  migration path
+- Phase 5 (`82b1479`): moved lexicon query/bootstrap helpers to SQLAlchemy
+  models against Alembic-managed tables; removed old lexicon-only ad hoc schema
+  migration path (lexicon **rebuild** still used raw `sqlite3` until Slice 1)
 - Phase 6 (`81e2db4`): moved dictionary persistence/query to SQLAlchemy,
   removed stale standalone dictionary fallout from tests, kept canonical DB
   product behavior, and preserved direct non-CLI scratch sink behavior for
@@ -157,9 +179,12 @@ Out of scope:
   with Core bulk insert and SQLAlchemy `text()` lookups, preserved
   `ORDER BY counter ASC, id ASC`, and kept dictionary attach/join behavior
   inside canonical `wyrdcraeft.sqlite3`
-- Phase 8: documented and verified the full canonical DB migration flow,
-  added orchestration handoff spec, refreshed README/command docs, and passed
-  focused end-to-end migration tests plus mypy and napoleon-gate
+- Phase 8 (`86ec4ac`): documented and verified the full canonical DB migration
+  flow, added orchestration handoff spec, refreshed README/command docs, and
+  passed focused end-to-end migration tests plus mypy and napoleon-gate
+- Post–Phase 8 (`c651f32`): added macron-preserving `normalized_title` join
+  columns on `forms`, `bt_entries`, and `bt_variants` (Alembic
+  `20260703_01`); lexicon build still had duplicated join logic until Slice 2
 
 ## Key Flows
 
@@ -180,16 +205,18 @@ dictionary sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
 
 ### Lexicon browse
 
-`wyrdcraeft.cli.lexicon:build` -> `rebuild_lexicon` (optional POS inference,
-worker-thread runtime + typed build events -> default Textual build monitor or
-plain `--no-tui` renderer -> `lexicon_*` tables in `wyrdcraeft.sqlite3`
+`wyrdcraeft.cli.lexicon:build` -> startup Alembic-managed schema must already
+exist -> `rebuild_lexicon` truncates and repopulates `lexicon_*` via
+SQLAlchemy Core (optional POS inference, worker-thread runtime + typed build
+events -> default Textual build monitor or plain `--no-tui` renderer)
 
 `wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
 -> Textual `LexiconBrowseApp` with search bar at top, results pane left,
 details plus POS-filtered paradigm grids right
 
-Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite3`
-(from morphology build plus dictionary build flows).
+Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with `forms`,
+`bt_*`, and empty or populated `lexicon_*` tables (from morphology build,
+dictionary build, and startup readiness).
 
 ### OCR workflow
 
@@ -204,9 +231,14 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
 - Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
-  required `bt_*` tables are missing.
+  required source or Alembic-managed `lexicon_*` tables are missing.
 - Lexicon build refuses to overwrite existing lexicon read-model data unless
-  `--force` is passed; the build can take ~30 minutes.
+  `--force` is passed; the build can take ~30 minutes when source data is large.
+- Lexicon build truncates `lexicon_*` rows in place; table DDL comes from Alembic,
+  not from the rebuild job. App upgrades should migrate schema via Alembic
+  (often with backfill) without requiring a full lexicon rebuild for additive DDL.
+- Lexicon staleness is based on source table row counts only, not a lexicon
+  schema version constant.
 - Lexicon build now launches a full-screen Textual monitor by default on an
   interactive terminal; use `--no-tui` for the plain renderer and `--quiet`
   for final-summary-only output.
@@ -214,9 +246,9 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
   Single-step stages such as `verify sources` emit an explicit terminal
   progress event so the monitor does not appear stuck at `0/1`.
 - Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` after morphology or
-  dictionary source data changes.
-- Lexicon browse now expects the canonical Alembic-managed schema to already be
-  present; it no longer performs lexicon-only ad hoc column patching on startup.
+  dictionary **source data** changes, not after routine Alembic DDL upgrades.
+- Lexicon browse and build expect the canonical Alembic-managed schema; startup
+  database readiness applies migrations before DB-using commands run.
 - Lexicon build may infer missing dictionary POS from morphology when wordclass is
   unambiguous; ambiguous lemmas stay POS-empty.
 - Lexicon browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
@@ -246,6 +278,9 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
 ## ADRs
 
 - [0001: Lexicon data lives in morphology.sqlite3](docs/adr/0001-lexicon-data-lives-in-morphology-db.md)
+  — **historical**; superseded by the canonical `wyrdcraeft.sqlite3` migration
+  (Phases 1–8). Lexicon read-model tables now live in the same canonical DB and
+  are Alembic-managed.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.
