@@ -1,10 +1,12 @@
-"""SQLite-backed morphology query service."""
+"""SQLAlchemy-backed morphology query service."""
 
 from __future__ import annotations
 
-import sqlite3
 from typing import TYPE_CHECKING
 
+from sqlalchemy import text
+
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos
 from wyrdcraeft.models.morphology import QueryFormRow
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
@@ -14,7 +16,10 @@ from wyrdcraeft.services.markup import normalize_old_english
 from ..text_utils import OENormalizer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
     from pathlib import Path
+
+    from sqlalchemy.engine import Connection, Engine, RowMapping
 
 #: Morphology ``wordclass`` values mapped to Bosworth-Toller ``bt_entries.pos``.
 #: Unmapped classes (for example ``participle``) are treated as ambiguous and do
@@ -47,12 +52,12 @@ def _normalize_key(value: str) -> str:
     return OENormalizer.normalize_output(value).casefold()
 
 
-def _project_query_rows(rows: list[sqlite3.Row]) -> list[QueryFormRow]:
+def _project_query_rows(rows: Sequence[RowMapping]) -> list[QueryFormRow]:
     """
-    Convert raw SQLite rows into typed morphology query rows.
+    Convert raw SQLAlchemy row mappings into typed morphology query rows.
 
     Args:
-        rows: Raw SQLite rows returned from lookup queries.
+        rows: Raw row mappings returned from lookup queries.
 
     Returns:
         Validated query rows with counter values projected as strings.
@@ -112,15 +117,21 @@ def _morphology_db_has_bt_entries(db_path: Path) -> bool:
         ``True`` when ``bt_entries`` exists in the schema.
 
     """
-    with sqlite3.connect(str(db_path)) as connection:
-        row = connection.execute(
-            """
-            SELECT 1
-            FROM sqlite_master
-            WHERE type = 'table' AND name = 'bt_entries'
-            LIMIT 1
-            """,
-        ).fetchone()
+    engine = create_sqlalchemy_engine(db_path)
+    try:
+        with engine.connect() as connection:
+            row = connection.execute(
+                text(
+                    """
+                    SELECT 1
+                    FROM sqlite_master
+                    WHERE type = 'table' AND name = 'bt_entries'
+                    LIMIT 1
+                    """
+                )
+            ).first()
+    finally:
+        engine.dispose()
     return row is not None
 
 
@@ -185,12 +196,14 @@ class MorphologyQueryService:
 
     #: Path to the morphology SQLite index file.
     _db_path: Path
-    #: Active SQLite connection.
-    _connection: sqlite3.Connection
+    #: SQLAlchemy engine bound to the morphology database.
+    _engine: Engine
+    #: Active SQLAlchemy connection for morphology lookups.
+    _connection: Connection
 
     def __init__(self, db_path: Path) -> None:
         """
-        Initialize a SQLite query service for a generated morphology index.
+        Initialize a SQLAlchemy query service for a generated morphology index.
 
         Note:
             Query semantics follow normalization expectations documented in
@@ -203,9 +216,10 @@ class MorphologyQueryService:
         """
         #: Path to the morphology SQLite index file.
         self._db_path = db_path.expanduser().resolve()
-        #: Active SQLite connection.
-        self._connection = sqlite3.connect(str(self._db_path))
-        self._connection.row_factory = sqlite3.Row
+        #: SQLAlchemy engine bound to the morphology database.
+        self._engine = create_sqlalchemy_engine(self._db_path)
+        #: Active SQLAlchemy connection for morphology lookups.
+        self._connection = self._engine.connect()
 
     def lookup_by_lemma(self, lemma: str, limit: int = 200) -> list[QueryFormRow]:
         """
@@ -227,37 +241,41 @@ class MorphologyQueryService:
         """
         lemma_key = _normalize_key(lemma)
         rows = self._connection.execute(
-            """
-            SELECT
-                counter,
-                formi,
-                BT,
-                title,
-                stem,
-                form,
-                formParts,
-                var,
-                probability,
-                function,
-                wright,
-                paradigm,
-                paraID,
-                wordclass,
-                class1,
-                class2,
-                class3,
-                comment,
-                COALESCE(bt_key, '') || '|'
-                    || COALESCE(title_key, '') || '|'
-                    || COALESCE(stem_key, '') AS lemma_key,
-                form_key
-            FROM forms
-            WHERE bt_key = ? OR title_key = ? OR stem_key = ?
-            ORDER BY counter ASC, id ASC
-            LIMIT ?
-            """,
-            (lemma_key, lemma_key, lemma_key, max(1, limit)),
-        ).fetchall()
+            text(
+                """
+                SELECT
+                    counter,
+                    formi,
+                    BT,
+                    title,
+                    stem,
+                    form,
+                    formParts,
+                    var,
+                    probability,
+                    function,
+                    wright,
+                    paradigm,
+                    paraID,
+                    wordclass,
+                    class1,
+                    class2,
+                    class3,
+                    comment,
+                    COALESCE(bt_key, '') || '|'
+                        || COALESCE(title_key, '') || '|'
+                        || COALESCE(stem_key, '') AS lemma_key,
+                    form_key
+                FROM forms
+                WHERE bt_key = :lemma_key
+                    OR title_key = :lemma_key
+                    OR stem_key = :lemma_key
+                ORDER BY counter ASC, id ASC
+                LIMIT :limit
+                """
+            ),
+            {"lemma_key": lemma_key, "limit": max(1, limit)},
+        ).mappings().all()
         return _project_query_rows(rows)
 
     def lookup_by_form(self, form: str, limit: int = 200) -> list[QueryFormRow]:
@@ -279,37 +297,39 @@ class MorphologyQueryService:
         """
         form_key = _normalize_key(form)
         rows = self._connection.execute(
-            """
-            SELECT
-                counter,
-                formi,
-                BT,
-                title,
-                stem,
-                form,
-                formParts,
-                var,
-                probability,
-                function,
-                wright,
-                paradigm,
-                paraID,
-                wordclass,
-                class1,
-                class2,
-                class3,
-                comment,
-                COALESCE(bt_key, '') || '|'
-                    || COALESCE(title_key, '') || '|'
-                    || COALESCE(stem_key, '') AS lemma_key,
-                form_key
-            FROM forms
-            WHERE form_key = ? OR formi_key = ?
-            ORDER BY counter ASC, id ASC
-            LIMIT ?
-            """,
-            (form_key, form_key, max(1, limit)),
-        ).fetchall()
+            text(
+                """
+                SELECT
+                    counter,
+                    formi,
+                    BT,
+                    title,
+                    stem,
+                    form,
+                    formParts,
+                    var,
+                    probability,
+                    function,
+                    wright,
+                    paradigm,
+                    paraID,
+                    wordclass,
+                    class1,
+                    class2,
+                    class3,
+                    comment,
+                    COALESCE(bt_key, '') || '|'
+                        || COALESCE(title_key, '') || '|'
+                        || COALESCE(stem_key, '') AS lemma_key,
+                    form_key
+                FROM forms
+                WHERE form_key = :form_key OR formi_key = :form_key
+                ORDER BY counter ASC, id ASC
+                LIMIT :limit
+                """
+            ),
+            {"form_key": form_key, "limit": max(1, limit)},
+        ).mappings().all()
         return _project_query_rows(rows)
 
     def lookup_dictionary_entries(
@@ -366,7 +386,7 @@ class MorphologyQueryService:
 
     def close(self) -> None:
         """
-        Close the SQLite query connection.
+        Close the SQLAlchemy connection and dispose the engine.
 
         Note:
             Closing is shared infrastructure for all Part-of-Speech queries
@@ -375,3 +395,4 @@ class MorphologyQueryService:
 
         """
         self._connection.close()
+        self._engine.dispose()

@@ -4,8 +4,11 @@ from io import StringIO
 from pathlib import Path
 
 from rich.console import Console
+from sqlalchemy import func, select
 
 from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.db.runtime import create_engine
+from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologySetupStep,
@@ -87,6 +90,37 @@ def test_morphology_generate_limit(
     assert "forms_written=" in result.output
     assert "Morphology generation complete." in result.output
     assert "verbs" in result.stderr
+
+
+def test_morphology_build_writes_forms_to_canonical_db_via_sqlalchemy(
+    runner,
+    temp_dir,
+    isolated_morphology_index_db: Path,
+) -> None:
+    output_file = temp_dir / "morph.tsv"
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "build",
+            "--limit",
+            "20",
+            *_isolated_generate_args(),
+            "--output",
+            str(output_file),
+        ],
+    )
+    assert result.exit_code == 0
+
+    engine = create_engine(isolated_morphology_index_db)
+    try:
+        with engine.connect() as connection:
+            count = connection.execute(
+                select(func.count()).select_from(Form)
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    assert count > 0
 
 
 def test_morphology_generate_full_with_subset_inputs(

@@ -7,8 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from wyrdcraeft.models.morphology import FormRow
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
+from wyrdcraeft.services.morphology.generation.sinks import SqliteIndexSink
 
 _SAMPLE_LINES = (
     Path(__file__).resolve().parents[1]
@@ -19,21 +21,34 @@ _SAMPLE_LINES = (
 
 
 def _seed_forms_table(db_path: Path, row_count: int) -> int:
-    with sqlite3.connect(db_path) as conn:
-        conn.executescript(
-            """
-            CREATE TABLE forms (
-                id INTEGER PRIMARY KEY,
-                lemma TEXT NOT NULL
-            );
-            """
-        )
-        for index in range(row_count):
-            conn.execute(
-                "INSERT INTO forms (lemma) VALUES (?)",
-                (f"lemma-{index}",),
+    """Seed the canonical ``forms`` table via the real SQLAlchemy sink."""
+    sink = SqliteIndexSink(db_path)
+    sink.emit_rows(
+        [
+            FormRow(
+                counter=str(index),
+                formi=f"lemma-{index}",
+                BT=f"lemma-{index}",
+                title=f"lemma-{index}",
+                stem=f"lemma-{index}",
+                form=f"lemma-{index}",
+                formParts="",
+                var="0",
+                probability="0",
+                function="No",
+                wright="0",
+                paradigm="demo",
+                paraID="0",
+                wordclass="noun",
+                class1="",
+                class2="",
+                class3="",
+                comment="",
             )
-        conn.commit()
+            for index in range(row_count)
+        ]
+    )
+    sink.close()
     return row_count
 
 

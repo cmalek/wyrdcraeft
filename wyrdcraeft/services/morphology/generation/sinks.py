@@ -3,16 +3,22 @@
 from __future__ import annotations
 
 import re
-import sqlite3
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Protocol, cast
 
+from sqlalchemy import Table, insert
+
+from wyrdcraeft.db.base import Base
+from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morphology import FormRow
+from wyrdcraeft.models.sqlalchemy import Form
 
 from ..text_utils import OENormalizer
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import TextIO
+
+    from sqlalchemy.engine import Engine
 
     from ..contracts import FormWriter
     from ..session import GeneratorSession
@@ -187,19 +193,19 @@ class TsvParitySink:
 
 class SqliteIndexSink:
     """
-    SQLite sink that persists emitted rows for ad-hoc morphology lookup.
+    SQLAlchemy sink that persists emitted rows for ad-hoc morphology lookup.
 
     Args:
         db_path: Path to SQLite database file.
 
     """
 
-    #: Active SQLite connection.
-    _connection: sqlite3.Connection
+    #: SQLAlchemy engine bound to the canonical database.
+    _engine: Engine
 
     def __init__(self, db_path: Path) -> None:
         """
-        Initialize a SQLite sink for emitted morphology rows.
+        Initialize a SQLAlchemy sink for emitted morphology rows.
 
         Note:
             Index schema preserves searchable morphology rows grounded in
@@ -209,50 +215,23 @@ class SqliteIndexSink:
         Args:
             db_path: Path to SQLite database file.
 
+        Side Effects:
+            Ensures the canonical ``forms`` table exists in ``db_path`` for
+            scratch/test databases that were not created via Alembic.
+
         """
-        #: Active SQLite connection.
-        self._connection = sqlite3.connect(str(db_path))
-        self._connection.row_factory = sqlite3.Row
+        #: SQLAlchemy engine bound to the canonical database.
+        self._engine = create_engine(db_path)
         self._init_schema()
 
     def _init_schema(self) -> None:
-        """Create index schema and lookup indexes when missing."""
-        self._connection.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS forms (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                counter INTEGER NOT NULL,
-                formi TEXT NOT NULL,
-                BT TEXT NOT NULL,
-                title TEXT NOT NULL,
-                stem TEXT NOT NULL,
-                form TEXT NOT NULL,
-                formParts TEXT NOT NULL,
-                var TEXT NOT NULL,
-                probability TEXT NOT NULL,
-                function TEXT NOT NULL,
-                wright TEXT NOT NULL,
-                paradigm TEXT NOT NULL,
-                paraID TEXT NOT NULL,
-                wordclass TEXT NOT NULL,
-                class1 TEXT NOT NULL,
-                class2 TEXT NOT NULL,
-                class3 TEXT NOT NULL,
-                comment TEXT NOT NULL,
-                bt_key TEXT NOT NULL,
-                title_key TEXT NOT NULL,
-                stem_key TEXT NOT NULL,
-                form_key TEXT NOT NULL,
-                formi_key TEXT NOT NULL
-            );
-            CREATE INDEX IF NOT EXISTS idx_forms_bt_key ON forms(bt_key);
-            CREATE INDEX IF NOT EXISTS idx_forms_title_key ON forms(title_key);
-            CREATE INDEX IF NOT EXISTS idx_forms_stem_key ON forms(stem_key);
-            CREATE INDEX IF NOT EXISTS idx_forms_form_key ON forms(form_key);
-            CREATE INDEX IF NOT EXISTS idx_forms_formi_key ON forms(formi_key);
-            """
-        )
-        self._connection.commit()
+        """Ensure the canonical ``forms`` table and its indexes exist."""
+        with self._engine.begin() as connection:
+            Base.metadata.create_all(
+                bind=connection,
+                tables=[cast("Table", Form.__table__)],
+                checkfirst=True,
+            )
 
     @staticmethod
     def _normalize_key(value: str) -> str:
@@ -270,77 +249,52 @@ class SqliteIndexSink:
 
     def emit_rows(self, rows: list[FormRow]) -> None:
         """
-        Persist finalized rows to SQLite, preserving emitted order.
+        Bulk-insert finalized rows into the canonical database.
 
         Args:
             rows: Finalized rows in emitted order.
 
+        Side Effects:
+            Inserts rows into ``forms`` inside one explicit transaction using
+            a single Core bulk insert rather than one ORM object per row.
+
         """
+        if not rows:
+            return
         payload = [
-            (
-                int(row.counter),
-                row.formi,
-                row.BT,
-                row.title,
-                row.stem,
-                row.form,
-                row.formParts,
-                row.var,
-                row.probability,
-                row.function,
-                row.wright,
-                row.paradigm,
-                row.paraID,
-                row.wordclass,
-                row.class1,
-                row.class2,
-                row.class3,
-                row.comment,
-                self._normalize_key(row.BT),
-                self._normalize_key(row.title),
-                self._normalize_key(row.stem),
-                self._normalize_key(row.form),
-                self._normalize_key(row.formi),
-            )
+            {
+                "counter": int(row.counter),
+                "formi": row.formi,
+                "BT": row.BT,
+                "title": row.title,
+                "stem": row.stem,
+                "form": row.form,
+                "formParts": row.formParts,
+                "var": row.var,
+                "probability": row.probability,
+                "function": row.function,
+                "wright": row.wright,
+                "paradigm": row.paradigm,
+                "paraID": row.paraID,
+                "wordclass": row.wordclass,
+                "class1": row.class1,
+                "class2": row.class2,
+                "class3": row.class3,
+                "comment": row.comment,
+                "bt_key": self._normalize_key(row.BT),
+                "title_key": self._normalize_key(row.title),
+                "stem_key": self._normalize_key(row.stem),
+                "form_key": self._normalize_key(row.form),
+                "formi_key": self._normalize_key(row.formi),
+            }
             for row in rows
         ]
-        self._connection.executemany(
-            """
-            INSERT INTO forms (
-                counter,
-                formi,
-                BT,
-                title,
-                stem,
-                form,
-                formParts,
-                var,
-                probability,
-                function,
-                wright,
-                paradigm,
-                paraID,
-                wordclass,
-                class1,
-                class2,
-                class3,
-                comment,
-                bt_key,
-                title_key,
-                stem_key,
-                form_key,
-                formi_key
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )
-            """,
-            payload,
-        )
-        self._connection.commit()
+        with self._engine.begin() as connection:
+            connection.execute(insert(Form), payload)
 
     def close(self) -> None:
-        """Close the SQLite connection."""
-        self._connection.close()
+        """Dispose the SQLAlchemy engine for this sink."""
+        self._engine.dispose()
 
 
 class CompositeSink:

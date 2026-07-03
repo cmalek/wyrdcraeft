@@ -4,11 +4,14 @@ import io
 from pathlib import Path
 
 import pytest
+from sqlalchemy.orm import sessionmaker
 
 from wyrdcraeft.cli import (
     cli as _cli,  # noqa: F401 — load CLI before generation modules
 )
-from wyrdcraeft.models.morphology import QueryFormRow
+from wyrdcraeft.db.runtime import create_engine
+from wyrdcraeft.models.morphology import FormRow, QueryFormRow
+from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
@@ -176,6 +179,67 @@ def test_query_service_indexes_reduced_secondary_rows(tmp_path) -> None:
     assert reduced_rows
     assert any(row.formi == "godd" for row in primary_rows)
     assert any(row.formi == "god" for row in reduced_rows)
+
+
+def _form_row(*, counter: str, formi: str, bt: str = "ord") -> FormRow:
+    return FormRow(
+        counter=counter,
+        formi=formi,
+        BT=bt,
+        title=bt,
+        stem=bt,
+        form=formi,
+        formParts="",
+        var="0",
+        probability="0",
+        function="No",
+        wright="0",
+        paradigm="demo",
+        paraID="0",
+        wordclass="noun",
+        class1="",
+        class2="",
+        class3="",
+        comment="",
+    )
+
+
+def test_sqlite_index_sink_bulk_inserts_via_sqlalchemy_form_model(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "sqlalchemy-index.sqlite3"
+    sink = SqliteIndexSink(db_path)
+    sink.emit_rows([_form_row(counter="1", formi="abbod")])
+    sink.close()
+
+    engine = create_engine(db_path)
+    try:
+        with sessionmaker(bind=engine, future=True)() as session:
+            forms = session.query(Form).all()
+    finally:
+        engine.dispose()
+
+    assert len(forms) == 1
+    assert forms[0].form == "abbod"
+
+
+def test_sqlite_index_sink_preserves_counter_then_id_order(tmp_path: Path) -> None:
+    db_path = tmp_path / "order-index.sqlite3"
+    sink = SqliteIndexSink(db_path)
+    sink.emit_rows(
+        [_form_row(counter="3", formi="ord-c"), _form_row(counter="1", formi="ord-a")]
+    )
+    sink.emit_rows([_form_row(counter="2", formi="ord-b")])
+    sink.close()
+
+    query_service = MorphologyQueryService(db_path)
+    try:
+        rows = query_service.lookup_by_lemma("ord", limit=10)
+    finally:
+        query_service.close()
+
+    assert [row.counter for row in rows] == ["1", "2", "3"]
+    assert [row.formi for row in rows] == ["ord-a", "ord-b", "ord-c"]
 
 
 def test_resolve_dictionary_db_path_prefers_explicit_override(tmp_path) -> None:
