@@ -11,6 +11,7 @@ from wyrdcraeft.db.base import Base
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morphology import FormRow
 from wyrdcraeft.models.sqlalchemy import Form
+from wyrdcraeft.services.markup import normalize_morphology_title
 
 from ..text_utils import OENormalizer
 
@@ -68,6 +69,7 @@ def _row_from_form_data(
         formi=formi,
         BT=form_data["BT"],
         title=form_data["title"],
+        normalized_title=normalize_morphology_title(form_data["title"]),
         stem=form_data["stem"],
         form=form_data["form"],
         formParts=form_data.get("formParts", ""),
@@ -267,6 +269,7 @@ class SqliteIndexSink:
                 "formi": row.formi,
                 "BT": row.BT,
                 "title": row.title,
+                "normalized_title": row.normalized_title,
                 "stem": row.stem,
                 "form": row.form,
                 "formParts": row.formParts,

@@ -12,6 +12,7 @@ from wyrdcraeft.db.base import Base
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.sqlalchemy import BTEditLog, BTEntry, BTSense, BTVariant
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.markup import normalize_morphology_title
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -153,6 +154,7 @@ class BTSqliteSink:
                     norm_key=entry.norm_key,
                     headword_raw=entry.headword_raw,
                     headword_macronized=entry.headword_macronized,
+                    normalized_title=entry.normalized_title,
                     pos=entry.pos.value,
                     genders_json=self._genders_json(entry.genders),
                     etymology=entry.etymology,
@@ -177,11 +179,13 @@ class BTSqliteSink:
                     {
                         "entry_id": entry_id,
                         "spelling_raw": variant_raw,
-                        "spelling_macronized": self._spelling_normalizer.normalize(
-                            variant_raw
-                        ),
+                        "spelling_macronized": macronized,
+                        "normalized_title": normalize_morphology_title(macronized),
                     }
                     for variant_raw in entry.variants
+                    for macronized in [
+                        self._spelling_normalizer.normalize(variant_raw)
+                    ]
                 )
 
             if sense_rows:

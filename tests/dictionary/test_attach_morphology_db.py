@@ -30,6 +30,7 @@ def _seed_forms_table(db_path: Path, row_count: int) -> int:
                 formi=f"lemma-{index}",
                 BT=f"lemma-{index}",
                 title=f"lemma-{index}",
+                normalized_title=f"lemma-{index}",
                 stem=f"lemma-{index}",
                 form=f"lemma-{index}",
                 formParts="",

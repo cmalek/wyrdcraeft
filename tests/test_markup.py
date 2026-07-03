@@ -11,6 +11,7 @@ from wyrdcraeft.services.markup import (
     DiacriticRestorer,
     GPalatalizer,
     MacronApplicator,
+    normalize_morphology_title,
     normalize_old_english,
 )
 
@@ -44,6 +45,15 @@ def test_normalize_old_english_parity_rules():
     assert normalize_old_english("  Hēaþ-Þegn  ") == "heaþþegn"
     assert normalize_old_english("byð") == "byþ"
     assert normalize_old_english(None) is None
+
+
+def test_normalize_morphology_title_preserves_macrons_and_dots():
+    assert normalize_morphology_title("  Abbōd-hād  ") == "abbōdhād"
+    assert normalize_morphology_title("byð") == "byþ"
+    assert normalize_morphology_title("ċild") == "ċild"
+    assert normalize_morphology_title(None) == ""
+    assert normalize_old_english("abbōd") == "abbod"
+    assert normalize_morphology_title("abbōd") == "abbōd"
 
 
 def test_g_palatalizer_handles_compounds_and_exceptions():

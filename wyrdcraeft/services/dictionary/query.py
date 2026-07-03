@@ -14,7 +14,7 @@ from wyrdcraeft.models.dictionary import (
     BTPos,
     BTSense,
 )
-from wyrdcraeft.services.markup import normalize_old_english
+from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -31,6 +31,20 @@ _POS_ALIASES: dict[str, str] = {
     "adverb": BTPos.ADV.value,
     "num": BTPos.NUMERAL.value,
 }
+
+
+def _normalize_title_key(value: str) -> str:
+    """
+    Normalize a macron-preserving dictionary join title.
+
+    Args:
+        value: Raw headword or lemma title text.
+
+    Returns:
+        Canonicalized ``normalized_title`` lookup key.
+
+    """
+    return normalize_morphology_title(value)
 
 
 def _normalize_lookup_key(value: str) -> str:
@@ -103,6 +117,7 @@ def _entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
         "norm_key": entry.norm_key,
         "headword_raw": entry.headword_raw,
         "headword_macronized": entry.headword_macronized,
+        "normalized_title": entry.normalized_title,
         "pos": entry.pos.value,
         "genders": [gender.value for gender in entry.genders],
         "variants": list(entry.variants),
@@ -185,6 +200,124 @@ class BTQueryService:
         pos_filter = _normalize_pos_filter(pos)
         entry_ids = self._resolve_entry_ids(lookup_key, pos_filter=pos_filter)
         return [self._load_entry(entry_id) for entry_id in entry_ids]
+
+    def lookup_by_normalized_title(
+        self,
+        normalized_title: str,
+        pos: str | None = None,
+    ) -> list[BTConsolidatedEntry]:
+        """
+        Look up consolidated entries by macron-preserving normalized title.
+
+        Matching order:
+            1) ``normalized_title`` with optional POS filter on ``bt_entries``.
+            2) Exactly one ``bt_entries`` row for the title across all POS values.
+            3) ``bt_variants.normalized_title`` spelling match.
+
+        Args:
+            normalized_title: Macron/dot-preserving normalized headword title.
+            pos: Optional POS filter (for example ``noun`` or ``adv``).
+
+        Returns:
+            Matching consolidated entries ordered by entry id.
+
+        """
+        title_key = _normalize_title_key(normalized_title)
+        if not title_key:
+            return []
+
+        pos_filter = _normalize_pos_filter(pos)
+        entry_ids = self._resolve_entry_ids_by_normalized_title(
+            title_key,
+            pos_filter=pos_filter,
+        )
+        return [self._load_entry(entry_id) for entry_id in entry_ids]
+
+    def _resolve_entry_ids_by_normalized_title(
+        self,
+        title_key: str,
+        *,
+        pos_filter: str | None,
+    ) -> list[int]:
+        """
+        Resolve entry ids from ``normalized_title`` and variant title keys.
+
+        Args:
+            title_key: Macron-preserving normalized title lookup key.
+
+        Keyword Args:
+            pos_filter: Optional stored POS value filter.
+
+        Returns:
+            Distinct entry ids in stable lookup order.
+
+        """
+        if pos_filter is not None:
+            pos_rows = self._connection.execute(
+                text(
+                    """
+                    SELECT e.id
+                    FROM bt_entries e
+                    WHERE e.normalized_title = :title_key
+                        AND e.pos = :pos_filter
+                    ORDER BY e.id ASC
+                    """
+                ),
+                {"title_key": title_key, "pos_filter": pos_filter},
+            ).mappings().all()
+            if pos_rows:
+                return [int(row["id"]) for row in pos_rows]
+
+        direct_rows = self._connection.execute(
+            text(
+                """
+                SELECT e.id
+                FROM bt_entries e
+                WHERE e.normalized_title = :title_key
+                ORDER BY e.id ASC
+                """
+            ),
+            {"title_key": title_key},
+        ).mappings().all()
+        if len(direct_rows) == 1:
+            return [int(direct_rows[0]["id"])]
+
+        if pos_filter is not None:
+            variant_rows = self._connection.execute(
+                text(
+                    """
+                    SELECT v.entry_id
+                    FROM bt_variants v
+                    JOIN bt_entries e ON e.id = v.entry_id
+                    WHERE v.normalized_title = :title_key
+                        AND e.pos = :pos_filter
+                    ORDER BY v.entry_id ASC
+                    """
+                ),
+                {"title_key": title_key, "pos_filter": pos_filter},
+            ).mappings().all()
+        else:
+            variant_rows = self._connection.execute(
+                text(
+                    """
+                    SELECT v.entry_id
+                    FROM bt_variants v
+                    WHERE v.normalized_title = :title_key
+                    ORDER BY v.entry_id ASC
+                    """
+                ),
+                {"title_key": title_key},
+            ).mappings().all()
+
+        matched: list[int] = []
+        seen: set[int] = set()
+        for row in variant_rows:
+            entry_id = int(row["entry_id"])
+            if entry_id in seen:
+                continue
+            seen.add(entry_id)
+            matched.append(entry_id)
+        return matched
 
     def _resolve_entry_ids(
         self,
@@ -302,6 +435,7 @@ class BTQueryService:
                     norm_key,
                     headword_raw,
                     headword_macronized,
+                    normalized_title,
                     pos,
                     genders_json,
                     etymology,
@@ -344,6 +478,7 @@ class BTQueryService:
             norm_key=str(row["norm_key"]),
             headword_raw=str(row["headword_raw"]),
             headword_macronized=str(row["headword_macronized"]),
+            normalized_title=str(row["normalized_title"]),
             pos=BTPos(str(row["pos"])),
             genders=_genders_from_json(str(row["genders_json"])),
             variants=[str(variant_row["spelling_raw"]) for variant_row in variant_rows],

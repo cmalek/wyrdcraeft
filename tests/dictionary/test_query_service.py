@@ -85,6 +85,36 @@ def test_lookup_abbod_variant_returns_abbad_noun(sample_index_db: Path) -> None:
     assert "abbod" in entry.variants
 
 
+def test_lookup_by_normalized_title_joins_abbod_variant_to_abbad(
+    sample_index_db: Path,
+) -> None:
+    service = BTQueryService(sample_index_db)
+    try:
+        entries = service.lookup_by_normalized_title("abbod", pos="noun")
+    finally:
+        service.close()
+
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry.norm_key == "abbad"
+    assert entry.normalized_title == "abbad"
+    assert entry.pos == BTPos.NOUN
+    assert "abbod" in entry.variants
+
+
+def test_lookup_by_normalized_title_matches_headword_directly(
+    sample_index_db: Path,
+) -> None:
+    service = BTQueryService(sample_index_db)
+    try:
+        entries = service.lookup_by_normalized_title("abbad", pos="noun")
+    finally:
+        service.close()
+
+    assert len(entries) == 1
+    assert entries[0].headword_macronized == "abbad"
+
+
 def test_lookup_by_norm_key_reconstructs_senses_and_variants(
     sample_index_db: Path,
 ) -> None:

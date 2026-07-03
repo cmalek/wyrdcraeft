@@ -13,7 +13,7 @@ from ...models.dictionary import (
     BTPos,
     BTSense,
 )
-from ..markup import normalize_old_english
+from ..markup import normalize_morphology_title, normalize_old_english
 from .target_resolver import BTTargetResolver
 
 if TYPE_CHECKING:
@@ -309,6 +309,7 @@ class BTEditorialMerger:
             norm_key=norm_key,
             headword_raw=seed.raw_line.headword_raw,
             headword_macronized=seed.headword_macronized,
+            normalized_title=normalize_morphology_title(seed.headword_macronized),
             pos=pos,
             genders=list(seed.genders),
             variants=list(seed.variants),

@@ -11,7 +11,7 @@ from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos
 from wyrdcraeft.models.morphology import QueryFormRow
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.query import BTQueryService
-from wyrdcraeft.services.markup import normalize_old_english
+from wyrdcraeft.services.markup import normalize_morphology_title
 
 from ..text_utils import OENormalizer
 
@@ -161,6 +161,29 @@ def _infer_bt_pos_filter(form_rows: list[QueryFormRow]) -> str | None:
     return None
 
 
+def _lookup_normalized_title(
+    form_rows: list[QueryFormRow],
+    lookup_token: str,
+) -> str:
+    """
+    Resolve the macron-preserving title key used for dictionary joins.
+
+    Args:
+        form_rows: Morphology rows already returned for the lookup.
+        lookup_token: Lemma or headword token used for the morphology lookup.
+
+    Returns:
+        ``normalized_title`` from the first emitted row, or a normalized fallback
+        derived from ``lookup_token``.
+
+    """
+    for row in form_rows:
+        title_key = row.normalized_title.strip()
+        if title_key:
+            return title_key
+    return normalize_morphology_title(lookup_token)
+
+
 def dictionary_join_entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
     """
     Serialize one dictionary entry for morphology join JSON output.
@@ -248,6 +271,7 @@ class MorphologyQueryService:
                     formi,
                     BT,
                     title,
+                    normalized_title,
                     stem,
                     form,
                     formParts,
@@ -304,6 +328,7 @@ class MorphologyQueryService:
                     formi,
                     BT,
                     title,
+                    normalized_title,
                     stem,
                     form,
                     formParts,
@@ -343,8 +368,8 @@ class MorphologyQueryService:
         Look up Bosworth-Toller entries to join with morphology query results.
 
         Note:
-            Dictionary keys follow ``normalize_old_english`` semantics aligned
-            with morphology ``bt_key`` lookup in
+            Dictionary joins use macron-preserving ``normalized_title`` keys
+            aligned with lexicon build semantics in
             ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
             In plain terms, this attaches dictionary senses across Parts of Speech
             when the morphology wordclass mapping is unambiguous.
@@ -368,15 +393,15 @@ class MorphologyQueryService:
         if resolved_dictionary_db is None:
             return []
 
-        norm_key = normalize_old_english(lookup_token) or ""
-        if not norm_key:
+        normalized_title = _lookup_normalized_title(form_rows, lookup_token)
+        if not normalized_title:
             return []
 
         pos_filter = _infer_bt_pos_filter(form_rows)
         dictionary_service = BTQueryService(resolved_dictionary_db)
         try:
-            entries = dictionary_service.lookup_by_norm_key(
-                norm_key,
+            entries = dictionary_service.lookup_by_normalized_title(
+                normalized_title,
                 pos=pos_filter,
             )
         finally:

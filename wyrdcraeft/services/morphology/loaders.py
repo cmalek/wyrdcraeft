@@ -7,6 +7,7 @@ from wyrdcraeft.models.morphology import (
     VerbParadigm,
     Word,
 )
+from wyrdcraeft.services.markup import normalize_morphology_title
 
 from .text_utils import OENormalizer
 
@@ -96,7 +97,7 @@ def load_forms(path: str) -> list[ManualForm]:
 
     forms = []
     with _path.open(encoding="utf-8") as f:
-        for line in f:
+        for form_id, line in enumerate(f, start=1):
             _line = line.strip("\r\n")
             # Perl: $forms_line = move_accents(eth2thorn($forms_line));
             _line = OENormalizer.move_accents(OENormalizer.eth2thorn(_line))
@@ -113,9 +114,12 @@ def load_forms(path: str) -> list[ManualForm]:
             # Perl: $form{form} =~ s/-//;  (replaces first hyphen only, not /g)
             form_val = parts[3].lower().replace("-", "", 1)
 
+            title = parts[1].lower()
             form = ManualForm(
+                id=form_id,
                 BT=parts[0],
-                title=parts[1].lower(),
+                title=title,
+                normalized_title=normalize_morphology_title(title),
                 stem=stem,
                 form=form_val,
                 form_parts=parts[3].lower(),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import sqlite3
 import threading
@@ -9,6 +10,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from tests.lexicon.source_db import make_lexicon_source_db
 from wyrdcraeft.models.lexicon_build import (
     BuildCounterUpdated,
     BuildLog,
@@ -41,6 +43,13 @@ from wyrdcraeft.services.lexicon.schema import (
     SCHEMA_VERSION,
     create_lexicon_tables,
 )
+from wyrdcraeft.services.morphology.generation.common import print_one_form
+from wyrdcraeft.services.morphology.generation.sinks import (
+    CompositeSink,
+    SqliteIndexSink,
+    TsvParitySink,
+)
+from wyrdcraeft.services.morphology.session import GeneratorSession
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -172,6 +181,58 @@ def test_rebuild_lexicon_uses_existing_alembic_managed_lexicon_tables(
     report = rebuild_lexicon(lexicon_source_db)
 
     assert report.entries_written > 0
+
+
+def test_rebuild_lexicon_joins_abbod_form_via_variant_normalized_title(
+    tmp_path: Path,
+) -> None:
+    db_path = make_lexicon_source_db(tmp_path / "variant-join.sqlite3")
+    session = GeneratorSession()
+    output = io.StringIO()
+    sqlite_sink = SqliteIndexSink(db_path)
+    sink = CompositeSink(TsvParitySink(output), sqlite_sink)
+    print_one_form(
+        session,
+        {
+            "BT": "abbod",
+            "title": "abbod",
+            "stem": "abbod",
+            "form": "abbod",
+            "formParts": "0-abbod-0",
+            "var": "0",
+            "probability": "0",
+            "function": "No",
+            "wright": "0",
+            "paradigm": "demo",
+            "paraID": "0",
+            "wordclass": "noun",
+            "class1": "",
+            "class2": "",
+            "class3": "",
+            "comment": "",
+        },
+        sink,
+    )
+    sqlite_sink.close()
+
+    rebuild_lexicon(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT lf.entry_id, f.normalized_title, le.norm_key
+            FROM lexicon_forms AS lf
+            JOIN forms AS f ON f.id = lf.form_id
+            JOIN lexicon_entries AS le ON le.entry_id = lf.entry_id
+            WHERE f.normalized_title = ?
+            """,
+            ("abbod",),
+        ).fetchone()
+
+    assert row is not None
+    assert int(row["entry_id"]) > 0
+    assert row["norm_key"] == "abbad"
 
 
 def test_create_lexicon_tables_dedupes_null_join_search_keys_with_insert_or_ignore(
@@ -321,13 +382,13 @@ def test_check_lexicon_staleness_detects_new_forms_rows(
         connection.execute(
             """
             INSERT INTO forms (
-                counter, formi, BT, title, stem, form, formParts, var,
-                probability, function, wright, paradigm, paraID, wordclass,
-                class1, class2, class3, comment,
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm,
+                paraID, wordclass, class1, class2, class3, comment,
                 bt_key, title_key, stem_key, form_key, formi_key
             ) VALUES (
-                999, 'new-form', 'new', 'new', 'new', 'new-form', '0-new-0',
-                '0', '0', 'No', '0', 'demo', '0', 'noun',
+                999, 'new-form', 'new', 'new', 'new', 'new', 'new-form',
+                '0-new-0', '0', '0', 'No', '0', 'demo', '0', 'noun',
                 '', '', '', '',
                 'new', 'new', 'new', 'new-form', 'new-form'
             )

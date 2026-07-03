@@ -80,6 +80,32 @@ def normalize_old_english(text: str | None) -> str | None:
     return unicodedata.normalize("NFC", stripped_internal_hyphen)
 
 
+def normalize_morphology_title(text: str | None) -> str:
+    """
+    Normalize a morphology lemma title while preserving macrons and dot letters.
+
+    Rules:
+        - Lowercase
+        - Replace ``ð`` with ``þ``
+        - Remove internal hyphen/dash characters
+        - Preserve macrons, dotted ``c``/``g``, and OE letters like ``æ`` and ``þ``
+
+    Args:
+        text: Source lemma title text.
+
+    Returns:
+        Normalized title text, or an empty string when input is ``None``/blank.
+
+    """
+    if text is None:
+        return ""
+    lowered = text.strip().lower().replace("ð", "þ")
+    if not lowered:
+        return ""
+    stripped_internal_hyphen = INTERNAL_DASH_RE.sub("", lowered)
+    return unicodedata.normalize("NFC", stripped_internal_hyphen)
+
+
 def _apply_case_pattern(source: str, target: str) -> str:
     """
     Apply source casing pattern to target text.
@@ -118,6 +144,10 @@ def _is_oe_wordlike(form: str) -> bool:
 class MacronApplicator:
     """
     Apply dictionary-backed macrons to lexical tokens.
+
+    Args:
+        index_path: Path to macron index JSON.
+
     """
 
     def __init__(self, index_path: Path = DEFAULT_MACRON_INDEX_PATH):
@@ -568,6 +598,10 @@ class CPalatalizer:
     - Caveat: When the triggering vowel has only back pre-i-mutation sources
       (e.g. y/ȳ → u/ū), do not palatalize; blocklist covers remaining cases.
 
+    Args:
+        force_palatalize_path: Path to force-palatalize exceptions.
+        force_non_palatalize_path: Path to force-non-palatalize exceptions.
+
     """
 
     #: Vowels considered front for ``c`` palatalization.
@@ -762,6 +796,13 @@ class CPalatalizer:
 class DiacriticRestorer:
     """
     Composite Old English diacritic restoration pipeline.
+
+    Args:
+        macron_applicator: Optional preconfigured macron applicator.
+        g_palatalizer: Optional preconfigured g-palatalizer.
+        c_palatalizer: Optional preconfigured c-palatalizer.
+        macron_index_path: Macron index path used when applicator is omitted.
+
     """
 
     def __init__(

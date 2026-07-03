@@ -79,6 +79,17 @@ Out of scope:
   or Bosworth-Toller source data
 - orphan morphology hit: morphology match that does not join to a real
   dictionary entry and is shown outside the main lemma result list
+- norm_key: diacritic-stripped normalized Old English key used for generic
+  dictionary lookup and deduplication
+- normalized_title: macron- and dot-preserving normalized lemma/headword title
+  used to join morphology ``forms`` rows with Bosworth-Toller ``bt_entries``
+  and ``bt_variants`` at lexicon build time; distinct from ``norm_key``, which
+  strips combining marks
+- lexicon browse search normalization: user queries and dictionary search-key
+  indexing use ``normalize_old_english`` (diacritic-stripped) so undiacritized
+  input like ``abbod`` matches macronized headwords; form-to-entry linking still
+  uses ``normalized_title`` during ``lexicon build``, and browse reads the
+  pre-joined ``lexicon_forms.entry_id`` at query time
 - morphology function code: compact tag on a generated form row (for example
   `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
   other inflectional dimensions depending on part of speech

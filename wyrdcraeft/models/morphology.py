@@ -145,10 +145,14 @@ class ManualForm(BaseModel):
     the manual_forms.txt file.
     """
 
+    #: Surrogate identifier assigned in ``manual_forms.txt`` load order.
+    id: int
     #: The BT: the base form of the word.
     BT: str
     #: The title: the word itself.
     title: str
+    #: Macron/dot-preserving normalized lemma title for dictionary joins.
+    normalized_title: str
     #: The stem: the root of the word.
     stem: str
     #: The form: the form of the word, meaning the form of the word in the dictionary.
@@ -182,6 +186,8 @@ class ManualForm(BaseModel):
 class GeneratedForm(BaseModel):
     """
     Generated form model.
+
+    ``counter`` is the logical primary key for one morphology build output.
     """
 
     #: The counter, used to count the number of generated forms.
@@ -192,6 +198,8 @@ class GeneratedForm(BaseModel):
     BT: str
     #: The title: the word itself.
     title: str
+    #: Macron/dot-preserving normalized lemma title for dictionary joins.
+    normalized_title: str
     #: The stem: the root of the word.
     stem: str
     #: The form: the form of the word, meaning the form of the word in the dictionary.
@@ -225,7 +233,7 @@ class GeneratedForm(BaseModel):
 class FormRow(BaseModel):
     """Canonical emitted morphology row used by sinks and query services."""
 
-    #: The output counter value.
+    #: The output counter value (logical primary key within one build).
     counter: str
     #: Normalized form identifier for lookup/sorting.
     formi: str
@@ -233,6 +241,8 @@ class FormRow(BaseModel):
     BT: str
     #: Surface title token.
     title: str
+    #: Macron/dot-preserving normalized lemma title for dictionary joins.
+    normalized_title: str
     #: Stem token.
     stem: str
     #: Emitted form text.

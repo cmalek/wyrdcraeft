@@ -20,6 +20,7 @@ class Form(Base):
         Index("idx_forms_stem_key", "stem_key"),
         Index("idx_forms_form_key", "form_key"),
         Index("idx_forms_formi_key", "formi_key"),
+        Index("idx_forms_normalized_title", "normalized_title"),
     )
 
     #: Surrogate row identifier.
@@ -32,6 +33,8 @@ class Form(Base):
     BT: Mapped[str] = mapped_column(Text, nullable=False)
     #: Source lemma title.
     title: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Macron/dot-preserving normalized lemma title for dictionary joins.
+    normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
     #: Morphological stem.
     stem: Mapped[str] = mapped_column(Text, nullable=False)
     #: Emitted form text.
@@ -81,6 +84,7 @@ class BTEntry(Base):
     __table_args__ = (
         UniqueConstraint("norm_key", "pos"),
         Index("idx_bt_entries_norm_key", "norm_key"),
+        Index("idx_bt_entries_normalized_title", "normalized_title"),
     )
 
     #: Surrogate dictionary entry identifier.
@@ -91,6 +95,8 @@ class BTEntry(Base):
     headword_raw: Mapped[str] = mapped_column(Text, nullable=False)
     #: Macronized display headword.
     headword_macronized: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Macron/dot-preserving normalized headword for morphology joins.
+    normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
     #: Part-of-speech label.
     pos: Mapped[str] = mapped_column(Text, nullable=False)
     #: JSON-encoded gender labels.
@@ -129,7 +135,10 @@ class BTVariant(Base):
     #: Canonical Bosworth-Toller spelling variants table name.
     __tablename__ = "bt_variants"
     #: Lookup index for macronized spelling variants.
-    __table_args__ = (Index("idx_bt_variants_spelling", "spelling_macronized"),)
+    __table_args__ = (
+        Index("idx_bt_variants_spelling", "spelling_macronized"),
+        Index("idx_bt_variants_normalized_title", "normalized_title"),
+    )
 
     #: Owning dictionary entry identifier.
     entry_id: Mapped[int] = mapped_column(ForeignKey("bt_entries.id"), nullable=False)
@@ -137,6 +146,8 @@ class BTVariant(Base):
     spelling_raw: Mapped[str] = mapped_column(Text, nullable=False)
     #: Macronized spelling variant.
     spelling_macronized: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Macron/dot-preserving normalized variant title for morphology joins.
+    normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
     #: Mapper-only key for the legacy table, which has no declared primary key.
     __mapper_args__ = {  # noqa: RUF012
         "primary_key": [entry_id, spelling_raw]

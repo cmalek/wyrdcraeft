@@ -758,7 +758,7 @@ class LexiconBuilder:
         """
         rows = connection.execute(
             """
-            SELECT id, norm_key
+            SELECT id, norm_key, normalized_title
             FROM bt_entries
             WHERE TRIM(COALESCE(pos, '')) = ''
             ORDER BY id ASC
@@ -771,18 +771,16 @@ class LexiconBuilder:
         for index, row in enumerate(rows, start=1):
             self._check_cancel(
                 stage=LexiconBuildStage.INFER_POS,
-                current_item=str(row["norm_key"]),
+                current_item=str(row["normalized_title"]),
             )
-            norm_key = str(row["norm_key"])
+            normalized_title = str(row["normalized_title"])
             wordclass_rows = connection.execute(
                 """
                 SELECT DISTINCT LOWER(TRIM(wordclass)) AS wordclass
                 FROM forms
-                WHERE bt_key = ?
-                   OR title_key = ?
-                   OR stem_key = ?
+                WHERE normalized_title = ?
                 """,
-                (norm_key, norm_key, norm_key),
+                (normalized_title,),
             ).fetchall()
             inferred_pos = infer_bt_pos_from_wordclasses(
                 {str(wordclass_row["wordclass"]) for wordclass_row in wordclass_rows}
@@ -863,7 +861,14 @@ class LexiconBuilder:
 
         entry_rows = connection.execute(
             """
-            SELECT id, norm_key, pos, headword_macronized, etymology, genders_json
+            SELECT
+                id,
+                norm_key,
+                normalized_title,
+                pos,
+                headword_macronized,
+                etymology,
+                genders_json
             FROM bt_entries
             ORDER BY id ASC
             """
@@ -893,6 +898,7 @@ class LexiconBuilder:
                 {
                     "entry_id": entry_id,
                     "norm_key": str(row["norm_key"]),
+                    "normalized_title": str(row["normalized_title"]),
                     "pos": str(row["pos"]),
                     "headword": str(row["headword_macronized"]),
                     "summary_sense": summary_sense,
@@ -1022,14 +1028,27 @@ class LexiconBuilder:
             """
         )
 
-        entry_ids_by_norm_pos: dict[tuple[str, str], list[int]] = {}
-        entry_ids_by_norm: dict[str, list[int]] = {}
+        entry_ids_by_title_pos: dict[tuple[str, str], list[int]] = {}
+        entry_ids_by_title: dict[str, list[int]] = {}
         for entry in entries:
             entry_id = cast("int", entry["entry_id"])
-            norm_key = str(entry["norm_key"])
+            title_norm = str(entry["normalized_title"])
             pos = str(entry["pos"])
-            entry_ids_by_norm_pos.setdefault((norm_key, pos), []).append(entry_id)
-            entry_ids_by_norm.setdefault(norm_key, []).append(entry_id)
+            entry_ids_by_title_pos.setdefault((title_norm, pos), []).append(entry_id)
+            entry_ids_by_title.setdefault(title_norm, []).append(entry_id)
+
+        variant_entry_by_title: dict[str, int] = {}
+        for row in connection.execute(
+            """
+            SELECT entry_id, normalized_title
+            FROM bt_variants
+            WHERE TRIM(COALESCE(normalized_title, '')) != ''
+            ORDER BY entry_id ASC, rowid ASC
+            """
+        ).fetchall():
+            title_norm = str(row["normalized_title"])
+            if title_norm not in variant_entry_by_title:
+                variant_entry_by_title[title_norm] = int(row["entry_id"])
 
         cursor = connection.execute(
             """
@@ -1047,11 +1066,7 @@ class LexiconBuilder:
                 class2,
                 class3,
                 paradigm,
-                bt_key,
-                title_key,
-                stem_key,
-                form_key,
-                formi_key
+                normalized_title
             FROM forms
             ORDER BY id ASC
             """
@@ -1067,19 +1082,12 @@ class LexiconBuilder:
                 current_item=current_item,
             )
             bt_pos = WORDCLASS_TO_BT_POS.get(str(row["wordclass"]).strip().lower(), "")
-            keys_in_priority = (
-                normalize_old_english(str(row["BT"])) or "",
-                normalize_old_english(str(row["title"])) or "",
-                normalize_old_english(str(row["stem"])) or "",
-                str(row["bt_key"]),
-                str(row["title_key"]),
-                str(row["stem_key"]),
-            )
             matched_entry_id = self._select_entry_id(
-                keys_in_priority,
+                str(row["normalized_title"]),
                 bt_pos,
-                entry_ids_by_norm_pos,
-                entry_ids_by_norm,
+                entry_ids_by_title_pos,
+                entry_ids_by_title,
+                variant_entry_by_title,
             )
             chunk.append(
                 (
@@ -1152,39 +1160,47 @@ class LexiconBuilder:
 
     def _select_entry_id(
         self,
-        keys_in_priority: tuple[str, ...],
+        normalized_title: str,
         bt_pos: str,
-        entry_ids_by_norm_pos: dict[tuple[str, str], list[int]],
-        entry_ids_by_norm: dict[str, list[int]],
+        entry_ids_by_title_pos: dict[tuple[str, str], list[int]],
+        entry_ids_by_title: dict[str, list[int]],
+        variant_entry_by_title: dict[str, int],
     ) -> int | None:
         """
         Select the best dictionary entry match for one morphology form row.
 
+        Note:
+            Join keys use macron-preserving ``normalized_title`` values. Lexicon
+            browse search keys are built separately with diacritic-stripped
+            ``normalize_old_english`` semantics in ``_build_search_keys``.
+
         Matching order:
-        1) First key with POS-constrained match.
-        2) First key with exactly one entry across all POS values.
+        1) ``normalized_title`` with POS-constrained match.
+        2) ``normalized_title`` with exactly one entry across all POS values.
+        3) ``normalized_title`` on a dictionary variant spelling.
 
         Args:
-            keys_in_priority: Candidate normalized morphology keys by match priority.
+            normalized_title: Macron-preserving normalized morphology lemma title.
             bt_pos: Optional dictionary POS filter derived from morphology class.
-            entry_ids_by_norm_pos: Entry IDs keyed by ``(norm_key, pos)``.
-            entry_ids_by_norm: Entry IDs keyed by ``norm_key`` only.
+            entry_ids_by_title_pos: Entry IDs keyed by ``(normalized_title, pos)``.
+            entry_ids_by_title: Entry IDs keyed by ``normalized_title`` only.
+            variant_entry_by_title: Entry IDs keyed by variant ``normalized_title``.
 
         Returns:
             Matching entry ID when joinable, otherwise ``None``.
 
         """
-        for key in keys_in_priority:
-            if key and bt_pos:
-                pos_matches = entry_ids_by_norm_pos.get((key, bt_pos), [])
-                if pos_matches:
-                    return min(pos_matches)
-        for key in keys_in_priority:
-            if not key:
-                continue
-            matches = entry_ids_by_norm.get(key, [])
+        if normalized_title and bt_pos:
+            pos_matches = entry_ids_by_title_pos.get((normalized_title, bt_pos), [])
+            if pos_matches:
+                return min(pos_matches)
+        if normalized_title:
+            matches = entry_ids_by_title.get(normalized_title, [])
             if len(matches) == 1:
                 return matches[0]
+            variant_match = variant_entry_by_title.get(normalized_title)
+            if variant_match is not None:
+                return variant_match
         return None
 
     def _insert_forms(
@@ -1299,6 +1315,11 @@ class LexiconBuilder:
     ) -> int:
         """
         Stage ranked search-key rows for dictionary and morphology lookups.
+
+        Note:
+            Keys index diacritic-stripped ``normalize_old_english`` shapes so
+            lexicon browse accepts undiacritized queries. Form-to-entry joins
+            use macron-preserving ``normalized_title`` in ``_select_entry_id``.
 
         Args:
             connection: Open SQLite connection queried for inserted form rows.

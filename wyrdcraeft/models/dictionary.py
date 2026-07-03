@@ -138,6 +138,7 @@ class BTConsolidatedEntry:
         norm_key: ``normalize_old_english(headword_raw)`` lookup key.
         headword_raw: Display headword from the first contributing main line.
         headword_macronized: Acute-to-macron display spelling.
+        normalized_title: Macron/dot-preserving normalized headword for joins.
         pos: Normalized part of speech.
         genders: Noun genders when applicable; empty otherwise.
         variants: Alternate spellings from the headword prefix.
@@ -154,6 +155,8 @@ class BTConsolidatedEntry:
     headword_raw: str
     #: Macronized display form of ``headword_raw``.
     headword_macronized: str
+    #: Macron/dot-preserving normalized headword for morphology joins.
+    normalized_title: str
     #: Normalized part of speech.
     pos: BTPos
     #: Noun genders; empty when not applicable.

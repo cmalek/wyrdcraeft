@@ -5,11 +5,15 @@ from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
 
+import pytest
+
+from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
 from wyrdcraeft.services.lexicon.query import (
     LexiconQueryService,
     SearchHit,
     _main_results_sort_key,
+    _search_candidate_keys,
 )
 
 if TYPE_CHECKING:
@@ -38,6 +42,28 @@ def test_search_prefers_exact_dictionary_variant_and_dedupes_entries(
     assert hit.key_kind == "variant"
     assert hit.matched_text == "abbod"
     assert hit.summary_sense == "an abbot; abbot"
+
+
+def test_search_candidate_keys_use_diacritic_stripped_normalizer() -> None:
+    normalizer = BTSpellingNormalizer()
+    keys = _search_candidate_keys("abbōd", normalizer)
+
+    assert "abbod" in keys
+    assert not any("ō" in key for key in keys)
+
+
+@pytest.mark.parametrize("query", ["abbod", "abbōd", "ABBOD"])
+def test_search_finds_abbad_for_undiacritized_and_macron_queries(
+    lexicon_source_db: Path,
+    query: str,
+) -> None:
+    service = _rebuild_query_service(lexicon_source_db)
+
+    results = service.search(query)
+
+    assert results.main_entry_count == 1
+    assert results.main_entries[0].headword == "abbad"
+    assert results.main_entries[0].pos == "noun"
 
 
 def test_search_returns_morphology_form_hits_after_exact_matches(
