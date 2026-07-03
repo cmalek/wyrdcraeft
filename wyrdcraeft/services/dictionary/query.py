@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import (
@@ -13,6 +13,10 @@ from wyrdcraeft.models.dictionary import (
     BTGender,
     BTPos,
     BTSense,
+)
+from wyrdcraeft.models.sqlalchemy import BTEntry, BTVariant
+from wyrdcraeft.services.dictionary.normalized_title_join import (
+    NormalizedTitleJoinIndex,
 )
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 
@@ -144,6 +148,8 @@ class BTQueryService:
     _engine: Engine
     #: Active SQLAlchemy connection for dictionary lookups.
     _connection: Connection
+    #: Preloaded normalized-title join resolver for morphology dictionary joins.
+    _normalized_title_index: NormalizedTitleJoinIndex
 
     def __init__(self, db_path: Path) -> None:
         """
@@ -157,6 +163,8 @@ class BTQueryService:
         self._engine = create_sqlalchemy_engine(db_path)
         #: Active SQLAlchemy connection for dictionary lookups.
         self._connection = self._engine.connect()
+        #: Preloaded normalized-title join resolver for morphology dictionary joins.
+        self._normalized_title_index = self._load_normalized_title_index()
 
     def lookup_lemma(
         self,
@@ -227,97 +235,42 @@ class BTQueryService:
             return []
 
         pos_filter = _normalize_pos_filter(pos)
-        entry_ids = self._resolve_entry_ids_by_normalized_title(
+        entry_ids = self._normalized_title_index.resolve_all(
             title_key,
-            pos_filter=pos_filter,
+            pos_filter,
         )
         return [self._load_entry(entry_id) for entry_id in entry_ids]
 
-    def _resolve_entry_ids_by_normalized_title(
-        self,
-        title_key: str,
-        *,
-        pos_filter: str | None,
-    ) -> list[int]:
+    def _load_normalized_title_index(self) -> NormalizedTitleJoinIndex:
         """
-        Resolve entry ids from ``normalized_title`` and variant title keys.
-
-        Args:
-            title_key: Macron-preserving normalized title lookup key.
-
-        Keyword Args:
-            pos_filter: Optional stored POS value filter.
+        Preload normalized-title join maps from canonical dictionary tables.
 
         Returns:
-            Distinct entry ids in stable lookup order.
+            Join index built from ``bt_entries`` and ``bt_variants`` rows.
 
         """
-        if pos_filter is not None:
-            pos_rows = self._connection.execute(
-                text(
-                    """
-                    SELECT e.id
-                    FROM bt_entries e
-                    WHERE e.normalized_title = :title_key
-                        AND e.pos = :pos_filter
-                    ORDER BY e.id ASC
-                    """
-                ),
-                {"title_key": title_key, "pos_filter": pos_filter},
-            ).mappings().all()
-            if pos_rows:
-                return [int(row["id"]) for row in pos_rows]
-
-        direct_rows = self._connection.execute(
-            text(
-                """
-                SELECT e.id
-                FROM bt_entries e
-                WHERE e.normalized_title = :title_key
-                ORDER BY e.id ASC
-                """
-            ),
-            {"title_key": title_key},
-        ).mappings().all()
-        if len(direct_rows) == 1:
-            return [int(direct_rows[0]["id"])]
-
-        if pos_filter is not None:
-            variant_rows = self._connection.execute(
-                text(
-                    """
-                    SELECT v.entry_id
-                    FROM bt_variants v
-                    JOIN bt_entries e ON e.id = v.entry_id
-                    WHERE v.normalized_title = :title_key
-                        AND e.pos = :pos_filter
-                    ORDER BY v.entry_id ASC
-                    """
-                ),
-                {"title_key": title_key, "pos_filter": pos_filter},
-            ).mappings().all()
-        else:
-            variant_rows = self._connection.execute(
-                text(
-                    """
-                    SELECT v.entry_id
-                    FROM bt_variants v
-                    WHERE v.normalized_title = :title_key
-                    ORDER BY v.entry_id ASC
-                    """
-                ),
-                {"title_key": title_key},
-            ).mappings().all()
-
-        matched: list[int] = []
-        seen: set[int] = set()
-        for row in variant_rows:
-            entry_id = int(row["entry_id"])
-            if entry_id in seen:
-                continue
-            seen.add(entry_id)
-            matched.append(entry_id)
-        return matched
+        entry_rows = self._connection.execute(
+            select(BTEntry.id, BTEntry.normalized_title, BTEntry.pos)
+        ).all()
+        variant_rows = self._connection.execute(
+            select(
+                BTVariant.entry_id,
+                BTVariant.normalized_title,
+                BTEntry.pos,
+            )
+            .join(BTEntry, BTEntry.id == BTVariant.entry_id)
+            .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
+        ).all()
+        return NormalizedTitleJoinIndex.from_entry_variant_rows(
+            [
+                (int(row.id), str(row.normalized_title), str(row.pos))
+                for row in entry_rows
+            ],
+            [
+                (int(row.entry_id), str(row.normalized_title), str(row.pos))
+                for row in variant_rows
+            ],
+        )
 
     def _resolve_entry_ids(
         self,

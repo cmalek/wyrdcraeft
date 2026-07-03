@@ -37,6 +37,9 @@ from wyrdcraeft.models.sqlalchemy import (
     LexiconBuildMeta as LexiconBuildMetaTable,
 )
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.dictionary.normalized_title_join import (
+    NormalizedTitleJoinIndex,
+)
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
@@ -986,24 +989,26 @@ class LexiconBuilder:
             detail="fetching forms",
         )
 
-        entry_ids_by_title_pos: dict[tuple[str, str], list[int]] = {}
-        entry_ids_by_title: dict[str, list[int]] = {}
-        for entry in entries:
-            entry_id = cast("int", entry["entry_id"])
-            title_norm = str(entry["normalized_title"])
-            pos = str(entry["pos"])
-            entry_ids_by_title_pos.setdefault((title_norm, pos), []).append(entry_id)
-            entry_ids_by_title.setdefault(title_norm, []).append(entry_id)
-
-        variant_entry_by_title: dict[str, int] = {}
-        for row in connection.execute(
-            select(BTVariant.entry_id, BTVariant.normalized_title)
+        variant_rows = connection.execute(
+            select(BTVariant.entry_id, BTVariant.normalized_title, BTEntry.pos)
+            .join(BTEntry, BTEntry.id == BTVariant.entry_id)
             .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
             .order_by(BTVariant.entry_id.asc(), BTVariant.spelling_raw.asc())
-        ).fetchall():
-            title_norm = str(row.normalized_title)
-            if title_norm not in variant_entry_by_title:
-                variant_entry_by_title[title_norm] = int(row.entry_id)
+        ).fetchall()
+        join_index = NormalizedTitleJoinIndex.from_entry_variant_rows(
+            [
+                (
+                    cast("int", entry["entry_id"]),
+                    str(entry["normalized_title"]),
+                    str(entry["pos"]),
+                )
+                for entry in entries
+            ],
+            [
+                (int(row.entry_id), str(row.normalized_title), str(row.pos))
+                for row in variant_rows
+            ],
+        )
 
         form_rows = connection.execute(
             select(
@@ -1034,12 +1039,9 @@ class LexiconBuilder:
                 current_item=current_item,
             )
             bt_pos = WORDCLASS_TO_BT_POS.get(str(row.wordclass).strip().lower(), "")
-            matched_entry_id = self._select_entry_id(
+            matched_entry_id = join_index.resolve_one(
                 str(row.normalized_title),
-                bt_pos,
-                entry_ids_by_title_pos,
-                entry_ids_by_title,
-                variant_entry_by_title,
+                bt_pos or None,
             )
             chunk.append(
                 {
@@ -1094,51 +1096,6 @@ class LexiconBuilder:
                 )
         self._finish_stage(LexiconBuildStage.LOAD_FORMS)
         return form_batches, total_forms
-
-    def _select_entry_id(
-        self,
-        normalized_title: str,
-        bt_pos: str,
-        entry_ids_by_title_pos: dict[tuple[str, str], list[int]],
-        entry_ids_by_title: dict[str, list[int]],
-        variant_entry_by_title: dict[str, int],
-    ) -> int | None:
-        """
-        Select the best dictionary entry match for one morphology form row.
-
-        Note:
-            Join keys use macron-preserving ``normalized_title`` values. Lexicon
-            browse search keys are built separately with diacritic-stripped
-            ``normalize_old_english`` semantics in ``_build_search_keys``.
-
-        Matching order:
-        1) ``normalized_title`` with POS-constrained match.
-        2) ``normalized_title`` with exactly one entry across all POS values.
-        3) ``normalized_title`` on a dictionary variant spelling.
-
-        Args:
-            normalized_title: Macron-preserving normalized morphology lemma title.
-            bt_pos: Optional dictionary POS filter derived from morphology class.
-            entry_ids_by_title_pos: Entry IDs keyed by ``(normalized_title, pos)``.
-            entry_ids_by_title: Entry IDs keyed by ``normalized_title`` only.
-            variant_entry_by_title: Entry IDs keyed by variant ``normalized_title``.
-
-        Returns:
-            Matching entry ID when joinable, otherwise ``None``.
-
-        """
-        if normalized_title and bt_pos:
-            pos_matches = entry_ids_by_title_pos.get((normalized_title, bt_pos), [])
-            if pos_matches:
-                return min(pos_matches)
-        if normalized_title:
-            matches = entry_ids_by_title.get(normalized_title, [])
-            if len(matches) == 1:
-                return matches[0]
-            variant_match = variant_entry_by_title.get(normalized_title)
-            if variant_match is not None:
-                return variant_match
-        return None
 
     def _insert_forms(
         self,
@@ -1205,7 +1162,8 @@ class LexiconBuilder:
         Note:
             Keys index diacritic-stripped ``normalize_old_english`` shapes so
             lexicon browse accepts undiacritized queries. Form-to-entry joins
-            use macron-preserving ``normalized_title`` in ``_select_entry_id``.
+            use macron-preserving ``normalized_title`` via
+            ``NormalizedTitleJoinIndex.resolve_one``.
 
         Args:
             connection: Open SQLAlchemy connection queried for inserted form rows.

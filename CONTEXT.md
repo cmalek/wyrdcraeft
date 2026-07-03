@@ -97,6 +97,13 @@ Out of scope:
   used to join morphology ``forms`` rows with Bosworth-Toller ``bt_entries``
   and ``bt_variants`` at lexicon build time; distinct from ``norm_key``, which
   strips combining marks
+- normalized title join index: in-memory maps built at join time to match
+  morphology lemma titles to dictionary entries using macron-preserving
+  normalized titles, direct entry hits, and POS-aware variant fallbacks
+- resolve_one / resolve_all: shared join policies over the same tier order;
+  ``resolve_one`` picks a single dictionary entry when the tier policy yields
+  one unambiguous match, while ``resolve_all`` returns every matching entry id
+  for dictionary browse and multi-hit lookups
 - lexicon browse search normalization: user queries and dictionary search-key
   indexing use ``normalize_old_english`` (diacritic-stripped) so undiacritized
   input like ``abbod`` matches macronized headwords; form-to-entry linking still
@@ -152,14 +159,14 @@ Out of scope:
   with orchestration handoff at
   `docs/superpowers/specs/2026-06-30-wyrdcraeft-db-migration-orchestration.md`
 - **Phases 1–8 complete** as of 2026-07-03
-- **Follow-on lexicon work (in progress on `codex/canonical-db-migration`):**
+- **Follow-on lexicon work on `codex/canonical-db-migration`:**
   - Slice 1 **complete** (`64c6223`): lexicon rebuild on SQLAlchemy Core,
     Alembic-owned lexicon DDL, truncate-not-drop rebuild, `SCHEMA_VERSION`
     staleness removed; handoff at
     `docs/superpowers/handoffs/2026-07-03-lexicon-slice1-session-state.md`
-  - Slice 2 **pending**: shared `NormalizedTitleJoinIndex` to unify morphology↔
-    dictionary joins and remove duplicated join SQL in lexicon build and
-    `BTQueryService`; plan at
+  - Slice 2 **complete** (pending commit): shared `NormalizedTitleJoinIndex`
+    unifies morphology↔dictionary joins; removed duplicated join SQL from
+    lexicon build and `BTQueryService`; plan at
     `docs/superpowers/plans/2026-07-03-lexicon-sqlalchemy-normalized-title-join.md`
 - Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
 - Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
@@ -184,7 +191,7 @@ Out of scope:
   passed focused end-to-end migration tests plus mypy and napoleon-gate
 - Post–Phase 8 (`c651f32`): added macron-preserving `normalized_title` join
   columns on `forms`, `bt_entries`, and `bt_variants` (Alembic
-  `20260703_01`); lexicon build still had duplicated join logic until Slice 2
+  `20260703_01`); join logic now centralized in `NormalizedTitleJoinIndex`
 
 ## Key Flows
 
