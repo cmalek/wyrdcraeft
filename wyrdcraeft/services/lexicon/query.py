@@ -1,12 +1,14 @@
-"""SQLite-backed query service for lexicon browse search and details."""
+"""SQLAlchemy-backed query service for lexicon browse search and details."""
 
 from __future__ import annotations
 
 import json
-import sqlite3
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from sqlalchemy import text
+
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.lexicon.form_decode import (
     filter_display_variants,
@@ -22,11 +24,13 @@ from .schema import (
     KEY_KIND_STEM,
     KEY_KIND_VARIANT,
     RANK_TIER_EXACT_ENTRY,
-    migrate_lexicon_schema,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
+
+    from sqlalchemy.engine import Connection, Engine, RowMapping
 
 
 #: Stable precedence order for representative match selection within one rank tier.
@@ -449,12 +453,12 @@ def _extract_gender_person_number(
     return genders, persons, numbers
 
 
-def _row_to_morphology(row: sqlite3.Row) -> MorphologyRow:
+def _row_to_morphology(row: RowMapping | Mapping[str, Any]) -> MorphologyRow:
     """
     Project one SQLite row into a ``MorphologyRow`` dataclass.
 
     Args:
-        row: SQLite row from ``lexicon_forms``.
+        row: Mapping row from ``lexicon_forms``.
 
     Returns:
         Typed morphology row payload.
@@ -650,8 +654,10 @@ class LexiconQueryService:
 
     """
 
-    #: Active SQLite connection for search and details lookups.
-    _connection: sqlite3.Connection
+    #: SQLAlchemy engine bound to the canonical lexicon database.
+    _engine: Engine
+    #: Active SQLAlchemy connection for search and details lookups.
+    _connection: Connection
     #: Dictionary spelling normalizer reused for unified query normalization.
     _spelling_normalizer: BTSpellingNormalizer
 
@@ -663,11 +669,10 @@ class LexiconQueryService:
             db_path: Path to SQLite database file containing ``lexicon_*`` tables.
 
         """
-        #: Active SQLite connection for search and details lookups.
-        self._connection = sqlite3.connect(str(db_path.expanduser().resolve()))
-        self._connection.row_factory = sqlite3.Row
-        migrate_lexicon_schema(self._connection)
-        self._connection.commit()
+        #: SQLAlchemy engine bound to the canonical lexicon database.
+        self._engine = create_sqlalchemy_engine(db_path)
+        #: Active SQLAlchemy connection for search and details lookups.
+        self._connection = self._engine.connect()
         #: Dictionary spelling normalizer reused for unified query normalization.
         self._spelling_normalizer = BTSpellingNormalizer()
 
@@ -687,7 +692,8 @@ class LexiconQueryService:
             return SearchResults(main_entries=[], orphans=[])
 
         rows = self._connection.execute(
-            """
+            text(
+                """
             SELECT
                 sk.key_kind,
                 sk.rank_tier,
@@ -705,7 +711,7 @@ class LexiconQueryService:
             LEFT JOIN lexicon_forms f ON f.form_id = sk.form_id
             WHERE sk.key_text IN (
                 SELECT value
-                FROM json_each(?)
+                FROM json_each(:lookup_keys)
             )
             ORDER BY
                 sk.rank_tier ASC,
@@ -719,9 +725,10 @@ class LexiconQueryService:
                 COALESCE(e.headword, f.bt, sk.display_text) ASC,
                 COALESCE(sk.entry_id, 0) ASC,
                 COALESCE(sk.form_id, 0) ASC
-            """,
-            (json.dumps(lookup_keys),),
-        ).fetchall()
+                """
+            ),
+            {"lookup_keys": json.dumps(lookup_keys)},
+        ).mappings().all()
 
         main_entries: list[SearchHit] = []
         orphans: list[OrphanHit] = []
@@ -798,7 +805,8 @@ class LexiconQueryService:
 
         """
         entry_row = self._connection.execute(
-            """
+            text(
+                """
             SELECT
                 entry_id,
                 headword,
@@ -809,15 +817,17 @@ class LexiconQueryService:
                 genders_json,
                 senses_json
             FROM lexicon_entries
-            WHERE entry_id = ?
-            """,
-            (entry_id,),
-        ).fetchone()
+            WHERE entry_id = :entry_id
+            """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().first()
         if entry_row is None:
             return None
 
         form_rows = self._connection.execute(
-            """
+            text(
+                """
             SELECT
                 form_id,
                 bt,
@@ -833,11 +843,12 @@ class LexiconQueryService:
                 class3,
                 paradigm
             FROM lexicon_forms
-            WHERE entry_id = ?
+            WHERE entry_id = :entry_id
             ORDER BY wordclass ASC, function ASC, form_id ASC
-            """,
-            (entry_id,),
-        ).fetchall()
+            """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().all()
 
         morphology_rows = [_row_to_morphology(row) for row in form_rows]
         class_summary = _ordered_distinct(
@@ -884,7 +895,8 @@ class LexiconQueryService:
 
         """
         row = self._connection.execute(
-            """
+            text(
+                """
             SELECT
                 form_id,
                 bt,
@@ -900,10 +912,11 @@ class LexiconQueryService:
                 class3,
                 paradigm
             FROM lexicon_forms
-            WHERE form_id = ? AND entry_id IS NULL
-            """,
-            (form_id,),
-        ).fetchone()
+            WHERE form_id = :form_id AND entry_id IS NULL
+            """
+            ),
+            {"form_id": form_id},
+        ).mappings().first()
         if row is None:
             return None
 
@@ -928,10 +941,11 @@ class LexiconQueryService:
 
     def close(self) -> None:
         """
-        Close the SQLite query connection.
+        Close the SQLAlchemy query connection.
 
         Side Effects:
-            Releases the underlying SQLite connection.
+            Releases the underlying SQLAlchemy connection and engine.
 
         """
         self._connection.close()
+        self._engine.dispose()

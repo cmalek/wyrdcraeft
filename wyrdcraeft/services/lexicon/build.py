@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Final, Protocol, cast
 
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.lexicon_build import (
     BuildCounterUpdated,
     BuildLog,
@@ -40,7 +41,7 @@ from .schema import (
     SCHEMA_VERSION,
     TABLE_LEXICON_ENTRIES,
     TABLE_LEXICON_FORMS,
-    apply_lexicon_schema,
+    create_lexicon_tables,
 )
 
 if TYPE_CHECKING:
@@ -351,6 +352,12 @@ class LexiconBuilder:
             controller is supplied.
 
         """
+        engine = create_sqlalchemy_engine(self._db_path)
+        try:
+            create_lexicon_tables(engine)
+        finally:
+            engine.dispose()
+
         with sqlite3.connect(str(self._db_path)) as connection:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA foreign_keys = ON")
@@ -363,7 +370,6 @@ class LexiconBuilder:
                     LexiconBuildStage.VERIFY_SOURCES,
                     lambda: self._ensure_required_sources(connection),
                 )
-                apply_lexicon_schema(connection)
                 self._clear_lexicon_tables(connection)
                 report = self._rebuild_into_connection(connection)
                 connection.commit()

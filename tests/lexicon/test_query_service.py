@@ -6,7 +6,11 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
-from wyrdcraeft.services.lexicon.query import LexiconQueryService, SearchHit, _main_results_sort_key
+from wyrdcraeft.services.lexicon.query import (
+    LexiconQueryService,
+    SearchHit,
+    _main_results_sort_key,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -70,6 +74,18 @@ def test_search_separates_orphan_hits_from_dictionary_entries(
     assert orphan.rank_tier == 4
     assert orphan.key_kind == "form"
     assert orphan.matched_text == "orphan-form"
+
+
+def test_query_service_uses_existing_alembic_managed_schema(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+
+    service = LexiconQueryService(lexicon_source_db)
+
+    results = service.search("abbad")
+
+    assert results.main_entry_count == 1
 
 
 def test_get_details_returns_entry_payload_with_grouped_morphology(

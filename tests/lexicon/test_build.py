@@ -166,6 +166,14 @@ def test_rebuild_lexicon_is_idempotent_and_preserves_sources(
     assert first.search_keys_written == second.search_keys_written == lexicon_keys
 
 
+def test_rebuild_lexicon_uses_existing_alembic_managed_lexicon_tables(
+    lexicon_source_db: Path,
+) -> None:
+    report = rebuild_lexicon(lexicon_source_db)
+
+    assert report.entries_written > 0
+
+
 def test_create_lexicon_tables_dedupes_null_join_search_keys_with_insert_or_ignore(
     tmp_path: Path,
 ) -> None:

@@ -28,7 +28,6 @@ from .schema import (
     KEY_KIND_LEMMA,
     KEY_KIND_STEM,
     KEY_KIND_VARIANT,
-    LEXICON_SCHEMA_DDL,
     LEXICON_TABLE_NAMES,
     META_KEY_BT_ENTRIES_SOURCE_COUNT,
     META_KEY_BUILT_AT,
@@ -43,9 +42,7 @@ from .schema import (
     TABLE_LEXICON_ENTRIES,
     TABLE_LEXICON_FORMS,
     TABLE_LEXICON_SEARCH_KEYS,
-    apply_lexicon_schema,
     create_lexicon_tables,
-    migrate_lexicon_schema,
 )
 
 __all__ = [
@@ -53,7 +50,6 @@ __all__ = [
     "KEY_KIND_LEMMA",
     "KEY_KIND_STEM",
     "KEY_KIND_VARIANT",
-    "LEXICON_SCHEMA_DDL",
     "LEXICON_TABLE_NAMES",
     "META_KEY_BT_ENTRIES_SOURCE_COUNT",
     "META_KEY_BUILT_AT",
@@ -84,10 +80,8 @@ __all__ = [
     "OrphanHit",
     "SearchHit",
     "SearchResults",
-    "apply_lexicon_schema",
     "check_lexicon_staleness",
     "create_lexicon_tables",
-    "migrate_lexicon_schema",
     "read_lexicon_build_meta",
     "rebuild_lexicon",
     "run_browse_startup_progress",

@@ -6,8 +6,12 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import inspect as sqlalchemy_inspect
 
 from wyrdcraeft.db.runtime import DatabaseStartupRuntime
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
+from wyrdcraeft.services import lexicon as lexicon_exports
+from wyrdcraeft.services.lexicon import schema as schema_module
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_LEMMA,
     LEXICON_TABLE_NAMES,
@@ -15,7 +19,6 @@ from wyrdcraeft.services.lexicon.schema import (
     RANK_TIER_EXACT_ENTRY,
     SCHEMA_VERSION,
     create_lexicon_tables,
-    migrate_lexicon_schema,
 )
 from wyrdcraeft.settings import Settings
 
@@ -130,52 +133,40 @@ def test_create_lexicon_tables_creates_expected_tables(
     assert set(LEXICON_TABLE_NAMES).issubset(table_names)
 
 
+def test_create_lexicon_tables_accepts_sqlalchemy_engine(tmp_path: Path) -> None:
+    db_path = tmp_path / "lexicon-engine.sqlite3"
+    engine = create_sqlalchemy_engine(db_path)
+
+    create_lexicon_tables(engine)
+
+    inspector = sqlalchemy_inspect(engine)
+    assert set(LEXICON_TABLE_NAMES).issubset(set(inspector.get_table_names()))
+
+
 def test_create_lexicon_tables_is_idempotent(tmp_path: Path) -> None:
     db_path = tmp_path / "lexicon-idempotent.sqlite3"
+    engine = create_sqlalchemy_engine(db_path)
+
+    create_lexicon_tables(engine)
     with sqlite3.connect(db_path) as connection:
-        create_lexicon_tables(connection)
         first_tables = _table_names(connection)
-        create_lexicon_tables(connection)
+
+    create_lexicon_tables(engine)
+    with sqlite3.connect(db_path) as connection:
         second_tables = _table_names(connection)
 
     assert first_tables == second_tables
 
 
-def test_apply_lexicon_schema_adds_paradigm_to_legacy_forms_table(
-    tmp_path: Path,
+@pytest.mark.parametrize(
+    "attribute_name",
+    ["LEXICON_SCHEMA_DDL", "apply_lexicon_schema", "migrate_lexicon_schema"],
+)
+def test_obsolete_lexicon_schema_compatibility_surface_is_removed(
+    attribute_name: str,
 ) -> None:
-    db_path = tmp_path / "legacy-lexicon.sqlite3"
-    with sqlite3.connect(db_path) as connection:
-        connection.executescript(
-            """
-            CREATE TABLE lexicon_forms (
-                form_id INTEGER PRIMARY KEY,
-                entry_id INTEGER,
-                bt TEXT NOT NULL,
-                title TEXT NOT NULL,
-                stem TEXT NOT NULL,
-                form TEXT NOT NULL,
-                formi TEXT NOT NULL,
-                wordclass TEXT NOT NULL,
-                function TEXT NOT NULL,
-                probability TEXT NOT NULL,
-                class1 TEXT NOT NULL,
-                class2 TEXT NOT NULL,
-                class3 TEXT NOT NULL
-            );
-            """
-        )
-        connection.commit()
-
-    with sqlite3.connect(db_path) as connection:
-        migrate_lexicon_schema(connection)
-        connection.commit()
-        columns = {
-            str(row[1])
-            for row in connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
-        }
-
-    assert "paradigm" in columns
+    assert not hasattr(schema_module, attribute_name)
+    assert not hasattr(lexicon_exports, attribute_name)
 
 
 def test_lexicon_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:

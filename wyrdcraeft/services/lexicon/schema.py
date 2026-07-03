@@ -1,11 +1,21 @@
-"""SQLite schema for the lexicon browse read-model tables."""
+"""SQLAlchemy-managed schema helpers for lexicon browse read-model tables."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Final
+import sqlite3
+from pathlib import Path
+from typing import Any, Final, cast
 
-if TYPE_CHECKING:
-    import sqlite3
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.orm import Session
+
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
+from wyrdcraeft.models.sqlalchemy import (
+    LexiconBuildMeta,
+    LexiconEntry,
+    LexiconForm,
+    LexiconSearchKey,
+)
 
 #: Lexicon dictionary-entry table storing one row per real Bosworth-Toller entry.
 TABLE_LEXICON_ENTRIES: Final = "lexicon_entries"
@@ -54,120 +64,90 @@ RANK_TIER_MORPH_FORM: Final = 3
 #: Rank tier for morphology-only hits with no dictionary entry join.
 RANK_TIER_ORPHAN: Final = 4
 
-#: DDL script creating all ``lexicon_*`` tables and lookup indexes.
-LEXICON_SCHEMA_DDL: Final = """
-CREATE TABLE IF NOT EXISTS lexicon_entries (
-    entry_id INTEGER PRIMARY KEY,
-    norm_key TEXT NOT NULL,
-    pos TEXT NOT NULL,
-    headword TEXT NOT NULL,
-    summary_sense TEXT NOT NULL,
-    etymology TEXT NOT NULL,
-    variants_json TEXT NOT NULL,
-    genders_json TEXT NOT NULL,
-    senses_json TEXT NOT NULL
-);
 
-CREATE TABLE IF NOT EXISTS lexicon_forms (
-    form_id INTEGER PRIMARY KEY,
-    entry_id INTEGER REFERENCES lexicon_entries(entry_id),
-    bt TEXT NOT NULL,
-    title TEXT NOT NULL,
-    stem TEXT NOT NULL,
-    form TEXT NOT NULL,
-    formi TEXT NOT NULL,
-    wordclass TEXT NOT NULL,
-    function TEXT NOT NULL,
-    probability TEXT NOT NULL,
-    class1 TEXT NOT NULL,
-    class2 TEXT NOT NULL,
-    class3 TEXT NOT NULL,
-    paradigm TEXT NOT NULL DEFAULT ''
-);
-
-CREATE TABLE IF NOT EXISTS lexicon_search_keys (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key_text TEXT NOT NULL,
-    key_kind TEXT NOT NULL,
-    rank_tier INTEGER NOT NULL,
-    entry_id INTEGER REFERENCES lexicon_entries(entry_id),
-    form_id INTEGER REFERENCES lexicon_forms(form_id),
-    display_text TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS lexicon_build_meta (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_lexicon_entries_norm_pos
-    ON lexicon_entries(norm_key, pos);
-CREATE INDEX IF NOT EXISTS idx_lexicon_forms_entry_id
-    ON lexicon_forms(entry_id);
-CREATE INDEX IF NOT EXISTS idx_lexicon_search_keys_key_text
-    ON lexicon_search_keys(key_text);
-CREATE INDEX IF NOT EXISTS idx_lexicon_search_keys_entry_id
-    ON lexicon_search_keys(entry_id);
-CREATE INDEX IF NOT EXISTS idx_lexicon_search_keys_form_id
-    ON lexicon_search_keys(form_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_lexicon_search_keys_dedupe
-    ON lexicon_search_keys(
-        TRIM(key_text),
-        key_kind,
-        rank_tier,
-        COALESCE(entry_id, -1),
-        COALESCE(form_id, -1),
-        TRIM(display_text)
-    );
-"""
-
-
-def migrate_lexicon_schema(connection: sqlite3.Connection) -> None:
+def _sqlite_connection_path(connection: sqlite3.Connection) -> Path:
     """
-    Add missing columns to existing lexicon tables without committing.
+    Resolve the file-backed SQLite path from an open ``sqlite3`` connection.
 
     Args:
-        connection: Open SQLite connection containing ``lexicon_*`` tables.
+        connection: Open SQLite connection.
 
-    Side Effects:
-        Executes additive ``ALTER TABLE`` statements when legacy columns are absent.
+    Returns:
+        Filesystem path backing ``connection``.
+
+    Raises:
+        ValueError: The connection is not backed by a file path.
 
     """
-    columns = connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
-    column_names = {str(row[1]) for row in columns}
-    if not column_names:
-        return
-    if "paradigm" not in column_names:
-        connection.execute(
-            "ALTER TABLE lexicon_forms ADD COLUMN paradigm TEXT NOT NULL DEFAULT ''"
-        )
+    row = connection.execute("PRAGMA database_list").fetchone()
+    if row is None or not str(row[2]).strip():
+        msg = "lexicon schema helpers require a file-backed SQLite database"
+        raise ValueError(msg)
+    return Path(str(row[2])).expanduser().resolve()
 
 
-def apply_lexicon_schema(connection: sqlite3.Connection) -> None:
+def _connectable_from_target(
+    target: Engine | Connection | Session | sqlite3.Connection,
+) -> tuple[Engine | Connection, Engine | None]:
     """
-    Apply lexicon DDL and additive column migrations without committing.
+    Resolve a SQLAlchemy connectable from one supported schema target.
 
     Args:
-        connection: Open SQLite connection receiving the ``lexicon_*`` schema.
+        target: SQLAlchemy or ``sqlite3`` object pointing at the target database.
 
-    Side Effects:
-        Executes ``LEXICON_SCHEMA_DDL`` and adds missing ``lexicon_forms`` columns.
+    Returns:
+        Tuple of ``(connectable, owned_engine)`` where ``owned_engine`` should be
+        disposed by the caller when not ``None``.
+
+    Raises:
+        TypeError: ``target`` is not a supported schema target.
 
     """
-    connection.executescript(LEXICON_SCHEMA_DDL)
-    migrate_lexicon_schema(connection)
+    if isinstance(target, (Engine, Connection)):
+        return target, None
+    if isinstance(target, Session):
+        return target.get_bind(), None
+    if isinstance(target, sqlite3.Connection):
+        engine = create_sqlalchemy_engine(_sqlite_connection_path(target))
+        return engine, engine
+    msg = f"unsupported lexicon schema target: {type(target)!r}"
+    raise TypeError(msg)
 
 
-def create_lexicon_tables(connection: sqlite3.Connection) -> None:
+def _create_lexicon_tables(connectable: Engine | Connection) -> None:
+    """
+    Create the lexicon read-model tables on one SQLAlchemy connectable.
+
+    Args:
+        connectable: SQLAlchemy engine or connection for the target database.
+
+    Side Effects:
+        Creates missing ``lexicon_*`` tables and indexes using declarative metadata.
+
+    """
+    cast("Any", LexiconEntry.__table__).create(bind=connectable, checkfirst=True)
+    cast("Any", LexiconForm.__table__).create(bind=connectable, checkfirst=True)
+    cast("Any", LexiconSearchKey.__table__).create(bind=connectable, checkfirst=True)
+    cast("Any", LexiconBuildMeta.__table__).create(bind=connectable, checkfirst=True)
+
+
+def create_lexicon_tables(
+    target: Engine | Connection | Session | sqlite3.Connection,
+) -> None:
     """
     Create lexicon read-model tables and indexes when missing.
 
     Args:
-        connection: Open SQLite connection receiving the ``lexicon_*`` schema.
+        target: SQLAlchemy or ``sqlite3`` handle for the target database.
 
     Side Effects:
-        Executes ``apply_lexicon_schema`` and commits the connection.
+        Creates missing ``lexicon_*`` tables and indexes using the canonical
+        SQLAlchemy table definitions that Alembic manages.
 
     """
-    apply_lexicon_schema(connection)
-    connection.commit()
+    connectable, owned_engine = _connectable_from_target(target)
+    try:
+        _create_lexicon_tables(connectable)
+    finally:
+        if owned_engine is not None:
+            owned_engine.dispose()

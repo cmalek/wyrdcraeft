@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sqlite3
 import unicodedata
 from typing import TYPE_CHECKING
 
@@ -10,6 +9,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from textual import events
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
@@ -1147,13 +1148,15 @@ def _ensure_browse_ready(query_service: LexiconQueryService) -> None:
     """
     try:
         counts = query_service._connection.execute(  # noqa: SLF001
-            """
+            text(
+                """
             SELECT
                 (SELECT COUNT(*) FROM lexicon_entries) AS entry_count,
                 (SELECT COUNT(*) FROM lexicon_search_keys) AS key_count
-            """
-        ).fetchone()
-    except sqlite3.OperationalError as exc:
+                """
+            )
+        ).mappings().first()
+    except SQLAlchemyOperationalError as exc:
         msg = (
             "Lexicon browse tables are missing. "
             "Run `wyrdcraeft lexicon build` for this morphology database first."
