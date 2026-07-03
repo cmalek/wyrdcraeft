@@ -164,7 +164,7 @@ Out of scope:
     Alembic-owned lexicon DDL, truncate-not-drop rebuild, `SCHEMA_VERSION`
     staleness removed; handoff at
     `docs/superpowers/handoffs/2026-07-03-lexicon-slice1-session-state.md`
-  - Slice 2 **complete** (pending commit): shared `NormalizedTitleJoinIndex`
+  - Slice 2 **complete** (`564e927`): shared `NormalizedTitleJoinIndex`
     unifies morphology↔dictionary joins; removed duplicated join SQL from
     lexicon build and `BTQueryService`; plan at
     `docs/superpowers/plans/2026-07-03-lexicon-sqlalchemy-normalized-title-join.md`
