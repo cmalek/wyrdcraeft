@@ -66,7 +66,11 @@ Out of scope:
 - morphology index: morphology data stored inside canonical `wyrdcraeft.sqlite3`
   database rather than a standalone morphology-only file
 - dictionary index: attached `bt_*` tables inside canonical `wyrdcraeft.sqlite3`
-- attach mode: writing dictionary tables into an existing morphology SQLite file
+- dictionary SQLAlchemy slice: Phase 6 migration that moved `bt_*` writes and
+  reads from direct `sqlite3` code to SQLAlchemy-backed persistence/query paths
+- morphology SQLAlchemy slice: Phase 7 migration that moved `forms` writes and
+  reads from direct `sqlite3` code to SQLAlchemy Core bulk insert plus
+  SQLAlchemy query paths while preserving emitted ordering semantics
 - lexicon: combined dictionary-plus-morphology user workflow presented as one
   browse/search surface
 - lexicon read model: derived `lexicon_*` tables inside `wyrdcraeft.sqlite3`
@@ -88,8 +92,6 @@ Out of scope:
 - Old English search bar: lexicon browse input (`OldEnglishSearchInput`) with
   keyboard entry as the primary path; optional character bar below the field
   inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
-- lexicon schema migration: additive upgrade of existing `lexicon_*` tables
-  (for example adding `lexicon_forms.paradigm`) on browse connect and build
 - startup database readiness: mandatory startup step that ensures canonical
   `wyrdcraeft.sqlite3` exists at expected schema before any DB-using command
   reads or writes it
@@ -120,6 +122,31 @@ Out of scope:
 - OCR proxy: local OpenAI-compatible proxy used to clamp and normalize OCR model traffic
 - app-data directory: OS-specific writable directory for default SQLite outputs
 
+## Current Migration Progress
+
+- canonical DB migration plan is in progress under
+  `docs/superpowers/plans/2026-06-30-wyrdcraeft-canonical-db-migration.md`
+- completed through Phase 7 as of 2026-07-03
+- Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
+- Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
+- Phase 3 (`914a4bb`): initial Alembic-managed canonical schema
+- Phase 4 (`7b07991`): renamed DB-producing commands to `build`; removed old
+  per-command DB-path overrides and standalone dictionary mode
+- Phase 5 (`82b1479`): moved lexicon persistence/bootstrap/query startup to
+  SQLAlchemy-managed canonical tables; removed old lexicon-only ad hoc schema
+  migration path
+- Phase 6 (`81e2db4`): moved dictionary persistence/query to SQLAlchemy,
+  removed stale standalone dictionary fallout from tests, kept canonical DB
+  product behavior, and preserved direct non-CLI scratch sink behavior for
+  pipeline/tests
+- Phase 7 (`f805b46`): moved morphology persistence/query to SQLAlchemy,
+  replaced raw `sqlite3` in `SqliteIndexSink` and `MorphologyQueryService`
+  with Core bulk insert and SQLAlchemy `text()` lookups, preserved
+  `ORDER BY counter ASC, id ASC`, and kept dictionary attach/join behavior
+  inside canonical `wyrdcraeft.sqlite3`
+- next planned slice: Phase 8, full verification, docs sweep, and
+  orchestration handoff spec
+
 ## Key Flows
 
 ### Source conversion
@@ -128,11 +155,14 @@ Out of scope:
 
 ### Morphology generation
 
-`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> generation dispatch -> TSV sink and SQLite sink -> `wyrdcraeft.sqlite3`
+`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> generation dispatch
+-> TSV sink and SQLAlchemy-backed `SqliteIndexSink` -> `forms` in
+`wyrdcraeft.sqlite3`
 
 ### Dictionary indexing
 
-`wyrdcraeft.cli.dictionary:build` -> `BTIndexPipeline.run` -> SQLite sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
+`wyrdcraeft.cli.dictionary:build` -> `BTIndexPipeline.run` -> SQLAlchemy-backed
+dictionary sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
 
 ### Lexicon browse
 
@@ -141,8 +171,8 @@ worker-thread runtime + typed build events -> default Textual build monitor or
 plain `--no-tui` renderer -> `lexicon_*` tables in `wyrdcraeft.sqlite3`
 
 `wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
-(with `migrate_lexicon_schema`) -> Textual `LexiconBrowseApp` with search bar
-at top, results pane left, details plus POS-filtered paradigm grids right
+-> Textual `LexiconBrowseApp` with search bar at top, results pane left,
+details plus POS-filtered paradigm grids right
 
 Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite3`
 (from morphology build plus dictionary build flows).
@@ -153,9 +183,12 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
 
 ## Sharp Edges
 
-- Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default.
-- Dictionary indexing attaches `bt_*` tables to app-data `wyrdcraeft.sqlite3` by
-  default and fails clearly when that database is missing.
+- Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default
+  through SQLAlchemy-backed `forms` persistence; tests must use
+  `isolated_morphology_app_data` or explicit temp paths.
+- Dictionary indexing now writes `bt_*` through SQLAlchemy-backed persistence
+  into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
+  that canonical database is missing.
 - Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
   required `bt_*` tables are missing.
 - Lexicon build refuses to overwrite existing lexicon read-model data unless
@@ -168,8 +201,8 @@ Prerequisite: `forms` and `bt_*` must already exist in target `wyrdcraeft.sqlite
   progress event so the monitor does not appear stuck at `0/1`.
 - Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` after morphology or
   dictionary source data changes.
-- Opening lexicon browse on an older database auto-migrates missing `lexicon_*`
-  columns (for example `lexicon_forms.paradigm`); rebuild to populate derived data.
+- Lexicon browse now expects the canonical Alembic-managed schema to already be
+  present; it no longer performs lexicon-only ad hoc column patching on startup.
 - Lexicon build may infer missing dictionary POS from morphology when wordclass is
   unambiguous; ambiguous lemmas stay POS-empty.
 - Lexicon browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
