@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import queue
-import sqlite3
 import sys
 import threading
 from dataclasses import dataclass, field
@@ -115,13 +114,12 @@ def build(  # noqa: PLR0912, PLR0915
     )
 
     if not force:
-        with sqlite3.connect(str(resolved_index_db)) as connection:
-            if lexicon_read_model_has_data(connection):
-                msg = (
-                    "Lexicon read-model already contains data in "
-                    f"{resolved_index_db}. Pass --force to rebuild and replace it."
-                )
-                raise click.ClickException(msg)
+        if lexicon_read_model_has_data(resolved_index_db):
+            msg = (
+                "Lexicon read-model already contains data in "
+                f"{resolved_index_db}. Pass --force to rebuild and replace it."
+            )
+            raise click.ClickException(msg)
 
     quiet = quiet or bool(ctx.obj.get("quiet"))
     use_tui = sys.stdout.isatty() and sys.stderr.isatty() and not no_tui and not quiet

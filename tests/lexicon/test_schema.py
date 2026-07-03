@@ -6,19 +6,14 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 import pytest
-from sqlalchemy import inspect as sqlalchemy_inspect
 
-from wyrdcraeft.db.runtime import DatabaseStartupRuntime
-from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
+from wyrdcraeft.db.runtime import DatabaseStartupRuntime, upgrade_canonical_db
 from wyrdcraeft.services import lexicon as lexicon_exports
 from wyrdcraeft.services.lexicon import schema as schema_module
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_LEMMA,
     LEXICON_TABLE_NAMES,
-    META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
-    SCHEMA_VERSION,
-    create_lexicon_tables,
 )
 from wyrdcraeft.settings import Settings
 
@@ -127,7 +122,7 @@ def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:
     assert index_names >= EXPECTED_CANONICAL_INDEXES
 
 
-def test_create_lexicon_tables_creates_expected_tables(
+def test_alembic_upgrade_creates_expected_lexicon_tables(
     lexicon_db_path: Path,
 ) -> None:
     with sqlite3.connect(lexicon_db_path) as connection:
@@ -136,25 +131,13 @@ def test_create_lexicon_tables_creates_expected_tables(
     assert set(LEXICON_TABLE_NAMES).issubset(table_names)
 
 
-def test_create_lexicon_tables_accepts_sqlalchemy_engine(tmp_path: Path) -> None:
-    db_path = tmp_path / "lexicon-engine.sqlite3"
-    engine = create_sqlalchemy_engine(db_path)
-
-    create_lexicon_tables(engine)
-
-    inspector = sqlalchemy_inspect(engine)
-    assert set(LEXICON_TABLE_NAMES).issubset(set(inspector.get_table_names()))
-
-
-def test_create_lexicon_tables_is_idempotent(tmp_path: Path) -> None:
+def test_alembic_upgrade_is_idempotent(tmp_path: Path) -> None:
     db_path = tmp_path / "lexicon-idempotent.sqlite3"
-    engine = create_sqlalchemy_engine(db_path)
-
-    create_lexicon_tables(engine)
+    upgrade_canonical_db(db_path)
     with sqlite3.connect(db_path) as connection:
         first_tables = _table_names(connection)
 
-    create_lexicon_tables(engine)
+    upgrade_canonical_db(db_path)
     with sqlite3.connect(db_path) as connection:
         second_tables = _table_names(connection)
 
@@ -163,7 +146,7 @@ def test_create_lexicon_tables_is_idempotent(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize(
     "attribute_name",
-    ["LEXICON_SCHEMA_DDL", "apply_lexicon_schema", "migrate_lexicon_schema"],
+    ["LEXICON_SCHEMA_DDL", "apply_lexicon_schema", "migrate_lexicon_schema", "create_lexicon_tables"],
 )
 def test_obsolete_lexicon_schema_compatibility_surface_is_removed(
     attribute_name: str,
@@ -343,14 +326,6 @@ def test_seeded_lexicon_db_fixture_has_orphan_and_entry(
         orphan_forms = connection.execute(
             "SELECT COUNT(*) FROM lexicon_forms WHERE entry_id IS NULL"
         ).fetchone()[0]
-        schema_version = connection.execute(
-            """
-            SELECT value
-            FROM lexicon_build_meta
-            WHERE key = ?
-            """,
-            (META_KEY_SCHEMA_VERSION,),
-        ).fetchone()[0]
         search_key_count = connection.execute(
             "SELECT COUNT(*) FROM lexicon_search_keys"
         ).fetchone()[0]
@@ -358,18 +333,17 @@ def test_seeded_lexicon_db_fixture_has_orphan_and_entry(
     assert entry_count == 1
     assert linked_forms == 1
     assert orphan_forms == 1
-    assert int(schema_version) == SCHEMA_VERSION
     assert search_key_count == 2
 
 
 @pytest.mark.parametrize("table_name", LEXICON_TABLE_NAMES)
-def test_each_lexicon_table_exists_after_create(
+def test_each_lexicon_table_exists_after_alembic_upgrade(
     tmp_path: Path,
     table_name: str,
 ) -> None:
     db_path = tmp_path / f"{table_name}.sqlite3"
+    upgrade_canonical_db(db_path)
     with sqlite3.connect(db_path) as connection:
-        create_lexicon_tables(connection)
         exists = connection.execute(
             """
             SELECT 1

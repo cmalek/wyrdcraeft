@@ -177,6 +177,24 @@ def create_session_factory(db_path: Path) -> sessionmaker[Session]:
     return sessionmaker(bind=create_engine(db_path), future=True)
 
 
+def upgrade_canonical_db(db_path: Path) -> None:
+    """
+    Apply Alembic migrations through head on one canonical SQLite database.
+
+    Args:
+        db_path: SQLite database path that migrations should target.
+
+    Side Effects:
+        Creates the database file when missing and upgrades schema to head.
+
+    """
+    resolved = db_path.expanduser().resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    config = build_alembic_config(resolved)
+    command.ensure_version(config)
+    command.upgrade(config, "head")
+
+
 def build_alembic_config(db_path: Path) -> Config:
     """
     Build the Alembic configuration for one canonical SQLite database.

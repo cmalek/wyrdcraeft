@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Final, Protocol, cast
+
+from sqlalchemy import delete, func, insert, select, text, update
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.exc import OperationalError
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.lexicon_build import (
@@ -20,6 +24,18 @@ from wyrdcraeft.models.lexicon_build import (
     LexiconBuildStage,
     LogLevel,
 )
+from wyrdcraeft.models.sqlalchemy import (
+    BTEntry,
+    BTSense,
+    BTVariant,
+    Form,
+    LexiconEntry,
+    LexiconForm,
+    LexiconSearchKey,
+)
+from wyrdcraeft.models.sqlalchemy import (
+    LexiconBuildMeta as LexiconBuildMetaTable,
+)
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
@@ -30,25 +46,23 @@ from .schema import (
     KEY_KIND_LEMMA,
     KEY_KIND_STEM,
     KEY_KIND_VARIANT,
+    LEXICON_TABLE_NAMES,
     META_KEY_BT_ENTRIES_SOURCE_COUNT,
     META_KEY_BUILT_AT,
     META_KEY_FORMS_SOURCE_COUNT,
-    META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
     RANK_TIER_MORPH_FORM,
     RANK_TIER_MORPH_LEMMA_STEM,
     RANK_TIER_ORPHAN,
-    SCHEMA_VERSION,
-    TABLE_LEXICON_ENTRIES,
-    TABLE_LEXICON_FORMS,
-    create_lexicon_tables,
 )
 
 if TYPE_CHECKING:
     import threading
-    from pathlib import Path
 
     from .build_runtime import LexiconBuildController
+
+#: Supported database targets for lexicon helper reads.
+DbTarget = Engine | Connection | Path
 
 #: Allowed source tables for staleness row-count checks.
 _STALENESS_SOURCE_TABLES: Final[tuple[str, ...]] = ("forms", "bt_entries")
@@ -58,27 +72,12 @@ _REQUIRED_SOURCE_TABLES: Final[tuple[str, ...]] = (
     "bt_senses",
     "bt_variants",
 )
+#: Lexicon read-model tables that Alembic must create before rebuild.
+_REQUIRED_LEXICON_TABLES: Final[tuple[str, ...]] = LEXICON_TABLE_NAMES
 
 #: Projected dictionary entry payload produced from ``bt_entries`` sources.
 EntryPayload = dict[str, object]
-#: Batched TEMP staging row for ``lexicon_forms`` inserts.
-FormStageRow = tuple[
-    int,
-    int | None,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-    str,
-]
-#: Ranked search-key payload row for staged ``lexicon_search_keys`` inserts.
+#: Ranked search-key payload row for ``lexicon_search_keys`` inserts.
 SearchKeyRow = tuple[str, str, int, int | None, int | None, str]
 
 #: Callback receiving typed build events as they are emitted.
@@ -147,15 +146,12 @@ class LexiconBuildMeta:
     Build metadata persisted in ``lexicon_build_meta`` after a rebuild.
 
     Attributes:
-        schema_version: Lexicon schema version recorded at rebuild time.
         built_at: UTC timestamp (ISO-8601) of the last rebuild.
         forms_source_count: ``forms`` row count observed during rebuild.
         bt_entries_source_count: ``bt_entries`` row count observed during rebuild.
 
     """
 
-    #: Lexicon schema version recorded at rebuild time.
-    schema_version: int
     #: UTC timestamp (ISO-8601) of the last rebuild.
     built_at: str
     #: ``forms`` row count observed during rebuild.
@@ -196,7 +192,6 @@ class BuildReport:
     Result summary for one lexicon rebuild.
 
     Attributes:
-        schema_version: Lexicon schema version written to metadata.
         built_at: UTC timestamp (ISO-8601) recorded for this rebuild.
         forms_source_count: Source ``forms`` row count consumed by rebuild.
         bt_entries_source_count: Source ``bt_entries`` row count consumed.
@@ -207,8 +202,6 @@ class BuildReport:
 
     """
 
-    #: Lexicon schema version written to metadata.
-    schema_version: int
     #: UTC timestamp (ISO-8601) recorded for this rebuild.
     built_at: str
     #: Source ``forms`` row count consumed by rebuild.
@@ -263,7 +256,7 @@ class LexiconBuilder:
     Rebuild ``lexicon_*`` read-model tables from ``forms`` and ``bt_*`` sources.
 
     Args:
-        db_path: Path to the canonical ``morphology.sqlite3`` database.
+        db_path: Path to the canonical ``wyrdcraeft.sqlite3`` database.
         progress: Optional rebuild progress callback.
         event_sink: Optional typed build-event callback.
         cancel_event: Optional cooperative cancellation flag.
@@ -287,7 +280,7 @@ class LexiconBuilder:
     _event_seq: int
     #: Last announced total for each stage, used to emit terminal stage progress.
     _stage_totals: dict[LexiconBuildStage, int]
-    #: Row batch size for TEMP form staging inserts.
+    #: Row batch size for lexicon form bulk inserts.
     _form_stage_batch_size: int = 25000
     #: Minimum staged form rows between high-volume stage log lines.
     _form_log_interval_rows: int = 500_000
@@ -305,7 +298,7 @@ class LexiconBuilder:
         Initialize a lexicon builder for one SQLite database.
 
         Args:
-            db_path: Path to the canonical ``morphology.sqlite3`` database.
+            db_path: Path to the canonical ``wyrdcraeft.sqlite3`` database.
 
         Keyword Args:
             progress: Optional rebuild progress callback.
@@ -344,9 +337,8 @@ class LexiconBuilder:
             MissingLexiconSourceTablesError: Required source tables are missing.
 
         Side Effects:
-            Replaces all rows in ``lexicon_entries``, ``lexicon_forms``,
-            ``lexicon_search_keys``, and ``lexicon_build_meta`` within one
-            transaction.
+            Truncates all rows in ``lexicon_*`` tables within one transaction.
+            Table DDL is owned by Alembic; rebuild does not drop or recreate tables.
 
             Registers and clears the runtime interrupt callback when a runtime
             controller is supplied.
@@ -354,31 +346,24 @@ class LexiconBuilder:
         """
         engine = create_sqlalchemy_engine(self._db_path)
         try:
-            create_lexicon_tables(engine)
+            with engine.begin() as connection:
+                connection.execute(text("PRAGMA foreign_keys = ON"))
+                if self._runtime is not None:
+                    dbapi_connection = connection.connection.dbapi_connection
+                    if dbapi_connection is not None:
+                        self._runtime.set_interrupt_callback(dbapi_connection.interrupt)
+                try:
+                    self._stage(
+                        LexiconBuildStage.VERIFY_SOURCES,
+                        lambda: self._ensure_required_sources(connection),
+                    )
+                    self._clear_lexicon_tables(connection)
+                    report = self._rebuild_into_connection(connection)
+                finally:
+                    if self._runtime is not None:
+                        self._runtime.set_interrupt_callback(None)
         finally:
             engine.dispose()
-
-        with sqlite3.connect(str(self._db_path)) as connection:
-            connection.row_factory = sqlite3.Row
-            connection.execute("PRAGMA foreign_keys = ON")
-            report: BuildReport
-            if self._runtime is not None:
-                self._runtime.set_interrupt_callback(connection.interrupt)
-            try:
-                connection.execute("BEGIN IMMEDIATE")
-                self._stage(
-                    LexiconBuildStage.VERIFY_SOURCES,
-                    lambda: self._ensure_required_sources(connection),
-                )
-                self._clear_lexicon_tables(connection)
-                report = self._rebuild_into_connection(connection)
-                connection.commit()
-            except Exception:
-                connection.rollback()
-                raise
-            finally:
-                if self._runtime is not None:
-                    self._runtime.set_interrupt_callback(None)
         return report
 
     def _stage(self, stage: LexiconBuildStage, action: Callable[[], None]) -> None:
@@ -646,63 +631,75 @@ class LexiconBuilder:
             )
         )
 
-    def _ensure_required_sources(self, connection: sqlite3.Connection) -> None:
+    def _ensure_required_sources(self, connection: Connection) -> None:
         """
         Raise an error when source tables needed by rebuild are missing.
 
         Args:
-            connection: Open SQLite connection to inspect for source tables.
+            connection: Open SQLAlchemy connection to inspect for source tables.
 
         Raises:
-            MissingLexiconSourceTablesError: Required source tables are missing.
+            MissingLexiconSourceTablesError: Required source or lexicon tables are
+                missing.
 
         """
         rows = connection.execute(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-            """
+            text(
+                """
+                SELECT name
+                FROM sqlite_master
+                WHERE type = 'table'
+                """
+            )
         ).fetchall()
-        available = {str(row["name"]) for row in rows}
-        missing = sorted(set(_REQUIRED_SOURCE_TABLES) - available)
-        if missing:
-            missing_csv = ", ".join(missing)
+        available = {str(row[0]) for row in rows}
+        missing_sources = sorted(set(_REQUIRED_SOURCE_TABLES) - available)
+        if missing_sources:
+            missing_csv = ", ".join(missing_sources)
             msg = f"Lexicon rebuild requires source tables: {missing_csv}"
             raise MissingLexiconSourceTablesError(msg)
+        missing_lexicon = sorted(set(_REQUIRED_LEXICON_TABLES) - available)
+        if missing_lexicon:
+            missing_csv = ", ".join(missing_lexicon)
+            msg = (
+                "Lexicon rebuild requires Alembic-managed lexicon tables: "
+                f"{missing_csv}. Run startup database readiness or "
+                "`wyrdcraeft` once so migrations apply before `lexicon build`."
+            )
+            raise MissingLexiconSourceTablesError(msg)
 
-    def _clear_lexicon_tables(self, connection: sqlite3.Connection) -> None:
+    def _clear_lexicon_tables(self, connection: Connection) -> None:
         """
-        Delete prior ``lexicon_*`` rows while preserving source tables.
+        Truncate prior ``lexicon_*`` rows while preserving table DDL and sources.
 
         Args:
-            connection: Open SQLite connection receiving the delete statements.
+            connection: Open SQLAlchemy connection receiving the delete statements.
 
         Side Effects:
-            Removes rows from all ``lexicon_*`` tables.
+            Deletes all rows from ``lexicon_*`` tables without dropping them.
 
         """
-        connection.execute("DELETE FROM lexicon_search_keys")
-        connection.execute("DELETE FROM lexicon_forms")
-        connection.execute("DELETE FROM lexicon_entries")
-        connection.execute("DELETE FROM lexicon_build_meta")
+        connection.execute(delete(LexiconSearchKey))
+        connection.execute(delete(LexiconForm))
+        connection.execute(delete(LexiconEntry))
+        connection.execute(delete(LexiconBuildMetaTable))
 
-    def _rebuild_into_connection(self, connection: sqlite3.Connection) -> BuildReport:
+    def _rebuild_into_connection(self, connection: Connection) -> BuildReport:
         """
         Insert derived lexicon entries, forms, keys, and build metadata.
 
         Args:
-            connection: Open SQLite connection with source and lexicon tables.
+            connection: Open SQLAlchemy connection with source and lexicon tables.
 
         Returns:
             Build report for inserted entry, form, and search-key rows.
 
         """
         forms_source_count = int(
-            connection.execute("SELECT COUNT(*) FROM forms").fetchone()[0]
+            connection.execute(select(func.count()).select_from(Form)).scalar_one()
         )
         bt_entries_source_count = int(
-            connection.execute("SELECT COUNT(*) FROM bt_entries").fetchone()[0]
+            connection.execute(select(func.count()).select_from(BTEntry)).scalar_one()
         )
         built_at = (
             datetime.now(UTC)
@@ -718,11 +715,11 @@ class LexiconBuilder:
         entries = self._load_entry_payloads(connection)
         self._insert_entries(connection, entries)
 
-        forms_written = self._load_form_payloads(connection, entries)
-        self._insert_forms(connection, forms_written)
+        form_batches, forms_written = self._load_form_payloads(connection, entries)
+        self._insert_forms(connection, form_batches, forms_written)
 
-        staged_search_keys = self._build_search_keys(connection, entries, forms_written)
-        search_keys_written = self._insert_search_keys(connection, staged_search_keys)
+        search_key_rows = self._build_search_keys(connection, entries, forms_written)
+        search_keys_written = self._insert_search_keys(connection, search_key_rows)
 
         self._insert_build_meta(
             connection,
@@ -731,7 +728,6 @@ class LexiconBuilder:
             bt_entries_source_count=bt_entries_source_count,
         )
         return BuildReport(
-            schema_version=SCHEMA_VERSION,
             built_at=built_at,
             forms_source_count=forms_source_count,
             bt_entries_source_count=bt_entries_source_count,
@@ -741,12 +737,12 @@ class LexiconBuilder:
             pos_inferred=pos_inferred,
         )
 
-    def _infer_missing_pos(self, connection: sqlite3.Connection) -> int:
+    def _infer_missing_pos(self, connection: Connection) -> int:
         """
         Fill empty dictionary POS values from unambiguous morphology wordclasses.
 
         Args:
-            connection: Open SQLite connection containing ``bt_entries`` and ``forms``.
+            connection: Open SQLAlchemy connection containing source tables.
 
         Returns:
             Number of ``bt_entries`` rows updated with inferred POS labels.
@@ -757,12 +753,9 @@ class LexiconBuilder:
 
         """
         rows = connection.execute(
-            """
-            SELECT id, norm_key, normalized_title
-            FROM bt_entries
-            WHERE TRIM(COALESCE(pos, '')) = ''
-            ORDER BY id ASC
-            """
+            select(BTEntry.id, BTEntry.norm_key, BTEntry.normalized_title)
+            .where(func.trim(func.coalesce(BTEntry.pos, "")) == "")
+            .order_by(BTEntry.id.asc())
         ).fetchall()
         total = len(rows) or 1
         self._begin_stage(LexiconBuildStage.INFER_POS, total=total)
@@ -771,24 +764,22 @@ class LexiconBuilder:
         for index, row in enumerate(rows, start=1):
             self._check_cancel(
                 stage=LexiconBuildStage.INFER_POS,
-                current_item=str(row["normalized_title"]),
+                current_item=str(row.normalized_title),
             )
-            normalized_title = str(row["normalized_title"])
+            normalized_title = str(row.normalized_title)
             wordclass_rows = connection.execute(
-                """
-                SELECT DISTINCT LOWER(TRIM(wordclass)) AS wordclass
-                FROM forms
-                WHERE normalized_title = ?
-                """,
-                (normalized_title,),
+                select(func.lower(func.trim(Form.wordclass)).label("wordclass"))
+                .where(Form.normalized_title == normalized_title)
+                .distinct()
             ).fetchall()
             inferred_pos = infer_bt_pos_from_wordclasses(
-                {str(wordclass_row["wordclass"]) for wordclass_row in wordclass_rows}
+                {str(wordclass_row.wordclass) for wordclass_row in wordclass_rows}
             )
             if inferred_pos is not None:
                 connection.execute(
-                    "UPDATE bt_entries SET pos = ? WHERE id = ?",
-                    (inferred_pos, int(row["id"])),
+                    update(BTEntry)
+                    .where(BTEntry.id == int(row.id))
+                    .values(pos=inferred_pos)
                 )
                 updated += 1
             self._advance_stage(
@@ -808,13 +799,13 @@ class LexiconBuilder:
 
     def _load_entry_payloads(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
     ) -> list[EntryPayload]:
         """
         Load and project dictionary rows into ``lexicon_entries`` payloads.
 
         Args:
-            connection: Open SQLite connection queried for ``bt_*`` rows.
+            connection: Open SQLAlchemy connection queried for ``bt_*`` rows.
 
         Returns:
             Projected dictionary entry payloads for lexicon inserts.
@@ -825,34 +816,38 @@ class LexiconBuilder:
             message="loading senses",
         )
         sense_rows = connection.execute(
-            """
-            SELECT entry_id, sense_label, gloss_en, order_index
-            FROM bt_senses
-            ORDER BY entry_id ASC, order_index ASC, id ASC
-            """
+            select(
+                BTSense.entry_id,
+                BTSense.sense_label,
+                BTSense.gloss_en,
+                BTSense.order_index,
+            ).order_by(
+                BTSense.entry_id.asc(),
+                BTSense.order_index.asc(),
+                BTSense.id.asc(),
+            )
         ).fetchall()
         senses_by_entry: dict[int, list[dict[str, object]]] = {}
-        for row in sense_rows:
-            entry_id = int(row["entry_id"])
+        for sense_row in sense_rows:
+            entry_id = int(sense_row.entry_id)
             senses_by_entry.setdefault(entry_id, []).append(
                 {
-                    "sense_label": str(row["sense_label"]),
-                    "gloss_en": str(row["gloss_en"]),
-                    "order_index": int(row["order_index"]),
+                    "sense_label": str(sense_row.sense_label),
+                    "gloss_en": str(sense_row.gloss_en),
+                    "order_index": int(sense_row.order_index),
                 }
             )
 
         variant_rows = connection.execute(
-            """
-            SELECT entry_id, spelling_macronized
-            FROM bt_variants
-            ORDER BY entry_id ASC, rowid ASC
-            """
+            select(BTVariant.entry_id, BTVariant.spelling_macronized).order_by(
+                BTVariant.entry_id.asc(),
+                BTVariant.spelling_raw.asc(),
+            )
         ).fetchall()
         variants_by_entry: dict[int, list[str]] = {}
-        for row in variant_rows:
-            entry_id = int(row["entry_id"])
-            variant = str(row["spelling_macronized"]).strip()
+        for variant_row in variant_rows:
+            entry_id = int(variant_row.entry_id)
+            variant = str(variant_row.spelling_macronized).strip()
             if not variant:
                 continue
             variants = variants_by_entry.setdefault(entry_id, [])
@@ -860,18 +855,15 @@ class LexiconBuilder:
                 variants.append(variant)
 
         entry_rows = connection.execute(
-            """
-            SELECT
-                id,
-                norm_key,
-                normalized_title,
-                pos,
-                headword_macronized,
-                etymology,
-                genders_json
-            FROM bt_entries
-            ORDER BY id ASC
-            """
+            select(
+                BTEntry.id,
+                BTEntry.norm_key,
+                BTEntry.normalized_title,
+                BTEntry.pos,
+                BTEntry.headword_macronized,
+                BTEntry.etymology,
+                BTEntry.genders_json,
+            ).order_by(BTEntry.id.asc())
         ).fetchall()
 
         total_entries = len(entry_rows) or 1
@@ -881,12 +873,12 @@ class LexiconBuilder:
         )
 
         payloads: list[EntryPayload] = []
-        for index, row in enumerate(entry_rows, start=1):
+        for index, entry_row in enumerate(entry_rows, start=1):
             self._check_cancel(
                 stage=LexiconBuildStage.LOAD_ENTRIES,
-                current_item=str(row["norm_key"]),
+                current_item=str(entry_row.norm_key),
             )
-            entry_id = int(row["id"])
+            entry_id = int(entry_row.id)
             senses = senses_by_entry.get(entry_id, [])
             summary_sense = ""
             for sense in senses:
@@ -897,14 +889,14 @@ class LexiconBuilder:
             payloads.append(
                 {
                     "entry_id": entry_id,
-                    "norm_key": str(row["norm_key"]),
-                    "normalized_title": str(row["normalized_title"]),
-                    "pos": str(row["pos"]),
-                    "headword": str(row["headword_macronized"]),
+                    "norm_key": str(entry_row.norm_key),
+                    "normalized_title": str(entry_row.normalized_title),
+                    "pos": str(entry_row.pos),
+                    "headword": str(entry_row.headword_macronized),
                     "summary_sense": summary_sense,
-                    "etymology": str(row["etymology"]),
+                    "etymology": str(entry_row.etymology),
                     "variants": variants_by_entry.get(entry_id, []),
-                    "genders_json": str(row["genders_json"]),
+                    "genders_json": str(entry_row.genders_json),
                     "senses": senses,
                 }
             )
@@ -918,14 +910,14 @@ class LexiconBuilder:
 
     def _insert_entries(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
         entries: list[EntryPayload],
     ) -> None:
         """
         Insert projected dictionary entries into ``lexicon_entries``.
 
         Args:
-            connection: Open SQLite connection receiving entry inserts.
+            connection: Open SQLAlchemy connection receiving entry inserts.
             entries: Projected dictionary payload rows to insert.
 
         """
@@ -940,36 +932,22 @@ class LexiconBuilder:
             total=max(len(entries), 1),
             detail="preparing rows",
         )
-        payload = [
-            (
-                entry["entry_id"],
-                entry["norm_key"],
-                entry["pos"],
-                entry["headword"],
-                entry["summary_sense"],
-                entry["etymology"],
-                json.dumps(entry["variants"], ensure_ascii=False),
-                entry["genders_json"],
-                json.dumps(entry["senses"], ensure_ascii=False),
-            )
-            for entry in entries
-        ]
-        connection.executemany(
-            """
-            INSERT INTO lexicon_entries (
-                entry_id,
-                norm_key,
-                pos,
-                headword,
-                summary_sense,
-                etymology,
-                variants_json,
-                genders_json,
-                senses_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            payload,
-        )
+        if entries:
+            payload = [
+                {
+                    "entry_id": entry["entry_id"],
+                    "norm_key": entry["norm_key"],
+                    "pos": entry["pos"],
+                    "headword": entry["headword"],
+                    "summary_sense": entry["summary_sense"],
+                    "etymology": entry["etymology"],
+                    "variants_json": json.dumps(entry["variants"], ensure_ascii=False),
+                    "genders_json": entry["genders_json"],
+                    "senses_json": json.dumps(entry["senses"], ensure_ascii=False),
+                }
+                for entry in entries
+            ]
+            connection.execute(insert(LexiconEntry), payload)
         self._advance_stage(
             LexiconBuildStage.INSERT_ENTRIES,
             completed=max(len(entries), 1),
@@ -984,48 +962,28 @@ class LexiconBuilder:
 
     def _load_form_payloads(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
         entries: list[EntryPayload],
-    ) -> int:
+    ) -> tuple[list[list[dict[str, object]]], int]:
         """
-        Stream ``forms`` rows into a TEMP staging table for final insertion.
+        Stream ``forms`` rows into batched lexicon form insert payloads.
 
         Args:
-            connection: Open SQLite connection queried for ``forms`` rows.
+            connection: Open SQLAlchemy connection queried for ``forms`` rows.
             entries: Projected dictionary entry payloads used for joining.
 
         Returns:
-            Number of staged form rows ready for final insertion.
+            Tuple of batched form payloads and the total source ``forms`` row count.
 
         """
-        count_row = connection.execute("SELECT COUNT(*) FROM forms").fetchone()
-        total_forms = int(count_row[0]) if count_row is not None else 0
-        total_forms = total_forms or 1
+        total_forms = int(
+            connection.execute(select(func.count()).select_from(Form)).scalar_one()
+        )
+        progress_total = total_forms or 1
         self._begin_stage(
             LexiconBuildStage.LOAD_FORMS,
-            total=total_forms,
+            total=progress_total,
             detail="fetching forms",
-        )
-        connection.execute("DROP TABLE IF EXISTS temp_lexicon_forms_stage")
-        connection.execute(
-            """
-            CREATE TEMP TABLE temp_lexicon_forms_stage (
-                form_id INTEGER PRIMARY KEY,
-                entry_id INTEGER,
-                bt TEXT NOT NULL,
-                title TEXT NOT NULL,
-                stem TEXT NOT NULL,
-                form TEXT NOT NULL,
-                formi TEXT NOT NULL,
-                wordclass TEXT NOT NULL,
-                function TEXT NOT NULL,
-                probability TEXT NOT NULL,
-                class1 TEXT NOT NULL,
-                class2 TEXT NOT NULL,
-                class3 TEXT NOT NULL,
-                paradigm TEXT NOT NULL
-            )
-            """
         )
 
         entry_ids_by_title_pos: dict[tuple[str, str], list[int]] = {}
@@ -1039,124 +997,103 @@ class LexiconBuilder:
 
         variant_entry_by_title: dict[str, int] = {}
         for row in connection.execute(
-            """
-            SELECT entry_id, normalized_title
-            FROM bt_variants
-            WHERE TRIM(COALESCE(normalized_title, '')) != ''
-            ORDER BY entry_id ASC, rowid ASC
-            """
+            select(BTVariant.entry_id, BTVariant.normalized_title)
+            .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
+            .order_by(BTVariant.entry_id.asc(), BTVariant.spelling_raw.asc())
         ).fetchall():
-            title_norm = str(row["normalized_title"])
+            title_norm = str(row.normalized_title)
             if title_norm not in variant_entry_by_title:
-                variant_entry_by_title[title_norm] = int(row["entry_id"])
+                variant_entry_by_title[title_norm] = int(row.entry_id)
 
-        cursor = connection.execute(
-            """
-            SELECT
-                id,
-                BT,
-                title,
-                stem,
-                form,
-                formi,
-                wordclass,
-                function,
-                probability,
-                class1,
-                class2,
-                class3,
-                paradigm,
-                normalized_title
-            FROM forms
-            ORDER BY id ASC
-            """
-        )
+        form_rows = connection.execute(
+            select(
+                Form.id,
+                Form.BT,
+                Form.title,
+                Form.stem,
+                Form.form,
+                Form.formi,
+                Form.wordclass,
+                Form.function,
+                Form.probability,
+                Form.class1,
+                Form.class2,
+                Form.class3,
+                Form.paradigm,
+                Form.normalized_title,
+            ).order_by(Form.id.asc())
+        ).fetchall()
 
-        chunk: list[FormStageRow] = []
+        chunk: list[dict[str, object]] = []
+        form_batches: list[list[dict[str, object]]] = []
         last_logged_row = 0
-        staged_rows = 0
-        for index, row in enumerate(cursor, start=1):
-            current_item = str(row["BT"])
+        for index, row in enumerate(form_rows, start=1):
+            current_item = str(row.BT)
             self._check_cancel(
                 stage=LexiconBuildStage.LOAD_FORMS,
                 current_item=current_item,
             )
-            bt_pos = WORDCLASS_TO_BT_POS.get(str(row["wordclass"]).strip().lower(), "")
+            bt_pos = WORDCLASS_TO_BT_POS.get(str(row.wordclass).strip().lower(), "")
             matched_entry_id = self._select_entry_id(
-                str(row["normalized_title"]),
+                str(row.normalized_title),
                 bt_pos,
                 entry_ids_by_title_pos,
                 entry_ids_by_title,
                 variant_entry_by_title,
             )
             chunk.append(
-                (
-                    int(row["id"]),
-                    matched_entry_id,
-                    str(row["BT"]),
-                    str(row["title"]),
-                    str(row["stem"]),
-                    str(row["form"]),
-                    str(row["formi"]),
-                    str(row["wordclass"]),
-                    str(row["function"]),
-                    str(row["probability"]),
-                    str(row["class1"]),
-                    str(row["class2"]),
-                    str(row["class3"]),
-                    str(row["paradigm"]),
-                )
+                {
+                    "form_id": int(row.id),
+                    "entry_id": matched_entry_id,
+                    "bt": str(row.BT),
+                    "title": str(row.title),
+                    "stem": str(row.stem),
+                    "form": str(row.form),
+                    "formi": str(row.formi),
+                    "wordclass": str(row.wordclass),
+                    "function": str(row.function),
+                    "probability": str(row.probability),
+                    "class1": str(row.class1),
+                    "class2": str(row.class2),
+                    "class3": str(row.class3),
+                    "paradigm": str(row.paradigm),
+                }
             )
-            staged_rows = index
-            should_emit_heartbeat = (
-                index in {1, total_forms} or len(chunk) >= self._form_stage_batch_size
-            )
+            should_emit_heartbeat = index in {1, progress_total} or len(
+                chunk
+            ) >= self._form_stage_batch_size
             if len(chunk) >= self._form_stage_batch_size:
-                connection.executemany(
-                    """
-                    INSERT INTO temp_lexicon_forms_stage VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                    )
-                    """,
-                    chunk,
-                )
+                form_batches.append(chunk)
                 if (
-                    index in {1, total_forms}
+                    index in {1, progress_total}
                     or index - last_logged_row >= self._form_log_interval_rows
                 ):
                     self._emit_log(
                         stage=LexiconBuildStage.LOAD_FORMS,
                         message="staging form rows",
                         current_item=current_item,
-                        counts=(index, total_forms),
+                        counts=(index, progress_total),
                     )
                     last_logged_row = index
-                chunk.clear()
+                chunk = []
             if should_emit_heartbeat:
                 self._advance_stage(
                     LexiconBuildStage.LOAD_FORMS,
                     completed=index,
-                    total=total_forms,
+                    total=progress_total,
                     current_item=current_item,
                 )
         if chunk:
-            connection.executemany(
-                """
-                INSERT INTO temp_lexicon_forms_stage VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                )
-                """,
-                chunk,
-            )
-            if staged_rows != last_logged_row:
+            form_batches.append(chunk)
+            if total_forms != last_logged_row:
                 self._emit_log(
                     stage=LexiconBuildStage.LOAD_FORMS,
                     message="staging form rows",
-                    current_item=chunk[-1][2],
-                    counts=(staged_rows, total_forms),
+                    current_item=str(chunk[-1]["bt"]),
+                    counts=(total_forms, progress_total),
                 )
         self._finish_stage(LexiconBuildStage.LOAD_FORMS)
-        return int(count_row[0]) if count_row is not None else 0
+        return form_batches, total_forms
 
     def _select_entry_id(
         self,
@@ -1205,15 +1142,17 @@ class LexiconBuilder:
 
     def _insert_forms(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
+        form_batches: list[list[dict[str, object]]],
         forms_count: int,
     ) -> None:
         """
         Insert projected morphology rows into ``lexicon_forms``.
 
         Args:
-            connection: Open SQLite connection receiving form inserts.
-            forms_count: Number of staged form payload rows to insert.
+            connection: Open SQLAlchemy connection receiving form inserts.
+            form_batches: Batched form payload rows to insert.
+            forms_count: Number of source ``forms`` rows being projected.
 
         """
         total = max(forms_count, 1)
@@ -1228,66 +1167,13 @@ class LexiconBuilder:
             total=total,
             detail="inserting rows",
         )
-        last_form_id = 0
         inserted = 0
-        while inserted < forms_count:
+        for batch in form_batches:
             self._check_cancel(stage=LexiconBuildStage.INSERT_FORMS)
-            prev_changes = connection.total_changes
-            connection.execute(
-                """
-                INSERT INTO lexicon_forms (
-                    form_id,
-                    entry_id,
-                    bt,
-                    title,
-                    stem,
-                    form,
-                    formi,
-                    wordclass,
-                    function,
-                    probability,
-                    class1,
-                    class2,
-                    class3,
-                    paradigm
-                )
-                SELECT
-                    form_id,
-                    entry_id,
-                    bt,
-                    title,
-                    stem,
-                    form,
-                    formi,
-                    wordclass,
-                    function,
-                    probability,
-                    class1,
-                    class2,
-                    class3,
-                    paradigm
-                FROM temp_lexicon_forms_stage
-                WHERE form_id > ?
-                ORDER BY form_id
-                LIMIT ?
-                """,
-                (last_form_id, self._form_stage_batch_size),
-            )
-            batch_inserted = connection.total_changes - prev_changes
-            if batch_inserted == 0:
-                break
-            row = connection.execute(
-                """
-                SELECT MAX(form_id)
-                FROM lexicon_forms
-                WHERE form_id > ?
-                """,
-                (last_form_id,),
-            ).fetchone()
-            if row is None or row[0] is None:
-                break
-            last_form_id = int(row[0])
-            inserted += batch_inserted
+            if not batch:
+                continue
+            connection.execute(insert(LexiconForm), batch)
+            inserted += len(batch)
             self._advance_stage(
                 LexiconBuildStage.INSERT_FORMS,
                 completed=inserted,
@@ -1309,12 +1195,12 @@ class LexiconBuilder:
 
     def _build_search_keys(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
         entries: list[EntryPayload],
         forms_count: int,
-    ) -> int:
+    ) -> list[dict[str, object]]:
         """
-        Stage ranked search-key rows for dictionary and morphology lookups.
+        Build ranked search-key rows for dictionary and morphology lookups.
 
         Note:
             Keys index diacritic-stripped ``normalize_old_english`` shapes so
@@ -1322,12 +1208,12 @@ class LexiconBuilder:
             use macron-preserving ``normalized_title`` in ``_select_entry_id``.
 
         Args:
-            connection: Open SQLite connection queried for inserted form rows.
+            connection: Open SQLAlchemy connection queried for inserted form rows.
             entries: Projected dictionary entry payloads.
             forms_count: Number of inserted morphology form rows.
 
         Returns:
-            Number of staged candidate rows for lexicon insertion.
+            Candidate search-key payload rows ready for lexicon insertion.
 
         """
         total = max(len(entries) + forms_count, 1)
@@ -1335,51 +1221,26 @@ class LexiconBuilder:
             LexiconBuildStage.BUILD_SEARCH_KEYS,
             total=total,
         )
-        connection.execute("DROP TABLE IF EXISTS temp_lexicon_search_keys_stage")
-        connection.execute(
-            """
-            CREATE TEMP TABLE temp_lexicon_search_keys_stage (
-                key_text TEXT NOT NULL,
-                key_kind TEXT NOT NULL,
-                rank_tier INTEGER NOT NULL,
-                entry_id INTEGER,
-                form_id INTEGER,
-                display_text TEXT NOT NULL
-            )
-            """
-        )
         progress_index = 0
         progress_total = total
-        staged_count = 0
+        search_key_rows: list[dict[str, object]] = []
 
         def add(row: SearchKeyRow) -> None:
-            nonlocal staged_count
             key_text, key_kind, rank_tier, entry_id, form_id, display_text = row
             normalized_key = key_text.strip()
             display = display_text.strip()
             if not normalized_key or not display:
                 return
-            connection.execute(
-                """
-                INSERT INTO temp_lexicon_search_keys_stage (
-                    key_text,
-                    key_kind,
-                    rank_tier,
-                    entry_id,
-                    form_id,
-                    display_text
-                ) VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    normalized_key,
-                    key_kind,
-                    rank_tier,
-                    entry_id,
-                    form_id,
-                    display,
-                ),
+            search_key_rows.append(
+                {
+                    "key_text": normalized_key,
+                    "key_kind": key_kind,
+                    "rank_tier": rank_tier,
+                    "entry_id": entry_id,
+                    "form_id": form_id,
+                    "display_text": display,
+                }
             )
-            staged_count += 1
 
         for entry in entries:
             progress_index += 1
@@ -1426,34 +1287,32 @@ class LexiconBuilder:
                 total=progress_total,
             )
 
-        form_cursor = connection.execute(
-            """
-            SELECT
-                lf.form_id,
-                lf.entry_id,
-                lf.bt,
-                lf.title,
-                lf.stem,
-                lf.form,
-                lf.formi,
-                f.bt_key,
-                f.title_key,
-                f.stem_key,
-                f.form_key,
-                f.formi_key
-            FROM lexicon_forms AS lf
-            JOIN forms AS f ON f.id = lf.form_id
-            ORDER BY lf.form_id ASC
-            """
-        )
-        for form in form_cursor:
+        form_rows = connection.execute(
+            select(
+                LexiconForm.form_id,
+                LexiconForm.entry_id,
+                LexiconForm.bt,
+                LexiconForm.title,
+                LexiconForm.stem,
+                LexiconForm.form,
+                LexiconForm.formi,
+                Form.bt_key,
+                Form.title_key,
+                Form.stem_key,
+                Form.form_key,
+                Form.formi_key,
+            )
+            .join(Form, Form.id == LexiconForm.form_id)
+            .order_by(LexiconForm.form_id.asc())
+        ).fetchall()
+        for form in form_rows:
             progress_index += 1
             self._check_cancel(
                 stage=LexiconBuildStage.BUILD_SEARCH_KEYS,
-                current_item=str(form["form"]),
+                current_item=str(form.form),
             )
-            form_id = int(form["form_id"])
-            form_entry_id = cast("int | None", form["entry_id"])
+            form_id = int(form.form_id)
+            form_entry_id = cast("int | None", form.entry_id)
             if form_entry_id is None:
                 rank_tier = RANK_TIER_ORPHAN
             else:
@@ -1461,32 +1320,32 @@ class LexiconBuilder:
 
             add(
                 (
-                    str(form["bt_key"]) or _normalize_morph_key(str(form["bt"])),
+                    str(form.bt_key) or _normalize_morph_key(str(form.bt)),
                     KEY_KIND_LEMMA,
                     rank_tier,
                     form_entry_id,
                     form_id,
-                    str(form["bt"]),
+                    str(form.bt),
                 )
             )
             add(
                 (
-                    str(form["title_key"]) or _normalize_morph_key(str(form["title"])),
+                    str(form.title_key) or _normalize_morph_key(str(form.title)),
                     KEY_KIND_LEMMA,
                     rank_tier,
                     form_entry_id,
                     form_id,
-                    str(form["title"]),
+                    str(form.title),
                 )
             )
             add(
                 (
-                    str(form["stem_key"]) or _normalize_morph_key(str(form["stem"])),
+                    str(form.stem_key) or _normalize_morph_key(str(form.stem)),
                     KEY_KIND_STEM,
                     rank_tier,
                     form_entry_id,
                     form_id,
-                    str(form["stem"]),
+                    str(form.stem),
                 )
             )
 
@@ -1495,22 +1354,22 @@ class LexiconBuilder:
             )
             add(
                 (
-                    str(form["form_key"]) or _normalize_morph_key(str(form["form"])),
+                    str(form.form_key) or _normalize_morph_key(str(form.form)),
                     KEY_KIND_FORM,
                     form_rank_tier,
                     form_entry_id,
                     form_id,
-                    str(form["form"]),
+                    str(form.form),
                 )
             )
             add(
                 (
-                    str(form["formi_key"]) or _normalize_morph_key(str(form["formi"])),
+                    str(form.formi_key) or _normalize_morph_key(str(form.formi)),
                     KEY_KIND_FORM,
                     form_rank_tier,
                     form_entry_id,
                     form_id,
-                    str(form["formi"]),
+                    str(form.formi),
                 )
             )
             self._advance_stage(
@@ -1519,24 +1378,25 @@ class LexiconBuilder:
                 total=progress_total,
             )
         self._finish_stage(LexiconBuildStage.BUILD_SEARCH_KEYS)
-        return staged_count
+        return search_key_rows
 
     def _insert_search_keys(
         self,
-        connection: sqlite3.Connection,
-        staged_count: int,
+        connection: Connection,
+        search_key_rows: list[dict[str, object]],
     ) -> int:
         """
-        Insert staged ranked search keys into ``lexicon_search_keys``.
+        Insert ranked search keys into ``lexicon_search_keys``.
 
         Args:
-            connection: Open SQLite connection receiving key inserts.
-            staged_count: Number of candidate rows staged in the TEMP table.
+            connection: Open SQLAlchemy connection receiving key inserts.
+            search_key_rows: Candidate search-key payload rows to insert.
 
         Returns:
             Number of rows written to ``lexicon_search_keys``.
 
         """
+        staged_count = len(search_key_rows)
         self._begin_stage(
             LexiconBuildStage.INSERT_SEARCH_KEYS,
             total=max(staged_count, 1),
@@ -1548,29 +1408,17 @@ class LexiconBuilder:
             total=max(staged_count, 1),
             detail="writing keys",
         )
-        connection.execute(
-            """
-            INSERT OR IGNORE INTO lexicon_search_keys (
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            )
-            SELECT
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            FROM temp_lexicon_search_keys_stage
-            ORDER BY rowid ASC
-            """,
-        )
+        if search_key_rows:
+            for offset in range(0, len(search_key_rows), self._form_stage_batch_size):
+                batch = search_key_rows[offset : offset + self._form_stage_batch_size]
+                connection.execute(
+                    insert(LexiconSearchKey).prefix_with("OR IGNORE"),
+                    batch,
+                )
         written = int(
-            connection.execute("SELECT COUNT(*) FROM lexicon_search_keys").fetchone()[0]
+            connection.execute(
+                select(func.count()).select_from(LexiconSearchKey)
+            ).scalar_one()
         )
         self._advance_stage(
             LexiconBuildStage.INSERT_SEARCH_KEYS,
@@ -1587,17 +1435,17 @@ class LexiconBuilder:
 
     def _insert_build_meta(
         self,
-        connection: sqlite3.Connection,
+        connection: Connection,
         *,
         built_at: str,
         forms_source_count: int,
         bt_entries_source_count: int,
     ) -> None:
         """
-        Write build metadata rows for schema version, timestamp, and source sizes.
+        Write build metadata rows for timestamp and source table sizes.
 
         Args:
-            connection: Open SQLite connection receiving metadata inserts.
+            connection: Open SQLAlchemy connection receiving metadata inserts.
 
         Keyword Args:
             built_at: ISO-8601 UTC rebuild timestamp.
@@ -1606,113 +1454,145 @@ class LexiconBuilder:
 
         """
         self._begin_stage(LexiconBuildStage.WRITE_META)
-        connection.executemany(
-            """
-            INSERT INTO lexicon_build_meta (key, value)
-            VALUES (?, ?)
-            """,
+        connection.execute(
+            insert(LexiconBuildMetaTable),
             [
-                (META_KEY_SCHEMA_VERSION, str(SCHEMA_VERSION)),
-                (META_KEY_BUILT_AT, built_at),
-                (META_KEY_FORMS_SOURCE_COUNT, str(forms_source_count)),
-                (META_KEY_BT_ENTRIES_SOURCE_COUNT, str(bt_entries_source_count)),
+                {"key": META_KEY_BUILT_AT, "value": built_at},
+                {"key": META_KEY_FORMS_SOURCE_COUNT, "value": str(forms_source_count)},
+                {
+                    "key": META_KEY_BT_ENTRIES_SOURCE_COUNT,
+                    "value": str(bt_entries_source_count),
+                },
             ],
         )
         self._finish_stage(LexiconBuildStage.WRITE_META)
 
 
-def read_lexicon_build_meta(connection: sqlite3.Connection) -> LexiconBuildMeta | None:
+def _open_db_connection(
+    target: DbTarget,
+) -> tuple[Connection, Engine | None, bool]:
     """
-    Read persisted lexicon build metadata from one SQLite connection.
+    Resolve one SQLAlchemy connection from a supported database target.
 
     Args:
-        connection: Open SQLite connection with ``lexicon_build_meta`` rows.
+        target: Engine, connection, or database path.
+
+    Returns:
+        Tuple of ``(connection, owned_engine, should_close_connection)``.
+
+    """
+    if isinstance(target, Path):
+        engine = create_sqlalchemy_engine(target.expanduser().resolve())
+        return engine.connect(), engine, True
+    if isinstance(target, Engine):
+        return target.connect(), None, True
+    return target, None, False
+
+
+def read_lexicon_build_meta(target: DbTarget) -> LexiconBuildMeta | None:
+    """
+    Read persisted lexicon build metadata from one database target.
+
+    Args:
+        target: Engine, connection, or database path with ``lexicon_build_meta`` rows.
 
     Returns:
         Parsed build metadata, or ``None`` when metadata rows are absent.
 
     """
+    connection, owned_engine, close_connection = _open_db_connection(target)
     try:
-        rows = connection.execute(
-            "SELECT key, value FROM lexicon_build_meta"
-        ).fetchall()
-    except sqlite3.OperationalError:
-        return None
+        try:
+            rows = connection.execute(
+                select(
+                    LexiconBuildMetaTable.key,
+                    LexiconBuildMetaTable.value,
+                )
+            ).fetchall()
+        except OperationalError:
+            return None
 
-    values = {str(row[0]): str(row[1]) for row in rows}
-    required = (
-        META_KEY_SCHEMA_VERSION,
-        META_KEY_BUILT_AT,
-        META_KEY_FORMS_SOURCE_COUNT,
-        META_KEY_BT_ENTRIES_SOURCE_COUNT,
-    )
-    if not all(key in values for key in required):
-        return None
+        values = {str(row.key): str(row.value) for row in rows}
+        required = (
+            META_KEY_BUILT_AT,
+            META_KEY_FORMS_SOURCE_COUNT,
+            META_KEY_BT_ENTRIES_SOURCE_COUNT,
+        )
+        if not all(key in values for key in required):
+            return None
 
-    return LexiconBuildMeta(
-        schema_version=int(values[META_KEY_SCHEMA_VERSION]),
-        built_at=values[META_KEY_BUILT_AT],
-        forms_source_count=int(values[META_KEY_FORMS_SOURCE_COUNT]),
-        bt_entries_source_count=int(values[META_KEY_BT_ENTRIES_SOURCE_COUNT]),
-    )
+        return LexiconBuildMeta(
+            built_at=values[META_KEY_BUILT_AT],
+            forms_source_count=int(values[META_KEY_FORMS_SOURCE_COUNT]),
+            bt_entries_source_count=int(values[META_KEY_BT_ENTRIES_SOURCE_COUNT]),
+        )
+    finally:
+        if close_connection:
+            connection.close()
+        if owned_engine is not None:
+            owned_engine.dispose()
 
 
-def lexicon_read_model_has_data(connection: sqlite3.Connection) -> bool:
+def lexicon_read_model_has_data(target: DbTarget) -> bool:
     """
     Return whether one database already contains populated lexicon read-model rows.
 
     Args:
-        connection: Open SQLite connection to inspect.
+        target: Engine, connection, or database path to inspect.
 
     Returns:
         ``True`` when build metadata or non-empty lexicon tables already exist.
 
     """
-    if read_lexicon_build_meta(connection) is not None:
-        return True
-    for table_name in (TABLE_LEXICON_ENTRIES, TABLE_LEXICON_FORMS):
-        try:
-            row = connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()  # noqa: S608
-        except sqlite3.OperationalError:
-            continue
-        if row is not None and int(row[0]) > 0:
+    connection, owned_engine, close_connection = _open_db_connection(target)
+    try:
+        if read_lexicon_build_meta(connection) is not None:
             return True
-    return False
+        for table in (LexiconEntry, LexiconForm):
+            try:
+                count = connection.execute(
+                    select(func.count()).select_from(table)
+                ).scalar_one()
+            except OperationalError:
+                continue
+            if int(count) > 0:
+                return True
+        return False
+    finally:
+        if close_connection:
+            connection.close()
+        if owned_engine is not None:
+            owned_engine.dispose()
 
 
-def check_lexicon_staleness(db_path: Path) -> LexiconStalenessReport:
+def check_lexicon_staleness(target: DbTarget) -> LexiconStalenessReport:
     """
     Compare stored lexicon build metadata against current source table sizes.
 
     Args:
-        db_path: Path to ``morphology.sqlite3`` containing source and lexicon tables.
+        target: Engine, connection, or path to ``wyrdcraeft.sqlite3`` with source and
+            lexicon tables.
 
     Returns:
         Staleness report describing whether ``lexicon build`` should be rerun.
 
     """
-    resolved_path = db_path.expanduser().resolve()
-    with sqlite3.connect(str(resolved_path)) as connection:
+    connection, owned_engine, close_connection = _open_db_connection(target)
+    try:
         current_forms_count = _count_table_rows(connection, "forms")
         current_bt_entries_count = _count_table_rows(connection, "bt_entries")
         meta = read_lexicon_build_meta(connection)
+    finally:
+        if close_connection:
+            connection.close()
+        if owned_engine is not None:
+            owned_engine.dispose()
 
     if meta is None:
         return LexiconStalenessReport(
             is_stale=True,
             reason="Lexicon read-model has not been built yet.",
             meta=None,
-            current_forms_count=current_forms_count,
-            current_bt_entries_count=current_bt_entries_count,
-        )
-
-    if meta.schema_version != SCHEMA_VERSION:
-        return LexiconStalenessReport(
-            is_stale=True,
-            reason=(
-                "Lexicon schema version changed; rebuild to refresh read-model tables."
-            ),
-            meta=meta,
             current_forms_count=current_forms_count,
             current_bt_entries_count=current_bt_entries_count,
         )
@@ -1744,12 +1624,12 @@ def check_lexicon_staleness(db_path: Path) -> LexiconStalenessReport:
     )
 
 
-def _count_table_rows(connection: sqlite3.Connection, table_name: str) -> int:
+def _count_table_rows(connection: Connection, table_name: str) -> int:
     """
     Count rows in one known source table when the table exists.
 
     Args:
-        connection: Open SQLite connection to inspect.
+        connection: Open SQLAlchemy connection to inspect.
         table_name: Target source table name.
 
     Returns:
@@ -1762,13 +1642,12 @@ def _count_table_rows(connection: sqlite3.Connection, table_name: str) -> int:
     if table_name not in _STALENESS_SOURCE_TABLES:
         msg = f"Unsupported staleness source table: {table_name}"
         raise ValueError(msg)
+    table = Form.__table__ if table_name == "forms" else BTEntry.__table__
     try:
-        row = connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()  # noqa: S608
-    except sqlite3.OperationalError:
+        count = connection.execute(select(func.count()).select_from(table)).scalar_one()
+    except OperationalError:
         return 0
-    if row is None:
-        return 0
-    return int(row[0])
+    return int(count)
 
 
 def rebuild_lexicon(
@@ -1780,10 +1659,10 @@ def rebuild_lexicon(
     runtime: LexiconBuildController | None = None,
 ) -> BuildReport:
     """
-    Rebuild lexicon read-model tables in the target morphology database.
+    Rebuild lexicon read-model tables in the target canonical database.
 
     Args:
-        db_path: Path to ``morphology.sqlite3`` containing ``forms`` and ``bt_*``.
+        db_path: Path to ``wyrdcraeft.sqlite3`` containing ``forms`` and ``bt_*``.
 
     Keyword Args:
         progress: Optional rebuild progress callback.

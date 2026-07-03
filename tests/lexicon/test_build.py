@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from tests.lexicon.source_db import make_lexicon_source_db
+from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.models.lexicon_build import (
     BuildCounterUpdated,
     BuildLog,
@@ -35,13 +36,10 @@ from wyrdcraeft.services.lexicon.schema import (
     META_KEY_BT_ENTRIES_SOURCE_COUNT,
     META_KEY_BUILT_AT,
     META_KEY_FORMS_SOURCE_COUNT,
-    META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
     RANK_TIER_MORPH_FORM,
     RANK_TIER_MORPH_LEMMA_STEM,
     RANK_TIER_ORPHAN,
-    SCHEMA_VERSION,
-    create_lexicon_tables,
 )
 from wyrdcraeft.services.morphology.generation.common import print_one_form
 from wyrdcraeft.services.morphology.generation.sinks import (
@@ -60,7 +58,6 @@ def test_rebuild_lexicon_projects_entries_forms_keys_and_meta(
 ) -> None:
     report = rebuild_lexicon(lexicon_source_db)
 
-    assert report.schema_version == SCHEMA_VERSION
     assert report.bt_entries_source_count > 0
     assert report.forms_source_count > 0
     assert report.entries_written == report.bt_entries_source_count
@@ -123,7 +120,6 @@ def test_rebuild_lexicon_projects_entries_forms_keys_and_meta(
                 "SELECT key, value FROM lexicon_build_meta ORDER BY key"
             ).fetchall()
         )
-        assert meta_rows[META_KEY_SCHEMA_VERSION] == str(SCHEMA_VERSION)
         assert meta_rows[META_KEY_FORMS_SOURCE_COUNT] == str(report.forms_source_count)
         assert meta_rows[META_KEY_BT_ENTRIES_SOURCE_COUNT] == str(
             report.bt_entries_source_count
@@ -235,12 +231,12 @@ def test_rebuild_lexicon_joins_abbod_form_via_variant_normalized_title(
     assert row["norm_key"] == "abbad"
 
 
-def test_create_lexicon_tables_dedupes_null_join_search_keys_with_insert_or_ignore(
+def test_alembic_managed_search_keys_dedupe_null_join_rows_with_insert_or_ignore(
     tmp_path: Path,
 ) -> None:
     db_path = tmp_path / "search-keys-dedupe.sqlite3"
+    upgrade_canonical_db(db_path)
     with sqlite3.connect(db_path) as connection:
-        create_lexicon_tables(connection)
         connection.execute(
             """
             INSERT OR IGNORE INTO lexicon_search_keys (
@@ -294,52 +290,37 @@ def test_rebuild_lexicon_reports_search_keys_counter_from_db_truth(
 
     def build_duplicates(
         self: LexiconBuilder,
-        connection: sqlite3.Connection,
+        connection: object,
         entries: list[dict[str, object]],
         forms_count: int,
-    ) -> int:
+    ) -> list[dict[str, object]]:
         original(self, connection, entries, forms_count)
-        connection.execute("DELETE FROM temp_lexicon_search_keys_stage")
-        connection.execute(
-            """
-            INSERT INTO temp_lexicon_search_keys_stage (
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            ("abbad", KEY_KIND_LEMMA, RANK_TIER_EXACT_ENTRY, 1, None, "abbad"),
-        )
-        connection.execute(
-            """
-            INSERT INTO temp_lexicon_search_keys_stage (
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            ("abbad", KEY_KIND_LEMMA, RANK_TIER_EXACT_ENTRY, 1, None, "abbad"),
-        )
-        connection.execute(
-            """
-            INSERT INTO temp_lexicon_search_keys_stage (
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            ("abbode", KEY_KIND_VARIANT, RANK_TIER_EXACT_ENTRY, 1, None, "abbode"),
-        )
-        return 3
+        return [
+            {
+                "key_text": "abbad",
+                "key_kind": KEY_KIND_LEMMA,
+                "rank_tier": RANK_TIER_EXACT_ENTRY,
+                "entry_id": 1,
+                "form_id": None,
+                "display_text": "abbad",
+            },
+            {
+                "key_text": "abbad",
+                "key_kind": KEY_KIND_LEMMA,
+                "rank_tier": RANK_TIER_EXACT_ENTRY,
+                "entry_id": 1,
+                "form_id": None,
+                "display_text": "abbad",
+            },
+            {
+                "key_text": "abbode",
+                "key_kind": KEY_KIND_VARIANT,
+                "rank_tier": RANK_TIER_EXACT_ENTRY,
+                "entry_id": 1,
+                "form_id": None,
+                "display_text": "abbode",
+            },
+        ]
 
     monkeypatch.setattr(LexiconBuilder, "_build_search_keys", build_duplicates)
 
@@ -405,8 +386,7 @@ def test_check_lexicon_staleness_detects_new_forms_rows(
 def test_build_then_query_integration_smoke(lexicon_source_db: Path) -> None:
     report = rebuild_lexicon(lexicon_source_db)
 
-    with sqlite3.connect(lexicon_source_db) as connection:
-        meta = read_lexicon_build_meta(connection)
+    meta = read_lexicon_build_meta(lexicon_source_db)
 
     assert meta is not None
     assert meta.built_at == report.built_at

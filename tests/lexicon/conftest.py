@@ -10,15 +10,13 @@ import pytest
 from wyrdcraeft.cli import (
     cli as _cli,  # noqa: F401 - ensure CLI loaded before generation imports
 )
+from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_FORM,
     KEY_KIND_LEMMA,
     META_KEY_BUILT_AT,
-    META_KEY_SCHEMA_VERSION,
     RANK_TIER_EXACT_ENTRY,
     RANK_TIER_ORPHAN,
-    SCHEMA_VERSION,
-    create_lexicon_tables,
 )
 
 if TYPE_CHECKING:
@@ -36,8 +34,7 @@ def lexicon_db_path(tmp_path: Path) -> Path:
 
     """
     db_path = tmp_path / "lexicon-test.sqlite3"
-    with sqlite3.connect(db_path) as connection:
-        create_lexicon_tables(connection)
+    upgrade_canonical_db(db_path)
     return db_path
 
 
@@ -196,7 +193,6 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
             INSERT INTO lexicon_build_meta (key, value) VALUES (?, ?)
             """,
             [
-                (META_KEY_SCHEMA_VERSION, str(SCHEMA_VERSION)),
                 (META_KEY_BUILT_AT, "2026-06-28T00:00:00Z"),
             ],
         )
