@@ -1,15 +1,23 @@
-"""SQLite persistence for Bosworth-Toller dictionary index entries."""
+"""SQLAlchemy persistence for canonical Bosworth-Toller dictionary entries."""
 
 from __future__ import annotations
 
 import json
-import sqlite3
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
+from sqlalchemy import Table, delete, insert
+from sqlalchemy.orm import sessionmaker
+
+from wyrdcraeft.db.base import Base
+from wyrdcraeft.db.runtime import create_engine
+from wyrdcraeft.models.sqlalchemy import BTEditLog, BTEntry, BTSense, BTVariant
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from sqlalchemy.engine import Engine
+    from sqlalchemy.orm import Session
 
     from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTGender
     from wyrdcraeft.services.dictionary.editorial_merger import BTEditRecord
@@ -17,177 +25,88 @@ if TYPE_CHECKING:
 
 class BTSqliteSink:
     """
-    SQLite sink that persists consolidated Bosworth-Toller dictionary entries.
+    SQLAlchemy sink that persists consolidated Bosworth-Toller dictionary entries.
 
-    In default mode, rebuilds the ``bt_*`` schema on each index run so the
-    database reflects one complete source pass. In attach mode, writes ``bt_*``
-    tables into an existing morphology database without modifying ``forms``.
+    Dictionary writes reload the ``bt_*`` slice in place. Product attach-style
+    usage preserves non-``bt_*`` tables inside an existing canonical database,
+    while direct non-attach usage may bootstrap a scratch SQLite file for tests
+    and pipeline-only callers.
 
     Args:
-        db_path: Path to ``dictionary.sqlite3`` or ``morphology.sqlite3`` output.
-        attach_mode: When ``True``, preserve non-``bt_*`` tables and reload
-            dictionary rows in place.
+        db_path: Path to the canonical ``wyrdcraeft.sqlite3`` output.
+
+    Keyword Args:
+        attach_mode: Legacy compatibility flag retained for callers that still
+            pass it. Standalone dictionary mode no longer exists.
 
     """
 
     #: Resolved SQLite database file path.
     db_path: Path
-    #: When ``True``, preserve non-``bt_*`` tables and reload dictionary rows.
+    #: Compatibility flag preserved for legacy callers.
     attach_mode: bool
-    #: Active SQLite connection.
-    _connection: sqlite3.Connection
+    #: SQLAlchemy engine bound to the canonical database.
+    _engine: Engine
+    #: SQLAlchemy session factory for dictionary writes.
+    _session_factory: sessionmaker[Session]
     #: Display spelling normalizer for variant macronization.
     _spelling_normalizer: BTSpellingNormalizer
 
     def __init__(self, db_path: Path, *, attach_mode: bool = False) -> None:
         """
-        Initialize the dictionary SQLite sink and prepare the ``bt_*`` schema.
+        Initialize the dictionary sink for canonical or direct pipeline usage.
 
         Args:
-            db_path: Path to ``dictionary.sqlite3`` or ``morphology.sqlite3``.
+            db_path: Path to the canonical SQLite database file.
 
         Keyword Args:
-            attach_mode: When ``True``, attach ``bt_*`` tables to an existing
-                morphology database without altering ``forms``.
+            attach_mode: Legacy compatibility flag. Standalone mode has been
+                removed from product flows. When ``True``, the target database
+                must already exist.
 
         Side Effects:
-            In default mode, removes any existing database file at ``db_path``
-            and creates a fresh schema with lookup indexes. In attach mode,
-            creates the file when missing, ensures ``bt_*`` tables exist, and
-            truncates prior ``bt_*`` contents before reload.
+            Ensures ``bt_*`` tables exist in the target database and truncates
+            prior ``bt_*`` contents before reload.
+
+        Raises:
+            FileNotFoundError: ``attach_mode`` was requested but the target
+                database does not exist yet.
 
         """
         resolved = db_path.expanduser().resolve()
         resolved.parent.mkdir(parents=True, exist_ok=True)
-        if not attach_mode and resolved.exists():
-            resolved.unlink()
+        if attach_mode and not resolved.is_file():
+            msg = f"Canonical database not found: {resolved}"
+            raise FileNotFoundError(msg)
         #: Resolved SQLite database file path.
         self.db_path = resolved
-        #: When ``True``, preserve non-``bt_*`` tables and reload dictionary rows.
+        #: Compatibility flag preserved for legacy callers.
         self.attach_mode = attach_mode
-        #: Active SQLite connection.
-        self._connection = sqlite3.connect(str(resolved))
+        #: SQLAlchemy engine bound to the canonical database.
+        self._engine = create_engine(resolved)
+        #: SQLAlchemy session factory for dictionary writes.
+        self._session_factory = sessionmaker(bind=self._engine, future=True)
         #: Display spelling normalizer for variant macronization.
         self._spelling_normalizer = BTSpellingNormalizer()
         self._init_schema()
 
     def _init_schema(self) -> None:
-        """Create or refresh dictionary index tables and lookup indexes."""
-        if self.attach_mode:
-            self._ensure_bt_schema()
-            self._truncate_bt_tables()
-        else:
-            self._create_bt_schema()
-
-    def _create_bt_schema(self) -> None:
-        """Create a fresh ``bt_*`` schema for standalone dictionary indexing."""
-        self._connection.executescript(
-            """
-            CREATE TABLE bt_entries (
-                id INTEGER PRIMARY KEY,
-                norm_key TEXT NOT NULL,
-                headword_raw TEXT NOT NULL,
-                headword_macronized TEXT NOT NULL,
-                pos TEXT NOT NULL,
-                genders_json TEXT NOT NULL,
-                etymology TEXT NOT NULL,
-                see_also_json TEXT NOT NULL,
-                source_line_nos_json TEXT NOT NULL,
-                UNIQUE(norm_key, pos)
-            );
-
-            CREATE TABLE bt_senses (
-                id INTEGER PRIMARY KEY,
-                entry_id INTEGER NOT NULL REFERENCES bt_entries(id),
-                sense_label TEXT NOT NULL,
-                gloss_en TEXT NOT NULL,
-                order_index INTEGER NOT NULL
-            );
-
-            CREATE TABLE bt_variants (
-                entry_id INTEGER NOT NULL REFERENCES bt_entries(id),
-                spelling_raw TEXT NOT NULL,
-                spelling_macronized TEXT NOT NULL
-            );
-
-            CREATE TABLE bt_edit_log (
-                id INTEGER PRIMARY KEY,
-                op TEXT NOT NULL,
-                source_line_no INTEGER NOT NULL,
-                target_norm_key TEXT NOT NULL,
-                target_pos TEXT NOT NULL,
-                scope TEXT NOT NULL,
-                applied INTEGER NOT NULL,
-                note TEXT NOT NULL
-            );
-
-            CREATE INDEX idx_bt_entries_norm_key ON bt_entries(norm_key);
-            CREATE INDEX idx_bt_variants_spelling ON bt_variants(spelling_macronized);
-            """
-        )
-        self._connection.commit()
-
-    def _ensure_bt_schema(self) -> None:
-        """Ensure ``bt_*`` tables and indexes exist without altering ``forms``."""
-        self._connection.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS bt_entries (
-                id INTEGER PRIMARY KEY,
-                norm_key TEXT NOT NULL,
-                headword_raw TEXT NOT NULL,
-                headword_macronized TEXT NOT NULL,
-                pos TEXT NOT NULL,
-                genders_json TEXT NOT NULL,
-                etymology TEXT NOT NULL,
-                see_also_json TEXT NOT NULL,
-                source_line_nos_json TEXT NOT NULL,
-                UNIQUE(norm_key, pos)
-            );
-
-            CREATE TABLE IF NOT EXISTS bt_senses (
-                id INTEGER PRIMARY KEY,
-                entry_id INTEGER NOT NULL REFERENCES bt_entries(id),
-                sense_label TEXT NOT NULL,
-                gloss_en TEXT NOT NULL,
-                order_index INTEGER NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS bt_variants (
-                entry_id INTEGER NOT NULL REFERENCES bt_entries(id),
-                spelling_raw TEXT NOT NULL,
-                spelling_macronized TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS bt_edit_log (
-                id INTEGER PRIMARY KEY,
-                op TEXT NOT NULL,
-                source_line_no INTEGER NOT NULL,
-                target_norm_key TEXT NOT NULL,
-                target_pos TEXT NOT NULL,
-                scope TEXT NOT NULL,
-                applied INTEGER NOT NULL,
-                note TEXT NOT NULL
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_bt_entries_norm_key
-                ON bt_entries(norm_key);
-            CREATE INDEX IF NOT EXISTS idx_bt_variants_spelling
-                ON bt_variants(spelling_macronized);
-            """
-        )
-        self._connection.commit()
-
-    def _truncate_bt_tables(self) -> None:
-        """Remove prior ``bt_*`` rows while leaving morphology tables untouched."""
-        self._connection.executescript(
-            """
-            DELETE FROM bt_senses;
-            DELETE FROM bt_variants;
-            DELETE FROM bt_edit_log;
-            DELETE FROM bt_entries;
-            """
-        )
-        self._connection.commit()
+        """Ensure ``bt_*`` tables exist and clear prior dictionary rows."""
+        with self._engine.begin() as connection:
+            Base.metadata.create_all(
+                bind=connection,
+                tables=[
+                    cast("Table", BTEntry.__table__),
+                    cast("Table", BTSense.__table__),
+                    cast("Table", BTVariant.__table__),
+                    cast("Table", BTEditLog.__table__),
+                ],
+                checkfirst=True,
+            )
+            connection.execute(delete(BTSense))
+            connection.execute(delete(BTVariant))
+            connection.execute(delete(BTEditLog))
+            connection.execute(delete(BTEntry))
 
     @staticmethod
     def _genders_json(genders: list[BTGender]) -> str:
@@ -221,102 +140,77 @@ class BTSqliteSink:
 
         Side Effects:
             Inserts rows into ``bt_entries``, ``bt_senses``, ``bt_variants``, and
-            ``bt_edit_log``.
+            ``bt_edit_log`` inside one explicit transaction.
 
         """
         entries_written = 0
-        senses_written = 0
-        variants_written = 0
+        sense_rows: list[dict[str, object]] = []
+        variant_rows: list[dict[str, object]] = []
 
-        for entry in entries:
-            cursor = self._connection.execute(
-                """
-                INSERT INTO bt_entries (
-                    norm_key,
-                    headword_raw,
-                    headword_macronized,
-                    pos,
-                    genders_json,
-                    etymology,
-                    see_also_json,
-                    source_line_nos_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    entry.norm_key,
-                    entry.headword_raw,
-                    entry.headword_macronized,
-                    entry.pos.value,
-                    self._genders_json(entry.genders),
-                    entry.etymology,
-                    json.dumps(entry.see_also, ensure_ascii=False),
-                    json.dumps(entry.source_line_nos),
-                ),
-            )
-            entry_id_raw = cursor.lastrowid
-            if entry_id_raw is None:
-                msg = "INSERT into bt_entries did not return a row id"
-                raise RuntimeError(msg)
-            entry_id = int(entry_id_raw)
-            entries_written += 1
-
-            for order_index, sense in enumerate(entry.senses):
-                self._connection.execute(
-                    """
-                    INSERT INTO bt_senses (
-                        entry_id,
-                        sense_label,
-                        gloss_en,
-                        order_index
-                    ) VALUES (?, ?, ?, ?)
-                    """,
-                    (entry_id, sense.sense_label, sense.gloss_en, order_index),
+        with self._session_factory.begin() as session:
+            for entry in entries:
+                entry_row = BTEntry(
+                    norm_key=entry.norm_key,
+                    headword_raw=entry.headword_raw,
+                    headword_macronized=entry.headword_macronized,
+                    pos=entry.pos.value,
+                    genders_json=self._genders_json(entry.genders),
+                    etymology=entry.etymology,
+                    see_also_json=json.dumps(entry.see_also, ensure_ascii=False),
+                    source_line_nos_json=json.dumps(entry.source_line_nos),
                 )
-                senses_written += 1
+                session.add(entry_row)
+                session.flush()
+                entry_id = int(entry_row.id)
+                entries_written += 1
 
-            for variant_raw in entry.variants:
-                variant_macronized = self._spelling_normalizer.normalize(variant_raw)
-                self._connection.execute(
-                    """
-                    INSERT INTO bt_variants (
-                        entry_id,
-                        spelling_raw,
-                        spelling_macronized
-                    ) VALUES (?, ?, ?)
-                    """,
-                    (entry_id, variant_raw, variant_macronized),
+                sense_rows.extend(
+                    {
+                        "entry_id": entry_id,
+                        "sense_label": sense.sense_label,
+                        "gloss_en": sense.gloss_en,
+                        "order_index": order_index,
+                    }
+                    for order_index, sense in enumerate(entry.senses)
                 )
-                variants_written += 1
+                variant_rows.extend(
+                    {
+                        "entry_id": entry_id,
+                        "spelling_raw": variant_raw,
+                        "spelling_macronized": self._spelling_normalizer.normalize(
+                            variant_raw
+                        ),
+                    }
+                    for variant_raw in entry.variants
+                )
 
-        edit_log_written = 0
-        for record in edit_records:
-            self._connection.execute(
-                """
-                INSERT INTO bt_edit_log (
-                    op,
-                    source_line_no,
-                    target_norm_key,
-                    target_pos,
-                    scope,
-                    applied,
-                    note
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    record.op.value,
-                    record.source_line_no,
-                    record.target_norm_key,
-                    record.target_pos.value,
-                    record.scope,
-                    int(record.applied),
-                    record.note,
-                ),
-            )
-            edit_log_written += 1
+            if sense_rows:
+                session.execute(insert(BTSense), sense_rows)
+            if variant_rows:
+                session.execute(insert(BTVariant), variant_rows)
 
-        self._connection.commit()
-        return entries_written, senses_written, variants_written, edit_log_written
+            edit_rows = [
+                {
+                    "op": record.op.value,
+                    "source_line_no": record.source_line_no,
+                    "target_norm_key": record.target_norm_key,
+                    "target_pos": record.target_pos.value,
+                    "scope": record.scope,
+                    "applied": int(record.applied),
+                    "note": record.note,
+                }
+                for record in edit_records
+            ]
+            if edit_rows:
+                session.execute(insert(BTEditLog), edit_rows)
+
+        return (
+            entries_written,
+            len(sense_rows),
+            len(variant_rows),
+            len(edit_records),
+        )
 
     def close(self) -> None:
-        """Close the SQLite connection."""
-        self._connection.close()
+        """Dispose the SQLAlchemy engine for this sink."""
+        self._engine.dispose()

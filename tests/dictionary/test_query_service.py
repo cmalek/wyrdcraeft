@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -28,8 +29,29 @@ _SAMPLE_LINES = (
 )
 
 
+def _seed_forms_table(db_path: Path, row_count: int) -> int:
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(
+            """
+            CREATE TABLE forms (
+                id INTEGER PRIMARY KEY,
+                lemma TEXT NOT NULL
+            );
+            """
+        )
+        for index in range(row_count):
+            conn.execute(
+                "INSERT INTO forms (lemma) VALUES (?)",
+                (f"lemma-{index}",),
+            )
+        conn.commit()
+    return row_count
+
+
 def _index_fixture(source: Path, temp_dir: Path) -> Path:
     index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    if not index_db.exists():
+        _seed_forms_table(index_db, row_count=1)
     sink = BTSqliteSink(index_db)
     try:
         BTIndexPipeline().run(source, sink)
@@ -147,3 +169,29 @@ def test_lookup_by_norm_key_uses_normalize_old_english(sample_index_db: Path) ->
         service.close()
 
     assert any(entry.norm_key == "abbad" for entry in entries)
+
+
+def test_lookup_reads_dictionary_rows_from_canonical_db(
+    temp_dir: Path,
+) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    initial_forms = _seed_forms_table(index_db, row_count=3)
+    sink = BTSqliteSink(index_db)
+    try:
+        BTIndexPipeline().run(_SAMPLE_LINES, sink)
+    finally:
+        sink.close()
+
+    with sqlite3.connect(index_db) as conn:
+        forms_count = conn.execute("SELECT COUNT(*) FROM forms").fetchone()[0]
+    assert forms_count == initial_forms
+
+    service = BTQueryService(index_db)
+    try:
+        entries = service.lookup_lemma("abbod", pos="noun")
+    finally:
+        service.close()
+
+    assert len(entries) == 1
+    assert entries[0].norm_key == "abbad"
+    assert entries[0].pos == BTPos.NOUN

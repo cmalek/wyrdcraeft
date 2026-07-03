@@ -1,11 +1,13 @@
-"""SQLite-backed Bosworth-Toller dictionary query service."""
+"""SQLAlchemy-backed Bosworth-Toller dictionary query service."""
 
 from __future__ import annotations
 
 import json
-import sqlite3
 from typing import TYPE_CHECKING
 
+from sqlalchemy import text
+
+from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import (
     BTConsolidatedEntry,
     BTGender,
@@ -16,6 +18,9 @@ from wyrdcraeft.services.markup import normalize_old_english
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from sqlalchemy.engine import Connection, Engine
+
 
 #: CLI POS aliases mapped to stored ``bt_entries.pos`` values.
 _POS_ALIASES: dict[str, str] = {
@@ -113,27 +118,30 @@ def _entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
 
 class BTQueryService:
     """
-    Query interface over consolidated Bosworth-Toller entries in SQLite.
+    Query interface over consolidated Bosworth-Toller entries in the canonical DB.
 
     Args:
-        db_path: Path to ``dictionary.sqlite3`` or attach-mode morphology DB.
+        db_path: Path to ``wyrdcraeft.sqlite3`` containing ``bt_*`` tables.
 
     """
 
-    #: Active SQLite connection.
-    _connection: sqlite3.Connection
+    #: SQLAlchemy engine bound to the canonical dictionary database.
+    _engine: Engine
+    #: Active SQLAlchemy connection for dictionary lookups.
+    _connection: Connection
 
     def __init__(self, db_path: Path) -> None:
         """
-        Initialize a SQLite query service for a dictionary index database.
+        Initialize a query service for canonical dictionary tables.
 
         Args:
             db_path: Path to SQLite database file containing ``bt_*`` tables.
 
         """
-        #: Active SQLite connection.
-        self._connection = sqlite3.connect(str(db_path))
-        self._connection.row_factory = sqlite3.Row
+        #: SQLAlchemy engine bound to the canonical dictionary database.
+        self._engine = create_sqlalchemy_engine(db_path)
+        #: Active SQLAlchemy connection for dictionary lookups.
+        self._connection = self._engine.connect()
 
     def lookup_lemma(
         self,
@@ -199,63 +207,74 @@ class BTQueryService:
         """
         if pos_filter is not None:
             direct_rows = self._connection.execute(
-                """
-                SELECT e.id
-                FROM bt_entries e
-                WHERE e.norm_key = ? AND e.pos = ?
-                ORDER BY e.norm_key, e.pos, e.id
-                """,
-                (lookup_key, pos_filter),
-            ).fetchall()
+                text(
+                    """
+                    SELECT e.id
+                    FROM bt_entries e
+                    WHERE e.norm_key = :lookup_key AND e.pos = :pos_filter
+                    ORDER BY e.norm_key, e.pos, e.id
+                    """
+                ),
+                {"lookup_key": lookup_key, "pos_filter": pos_filter},
+            ).mappings().all()
         else:
             direct_rows = self._connection.execute(
-                """
-                SELECT e.id
-                FROM bt_entries e
-                WHERE e.norm_key = ?
-                ORDER BY e.norm_key, e.pos, e.id
-                """,
-                (lookup_key,),
-            ).fetchall()
+                text(
+                    """
+                    SELECT e.id
+                    FROM bt_entries e
+                    WHERE e.norm_key = :lookup_key
+                    ORDER BY e.norm_key, e.pos, e.id
+                    """
+                ),
+                {"lookup_key": lookup_key},
+            ).mappings().all()
         entry_ids = [int(row["id"]) for row in direct_rows]
         if entry_ids:
             return entry_ids
 
-        has_norm_key_rows = self._connection.execute(
-            """
-            SELECT 1
-            FROM bt_entries
-            WHERE norm_key = ?
-            LIMIT 1
-            """,
-            (lookup_key,),
-        ).fetchone()
-        if has_norm_key_rows is not None:
+        has_norm_key_row = self._connection.execute(
+            text(
+                """
+                SELECT 1
+                FROM bt_entries
+                WHERE norm_key = :lookup_key
+                LIMIT 1
+                """
+            ),
+            {"lookup_key": lookup_key},
+        ).first()
+        if has_norm_key_row is not None:
             return []
 
         if pos_filter is not None:
             variant_rows = self._connection.execute(
-                """
-                SELECT v.entry_id, v.spelling_raw
-                FROM bt_variants v
-                JOIN bt_entries e ON e.id = v.entry_id
-                WHERE e.pos = ?
-                ORDER BY v.entry_id
-                """,
-                (pos_filter,),
-            ).fetchall()
+                text(
+                    """
+                    SELECT v.entry_id, v.spelling_raw
+                    FROM bt_variants v
+                    JOIN bt_entries e ON e.id = v.entry_id
+                    WHERE e.pos = :pos_filter
+                    ORDER BY v.entry_id
+                    """
+                ),
+                {"pos_filter": pos_filter},
+            ).mappings().all()
         else:
             variant_rows = self._connection.execute(
-                """
-                SELECT v.entry_id, v.spelling_raw
-                FROM bt_variants v
-                ORDER BY v.entry_id
-                """,
-            ).fetchall()
+                text(
+                    """
+                    SELECT v.entry_id, v.spelling_raw
+                    FROM bt_variants v
+                    ORDER BY v.entry_id
+                    """
+                )
+            ).mappings().all()
+
         matched: list[int] = []
         seen: set[int] = set()
         for row in variant_rows:
-            variant_key = _normalize_lookup_key(row["spelling_raw"])
+            variant_key = _normalize_lookup_key(str(row["spelling_raw"]))
             if variant_key != lookup_key:
                 continue
             entry_id = int(row["entry_id"])
@@ -267,7 +286,7 @@ class BTQueryService:
 
     def _load_entry(self, entry_id: int) -> BTConsolidatedEntry:
         """
-        Reconstruct one consolidated entry from persisted SQLite rows.
+        Reconstruct one consolidated entry from persisted dictionary rows.
 
         Args:
             entry_id: Primary key in ``bt_entries``.
@@ -277,66 +296,73 @@ class BTQueryService:
 
         """
         row = self._connection.execute(
-            """
-            SELECT
-                norm_key,
-                headword_raw,
-                headword_macronized,
-                pos,
-                genders_json,
-                etymology,
-                see_also_json,
-                source_line_nos_json
-            FROM bt_entries
-            WHERE id = ?
-            """,
-            (entry_id,),
-        ).fetchone()
+            text(
+                """
+                SELECT
+                    norm_key,
+                    headword_raw,
+                    headword_macronized,
+                    pos,
+                    genders_json,
+                    etymology,
+                    see_also_json,
+                    source_line_nos_json
+                FROM bt_entries
+                WHERE id = :entry_id
+                """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().first()
         if row is None:
             msg = f"bt_entries row {entry_id} not found"
             raise LookupError(msg)
 
         sense_rows = self._connection.execute(
-            """
-            SELECT sense_label, gloss_en
-            FROM bt_senses
-            WHERE entry_id = ?
-            ORDER BY order_index ASC, id ASC
-            """,
-            (entry_id,),
-        ).fetchall()
+            text(
+                """
+                SELECT sense_label, gloss_en
+                FROM bt_senses
+                WHERE entry_id = :entry_id
+                ORDER BY order_index ASC, id ASC
+                """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().all()
         variant_rows = self._connection.execute(
-            """
-            SELECT spelling_raw
-            FROM bt_variants
-            WHERE entry_id = ?
-            ORDER BY spelling_raw ASC, rowid ASC
-            """,
-            (entry_id,),
-        ).fetchall()
+            text(
+                """
+                SELECT spelling_raw
+                FROM bt_variants
+                WHERE entry_id = :entry_id
+                ORDER BY spelling_raw ASC, rowid ASC
+                """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().all()
 
         return BTConsolidatedEntry(
-            norm_key=row["norm_key"],
-            headword_raw=row["headword_raw"],
-            headword_macronized=row["headword_macronized"],
-            pos=BTPos(row["pos"]),
-            genders=_genders_from_json(row["genders_json"]),
-            variants=[variant_row["spelling_raw"] for variant_row in variant_rows],
+            norm_key=str(row["norm_key"]),
+            headword_raw=str(row["headword_raw"]),
+            headword_macronized=str(row["headword_macronized"]),
+            pos=BTPos(str(row["pos"])),
+            genders=_genders_from_json(str(row["genders_json"])),
+            variants=[str(variant_row["spelling_raw"]) for variant_row in variant_rows],
             senses=[
                 BTSense(
-                    sense_label=sense_row["sense_label"],
-                    gloss_en=sense_row["gloss_en"],
+                    sense_label=str(sense_row["sense_label"]),
+                    gloss_en=str(sense_row["gloss_en"]),
                 )
                 for sense_row in sense_rows
             ],
-            etymology=row["etymology"],
-            see_also=json.loads(row["see_also_json"]),
-            source_line_nos=json.loads(row["source_line_nos_json"]),
+            etymology=str(row["etymology"]),
+            see_also=json.loads(str(row["see_also_json"])),
+            source_line_nos=json.loads(str(row["source_line_nos_json"])),
         )
 
     def close(self) -> None:
-        """Close the SQLite query connection."""
+        """Close the SQLAlchemy connection and dispose the engine."""
         self._connection.close()
+        self._engine.dispose()
 
 
 __all__ = ["BTQueryService", "entry_to_dict"]

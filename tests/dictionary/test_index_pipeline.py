@@ -27,8 +27,29 @@ _SAMPLE_LINES = (
 )
 
 
+def _seed_forms_table(db_path: Path, row_count: int) -> int:
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(
+            """
+            CREATE TABLE forms (
+                id INTEGER PRIMARY KEY,
+                lemma TEXT NOT NULL
+            );
+            """
+        )
+        for index in range(row_count):
+            conn.execute(
+                "INSERT INTO forms (lemma) VALUES (?)",
+                (f"lemma-{index}",),
+            )
+        conn.commit()
+    return row_count
+
+
 def _index_fixture(source: Path, temp_dir: Path) -> tuple[Path, dict[str, object]]:
     index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    if not index_db.exists():
+        _seed_forms_table(index_db, row_count=1)
     sink = BTSqliteSink(index_db)
     try:
         report = BTIndexPipeline().run(source, sink)
@@ -148,6 +169,27 @@ def test_index_pipeline_schema_indexes(temp_dir: Path) -> None:
             ).fetchall()
         }
         assert {"bt_entries", "bt_senses", "bt_variants", "bt_edit_log"} <= tables
+
+
+def test_index_pipeline_preserves_existing_forms_in_canonical_db(
+    temp_dir: Path,
+) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    initial_forms = _seed_forms_table(index_db, row_count=4)
+
+    sink = BTSqliteSink(index_db)
+    try:
+        report = BTIndexPipeline().run(_SAMPLE_LINES, sink)
+    finally:
+        sink.close()
+
+    with sqlite3.connect(index_db) as conn:
+        forms_count = conn.execute("SELECT COUNT(*) FROM forms").fetchone()[0]
+        bt_count = conn.execute("SELECT COUNT(*) FROM bt_entries").fetchone()[0]
+
+    assert forms_count == initial_forms
+    assert bt_count == report.merged
+    assert bt_count > 0
 
 
 @pytest.mark.slow
