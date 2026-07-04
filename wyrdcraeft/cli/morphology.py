@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import click
 
 from wyrdcraeft.paths import get_canonical_db_path
+from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -43,6 +44,7 @@ from wyrdcraeft.services.morphology.session import GeneratorSession
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from wyrdcraeft.services.morphology.contracts import ParityFormOutput
     from wyrdcraeft.settings import Settings
 
 
@@ -66,13 +68,14 @@ def _current_stage_total(
     )[stage]
 
 
-def _run_generation_stage(
+def _run_generation_stage(  # noqa: PLR0913
     *,
     session: GeneratorSession,
-    output_sink: CompositeSink,
+    output_sink: ParityFormOutput,
     progress: MorphologyGenerateProgressCoordinator,
     stage: MorphologyStage,
     generator: Callable[..., None],
+    profiler: MorphologyBuildProfiler,
 ) -> None:
     """
     Run one morphology stage with synchronized progress start and finish hooks.
@@ -83,14 +86,89 @@ def _run_generation_stage(
         progress: Live progress coordinator.
         stage: Stage being executed.
         generator: Callable that performs the stage work.
+        profiler: Build profiler collecting stage wall times.
 
     Side Effects:
         Updates stderr progress and writes generated rows to output sinks.
 
     """
-    progress.start_stage(stage, total=_current_stage_total(session, stage))
-    generator(session, output_sink, progress=progress)
-    progress.finish_stage(stage)
+    profiler.begin_stage(stage, forms_written=session.output_counter)
+    try:
+        progress.start_stage(stage, total=_current_stage_total(session, stage))
+        generator(session, output_sink, progress=progress)
+        progress.finish_stage(stage)
+    finally:
+        profiler.end_stage(stage, forms_written=session.output_counter)
+
+
+def _run_build_stages(
+    *,
+    session: GeneratorSession,
+    output_sink: ParityFormOutput,
+    progress: MorphologyGenerateProgressCoordinator,
+    profiler: MorphologyBuildProfiler,
+) -> None:
+    """
+    Run all morphology generation stages against one output sink.
+
+    Keyword Args:
+        session: Active morphology generation session.
+        output_sink: Sink receiving generated rows.
+        progress: Live progress coordinator.
+        profiler: Build profiler collecting stage wall times.
+
+    Side Effects:
+        Writes generated rows to the configured output sink.
+
+    """
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.MANUAL,
+        generator=output_manual_forms,
+        profiler=profiler,
+    )
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.VERBS,
+        generator=generate_vbforms,
+        profiler=profiler,
+    )
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.ADJECTIVES,
+        generator=generate_adjforms,
+        profiler=profiler,
+    )
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.ADVERBS,
+        generator=generate_advforms,
+        profiler=profiler,
+    )
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.NUMERALS,
+        generator=generate_numforms,
+        profiler=profiler,
+    )
+    _run_generation_stage(
+        session=session,
+        output_sink=output_sink,
+        progress=progress,
+        stage=MorphologyStage.NOUNS,
+        generator=generate_nounforms,
+        profiler=profiler,
+    )
 
 
 def _apply_limit(session: GeneratorSession, *, full: bool, limit: int | None) -> None:
@@ -245,9 +323,9 @@ def morphology_group() -> None:
 )
 @click.option(
     "--output",
-    default=Path("output.txt"),
+    default=None,
     type=click.Path(path_type=Path),
-    help="Output file path.",
+    help="Optional TSV output file path.",
 )
 @click.option(
     "--limit",
@@ -274,6 +352,12 @@ def morphology_group() -> None:
     show_default=True,
     help="Generate full dictionary output (equivalent to legacy generate-full).",
 )
+@click.option(
+    "--profile",
+    is_flag=True,
+    default=False,
+    help="Print stage and SQLite timing summary to stderr when the build finishes.",
+)
 @click.pass_context
 def build(  # noqa: PLR0913, PLR0915
     ctx: click.Context,
@@ -282,11 +366,12 @@ def build(  # noqa: PLR0913, PLR0915
     manual_forms: Path | None,
     verbal_paradigms: Path | None,
     prefixes: Path | None,
-    output: Path,
+    output: Path | None,
     limit: int | None,
     progress_every: int | None,
     enable_r_stem_nouns: bool,
     full: bool,
+    profile: bool,
 ) -> None:
     """
     Generate Old English morphological forms and parity index artifacts.
@@ -304,14 +389,15 @@ def build(  # noqa: PLR0913, PLR0915
         manual_forms: Optional manual forms file path override.
         verbal_paradigms: Optional verbal paradigms file path override.
         prefixes: Optional prefixes file path override.
-        output: TSV output file path.
+        output: Optional TSV output file path.
         limit: Optional cap for non-full mode processed words.
         progress_every: Optional visible-lemma update cadence override.
         enable_r_stem_nouns: Enables non-parity r-stem noun generation.
         full: Enables full-dictionary generation mode.
+        profile: Enables stderr timing summary output when the build finishes.
 
     Side Effects:
-        Reads morphology source files and writes TSV/SQLite output artifacts.
+        Reads morphology source files and writes SQLite output artifacts.
 
     Raises:
         click.ClickException: Input files are missing or output writing fails.
@@ -338,30 +424,38 @@ def build(  # noqa: PLR0913, PLR0915
     )
     progress.start()
 
+    profiler = MorphologyBuildProfiler(enabled=profile)
     session = GeneratorSession()
     try:
-        session.load_all(*(str(path) for path in resolved_paths))
+        with profiler.time_setup("load data"):
+            session.load_all(*(str(path) for path in resolved_paths))
         progress.advance_setup(MorphologySetupStep.LOAD_DATA)
     except OSError as e:
         progress.stop()
         msg = f"Unable to read morphology input data: {e}"
         raise click.ClickException(msg) from e
 
-    session.enable_r_stem_nouns = enable_r_stem_nouns
-    _apply_limit(session, full=full, limit=limit)
+    with profiler.time_setup("apply limit"):
+        session.enable_r_stem_nouns = enable_r_stem_nouns
+        _apply_limit(session, full=full, limit=limit)
     progress.advance_setup(MorphologySetupStep.APPLY_LIMIT)
 
-    session.remove_prefixes()
-    session.remove_hyphens()
+    with profiler.time_setup("normalize forms"):
+        session.remove_prefixes()
+        session.remove_hyphens()
     progress.advance_setup(MorphologySetupStep.NORMALIZE_FORMS)
-    session.count_syllables()
+    with profiler.time_setup("count syllables"):
+        session.count_syllables()
     progress.advance_setup(MorphologySetupStep.COUNT_SYLLABLES)
 
-    set_verb_paradigm(session)
+    with profiler.time_setup("assign verb paradigms"):
+        set_verb_paradigm(session)
     progress.advance_setup(MorphologySetupStep.ASSIGN_VERB_PARADIGMS)
-    set_adj_paradigm(session)
+    with profiler.time_setup("assign adjective paradigms"):
+        set_adj_paradigm(session)
     progress.advance_setup(MorphologySetupStep.ASSIGN_ADJ_PARADIGMS)
-    set_noun_paradigm(session)
+    with profiler.time_setup("assign noun paradigms"):
+        set_noun_paradigm(session)
     progress.advance_setup(MorphologySetupStep.ASSIGN_NOUN_PARADIGMS)
 
     resolved_index_db = get_canonical_db_path(
@@ -369,72 +463,51 @@ def build(  # noqa: PLR0913, PLR0915
     )
     sqlite_sink: SqliteIndexSink | None = None
     try:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        sqlite_sink = SqliteIndexSink(resolved_index_db)
-        with output.open("w", encoding="utf-8") as out_handle:
-            output_sink = CompositeSink(TsvParitySink(out_handle), sqlite_sink)
-            _run_generation_stage(
+        sqlite_sink = SqliteIndexSink(
+            resolved_index_db,
+            sqlite_flush_observer=profiler.sqlite_flush_observer(),
+        )
+        if output is not None:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            with output.open("w", encoding="utf-8") as out_handle:
+                output_sink = CompositeSink(
+                    TsvParitySink(out_handle),
+                    sqlite_sink,
+                )
+                _run_build_stages(
+                    session=session,
+                    output_sink=output_sink,
+                    progress=progress,
+                    profiler=profiler,
+                )
+        else:
+            _run_build_stages(
                 session=session,
-                output_sink=output_sink,
+                output_sink=sqlite_sink,
                 progress=progress,
-                stage=MorphologyStage.MANUAL,
-                generator=output_manual_forms,
-            )
-            _run_generation_stage(
-                session=session,
-                output_sink=output_sink,
-                progress=progress,
-                stage=MorphologyStage.VERBS,
-                generator=generate_vbforms,
-            )
-            _run_generation_stage(
-                session=session,
-                output_sink=output_sink,
-                progress=progress,
-                stage=MorphologyStage.ADJECTIVES,
-                generator=generate_adjforms,
-            )
-            _run_generation_stage(
-                session=session,
-                output_sink=output_sink,
-                progress=progress,
-                stage=MorphologyStage.ADVERBS,
-                generator=generate_advforms,
-            )
-            _run_generation_stage(
-                session=session,
-                output_sink=output_sink,
-                progress=progress,
-                stage=MorphologyStage.NUMERALS,
-                generator=generate_numforms,
-            )
-            _run_generation_stage(
-                session=session,
-                output_sink=output_sink,
-                progress=progress,
-                stage=MorphologyStage.NOUNS,
-                generator=generate_nounforms,
+                profiler=profiler,
             )
     except OSError as e:
-        msg = f"Failed to write morphology output to {output}: {e}"
+        destination = output if output is not None else resolved_index_db
+        msg = f"Failed to write morphology output to {destination}: {e}"
         raise click.ClickException(msg) from e
     finally:
         progress.stop()
         if sqlite_sink is not None:
             sqlite_sink.close()
 
-    click.echo(
-        "\n".join(
-            [
-                "Morphology generation complete.",
-                f"output={output}",
-                f"index_db={resolved_index_db}",
-                f"forms_written={session.output_counter}",
-                f"limit_applied={'none' if full or not limit else limit}",
-                f"full_mode={full}",
-            ]
-        )
-    )
+    profiler.emit_summary(forms_written=session.output_counter)
+
+    completion_lines = [
+        "Morphology generation complete.",
+        f"index_db={resolved_index_db}",
+        f"forms_written={session.output_counter}",
+        f"limit_applied={'none' if full or not limit else limit}",
+        f"full_mode={full}",
+    ]
+    if output is not None:
+        completion_lines.insert(1, f"output={output}")
+    click.echo("\n".join(completion_lines))
 
 
 def _resolve_progress_every(

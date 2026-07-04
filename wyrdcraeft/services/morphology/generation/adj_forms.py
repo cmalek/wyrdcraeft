@@ -1,10 +1,10 @@
-# ruff: noqa: I001
 """
 Adjective form generation. Port of Perl generate_adjforms from create_dict31.pl.
 """
 
 import re
 from collections.abc import Iterable
+from typing import Final, Literal
 
 from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.progress import (
@@ -16,6 +16,102 @@ from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import print_one_form
 from .shared import FormOutput
+
+#: Remove parity ``form_parts`` markers without regex overhead.
+_FORM_PARTS_DELETE = str.maketrans("", "", "0-\n")
+#: Compiled patterns reused while expanding comparative/superlative stems.
+_RE_U_SUFFIX: Final = re.compile(r"u$")
+#: Trailing ``h`` matcher for adjective stem syncope variants.
+_RE_H_SUFFIX: Final = re.compile(r"h$")
+#: First vowel-plus-optional-e/a/o matcher for i-umlaut expansion.
+_RE_VOWEL_EAO: Final = re.compile(f"({OENormalizer.VOWEL}[eao]?)")
+#: Single-shot vowel replacement pattern for degree stem alternants.
+_RE_VOWEL_REPLACE: Final = re.compile(f"{OENormalizer.VOWEL}[eao]?")
+#: Trailing vowel matcher for syncope and weak-form variants.
+_RE_VOWEL_END: Final = re.compile(f"({OENormalizer.VOWEL})$")
+#: ``hālig`` syncope matcher for adjective degree stems.
+_RE_HALIG_SYNCOPE: Final = re.compile(
+    f"({OENormalizer.VOWEL}.*){OENormalizer.VOWEL}(.*)$"
+)
+#: Shared weak-paradigm case/ending pairs for definite degree forms.
+_WEAK_DEGREE_CASE_ENDINGS: Final[tuple[tuple[str, str], ...]] = (
+    ("SgMaNo", "a"),
+    ("SgMaAc", "an"),
+    ("SgMaGe", "an"),
+    ("SgMaDa", "an"),
+    ("SgNeNo", "e"),
+    ("SgNeAc", "e"),
+    ("SgNeGe", "an"),
+    ("SgNeDa", "an"),
+    ("SgFeNo", "e"),
+    ("SgFeAc", "an"),
+    ("SgFeGe", "an"),
+    ("SgFeDa", "an"),
+    ("PlMaNo", "an"),
+    ("PlMaAc", "an"),
+    ("PlMaGe", "a"),
+    ("PlMaGe", "ena"),
+    ("PlMaDa", "um"),
+    ("PlNeNo", "an"),
+    ("PlNeAc", "an"),
+    ("PlNeGe", "a"),
+    ("PlNeGe", "ena"),
+    ("PlNeDa", "um"),
+    ("PlFeNo", "an"),
+    ("PlFeAc", "an"),
+    ("PlFeGe", "a"),
+    ("PlFeGe", "ena"),
+    ("PlFeDa", "um"),
+)
+#: Superlative strong probability overrides from Perl ``create_dict31.pl``.
+_SP_STRONG_PROB_PLUS_1: Final[frozenset[int]] = frozenset(
+    {2, 5, 10, 14, 16, 18, 20, 22, 25, 27, 32, 35}
+)
+#: Superlative strong probability overrides requiring ``prob + 2``.
+_SP_STRONG_PROB_PLUS_2: Final[frozenset[int]] = frozenset({29, 33, 36, 38})
+#: Superlative strong case/ending pairs emitted after weak superlative forms.
+_SP_STRONG_CASE_ENDINGS: Final[tuple[tuple[str, str], ...]] = (
+    ("SgMaNo", "0"),
+    ("SgMaAc", "ne"),
+    ("SgMaAc", "0"),
+    ("SgMaGe", "es"),
+    ("SgMaDa", "um"),
+    ("SgMaDa", "0"),
+    ("SgNeNo", "0"),
+    ("SgNeAc", "0"),
+    ("SgNeGe", "es"),
+    ("SgNeDa", "um"),
+    ("SgNeDa", "0"),
+    ("SgFeNo", "0"),
+    ("SgFeAc", "e"),
+    ("SgFeGe", "re"),
+    ("SgFeGe", "0"),
+    ("SgFeDa", "re"),
+    ("SgFeDa", "0"),
+    ("PlMaNo", "e"),
+    ("PlMaNo", "0"),
+    ("PlMaAc", "e"),
+    ("PlMaAc", "0"),
+    ("PlMaGe", "ra"),
+    ("PlMaGe", "0"),
+    ("PlMaDa", "um"),
+    ("PlNeNo", "e"),
+    ("PlNeNo", "0"),
+    ("PlNeAc", "e"),
+    ("PlNeAc", "0"),
+    ("PlNeGe", "ra"),
+    ("PlNeGe", "0"),
+    ("PlNeDa", "um"),
+    ("PlFeNo", "a"),
+    ("PlFeNo", "e"),
+    ("PlFeNo", "0"),
+    ("PlFeAc", "a"),
+    ("PlFeAc", "e"),
+    ("PlFeAc", "0"),
+    ("PlFeGe", "ra"),
+    ("PlFeGe", "0"),
+    ("PlFeDa", "um"),
+)
 
 def _dedupe_preserve_first(values: Iterable[str]) -> list[str]:
     """
@@ -80,7 +176,241 @@ def _form_from_parts(form_parts: str) -> str:
         The processed form.
 
     """
-    return re.sub(r"[0\-\n]", "", form_parts)
+    return form_parts.translate(_FORM_PARTS_DELETE)
+
+
+def _finalize_degree_titles(
+    title_array: list[str],
+    *,
+    use_perl_hash_order: bool,
+) -> list[str]:
+    """
+    De-duplicate and order comparative/superlative title variants.
+
+    Args:
+        title_array: Candidate title variants in source order.
+
+    Keyword Args:
+        use_perl_hash_order: Whether to preserve Perl ``keys %hash`` ordering.
+
+    Returns:
+        Final title variants for degree-form emission.
+
+    """
+    if use_perl_hash_order:
+        return _perl_hash_order(title_array)
+
+    seen: set[str] = set()
+    unique: list[str] = []
+    for title in title_array:
+        if title not in seen:
+            seen.add(title)
+            unique.append(title)
+    unique.sort()
+    return unique
+
+
+def _expand_regular_degree_stems(  # noqa: PLR0913
+    *,
+    prefix: str,
+    stem: str,
+    paradigm: str,
+    papart: int,
+    pspart: int,
+    update_halig_title_alt: bool,
+) -> list[str]:
+    """
+    Expand regular adjective stems used for comparative/superlative generation.
+
+    Note:
+        Adjective degree stem alternations follow ``data/OldEnglishGrammar.pdf``
+        and ``data/Ondej_Tich_40-54-1.pdf``. Part of Speech scope: adjective.
+
+    Keyword Args:
+        prefix: Lemma prefix segment.
+        stem: Adjective stem being expanded.
+        paradigm: Selected adjective paradigm label.
+        papart: Past-participle flag on the source word.
+        pspart: Present-participle flag on the source word.
+        update_halig_title_alt: Whether ``hālig`` syncope updates the active
+            stem before trailing-``h`` dropping, matching comparative parity.
+
+    Returns:
+        Ordered title variants before final de-duplication/sorting.
+
+    """
+    title_array: list[str] = []
+    match = _RE_VOWEL_EAO.search(stem)
+    if match is None:
+        return title_array
+
+    vowels = OENormalizer.iumlaut([match.group(1)])
+    for vowel in vowels:
+        title_alt = _RE_VOWEL_REPLACE.sub(vowel, stem, count=1)
+        title_array.append(f"{prefix}-{title_alt}")
+        if _RE_U_SUFFIX.search(title_alt):
+            title_alt = _RE_U_SUFFIX.sub("w", title_alt)
+            title_array.append(f"{prefix}-{title_alt}")
+        if _RE_VOWEL_END.search(title_alt):
+            title_alt = _RE_VOWEL_END.sub("", title_alt)
+            title_array.append(f"{prefix}-{title_alt}")
+        if "hālig" in paradigm and (papart + pspart) == 0:
+            new_alt = _RE_HALIG_SYNCOPE.sub(r"\1\2", title_alt)
+            if new_alt != title_alt:
+                title_array.append(f"{prefix}-{new_alt}")
+                if update_halig_title_alt:
+                    title_alt = new_alt
+        if _RE_H_SUFFIX.search(title_alt):
+            title_alt = _RE_H_SUFFIX.sub("", title_alt)
+            title_array.append(f"{prefix}-{title_alt}")
+    return title_array
+
+
+def _build_adjective_formhash(
+    word: Word,
+    *,
+    class1: str,
+    paradigm: str,
+) -> dict[str, str]:
+    """
+    Build the shared form payload used across adjective degree generators.
+
+    Args:
+        word: Adjective entry being generated.
+
+    Keyword Args:
+        class1: Strong/weak class label for the emitted block.
+        paradigm: Paradigm label stored on emitted rows.
+
+    Returns:
+        Mutable form payload reused by degree-form emitters.
+
+    """
+    formhash = {
+        "title": word.title,
+        "stem": word.stem,
+        "BT": f"{word.nid:06d}",
+        "wordclass": "adjective",
+        "class1": class1,
+        "paradigm": paradigm,
+        "wright": word.wright,
+        "var": "",
+        "paraID": "",
+        "class2": "",
+        "class3": "",
+        "comment": "",
+    }
+    if word.papart == 1:
+        formhash["wordclass"] = "participle"
+        formhash["class2"] = "past"
+    if word.pspart == 1:
+        formhash["wordclass"] = "participle"
+        formhash["class2"] = "present"
+    if word.pronoun == 1:
+        formhash["wordclass"] = "pronoun"
+    return formhash
+
+
+def _emit_weak_degree_forms(  # noqa: PLR0913
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    title_array: list[str],
+    *,
+    degree_prefix: str,
+    affix: str,
+    prob_mode: Literal["variant", "abs_delta"],
+) -> None:
+    """
+    Emit one weak definite degree paradigm for each title variant.
+
+    Note:
+        Comparative and superlative weak blocks share the same case/endings in
+        ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+        Part of Speech scope: adjective.
+
+    Args:
+        session: Active generation session.
+        output_file: Output sink receiving emitted rows.
+        formhash: Shared mutable form payload for the current word.
+        title_array: Ordered title variants for this degree block.
+
+    Keyword Args:
+        degree_prefix: Function prefix such as ``Co`` or ``Sp``.
+        affix: Comparative/superlative infix such as ``r`` or ``ost``.
+        prob_mode: ``variant`` uses the title index; ``abs_delta`` uses
+            ``abs(index - 2)`` for comparative/superlative weak parity.
+
+    Side Effects:
+        Writes generated rows to the morphology output stream.
+
+    """
+    for variant_index, base in enumerate(title_array):
+        prob = (
+            variant_index
+            if prob_mode == "variant"
+            else abs(variant_index - 2)
+        )
+        session.perl_probability = prob
+        for form_index, (case, ending) in enumerate(_WEAK_DEGREE_CASE_ENDINGS):
+            formhash["function"] = f"{degree_prefix}{case}"
+            formhash["probability"] = (
+                str(prob + 1) if form_index >= 15 else ""  # noqa: PLR2004
+            )
+            form_parts = f"{base}-{affix}-{ending}"
+            formhash["form"] = _form_from_parts(form_parts)
+            formhash["formParts"] = form_parts
+            print_one_form(session, formhash, output_file)
+
+
+def _emit_superlative_strong_forms(
+    session: GeneratorSession,
+    output_file: FormOutput,
+    formhash: dict[str, str],
+    title_array: list[str],
+    *,
+    affix: str,
+) -> None:
+    """
+    Emit superlative strong forms for each title variant.
+
+    Note:
+        Probability carry-over follows the Perl superlative-strong block in
+        ``data/OldEnglishGrammar.pdf`` / ``data/Ondej_Tich_40-54-1.pdf``.
+        Part of Speech scope: adjective.
+
+    Args:
+        session: Active generation session.
+        output_file: Output sink receiving emitted rows.
+        formhash: Shared mutable form payload for the current word.
+        title_array: Ordered title variants for this degree block.
+
+    Keyword Args:
+        affix: Superlative infix such as ``ost`` or ``0``.
+
+    Side Effects:
+        Writes generated rows to the morphology output stream.
+
+    """
+    for variant_index, base in enumerate(title_array):
+        prob = abs(variant_index - 2)
+        carried = ""
+        for form_index, (case, ending) in enumerate(_SP_STRONG_CASE_ENDINGS):
+            formhash["function"] = f"Sp{case}"
+            if form_index < 2:  # noqa: PLR2004
+                formhash["probability"] = ""
+            elif form_index in _SP_STRONG_PROB_PLUS_1:
+                carried = str(prob + 1)
+                formhash["probability"] = carried
+            elif form_index in _SP_STRONG_PROB_PLUS_2:
+                carried = str(prob + 2)
+                formhash["probability"] = carried
+            else:
+                formhash["probability"] = carried
+            form_parts = f"{base}-{affix}-{ending}"
+            formhash["form"] = _form_from_parts(form_parts)
+            formhash["formParts"] = form_parts
+            print_one_form(session, formhash, output_file)
 
 
 def _adj_print(  # noqa: PLR0913
@@ -703,10 +1033,12 @@ def _gen_weak(
             print_one_form(session, fh, output_file)
 
 
-def _build_comparative_title_array(  # noqa: PLR0912
+def _build_comparative_title_array(
     word: Word,
     paradigm: str,
     use_perl_hash_order: bool,
+    *,
+    regular_stems: list[str] | None = None,
 ) -> tuple[list[str], str]:
     """
     Build ``title_array`` for comparative, which is used to generate the
@@ -721,10 +1053,11 @@ def _build_comparative_title_array(  # noqa: PLR0912
         use_perl_hash_order: Whether to use Perl ``keys %hash`` ordering
             semantics (full-flow parity mode).
 
+    Keyword Args:
+        regular_stems: Pre-expanded regular stems when already computed for
+            the same word.
+
     """
-    vowel_regex = OENormalizer.VOWEL
-    title_array: list[str] = []
-    c = "0"
     stem = word.stem
     if stem == "g\u00f3d":
         title_array = [
@@ -734,53 +1067,115 @@ def _build_comparative_title_array(  # noqa: PLR0912
             f"{word.prefix}-s\u00e9lr",
             f"{word.prefix}-selr",
         ]
-    elif stem == "yfel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "yfel":
         title_array = [f"{word.prefix}-wiers"]
-    elif stem == "micel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "micel":
         title_array = [f"{word.prefix}-m\u00e1r"]
-    elif stem == "lytel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "lytel":
         title_array = [f"{word.prefix}-l\u01fdss"]
-    else:
-        c = "r"
-        match = re.search(f"({vowel_regex}[eao]?)", stem)
-        if match:
-            vowels = OENormalizer.iumlaut([match.group(1)])
-            for v in vowels:
-                title_alt = re.sub(f"{vowel_regex}[eao]?", v, stem, count=1)
-                title_array.append(f"{word.prefix}-{title_alt}")
-                if re.search(r"u$", title_alt):
-                    title_alt = re.sub(r"u$", "w", title_alt)
-                    title_array.append(f"{word.prefix}-{title_alt}")
-                if re.search(f"{vowel_regex}$", title_alt):
-                    title_alt = re.sub(f"({vowel_regex})$", "", title_alt)
-                    title_array.append(f"{word.prefix}-{title_alt}")
-                if "hālig" in paradigm:
-                    if (word.papart + word.pspart) == 0:
-                        new_alt = re.sub(
-                            f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt
-                        )
-                        if new_alt != title_alt:
-                            title_array.append(f"{word.prefix}-{new_alt}")
-                            title_alt = new_alt
-                if re.search(r"h$", title_alt):
-                    title_alt = re.sub(r"h$", "", title_alt)
-                    title_array.append(f"{word.prefix}-{title_alt}")
-    if use_perl_hash_order:
-        return (_perl_hash_order(title_array), c)
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
 
-    # Differential oracle mode expects deterministic lexical ordering here.
-    seen: set[str] = set()
-    unique: list[str] = []
-    for t in title_array:
-        if t not in seen:
-            seen.add(t)
-            unique.append(t)
-    unique.sort()
-    return (unique, c)
+    if regular_stems is None:
+        regular_stems = _expand_regular_degree_stems(
+            prefix=word.prefix,
+            stem=stem,
+            paradigm=paradigm,
+            papart=word.papart,
+            pspart=word.pspart,
+            update_halig_title_alt=True,
+        )
+    return (
+        _finalize_degree_titles(regular_stems, use_perl_hash_order=use_perl_hash_order),
+        "r",
+    )
+
+
+def _shared_regular_degree_stems(
+    word: Word,
+    paradigm: str,
+) -> tuple[list[str] | None, list[str] | None]:
+    """
+    Build regular comparative/superlative stems once when parity allows sharing.
+
+    Args:
+        word: Adjective entry being generated.
+        paradigm: Selected adjective paradigm label.
+
+    Returns:
+        Tuple of ``(comparative_stems, superlative_stems)``. Each side is
+        ``None`` when irregular degree stems make sharing impossible.
+
+    """
+    stem = word.stem
+    if stem in {"g\u00f3d", "yfel", "micel", "lytel"}:
+        return (None, None)
+
+    need_halig_split = "hālig" in paradigm and (word.papart + word.pspart) == 0
+    if need_halig_split:
+        return (
+            _expand_regular_degree_stems(
+                prefix=word.prefix,
+                stem=stem,
+                paradigm=paradigm,
+                papart=word.papart,
+                pspart=word.pspart,
+                update_halig_title_alt=True,
+            ),
+            _expand_regular_degree_stems(
+                prefix=word.prefix,
+                stem=stem,
+                paradigm=paradigm,
+                papart=word.papart,
+                pspart=word.pspart,
+                update_halig_title_alt=False,
+            ),
+        )
+
+    shared = _expand_regular_degree_stems(
+        prefix=word.prefix,
+        stem=stem,
+        paradigm=paradigm,
+        papart=word.papart,
+        pspart=word.pspart,
+        update_halig_title_alt=False,
+    )
+    return (shared, shared)
 
 
 def _gen_comparative(
-    session: GeneratorSession, output_file: FormOutput, word: Word
+    session: GeneratorSession,
+    output_file: FormOutput,
+    word: Word,
+    *,
+    use_perl_hash_order: bool | None = None,
+    regular_stems: list[str] | None = None,
 ) -> None:
     """
     Comparative (Co) weak forms for all adjectives.
@@ -793,80 +1188,42 @@ def _gen_comparative(
         output_file: The output file handle.
         word: The word.
 
+    Keyword Args:
+        use_perl_hash_order: Optional parity ordering override.
+        regular_stems: Pre-expanded regular stems when already computed for
+            the same word.
+
     """
     paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    use_perl_hash_order = len(session.adjectives) > len(session.words)
-    title_array, c = _build_comparative_title_array(
-        word, paradigm, use_perl_hash_order
+    resolved_use_perl_hash_order = (
+        len(session.adjectives) > len(session.words)
+        if use_perl_hash_order is None
+        else use_perl_hash_order
     )
-    bt_id = f"{word.nid:06d}"
-    base_fh = {
-        "title": word.title,
-        "stem": word.stem,
-        "BT": bt_id,
-        "wordclass": "adjective",
-        "class1": "weak",
-        "paradigm": "blinda",
-        "wright": word.wright,
-        "var": "",
-        "paraID": "",
-        "class2": "",
-        "class3": "",
-        "comment": "",
-    }
-    if word.papart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "past"
-    if word.pspart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "present"
-    for y, base in enumerate(title_array):
-        prob = abs(y - 2)
-        session.perl_probability = prob
-        forms = [
-            ("CoSgMaNo", f"{base}-{c}-a"),
-            ("CoSgMaAc", f"{base}-{c}-an"),
-            ("CoSgMaGe", f"{base}-{c}-an"),
-            ("CoSgMaDa", f"{base}-{c}-an"),
-            ("CoSgNeNo", f"{base}-{c}-e"),
-            ("CoSgNeAc", f"{base}-{c}-e"),
-            ("CoSgNeGe", f"{base}-{c}-an"),
-            ("CoSgNeDa", f"{base}-{c}-an"),
-            ("CoSgFeNo", f"{base}-{c}-e"),
-            ("CoSgFeAc", f"{base}-{c}-an"),
-            ("CoSgFeGe", f"{base}-{c}-an"),
-            ("CoSgFeDa", f"{base}-{c}-an"),
-            ("CoPlMaNo", f"{base}-{c}-an"),
-            ("CoPlMaAc", f"{base}-{c}-an"),
-            ("CoPlMaGe", f"{base}-{c}-a"),
-            ("CoPlMaGe", f"{base}-{c}-ena"),
-            ("CoPlMaDa", f"{base}-{c}-um"),
-            ("CoPlNeNo", f"{base}-{c}-an"),
-            ("CoPlNeAc", f"{base}-{c}-an"),
-            ("CoPlNeGe", f"{base}-{c}-a"),
-            ("CoPlNeGe", f"{base}-{c}-ena"),
-            ("CoPlNeDa", f"{base}-{c}-um"),
-            ("CoPlFeNo", f"{base}-{c}-an"),
-            ("CoPlFeAc", f"{base}-{c}-an"),
-            ("CoPlFeGe", f"{base}-{c}-a"),
-            ("CoPlFeGe", f"{base}-{c}-ena"),
-            ("CoPlFeDa", f"{base}-{c}-um"),
-        ]
-        for i, (func, form_parts) in enumerate(forms):
-            fh = base_fh.copy()
-            fh["function"] = func
-            # Perl: no probability before first -ena (index 15); prob+1 from
-            # first -ena onwards
-            fh["probability"] = str(prob + 1) if i >= 15 else ""  # noqa: PLR2004
-            fh["form"] = _form_from_parts(form_parts)
-            fh["formParts"] = form_parts.replace("\n", "")
-            print_one_form(session, fh, output_file)
+    title_array, affix = _build_comparative_title_array(
+        word,
+        paradigm,
+        resolved_use_perl_hash_order,
+        regular_stems=regular_stems,
+    )
+    base_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
+    _emit_weak_degree_forms(
+        session,
+        output_file,
+        base_fh,
+        title_array,
+        degree_prefix="Co",
+        affix=affix,
+        prob_mode="abs_delta",
+    )
 
 
-def _build_superlative_title_array(  # noqa: PLR0912
+def _build_superlative_title_array(
     word: Word,
     paradigm: str,
     use_perl_hash_order: bool,
+    *,
+    regular_stems: list[str] | None = None,
 ) -> tuple[list[str], str]:
     """
     Build ``title_array`` for superlative weak.
@@ -877,13 +1234,14 @@ def _build_superlative_title_array(  # noqa: PLR0912
         use_perl_hash_order: Whether to use Perl ``keys %hash`` ordering
             semantics (full-flow parity mode).
 
+    Keyword Args:
+        regular_stems: Pre-expanded regular stems when already computed for
+            the same word.
+
     Returns:
         A tuple containing the title array and the ``s`` suffix.
 
     """
-    vowel_regex = OENormalizer.VOWEL
-    title_array: list[str] = []
-    s = "0"
     stem = word.stem
     if stem == "g\u00f3d":
         title_array = [
@@ -892,49 +1250,63 @@ def _build_superlative_title_array(  # noqa: PLR0912
             f"{word.prefix}-best",
             f"{word.prefix}-s\u00e9lest",
         ]
-    elif stem == "yfel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "yfel":
         title_array = [f"{word.prefix}-wierrest", f"{word.prefix}-wyrst"]
-    elif stem == "micel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "micel":
         title_array = [f"{word.prefix}-m\u01fdst"]
-    elif stem == "lytel":
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
+    if stem == "lytel":
         title_array = [f"{word.prefix}-l\u01fdst"]
-    else:
-        s = "ost"
-        match = re.search(f"({vowel_regex}[eao]?)", stem)
-        if match:
-            vowels = OENormalizer.iumlaut([match.group(1)])
-            for v in vowels:
-                title_alt = re.sub(f"{vowel_regex}[eao]?", v, stem, count=1)
-                title_array.append(f"{word.prefix}-{title_alt}")
-                if re.search(r"u$", title_alt):
-                    title_alt = re.sub(r"u$", "w", title_alt)
-                    title_array.append(f"{word.prefix}-{title_alt}")
-                if re.search(f"{vowel_regex}$", title_alt):
-                    title_alt = re.sub(f"({vowel_regex})$", "", title_alt)
-                    title_array.append(f"{word.prefix}-{title_alt}")
-                if "hālig" in paradigm:
-                    if (word.papart + word.pspart) == 0:
-                        new_alt = re.sub(
-                            f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt
-                        )
-                        if new_alt != title_alt:
-                            title_array.append(f"{word.prefix}-{new_alt}")
-    if use_perl_hash_order:
-        return (_perl_hash_order(title_array), s)
+        return (
+            _finalize_degree_titles(
+                title_array,
+                use_perl_hash_order=use_perl_hash_order,
+            ),
+            "0",
+        )
 
-    # Differential oracle mode expects deterministic lexical ordering here.
-    seen: set[str] = set()
-    unique: list[str] = []
-    for t in title_array:
-        if t not in seen:
-            seen.add(t)
-            unique.append(t)
-    unique.sort()
-    return (unique, s)
+    if regular_stems is None:
+        regular_stems = _expand_regular_degree_stems(
+            prefix=word.prefix,
+            stem=stem,
+            paradigm=paradigm,
+            papart=word.papart,
+            pspart=word.pspart,
+            update_halig_title_alt=False,
+        )
+    return (
+        _finalize_degree_titles(regular_stems, use_perl_hash_order=use_perl_hash_order),
+        "ost",
+    )
 
 
 def _gen_superlative(
-    session: GeneratorSession, output_file: FormOutput, word: Word
+    session: GeneratorSession,
+    output_file: FormOutput,
+    word: Word,
+    *,
+    use_perl_hash_order: bool | None = None,
+    regular_stems: list[str] | None = None,
 ) -> None:
     """
     Generate superlative adjective forms: weak (Sp) forms then strong (Sp)
@@ -948,167 +1320,46 @@ def _gen_superlative(
         output_file: The output file handle.
         word: The word.
 
+    Keyword Args:
+        use_perl_hash_order: Optional parity ordering override.
+        regular_stems: Pre-expanded regular stems when already computed for
+            the same word.
+
     """
     paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    use_perl_hash_order = len(session.adjectives) > len(session.words)
-    title_array, s = _build_superlative_title_array(
-        word, paradigm, use_perl_hash_order
+    resolved_use_perl_hash_order = (
+        len(session.adjectives) > len(session.words)
+        if use_perl_hash_order is None
+        else use_perl_hash_order
     )
-    bt_id = f"{word.nid:06d}"
-    base_fh = {
-        "title": word.title,
-        "stem": word.stem,
-        "BT": bt_id,
-        "wordclass": "adjective",
-        "class1": "weak",
-        "paradigm": "blinda",
-        "wright": word.wright,
-        "var": "",
-        "paraID": "",
-        "class2": "",
-        "class3": "",
-        "comment": "",
-    }
-    if word.papart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "past"
-    if word.pspart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "present"
-    for y, base in enumerate(title_array):
-        prob = abs(y - 2)
-        session.perl_probability = prob
-        forms = [
-            ("SpSgMaNo", f"{base}-{s}-a"),
-            ("SpSgMaAc", f"{base}-{s}-an"),
-            ("SpSgMaGe", f"{base}-{s}-an"),
-            ("SpSgMaDa", f"{base}-{s}-an"),
-            ("SpSgNeNo", f"{base}-{s}-e"),
-            ("SpSgNeAc", f"{base}-{s}-e"),
-            ("SpSgNeGe", f"{base}-{s}-an"),
-            ("SpSgNeDa", f"{base}-{s}-an"),
-            ("SpSgFeNo", f"{base}-{s}-e"),
-            ("SpSgFeAc", f"{base}-{s}-an"),
-            ("SpSgFeGe", f"{base}-{s}-an"),
-            ("SpSgFeDa", f"{base}-{s}-an"),
-            ("SpPlMaNo", f"{base}-{s}-an"),
-            ("SpPlMaAc", f"{base}-{s}-an"),
-            ("SpPlMaGe", f"{base}-{s}-a"),
-            ("SpPlMaGe", f"{base}-{s}-ena"),
-            ("SpPlMaDa", f"{base}-{s}-um"),
-            ("SpPlNeNo", f"{base}-{s}-an"),
-            ("SpPlNeAc", f"{base}-{s}-an"),
-            ("SpPlNeGe", f"{base}-{s}-a"),
-            ("SpPlNeGe", f"{base}-{s}-ena"),
-            ("SpPlNeDa", f"{base}-{s}-um"),
-            ("SpPlFeNo", f"{base}-{s}-an"),
-            ("SpPlFeAc", f"{base}-{s}-an"),
-            ("SpPlFeGe", f"{base}-{s}-a"),
-            ("SpPlFeGe", f"{base}-{s}-ena"),
-            ("SpPlFeDa", f"{base}-{s}-um"),
-        ]
-        for i, (func, form_parts) in enumerate(forms):
-            fh = base_fh.copy()
-            fh["function"] = func
-            # Perl: no probability before first -ena (index 15); prob+1 from
-            # first -ena onwards
-            fh["probability"] = str(prob + 1) if i >= 15 else ""  # noqa: PLR2004
-            fh["form"] = _form_from_parts(form_parts)
-            fh["formParts"] = form_parts.replace("\n", "")
-            print_one_form(session, fh, output_file)
-    # Superlative strong forms - use same ``title_array``, ``class1=strong``
-    paradigm_val = word.adj_paradigm[0] if word.adj_paradigm else ""
-    strong_fh = {
-        "title": word.title,
-        "stem": word.stem,
-        "BT": bt_id,
-        "wordclass": "adjective",
-        "class1": "strong",
-        "paradigm": paradigm_val,
-        "wright": word.wright,
-        "var": "",
-        "paraID": "",
-        "class2": "",
-        "class3": "",
-        "comment": "",
-    }
-    if word.papart == 1:
-        strong_fh["wordclass"] = "participle"
-        strong_fh["class2"] = "past"
-    if word.pspart == 1:
-        strong_fh["wordclass"] = "participle"
-        strong_fh["class2"] = "present"
-    for y, base in enumerate(title_array):
-        prob = abs(y - 2)
-        # Match Perl superlative strong exactly (SpSgMaAc has -ne,-0; SpPlFeNo
-        # has -a,-e,-0; etc.)
-        forms = [
-            ("SpSgMaNo", f"{base}-{s}-0"),
-            ("SpSgMaAc", f"{base}-{s}-ne"),
-            ("SpSgMaAc", f"{base}-{s}-0"),
-            ("SpSgMaGe", f"{base}-{s}-es"),
-            ("SpSgMaDa", f"{base}-{s}-um"),
-            ("SpSgMaDa", f"{base}-{s}-0"),
-            ("SpSgNeNo", f"{base}-{s}-0"),
-            ("SpSgNeAc", f"{base}-{s}-0"),
-            ("SpSgNeGe", f"{base}-{s}-es"),
-            ("SpSgNeDa", f"{base}-{s}-um"),
-            ("SpSgNeDa", f"{base}-{s}-0"),
-            ("SpSgFeNo", f"{base}-{s}-0"),
-            ("SpSgFeAc", f"{base}-{s}-e"),
-            ("SpSgFeGe", f"{base}-{s}-re"),
-            ("SpSgFeGe", f"{base}-{s}-0"),
-            ("SpSgFeDa", f"{base}-{s}-re"),
-            ("SpSgFeDa", f"{base}-{s}-0"),
-            ("SpPlMaNo", f"{base}-{s}-e"),
-            ("SpPlMaNo", f"{base}-{s}-0"),
-            ("SpPlMaAc", f"{base}-{s}-e"),
-            ("SpPlMaAc", f"{base}-{s}-0"),
-            ("SpPlMaGe", f"{base}-{s}-ra"),
-            ("SpPlMaGe", f"{base}-{s}-0"),
-            ("SpPlMaDa", f"{base}-{s}-um"),
-            ("SpPlNeNo", f"{base}-{s}-e"),
-            ("SpPlNeNo", f"{base}-{s}-0"),
-            ("SpPlNeAc", f"{base}-{s}-e"),
-            ("SpPlNeAc", f"{base}-{s}-0"),
-            ("SpPlNeGe", f"{base}-{s}-ra"),
-            ("SpPlNeGe", f"{base}-{s}-0"),
-            ("SpPlNeDa", f"{base}-{s}-um"),
-            ("SpPlFeNo", f"{base}-{s}-a"),
-            ("SpPlFeNo", f"{base}-{s}-e"),
-            ("SpPlFeNo", f"{base}-{s}-0"),
-            ("SpPlFeAc", f"{base}-{s}-a"),
-            ("SpPlFeAc", f"{base}-{s}-e"),
-            ("SpPlFeAc", f"{base}-{s}-0"),
-            ("SpPlFeGe", f"{base}-{s}-ra"),
-            ("SpPlFeGe", f"{base}-{s}-0"),
-            ("SpPlFeDa", f"{base}-{s}-um"),
-        ]
-        # Perl superlative strong: formhash has no probability initially;
-        # indices 0,1 get empty; indices 2+ either set prob+1/prob+2 or carry
-        # over from previous form.
-        # Explicit sets from create_dict31.pl:
-        # prob+1 at 2,5,10,14,16,18,20,22,25,27,32,35;
-        # prob+2 at 29,33,36,38.
-        prob_plus_1 = {2, 5, 10, 14, 16, 18, 20, 22, 25, 27, 32, 35}
-        prob_plus_2 = {29, 33, 36, 38}
-        carried = ""
-        for i, (func, form_parts) in enumerate(forms):
-            fh = strong_fh.copy()
-            fh["function"] = func
-            if i < 2:  # noqa: PLR2004
-                fh["probability"] = ""
-            elif i in prob_plus_1:
-                carried = str(prob + 1)
-                fh["probability"] = carried
-            elif i in prob_plus_2:
-                carried = str(prob + 2)
-                fh["probability"] = carried
-            else:
-                fh["probability"] = carried
-            fh["form"] = _form_from_parts(form_parts)
-            fh["formParts"] = form_parts.replace("\n", "")
-            print_one_form(session, fh, output_file)
+    title_array, affix = _build_superlative_title_array(
+        word,
+        paradigm,
+        resolved_use_perl_hash_order,
+        regular_stems=regular_stems,
+    )
+    weak_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
+    _emit_weak_degree_forms(
+        session,
+        output_file,
+        weak_fh,
+        title_array,
+        degree_prefix="Sp",
+        affix=affix,
+        prob_mode="abs_delta",
+    )
+    strong_fh = _build_adjective_formhash(
+        word,
+        class1="strong",
+        paradigm=paradigm,
+    )
+    _emit_superlative_strong_forms(
+        session,
+        output_file,
+        strong_fh,
+        title_array,
+        affix=affix,
+    )
 
 
 def generate_adjforms(  # noqa: PLR0912
@@ -1138,6 +1389,7 @@ def generate_adjforms(  # noqa: PLR0912
         for w in session.adjectives
         if (w.adjective == 1 or (w.pspart + w.papart) > 0) and w.numeral != 1
     ]
+    use_perl_hash_order = len(session.adjectives) > len(session.words)
     for word in words:
         if progress is not None:
             progress.advance(
@@ -1208,8 +1460,21 @@ def generate_adjforms(  # noqa: PLR0912
 
         # Comparative and Superlative (only for adjectives, not numerals or pronouns)
         if word.numeral == 0 and word.pronoun == 0:
-            _gen_comparative(session, output_file, word)
-            _gen_superlative(session, output_file, word)
+            comp_stems, sup_stems = _shared_regular_degree_stems(word, paradigm)
+            _gen_comparative(
+                session,
+                output_file,
+                word,
+                use_perl_hash_order=use_perl_hash_order,
+                regular_stems=comp_stems,
+            )
+            _gen_superlative(
+                session,
+                output_file,
+                word,
+                use_perl_hash_order=use_perl_hash_order,
+                regular_stems=sup_stems,
+            )
 
     # Full-flow create_dict31 behavior carries a shared $probability into
     # generate_numforms after adjective generation has run.

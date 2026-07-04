@@ -120,24 +120,125 @@ def _get_r_stem_paradigm(word: Word) -> str | None:
     return R_STEM_PARADIGM_BY_STEM.get(word.stem)
 
 
-def _assign_from_simple_stem(word: Word, assigned: list[Word]) -> bool:
+def _assign_from_advanced_stem(
+    word: Word,
+    assigned: _NounAssignedIndex,
+    prefix_re: str,
+) -> bool:
+    """
+    Assign paradigm using normalized stem variants against assigned nouns.
+
+    Args:
+        word: Noun candidate to assign.
+        assigned: Index of nouns already assigned a paradigm in current pass order.
+        prefix_re: Session prefix regex used by normalization.
+
+    Returns:
+        ``True`` when a paradigm was copied and ``word`` registered in ``assigned``.
+
+    """
+    return assigned.assign_from_advanced_stem(word, prefix_re)
+
+
+class _NounAssignedIndex:
+    """
+    Track assigned noun paradigms with O(1) exact-stem and ordered advanced lookup.
+
+    Note:
+        Preserves Perl assignment order: the first assigned noun with a matching
+        stem (exact or normalized variant) wins.
+
+    """
+
+    #: Nouns registered in assignment order.
+    _assigned: list[Word]
+    #: First assigned index for each noun stem.
+    _stem_first_index: dict[str, int]
+    #: Paradigm copied from the first assigned noun for each stem.
+    _stem_paradigm: dict[str, str]
+
+    def __init__(self) -> None:
+        """Initialize empty assigned-noun tracking state."""
+        #: Nouns registered in assignment order.
+        self._assigned = []
+        #: First assigned index for each noun stem.
+        self._stem_first_index = {}
+        #: Paradigm copied from the first assigned noun for each stem.
+        self._stem_paradigm = {}
+
+    def register(self, word: Word) -> None:
+        """
+        Register one assigned noun and its first-seen stem paradigm mapping.
+
+        Args:
+            word: Noun that now has at least one assigned paradigm.
+
+        """
+        self._assigned.append(word)
+        if not word.noun_paradigm:
+            return
+        stem = word.stem
+        if stem in self._stem_first_index:
+            return
+        index = len(self._assigned) - 1
+        self._stem_first_index[stem] = index
+        self._stem_paradigm[stem] = word.noun_paradigm[0]
+
+    def assign_from_exact_stem(self, word: Word) -> bool:
+        """
+        Copy a paradigm from the first assigned noun with the same stem.
+
+        Args:
+            word: Noun candidate to assign.
+
+        Returns:
+            ``True`` when a paradigm was copied and ``word`` was registered.
+
+        """
+        paradigm = self._stem_paradigm.get(word.stem)
+        if paradigm is None:
+            return False
+        word.noun_paradigm = [paradigm]
+        self.register(word)
+        return True
+
+    def assign_from_advanced_stem(self, word: Word, prefix_re: str) -> bool:
+        """
+        Copy a paradigm from the first assigned noun matching a stem variant.
+
+        Args:
+            word: Noun candidate to assign.
+            prefix_re: Session prefix regex used by normalization.
+
+        Returns:
+            ``True`` when a paradigm was copied and ``word`` was registered.
+
+        """
+        candidate_set = set(_normalized_stem_variants(word.stem, prefix_re))
+        matching_stems = [
+            stem for stem in self._stem_first_index if stem in candidate_set
+        ]
+        if not matching_stems:
+            return False
+        first_stem = min(matching_stems, key=self._stem_first_index.__getitem__)
+        word.noun_paradigm = [self._stem_paradigm[first_stem]]
+        self.register(word)
+        return True
+
+
+def _assign_from_simple_stem(word: Word, assigned: _NounAssignedIndex) -> bool:
     """
     Assign paradigm from exact-stem matches in the assigned noun pool.
 
     Args:
         word: Noun candidate to assign.
-        assigned: Nouns already assigned a paradigm in current pass order.
+        assigned: Index of nouns already assigned a paradigm in current pass order.
 
     Returns:
-        ``True`` when a paradigm was copied and ``word`` appended to ``assigned``.
+        ``True`` when a paradigm was copied and ``word`` registered in ``assigned``.
 
     """
-    for other in assigned:
-        if word.stem == other.stem:
-            word.noun_paradigm = [other.noun_paradigm[0]]
-            assigned.append(word)
-            return True
-    return False
+    return assigned.assign_from_exact_stem(word)
 
 
 def _normalized_stem_variants(stem: str, prefix_re: str) -> tuple[str, str, str, str]:
@@ -159,33 +260,7 @@ def _normalized_stem_variants(stem: str, prefix_re: str) -> tuple[str, str, str,
     return mod_match1, mod_match2, mod_match3, mod_match4
 
 
-def _assign_from_advanced_stem(
-    word: Word,
-    assigned: list[Word],
-    prefix_re: str,
-) -> bool:
-    """
-    Assign paradigm using normalized stem variants against assigned nouns.
-
-    Args:
-        word: Noun candidate to assign.
-        assigned: Nouns already assigned a paradigm in current pass order.
-        prefix_re: Session prefix regex used by normalization.
-
-    Returns:
-        ``True`` when a paradigm was copied and ``word`` appended to ``assigned``.
-
-    """
-    stem_candidates = _normalized_stem_variants(word.stem, prefix_re)
-    for other in assigned:
-        if other.stem in stem_candidates:
-            word.noun_paradigm = [other.noun_paradigm[0]]
-            assigned.append(word)
-            return True
-    return False
-
-
-def _run_simple_stem_pass(nouns: list[Word], assigned: list[Word]) -> None:
+def _run_simple_stem_pass(nouns: list[Word], assigned: _NounAssignedIndex) -> None:
     """
     Run one exact-stem propagation pass for nouns lacking paradigms.
 
@@ -201,7 +276,7 @@ def _run_simple_stem_pass(nouns: list[Word], assigned: list[Word]) -> None:
 
 def _run_advanced_stem_pass(
     nouns: list[Word],
-    assigned: list[Word],
+    assigned: _NounAssignedIndex,
     prefix_re: str,
 ) -> None:
     """
@@ -220,7 +295,7 @@ def _run_advanced_stem_pass(
 
 def _run_stem_propagation_cycle(
     nouns: list[Word],
-    assigned: list[Word],
+    assigned: _NounAssignedIndex,
     prefix_re: str,
 ) -> None:
     """
@@ -391,7 +466,7 @@ def _apply_final_fallback(word: Word, buggy_word: Word) -> None:
 
 def _run_initial_assignment_pass(
     nouns: list[Word],
-    assigned: list[Word],
+    assigned: _NounAssignedIndex,
     enable_r_stem_nouns: bool,
 ) -> None:
     """
@@ -413,18 +488,18 @@ def _run_initial_assignment_pass(
             r_stem_paradigm = _get_r_stem_paradigm(word)
             if r_stem_paradigm:
                 word.noun_paradigm.append(r_stem_paradigm)
-                assigned.append(word)
+                assigned.register(word)
                 continue
         _assign_by_wright(word)
 
         if word.noun_paradigm:
-            assigned.append(word)
+            assigned.register(word)
 
 
 def _run_heuristic_pass(
     nouns: list[Word],
     words: list[Word],
-    assigned: list[Word],
+    assigned: _NounAssignedIndex,
     vowel_re: str,
     lvowel_re: str,
 ) -> None:
@@ -451,7 +526,7 @@ def _run_heuristic_pass(
                 vowel_re=vowel_re,
                 lvowel_re=lvowel_re,
             ):
-                assigned.append(word)
+                assigned.register(word)
 
 
 def _run_final_fallback_pass(nouns: list[Word], words: list[Word]) -> None:
@@ -493,7 +568,7 @@ def set_noun_paradigm(session: GeneratorSession) -> None:
     vowel_re = OENormalizer.VOWEL
     lvowel_re = OENormalizer.LVOWEL
 
-    assigned: list[Word] = []
+    assigned = _NounAssignedIndex()
     _run_initial_assignment_pass(
         nouns,
         assigned,

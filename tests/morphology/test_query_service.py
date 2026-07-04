@@ -4,6 +4,7 @@ import io
 from pathlib import Path
 
 import pytest
+from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
 from wyrdcraeft.cli import (
@@ -205,6 +206,16 @@ def _form_row(*, counter: str, formi: str, bt: str = "ord") -> FormRow:
     )
 
 
+_EXPECTED_FORMS_LOOKUP_INDEXES = {
+    "idx_forms_bt_key",
+    "idx_forms_title_key",
+    "idx_forms_stem_key",
+    "idx_forms_form_key",
+    "idx_forms_formi_key",
+    "idx_forms_normalized_title",
+}
+
+
 def test_sqlite_index_sink_bulk_inserts_via_sqlalchemy_form_model(
     tmp_path: Path,
 ) -> None:
@@ -222,6 +233,45 @@ def test_sqlite_index_sink_bulk_inserts_via_sqlalchemy_form_model(
 
     assert len(forms) == 1
     assert forms[0].form == "abbod"
+
+
+def test_sqlite_index_sink_keeps_lookup_indexes_after_close(tmp_path: Path) -> None:
+    db_path = tmp_path / "deferred-index.sqlite3"
+    sink = SqliteIndexSink(db_path)
+    sink.emit_rows([_form_row(counter="1", formi="abbod")])
+    sink.close()
+
+    engine = create_engine(db_path)
+    try:
+        with engine.connect() as connection:
+            index_rows = connection.execute(text("PRAGMA index_list('forms')")).fetchall()
+    finally:
+        engine.dispose()
+
+    index_names = {str(row[1]) for row in index_rows if str(row[1]).startswith("idx_forms_")}
+    assert index_names == _EXPECTED_FORMS_LOOKUP_INDEXES
+
+
+def test_sqlite_index_sink_flushes_in_batches_before_close(tmp_path: Path) -> None:
+    db_path = tmp_path / "batched-index.sqlite3"
+    sink = SqliteIndexSink(db_path, batch_size=2)
+    sink.emit_rows(
+        [
+            _form_row(counter="1", formi="bat-a"),
+            _form_row(counter="2", formi="bat-b"),
+            _form_row(counter="3", formi="bat-c"),
+        ]
+    )
+    sink.close()
+
+    engine = create_engine(db_path)
+    try:
+        with sessionmaker(bind=engine, future=True)() as session:
+            count = session.query(Form).count()
+    finally:
+        engine.dispose()
+
+    assert count == 3
 
 
 def test_sqlite_index_sink_preserves_counter_then_id_order(tmp_path: Path) -> None:

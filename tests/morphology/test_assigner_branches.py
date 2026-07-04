@@ -67,6 +67,18 @@ def test_set_adj_paradigm_wright_rule_425() -> None:
     assert word.adj_paradigm == ["glæd"]
 
 
+def test_set_adj_paradigm_stem_propagation() -> None:
+    session = GeneratorSession()
+    source = _make_word(adjective=1, wright="426", stem="same")
+    derived = _make_word(adjective=1, wright="0", stem="same")
+    session.words = [source, derived]
+
+    set_adj_paradigm(session)
+
+    assert source.adj_paradigm == ["blind"]
+    assert derived.adj_paradigm == ["blind"]
+
+
 def test_set_noun_paradigm_r_stem_opt_in() -> None:
     session = GeneratorSession()
     session.enable_r_stem_nouns = True

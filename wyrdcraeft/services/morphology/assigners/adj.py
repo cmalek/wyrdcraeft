@@ -60,13 +60,17 @@ def set_adj_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912
         if "\u00fe" + "weorh" in word.stem:  # þweorh
             word.adj_paradigm = ["\u00fe" + "weorh"]
 
-    # Stem comparison
+    stem_to_paradigm: dict[str, str] = {}
     for word in adjectives:
-        if not word.adj_paradigm:
-            for other in adjectives:
-                if other.adj_paradigm and word.stem == other.stem:
-                    word.adj_paradigm = [other.adj_paradigm[0]]
-                    break
+        if word.adj_paradigm:
+            stem_to_paradigm.setdefault(word.stem, word.adj_paradigm[0])
+
+    for word in adjectives:
+        if word.adj_paradigm:
+            continue
+        matched_paradigm = stem_to_paradigm.get(word.stem)
+        if matched_paradigm is not None:
+            word.adj_paradigm = [matched_paradigm]
 
     # Heuristics
     for word in adjectives:
