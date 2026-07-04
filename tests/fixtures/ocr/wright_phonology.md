@@ -1,12 +1,12 @@
-PHONOLOGY
+## PHONOLOGY
 
-CHAPTER I
+### CHAPTER I
 
-ORTHOGRAPHY AND PRONUNCIATION
+#### ORTHOGRAPHY AND PRONUNCIATION
 
 § 4. OE. was written in the British modified form of the Latin alphabet with the addition of þ and ᚹ (= w) from the runic alphabet. Vowel length was mostly omitted in writing, but in the case of long vowels it was sometimes represented by doubling the vowel or by using the diacritic sign ´, as huus, hús, house. The sign ¯, placed over vowels, is used in this grammar to mark long vowels and diphthongs. The account of the pronunciation given below is only approximately accurate. It is impossible to ascertain with perfect certainty the exact pronunciation of any language in its oldest period.
 
-A. THE VOWELS.
+##### A. THE VOWELS.
 
 § 5. The OE. vowel-system was represented by the six elementary letters a, e, i, o, u, y, the ligatures æ, œ, and the digraphs ea, eo, io, and ie, the digraphs having the value of diphthongs. See § 6. They all had both a short and a long quantity.
 
@@ -84,7 +84,7 @@ Note.—æ was often written ae, and ę in the oldest records. In the oldest per
 
 A diphthong may be defined as the combination of a sonantal with a consonantal vowel. It is called a falling or a rising diphthong according as the stress is upon the first or the second element. The OE. diphthongs were generally falling diphthongs, but the diphthongs, which arose from the influence of initial palatal c, g, and sc upon a following palatal vowel, were originally rising diphthongs which at a later period became falling diphthongs through the shifting of the stress from the second to the first element of the diphthong. See § 51.
 
-B. THE CONSONANTS.
+##### B. THE CONSONANTS.
 
 § 7. The OE. consonant-system was represented by the following letters:—b, c, d, f, g, h, k, l, m, n, p, r, s, t, þ (ð), *w, x.
 
@@ -104,7 +104,7 @@ Medial gg was always a guttural explosive like the g in NE. good, as dogga, dog;
 
 Medial intervocalic g was a guttural or a palatal spirant, the former being nearly like the g in NHG. sagen, as boga, bow; fugol, bird; lagu, law; and the latter nearly like the g in NHG. siegen, as bīeg(e)an, to bend; fæger, fair; hyge, mind.
 
-Note.— 1. Some scholars assume that palatal cg and ng were pronounced dž and ndž where dž = the j in NE. just.
+*Note.*— 1. Some scholars assume that palatal cg and ng were pronounced dž and ndž where dž = the j in NE. just.
 
 2. ʒ is generally used for g in OE. manuscripts and printed texts, and often also in grammars. In this grammar ʒ is only used to represent the prim. Germanic voiced spirant (§ 229, Note 5).
 
@@ -200,7 +200,7 @@ x was pronounced like the x in NE. six, as rīxian, to rule; siex, six; weaxan, 
 
 To these must be added the aspirate h, and x. The double consonants were pronounced long as in Modern Italian and Swedish, thus habban = hab-ban, to have; swimman = swim-man, to swim, see §§ 258–9. From the above table it will be seen that the OE. alphabet was very defective, insomuch as each of the letters c, f, g, h, n, s, and þ was used to represent two or more sounds.
 
-STRESS (ACCENT).
+#### STRESS (ACCENT).
 
 § 9. All the Indo-Germanic languages have partly pitch (musical) and partly stress accent, but one or other of the two systems of accentuation always predominates in each language, thus in Sanskrit and Old Greek the accent was predominantly pitch, whereas in the oldest periods of the Italic dialects, and the Keltic and Germanic languages, the accent was predominantly stress. This difference in the system of accentuation is clearly seen in Old Greek and the old Germanic languages by the preservation of the vowels of unaccented syllables in the former and the weakening or loss of them in the latter. In the early period of the parent Indg. language, the stress accent must have been more predominant than the pitch accent, because it is only upon this assumption that we are able to account for the origin of the vowels ī̆, ū̆, ə (§ 16, Note 1), the liquid and nasal sonants (§§ 34–7), and the loss of vowel often accompanied by a loss of syllable, as in Greek gen. πα-τρ-ός beside acc. πα-τέρ-α ; πέτ-ομαι beside ἐ-πι-δημν ; Gothic gen. pl. aúhs-nē beside acc. *aúhsa-ns. It is now a generally accepted theory that at a later period of the parent language the system of accentuation became predominantly pitch, which was preserved in Sanskrit and Old Greek, but which must have become predominantly stress again in prim. Germanic some time prior to the operation of Verner’s law (§ 238).
 
@@ -223,9 +223,7 @@ In compound words it is necessary to distinguish between compounds whose second 
 
 § 15. In compound adverbs the first element had the chief or secondary stress according as it was the more or less important element of the compound, as éal(l)mǣst, almost; éalneg from ealne + weg, always; éalswā, quite so; but onwég, away; tōgǣdere, together; þærínne, therein.
 
-CHAPTER II
-
-THE PRIMITIVE GERMANIC EQUIVALENTS OF THE INDO-GERMANIC VOWEL-SOUNDS
+### CHAPTER II: THE PRIMITIVE GERMANIC EQUIVALENTS OF THE INDO-GERMANIC VOWEL-SOUNDS
 
 § 16. The parent Indo-Germanic language had the following vowel-system:—
 
@@ -252,7 +250,7 @@ THE PRIMITIVE GERMANIC EQUIVALENTS OF THE INDO-GERMANIC VOWEL-SOUNDS
   </tr>
 </table>
 
-Note.— 1. The short vowels i, u, ə, the long vowels ī, ū, and vocalic l, m, n, r occurred originally only in syllables which did not bear the principal accent of the word.
+*Note*.— 1. The short vowels i, u, ə, the long vowels ī, ū, and vocalic l, m, n, r occurred originally only in syllables which did not bear the principal accent of the word.
 
 The short vowels i, u, and vocalic l, m, n, r arose from the loss of e in the strong forms ei, eu, el, em, en, er, which was caused by the principal accent having been shifted to some other syllable in the word.
 
@@ -308,9 +306,7 @@ The short vowels i, u, and vocalic l, m, n, r arose from the loss of e in the st
 
 Note.—If we summarize the vowel-changes which have been stated in this chapter, it will be seen that the following vowel-sounds fell together:—a, o, and ǝ; original u and the u which arose from Indg. vocalic l, m, n, r; ī and ei; ā and ō; ai and oi; au and ou.
 
-CHAPTER III
-
-THE PRIMITIVE GERMANIC VOWEL-SYSTEM
+### CHAPTER III: THE PRIMITIVE GERMANIC VOWEL-SYSTEM
 
 § 38. From what has been said in §§ 17–37, we arrive at the following vowel-system for the prim. Germanic language:—
 
@@ -335,7 +331,7 @@ Note.— ǣ was an open e-sound like OE. ǣ. ē was a close sound like the e in 
 
 § 40. a + ŋχ became āχ, as Goth. OS. OHG. fāhan, O.Icel. fā, OE. fōn (§ 139), from *faŋχanan, to catch, seize, cp. Lat. pangō, I fasten; Goth. þahta, OS. thāhta, OHG. dāhta, OE. þōhte (inf. þencan), from older *þaŋχta, *þaŋχtō-, I thought, cp. O.Lat. tongēō, I know. Every prim. Germanic ā in accented syllables was of this origin. Cp. § 23.
 
-Note.— The ā in the above and similar examples was still a nasalized vowel in prim. Germanic, as is seen by its development to ō in OE. The ī (§ 41) and ū (§ 43) were also nasalized vowels in prim. Germanic.
+*Note*.— The ā in the above and similar examples was still a nasalized vowel in prim. Germanic, as is seen by its development to ō in OE. The ī (§ 41) and ū (§ 43) were also nasalized vowels in prim. Germanic.
 
 § 41. e became i under the following circumstances:—
 
@@ -509,7 +505,7 @@ The following table contains the normal development of the above vowel-system in
   </tr>
 </table>
 
-Note.— The table does not include the sound-changes which were caused by umlaut, the influence of neighbouring consonants, &c. For details of this kind the student should consult the grammars of the separate languages. But as we shall have occasion to make use of many Gothic, OS. and OHG.
+*Note.*— The table does not include the sound-changes which were caused by umlaut, the influence of neighbouring consonants, &c. For details of this kind the student should consult the grammars of the separate languages. But as we shall have occasion to make use of many Gothic, OS. and OHG.
 forms in this grammar, the following points should be noted here:—
 
 1. Goth. i and u were broken to aí (= short open e) and aú (= short open o) before r, h, and ƕ, as baíran, OE. beran, to bear; saíƕan, OHG. sehan, to see; baíriþ, OHG. birit, he bears; saíƕiþ, OHG. sihit, he sees; pp. baúrans, OE. boren, borne; daúhtar, OE. dohtor, daughter; waúrms, OHG. wurm, serpent, worm; saúhts, OHG. suht, sickness. Gothic ei was a monophthong and was pronounced like the ī in the other Germanic languages. Germanic ai and au remained in Gothic, but they are generally written ái and áu in order to distinguish them from the short vowels aí and aú.
@@ -520,13 +516,11 @@ forms in this grammar, the following points should be noted here:—
 
 4. Prim. Germanic au became ò in OHG. before the consonants d, t, ȥ, s, n, r, l, and old h, as tòd = Goth. dáuþus, death; kōs = Goth. káus, he chose; hōh = Goth. háuhs, high.
 
-CHAPTER IV
-
-THE OLD ENGLISH DEVELOPMENT OF THE PRIM. GERMANIC VOWELS OF ACCENTED SYLLABLES
+### CHAPTER IV: THE OLD ENGLISH DEVELOPMENT OF THE PRIM. GERMANIC VOWELS OF ACCENTED SYLLABLES
 
 § 46. Before entering upon the history of the separate Germanic vowels in OE. it will be well to state and illustrate here several phenomena which concern the OE. vowels in general.
 
-1. UMLAUT.
+#### 1. UMLAUT.
 
 § 47. Umlaut is of two kinds: Palatal and Guttural. Palatal umlaut, generally called i-umlaut, is the modification (palatalization) of an accented vowel through the influence of an ī̆ or j which originally stood in the following syllable. This process took place in prehistoric OE. and the ī̆ or j had for the most part already disappeared in the oldest OE. records. The i, which remained, mostly became e at an early period (§ 215, Note), so that for the proper understanding of the forms which underwent i-umlaut it is necessary to compare them with the corresponding forms of some other Germanic language, especially with the Gothic. The simple vowels and diphthongs which underwent i-umlaut in OE. are: a(o), æ, o, u; ā, ō, ū; ea, io; ēa and īo.
 
@@ -553,3 +547,4 @@ io > ie (later i, y), as hierde, OHG. hirti, shepherd; ierre, OHG. irri, angry; 
 īo > īe (later ī, ȳ), as cīesþ from *kīosiþ, older *kiusiþ, he chooses; tīehþ from *tīohiþ, he draws; līehtan, Goth. liuhtjan, to give light (§ 138). līehtan from līohtjan, older *līχtjan, to lighten, make easier; līehþ from *līohiþ, OHG. līhit, he lends (§ 127). frīend, prim. Germanic *frijōndiz, friends (§ 104).
 
 § 48. Guttural umlaut is the modification of an accented vowel (a, e, i) through the influence of a primitive OE. guttural vowel (u, ō̆, a) in the next syllable, whereby a guttural glide was developed after the vowels a, e, i, which then combined with them to form the diphthongs ea, eo, io. As a rule umlaut only took place before a single consonant.
+

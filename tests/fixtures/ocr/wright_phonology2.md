@@ -6,7 +6,7 @@ u-umlaut of e and i, and o/a-umlaut of i took place in Ken. before all single co
 
 o/a-umlaut of e did not take place in WS. In Ken. it took place before all single consonants and in Anglian before all single consonants except gutturals, as beoran, to bear, eotan, to eat, feola, many = WS. beran, etan, fela. Ken. weogas, ways, spreocan, to speak = WS. and Anglian wegas, spreca(n), see § 93.
 
-2. Breaking.
+#### 2. Breaking.
 
 § 49. Breaking is due to the influence of an l, r, or h + consonant, or single h, upon a preceding vowel (Germanic a, e, i; ǣ, ī) whereby a guttural glide was developed between the vowel and the consonant, which then combined with the vowel to form a diphthong. For the reason why breaking took place before l and r + consonant more regularly in WS. and Ken. than in Anglian, see § 7. In the examples given below we shall confine ourselves chiefly to WS.
 
@@ -20,7 +20,7 @@ i > io (later eo), as liornian, leornian, from *lirnōjan, to learn; miox, meox,
 
 i > īo (later ēo) in WS. before h and ht, as lēoht, Goth. leihts, adj. light; wēoh, idol, Goth. weihs, holy (§ 127).
 
-3. Influence of Nasals.
+#### 3. Influence of Nasals.
 
 § 50. a became a low-back-wide vowel, written a, o, before nasals, as camb, comb, comb; nama, noma, name; land, lond, land; lang, long, long (§ 59).
 
@@ -32,7 +32,7 @@ o > u before nasals, as guma, OHG. gomo, man; numen, OHG. ginoman, taken; hunig,
 
 Nasals disappeared before the voiceless spirants f, þ, and s with lengthening of the preceding vowel, as fīf, OHG. fimf, five; ōsle, OHG. amsala, ousel (§ 283); cūþ, Goth. kunþs, known; gōs, OHG. gans, goose; ōþer, Goth. anþar, other (§ 286).
 
-4. Influence of Initial Palatal Consonants.
+#### 4. Influence of Initial Palatal Consonants.
 
 § 51. Between palatal c (§ 309), g (= Germanic ʒ, § 313), g (= Germanic j, § 268), sc (§ 312), and the following palatal vowel, a glide was developed in prim. OE., which combined with the vowel to form a rising diphthong, and then at a later period the rising diphthong became a falling diphthong through the shifting of the stress from the second to the first element of the diphthong. The examples given below are chiefly WS.; for the corresponding forms in the other dialects, the student should consult the paragraphs within brackets.
 
@@ -42,9 +42,9 @@ e > ie (older ié), as cieres, Lat. cerasum, cherry-tree; giefan, OHG. geban, to
 
 ǣ > ēa (older eǣ), as cēace, prim. Germanic *kǣkōn-, jaw; gēafon, Goth. gēbun, they gave; gēar, Goth. jēr, year; scēap, Goth. *skēp, sheep (§ 124).
 
-Note.— In forms like gioc, geoc (OHG. joh), yoke (§ 110); giong, geong (OHG. jung), young (§ 116); geōmor (OHG. jāmar), sad (§ 122, Note), the io, eo, eō may have been rising diphthongs, but it is difficult to determine how far they were diphthongs at all, and how far the i, e were merely inserted to indicate the palatal nature of the g = Germanic j (§ 268). It is highly probable that in forms like sceacan, to shake, sceadu, shadow, beside scacan, scadu (§ 57, Note), sceolde, OHG. scolta, should (§ 110), sceādan beside scādan, to divide (§ 133, Note 2), the e was merely inserted to indicate the palatal nature of the sc (§ 312).
+*Note.*— In forms like gioc, geoc (OHG. joh), yoke (§ 110); giong, geong (OHG. jung), young (§ 116); geōmor (OHG. jāmar), sad (§ 122, Note), the io, eo, eō may have been rising diphthongs, but it is difficult to determine how far they were diphthongs at all, and how far the i, e were merely inserted to indicate the palatal nature of the g = Germanic j (§ 268). It is highly probable that in forms like sceacan, to shake, sceadu, shadow, beside scacan, scadu (§ 57, Note), sceolde, OHG. scolta, should (§ 110), sceādan beside scādan, to divide (§ 133, Note 2), the e was merely inserted to indicate the palatal nature of the sc (§ 312).
 
-5. Influence of w.
+#### 5. Influence of w.
 
 § 52. e and ē (= Germanic ǣ) were often rounded to œ and œ̄ after w in Nth., as cuœpa, WS. cweþan, to say (§ 80, Note 1); cuœlla, WS. cwellan, to kill; tuœlf, WS. twelf, twelve (§ 55, Note 1). huœ̄r, where, wœ̄ron, were = WS. hwǣr, wǣron (§ 119, Note 2).
 
@@ -58,11 +58,11 @@ Initial wio- became wu- in WS. and Anglian, but remained in Ken., as wudu, wood,
 
 § 53. The following was the chronological order in which the sound-laws stated in §§ 47–52 took place: (1) The influence of nasals. (2) Breaking. (3) The influence of initial palatal consonants. (4) i-umlaut. (5) u-, o/a- umlaut. (6) Influence of w.
 
-Note.— In the case of words where diphthongization by preceding palatals and u-, o/a-umlaut concur, the latter has the predominance, as geolo, yellow ; geoloca, yolk ; ceole (acc. ceolan, § 403), throat. This does not however prove that u, o/a-umlaut chronologically precedes diphthongization by preceding palatals. Either geolo, &c., are not pure WS. forms (see § 92) or else the ie became eo by umlaut, in which case forms like giefu (§ 365) would have ie from the oblique cases.
+*Note.*— In the case of words where diphthongization by preceding palatals and u-, o/a-umlaut concur, the latter has the predominance, as geolo, yellow ; geoloca, yolk ; ceole (acc. ceolan, § 403), throat. This does not however prove that u, o/a-umlaut chronologically precedes diphthongization by preceding palatals. Either geolo, &c., are not pure WS. forms (see § 92) or else the ie became eo by umlaut, in which case forms like giefu (§ 365) would have ie from the oblique cases.
 
-A. The Short Vowels of Accented Syllables.
+### A. The Short Vowels of Accented Syllables.
 
-a
+**a**
 
 § 54. Apart from the influence of neighbouring sounds the normal development of Germanic a (= Goth. O.Icel. OS. OHG. a) is æ in OE.
 
