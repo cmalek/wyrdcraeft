@@ -1,4 +1,5 @@
 import json
+import sqlite3
 from importlib.resources import files
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from sqlalchemy import func, select
 
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import (  # noqa: F401
+    LemmaMorphClass,
     MorphClass,
     MorphClassSource,
     MorphClassWrightSection,
@@ -30,6 +32,40 @@ def catalog_db(tmp_path: Path):
 def test_morph_catalog_models_importable() -> None:
     assert MorphClass.__tablename__ == "morph_classes"
     assert WrightSection.__tablename__ == "wright_sections"
+    assert LemmaMorphClass.__tablename__ == "lemma_morph_classes"
+
+
+def test_lemma_morph_class_migration_applies_on_empty_db(tmp_path: Path) -> None:
+    db_path = tmp_path / "empty-catalog.sqlite3"
+    upgrade_canonical_db(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        table_names = {
+            row[0]
+            for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'",
+            )
+        }
+        morph_class_columns = {
+            row[1]
+            for row in connection.execute("PRAGMA table_info(morph_classes)")
+        }
+
+    assert "lemma_morph_classes" in table_names
+    assert "recognition_hints_json" in morph_class_columns
+
+
+def test_catalog_loader_populates_recognition_hints_json(catalog_db) -> None:
+    MorphologyCatalogLoader(catalog_db).load_fixture(FIXTURE)
+
+    with catalog_db.connect() as conn:
+        hints_json = conn.execute(
+            select(MorphClass.recognition_hints_json).where(
+                MorphClass.class_key == "noun.masculine.a_stem",
+            ),
+        ).scalar_one()
+
+    assert json.loads(hints_json) == {"requires_lexeme_lookup": True}
 
 
 def test_catalog_loader_seeds_fixture(catalog_db) -> None:

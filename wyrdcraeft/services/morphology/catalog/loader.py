@@ -10,6 +10,7 @@ from sqlalchemy import delete, func, insert, select
 from sqlalchemy.orm import sessionmaker
 
 from wyrdcraeft.models.morph_catalog import (
+    LemmaMorphClass,
     MorphClass,
     MorphClassSource,
     MorphClassWrightSection,
@@ -295,6 +296,7 @@ class MorphologyCatalogLoader:
         """
         session.execute(delete(MorphClassWrightSection))
         session.execute(delete(MorphClassSource))
+        session.execute(delete(LemmaMorphClass))
         session.execute(delete(MorphClass))
         session.execute(delete(WrightSection))
         session.execute(delete(MorphSource))
@@ -473,6 +475,10 @@ class MorphologyCatalogLoader:
         )
         row.features_json = MorphologyCatalogLoader._json_dump(
             morph_class.get("features"),
+            default="{}",
+        )
+        row.recognition_hints_json = MorphologyCatalogLoader._json_dump(
+            morph_class.get("recognition_hints"),
             default="{}",
         )
 

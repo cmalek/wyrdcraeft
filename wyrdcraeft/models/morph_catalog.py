@@ -90,6 +90,10 @@ class MorphClass(Base):
     features_json: Mapped[str] = mapped_column(
         Text, nullable=False, server_default="{}"
     )
+    #: JSON-encoded recognition hints for lemma-to-class assignment.
+    recognition_hints_json: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="{}"
+    )
     #: Wright-section junction rows owned by this class.
     wright_section_links: Mapped[list["MorphClassWrightSection"]] = relationship(  # noqa: UP037
         back_populates="morph_class",
@@ -99,6 +103,10 @@ class MorphClass(Base):
     source_links: Mapped[list["MorphClassSource"]] = relationship(  # noqa: UP037
         back_populates="morph_class",
         cascade="all, delete-orphan",
+    )
+    #: Lemma assignment rows referencing this morph class.
+    lemma_assignments: Mapped[list["LemmaMorphClass"]] = relationship(  # noqa: UP037
+        back_populates="morph_class",
     )
 
 
@@ -174,6 +182,56 @@ class MorphClassWrightSection(Base):
     #: Referenced Wright section row.
     wright_section: Mapped[WrightSection] = relationship(
         back_populates="morph_class_links",
+    )
+
+
+class LemmaMorphClass(Base):
+    """
+    Lemma-to-morph-class assignment row keyed by normalized title and POS.
+
+    Note:
+        Linguistic behavior follows ``data/OldEnglishGrammar.pdf`` and
+        ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, each row records
+        which reusable inflection class best fits one inflectable lemma for a
+        catalog Part of Speech (``noun``, ``verb``, ``adjective``, ``adverb``,
+        ``pronoun``, and later ``numeral``).
+
+    """
+
+    #: Lemma-to-morph-class assignment table name.
+    __tablename__ = "lemma_morph_classes"
+    #: Uniqueness and lookup indexes for lemma assignment rows.
+    __table_args__ = (
+        UniqueConstraint("normalized_title", "pos"),
+        Index("idx_lemma_morph_classes_morph_class_id", "morph_class_id"),
+        Index("idx_lemma_morph_classes_normalized_title", "normalized_title"),
+    )
+
+    #: Surrogate assignment row identifier.
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    #: Normalized lemma title used as assignment lookup key.
+    normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Catalog part-of-speech label for the lemma.
+    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Assigned morph-class identifier.
+    morph_class_id: Mapped[int] = mapped_column(
+        ForeignKey("morph_classes.id"), nullable=False
+    )
+    #: Provenance label for how the assignment was produced.
+    assignment_source: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="rule"
+    )
+    #: Assignment confidence score from 0 to 100.
+    confidence: Mapped[int] = mapped_column(nullable=False, server_default="100")
+    #: JSON-encoded lemma-specific feature flags for the assignment.
+    features_json: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="{}"
+    )
+    #: Free-form assignment notes.
+    notes: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    #: Referenced morph-class row.
+    morph_class: Mapped[MorphClass] = relationship(
+        back_populates="lemma_assignments",
     )
 
 
