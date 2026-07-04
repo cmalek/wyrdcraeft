@@ -75,3 +75,14 @@ def test_catalog_loader_ensure_seeded_refresh(catalog_db) -> None:
     loader = MorphologyCatalogLoader(catalog_db)
     assert loader.ensure_seeded(FIXTURE) is True
     assert loader.ensure_seeded(FIXTURE, refresh=True) is True
+
+
+def test_wright_paradigms_fixture_matches_expected_counts() -> None:
+    data = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    assert data["schema_version"] == "1.0"
+    assert len(data["sources"]) >= 1
+    assert len(data["morph_classes"]) == 113
+    ids = {c["id"] for c in data["morph_classes"]}
+    assert len(ids) == 113
+    for c in data["morph_classes"]:
+        assert c["pos"] in {"noun", "verb", "adjective", "adverb", "pronoun"}
