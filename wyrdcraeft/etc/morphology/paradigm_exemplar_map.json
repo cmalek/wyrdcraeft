@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "description": "Optional generator-label overrides for ParadigmClassMapper. Every class_key must exist in wright_paradigms.json; leave sections empty when fixture paradigmatic_words suffice.",
+  "noun": {},
+  "adjective": {},
+  "verb": {}
+}
