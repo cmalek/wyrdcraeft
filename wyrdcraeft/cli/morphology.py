@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
+from sqlalchemy.exc import SQLAlchemyError
 
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.paths import get_canonical_db_path
@@ -485,7 +486,7 @@ def build(  # noqa: PLR0913, PLR0915
                 )
             finally:
                 catalog_engine.dispose()
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError, SQLAlchemyError) as e:
         progress.stop()
         msg = (
             f"Failed to seed Wright morph catalog from {default_fixture_path}: {e}"

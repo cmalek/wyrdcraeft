@@ -86,3 +86,57 @@ def test_wright_paradigms_fixture_matches_expected_counts() -> None:
     assert len(ids) == 113
     for c in data["morph_classes"]:
         assert c["pos"] in {"noun", "verb", "adjective", "adverb", "pronoun"}
+
+
+def test_wright_paradigms_fixture_is_packaged() -> None:
+    assert FIXTURE.exists()
+
+
+def test_catalog_loader_rejects_unknown_source_keys(catalog_db, tmp_path: Path) -> None:
+    payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    payload["morph_classes"][0]["source_keys"] = ["nonexistent_source"]
+    bad_fixture = tmp_path / "bad_fixture.json"
+    bad_fixture.write_text(json.dumps(payload), encoding="utf-8")
+
+    loader = MorphologyCatalogLoader(catalog_db)
+    with pytest.raises(ValueError, match="Unknown source_keys"):
+        loader.load_fixture(bad_fixture)
+
+
+def test_catalog_loader_rejects_missing_morph_class_fields(
+    catalog_db,
+    tmp_path: Path,
+) -> None:
+    payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    del payload["morph_classes"][0]["pos"]
+    bad_fixture = tmp_path / "bad_fixture.json"
+    bad_fixture.write_text(json.dumps(payload), encoding="utf-8")
+
+    loader = MorphologyCatalogLoader(catalog_db)
+    with pytest.raises(ValueError, match="missing required keys"):
+        loader.load_fixture(bad_fixture)
+
+
+def test_catalog_loader_refresh_replaces_stale_rows(
+    catalog_db,
+    tmp_path: Path,
+) -> None:
+    payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    reduced = {**payload, "morph_classes": payload["morph_classes"][:1]}
+    reduced_fixture = tmp_path / "reduced_fixture.json"
+    reduced_fixture.write_text(json.dumps(reduced), encoding="utf-8")
+
+    loader = MorphologyCatalogLoader(catalog_db)
+    loader.load_fixture(reduced_fixture)
+    with catalog_db.connect() as conn:
+        reduced_count = conn.execute(
+            select(func.count()).select_from(MorphClass)
+        ).scalar_one()
+    assert reduced_count == 1
+
+    loader.load_fixture(FIXTURE, refresh=True)
+    with catalog_db.connect() as conn:
+        full_count = conn.execute(
+            select(func.count()).select_from(MorphClass)
+        ).scalar_one()
+    assert full_count == 113

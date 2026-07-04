@@ -25,6 +25,21 @@ if TYPE_CHECKING:
 
 #: Required top-level keys in ``wright_paradigms.json``.
 _REQUIRED_FIXTURE_KEYS: tuple[str, ...] = ("schema_version", "sources", "morph_classes")
+#: Required keys on each ``sources`` fixture row.
+_REQUIRED_SOURCE_KEYS: tuple[str, ...] = (
+    "source_key",
+    "citation_apa",
+    "url",
+    "retrieved_date",
+)
+#: Required keys on each ``morph_classes`` fixture row.
+_REQUIRED_MORPH_CLASS_KEYS: tuple[str, ...] = (
+    "id",
+    "pos",
+    "canonical_name",
+    "modern_class",
+    "traditional_class",
+)
 
 
 @dataclass(frozen=True)
@@ -185,6 +200,29 @@ class MorphologyCatalogLoader:
         if missing:
             msg = f"Fixture missing required keys: {missing}"
             raise ValueError(msg)
+
+        for index, source in enumerate(payload["sources"]):
+            missing_source = [
+                key for key in _REQUIRED_SOURCE_KEYS if key not in source
+            ]
+            if missing_source:
+                msg = (
+                    f"Fixture source row {index} missing required keys: "
+                    f"{missing_source}"
+                )
+                raise ValueError(msg)
+
+        for morph_class in payload["morph_classes"]:
+            class_key = str(morph_class.get("id", "<missing id>"))
+            missing_class = [
+                key for key in _REQUIRED_MORPH_CLASS_KEYS if key not in morph_class
+            ]
+            if missing_class:
+                msg = (
+                    f"Morph class {class_key!r} missing required keys: "
+                    f"{missing_class}"
+                )
+                raise ValueError(msg)
 
         known_source_keys = {
             str(source["source_key"])
