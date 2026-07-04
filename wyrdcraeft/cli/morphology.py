@@ -408,7 +408,8 @@ def build(  # noqa: PLR0913, PLR0915
             fixture even when catalog rows already exist.
 
     Side Effects:
-        Reads morphology source files and writes SQLite output artifacts.
+        Reads morphology source files, seeds the Wright catalog when needed,
+        and writes SQLite output artifacts.
 
     Raises:
         click.ClickException: Input files are missing or output writing fails.
@@ -473,16 +474,23 @@ def build(  # noqa: PLR0913, PLR0915
         app_data_dir=settings.app_data_dir if settings is not None else None
     )
     default_fixture_path = resolved_data_dir / "wright_paradigms.json"
-    with profiler.time_setup("seed catalog"):
-        catalog_engine = create_engine(resolved_index_db)
-        try:
-            catalog_loader = MorphologyCatalogLoader(catalog_engine)
-            catalog_loader.ensure_seeded(
-                default_fixture_path,
-                refresh=refresh_catalog,
-            )
-        finally:
-            catalog_engine.dispose()
+    try:
+        with profiler.time_setup("seed catalog"):
+            catalog_engine = create_engine(resolved_index_db)
+            try:
+                catalog_loader = MorphologyCatalogLoader(catalog_engine)
+                catalog_loader.ensure_seeded(
+                    default_fixture_path,
+                    refresh=refresh_catalog,
+                )
+            finally:
+                catalog_engine.dispose()
+    except (OSError, ValueError) as e:
+        progress.stop()
+        msg = (
+            f"Failed to seed Wright morph catalog from {default_fixture_path}: {e}"
+        )
+        raise click.ClickException(msg) from e
 
     sqlite_sink: SqliteIndexSink | None = None
     try:

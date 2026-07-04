@@ -100,6 +100,71 @@ def test_morphology_build_seeds_catalog_when_empty(
     assert count == _expected_morph_class_count()
 
 
+def test_morphology_build_skips_catalog_seed_when_populated(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    build_args = [
+        "morphology",
+        "build",
+        "--limit",
+        "1",
+        *_isolated_generate_args(),
+    ]
+    first = runner.invoke(cli, build_args)
+    assert first.exit_code == 0
+
+    engine = create_engine(isolated_morphology_index_db)
+    try:
+        with engine.connect() as connection:
+            count_before = connection.execute(
+                select(func.count()).select_from(MorphClass)
+            ).scalar_one()
+    finally:
+        engine.dispose()
+
+    second = runner.invoke(cli, build_args)
+    assert second.exit_code == 0
+
+    engine = create_engine(isolated_morphology_index_db)
+    try:
+        with engine.connect() as connection:
+            count_after = connection.execute(
+                select(func.count()).select_from(MorphClass)
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    assert count_before == count_after == _expected_morph_class_count()
+
+
+def test_morphology_build_refresh_catalog_reloads_fixture(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    build_args = [
+        "morphology",
+        "build",
+        "--limit",
+        "1",
+        *_isolated_generate_args(),
+    ]
+    first = runner.invoke(cli, build_args)
+    assert first.exit_code == 0
+
+    refreshed = runner.invoke(cli, [*build_args, "--refresh-catalog"])
+    assert refreshed.exit_code == 0
+
+    engine = create_engine(isolated_morphology_index_db)
+    try:
+        with engine.connect() as connection:
+            count = connection.execute(
+                select(func.count()).select_from(MorphClass)
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    assert count == _expected_morph_class_count()
+
+
 def test_morphology_generate_command_is_gone(runner) -> None:
     result = runner.invoke(cli, ["morphology", "generate", "--help"])
     assert result.exit_code != 0

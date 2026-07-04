@@ -63,3 +63,15 @@ def test_catalog_loader_is_idempotent(catalog_db) -> None:
     with catalog_db.connect() as conn:
         count2 = conn.execute(select(func.count()).select_from(MorphClass)).scalar_one()
     assert count1 == count2
+
+
+def test_catalog_loader_ensure_seeded_skips_when_populated(catalog_db) -> None:
+    loader = MorphologyCatalogLoader(catalog_db)
+    assert loader.ensure_seeded(FIXTURE) is True
+    assert loader.ensure_seeded(FIXTURE) is False
+
+
+def test_catalog_loader_ensure_seeded_refresh(catalog_db) -> None:
+    loader = MorphologyCatalogLoader(catalog_db)
+    assert loader.ensure_seeded(FIXTURE) is True
+    assert loader.ensure_seeded(FIXTURE, refresh=True) is True
