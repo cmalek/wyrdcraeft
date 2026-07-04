@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import sqlite3
+from importlib.resources import files
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from textual import events
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, DataTable, Input, ListView, Static
 
+from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.lexicon_build import (
     BuildCancelled,
     BuildCounters,
@@ -20,6 +26,7 @@ from wyrdcraeft.models.lexicon_build import (
     BuildStageStarted,
     LexiconBuildStage,
 )
+from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
 from wyrdcraeft.services.lexicon.build_monitor import LexiconBuildMonitorApp
 from wyrdcraeft.services.lexicon.build_runtime import LexiconBuildController
@@ -32,11 +39,12 @@ from wyrdcraeft.services.lexicon.tui import (
     create_lexicon_browse_app,
     run_lexicon_browse,
 )
+from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from textual.widget import Widget
+
+FIXTURE = Path(str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")))
 
 
 def _collect_widget_ids(widget: Widget) -> set[str]:
@@ -56,6 +64,37 @@ def _collect_widget_ids(widget: Widget) -> set[str]:
     for child in widget.children:
         ids.update(_collect_widget_ids(child))
     return ids
+
+
+def _seed_catalog_assignment(
+    db_path: Path,
+    *,
+    normalized_title: str,
+    catalog_pos: str,
+    class_key: str,
+    assignment_source: str = "paradigm",
+) -> None:
+    """Seed one catalog assignment row into a temporary lexicon test database."""
+    engine = create_engine(db_path)
+    try:
+        MorphologyCatalogLoader(engine).load_fixture(FIXTURE)
+        with Session(engine) as session:
+            morph_class = session.scalar(
+                select(MorphClass).where(MorphClass.class_key == class_key),
+            )
+            assert morph_class is not None
+            session.add(
+                LemmaMorphClass(
+                    normalized_title=normalized_title,
+                    pos=catalog_pos,
+                    morph_class_id=morph_class.id,
+                    assignment_source=assignment_source,
+                    confidence=100,
+                )
+            )
+            session.commit()
+    finally:
+        engine.dispose()
 
 
 def test_shell_create_app_wires_query_service(lexicon_source_db: Path) -> None:
@@ -161,6 +200,22 @@ def _static_text(widget: Static) -> str:
     return str(widget.render())
 
 
+def _details_text(app: LexiconBrowseApp) -> str:
+    """
+    Read both details widgets as one plain-text assertion target.
+
+    Args:
+        app: Running lexicon browse app under test.
+
+    Returns:
+        Combined plain text from the details header and body widgets.
+
+    """
+    header = _static_text(app.query_one("#details-content", Static))
+    body = _static_text(app.query_one("#details-body-content", Static))
+    return "\n".join(part for part in (header, body) if part)
+
+
 async def _submit_search(app: LexiconBrowseApp, pilot, query: str) -> None:
     """
     Enter a query and submit the browse search box with Enter.
@@ -254,7 +309,7 @@ async def test_browse_single_main_result_auto_shows_details(
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "ABBOD")
 
-            details_text = _static_text(app.query_one("#details-content", Static))
+            details_text = _details_text(app)
             assert "abbad" in details_text
             assert "POS: noun" in details_text
             assert "Summary" in details_text
@@ -264,6 +319,80 @@ async def test_browse_single_main_result_auto_shows_details(
 
             main_list = app.query_one("#results-list", ListView)
             assert main_list.index == 0
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_wright_section_selection_opens_ingested_text_modal(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+    _seed_catalog_assignment(
+        lexicon_source_db,
+        normalized_title="abbad",
+        catalog_pos="noun",
+        class_key="noun.masculine.a_stem",
+    )
+    with sqlite3.connect(lexicon_source_db) as connection:
+        connection.execute(
+            "UPDATE wright_sections SET section_text = ? WHERE section_no = ?",
+            ("Representative ingested Wright paragraph for abbad.", 334),
+        )
+        connection.commit()
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "ABBOD")
+
+            sections_title = app.query_one("#wright-sections-title", Static)
+            assert "hidden" not in sections_title.classes
+            sections_list = app.query_one("#wright-sections-list", ListView)
+            assert "hidden" not in sections_list.classes
+            sections_list.index = 0
+            sections_list.action_select_cursor()
+            await pilot.pause()
+
+            modal_screen = app.screen_stack[-1]
+            modal_text = _static_text(modal_screen.query_one("#wright-modal-text", Static))
+            assert "Representative ingested Wright paragraph" in modal_text
+
+            await pilot.press("escape")
+            await pilot.pause()
+            assert not list(app.query("#wright-modal"))
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_wright_section_selection_shows_not_ingested_message(
+    lexicon_source_db: Path,
+) -> None:
+    rebuild_lexicon(lexicon_source_db)
+    _seed_catalog_assignment(
+        lexicon_source_db,
+        normalized_title="abbad",
+        catalog_pos="noun",
+        class_key="noun.masculine.a_stem",
+    )
+
+    app = create_lexicon_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "ABBOD")
+
+            sections_list = app.query_one("#wright-sections-list", ListView)
+            sections_list.index = 0
+            sections_list.action_select_cursor()
+            await pilot.pause()
+
+            modal_screen = app.screen_stack[-1]
+            modal_text = _static_text(modal_screen.query_one("#wright-modal-text", Static))
+            assert (
+                "Wright § 334 text not ingested — run morphology ingest-wright-text"
+                in modal_text
+            )
     finally:
         app.query_service.close()
 
@@ -290,7 +419,7 @@ async def test_browse_orphans_shown_in_separate_section(lexicon_source_db: Path)
             assert isinstance(orphan_item, _OrphanResultItem)
             assert orphan_item.hit.lemma == "orphan-lemma"
 
-            details_text = _static_text(app.query_one("#details-content", Static))
+            details_text = _details_text(app)
             assert "No dictionary entries matched" in details_text
     finally:
         app.query_service.close()
@@ -312,7 +441,7 @@ async def test_browse_select_orphan_shows_details_and_morphology_sidebar(
             orphans_list.action_select_cursor()
             await pilot.pause()
 
-            details_text = _static_text(app.query_one("#details-content", Static))
+            details_text = _details_text(app)
             assert "orphan-lemma" in details_text
             assert "Morphology-only form" in details_text
 
@@ -600,7 +729,7 @@ async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> N
             main_list = app.query_one("#results-list", ListView)
             assert isinstance(main_list.children[0], _MainResultItem)
 
-            details_text = _static_text(app.query_one("#details-content", Static))
+            details_text = _details_text(app)
             assert "abbad" in details_text
             assert "POS: noun" in details_text
     finally:

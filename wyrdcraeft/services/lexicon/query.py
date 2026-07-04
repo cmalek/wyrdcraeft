@@ -958,6 +958,19 @@ class LexiconQueryService:
             is_unclassified=False,
         )
 
+    def lookup_wright_section_text(self, section_no: int) -> str | None:
+        """
+        Resolve stored Wright section text for browse detail interactions.
+
+        Args:
+            section_no: Wright grammar section number selected in the TUI.
+
+        Returns:
+            Stored section text, or ``None`` when the section has not been ingested.
+
+        """
+        return self._catalog_query_service.lookup_wright_section_text(section_no)
+
     def get_orphan_details(self, form_id: int) -> OrphanDetails | None:
         """
         Load a details payload for one morphology orphan row.

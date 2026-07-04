@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import unicodedata
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from textual import events
+    from textual.binding import BindingType
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, ScrollableContainer, Vertical
+from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
 
 from wyrdcraeft.services.lexicon.build import check_lexicon_staleness
@@ -212,6 +214,99 @@ class _OrphanResultItem(ListItem):
         super().__init__(Static(_format_orphan_result_label(hit)))
         #: Orphan search hit rendered in the lower results section.
         self.hit = hit
+
+
+class _WrightSectionItem(ListItem):
+    """
+    Selectable list row for one Wright section citation.
+
+    Args:
+        section_no: Wright grammar section number linked to the selected class.
+
+    """
+
+    def __init__(self, section_no: int) -> None:
+        """
+        Build one Wright section selection row for the details pane.
+
+        Args:
+            section_no: Wright grammar section number linked to the selected class.
+
+        """
+        super().__init__(Static(f"Wright § {section_no}"))
+        #: Wright grammar section number linked to the selected class.
+        self.section_no = section_no
+
+
+class WrightSectionTextScreen(ModalScreen[None]):
+    """
+    Modal overlay showing stored text for one Wright section citation.
+
+    Args:
+        section_no: Wright grammar section number shown in the overlay title.
+        section_text: Stored section text or an actionable missing-ingest message.
+
+    """
+
+    #: Escape closes the overlay without leaving the browse app.
+    BINDINGS: ClassVar[list[BindingType]] = [
+        ("escape", "close_overlay", "Close"),
+    ]
+
+    def __init__(self, *, section_no: int, section_text: str) -> None:
+        """
+        Initialize one Wright section modal overlay.
+
+        Keyword Args:
+            section_no: Wright grammar section number shown in the overlay title.
+            section_text: Stored section text or an actionable missing-ingest message.
+
+        """
+        super().__init__()
+        #: Wright grammar section number shown in the overlay title.
+        self.section_no = section_no
+        #: Stored section text or an actionable missing-ingest message.
+        self.section_text = section_text
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose the Wright section modal overlay.
+
+        Returns:
+            Textual widget tree for the Wright section title, text, and close button.
+
+        """
+        with Vertical(id="wright-modal"):
+            yield Static(f"Wright § {self.section_no}", id="wright-modal-title")
+            with ScrollableContainer(id="wright-modal-scroll"):
+                yield Static(self.section_text, id="wright-modal-text")
+            yield Button("Close", id="wright-modal-close")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        Close the overlay when the user activates the close button.
+
+        Args:
+            event: Textual button press event from the modal content.
+
+        Side Effects:
+            Pops the modal screen when the close button is pressed.
+
+        """
+        if event.button.id != "wright-modal-close":
+            return
+        self.app.pop_screen()
+        event.stop()
+
+    def action_close_overlay(self) -> None:
+        """
+        Dismiss the modal overlay from the Escape key binding.
+
+        Side Effects:
+            Pops the modal screen from the app stack.
+
+        """
+        self.app.pop_screen()
 
 
 def _format_main_result_label(hit: SearchHit) -> str:
@@ -493,7 +588,7 @@ def _format_class_lines(details: EntryDetails) -> list[str]:
         details: Entry details payload from the query service.
 
     Returns:
-        Metadata lines describing catalog class, provenance, and Wright sections.
+        Metadata lines describing catalog class and provenance.
 
     """
     morph_class = details.morph_class
@@ -502,9 +597,6 @@ def _format_class_lines(details: EntryDetails) -> list[str]:
     lines = [f"Morph class: {morph_class.display_label}"]
     if morph_class.assignment_source.strip():
         lines.append(f"Provenance: {morph_class.assignment_source}")
-    if morph_class.wright_sections:
-        sections = ", ".join(str(section) for section in morph_class.wright_sections)
-        lines.append(f"Wright §: {sections}")
     return lines
 
 
@@ -527,15 +619,15 @@ def _ordered_distinct_classes(values: list[str]) -> list[str]:
     return result
 
 
-def _format_entry_details(details: EntryDetails) -> str:
+def _format_entry_header_text(details: EntryDetails) -> str:
     """
-    Format dictionary entry details with summary sense before the full sense list.
+    Build the metadata header block for one entry's details pane.
 
     Args:
         details: Entry details payload from the query service.
 
     Returns:
-        Multi-line details pane text.
+        Multi-line header text with headword, POS, morph class, and metadata.
 
     """
     lines = [
@@ -556,15 +648,28 @@ def _format_entry_details(details: EntryDetails) -> str:
         numbers = _join_labels(details.numbers)
         if numbers:
             lines.append(f"Number: {numbers}")
+    return "\n".join(lines)
 
-    lines.append("")
+
+def _format_entry_body_text(details: EntryDetails) -> str:
+    """
+    Build the narrative body block for one entry's details pane.
+
+    Args:
+        details: Entry details payload from the query service.
+
+    Returns:
+        Summary, senses, and etymology text rendered below citation widgets.
+
+    """
+    lines: list[str] = []
     summary = details.summary_sense.strip()
     if summary:
         lines.append("Summary")
         lines.append(summary)
-
     if details.senses:
-        lines.append("")
+        if lines:
+            lines.append("")
         lines.append("Senses")
         for sense in details.senses:
             gloss = sense.gloss_en.strip()
@@ -575,14 +680,31 @@ def _format_entry_details(details: EntryDetails) -> str:
                 lines.append(f"{label}. {gloss}")
             else:
                 lines.append(gloss)
-
     etymology = details.etymology.strip()
     if etymology:
-        lines.append("")
+        if lines:
+            lines.append("")
         lines.append("Etymology")
         lines.append(etymology)
-
     return "\n".join(lines)
+
+
+def _format_entry_details(details: EntryDetails) -> str:
+    """
+    Format dictionary entry details with summary sense before the full sense list.
+
+    Args:
+        details: Entry details payload from the query service.
+
+    Returns:
+        Multi-line details pane text.
+
+    """
+    header = _format_entry_header_text(details)
+    body = _format_entry_body_text(details)
+    if not body:
+        return header
+    return f"{header}\n\n{body}"
 
 
 def _format_orphan_details(details: OrphanDetails) -> str:
@@ -718,6 +840,24 @@ class LexiconBrowseApp(App[None]):
       padding: 0 1;
   }
 
+  #wright-sections-title {
+      height: auto;
+      margin: 0 1;
+      text-style: bold;
+  }
+
+  #wright-sections-list {
+      height: auto;
+      max-height: 10;
+      margin: 0 1 1 1;
+  }
+
+  #details-body-content {
+      width: 100%;
+      height: auto;
+      padding: 0 1 1 1;
+  }
+
   #morphology-sidebar {
       width: 100%;
       height: 1fr;
@@ -742,6 +882,47 @@ class LexiconBrowseApp(App[None]):
   #orphans-list.hidden {
       display: none;
   }
+
+  #wright-sections-title.hidden,
+  #wright-sections-list.hidden {
+      display: none;
+  }
+
+  WrightSectionTextScreen {
+      align: center middle;
+  }
+
+  #wright-modal {
+      width: 80%;
+      height: 80%;
+      border: solid $accent;
+      background: $surface;
+      padding: 1;
+  }
+
+  #wright-modal-title {
+      height: auto;
+      margin: 0 0 1 0;
+      text-style: bold;
+  }
+
+  #wright-modal-scroll {
+      height: 1fr;
+      min-height: 0;
+      width: 100%;
+      border: solid $accent-darken-1;
+      padding: 0 1;
+      margin: 0 0 1 0;
+  }
+
+  #wright-modal-text {
+      width: 100%;
+      height: auto;
+  }
+
+  #wright-modal-close {
+      width: 16;
+  }
   """
 
     #: Query service used by the shell and browse interactions.
@@ -758,8 +939,14 @@ class LexiconBrowseApp(App[None]):
     _orphans_header: Static
     #: Orphan morphology results list widget.
     _orphans_list: ListView
-    #: Primary details text widget.
+    #: Primary details header widget.
     _details_content: Static
+    #: Title shown above the Wright section citation list.
+    _wright_sections_title: Static
+    #: Selectable Wright section citations for the current entry.
+    _wright_sections_list: ListView
+    #: Narrative details widget rendered below Wright section citations.
+    _details_body_content: Static
     #: Scrollable morphology sidebar table widget.
     _morphology_table: DataTable
     #: Initial details-pane message shown before the first search.
@@ -830,6 +1017,13 @@ class LexiconBrowseApp(App[None]):
                             self._initial_details_message,
                             id="details-content",
                         )
+                        yield Static(
+                            "Wright Sections",
+                            id="wright-sections-title",
+                            classes="hidden",
+                        )
+                        yield ListView(id="wright-sections-list", classes="hidden")
+                        yield Static("", id="details-body-content")
                     with ScrollableContainer(id="morphology-sidebar"):
                         yield DataTable(id="morphology-table", zebra_stripes=True)
 
@@ -846,6 +1040,9 @@ class LexiconBrowseApp(App[None]):
         self._orphans_header = self.query_one("#orphans-header", Static)
         self._orphans_list = self.query_one("#orphans-list", ListView)
         self._details_content = self.query_one("#details-content", Static)
+        self._wright_sections_title = self.query_one("#wright-sections-title", Static)
+        self._wright_sections_list = self.query_one("#wright-sections-list", ListView)
+        self._details_body_content = self.query_one("#details-body-content", Static)
         self._morphology_table = self.query_one("#morphology-table", DataTable)
         self._morphology_table.cursor_type = "none"
         self.focus_search()
@@ -867,15 +1064,18 @@ class LexiconBrowseApp(App[None]):
             Inserts the pressed character into the search input.
 
         """
-        if not event.button.has_class("oe-char-button"):
-            return
-        search = self.query_one("#search-input", Input)
-        character = event.button.name
-        if character is None:
-            character = getattr(event.button.label, "plain", str(event.button.label))
-        search.insert_text_at_cursor(character)
-        self.focus_search()
-        event.stop()
+        if event.button.has_class("oe-char-button"):
+            search = self.query_one("#search-input", Input)
+            character = event.button.name
+            if character is None:
+                character = getattr(
+                    event.button.label,
+                    "plain",
+                    str(event.button.label),
+                )
+            search.insert_text_at_cursor(character)
+            self.focus_search()
+            event.stop()
 
     def on_key(self, event: events.Key) -> None:
         """
@@ -955,6 +1155,12 @@ class LexiconBrowseApp(App[None]):
             item = event.item
             if isinstance(item, _OrphanResultItem):
                 self._show_orphan_details(item.hit.form_id)
+            return
+
+        if event.list_view.id == "wright-sections-list":
+            item = event.item
+            if isinstance(item, _WrightSectionItem):
+                self._show_wright_section_text(item.section_no)
 
     def _run_search(self, query: str) -> None:
         """
@@ -1035,7 +1241,9 @@ class LexiconBrowseApp(App[None]):
         if details is None:
             self._show_idle_details(f"Entry {entry_id} is unavailable.")
             return
-        self._details_content.update(_format_entry_details(details))
+        self._details_content.update(self._format_entry_header(details))
+        self._details_body_content.update(self._format_entry_body(details))
+        self._populate_wright_sections(details)
         morphology_rows = _dedupe_morphology_rows(
             _filter_morphology_rows_for_entry(
                 _morphology_rows_from_groups(details.morphology_groups),
@@ -1067,6 +1275,8 @@ class LexiconBrowseApp(App[None]):
             self._show_idle_details(f"Orphan form {form_id} is unavailable.")
             return
         self._details_content.update(_format_orphan_details(details))
+        self._details_body_content.update("")
+        self._clear_wright_sections()
         morphology_rows = _dedupe_morphology_rows(
             _morphology_rows_from_groups(details.morphology_groups)
         )
@@ -1094,7 +1304,96 @@ class LexiconBrowseApp(App[None]):
 
         """
         self._details_content.update(message)
+        self._details_body_content.update("")
+        self._clear_wright_sections()
         self._morphology_table.clear(columns=True)
+
+    def _format_entry_header(self, details: EntryDetails) -> str:
+        """
+        Build the non-scroll-breaking header block for one entry's details pane.
+
+        Args:
+            details: Entry details payload from the query service.
+
+        Returns:
+            Multi-line header text with headword, POS, morph class, and metadata.
+
+        """
+        return _format_entry_header_text(details)
+
+    def _format_entry_body(self, details: EntryDetails) -> str:
+        """
+        Build the narrative body block for one entry's details pane.
+
+        Args:
+            details: Entry details payload from the query service.
+
+        Returns:
+            Summary, senses, and etymology text rendered below citation widgets.
+
+        """
+        return _format_entry_body_text(details)
+
+    def _populate_wright_sections(self, details: EntryDetails) -> None:
+        """
+        Show selectable Wright section citations for the current entry.
+
+        Args:
+            details: Entry details payload from the query service.
+
+        Side Effects:
+            Clears and repopulates the Wright section list in the details pane.
+
+        """
+        self._wright_sections_list.clear()
+        section_numbers: tuple[int, ...] = ()
+        if details.morph_class is not None and not details.morph_class.is_unclassified:
+            section_numbers = details.morph_class.wright_sections
+        if not section_numbers:
+            self._wright_sections_title.add_class("hidden")
+            self._wright_sections_list.add_class("hidden")
+            return
+        self._wright_sections_title.remove_class("hidden")
+        self._wright_sections_list.remove_class("hidden")
+        for section_no in section_numbers:
+            self._wright_sections_list.append(_WrightSectionItem(section_no))
+
+    def _clear_wright_sections(self) -> None:
+        """
+        Hide any previously rendered Wright section citations.
+
+        Side Effects:
+            Clears the Wright section list and hides its widgets.
+
+        """
+        self._wright_sections_list.clear()
+        self._wright_sections_title.add_class("hidden")
+        self._wright_sections_list.add_class("hidden")
+
+    def _show_wright_section_text(self, section_no: int) -> None:
+        """
+        Open a modal overlay for one Wright section citation.
+
+        Args:
+            section_no: Wright grammar section number selected in the details pane.
+
+        Side Effects:
+            Pushes a modal screen showing stored section text or a
+            missing-ingest message.
+
+        """
+        section_text = self.query_service.lookup_wright_section_text(section_no)
+        if section_text is None or not section_text.strip():
+            section_text = (
+                f"Wright § {section_no} text not ingested — "
+                "run morphology ingest-wright-text"
+            )
+        self.push_screen(
+            WrightSectionTextScreen(
+                section_no=section_no,
+                section_text=section_text.strip(),
+            )
+        )
 
 
 def _ensure_browse_ready(query_service: LexiconQueryService) -> None:

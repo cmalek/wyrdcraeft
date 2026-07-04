@@ -238,3 +238,33 @@ def test_format_entry_details_shows_unclassified_for_missing_assignment() -> Non
     assert "Morph class: Unclassified" in rendered
     assert "Provenance:" not in rendered
     assert "Wright \u00a7:" not in rendered
+
+
+def test_format_entry_details_omits_plain_wright_line_for_selectable_sections() -> None:
+    details = EntryDetails(
+        entry_id=1,
+        headword="abbad",
+        variants=[],
+        pos="noun",
+        class_summary=[],
+        genders=["m"],
+        persons=[],
+        numbers=[],
+        summary_sense="an abbot; abbot",
+        senses=[],
+        etymology="",
+        morphology_groups=[],
+        declension_paradigm="",
+        morph_class=LemmaMorphClassSummary(
+            display_label="noun, a-stem",
+            assignment_source="paradigm",
+            wright_sections=(334, 335),
+            is_unclassified=False,
+        ),
+    )
+
+    rendered = _format_entry_details(details)
+
+    assert "Morph class: noun, a-stem" in rendered
+    assert "Provenance: paradigm" in rendered
+    assert "Wright \u00a7:" not in rendered
