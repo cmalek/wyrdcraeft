@@ -7,8 +7,10 @@ from typing import TYPE_CHECKING
 
 import click
 
+from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.paths import get_canonical_db_path
 from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
+from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -358,6 +360,12 @@ def morphology_group() -> None:
     default=False,
     help="Print stage and SQLite timing summary to stderr when the build finishes.",
 )
+@click.option(
+    "--refresh-catalog",
+    is_flag=True,
+    default=False,
+    help="Re-load Wright morph catalog from packaged fixture.",
+)
 @click.pass_context
 def build(  # noqa: PLR0913, PLR0915
     ctx: click.Context,
@@ -372,6 +380,7 @@ def build(  # noqa: PLR0913, PLR0915
     enable_r_stem_nouns: bool,
     full: bool,
     profile: bool,
+    refresh_catalog: bool,
 ) -> None:
     """
     Generate Old English morphological forms and parity index artifacts.
@@ -395,6 +404,8 @@ def build(  # noqa: PLR0913, PLR0915
         enable_r_stem_nouns: Enables non-parity r-stem noun generation.
         full: Enables full-dictionary generation mode.
         profile: Enables stderr timing summary output when the build finishes.
+        refresh_catalog: Reloads the Wright morph catalog from the packaged
+            fixture even when catalog rows already exist.
 
     Side Effects:
         Reads morphology source files and writes SQLite output artifacts.
@@ -461,6 +472,18 @@ def build(  # noqa: PLR0913, PLR0915
     resolved_index_db = get_canonical_db_path(
         app_data_dir=settings.app_data_dir if settings is not None else None
     )
+    default_fixture_path = resolved_data_dir / "wright_paradigms.json"
+    with profiler.time_setup("seed catalog"):
+        catalog_engine = create_engine(resolved_index_db)
+        try:
+            catalog_loader = MorphologyCatalogLoader(catalog_engine)
+            catalog_loader.ensure_seeded(
+                default_fixture_path,
+                refresh=refresh_catalog,
+            )
+        finally:
+            catalog_engine.dispose()
+
     sqlite_sink: SqliteIndexSink | None = None
     try:
         sqlite_sink = SqliteIndexSink(

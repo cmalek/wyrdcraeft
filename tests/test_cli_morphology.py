@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from importlib.resources import files
 from io import StringIO
 from pathlib import Path
 
@@ -8,6 +10,7 @@ from sqlalchemy import func, select
 
 from wyrdcraeft.cli.cli import cli
 from wyrdcraeft.db.runtime import create_engine
+from wyrdcraeft.models.morph_catalog import MorphClass
 from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
@@ -41,6 +44,14 @@ def _isolated_generate_args() -> list[str]:
     ]
 
 
+def _expected_morph_class_count() -> int:
+    fixture = Path(
+        str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json"))
+    )
+    payload = json.loads(fixture.read_text(encoding="utf-8"))
+    return len(payload["morph_classes"])
+
+
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
@@ -58,6 +69,35 @@ def test_morphology_build_help(runner) -> None:
     assert "--index-dir" not in result.output
     assert "--progress-every INTEGER" in result.output
     assert "--profile" in result.output
+    assert "--refresh-catalog" in result.output
+
+
+def test_morphology_build_seeds_catalog_when_empty(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "build",
+            "--limit",
+            "1",
+            *_isolated_generate_args(),
+        ],
+    )
+    assert result.exit_code == 0
+    assert isolated_morphology_index_db.exists()
+
+    engine = create_engine(isolated_morphology_index_db)
+    try:
+        with engine.connect() as connection:
+            count = connection.execute(
+                select(func.count()).select_from(MorphClass)
+            ).scalar_one()
+    finally:
+        engine.dispose()
+    assert count == _expected_morph_class_count()
 
 
 def test_morphology_generate_command_is_gone(runner) -> None:
