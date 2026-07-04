@@ -63,7 +63,7 @@ def _index_with_attach(source: Path, db_path: Path) -> int:
 
 
 def test_attach_preserves_forms_and_writes_bt_entries(temp_dir: Path) -> None:
-    morphology_db = temp_dir / "morphology.sqlite3"
+    morphology_db = temp_dir / "wyrdcraeft.sqlite3"
     initial_forms = _seed_forms_table(morphology_db, row_count=5)
 
     merged = _index_with_attach(_SAMPLE_LINES, morphology_db)
@@ -87,7 +87,7 @@ def test_attach_preserves_forms_and_writes_bt_entries(temp_dir: Path) -> None:
 
 
 def test_attach_rerun_is_idempotent_and_preserves_forms(temp_dir: Path) -> None:
-    morphology_db = temp_dir / "morphology.sqlite3"
+    morphology_db = temp_dir / "wyrdcraeft.sqlite3"
     initial_forms = _seed_forms_table(morphology_db, row_count=4)
 
     first_merged = _index_with_attach(_SAMPLE_LINES, morphology_db)
@@ -109,7 +109,7 @@ def test_attach_rerun_is_idempotent_and_preserves_forms(temp_dir: Path) -> None:
 
 
 def test_attach_missing_db_fails_for_canonical_only_mode(temp_dir: Path) -> None:
-    morphology_db = temp_dir / "new_morphology.sqlite3"
+    morphology_db = temp_dir / "new_wyrdcraeft.sqlite3"
     assert not morphology_db.exists()
 
     with pytest.raises(FileNotFoundError, match="Canonical database not found"):

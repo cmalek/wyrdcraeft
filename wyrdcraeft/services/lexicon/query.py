@@ -650,7 +650,7 @@ class LexiconQueryService:
     Query interface over lexicon browse search and details tables in SQLite.
 
     Args:
-        db_path: Path to ``morphology.sqlite3`` containing ``lexicon_*`` tables.
+        db_path: Path to ``wyrdcraeft.sqlite3`` containing ``lexicon_*`` tables.
 
     """
 

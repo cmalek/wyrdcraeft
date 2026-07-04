@@ -294,7 +294,7 @@ def test_sqlite_index_sink_preserves_counter_then_id_order(tmp_path: Path) -> No
 
 
 def test_resolve_dictionary_db_path_prefers_explicit_override(tmp_path) -> None:
-    morphology_db = tmp_path / "morphology.sqlite3"
+    morphology_db = tmp_path / "wyrdcraeft.sqlite3"
     morphology_db.write_text("", encoding="utf-8")
     dictionary_db = tmp_path / "custom-dictionary.sqlite3"
     dictionary_db.write_text("", encoding="utf-8")
@@ -305,7 +305,7 @@ def test_resolve_dictionary_db_path_prefers_explicit_override(tmp_path) -> None:
 
 
 def test_resolve_dictionary_db_path_uses_sibling_dictionary(tmp_path) -> None:
-    morphology_db = tmp_path / "morphology.sqlite3"
+    morphology_db = tmp_path / "wyrdcraeft.sqlite3"
     morphology_db.write_text("", encoding="utf-8")
     sibling = tmp_path / DICTIONARY_INDEX_FILENAME
     sibling.write_text("", encoding="utf-8")
