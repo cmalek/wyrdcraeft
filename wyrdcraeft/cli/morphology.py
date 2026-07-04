@@ -11,7 +11,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.paths import get_canonical_db_path
 from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
+from wyrdcraeft.services.morphology.catalog.assigner import LemmaMorphClassAssigner
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
+from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMapper
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -475,23 +477,29 @@ def build(  # noqa: PLR0913, PLR0915
         app_data_dir=settings.app_data_dir if settings is not None else None
     )
     default_fixture_path = resolved_data_dir / "wright_paradigms.json"
+    catalog_engine = create_engine(resolved_index_db)
     try:
         with profiler.time_setup("seed catalog"):
-            catalog_engine = create_engine(resolved_index_db)
-            try:
-                catalog_loader = MorphologyCatalogLoader(catalog_engine)
-                catalog_loader.ensure_seeded(
-                    default_fixture_path,
-                    refresh=refresh_catalog,
-                )
-            finally:
-                catalog_engine.dispose()
+            catalog_loader = MorphologyCatalogLoader(catalog_engine)
+            catalog_loader.ensure_seeded(
+                default_fixture_path,
+                refresh=refresh_catalog,
+            )
+        with profiler.time_setup("assign lemma morph classes"):
+            lemma_assigner = LemmaMorphClassAssigner(
+                catalog_engine,
+                ParadigmClassMapper(),
+            )
+            lemma_assigner.assign_all(session.words)
     except (OSError, ValueError, SQLAlchemyError) as e:
         progress.stop()
         msg = (
-            f"Failed to seed Wright morph catalog from {default_fixture_path}: {e}"
+            f"Failed to load Wright morph catalog or assign lemma classes "
+            f"from {default_fixture_path}: {e}"
         )
         raise click.ClickException(msg) from e
+    finally:
+        catalog_engine.dispose()
 
     sqlite_sink: SqliteIndexSink | None = None
     try:
