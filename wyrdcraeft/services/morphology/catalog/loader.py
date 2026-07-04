@@ -117,12 +117,18 @@ class MorphologyCatalogLoader:
                 self._clear_catalog_tables(session)
 
             source_key_to_id = self._upsert_sources(session, payload["sources"])
-            sections_loaded = self._upsert_wright_sections(session, section_numbers)
-            classes_loaded = self._upsert_morph_classes(
+            class_key_to_id = self._upsert_morph_classes(
                 session,
                 payload["morph_classes"],
+            )
+            sections_loaded = self._upsert_wright_sections(session, section_numbers)
+            self._replace_all_junctions(
+                session,
+                payload["morph_classes"],
+                class_key_to_id,
                 source_key_to_id,
             )
+            classes_loaded = len(payload["morph_classes"])
 
         return LoadResult(
             sources_loaded=len(payload["sources"]),
@@ -337,18 +343,16 @@ class MorphologyCatalogLoader:
         self,
         session: Session,
         morph_classes: list[dict[str, Any]],
-        source_key_to_id: dict[str, int],
-    ) -> int:
+    ) -> dict[str, int]:
         """
-        Upsert morph classes and replace their junction rows.
+        Upsert morph-class reference rows keyed by ``class_key``.
 
         Args:
             session: Active SQLAlchemy session.
             morph_classes: Parsed ``morph_classes`` fixture rows.
-            source_key_to_id: Mapping from ``source_key`` to source row id.
 
         Returns:
-            Number of morph-class rows upserted.
+            Mapping from ``class_key`` to surrogate ``morph_classes.id``.
 
         """
         class_keys = [str(morph_class["id"]) for morph_class in morph_classes]
@@ -359,6 +363,7 @@ class MorphologyCatalogLoader:
             ).all()
         }
 
+        class_key_to_id: dict[str, int] = {}
         for morph_class in morph_classes:
             class_key = str(morph_class["id"])
             row = existing_rows.get(class_key)
@@ -367,13 +372,37 @@ class MorphologyCatalogLoader:
                 session.add(row)
             self._apply_morph_class_fields(row, morph_class)
             session.flush()
-            self._replace_class_junctions(
+            class_key_to_id[class_key] = int(row.id)
+        return class_key_to_id
+
+    @staticmethod
+    def _replace_all_junctions(
+        session: Session,
+        morph_classes: list[dict[str, Any]],
+        class_key_to_id: dict[str, int],
+        source_key_to_id: dict[str, int],
+    ) -> None:
+        """
+        Replace Wright-section and source junction rows for every morph class.
+
+        Args:
+            session: Active SQLAlchemy session.
+            morph_classes: Parsed ``morph_classes`` fixture rows.
+            class_key_to_id: Mapping from ``class_key`` to morph-class row id.
+            source_key_to_id: Mapping from ``source_key`` to source row id.
+
+        Side Effects:
+            Deletes prior junction rows per class and inserts replacements.
+
+        """
+        for morph_class in morph_classes:
+            class_key = str(morph_class["id"])
+            MorphologyCatalogLoader._replace_class_junctions(
                 session,
-                int(row.id),
+                class_key_to_id[class_key],
                 morph_class,
                 source_key_to_id,
             )
-        return len(morph_classes)
 
     @staticmethod
     def _apply_morph_class_fields(
