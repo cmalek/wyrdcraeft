@@ -15,6 +15,7 @@ from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMap
 from wyrdcraeft.services.morphology.catalog.query import (
     MorphClassView,
     MorphologyCatalogQueryService,
+    format_morph_class_display_label,
 )
 
 FIXTURE = Path(str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")))
@@ -90,6 +91,7 @@ def test_lookup_stan_noun_returns_masculine_a_stem(
     assert view.pos == "noun"
     assert view.canonical_name == "masculine a-stem declension"
     assert view.modern_class == "a-stem"
+    assert view.assignment_source == "paradigm"
     assert view.wright_label == "masculine a-stems"
     assert view.wright_sections == (334, 335, 336, 337, 338, 339, 340, 341)
     assert len(view.sources) == 2
@@ -132,3 +134,33 @@ def test_from_db_path_uses_isolated_database(tmp_path: Path) -> None:
     service = MorphologyCatalogQueryService.from_db_path(db_path)
 
     assert service.lookup_lemma_class("st\u0101n", "noun") is None
+
+
+def test_format_morph_class_display_label_prefers_compact_modern_label() -> None:
+    view = MorphClassView(
+        class_key="noun.masculine.a_stem",
+        pos="noun",
+        canonical_name="masculine a-stem declension",
+        modern_class="a-stem",
+        assignment_source="paradigm",
+        wright_label="masculine a-stems",
+        wright_sections=(334,),
+        sources=(),
+    )
+
+    assert format_morph_class_display_label(view) == "noun, a-stem"
+
+
+def test_format_morph_class_display_label_falls_back_to_canonical_name() -> None:
+    view = MorphClassView(
+        class_key="adj.strong.a_o_stem",
+        pos="adjective",
+        canonical_name="strong a-/\u014d-stem adjective",
+        modern_class="strong a-/\u014d-stem adjective",
+        assignment_source="features",
+        wright_label="strong adjectives, a-/\u014d-stems",
+        wright_sections=(423,),
+        sources=(),
+    )
+
+    assert format_morph_class_display_label(view) == "strong a-/\u014d-stem adjective"

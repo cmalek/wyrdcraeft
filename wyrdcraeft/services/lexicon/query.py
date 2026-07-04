@@ -15,7 +15,13 @@ from wyrdcraeft.services.lexicon.form_decode import (
     lexical_distance,
     normalized_query_at_affix,
 )
-from wyrdcraeft.services.markup import normalize_old_english
+from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
+from wyrdcraeft.services.morphology.catalog.pos import catalog_pos_from_bt_pos
+from wyrdcraeft.services.morphology.catalog.query import (
+    LemmaMorphClassSummary,
+    MorphologyCatalogQueryService,
+    format_morph_class_display_label,
+)
 
 from .build import _normalize_dictionary_key, _normalize_morph_key
 from .schema import (
@@ -250,6 +256,8 @@ class EntryDetails:
         etymology: Dictionary etymology text.
         morphology_groups: Morphology rows grouped for sidebar rendering.
         declension_paradigm: Dominant morphology paradigm exemplar for the entry.
+        morph_class: Catalog-backed morph-class summary, or ``None`` when the
+            dictionary POS has no catalog mapping.
 
     """
 
@@ -279,6 +287,8 @@ class EntryDetails:
     morphology_groups: list[MorphologyGroup]
     #: Dominant morphology paradigm exemplar for the entry.
     declension_paradigm: str
+    #: Catalog-backed morph-class summary, or ``None`` when unmappable.
+    morph_class: LemmaMorphClassSummary | None
 
 
 @dataclass(frozen=True)
@@ -645,6 +655,22 @@ def _group_morphology_rows(rows: list[MorphologyRow]) -> list[MorphologyGroup]:
     ]
 
 
+def _unclassified_morph_class_summary() -> LemmaMorphClassSummary:
+    """
+    Build the browse sentinel used when no deterministic assignment exists.
+
+    Returns:
+        Summary payload marking the lemma as explicitly unclassified.
+
+    """
+    return LemmaMorphClassSummary(
+        display_label="Unclassified",
+        assignment_source="",
+        wright_sections=(),
+        is_unclassified=True,
+    )
+
+
 class LexiconQueryService:
     """
     Query interface over lexicon browse search and details tables in SQLite.
@@ -660,6 +686,8 @@ class LexiconQueryService:
     _connection: Connection
     #: Dictionary spelling normalizer reused for unified query normalization.
     _spelling_normalizer: BTSpellingNormalizer
+    #: Read-only Wright catalog query service sharing the same engine.
+    _catalog_query_service: MorphologyCatalogQueryService
 
     def __init__(self, db_path: Path) -> None:
         """
@@ -675,6 +703,8 @@ class LexiconQueryService:
         self._connection = self._engine.connect()
         #: Dictionary spelling normalizer reused for unified query normalization.
         self._spelling_normalizer = BTSpellingNormalizer()
+        #: Read-only Wright catalog query service sharing the same engine.
+        self._catalog_query_service = MorphologyCatalogQueryService(self._engine)
 
     def search(self, query: str) -> SearchResults:
         """
@@ -864,14 +894,16 @@ class LexiconQueryService:
             class_values=class_summary,
             entry_genders=entry_genders,
         )
+        headword = str(entry_row["headword"])
+        entry_pos = str(entry_row["pos"])
 
         return EntryDetails(
             entry_id=int(entry_row["entry_id"]),
-            headword=str(entry_row["headword"]),
+            headword=headword,
             variants=filter_display_variants(
                 _json_string_list(str(entry_row["variants_json"]))
             ),
-            pos=str(entry_row["pos"]),
+            pos=entry_pos,
             class_summary=class_summary,
             genders=genders,
             persons=persons,
@@ -881,6 +913,49 @@ class LexiconQueryService:
             etymology=str(entry_row["etymology"]),
             morphology_groups=_group_morphology_rows(morphology_rows),
             declension_paradigm=_dominant_paradigm(morphology_rows),
+            morph_class=self._lookup_entry_morph_class(
+                headword=headword,
+                entry_pos=entry_pos,
+            ),
+        )
+
+    def _lookup_entry_morph_class(
+        self,
+        *,
+        headword: str,
+        entry_pos: str,
+    ) -> LemmaMorphClassSummary | None:
+        """
+        Resolve catalog-backed morph-class metadata for one dictionary entry.
+
+        Keyword Args:
+            headword: Dictionary headword for the selected entry.
+            entry_pos: Dictionary part-of-speech label for the selected entry.
+
+        Returns:
+            Summary payload for the entry, an unclassified sentinel when no
+            assignment exists, or ``None`` when the entry POS cannot map to the
+            catalog vocabulary.
+
+        """
+        normalized_title = normalize_morphology_title(headword)
+        if not normalized_title:
+            return _unclassified_morph_class_summary()
+        try:
+            catalog_pos = catalog_pos_from_bt_pos(entry_pos)
+        except ValueError:
+            return None
+        view = self._catalog_query_service.lookup_lemma_class(
+            normalized_title,
+            catalog_pos,
+        )
+        if view is None:
+            return _unclassified_morph_class_summary()
+        return LemmaMorphClassSummary(
+            display_label=format_morph_class_display_label(view),
+            assignment_source=view.assignment_source,
+            wright_sections=view.wright_sections,
+            is_unclassified=False,
         )
 
     def get_orphan_details(self, form_id: int) -> OrphanDetails | None:

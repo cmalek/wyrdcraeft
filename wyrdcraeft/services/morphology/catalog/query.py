@@ -67,6 +67,7 @@ class MorphClassView:
         pos: Catalog part-of-speech label.
         canonical_name: Canonical display name for the class.
         modern_class: Modern linguistic class label.
+        assignment_source: Provenance label for how the lemma was assigned.
         wright_label: Wright grammar label for the class.
         wright_sections: Wright section numbers in catalog sort order.
         sources: Bibliographic citations linked to the morph class.
@@ -81,12 +82,79 @@ class MorphClassView:
     canonical_name: str
     #: Modern linguistic class label.
     modern_class: str
+    #: Provenance label for how the lemma was assigned.
+    assignment_source: str
     #: Wright grammar label for the class.
     wright_label: str
     #: Wright section numbers in catalog sort order.
     wright_sections: tuple[int, ...]
     #: Bibliographic citations linked to the morph class.
     sources: tuple[MorphSourceCitation, ...]
+
+
+@dataclass(frozen=True)
+class LemmaMorphClassSummary:
+    """
+    Browse-oriented summary of one lemma's assigned morph class.
+
+    Note:
+        Linguistic behavior follows ``data/OldEnglishGrammar.pdf`` and
+        ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, this is the compact
+        label and Wright citation payload shown for one lemma assignment in a
+        browse view, across catalog Part-of-Speech scopes. Part-of-speech
+        scope: ``cross-PoS``.
+
+    Attributes:
+        display_label: Browse-ready class label.
+        assignment_source: Provenance label for how the lemma was assigned.
+        wright_sections: Wright section numbers in display order.
+        is_unclassified: Whether no deterministic assignment exists.
+
+    """
+
+    #: Browse-ready class label.
+    display_label: str
+    #: Provenance label for how the lemma was assigned.
+    assignment_source: str
+    #: Wright section numbers in display order.
+    wright_sections: tuple[int, ...]
+    #: Whether no deterministic assignment exists.
+    is_unclassified: bool
+
+
+def format_morph_class_display_label(view: MorphClassView) -> str:
+    """
+    Build one browse-ready morph-class label from a full catalog view.
+
+    Note:
+        Wright class labels come from ``data/OldEnglishGrammar.pdf`` and the
+        catalog normalization rules built from ``data/Ondej_Tich_40-54-1.pdf``.
+        In plain terms, browse prefers a compact ``pos, modern_class`` label
+        when the modern label differs from the canonical class name, and
+        otherwise falls back to the canonical name. Part-of-speech scope:
+        ``cross-PoS``.
+
+    Args:
+        view: Full assigned morph-class payload from catalog lookup.
+
+    Returns:
+        Browse-friendly class label.
+
+    """
+    pos = view.pos.strip()
+    modern_class = view.modern_class.strip()
+    canonical_name = view.canonical_name.strip()
+    if pos and modern_class and modern_class != canonical_name:
+        return f"{pos}, {modern_class}"
+    if canonical_name:
+        return canonical_name
+    if pos and modern_class:
+        return f"{pos}, {modern_class}"
+    if modern_class:
+        return modern_class
+    if pos:
+        return pos
+    return view.class_key
 
 
 class MorphologyCatalogQueryService:
@@ -195,6 +263,7 @@ class MorphologyCatalogQueryService:
             pos=morph_class.pos,
             canonical_name=morph_class.canonical_name,
             modern_class=morph_class.modern_class,
+            assignment_source=assignment.assignment_source,
             wright_label=morph_class.wright_label,
             wright_sections=tuple(row.section_no for row in section_rows),
             sources=tuple(
@@ -211,7 +280,9 @@ class MorphologyCatalogQueryService:
 
 
 __all__ = [
+    "LemmaMorphClassSummary",
     "MorphClassView",
     "MorphSourceCitation",
     "MorphologyCatalogQueryService",
+    "format_morph_class_display_label",
 ]

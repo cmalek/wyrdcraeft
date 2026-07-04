@@ -151,7 +151,7 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
     assert details.entry_id == entry_id
     assert details.headword == "abbad"
     assert details.pos == "noun"
-    assert details.variants == ["abbod", "abbud", "abbot"]
+    assert details.variants == ["abbod", "abbot", "abbud"]
     assert details.summary_sense == "an abbot; abbot"
     assert [sense.gloss_en for sense in details.senses] == [
         "an abbot; abbot",

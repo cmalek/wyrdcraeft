@@ -14,13 +14,16 @@ from wyrdcraeft.services.morphology.catalog.pos import (
     catalog_pos_from_wordclass,
 )
 from wyrdcraeft.services.morphology.catalog.query import (
+    LemmaMorphClassSummary,
     MorphClassView,
     MorphologyCatalogQueryService,
     MorphSourceCitation,
+    format_morph_class_display_label,
 )
 
 __all__ = [
     "AssignmentResult",
+    "LemmaMorphClassSummary",
     "LemmaMorphClassAssigner",
     "LoadResult",
     "MorphClassView",
@@ -30,4 +33,5 @@ __all__ = [
     "ParadigmClassMapper",
     "catalog_pos_from_bt_pos",
     "catalog_pos_from_wordclass",
+    "format_morph_class_display_label",
 ]

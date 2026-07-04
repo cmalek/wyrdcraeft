@@ -22,8 +22,6 @@ from wyrdcraeft.services.lexicon.form_decode import (
     build_paradigm_sidebar,
     filter_display_variants,
     format_bt_gender_label,
-    format_noun_declension,
-    format_verb_class,
     morphology_row_matches_pos,
 )
 from wyrdcraeft.services.lexicon.progress import (
@@ -489,40 +487,24 @@ def _format_pos_label(pos: str) -> str:
 
 def _format_class_lines(details: EntryDetails) -> list[str]:
     """
-    Build class and declension lines for the details pane.
+    Build catalog morph-class lines for the details pane.
 
     Args:
         details: Entry details payload from the query service.
 
     Returns:
-        Metadata lines describing morphology classes and declension.
+        Metadata lines describing catalog class, provenance, and Wright sections.
 
     """
-    lines: list[str] = []
-    pos = details.pos.strip().casefold()
-    if pos == "verb":
-        classes = _ordered_verb_classes(details.morphology_groups)
-        if classes:
-            lines.append(f"Classes: {', '.join(classes)}")
-        return lines
-    if pos == "noun":
-        inflections = _ordered_distinct_classes(
-            [
-                row.class1
-                for group in details.morphology_groups
-                for row in group.rows
-                if row.class1.strip().casefold() in {"strong", "weak"}
-            ]
-        )
-        if inflections:
-            lines.append(f"Classes: {', '.join(inflections)}")
-        declension = format_noun_declension(details.declension_paradigm)
-        if declension:
-            lines.append(f"Declension: {declension}")
-        return lines
-    class_summary = _ordered_distinct_classes(details.class_summary)
-    if class_summary:
-        lines.append(f"Classes: {', '.join(class_summary)}")
+    morph_class = details.morph_class
+    if morph_class is None or morph_class.is_unclassified:
+        return ["Morph class: Unclassified"]
+    lines = [f"Morph class: {morph_class.display_label}"]
+    if morph_class.assignment_source.strip():
+        lines.append(f"Provenance: {morph_class.assignment_source}")
+    if morph_class.wright_sections:
+        sections = ", ".join(str(section) for section in morph_class.wright_sections)
+        lines.append(f"Wright §: {sections}")
     return lines
 
 
@@ -543,26 +525,6 @@ def _ordered_distinct_classes(values: list[str]) -> list[str]:
         if candidate and candidate not in result:
             result.append(candidate)
     return result
-
-
-def _ordered_verb_classes(groups: list[MorphologyGroup]) -> list[str]:
-    """
-    Return ordered distinct verb class labels for one entry.
-
-    Args:
-        groups: Morphology groups linked to the entry.
-
-    Returns:
-        Ordered verb class labels.
-
-    """
-    labels: list[str] = []
-    for group in groups:
-        for row in group.rows:
-            label = format_verb_class(row.class1, row.class2, row.class3)
-            if label and label not in labels:
-                labels.append(label)
-    return labels
 
 
 def _format_entry_details(details: EntryDetails) -> str:
