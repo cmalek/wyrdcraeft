@@ -14,6 +14,7 @@ from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
 from wyrdcraeft.services.morphology.catalog.assigner import LemmaMorphClassAssigner
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMapper
+from wyrdcraeft.services.morphology.catalog.wright_text import WrightSectionTextIngester
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
     generate_advforms,
@@ -844,3 +845,80 @@ def generate_reference_snapshots_command(
         raise click.ClickException(str(e)) from e
 
     click.echo(format_reference_snapshot_result(result))
+
+
+@morphology_group.command(
+    name="ingest-wright-text",
+    help="Ingest Wright section paragraph text from markdown into the catalog.",
+)
+@click.option(
+    "--source",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+    help=(
+        "Markdown file containing Wright section headings "
+        "(for example data/sources/wright.md)."
+    ),
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Overwrite existing non-null section_text values.",
+)
+@click.pass_context
+def ingest_wright_text(
+    ctx: click.Context,
+    source: Path,
+    force: bool,
+) -> None:
+    """
+    Populate ``wright_sections.section_text`` from one Wright markdown source.
+
+    Note:
+        Wright paragraph text follows ``data/OldEnglishGrammar.pdf`` and the
+        markdown corpus aligned with ``data/Ondej_Tich_40-54-1.pdf``. In plain
+        terms, this is an explicit ingest step; morphology build does not run it
+        automatically. Part-of-speech scope: ``cross-PoS``.
+
+    Args:
+        ctx: Click context carrying loaded settings and global flags.
+        source: Markdown file containing Wright ``§`` section headings.
+        force: When true, overwrite rows that already contain section text.
+
+    Side Effects:
+        Updates ``wright_sections.section_text`` in the canonical SQLite database.
+
+    Raises:
+        click.ClickException: Markdown ingest or database update fails.
+
+    """
+    settings = ctx.obj.get("settings")
+    resolved_index_db = get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
+    )
+    engine = create_engine(resolved_index_db)
+    try:
+        result = WrightSectionTextIngester().ingest(engine, source, force=force)
+    except (OSError, ValueError, SQLAlchemyError) as exc:
+        msg = f"Failed to ingest Wright section text from {source}: {exc}"
+        raise click.ClickException(msg) from exc
+    finally:
+        engine.dispose()
+
+    for warning in result.warnings:
+        click.echo(f"warning: {warning}", err=True)
+
+    click.echo(
+        "\n".join(
+            [
+                "Wright section text ingest complete.",
+                f"index_db={resolved_index_db}",
+                f"updated={result.updated}",
+                f"skipped={result.skipped}",
+                f"markdown_not_in_catalog={len(result.markdown_not_in_catalog)}",
+                f"catalog_still_null={len(result.catalog_still_null)}",
+                f"coverage_percent={result.coverage_percent}",
+            ]
+        )
+    )

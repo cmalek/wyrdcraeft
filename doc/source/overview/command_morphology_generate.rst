@@ -19,25 +19,34 @@ Options
 - ``--manual-forms PATH``: manual forms input file.
 - ``--verbal-paradigms PATH``: verbal paradigms file.
 - ``--prefixes PATH``: prefix list file.
-- ``--output PATH``: output TSV path.
+- ``--output PATH``: optional TSV output path (SQLite index is always written).
 - ``--limit INTEGER``: process only the first N words (ignored in full mode).
 - ``--enable-r-stem-nouns``: enable opt-in non-parity r-stem noun generation.
 - ``--full / --no-full``: full dictionary generation mode.
+- ``--profile``: print stage and SQLite flush timing summary to stderr when the
+  build finishes.
+- ``--refresh-catalog``: re-load the Wright morph catalog from
+  ``wright_paradigms.json`` (under ``--data-dir`` or packaged defaults).
 
 .. _morphology-sqlite-index-database:
 
 SQLite index database
 ---------------------
 
-``wyrdcraeft morphology build`` writes two artifacts:
+``wyrdcraeft morphology build`` writes:
 
-- a TSV file (``--output``)
-- a SQLite lookup index named ``wyrdcraeft.sqlite3``
+- a SQLite lookup index named ``wyrdcraeft.sqlite3`` (always)
+- an optional TSV file when ``--output`` is passed
 
-The TSV and SQLite outputs are **independent** by default. The TSV still
-defaults to ``output.txt`` in the **current working directory**. The SQLite
-database defaults to ``wyrdcraeft.sqlite3`` in the OS application-data
-directory (or the configured ``app_data_dir``).
+The SQLite database holds generated ``forms`` rows, the Wright morph catalog
+reference tables (``morph_classes``, ``wright_sections``, etc.), and lemma-to-class
+assignments (``lemma_morph_classes``). The catalog is seeded automatically from
+packaged ``wright_paradigms.json`` on first build when empty; use
+``--refresh-catalog`` to force a reload.
+
+The TSV and SQLite outputs are independent. Without ``--output``, no TSV is
+written. The SQLite database defaults to ``wyrdcraeft.sqlite3`` in the OS
+application-data directory (or the configured ``app_data_dir``).
 
 Default path by operating system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,14 +143,22 @@ The generator pipeline (based on Tichý’s paper) works as follows:
    defaults: e.g. strong verbs → *helpan* type, weak → *déman*; nouns by
    gender and stem length → *stán*, *ār*, *word*, *hof*.
 
-3. **Generate forms** — By word class: manual forms first, then verbs,
+3. **Seed Wright catalog and assign lemma classes** — Load reference morph
+   classes from ``wright_paradigms.json`` into catalog tables when empty (or
+   when ``--refresh-catalog`` is passed). Assign each inflectable dictionary
+   lemma to a morph class via ``lemma_morph_classes``, keyed by normalized
+   title and catalog part of speech. Resolution uses generator paradigm labels,
+   verb ``paraID`` values, POS features, and Wright section overlap.
+
+4. **Generate forms** — By word class: manual forms first, then verbs,
    adjectives, adverbs, numerals, nouns. Reuse inflection patterns across
    classes (e.g. participles generated with verbs then declined with
    adjectives). For verbs: analyze stem, replace root vowel (ablaut/umlaut),
    add endings. Emit one TSV line per form (and sometimes a second line with
    incremented probability when a spelling variant is produced).
 
-4. **Output** — TSV with fixed columns (see below).
+5. **Output** — TSV with fixed columns when ``--output`` is given; SQLite
+   index always updated.
 
 How to use the output
 ---------------------
@@ -386,6 +403,26 @@ Perl quirks ledger
 
 See :doc:`/overview/morphology_perl_quirks_ledger` for retained compatibility
 behaviors inherited from the original Perl generator semantics.
+
+``wyrdcraeft morphology ingest-wright-text``
+--------------------------------------------
+
+Populate ``wright_sections.section_text`` from a Wright markdown source file.
+This is an explicit ingest step; ``morphology build`` does not run it
+automatically.
+
+.. code-block:: bash
+
+    wyrdcraeft morphology ingest-wright-text --source data/sources/wright.md
+
+Options:
+
+- ``--source PATH`` (required): markdown file with ``§ N`` section headings.
+- ``--force``: overwrite rows that already contain non-null ``section_text``.
+
+By default, ingest updates only rows where ``section_text IS NULL``. The command
+prints updated/skipped counts, coverage percentage, and warnings for markdown
+sections absent from the catalog or catalog sections still missing text.
 
 See also
 --------

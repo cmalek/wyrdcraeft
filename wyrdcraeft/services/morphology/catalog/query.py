@@ -15,6 +15,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphClassSource,
     MorphClassWrightSection,
     MorphSource,
+    WrightSection,
 )
 from wyrdcraeft.services.markup import normalize_morphology_title
 
@@ -277,6 +278,29 @@ class MorphologyCatalogQueryService:
                 for row in source_rows
             ),
         )
+
+    def lookup_wright_section_text(self, section_no: int) -> str | None:
+        """
+        Resolve stored paragraph text for one Wright section number.
+
+        Note:
+            Wright paragraph text follows ``data/OldEnglishGrammar.pdf`` and is
+            stored in ``wright_sections.section_text`` after markdown ingest.
+            In plain terms, this returns one numbered Wright paragraph for
+            browse display. Part-of-speech scope: ``cross-PoS``.
+
+        Args:
+            section_no: Wright grammar section number.
+
+        Returns:
+            Stored section text, or ``None`` when the row or text is missing.
+
+        """
+        with Session(self._engine) as session:
+            row = session.get(WrightSection, section_no)
+            if row is None:
+                return None
+            return row.section_text
 
 
 __all__ = [
