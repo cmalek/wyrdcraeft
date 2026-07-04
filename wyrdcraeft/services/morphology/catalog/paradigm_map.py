@@ -1,4 +1,8 @@
-"""Map generator paradigm labels to Wright catalog ``class_key`` values."""
+"""
+Map generator paradigm labels to Wright catalog ``class_key`` values.
+
+Fixture shape follows ``wright-morphology-fixture.schema.json``.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +12,7 @@ from pathlib import Path
 from typing import Final
 
 from wyrdcraeft.services.markup import normalize_morphology_title
+from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 #: Map generator acute vowels to macron spellings used in ``wright_paradigms.json``.
 _ACUTE_TO_MACRON: Final[dict[int, str]] = str.maketrans(
@@ -51,13 +56,18 @@ class ParadigmClassMapper:
     Resolve generator paradigm labels to catalog ``class_key`` values.
 
     Note:
-        Resolution uses only ``wyrdcraeft/etc/morphology/wright_paradigms.json``.
-        Each morph class ``paradigmatic_words`` entry indexes that class by part
-        of speech (``noun``, ``verb``, ``adjective``). Generator labels that do
-        not match a fixture exemplar after canonicalization return ``None``.
+        Catalog ``class_key`` values come from
+        ``wyrdcraeft/etc/morphology/wright_paradigms.json`` (schema:
+        ``wright-morphology-fixture.schema.json``) via each morph class
+        ``paradigmatic_words`` entry. Verb ``paraID`` values are resolved
+        through ``wyrdcraeft/etc/morphology/para_vb.txt``, which drives
+        morphology generation, by mapping ``paraID`` to the paradigm title
+        and then looking up that title in the fixture index.
+        Part-of-speech scope: ``noun``, ``verb``, and ``adjective``.
 
     Args:
-        fixture_path: Optional override for tests; defaults to packaged fixture.
+        fixture_path: Optional override for ``wright_paradigms.json``.
+        para_vb_path: Optional override for ``para_vb.txt``.
 
     """
 
@@ -65,22 +75,36 @@ class ParadigmClassMapper:
     _exemplar_index: dict[str, dict[str, str]]
     #: Optional generator-label overrides from ``paradigm_exemplar_map.json``.
     _override_index: dict[str, dict[str, str]]
+    #: Generator verbal paradigm id to lemma title from ``para_vb.txt``.
+    _verb_para_id_titles: dict[str, str]
 
-    def __init__(self, fixture_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        fixture_path: Path | None = None,
+        para_vb_path: Path | None = None,
+    ) -> None:
         """
-        Build exemplar and override indexes from packaged catalog fixtures.
+        Build exemplar, override, and verbal-paradigm indexes.
 
         Args:
             fixture_path: Optional ``wright_paradigms.json`` path for tests.
+            para_vb_path: Optional ``para_vb.txt`` path for tests.
 
         """
         resolved_fixture = fixture_path or Path(
             str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")),
         )
+        resolved_para_vb = para_vb_path or Path(
+            str(files("wyrdcraeft").joinpath("etc/morphology/para_vb.txt")),
+        )
         override_path = resolved_fixture.with_name("paradigm_exemplar_map.json")
         payload = json.loads(resolved_fixture.read_text(encoding="utf-8"))
+        #: POS-scoped exemplar lookup keys mapped to catalog ``class_key``.
         self._exemplar_index = self._build_exemplar_index(payload["morph_classes"])
+        #: Optional generator-label overrides from ``paradigm_exemplar_map.json``.
         self._override_index = self._load_override_index(override_path)
+        #: Generator verbal paradigm id to lemma title from ``para_vb.txt``.
+        self._verb_para_id_titles = self._load_verb_para_id_titles(resolved_para_vb)
 
     @staticmethod
     def _build_exemplar_index(
@@ -109,6 +133,29 @@ class ParadigmClassMapper:
                 if key:
                     pos_index[key] = class_key
         return index
+
+    @staticmethod
+    def _load_verb_para_id_titles(path: Path) -> dict[str, str]:
+        """
+        Build ``paraID`` to lemma-title mapping from ``para_vb.txt``.
+
+        Args:
+            path: Path to the packaged verbal paradigms table.
+
+        Returns:
+            Mapping from generator ``paraID`` to paradigm lemma title.
+
+        """
+        titles: dict[str, str] = {}
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                parts = OENormalizer.eth2thorn(line.lower()).strip("\r\n").split("\t")
+                if len(parts) < 2:  # noqa: PLR2004
+                    continue
+                para_id = parts[0]
+                if para_id not in titles:
+                    titles[para_id] = OENormalizer.eth2thorn(parts[1])
+        return titles
 
     @staticmethod
     def _load_override_index(path: Path) -> dict[str, dict[str, str]]:
@@ -201,22 +248,26 @@ class ParadigmClassMapper:
 
     def class_key_from_verb_paradigm_id(self, para_id: str) -> str | None:
         """
-        Return ``None`` because ``paraID`` is not stored in the Wright fixture.
+        Map one generator ``paraID`` to a catalog ``class_key``.
 
         Note:
-            ``wright_paradigms.json`` indexes verb classes by paradigmatic
-            lemmas, not generator ``paraID`` values. Task 4 should resolve
-            ``VerbParadigm.title`` and call ``class_key_from_verb_exemplar``.
+            ``para_vb.txt`` supplies the paradigm lemma title for each
+            ``paraID``; the title is then matched against
+            ``wright_paradigms.json`` paradigmatic words. Part-of-speech
+            scope: ``verb``.
 
         Args:
-            para_id: Generator verbal paradigm identifier.
+            para_id: ``VerbParadigm.ID`` from morphology generation.
 
         Returns:
-            Always ``None``.
+            Catalog ``class_key`` when the resolved title matches a fixture
+            exemplar; otherwise ``None``.
 
         """
-        _ = para_id
-        return None
+        title = self._verb_para_id_titles.get(para_id)
+        if title is None:
+            return None
+        return self.class_key_from_verb_exemplar(title)
 
     def class_key_from_participle_title(
         self,
@@ -236,6 +287,8 @@ class ParadigmClassMapper:
 
         Args:
             title: Declined participial lemma title.
+
+        Keyword Args:
             is_present: ``True`` for present participles, ``False`` for past.
 
         Returns:

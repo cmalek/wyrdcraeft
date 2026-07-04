@@ -25,8 +25,13 @@ def test_verb_exemplar_helpan_maps_to_liquid_cluster(mapper: ParadigmClassMapper
     assert mapper.class_key_from_verb_exemplar("helpan") == "verb.strong_3.liquid_cluster"
 
 
-def test_verb_paradigm_id_is_not_in_fixture(mapper: ParadigmClassMapper) -> None:
-    assert mapper.class_key_from_verb_paradigm_id("13") is None
+def test_verb_paradigm_id_maps_via_para_vb(mapper: ParadigmClassMapper) -> None:
+    assert mapper.class_key_from_verb_paradigm_id("13") == "verb.strong_3.liquid_cluster"
+    assert mapper.class_key_from_verb_paradigm_id("1") == "verb.strong_1.regular"
+
+
+def test_verb_paradigm_id_unknown_returns_none(mapper: ParadigmClassMapper) -> None:
+    assert mapper.class_key_from_verb_paradigm_id("99999") is None
 
 
 def test_adj_paradigm_blind_maps_to_strong_a_o_stem(mapper: ParadigmClassMapper) -> None:

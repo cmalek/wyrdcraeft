@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "description": "Optional generator-label overrides for ParadigmClassMapper. Every class_key must exist in wright_paradigms.json; leave sections empty when fixture paradigmatic_words suffice.",
+  "description": "Optional generator-label overrides for ParadigmClassMapper. class_key values must exist in wright_paradigms.json. Verb paraID resolution uses para_vb.txt titles against that fixture index.",
   "noun": {},
   "adjective": {},
   "verb": {}
