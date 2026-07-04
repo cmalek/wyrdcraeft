@@ -34,6 +34,16 @@ def test_verb_paradigm_id_unknown_returns_none(mapper: ParadigmClassMapper) -> N
     assert mapper.class_key_from_verb_paradigm_id("99999") is None
 
 
+def test_verb_paradigm_id_uses_custom_para_vb_path(tmp_path) -> None:
+    custom_para_vb = tmp_path / "para_vb.txt"
+    custom_para_vb.write_text(
+        "13\tb\u012bdan\ts\t3\t0\td\t499\t0\tIf\t0\tb\t\u012b\td\t0\t0\tan\n",
+        encoding="utf-8",
+    )
+    mapper = ParadigmClassMapper(para_vb_path=custom_para_vb)
+    assert mapper.class_key_from_verb_paradigm_id("13") == "verb.strong_1.regular"
+
+
 def test_adj_paradigm_blind_maps_to_strong_a_o_stem(mapper: ParadigmClassMapper) -> None:
     assert mapper.class_key_from_adj_paradigm("blind") == "adj.strong.a_o_stem"
 

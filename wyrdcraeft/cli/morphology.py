@@ -486,9 +486,13 @@ def build(  # noqa: PLR0913, PLR0915
                 refresh=refresh_catalog,
             )
         with profiler.time_setup("assign lemma morph classes"):
+            _dictionary, _manual, resolved_para_vb, _prefixes = resolved_paths
             lemma_assigner = LemmaMorphClassAssigner(
                 catalog_engine,
-                ParadigmClassMapper(),
+                ParadigmClassMapper(
+                    fixture_path=default_fixture_path,
+                    para_vb_path=resolved_para_vb,
+                ),
             )
             lemma_assigner.assign_all(session.words)
     except (OSError, ValueError, SQLAlchemyError) as e:
