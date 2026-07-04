@@ -1,0 +1,154 @@
+{
+    "positive_adjective": {
+      "strong a-/ō-stem adjective": {
+        "paradigmatic_word": "glæd / blind",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt",
+          "Old English Online. (n.d.). Adjectives. Retrieved July 3, 2026, from https://oldenglish.info/adjectives.html"
+        ],
+        "wright_paradigms": [423, 424, 425, 426, 427, 428, 429, 430, 431],
+        "mapping_rationale": "Wright treats the strong declension as partly nominal and partly pronominal, and says it is divided into pure a-/ō-stems, ja-/jō-stems, and wa-/wō-stems. §§424-431 cover the main pure a-/ō-stem adjective patterns, including short stems, long stems, h-stems such as hēah, and disyllabic types such as halig."
+      },
+      "strong ja-/jō-stem adjective": {
+        "paradigmatic_word": "wilde",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [432, 433, 434],
+        "mapping_rationale": "Wright explicitly treats ja-/jō-stem adjectives in §§432-434. The class differs from long pure a-/ō-stems chiefly in the masculine nominative singular, neuter nominative/accusative singular and plural, and feminine nominative singular."
+      },
+      "strong wa-/wō-stem adjective": {
+        "paradigmatic_word": "gearu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [435, 436, 437],
+        "mapping_rationale": "Wright treats wa-/wō-stem adjectives in §§435-437. Gearu is the main paradigm type; §436 lists similar short wa-stem adjectives such as geolu, fealu, nearu, and salu."
+      },
+      "strong i-stem adjective": {
+        "paradigmatic_word": "swēte",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [438],
+        "mapping_rationale": "Wright says original adjective i-stems mostly passed into the ja-declension in prehistoric Old English, but §438 preserves the historical category and examples such as blīþe, clǣne, grēne, scīene, and swēte."
+      },
+      "strong u-stem adjective": {
+        "paradigmatic_word": "cwicu",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [439],
+        "mapping_rationale": "Wright says only traces of the old adjective u-declension survive, especially cwicu/cucu 'alive' and wlacu 'warm'; most other old u-stem adjectives passed into the a-, ja-, or wa-declension."
+      },
+      "weak adjective": {
+        "paradigmatic_word": "blinda",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt",
+          "Old English Online. (n.d.). Weak adjectives. Retrieved July 3, 2026, from https://oldenglish.info/adj2.html"
+        ],
+        "wright_paradigms": [440],
+        "mapping_rationale": "Wright §440 gives the weak adjective paradigm and notes that weak adjectives largely use the same endings as weak nouns, except that adjectives generally use genitive plural -ra rather than -(e)na. Modern teaching grammars use the weak label for adjectives after demonstratives, possessives, and other definite contexts."
+      }
+    },
+    "participial_adjective": {
+      "present participle adjective": {
+        "paradigmatic_word": "berende",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [441],
+        "mapping_rationale": "Wright §441 treats present participles as adjectival in declension: the present participle can be declined strong or weak like an ordinary adjective, though predicative uses may remain uninflected."
+      },
+      "past participle adjective": {
+        "paradigmatic_word": "boren / bunden",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [442],
+        "mapping_rationale": "Wright §442 treats past participles as declined strong or weak like ordinary adjectives; strong past participles follow manig or halig depending on stem quantity."
+      }
+    },
+    "comparative_adjective": {
+      "regular comparative": {
+        "paradigmatic_word": "swētra",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt",
+          "Old English Online. (n.d.). Comparatives and superlatives. Retrieved July 3, 2026, from https://oldenglish.info/adj4.html"
+        ],
+        "wright_paradigms": [443],
+        "mapping_rationale": "Wright §443 treats the comparative degree. Comparatives are historically weak in the oldest Germanic periods; Old English Online likewise states that comparative adjectives always decline weak."
+      },
+      "umlauted comparative": {
+        "paradigmatic_word": "ieldra",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [443],
+        "mapping_rationale": "Wright §443 lists common comparatives with umlaut, including eald → ieldra, geong → gingra/giengra, lang → lengra, sceort → sciertra, and strang → strengra."
+      }
+    },
+    "superlative_adjective": {
+      "regular superlative": {
+        "paradigmatic_word": "swētest",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt",
+          "Old English Online. (n.d.). Comparatives and superlatives. Retrieved July 3, 2026, from https://oldenglish.info/adj4.html"
+        ],
+        "wright_paradigms": [444],
+        "mapping_rationale": "Wright §444 treats the superlative degree. Unlike comparatives, superlatives can be declined strong or weak depending on syntax; Old English Online explicitly notes this contrast."
+      },
+      "umlauted superlative": {
+        "paradigmatic_word": "ieldest",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [444],
+        "mapping_rationale": "This is the superlative counterpart to the umlauted comparative type. Wright §444 covers superlative formation; for implementation it is useful to track adjectives whose comparative/superlative stems show i-mutation."
+      }
+    },
+    "irregular_comparison": {
+      "suppletive or irregular comparison": {
+        "paradigmatic_word": "gōd / betera / betst",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [445],
+        "mapping_rationale": "Wright §445 lists irregular comparison patterns such as gōd with betera/bettra and betst, lȳtel with lǣssa/lǣst, micel with māra/mǣst, and yfel with wiersa/wierrest."
+      },
+      "adverbial or prepositional comparison": {
+        "paradigmatic_word": "æfterra / æftemest",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [446],
+        "mapping_rationale": "Wright §446 treats comparatives and superlatives formed from adverbs or prepositions, often with superlatives in -mest/-emest, such as æfterra/æftemest and innemest."
+      }
+    },
+    "numeral_adjective": {
+      "cardinal numeral adjective": {
+        "paradigmatic_word": "ān / twā / þrīe",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [447, 448, 449, 450, 451, 452],
+        "mapping_rationale": "Wright includes numerals inside the adjective chapter. §§447-452 cover cardinal and ordinal numerals."
+      },
+      "ordinal numeral adjective": {
+        "paradigmatic_word": "forma / ōþer / þridda",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [447, 448, 449, 450, 451, 452],
+        "mapping_rationale": "Ordinals are adjectival in function and are treated by Wright in the numeral section of the adjective chapter."
+      },
+      "other numeral adjective": {
+        "paradigmatic_word": "ānfeald / twifeald",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/stream/oldenglishgramma00wrig/oldenglishgramma00wrig_djvu.txt"
+        ],
+        "wright_paradigms": [453, 454, 455, 456, 457],
+        "mapping_rationale": "Wright §§453-457 treat other numeral formations after cardinals and ordinals."
+      }
+    }
+  }

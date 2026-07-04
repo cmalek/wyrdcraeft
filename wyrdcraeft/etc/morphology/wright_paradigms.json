@@ -1,0 +1,2695 @@
+{
+    "schema_version": "1.0",
+    "sources": [
+      {
+        "source_key": "wright_1914",
+        "citation_apa": "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press.",
+        "url": "https://archive.org/details/oldenglishgramma00wrig",
+        "retrieved_date": "2026-07-04",
+        "notes": "Primary Wright section source."
+      },
+      {
+        "source_key": "oldenglish_info",
+        "citation_apa": "Old English Online. (n.d.). Old English grammar. Retrieved July 4, 2026, from https://oldenglish.info/",
+        "url": "https://oldenglish.info/",
+        "retrieved_date": "2026-07-04",
+        "notes": "Modern pedagogical terminology cross-check."
+      },
+      {
+        "source_key": "stella",
+        "citation_apa": "STELLA. (n.d.). Essentials of Old English. University of Glasgow. Retrieved July 4, 2026, from https://stella.glasgow.ac.uk/eoe/",
+        "url": "https://stella.glasgow.ac.uk/eoe/",
+        "retrieved_date": "2026-07-04",
+        "notes": "Modern pedagogical terminology cross-check."
+      }
+    ],
+    "morph_classes": [
+      {
+        "id": "noun.masculine.a_stem",
+        "pos": "noun",
+        "canonical_name": "masculine a-stem declension",
+        "modern_class": "a-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["stān"],
+        "aliases": [],
+        "wright_sections": [334, 335, 336, 337, 338, 339, 340, 341],
+        "wright_label": "masculine a-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "a",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Masculine a-stem nouns are Wright's masculine a-stems. Kept distinct from neuter a-stems because gender changes the paradigm.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.a_stem",
+        "pos": "noun",
+        "canonical_name": "neuter a-stem declension",
+        "modern_class": "a-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["word"],
+        "aliases": [],
+        "wright_sections": [342, 343, 344, 345, 346, 347, 348, 349, 350],
+        "wright_label": "neuter a-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "a",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Neuter a-stem nouns are Wright's neuter a-stems. Kept distinct from masculine a-stems because neuter nominative/accusative behavior differs.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.ja_stem",
+        "pos": "noun",
+        "canonical_name": "masculine ja-stem declension",
+        "modern_class": "ja-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["secg"],
+        "aliases": [],
+        "wright_sections": [351, 352, 353, 354],
+        "wright_label": "masculine ja-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "ja",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats masculine ja-stems separately from pure a-stems; the distinction is useful because historical j can affect stem shape.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.ja_stem",
+        "pos": "noun",
+        "canonical_name": "neuter ja-stem declension",
+        "modern_class": "ja-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["cynn"],
+        "aliases": [],
+        "wright_sections": [355, 356, 357, 358],
+        "wright_label": "neuter ja-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "ja",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats neuter ja-stems separately; kept distinct from masculine ja-stems because gender affects the paradigm.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.wa_stem",
+        "pos": "noun",
+        "canonical_name": "masculine wa-stem declension",
+        "modern_class": "wa-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bearu"],
+        "aliases": [],
+        "wright_sections": [359, 360],
+        "wright_label": "masculine wa-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "wa",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats masculine wa-stems separately; historical w can affect forms.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.wa_stem",
+        "pos": "noun",
+        "canonical_name": "neuter wa-stem declension",
+        "modern_class": "wa-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["treow"],
+        "aliases": [],
+        "wright_sections": [361, 362, 363],
+        "wright_label": "neuter wa-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "wa",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats neuter wa-stems separately; kept distinct from masculine wa-stems because gender affects the paradigm.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.o_stem",
+        "pos": "noun",
+        "canonical_name": "feminine ō-stem declension",
+        "modern_class": "ō-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["giefu"],
+        "aliases": ["o-stem"],
+        "wright_sections": [364, 365, 366, 367, 368, 369, 370, 371, 372, 373],
+        "wright_label": "feminine o-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "ō",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright writes o-stem; the normalized modern label is ō-stem. Collapsed because they name the same class.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.jo_stem",
+        "pos": "noun",
+        "canonical_name": "feminine jō-stem declension",
+        "modern_class": "jō-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["synn"],
+        "aliases": ["jo-stem"],
+        "wright_sections": [374, 375, 376, 377, 378],
+        "wright_label": "feminine jo-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "jō",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright writes jo-stem; the normalized modern label is jō-stem. Collapsed because they name the same class.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.wo_stem",
+        "pos": "noun",
+        "canonical_name": "feminine wō-stem declension",
+        "modern_class": "wō-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sǣ"],
+        "aliases": ["wo-stem"],
+        "wright_sections": [379, 380, 381],
+        "wright_label": "feminine wo-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "wō",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright writes wo-stem; the normalized modern label is wō-stem. Collapsed because they name the same class.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.abstract_i",
+        "pos": "noun",
+        "canonical_name": "feminine abstract -i declension",
+        "modern_class": "feminine abstract -i",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["mǣgþ"],
+        "aliases": [],
+        "wright_sections": [382, 383],
+        "wright_label": "feminine abstract nouns in -i",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "abstract_i",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright separates feminine abstract nouns in -i from the ordinary feminine ō/jō/wō classes.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.i_stem",
+        "pos": "noun",
+        "canonical_name": "masculine i-stem declension",
+        "modern_class": "i-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["gæst"],
+        "aliases": [],
+        "wright_sections": [385, 386, 387, 388],
+        "wright_label": "masculine i-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "i",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept distinct because gender and historical i-stem membership affect mapping and sometimes forms.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.i_stem",
+        "pos": "noun",
+        "canonical_name": "feminine i-stem declension",
+        "modern_class": "i-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["dǣd"],
+        "aliases": [],
+        "wright_sections": [389, 390, 391],
+        "wright_label": "feminine i-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "i",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept distinct because feminine i-stems map to their own Wright sections.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.i_stem",
+        "pos": "noun",
+        "canonical_name": "neuter i-stem declension",
+        "modern_class": "i-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["spere"],
+        "aliases": [],
+        "wright_sections": [392, 393],
+        "wright_label": "neuter i-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "i",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept distinct because neuter i-stems map to their own Wright sections.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.u_stem",
+        "pos": "noun",
+        "canonical_name": "masculine u-stem declension",
+        "modern_class": "u-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sunu"],
+        "aliases": [],
+        "wright_sections": [395, 396, 397],
+        "wright_label": "masculine u-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "u",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats masculine u-stems separately; sunu is the paradigmatic noun.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.u_stem",
+        "pos": "noun",
+        "canonical_name": "feminine u-stem declension",
+        "modern_class": "u-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["duru"],
+        "aliases": [],
+        "wright_sections": [398],
+        "wright_label": "feminine u-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "u",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats feminine u-stems separately; duru is the paradigmatic noun.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.u_stem",
+        "pos": "noun",
+        "canonical_name": "neuter u-stem declension",
+        "modern_class": "u-stem",
+        "traditional_class": "strong noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["feolu"],
+        "aliases": [],
+        "wright_sections": [399],
+        "wright_label": "neuter u-stem remnants",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "u",
+          "strength": "strong"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats neuter u-stems as remnants. Kept as a class because it has a distinct Wright section.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.weak_n_stem",
+        "pos": "noun",
+        "canonical_name": "masculine weak (n-stem) declension",
+        "modern_class": "weak (n-stem)",
+        "traditional_class": "weak noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["guma"],
+        "aliases": ["n-stem", "an-declension"],
+        "wright_sections": [400, 401, 402],
+        "wright_label": "masculine n-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "n",
+          "strength": "weak"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed n-stem, weak, and an-declension because they refer to the same practical class; gender remains distinct.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.weak_n_stem",
+        "pos": "noun",
+        "canonical_name": "feminine weak (n-stem) declension",
+        "modern_class": "weak (n-stem)",
+        "traditional_class": "weak noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["tunge"],
+        "aliases": ["n-stem", "an-declension"],
+        "wright_sections": [403, 404, 405],
+        "wright_label": "feminine n-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "n",
+          "strength": "weak"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed n-stem, weak, and an-declension because they refer to the same practical class; gender remains distinct.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.weak_n_stem",
+        "pos": "noun",
+        "canonical_name": "neuter weak (n-stem) declension",
+        "modern_class": "weak (n-stem)",
+        "traditional_class": "weak noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ēage"],
+        "aliases": ["n-stem", "an-declension"],
+        "wright_sections": [406, 407],
+        "wright_label": "neuter n-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "n",
+          "strength": "weak"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed n-stem, weak, and an-declension because they refer to the same practical class; gender remains distinct.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.root",
+        "pos": "noun",
+        "canonical_name": "masculine root-noun declension",
+        "modern_class": "root-noun",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["fōt"],
+        "aliases": ["monosyllabic consonant-stem"],
+        "wright_sections": [408, 409],
+        "wright_label": "masculine monosyllabic consonant stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "root",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed root-noun and monosyllabic consonant-stem; gender is retained because Wright splits the paradigms.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.root",
+        "pos": "noun",
+        "canonical_name": "feminine root-noun declension",
+        "modern_class": "root-noun",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bōc"],
+        "aliases": ["monosyllabic consonant-stem"],
+        "wright_sections": [410, 411, 412],
+        "wright_label": "feminine monosyllabic consonant stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "root",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed root-noun and monosyllabic consonant-stem; gender is retained because Wright splits the paradigms.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.root",
+        "pos": "noun",
+        "canonical_name": "neuter root-noun declension",
+        "modern_class": "root-noun",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["scrūd"],
+        "aliases": ["monosyllabic consonant-stem"],
+        "wright_sections": [413],
+        "wright_label": "neuter monosyllabic consonant stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "root",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed root-noun and monosyllabic consonant-stem; neuter is retained because Wright gives a distinct remnant section.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.th_stem",
+        "pos": "noun",
+        "canonical_name": "masculine þ-stem declension",
+        "modern_class": "þ-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hæleþ"],
+        "aliases": ["th-stem"],
+        "wright_sections": [414],
+        "wright_label": "stems in -þ",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "þ",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright §414 includes þ-stems. Kept by gender because dictionary gender can distinguish use, even though Wright uses one section.",
+        "notes": ""
+      },
+      {
+        "id": "noun.feminine.th_stem",
+        "pos": "noun",
+        "canonical_name": "feminine þ-stem declension",
+        "modern_class": "þ-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["mægþ"],
+        "aliases": ["th-stem"],
+        "wright_sections": [414],
+        "wright_label": "stems in -þ",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "þ",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright §414 includes þ-stems. Kept by gender because dictionary gender can distinguish use, even though Wright uses one section.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.th_stem",
+        "pos": "noun",
+        "canonical_name": "neuter þ-stem declension",
+        "modern_class": "þ-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ealu"],
+        "aliases": ["th-stem"],
+        "wright_sections": [414],
+        "wright_label": "stems in -þ",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "þ",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright §414 includes þ-stems. Kept by gender because dictionary gender can distinguish use, even though Wright uses one section.",
+        "notes": ""
+      },
+      {
+        "id": "noun.masculine.r_stem",
+        "pos": "noun",
+        "canonical_name": "masculine r-stem declension",
+        "modern_class": "r-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["fæder"],
+        "aliases": ["kinship noun", "family noun"],
+        "wright_sections": [415],
+        "wright_label": "stems in -r",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "r",
+          "strength": "minor",
+          "semantic_class": "kinship"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["fæder", "brōþor"]
+        },
+        "mapping_rationale": "Collapsed r-stem, kinship-noun, and family-noun. Kept by gender because dictionary gender distinguishes masculine and feminine kinship nouns.",
+        "notes": "brōþor belongs here."
+      },
+      {
+        "id": "noun.feminine.r_stem",
+        "pos": "noun",
+        "canonical_name": "feminine r-stem declension",
+        "modern_class": "r-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["mōdor"],
+        "aliases": ["kinship noun", "family noun"],
+        "wright_sections": [415],
+        "wright_label": "stems in -r",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["feminine"],
+          "stem_class": "r",
+          "strength": "minor",
+          "semantic_class": "kinship"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["mōdor", "mōþor", "sweostor", "dohtor"]
+        },
+        "mapping_rationale": "Collapsed r-stem, kinship-noun, and family-noun. Kept by gender because dictionary gender distinguishes masculine and feminine kinship nouns.",
+        "notes": "mōþor is treated as a spelling variant of mōdor for class purposes."
+      },
+      {
+        "id": "noun.masculine.nd_stem",
+        "pos": "noun",
+        "canonical_name": "masculine nd-stem declension",
+        "modern_class": "nd-stem",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["frēond"],
+        "aliases": ["present-participle noun"],
+        "wright_sections": [416, 417, 418],
+        "wright_label": "stems in -nd",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "gender_scope": ["masculine"],
+          "stem_class": "nd",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed nd-stem and present-participle noun because they refer to the same practical Wright class.",
+        "notes": ""
+      },
+      {
+        "id": "noun.neuter.s_stem_r_plural",
+        "pos": "noun",
+        "canonical_name": "neuter s-stem / r-plural declension",
+        "modern_class": "s-stem / r-plural",
+        "traditional_class": "minor consonant-stem noun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["lamb"],
+        "aliases": ["s-stem", "z-stem", "os-es stem", "r-plural"],
+        "wright_sections": [419, 420],
+        "wright_label": "stems in *-os, *-es",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "gender_scope": ["neuter"],
+          "stem_class": "s/z",
+          "plural_marker": "r",
+          "strength": "minor"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed s-stem, z-stem, os-es stem, and r-plural because they name the same practical Old English class.",
+        "notes": ""
+      },
+
+      {
+        "id": "verb.anomalous.substantive",
+        "pos": "verb",
+        "canonical_name": "anomalous substantive verb",
+        "modern_class": "anomalous",
+        "traditional_class": "verb in -mi",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bēon", "wesan"],
+        "aliases": ["irregular substantive verb"],
+        "wright_sections": [548],
+        "wright_label": "substantive verb",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["bēon", "wesan", "eom", "is", "sindon"]
+        },
+        "mapping_rationale": "Modern anomalous/irregular label maps to Wright's treatment of the substantive verb under verbs in -mi.",
+        "notes": ""
+      },
+      {
+        "id": "verb.anomalous.don",
+        "pos": "verb",
+        "canonical_name": "anomalous dōn-type verb",
+        "modern_class": "anomalous",
+        "traditional_class": "verb in -mi",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["dōn"],
+        "aliases": ["irregular dōn"],
+        "wright_sections": [549],
+        "wright_label": "dōn",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["dōn"]
+        },
+        "mapping_rationale": "dōn has its own Wright section and is not safely generated from a regular weak or strong class.",
+        "notes": ""
+      },
+      {
+        "id": "verb.anomalous.gan",
+        "pos": "verb",
+        "canonical_name": "anomalous gān-type verb",
+        "modern_class": "anomalous",
+        "traditional_class": "verb in -mi",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["gān"],
+        "aliases": ["irregular gān"],
+        "wright_sections": [550],
+        "wright_label": "gān",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["gān"]
+        },
+        "mapping_rationale": "gān has its own Wright section and is not safely generated from a regular weak or strong class.",
+        "notes": ""
+      },
+      {
+        "id": "verb.anomalous.willan",
+        "pos": "verb",
+        "canonical_name": "anomalous willan-type verb",
+        "modern_class": "anomalous",
+        "traditional_class": "verb in -mi",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["willan", "nyllan"],
+        "aliases": ["irregular willan"],
+        "wright_sections": [551],
+        "wright_label": "willan",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["willan", "nyllan"]
+        },
+        "mapping_rationale": "willan has its own Wright section; nyllan is best treated with it as the negative counterpart.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_1",
+        "pos": "verb",
+        "canonical_name": "preterite-present class I",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["witan"],
+        "aliases": [],
+        "wright_sections": [540],
+        "wright_label": "preterite-presents, class I",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class I because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_2",
+        "pos": "verb",
+        "canonical_name": "preterite-present class II",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["dugan"],
+        "aliases": [],
+        "wright_sections": [541],
+        "wright_label": "preterite-presents, class II",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class II because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_3",
+        "pos": "verb",
+        "canonical_name": "preterite-present class III",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["cunnan", "þurfan"],
+        "aliases": [],
+        "wright_sections": [542],
+        "wright_label": "preterite-presents, class III",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["unnan", "cunnan", "þurfan", "durran"]
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class III because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_4",
+        "pos": "verb",
+        "canonical_name": "preterite-present class IV",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sculan"],
+        "aliases": [],
+        "wright_sections": [543],
+        "wright_label": "preterite-presents, class IV",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["sculan", "munan"]
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class IV because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_5",
+        "pos": "verb",
+        "canonical_name": "preterite-present class V",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["magan"],
+        "aliases": [],
+        "wright_sections": [544],
+        "wright_label": "preterite-presents, class V",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["magan", "geneah"]
+        },
+        "mapping_rationale": "magan is the practical paradigmatic preterite-present verb and maps to Wright's class V.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_6",
+        "pos": "verb",
+        "canonical_name": "preterite-present class VI",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["mōtan"],
+        "aliases": [],
+        "wright_sections": [545],
+        "wright_label": "preterite-presents, class VI",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class VI because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.preterite_present.class_7",
+        "pos": "verb",
+        "canonical_name": "preterite-present class VII",
+        "modern_class": "preterite-present",
+        "traditional_class": "preterite-present verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["āgan"],
+        "aliases": [],
+        "wright_sections": [546],
+        "wright_label": "preterite-presents, class VII",
+        "source_keys": ["wright_1914", "stella"],
+        "features": {
+          "generation_strategy": "preterite_present"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as Wright's preterite-present class VII because the class is distinguishable by lexeme/principal parts.",
+        "notes": ""
+      },
+
+      {
+        "id": "verb.weak_1.short_j_present",
+        "pos": "verb",
+        "canonical_name": "weak class 1 short j-present",
+        "modern_class": "weak class 1",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["nerian"],
+        "aliases": [],
+        "wright_sections": [522, 523, 524],
+        "wright_label": "weak verbs, class I, short stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "weak_class": 1,
+          "generation_strategy": "dental_suffix",
+          "stem_quantity": "short"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Wright distinguishes weak I verbs with originally short stem-syllables; this is programmatically useful from stem shape and principal forms.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_1.geminated",
+        "pos": "verb",
+        "canonical_name": "weak class 1 geminated type",
+        "modern_class": "weak class 1",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["fremman"],
+        "aliases": [],
+        "wright_sections": [524, 526],
+        "wright_label": "weak verbs, class I, geminated short-stem type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "weak_class": 1,
+          "generation_strategy": "dental_suffix",
+          "stem_feature": "gemination"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept distinct because gemination is visible in the headword/stem and affects generation.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_1.settan_type",
+        "pos": "verb",
+        "canonical_name": "weak class 1 settan-type",
+        "modern_class": "weak class 1",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["settan"],
+        "aliases": ["dental-stem type"],
+        "wright_sections": [524, 527],
+        "wright_label": "weak verbs, class I, settan type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "weak_class": 1,
+          "generation_strategy": "dental_suffix",
+          "stem_feature": "dental_or_assimilated"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept distinct because Wright gives settan-type verbs separately and stem behavior can be recognized from headword/stem.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_1.long_or_polysyllabic",
+        "pos": "verb",
+        "canonical_name": "weak class 1 long-stem or polysyllabic",
+        "modern_class": "weak class 1",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["dēman"],
+        "aliases": [],
+        "wright_sections": [528, 529],
+        "wright_label": "weak verbs, class I, long stems and polysyllabic verbs",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "weak_class": 1,
+          "generation_strategy": "dental_suffix",
+          "stem_quantity": "long_or_polysyllabic"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept distinct because long/polysyllabic weak I verbs are programmatically distinguishable from headword/stem shape.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_1.irregular",
+        "pos": "verb",
+        "canonical_name": "weak class 1 irregular or analogical",
+        "modern_class": "weak class 1",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["tellan", "bycgan", "þencan"],
+        "aliases": ["irregular class I"],
+        "wright_sections": [530, 531, 532, 533, 534],
+        "wright_label": "weak verbs, class I, irregular or special types",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "weak_class": 1,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as a practical bucket because these verbs require lexeme-level handling and Wright gives them separate sections.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_2.regular_ian_ode",
+        "pos": "verb",
+        "canonical_name": "weak class 2 regular -ian/-ode",
+        "modern_class": "weak class 2",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["lufian", "sealfian", "bodian"],
+        "aliases": ["regular weak II"],
+        "wright_sections": [535, 536],
+        "wright_label": "weak verbs, class II",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "weak_class": 2,
+          "generation_strategy": "dental_suffix",
+          "preterite_suffix": "ode"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["ian"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Weak II regular -ian/-ode verbs are programmatically recognizable from headword and principal forms.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_2.contracted_or_class3_origin",
+        "pos": "verb",
+        "canonical_name": "weak class 2 contracted or class-III-origin type",
+        "modern_class": "weak class 2",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["twēogan"],
+        "aliases": [],
+        "wright_sections": [537],
+        "wright_label": "weak verbs, class II, special contracted/class III origin verbs",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "weak_class": 2,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept distinct because Wright gives a separate section and these verbs require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.weak_3.closed_lexical",
+        "pos": "verb",
+        "canonical_name": "weak class 3 closed lexical class",
+        "modern_class": "weak class 3",
+        "traditional_class": "weak verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["habban", "libban", "secgan", "hycgan"],
+        "aliases": [],
+        "wright_sections": [538],
+        "wright_label": "weak verbs, class III",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "weak_class": 3,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["habban", "libban", "secgan", "hycgan"]
+        },
+        "mapping_rationale": "Weak III is small enough to model lexeme-by-lexeme.",
+        "notes": ""
+      },
+
+      {
+        "id": "verb.strong_1.regular",
+        "pos": "verb",
+        "canonical_name": "strong class 1 regular",
+        "modern_class": "strong class 1",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bīdan", "wrītan"],
+        "aliases": ["strong I"],
+        "wright_sections": [490],
+        "wright_label": "strong verbs, class I",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 1,
+          "generation_strategy": "ablaut",
+          "ablaut_signature": "ī / ā / i / i"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Default strong class I pattern.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_1.fricative_alternation",
+        "pos": "verb",
+        "canonical_name": "strong class 1 fricative alternation",
+        "modern_class": "strong class 1",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["snīþan", "līþan"],
+        "aliases": ["Verner alternation type"],
+        "wright_sections": [491],
+        "wright_label": "strong verbs, class I, fricative alternation",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 1,
+          "generation_strategy": "ablaut",
+          "stem_alternation": "fricative_to_stop_or_voiced_alternation"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because alternation is visible in principal parts and affects generation.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_1.contracted_teon",
+        "pos": "verb",
+        "canonical_name": "strong class 1 contracted tēon-type",
+        "modern_class": "strong class 1",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["tēon"],
+        "aliases": ["contracted strong I"],
+        "wright_sections": [492],
+        "wright_label": "strong verbs, class I, contracted tēon-type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 1,
+          "generation_strategy": "lexeme_specific",
+          "contracted": true
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because contracted verbs require special handling and Wright gives a separate section.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_2.eo_type",
+        "pos": "verb",
+        "canonical_name": "strong class 2 ēo-type",
+        "modern_class": "strong class 2",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bēodan"],
+        "aliases": ["strong II ēo-type"],
+        "wright_sections": [493],
+        "wright_label": "strong verbs, class II, ēo-type",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 2,
+          "generation_strategy": "ablaut",
+          "ablaut_signature": "ēo / ēa / u / o"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Default strong class II ēo-type pattern.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_2.s_r_alternation",
+        "pos": "verb",
+        "canonical_name": "strong class 2 s/r alternation",
+        "modern_class": "strong class 2",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ċēosan"],
+        "aliases": ["Verner s/r alternation"],
+        "wright_sections": [494],
+        "wright_label": "strong verbs, class II, s/r alternation",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 2,
+          "generation_strategy": "ablaut",
+          "stem_alternation": "s_r"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because s/r alternation is visible from principal parts and affects generated forms.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_2.contracted",
+        "pos": "verb",
+        "canonical_name": "strong class 2 contracted type",
+        "modern_class": "strong class 2",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["tēon", "flēon"],
+        "aliases": ["contracted strong II"],
+        "wright_sections": [495],
+        "wright_label": "strong verbs, class II, contracted type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 2,
+          "generation_strategy": "lexeme_specific",
+          "contracted": true
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because contracted class II verbs require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_2.u_type",
+        "pos": "verb",
+        "canonical_name": "strong class 2 ū-type",
+        "modern_class": "strong class 2",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["brūcan"],
+        "aliases": ["strong II ū-type"],
+        "wright_sections": [496],
+        "wright_label": "strong verbs, class II, ū-type",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 2,
+          "generation_strategy": "ablaut",
+          "ablaut_signature": "ū / ēa / u / o"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the present vowel distinguishes it programmatically from the ēo-type.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_3.nasal_cluster",
+        "pos": "verb",
+        "canonical_name": "strong class 3 nasal cluster",
+        "modern_class": "strong class 3",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bindan"],
+        "aliases": ["strong III nasal + consonant"],
+        "wright_sections": [498],
+        "wright_label": "strong verbs, class III, nasal + consonant",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 3,
+          "generation_strategy": "ablaut",
+          "root_environment": "nasal_plus_consonant"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the post-vocalic consonant environment is programmatically distinguishable.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_3.liquid_cluster",
+        "pos": "verb",
+        "canonical_name": "strong class 3 liquid cluster",
+        "modern_class": "strong class 3",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["helpan"],
+        "aliases": ["strong III liquid + consonant"],
+        "wright_sections": [499],
+        "wright_label": "strong verbs, class III, liquid + consonant",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 3,
+          "generation_strategy": "ablaut",
+          "root_environment": "liquid_plus_consonant"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the post-vocalic consonant environment is programmatically distinguishable.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_3.r_h_breaking",
+        "pos": "verb",
+        "canonical_name": "strong class 3 r/h breaking type",
+        "modern_class": "strong class 3",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["weorpan", "feohtan"],
+        "aliases": ["strong III breaking type"],
+        "wright_sections": [500],
+        "wright_label": "strong verbs, class III, breaking type",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 3,
+          "generation_strategy": "ablaut",
+          "root_environment": "r_or_h_cluster_with_breaking"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the broken vowels and cluster environment are programmatically distinguishable.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_3.feolan_type",
+        "pos": "verb",
+        "canonical_name": "strong class 3 feolan-type",
+        "modern_class": "strong class 3",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["feolan"],
+        "aliases": [],
+        "wright_sections": [501],
+        "wright_label": "strong verbs, class III, feolan type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 3,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because Wright gives a separate section and it is not a broad headword-derived class.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_3.misc",
+        "pos": "verb",
+        "canonical_name": "strong class 3 miscellaneous special type",
+        "modern_class": "strong class 3",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bregdan", "berstan", "þerscan"],
+        "aliases": [],
+        "wright_sections": [502],
+        "wright_label": "strong verbs, class III, miscellaneous special verbs",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 3,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept as a lexeme-specific bucket because Wright gives a separate section and forms require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_4.liquid_or_nasal",
+        "pos": "verb",
+        "canonical_name": "strong class 4 liquid or nasal type",
+        "modern_class": "strong class 4",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["beran"],
+        "aliases": ["strong IV"],
+        "wright_sections": [503],
+        "wright_label": "strong verbs, class IV",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 4,
+          "generation_strategy": "ablaut"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Default strong class IV type.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_4.cuman_niman",
+        "pos": "verb",
+        "canonical_name": "strong class 4 cuman/niman type",
+        "modern_class": "strong class 4",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["cuman", "niman"],
+        "aliases": [],
+        "wright_sections": [504],
+        "wright_label": "strong verbs, class IV, cuman/niman type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 4,
+          "generation_strategy": "lexeme_specific"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true,
+          "closed_class_examples": ["cuman", "niman"]
+        },
+        "mapping_rationale": "Kept because Wright gives a separate section and these common verbs require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_5.regular",
+        "pos": "verb",
+        "canonical_name": "strong class 5 regular",
+        "modern_class": "strong class 5",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["metan", "sprecan", "giefan"],
+        "aliases": ["strong V"],
+        "wright_sections": [505],
+        "wright_label": "strong verbs, class V",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 5,
+          "generation_strategy": "ablaut"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Default strong class V type.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_5.contracted_seon",
+        "pos": "verb",
+        "canonical_name": "strong class 5 contracted sēon-type",
+        "modern_class": "strong class 5",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sēon", "ġefēon", "plēon"],
+        "aliases": ["contracted strong V"],
+        "wright_sections": [506],
+        "wright_label": "strong verbs, class V, contracted type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 5,
+          "generation_strategy": "lexeme_specific",
+          "contracted": true
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because contracted class V verbs require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_5.j_present",
+        "pos": "verb",
+        "canonical_name": "strong class 5 j-present/geminated type",
+        "modern_class": "strong class 5",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["biddan", "licgan", "sittan"],
+        "aliases": ["strong V j-present"],
+        "wright_sections": [507],
+        "wright_label": "strong verbs, class V, j-presents",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 5,
+          "generation_strategy": "ablaut",
+          "stem_feature": "j_present_or_gemination"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because j-present/geminated forms are visible and affect generation.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_6.regular",
+        "pos": "verb",
+        "canonical_name": "strong class 6 regular",
+        "modern_class": "strong class 6",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["faran", "standan"],
+        "aliases": ["strong VI"],
+        "wright_sections": [508],
+        "wright_label": "strong verbs, class VI",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 6,
+          "generation_strategy": "ablaut",
+          "ablaut_signature": "a / ō / ō / a"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Default strong class VI type.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_6.contracted_slean",
+        "pos": "verb",
+        "canonical_name": "strong class 6 contracted slēan-type",
+        "modern_class": "strong class 6",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["slēan"],
+        "aliases": ["contracted strong VI"],
+        "wright_sections": [509],
+        "wright_label": "strong verbs, class VI, contracted slēan-type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 6,
+          "generation_strategy": "lexeme_specific",
+          "contracted": true
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because contracted class VI verbs require special handling.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_6.j_present",
+        "pos": "verb",
+        "canonical_name": "strong class 6 j-present/mutated type",
+        "modern_class": "strong class 6",
+        "traditional_class": "strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hebban", "hliehhan", "sċieppan", "swerian"],
+        "aliases": ["strong VI j-present"],
+        "wright_sections": [510],
+        "wright_label": "strong verbs, class VI, j-presents",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 6,
+          "generation_strategy": "ablaut",
+          "stem_feature": "j_present_or_mutated"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because j-present/mutated strong VI verbs are distinguishable and affect generation.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.preterite_e",
+        "pos": "verb",
+        "canonical_name": "strong class 7 preterite ē type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hātan", "lǣtan"],
+        "aliases": ["strong VII ē-preterite"],
+        "wright_sections": [511, 512, 513, 514],
+        "wright_label": "strong verbs, class VII, preterite ē subdivision",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "preterite_vowel": "ē"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because Wright divides class VII by preterite vowel and this is visible in principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.preterite_eo",
+        "pos": "verb",
+        "canonical_name": "strong class 7 preterite ēo type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bannan"],
+        "aliases": ["strong VII ēo-preterite"],
+        "wright_sections": [515],
+        "wright_label": "strong verbs, class VII, preterite ēo subdivision",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "preterite_vowel": "ēo"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because Wright divides class VII by preterite vowel and this is visible in principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.ea_type",
+        "pos": "verb",
+        "canonical_name": "strong class 7 ea-type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["fealdan", "feallan", "healdan"],
+        "aliases": ["strong VII ea-type"],
+        "wright_sections": [516],
+        "wright_label": "strong verbs, class VII, ea-type",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "present_vowel": "ea"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because present-vowel subtype is visible in the headword and principal parts.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.aw_type",
+        "pos": "verb",
+        "canonical_name": "strong class 7 āw-type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["blāwan", "cnāwan"],
+        "aliases": ["strong VII āw-type"],
+        "wright_sections": [517],
+        "wright_label": "strong verbs, class VII, āw-type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "present_vowel_or_sequence": "āw"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the āw sequence is visible in the headword and affects forms.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.ea_long_type",
+        "pos": "verb",
+        "canonical_name": "strong class 7 ēa-type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["bēatan", "hlēapan"],
+        "aliases": ["strong VII ēa-type"],
+        "wright_sections": [518],
+        "wright_label": "strong verbs, class VII, ēa-type",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "present_vowel": "ēa"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the ēa present-vowel subtype is visible in the headword.",
+        "notes": ""
+      },
+      {
+        "id": "verb.strong_7.o_type",
+        "pos": "verb",
+        "canonical_name": "strong class 7 ō-type",
+        "modern_class": "strong class 7",
+        "traditional_class": "old reduplicating strong verb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["blōtan", "blōwan", "grōwan"],
+        "aliases": ["strong VII ō-type"],
+        "wright_sections": [519],
+        "wright_label": "strong verbs, class VII, ō-type",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strong_class": 7,
+          "generation_strategy": "ablaut",
+          "present_vowel": "ō"
+        },
+        "recognition_hints": {
+          "principal_parts_required": true
+        },
+        "mapping_rationale": "Kept because the ō present-vowel subtype is visible in the headword.",
+        "notes": ""
+      },
+
+      {
+        "id": "adj.strong.a_o_stem",
+        "pos": "adjective",
+        "canonical_name": "strong a-/ō-stem adjective",
+        "modern_class": "strong a-/ō-stem adjective",
+        "traditional_class": "strong adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["glæd", "blind"],
+        "aliases": ["pure a-/ō-stem adjective"],
+        "wright_sections": [423, 424, 425, 426, 427, 428, 429, 430, 431],
+        "wright_label": "strong adjectives, a-/ō-stems",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strength": "strong",
+          "stem_class": "a/ō",
+          "degree_scope": ["positive"]
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Strong adjective stem class is useful for generation; most adjectives can also take weak forms contextually.",
+        "notes": ""
+      },
+      {
+        "id": "adj.strong.ja_jo_stem",
+        "pos": "adjective",
+        "canonical_name": "strong ja-/jō-stem adjective",
+        "modern_class": "strong ja-/jō-stem adjective",
+        "traditional_class": "strong adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["wilde"],
+        "aliases": [],
+        "wright_sections": [432, 433, 434],
+        "wright_label": "strong adjectives, ja-/jō-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strength": "strong",
+          "stem_class": "ja/jō",
+          "degree_scope": ["positive"]
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because historical j-stem adjectives have distinct strong forms.",
+        "notes": ""
+      },
+      {
+        "id": "adj.strong.wa_wo_stem",
+        "pos": "adjective",
+        "canonical_name": "strong wa-/wō-stem adjective",
+        "modern_class": "strong wa-/wō-stem adjective",
+        "traditional_class": "strong adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["gearu"],
+        "aliases": [],
+        "wright_sections": [435, 436, 437],
+        "wright_label": "strong adjectives, wa-/wō-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strength": "strong",
+          "stem_class": "wa/wō",
+          "degree_scope": ["positive"]
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because historical w-stem adjectives have distinct strong forms.",
+        "notes": ""
+      },
+      {
+        "id": "adj.strong.i_stem",
+        "pos": "adjective",
+        "canonical_name": "strong i-stem adjective",
+        "modern_class": "i-stem adjective",
+        "traditional_class": "strong adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["swēte"],
+        "aliases": [],
+        "wright_sections": [438],
+        "wright_label": "adjective i-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strength": "strong",
+          "stem_class": "i",
+          "degree_scope": ["positive"]
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright preserves this historical category even though many old i-stem adjectives shifted elsewhere.",
+        "notes": ""
+      },
+      {
+        "id": "adj.strong.u_stem",
+        "pos": "adjective",
+        "canonical_name": "strong u-stem adjective",
+        "modern_class": "u-stem adjective",
+        "traditional_class": "strong adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["cwicu"],
+        "aliases": [],
+        "wright_sections": [439],
+        "wright_label": "adjective u-stems",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "strength": "strong",
+          "stem_class": "u",
+          "degree_scope": ["positive"]
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because Wright gives a distinct section for surviving adjective u-stem traces.",
+        "notes": ""
+      },
+      {
+        "id": "adj.weak",
+        "pos": "adjective",
+        "canonical_name": "weak adjective declension",
+        "modern_class": "weak adjective",
+        "traditional_class": "weak adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["blinda"],
+        "aliases": [],
+        "wright_sections": [440],
+        "wright_label": "weak adjectives",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "strength": "weak"
+        },
+        "recognition_hints": {
+          "requires_syntactic_context": true
+        },
+        "mapping_rationale": "Weak adjective is contextual rather than a permanent lexical class for most adjectives, but it is useful to assign for generation and analysis.",
+        "notes": ""
+      },
+      {
+        "id": "adj.present_participle",
+        "pos": "adjective",
+        "canonical_name": "present participle adjective",
+        "modern_class": "present participle adjective",
+        "traditional_class": "participle adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["berende"],
+        "aliases": [],
+        "wright_sections": [441],
+        "wright_label": "present participles declined as adjectives",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "participle": "present"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["ende"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Present participles can be declined adjectivally and are programmatically recognizable by form.",
+        "notes": ""
+      },
+      {
+        "id": "adj.past_participle",
+        "pos": "adjective",
+        "canonical_name": "past participle adjective",
+        "modern_class": "past participle adjective",
+        "traditional_class": "participle adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["boren", "bunden"],
+        "aliases": [],
+        "wright_sections": [442],
+        "wright_label": "past participles declined as adjectives",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "participle": "past"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Past participles can be declined adjectivally; dictionary forms and verb principal parts can identify them.",
+        "notes": ""
+      },
+      {
+        "id": "adj.comparative.regular",
+        "pos": "adjective",
+        "canonical_name": "regular comparative adjective",
+        "modern_class": "regular comparative",
+        "traditional_class": "comparative adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["swētra"],
+        "aliases": [],
+        "wright_sections": [443],
+        "wright_label": "comparison of adjectives, comparative",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "degree_scope": ["comparative"],
+          "comparison": "regular"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["ra"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because comparative forms are programmatically recognizable and Wright gives a comparison section.",
+        "notes": ""
+      },
+      {
+        "id": "adj.comparative.umlauted",
+        "pos": "adjective",
+        "canonical_name": "umlauted comparative adjective",
+        "modern_class": "umlauted comparative",
+        "traditional_class": "comparative adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ieldra"],
+        "aliases": [],
+        "wright_sections": [443],
+        "wright_label": "comparison of adjectives, umlauted comparative",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "degree_scope": ["comparative"],
+          "comparison": "umlauted"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept despite sharing §443 because umlaut can be detected from lemma/comparison forms and affects dictionary mapping.",
+        "notes": ""
+      },
+      {
+        "id": "adj.superlative.regular",
+        "pos": "adjective",
+        "canonical_name": "regular superlative adjective",
+        "modern_class": "regular superlative",
+        "traditional_class": "superlative adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["swētest"],
+        "aliases": [],
+        "wright_sections": [444],
+        "wright_label": "comparison of adjectives, superlative",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "degree_scope": ["superlative"],
+          "comparison": "regular"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["ost", "est"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because superlative forms are programmatically recognizable and Wright gives a comparison section.",
+        "notes": ""
+      },
+      {
+        "id": "adj.superlative.umlauted",
+        "pos": "adjective",
+        "canonical_name": "umlauted superlative adjective",
+        "modern_class": "umlauted superlative",
+        "traditional_class": "superlative adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ieldest"],
+        "aliases": [],
+        "wright_sections": [444],
+        "wright_label": "comparison of adjectives, umlauted superlative",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "degree_scope": ["superlative"],
+          "comparison": "umlauted"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept despite sharing §444 because umlaut can be detected from lemma/comparison forms and affects dictionary mapping.",
+        "notes": ""
+      },
+      {
+        "id": "adj.comparison.irregular_suppletive",
+        "pos": "adjective",
+        "canonical_name": "irregular or suppletive adjective comparison",
+        "modern_class": "irregular comparison",
+        "traditional_class": "adjective comparison",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["gōd", "betera", "betst"],
+        "aliases": ["suppletive comparison"],
+        "wright_sections": [445],
+        "wright_label": "irregular comparison of adjectives",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "comparison": "irregular_or_suppletive"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because irregular comparison is lexeme-specific and Wright gives a distinct section.",
+        "notes": ""
+      },
+      {
+        "id": "adj.comparison.adverbial_prepositional",
+        "pos": "adjective",
+        "canonical_name": "adverbial or prepositional comparison adjective",
+        "modern_class": "adverbial/prepositional comparison",
+        "traditional_class": "adjective comparison",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["æfterra", "æftemest"],
+        "aliases": [],
+        "wright_sections": [446],
+        "wright_label": "comparison from adverbs and prepositions",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "comparison": "adverbial_or_prepositional_origin"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because Wright gives a distinct section and forms are lexicalized.",
+        "notes": ""
+      },
+      {
+        "id": "adj.numeral.cardinal",
+        "pos": "adjective",
+        "canonical_name": "cardinal numeral adjective",
+        "modern_class": "cardinal numeral",
+        "traditional_class": "numeral adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ān", "twā", "þrīe"],
+        "aliases": [],
+        "wright_sections": [447, 448, 449, 450, 451, 452],
+        "wright_label": "cardinal numerals",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "numeral_type": "cardinal"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright treats numerals inside the adjective chapter; cardinal numerals are programmatically distinguishable by lexeme.",
+        "notes": ""
+      },
+      {
+        "id": "adj.numeral.ordinal",
+        "pos": "adjective",
+        "canonical_name": "ordinal numeral adjective",
+        "modern_class": "ordinal numeral",
+        "traditional_class": "numeral adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["forma", "ōþer", "þridda"],
+        "aliases": [],
+        "wright_sections": [447, 448, 449, 450, 451, 452],
+        "wright_label": "ordinal numerals",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "numeral_type": "ordinal"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept distinct from cardinal numerals because the class is programmatically distinguishable by lexeme and function.",
+        "notes": ""
+      },
+      {
+        "id": "adj.numeral.other",
+        "pos": "adjective",
+        "canonical_name": "other numeral adjective",
+        "modern_class": "other numeral",
+        "traditional_class": "numeral adjective",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ānfeald", "twifeald"],
+        "aliases": [],
+        "wright_sections": [453, 454, 455, 456, 457],
+        "wright_label": "other numeral formations",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "numeral_type": "other"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because Wright gives separate sections for other numeral formations.",
+        "notes": ""
+      },
+
+      {
+        "id": "adv.deadjectival_e",
+        "pos": "adverb",
+        "canonical_name": "deadjectival -e adverb",
+        "modern_class": "deadjectival -e adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sōþe"],
+        "aliases": [],
+        "wright_sections": [552, 553],
+        "wright_label": "adverbs formed from adjectives in -e",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "formation": "deadjectival_e"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["e"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because the -e formation is programmatically visible for many adverbs.",
+        "notes": ""
+      },
+      {
+        "id": "adv.deadjectival_lice",
+        "pos": "adverb",
+        "canonical_name": "deadjectival -līce adverb",
+        "modern_class": "-līce adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hrædlīce"],
+        "aliases": [],
+        "wright_sections": [553],
+        "wright_label": "adverbs in -līce",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "formation": "deadjectival_lice"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["līce"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because the -līce suffix is programmatically visible.",
+        "notes": ""
+      },
+      {
+        "id": "adv.unga_inga",
+        "pos": "adverb",
+        "canonical_name": "-unga / -inga adverb",
+        "modern_class": "-unga/-inga adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["eallunga"],
+        "aliases": [],
+        "wright_sections": [554],
+        "wright_label": "adverbs in -unga and -inga",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "formation": "unga_inga"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["unga", "inga"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because suffixes are programmatically visible.",
+        "notes": ""
+      },
+      {
+        "id": "adv.linga_lunga",
+        "pos": "adverb",
+        "canonical_name": "-linga / -lunga adverb",
+        "modern_class": "-linga/-lunga adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["grundlunga"],
+        "aliases": [],
+        "wright_sections": [554],
+        "wright_label": "adverbs in -linga and -lunga",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "formation": "linga_lunga"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["linga", "lunga"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept separate from -unga/-inga because the longer suffixes are programmatically visible.",
+        "notes": ""
+      },
+      {
+        "id": "adv.comparison.regular",
+        "pos": "adverb",
+        "canonical_name": "regular comparative/superlative adverb",
+        "modern_class": "regular adverb comparison",
+        "traditional_class": "adverb comparison",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sōþe", "sōþor", "sōþost"],
+        "aliases": [],
+        "wright_sections": [555],
+        "wright_label": "comparison of adverbs",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "comparison": "regular"
+        },
+        "recognition_hints": {
+          "dictionary_headword_suffixes": ["or", "ost"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept because comparative/superlative adverb forms are programmatically visible.",
+        "notes": ""
+      },
+      {
+        "id": "adv.comparison.irregular_umlauted",
+        "pos": "adverb",
+        "canonical_name": "irregular or i-mutated comparative/superlative adverb",
+        "modern_class": "irregular adverb comparison",
+        "traditional_class": "adverb comparison",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["lange", "leng", "lengest"],
+        "aliases": ["i-mutated adverb comparison"],
+        "wright_sections": [556],
+        "wright_label": "irregular comparison of adverbs",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "comparison": "irregular_or_umlauted"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because comparison pattern is lexeme-specific and Wright gives a distinct section.",
+        "notes": ""
+      },
+      {
+        "id": "adv.comparison.suppletive",
+        "pos": "adverb",
+        "canonical_name": "suppletive comparative/superlative adverb",
+        "modern_class": "suppletive adverb comparison",
+        "traditional_class": "adverb comparison",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["wel", "bet", "betst"],
+        "aliases": [],
+        "wright_sections": [556],
+        "wright_label": "suppletive comparison of adverbs",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "comparison": "suppletive"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept separate from other irregular adverbs because suppletion is lexeme-specific and dictionary-visible.",
+        "notes": ""
+      },
+      {
+        "id": "adv.case_form",
+        "pos": "adverb",
+        "canonical_name": "case-form adverb",
+        "modern_class": "case-form adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hwīlum", "dæges"],
+        "aliases": ["adverbial case form"],
+        "wright_sections": [557],
+        "wright_label": "adverbs formed from noun/adjective cases",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "formation": "case_form"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed subtypes such as genitive/dative/accusative adverbial case forms because without syntactic parsing they are best handled as one dictionary class with features.",
+        "notes": ""
+      },
+      {
+        "id": "adv.prepositional_phrase",
+        "pos": "adverb",
+        "canonical_name": "prepositional adverbial phrase",
+        "modern_class": "prepositional adverbial",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["tōdæg"],
+        "aliases": [],
+        "wright_sections": [557],
+        "wright_label": "adverbs formed with prepositions",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "formation": "prepositional_phrase"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because compounds/phrases are dictionary-visible but not simply suffix-derived.",
+        "notes": ""
+      },
+      {
+        "id": "adv.standalone_lexical",
+        "pos": "adverb",
+        "canonical_name": "standalone lexical adverb",
+        "modern_class": "standalone lexical adverb",
+        "traditional_class": "adverb",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["þā", "hēr", "nū"],
+        "aliases": [],
+        "wright_sections": [558],
+        "wright_label": "chief adverbs of place and related lexical adverbs",
+        "source_keys": ["wright_1914", "oldenglish_info"],
+        "features": {
+          "formation": "lexical"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Collapsed semantic standalone adverb subtypes because they are better stored as semantic_tags on the BT assignment or lexeme.",
+        "notes": ""
+      },
+
+      {
+        "id": "pron.personal.first_person",
+        "pos": "pronoun",
+        "canonical_name": "first-person personal pronoun",
+        "modern_class": "personal pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["ic", "wit", "wē"],
+        "aliases": [],
+        "wright_sections": [459, 460, 461, 462],
+        "wright_label": "personal pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "personal",
+          "person_scope": ["first"],
+          "number_scope": ["singular", "dual", "plural"]
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["ic", "mē", "wit", "unc", "wē", "ūs"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept by person because the paradigm is lexically and programmatically distinct.",
+        "notes": ""
+      },
+      {
+        "id": "pron.personal.second_person",
+        "pos": "pronoun",
+        "canonical_name": "second-person personal pronoun",
+        "modern_class": "personal pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["þū", "git", "gē"],
+        "aliases": [],
+        "wright_sections": [459, 460, 461, 462],
+        "wright_label": "personal pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "personal",
+          "person_scope": ["second"],
+          "number_scope": ["singular", "dual", "plural"]
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["þū", "þē", "git", "inc", "gē", "ēow"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept by person because the paradigm is lexically and programmatically distinct.",
+        "notes": ""
+      },
+      {
+        "id": "pron.personal.third_person",
+        "pos": "pronoun",
+        "canonical_name": "third-person personal pronoun",
+        "modern_class": "personal pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hē", "hēo", "hit", "hīe"],
+        "aliases": [],
+        "wright_sections": [459, 460, 461, 462],
+        "wright_label": "personal pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "personal",
+          "person_scope": ["third"],
+          "gender_scope": ["masculine", "feminine", "neuter"],
+          "number_scope": ["singular", "plural"]
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["hē", "hine", "him", "his", "hēo", "hīe", "hit"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept by person because the paradigm is lexically and programmatically distinct.",
+        "notes": ""
+      },
+      {
+        "id": "pron.reflexive",
+        "pos": "pronoun",
+        "canonical_name": "reflexive pronoun",
+        "modern_class": "reflexive pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sīn", "self"],
+        "aliases": [],
+        "wright_sections": [463],
+        "wright_label": "reflexive pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "reflexive"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright gives reflexives a distinct section.",
+        "notes": ""
+      },
+      {
+        "id": "pron.possessive",
+        "pos": "pronoun",
+        "canonical_name": "possessive pronoun",
+        "modern_class": "possessive pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["mīn", "þīn", "ūre"],
+        "aliases": ["possessive adjective"],
+        "wright_sections": [464],
+        "wright_label": "possessive pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "possessive"
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["mīn", "þīn", "ūre", "ēower", "sīn"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Wright gives possessives a distinct section; headwords are programmatically identifiable.",
+        "notes": ""
+      },
+      {
+        "id": "pron.demonstrative.simple",
+        "pos": "pronoun",
+        "canonical_name": "simple demonstrative pronoun",
+        "modern_class": "demonstrative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sē", "sēo", "þæt"],
+        "aliases": ["definite article"],
+        "wright_sections": [465],
+        "wright_label": "demonstrative pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "demonstrative",
+          "deixis": "simple"
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["sē", "sēo", "þæt"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept separate because the sē paradigm is programmatically distinct and very frequent.",
+        "notes": ""
+      },
+      {
+        "id": "pron.demonstrative.proximal",
+        "pos": "pronoun",
+        "canonical_name": "proximal demonstrative pronoun",
+        "modern_class": "demonstrative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["þes", "þēos", "þis"],
+        "aliases": ["this pronoun"],
+        "wright_sections": [466],
+        "wright_label": "demonstrative pronouns, þes",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "demonstrative",
+          "deixis": "proximal"
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["þes", "þēos", "þis"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept separate because the þes paradigm is programmatically distinct.",
+        "notes": ""
+      },
+      {
+        "id": "pron.demonstrative.distal",
+        "pos": "pronoun",
+        "canonical_name": "distal demonstrative pronoun",
+        "modern_class": "demonstrative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["geon"],
+        "aliases": [],
+        "wright_sections": [467],
+        "wright_label": "demonstrative pronouns, distal forms",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "demonstrative",
+          "deixis": "distal"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Kept because Wright gives a distinct section.",
+        "notes": ""
+      },
+      {
+        "id": "pron.relative",
+        "pos": "pronoun",
+        "canonical_name": "relative pronoun",
+        "modern_class": "relative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["þe", "sē þe"],
+        "aliases": [],
+        "wright_sections": [468],
+        "wright_label": "relative pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "relative"
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["þe"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Wright gives relative pronouns a distinct section; þe is programmatically identifiable.",
+        "notes": ""
+      },
+      {
+        "id": "pron.interrogative.personal_thing",
+        "pos": "pronoun",
+        "canonical_name": "interrogative pronoun",
+        "modern_class": "interrogative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hwā", "hwæt"],
+        "aliases": [],
+        "wright_sections": [469],
+        "wright_label": "interrogative pronouns, hwā/hwæt",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "interrogative"
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["hwā", "hwæt"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept separate because hwā/hwæt forms are programmatically identifiable.",
+        "notes": ""
+      },
+      {
+        "id": "pron.interrogative.adjectival",
+        "pos": "pronoun",
+        "canonical_name": "interrogative adjectival pronoun",
+        "modern_class": "interrogative pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["hwilc", "hwæþer"],
+        "aliases": ["interrogative adjective"],
+        "wright_sections": [470],
+        "wright_label": "interrogative adjective-pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "interrogative",
+          "adjectival": true
+        },
+        "recognition_hints": {
+          "dictionary_headword_signals": ["hwilc", "hwæþer"],
+          "requires_lexeme_lookup": false
+        },
+        "mapping_rationale": "Kept separate because headwords are programmatically distinguishable from hwā/hwæt.",
+        "notes": ""
+      },
+      {
+        "id": "pron.indefinite",
+        "pos": "pronoun",
+        "canonical_name": "indefinite pronoun",
+        "modern_class": "indefinite pronoun",
+        "traditional_class": "pronoun",
+        "parent_id": null,
+        "is_assignable": 1,
+        "paradigmatic_words": ["sum", "ān", "ǣnig", "nān"],
+        "aliases": [],
+        "wright_sections": [471],
+        "wright_label": "indefinite pronouns",
+        "source_keys": ["wright_1914"],
+        "features": {
+          "pronoun_type": "indefinite"
+        },
+        "recognition_hints": {
+          "requires_lexeme_lookup": true
+        },
+        "mapping_rationale": "Wright gives indefinite pronouns a distinct section; individual forms are best dictionary-linked.",
+        "notes": ""
+      }
+    ]
+  }

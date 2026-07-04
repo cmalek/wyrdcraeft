@@ -1,0 +1,282 @@
+{
+    "anomalous": {
+      "wright_sections": [547, 548, 549, 550, 551],
+      "wright_label": "verbs in -mi",
+      "paradigmatic_words": ["bēon / wesan", "dōn", "gān", "willan"],
+      "subclasses": {
+        "substantive verb": {
+          "wright_sections": [548],
+          "paradigmatic_word": "bēon / wesan",
+          "notes": "Wright treats the substantive verb as built from several roots, including es-, bhū-/bheu-, and wes-."
+        },
+        "dōn-type": {
+          "wright_sections": [549],
+          "paradigmatic_word": "dōn",
+          "notes": "Wright gives dōn as the second verb under verbs in -mi."
+        },
+        "gān-type": {
+          "wright_sections": [550],
+          "paradigmatic_word": "gān",
+          "notes": "Wright gives gān as the third verb under verbs in -mi; its preterite is supplied by ēode."
+        },
+        "willan-type": {
+          "wright_sections": [551],
+          "paradigmatic_word": "willan",
+          "notes": "Wright says willan was originally an optative/subjunctive form of a verb in -mi, later used indicatively."
+        }
+      }
+    },
+    "preterite-present": {
+      "wright_sections": [539, 540, 541, 542, 543, 544, 545, 546],
+      "wright_label": "preterite-presents",
+      "paradigmatic_word": "magan",
+      "subclasses": {
+        "preterite-present class I": {
+          "wright_sections": [540],
+          "paradigmatic_word": "witan",
+          "notes": "Wright organizes preterite-presents partly by ablaut series."
+        },
+        "preterite-present class II": {
+          "wright_sections": [541],
+          "paradigmatic_word": "dugan"
+        },
+        "preterite-present class III": {
+          "wright_sections": [542],
+          "paradigmatic_words": ["unnan", "cunnan", "þurfan", "durran"]
+        },
+        "preterite-present class IV": {
+          "wright_sections": [543],
+          "paradigmatic_words": ["sculan", "munan"]
+        },
+        "preterite-present class V": {
+          "wright_sections": [544],
+          "paradigmatic_words": ["magan", "geneah"]
+        },
+        "preterite-present class VI": {
+          "wright_sections": [545],
+          "paradigmatic_word": "mōtan"
+        },
+        "preterite-present class VII": {
+          "wright_sections": [546],
+          "paradigmatic_word": "āgan"
+        }
+      }
+    },
+    "weak 1": {
+      "wright_sections": [521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534],
+      "wright_label": "weak verbs, class I",
+      "paradigmatic_words": ["nerian", "fremman", "settan"],
+      "subclasses": {
+        "short-stem j-present": {
+          "wright_sections": [522, 523, 524],
+          "paradigmatic_word": "nerian",
+          "notes": "Wright's subdivision (a): verbs originally with a short stem-syllable. Section 524 gives nerian, fremman, and settan as model paradigms."
+        },
+        "geminated short-stem type": {
+          "wright_sections": [524, 526],
+          "paradigmatic_word": "fremman",
+          "notes": "Useful practical subtype for verbs with West Germanic consonant doubling from historical j."
+        },
+        "dental-stem / settan-type": {
+          "wright_sections": [524, 527],
+          "paradigmatic_word": "settan",
+          "notes": "Wright gives settan as one of the class I models and §527 lists verbs conjugated like settan."
+        },
+        "long-stem or polysyllabic j-present": {
+          "wright_sections": [528, 529, 530, 531, 532, 533, 534],
+          "paradigmatic_word": "dēman",
+          "notes": "Wright's subdivision (b): polysyllabic verbs and verbs originally with a long stem-syllable."
+        },
+        "irregular class I / contracted or analogical type": {
+          "wright_sections": [530, 531, 532, 533, 534],
+          "paradigmatic_words": ["tellan", "bycgan", "þencan"],
+          "notes": "A practical bucket for class I verbs whose stem or dental suffix behavior needs lexeme-level handling."
+        }
+      }
+    },
+    "weak 2": {
+      "wright_sections": [535, 536, 537],
+      "wright_label": "weak verbs, class II",
+      "paradigmatic_word": "sealfian",
+      "subclasses": {
+        "regular -ian / -ode type": {
+          "wright_sections": [535, 536],
+          "paradigmatic_words": ["sealfian", "lufian", "bodian"],
+          "notes": "Wright gives sealfian as the model; §536 lists many verbs conjugated like it, including lufian and bodian."
+        },
+        "contracted or originally class III type": {
+          "wright_sections": [537],
+          "paradigmatic_word": "twēogan",
+          "notes": "Wright treats twēogan/twīogan and similar verbs here, noting that some originally belonged to class III."
+        }
+      }
+    },
+    "weak 3": {
+      "wright_sections": [538],
+      "wright_label": "weak verbs, class III",
+      "paradigmatic_words": ["habban", "libban", "secgan", "hycgan"],
+      "subclasses": {
+        "closed lexical class": {
+          "wright_sections": [538],
+          "paradigmatic_words": ["habban", "libban", "secgan", "hycgan"],
+          "notes": "Wright says the chief verbs are habban, libban, secgan, and hycgan; this is small enough to handle lexeme-by-lexeme."
+        }
+      }
+    },
+    "strong 1": {
+      "wright_sections": [490, 491, 492],
+      "ablaut_signature": "ī / ā / i / i",
+      "paradigmatic_word": "bīdan",
+      "subclasses": {
+        "regular ī-class": {
+          "wright_sections": [490],
+          "paradigmatic_words": ["bīdan", "wrītan"],
+          "notes": "Default class I pattern."
+        },
+        "Verner/fricative alternation type": {
+          "wright_sections": [491],
+          "paradigmatic_word": "snīþan",
+          "notes": "Wright gives snīþan with preterite plural/past participle forms showing the relevant alternation."
+        },
+        "contracted tēon-type": {
+          "wright_sections": [492],
+          "paradigmatic_word": "tēon",
+          "notes": "Wright treats tēon/tīon from older *tiohan/*tīhan separately."
+        }
+      }
+    },
+    "strong 2": {
+      "wright_sections": [493, 494, 495, 496],
+      "ablaut_signature": "ēo or ū / ēa / u / o",
+      "paradigmatic_word": "bēodan",
+      "subclasses": {
+        "ēo-type": {
+          "wright_sections": [493],
+          "paradigmatic_word": "bēodan"
+        },
+        "s/r alternation type": {
+          "wright_sections": [494],
+          "paradigmatic_word": "ċēosan"
+        },
+        "contracted tēon/flēon type": {
+          "wright_sections": [495],
+          "paradigmatic_words": ["tēon", "flēon"]
+        },
+        "ū-type": {
+          "wright_sections": [496],
+          "paradigmatic_word": "brūcan"
+        }
+      }
+    },
+    "strong 3": {
+      "wright_sections": [497, 498, 499, 500, 501, 502],
+      "paradigmatic_word": "bindan",
+      "subclasses": {
+        "nasal + consonant": {
+          "wright_sections": [498],
+          "paradigmatic_word": "bindan"
+        },
+        "l + consonant": {
+          "wright_sections": [499],
+          "paradigmatic_word": "helpan"
+        },
+        "r/h/lc + consonant with breaking": {
+          "wright_sections": [500],
+          "paradigmatic_words": ["weorpan", "feohtan"]
+        },
+        "feolan-type": {
+          "wright_sections": [501],
+          "paradigmatic_word": "feolan"
+        },
+        "miscellaneous / metathesis / analogical type": {
+          "wright_sections": [502],
+          "paradigmatic_words": ["bregdan", "berstan", "þerscan", "frignan", "murnan", "spurnan"]
+        }
+      }
+    },
+    "strong 4": {
+      "wright_sections": [503, 504],
+      "ablaut_signature": "e / æ / ǣ / o",
+      "paradigmatic_word": "beran",
+      "subclasses": {
+        "single liquid or nasal type": {
+          "wright_sections": [503],
+          "paradigmatic_word": "beran"
+        },
+        "cuman / niman type": {
+          "wright_sections": [504],
+          "paradigmatic_words": ["cuman", "niman"]
+        }
+      }
+    },
+    "strong 5": {
+      "wright_sections": [505, 506, 507],
+      "ablaut_signature": "e / æ / ǣ / e",
+      "paradigmatic_word": "metan",
+      "subclasses": {
+        "regular e + single consonant type": {
+          "wright_sections": [505],
+          "paradigmatic_words": ["metan", "sprecan", "giefan"]
+        },
+        "contracted sēon-type": {
+          "wright_sections": [506],
+          "paradigmatic_words": ["sēon", "ġefēon", "plēon"]
+        },
+        "j-present / geminated type": {
+          "wright_sections": [507],
+          "paradigmatic_words": ["biddan", "licgan", "sittan"]
+        }
+      }
+    },
+    "strong 6": {
+      "wright_sections": [508, 509, 510],
+      "ablaut_signature": "a / ō / ō / a or æ",
+      "paradigmatic_word": "faran",
+      "subclasses": {
+        "regular a-type": {
+          "wright_sections": [508],
+          "paradigmatic_words": ["faran", "bacan", "grafan", "standan"]
+        },
+        "contracted slēan-type": {
+          "wright_sections": [509],
+          "paradigmatic_word": "slēan"
+        },
+        "j-present / mutated type": {
+          "wright_sections": [510],
+          "paradigmatic_words": ["hebban", "hliehhan", "sċieppan", "swerian"]
+        }
+      }
+    },
+    "strong 7": {
+      "wright_sections": [511, 512, 513, 514, 515, 516, 517, 518, 519],
+      "wright_label": "old reduplicating verbs",
+      "paradigmatic_word": "hātan",
+      "subclasses": {
+        "preterite ē subdivision": {
+          "wright_sections": [512, 513, 514],
+          "paradigmatic_words": ["hātan", "lǣtan", "fōn"],
+          "notes": "Wright divides class VII by whether the preterite has ē or ēo. The OCR text may misread §512 as §612, but the contents give class VII as §§511-519."
+        },
+        "preterite ēo subdivision": {
+          "wright_sections": [515, 516, 517, 518, 519],
+          "paradigmatic_words": ["bannan", "fealdan", "blāwan", "bēatan", "blōtan"]
+        },
+        "ea-type": {
+          "wright_sections": [516],
+          "paradigmatic_words": ["fealdan", "feallan", "healdan"]
+        },
+        "āw-type": {
+          "wright_sections": [517],
+          "paradigmatic_words": ["blāwan", "cnāwan"]
+        },
+        "ēa-type": {
+          "wright_sections": [518],
+          "paradigmatic_words": ["bēatan", "hlēapan"]
+        },
+        "ō-type": {
+          "wright_sections": [519],
+          "paradigmatic_words": ["blōtan", "blōwan", "grōwan"]
+        }
+      }
+    }
+  }

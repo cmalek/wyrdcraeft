@@ -1,0 +1,189 @@
+{
+    "adverb": {
+      "deadjectival -e adverb": {
+        "paradigmatic_word": "sōþe",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [552, 553],
+        "mapping_rationale": "Wright §§552-553 treat ordinary adverbs formed from adjectives, especially adverbs in -e, such as sōþe 'truly', hearde 'fiercely', wide 'widely', and rihte 'rightly'. Old English Online likewise gives -e as one of the common adverb-forming endings."
+      },
+      "deadjectival -līce adverb": {
+        "paradigmatic_word": "hrædlīce",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [553],
+        "related_wright_sections": [634],
+        "mapping_rationale": "Wright §553 explains that adverbs like cræftlīce, dōllīce, frēondlīce, and gelīce arose from adjectives in -līc, after which -līce was reanalyzed as an adverbial ending. Old English Online also gives -līce as a major adverb-forming suffix."
+      },
+      "-unga / -inga adverb": {
+        "paradigmatic_word": "eallunga",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [554],
+        "related_wright_sections": [607, 615],
+        "mapping_rationale": "Wright §554 treats adverbs in -inga, -unga, -linga, and -lunga, such as dearnunga/dearninga 'secretly', eallunga/eallinga 'entirely', færunga 'suddenly', and grundlunga 'to the ground, completely'. Old English Online also identifies -unga as a common adverb-forming suffix."
+      },
+      "-linga / -lunga adverb": {
+        "paradigmatic_word": "grundlunga",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [554],
+        "related_wright_sections": [607, 615],
+        "mapping_rationale": "This is a subtype of the -unga/-inga adverb group in Wright §554. It is useful as a separate implementation subtype because -linga/-lunga forms are visually distinct and often lexicalized."
+      },
+      "regular comparative / superlative adverb": {
+        "paradigmatic_word": "sōþe / sōþor / sōþost",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [555],
+        "related_wright_sections": [443, 444],
+        "mapping_rationale": "Wright §555 treats regular comparative and superlative adverbs, generally with -or and -ost, e.g. hearde/heardor/heardost and holdlīce/holdlīcor/holdlīcost. Old English Online describes the same pattern as dropping final -e and adding -or and -ost."
+      },
+      "irregular or i-mutated comparative / superlative adverb": {
+        "paradigmatic_word": "lange / leng / lengest",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [556],
+        "related_wright_sections": [443, 444],
+        "mapping_rationale": "Wright §556 treats adverbs with older comparative -iz and superlative -ist/-ost formations, including eaþe/ieþ/eaþost, feorr/fierr/fierrest, lange/leng/lengest, and softe/seft. Old English Online likewise lists i-mutated and irregular adverb comparison types."
+      },
+      "suppletive comparative / superlative adverb": {
+        "paradigmatic_word": "wel / bet / betst",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [556],
+        "mapping_rationale": "Wright §556 also includes adverbs whose comparative and superlative come from a different stem, such as wel/bet/betst, lȳt/lǣs/lǣst, micel/mā/mǣst, and yfele/wiers/wierst. These should be lexeme-specific in an annotator."
+      },
+      "case-form adverb": {
+        "paradigmatic_word": "hwīlum",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 says a large number of OE adverbs consist of cases of nouns and adjectives used adverbially. This is one of the most important historical categories for tagging because many look like ordinary inflected noun/adjective forms."
+      },
+      "accusative case-form adverb": {
+        "paradigmatic_word": "ealne weg",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 lists accusative singular adverbials such as ealne weg/ealneg 'always', awiht/awuht 'at all', eall tela 'quite well', and east norþ 'north-east'."
+      },
+      "genitive singular case-form adverb": {
+        "paradigmatic_word": "dæges",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 lists genitive singular adverbials such as dæges 'by day', þances 'gladly', selfwilles 'voluntarily', nihtes 'by night', and tōweardes 'towards'."
+      },
+      "genitive plural case-form adverb": {
+        "paradigmatic_word": "gēara",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 lists genitive plural adverbials such as gēara 'formerly', hū meta 'how, in what way', nānra/nǣnigra þinga type expressions, and ungeara 'recently'."
+      },
+      "dative / instrumental singular case-form adverb": {
+        "paradigmatic_word": "nīwan stefne",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 lists dative and instrumental singular adverbials such as elne 'strongly', facne 'exceedingly', nīwan stefne 'anew, again', and hwene 'somewhat'."
+      },
+      "dative plural case-form adverb": {
+        "paradigmatic_word": "stundum",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 lists dative plural adverbials such as hwīlum 'sometimes', stundum 'from time to time', geardagum 'formerly', and numerous -mǣlum distributive forms."
+      },
+      "prepositional adverbial phrase": {
+        "paradigmatic_word": "tōdæg",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557],
+        "mapping_rationale": "Wright §557 includes adverbials formed by nouns, adjectives, or pronouns in conjunction with prepositions, such as ætgædere 'together', onbæc 'backwards', tōdæg(e) 'today', tōmorgen 'tomorrow', and tōsōþan 'in truth'."
+      },
+      "standalone lexical adverb": {
+        "paradigmatic_word": "þā",
+        "references": [
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html",
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [558],
+        "mapping_rationale": "Old English Online distinguishes formed adverbs from standalone adverbs, listing examples such as þā, þonne, þær, hider, þider, hēr, heonan, sōna, oft, eft, swā, hwīlum, nū, and þus. Wright §558 gives the chief adverbs of place, which are a major subset of these standalone lexical adverbs."
+      },
+      "adverb of place: rest/location": {
+        "paradigmatic_word": "hēr",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [558],
+        "mapping_rationale": "Wright §558 gives the chief adverbs of place and organizes them semantically by location/rest, motion to, and motion from. Hēr 'here' is the paradigmatic location/rest form."
+      },
+      "adverb of place: motion to": {
+        "paradigmatic_word": "hider",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [558],
+        "mapping_rationale": "Wright §558 treats place adverbs of direction/motion to a place. Old English Online highlights hider 'hither' and þider 'thither' as important standalone directional adverbs."
+      },
+      "adverb of place: motion from": {
+        "paradigmatic_word": "heonan",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html"
+        ],
+        "wright_sections": [558],
+        "mapping_rationale": "Wright §558 includes place adverbs of source/motion from a place. Heonan 'hence, from here' is a good paradigmatic form."
+      },
+      "temporal standalone adverb": {
+        "paradigmatic_word": "nū",
+        "references": [
+          "Old English Online. (n.d.). Adverbs. Retrieved July 3, 2026, from https://oldenglish.info/acp2.html",
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [557, 558],
+        "mapping_rationale": "Old English Online lists standalone temporal adverbs such as nū 'now', sōna 'soon', þā/þonne 'then', oft 'often', and hwīlum 'sometimes'. Wright distributes many temporal adverbs across case-form adverbs in §557 and place/standalone forms in §558."
+      },
+      "degree adverb": {
+        "paradigmatic_word": "swīþe",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig",
+          "Old English Online. (n.d.). Introduction to Adverbs, Conjunctions, Prepositions. Retrieved July 3, 2026, from https://oldenglish.info/adverbs.html"
+        ],
+        "wright_sections": [553, 557],
+        "mapping_rationale": "This is a semantic tag rather than a Wright morphological class. Wright lists degree-like adverbs such as swīþe 'exceedingly, very', micel/micle 'much', ungemete 'excessively', and full 'very, perfectly'. For an annotator, degree adverb should probably be a semantic subtype layered on top of formation type."
+      },
+      "negative adverb": {
+        "paradigmatic_word": "ne",
+        "references": [
+          "Wright, J., & Wright, E. M. (1914). Old English grammar (2nd ed.). Oxford University Press. Retrieved July 3, 2026, from https://archive.org/details/oldenglishgramma00wrig"
+        ],
+        "wright_sections": [],
+        "mapping_rationale": "Negation is not one of Wright's §§552-558 adverb-formation classes, but for annotation it is important to tag ne, nā, nō, nāwiht/nōwiht and similar forms as negative adverbs or negative particles. I would model this as a semantic/function tag rather than a formation class."
+      }
+    }
+  }

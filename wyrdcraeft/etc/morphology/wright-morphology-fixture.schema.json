@@ -1,0 +1,462 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://placodermi.org/schemas/old-english/wright-morphology-fixture.schema.json",
+    "title": "Old English Wright Morphology Fixture",
+    "description": "Fixture format for loading Old English morphology classes, Wright section mappings, and source metadata into SQLAlchemy/Alembic tables.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema_version", "sources", "morph_classes"],
+    "properties": {
+      "schema_version": {
+        "type": "string",
+        "description": "Fixture schema version.",
+        "examples": ["1.0"]
+      },
+      "language": {
+        "type": "string",
+        "description": "Language covered by this fixture.",
+        "default": "Old English",
+        "examples": ["Old English"]
+      },
+      "source_set": {
+        "type": "string",
+        "description": "Optional human-readable name for this morphology source set.",
+        "examples": ["wright-modern-morphology"]
+      },
+      "sources": {
+        "type": "array",
+        "description": "Bibliographic sources referenced by morphology classes.",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/$defs/source"
+        },
+        "uniqueItems": true
+      },
+      "morph_classes": {
+        "type": "array",
+        "description": "Reusable morphology classes that can be assigned to dictionary entries.",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/$defs/morphClass"
+        }
+      }
+    },
+    "$defs": {
+      "source": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_key",
+          "citation_apa",
+          "url",
+          "retrieved_date"
+        ],
+        "properties": {
+          "source_key": {
+            "type": "string",
+            "description": "Stable unique source key used by morph_classes[*].source_keys.",
+            "pattern": "^[a-z][a-z0-9_\\-]*$",
+            "examples": ["wright_1914", "oldenglish_info", "stella"]
+          },
+          "citation_apa": {
+            "type": "string",
+            "description": "APA-style citation.",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "description": "Source URL.",
+            "format": "uri"
+          },
+          "retrieved_date": {
+            "type": "string",
+            "description": "Date the source was retrieved.",
+            "format": "date"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes about source use.",
+            "default": ""
+          }
+        }
+      },
+      "morphClass": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "pos",
+          "canonical_name",
+          "modern_class",
+          "traditional_class",
+          "is_assignable",
+          "paradigmatic_words",
+          "aliases",
+          "wright_sections",
+          "wright_label",
+          "source_keys",
+          "features",
+          "recognition_hints",
+          "mapping_rationale"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable unique morphology class identifier. Prefer ASCII dot-separated IDs.",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$",
+            "examples": [
+              "noun.masculine.a_stem",
+              "verb.strong_3.nasal_cluster",
+              "adj.strong.a_o_stem",
+              "adv.deadjectival_e",
+              "pron.personal.first_person"
+            ]
+          },
+          "pos": {
+            "type": "string",
+            "description": "Part of speech for this morphology class.",
+            "enum": ["noun", "verb", "adjective", "adverb", "pronoun"]
+          },
+          "canonical_name": {
+            "type": "string",
+            "description": "Human-facing canonical class name.",
+            "minLength": 1
+          },
+          "modern_class": {
+            "type": "string",
+            "description": "Modern linguistic class label.",
+            "minLength": 1
+          },
+          "traditional_class": {
+            "type": "string",
+            "description": "Broader traditional grouping, such as strong noun or weak verb.",
+            "default": ""
+          },
+          "parent_id": {
+            "description": "Optional parent morphology class ID if using parent/subclass hierarchy.",
+            "type": ["string", "null"],
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+          },
+          "is_assignable": {
+            "description": "Whether dictionary entries should normally be assigned directly to this class. Stored as integer boolean for SQLite compatibility.",
+            "type": "integer",
+            "enum": [0, 1],
+            "default": 1
+          },
+          "paradigmatic_words": {
+            "type": "array",
+            "description": "Representative words defining or exemplifying the class.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "default": []
+          },
+          "aliases": {
+            "type": "array",
+            "description": "Collapsed or alternate names for this class.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "default": []
+          },
+          "wright_sections": {
+            "type": "array",
+            "description": "Wright section numbers associated with this class.",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "default": []
+          },
+          "wright_label": {
+            "type": "string",
+            "description": "Wright's heading or a normalized label for the Wright section mapping.",
+            "default": ""
+          },
+          "wright_notes": {
+            "type": "string",
+            "description": "Optional notes about the Wright mapping.",
+            "default": ""
+          },
+          "source_keys": {
+            "type": "array",
+            "description": "Source keys referencing entries in the top-level sources array.",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_\\-]*$"
+            },
+            "uniqueItems": true
+          },
+          "features": {
+            "$ref": "#/$defs/features"
+          },
+          "recognition_hints": {
+            "$ref": "#/$defs/recognitionHints"
+          },
+          "mapping_rationale": {
+            "type": "string",
+            "description": "Human-readable explanation of why this modern class maps to the listed Wright sections.",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional free-form notes.",
+            "default": ""
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "pos": {
+                  "const": "noun"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "features": {
+                  "required": ["gender_scope"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "pos": {
+                  "const": "verb"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "features": {
+                  "required": ["generation_strategy"]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "pos": {
+                  "const": "pronoun"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "features": {
+                  "required": ["pronoun_type"]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "features": {
+        "type": "object",
+        "description": "POS-specific morphology metadata. This object is intentionally extensible.",
+        "additionalProperties": true,
+        "properties": {
+          "gender_scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["masculine", "feminine", "neuter", "common"]
+            },
+            "uniqueItems": true
+          },
+          "person_scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["first", "second", "third"]
+            },
+            "uniqueItems": true
+          },
+          "number_scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["singular", "dual", "plural"]
+            },
+            "uniqueItems": true
+          },
+          "degree_scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["positive", "comparative", "superlative"]
+            },
+            "uniqueItems": true
+          },
+          "stem_class": {
+            "type": "string",
+            "description": "Historical stem class, e.g. a, ja, ō, n, root, r, nd."
+          },
+          "strength": {
+            "type": "string",
+            "enum": ["strong", "weak", "minor"]
+          },
+          "weak_class": {
+            "type": "integer",
+            "enum": [1, 2, 3]
+          },
+          "strong_class": {
+            "type": "integer",
+            "enum": [1, 2, 3, 4, 5, 6, 7]
+          },
+          "generation_strategy": {
+            "type": "string",
+            "enum": [
+              "declension",
+              "ablaut",
+              "dental_suffix",
+              "preterite_present",
+              "lexeme_specific",
+              "adjectival_declension",
+              "adverbial_formation",
+              "pronominal_declension"
+            ]
+          },
+          "ablaut_signature": {
+            "type": "string"
+          },
+          "preterite_suffix": {
+            "type": "string"
+          },
+          "preterite_vowel": {
+            "type": "string"
+          },
+          "present_vowel": {
+            "type": "string"
+          },
+          "present_vowel_or_sequence": {
+            "type": "string"
+          },
+          "root_environment": {
+            "type": "string"
+          },
+          "stem_feature": {
+            "type": "string"
+          },
+          "stem_alternation": {
+            "type": "string"
+          },
+          "contracted": {
+            "type": "boolean"
+          },
+          "plural_marker": {
+            "type": "string"
+          },
+          "semantic_class": {
+            "type": "string"
+          },
+          "semantic_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "participle": {
+            "type": "string",
+            "enum": ["present", "past"]
+          },
+          "comparison": {
+            "type": "string",
+            "enum": [
+              "regular",
+              "umlauted",
+              "irregular_or_suppletive",
+              "adverbial_or_prepositional_origin",
+              "irregular_or_umlauted",
+              "suppletive"
+            ]
+          },
+          "numeral_type": {
+            "type": "string",
+            "enum": ["cardinal", "ordinal", "other"]
+          },
+          "formation": {
+            "type": "string",
+            "enum": [
+              "deadjectival_e",
+              "deadjectival_lice",
+              "unga_inga",
+              "linga_lunga",
+              "case_form",
+              "prepositional_phrase",
+              "lexical"
+            ]
+          },
+          "pronoun_type": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "reflexive",
+              "possessive",
+              "demonstrative",
+              "relative",
+              "interrogative",
+              "indefinite"
+            ]
+          },
+          "deixis": {
+            "type": "string",
+            "enum": ["simple", "proximal", "distal"]
+          },
+          "adjectival": {
+            "type": "boolean"
+          }
+        },
+        "default": {}
+      },
+      "recognitionHints": {
+        "type": "object",
+        "description": "Programmatic hints for assigning dictionary entries to morphology classes.",
+        "additionalProperties": true,
+        "properties": {
+          "requires_lexeme_lookup": {
+            "type": "boolean"
+          },
+          "requires_syntactic_context": {
+            "type": "boolean"
+          },
+          "principal_parts_required": {
+            "type": "boolean"
+          },
+          "dictionary_headword_suffixes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "dictionary_headword_signals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "closed_class_examples": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "default": {}
+      }
+    }
+  }
