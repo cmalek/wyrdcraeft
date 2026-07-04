@@ -42,7 +42,7 @@ Out of scope:
 |-------|----------|----------|
 | ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
-| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService` |
+| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler` |
 | dictionary | `wyrdcraeft dictionary build`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
 | lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
@@ -56,7 +56,8 @@ Out of scope:
 - TEI ingest: direct TEI/XML parsing path
 - LLM ingest: extraction path using configured LLM settings
 - macron index: JSON payload used by diacritic tools for normalized-to-display mappings
-- morphology generation: TSV and SQLite production workflow for inflected forms
+- morphology generation: SQLite lookup index production workflow for inflected
+  forms (optional TSV via `--output`)
 - build command: standard subcommand name for long-running database-producing
   workflows; morphology, dictionary, and lexicon should all use `build`, but
   each build remains explicit and separate
@@ -192,6 +193,17 @@ Out of scope:
 - Post–Phase 8 (`c651f32`): added macron-preserving `normalized_title` join
   columns on `forms`, `bt_entries`, and `bt_variants` (Alembic
   `20260703_01`); join logic now centralized in `NormalizedTitleJoinIndex`
+- **Morphology build performance** (`2515ab8`, 2026-07-03/04): batched
+  SQLAlchemy Core inserts (25K rows) with bulk-load PRAGMAs; O(n) adj/noun
+  paradigm assignment; SQLite-only default build (`--output` optional for TSV);
+  `--profile` stage timing via `MorphologyBuildProfiler`; refactored
+  comparative/superlative adj emission hot path; adj-only cProfile script at
+  `scripts/morphology/profile_adj_stage.py`; handoff at
+  `doc/sessions/2026-07-03-morphology-build-performance.md`. Full build wall
+  time reduced from ~45m toward ~10–11m (user-measured; run variance applies).
+  Deferred index drop/recreate was tried and reverted (regression). Remaining
+  bottlenecks: adj-stage CPU (`print_one_form`/FormRow validation,
+  `normalize_output`) and SQLite flush time during bulk insert.
 
 ## Key Flows
 
@@ -202,8 +214,10 @@ Out of scope:
 ### Morphology generation
 
 `wyrdcraeft.cli.morphology:build` -> session/setup helpers -> generation dispatch
--> TSV sink and SQLAlchemy-backed `SqliteIndexSink` -> `forms` in
-`wyrdcraeft.sqlite3`
+-> optional TSV sink and SQLAlchemy-backed batched `SqliteIndexSink` ->
+`forms` in `wyrdcraeft.sqlite3`. Default build is SQLite-only; pass
+`--output` for TSV. Use `--profile` for stderr stage/setup/sqlite_flush
+timings.
 
 ### Dictionary indexing
 
@@ -232,8 +246,13 @@ dictionary build, and startup readiness).
 ## Sharp Edges
 
 - Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default
-  through SQLAlchemy-backed `forms` persistence; tests must use
+  through batched SQLAlchemy-backed `forms` persistence (25K-row bulk inserts
+  with WAL/synchronous=OFF tuning); tests must use
   `isolated_morphology_app_data` or explicit temp paths.
+- Morphology build no longer writes TSV unless `--output` is passed; the
+  default artifact is the canonical SQLite index only.
+- Use `wyrdcraeft morphology build --profile` to print stage wall times,
+  setup steps, and cumulative `sqlite_flush` seconds to stderr.
 - Dictionary indexing now writes `bt_*` through SQLAlchemy-backed persistence
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
