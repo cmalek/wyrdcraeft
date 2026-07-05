@@ -53,9 +53,13 @@ That needs its own design because:
   - `lexicon.rst`
 - The architecture set will use one concept stack with two reading depths
   rather than separate scholar and engineer doc trees
-- Each flow page will mirror the same section pattern
-- Claims about current product behavior must be code-proven or proven by local
-  checked-in docs/data
+- Each flow page will mirror the same core section pattern, followed by
+  explicitly named flow-specific extra sections
+- Claims about current product behavior must follow explicit evidence
+  precedence:
+  - current code paths first
+  - current CLI surfaces second
+  - checked-in prose/docs last
 - Uncertain provenance must be marked explicitly as uncertain
 - The landing page will include:
   - one shared system map
@@ -100,12 +104,13 @@ Target files:
 
 Current `morphology_refactor_spec.rst` and
 `morphology_refactor_baseline.rst` should leave the user-facing architecture
-navigation. They may be retained elsewhere if still useful, but they are not
-part of the replacement architecture stack.
+navigation. They may remain on disk if still useful, but they are not part of
+the replacement architecture stack and do not belong in the user-facing
+architecture toctree.
 
 ## Shared Page Template
 
-Each flow page should mirror this structure:
+Each flow page should mirror this core structure:
 
 1. `What This Flow Does`
 2. `For Scholars and Translators`
@@ -114,18 +119,18 @@ Each flow page should mirror this structure:
 5. `For Engineers`
 6. `Data Read and Data Written`
 7. `Sharp Edges and Non-Goals`
-8. one flow-specific section
 
-Flow-specific final sections:
+After those seven shared sections, each page must add these exact
+flow-specific sections:
 
 - dictionary:
-  - parsing and editorial merge
+  - `Parsing and Editorial Merge`
 - morphology:
-  - optional Wright section ingest
-  - brief related work and alternatives
+  - `Optional Wright Section Ingest`
+  - `Related Work and Alternatives`
 - lexicon:
-  - morphology classification
-  - optional Wright excerpt lookup
+  - `Morphology Classification`
+  - `Optional Wright Excerpt Lookup`
 
 ## Landing Page Design
 
@@ -141,13 +146,23 @@ Give a short explanation of how the three flows relate:
 
 ### 2. Show shared system flow
 
-Include a system-level Mermaid diagram that distinguishes:
+Include one system-level flow visualization that distinguishes:
 
 - critical build paths
 - optional enrichment paths
 
 The diagram must not place `wright_sections.section_text` on the direct build
 path for dictionary, morphology, or lexicon build.
+
+Current docs configuration in `doc/source/conf.py` does not show Mermaid
+support. Therefore the default should be a text-first schematic or equivalent
+plain reStructuredText presentation. In detail:
+
+- implementation should use a plain reStructuredText table, enumerated flow, or
+  simple textual schematic by default
+- if the existing docs build already supports Mermaid indirectly, Mermaid may be
+  used instead
+- enabling new Sphinx diagram tooling is out of scope for this docs rewrite
 
 ### 3. Show provenance matrix
 
@@ -301,9 +316,9 @@ Every page must separate three kinds of claims.
 Allowed evidence:
 
 - current code paths
-- checked-in docs
-- checked-in data files
 - current CLI help and entrypoints
+- checked-in data files
+- checked-in docs
 
 These claims should use concrete references to:
 
@@ -312,6 +327,15 @@ These claims should use concrete references to:
 - modules
 - tables
 - local data artifacts
+
+When sources disagree about current behavior, use this precedence order:
+
+1. code paths
+2. current CLI surfaces
+3. checked-in prose/docs
+
+Checked-in prose may describe intent, prior behavior, or stale design state. It
+must not override current code when documenting the product as built.
 
 ### 2. Upstream provenance
 
@@ -342,12 +366,17 @@ Optional enrichments must be marked clearly as optional, especially:
 
 ## Diagram Rules
 
-Mermaid diagrams are allowed where they reduce ambiguity.
+Mermaid diagrams are allowed where they reduce ambiguity, but they are not
+required.
 
 Use them for:
 
 - whole-system flow on landing page
 - per-flow process diagrams when the transformation is easier to see than read
+
+If current docs tooling cannot render Mermaid without new configuration, use a
+text-first fallback instead. The architecture rewrite should remain a docs
+content task, not a docs-build-tooling task.
 
 Do not use them when they blur optional and critical paths together.
 
@@ -390,5 +419,6 @@ After this design is reviewed, implementation should:
 1. replace `doc/source/architecture/index.rst` navigation
 2. add `dictionary.rst`, `morphology.rst`, and `lexicon.rst`
 3. remove the current refactor-specific pages from user-facing architecture
-   navigation
-4. build docs and correct any broken references or rendering issues
+   navigation only; they do not need relocation or rewrite in this task
+4. build docs and correct only the references or rendering issues introduced by
+   the new architecture pages or their direct navigation changes
