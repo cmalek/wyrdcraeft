@@ -55,6 +55,7 @@ def _expected_morph_class_count() -> int:
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
+    assert "audit-wright" in result.output
     assert "build" in result.output
     assert "query" in result.output
     assert "generate-reference-snapshots" in result.output

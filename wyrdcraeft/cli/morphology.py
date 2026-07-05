@@ -14,6 +14,10 @@ from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
 from wyrdcraeft.services.morphology.catalog.assigner import LemmaMorphClassAssigner
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMapper
+from wyrdcraeft.services.morphology.catalog.wright_audit import (
+    WrightAuditService,
+    format_wright_audit_text,
+)
 from wyrdcraeft.services.morphology.catalog.wright_text import WrightSectionTextIngester
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
@@ -920,5 +924,109 @@ def ingest_wright_text(
                 f"catalog_still_null={len(result.catalog_still_null)}",
                 f"coverage_percent={result.coverage_percent}",
             ]
+        )
+    )
+
+
+@morphology_group.command(
+    name="audit-wright",
+    help="Audit legacy Wright source values against deterministic assignments.",
+)
+@click.option(
+    "--json",
+    "json_output",
+    is_flag=True,
+    default=False,
+    help="Render the full audit result as machine-readable JSON.",
+)
+@click.option(
+    "--data-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help="Directory containing bundled morphology source files.",
+)
+@click.option(
+    "--db",
+    "db_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Path to the canonical SQLite database used for assignment lookups.",
+)
+@click.pass_context
+def audit_wright(
+    ctx: click.Context,
+    json_output: bool,
+    data_dir: Path | None,
+    db_path: Path | None,
+) -> None:
+    """
+    Audit legacy Wright source annotations without mutating source files.
+
+    Note:
+        The audit compares legacy source values with deterministic class
+        assignments grounded in ``data/OldEnglishGrammar.pdf`` and
+        ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, it reports source-side
+        Wright quality for verbs, nouns, adjectives, adverbs, and pronouns
+        without rewriting the source files or blocking builds. Part-of-speech
+        scope: ``cross-PoS``.
+
+    Args:
+        ctx: Click context carrying loaded settings and global flags.
+        json_output: When true, print full JSON instead of a sample-capped
+            human-readable summary.
+        data_dir: Optional base directory for bundled morphology source files.
+        db_path: Optional explicit canonical SQLite database path.
+
+    Side Effects:
+        Reads bundled morphology source files and deterministic assignment rows,
+        then writes the report to stdout.
+
+    Raises:
+        click.ClickException: Required inputs are missing or the audit cannot be
+            read from disk/database.
+
+    """
+    resolved_data_dir = data_dir or _default_morphology_data_dir()
+    dictionary_path = resolved_data_dir / "dict_adj-vb-part-num-adv-noun.txt"
+    manual_forms_path = resolved_data_dir / "manual_forms.txt"
+    para_vb_path = resolved_data_dir / "para_vb.txt"
+    required_paths = (
+        ("dictionary", dictionary_path),
+        ("manual forms", manual_forms_path),
+        ("verbal paradigms", para_vb_path),
+    )
+    for label, path in required_paths:
+        if not path.exists():
+            msg = (
+                f"Missing {label} file: {path}. "
+                "Provide an explicit path via --data-dir."
+            )
+            raise click.ClickException(msg)
+
+    settings = ctx.obj.get("settings")
+    resolved_index_db = db_path or get_canonical_db_path(
+        app_data_dir=settings.app_data_dir if settings is not None else None
+    )
+    engine = create_engine(resolved_index_db)
+    try:
+        result = WrightAuditService(engine).audit(
+            dictionary_path=dictionary_path,
+            manual_forms_path=manual_forms_path,
+            para_vb_path=para_vb_path,
+        )
+    except (OSError, SQLAlchemyError) as exc:
+        msg = f"Failed to audit legacy Wright values from {resolved_data_dir}: {exc}"
+        raise click.ClickException(msg) from exc
+    finally:
+        engine.dispose()
+
+    if json_output:
+        click.echo(json.dumps(result.to_payload(), ensure_ascii=False, indent=2))
+        return
+
+    click.echo(
+        format_wright_audit_text(
+            result,
+            index_db=resolved_index_db,
         )
     )
