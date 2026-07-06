@@ -1,0 +1,1806 @@
+[
+  {
+    "code": "",
+    "pos_code": "unknown",
+    "display_json": {}
+  },
+  {
+    "code": "Co",
+    "pos_code": "adverb",
+    "display_json": {
+      "degree": "comparative"
+    }
+  },
+  {
+    "code": "CoPlFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoPlFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoPlFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoPlFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "CoPlMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoPlMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoPlMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoPlMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "CoPlNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoPlNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoPlNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoPlNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "CoSgFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoSgFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoSgFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoSgFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "CoSgMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoSgMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoSgMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoSgMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "CoSgNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "CoSgNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "CoSgNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "CoSgNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "comparative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "IdIf",
+    "pos_code": "verb",
+    "display_json": {
+      "form": "inflected infinitive"
+    }
+  },
+  {
+    "code": "If",
+    "pos_code": "verb",
+    "display_json": {
+      "form": "infinitive"
+    }
+  },
+  {
+    "code": "ImPl",
+    "pos_code": "verb",
+    "display_json": {
+      "mood": "imperative",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "ImSg",
+    "pos_code": "verb",
+    "display_json": {
+      "mood": "imperative",
+      "number": "singular"
+    }
+  },
+  {
+    "code": "Inf",
+    "pos_code": "verb",
+    "display_json": {
+      "form": "infinitive"
+    }
+  },
+  {
+    "code": "PaInPl",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "PaInSg1",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "1st"
+    }
+  },
+  {
+    "code": "PaInSg2",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "2nd"
+    }
+  },
+  {
+    "code": "PaInSg3",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "3rd"
+    }
+  },
+  {
+    "code": "PaPt",
+    "pos_code": "participle",
+    "display_json": {
+      "form": "participle",
+      "tense": "past"
+    }
+  },
+  {
+    "code": "PaSuPl",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "subjunctive",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "PaSuSg",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "subjunctive",
+      "number": "singular"
+    }
+  },
+  {
+    "code": "PlFeAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PlFeDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PlFeGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PlFeNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PlMaAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PlMaDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PlMaGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PlMaNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PlNeAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PlNeDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PlNeGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PlNeNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "Po",
+    "pos_code": "adverb",
+    "display_json": {
+      "degree": "positive"
+    }
+  },
+  {
+    "code": "PoPlFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoPlFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoPlFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoPlFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PoPlMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoPlMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoPlMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoPlMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PoPlNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoPlNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoPlNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoPlNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PoSgFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoSgFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoSgFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoSgFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PoSgMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoSgMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoSgMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoSgMaIs",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "instrumental"
+    }
+  },
+  {
+    "code": "PoSgMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "PoSgNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "PoSgNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "PoSgNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "PoSgNeIs",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "instrumental"
+    }
+  },
+  {
+    "code": "PoSgNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "positive",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "Pp",
+    "pos_code": "participle",
+    "display_json": {
+      "form": "participle",
+      "tense": "present"
+    }
+  },
+  {
+    "code": "PsInPl",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "PsInSg1",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "1st"
+    }
+  },
+  {
+    "code": "PsInSg2",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "2nd"
+    }
+  },
+  {
+    "code": "PsInSg3",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "3rd"
+    }
+  },
+  {
+    "code": "PsPa",
+    "pos_code": "participle",
+    "display_json": {
+      "form": "participle",
+      "tense": "present"
+    }
+  },
+  {
+    "code": "PsPt",
+    "pos_code": "participle",
+    "display_json": {
+      "form": "participle",
+      "tense": "present"
+    }
+  },
+  {
+    "code": "PsSuPl",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "subjunctive",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "PsSuSg",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "subjunctive",
+      "number": "singular"
+    }
+  },
+  {
+    "code": "PsSug",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "subjunctive"
+    }
+  },
+  {
+    "code": "SgFeAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SgFeDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SgFeGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SgFeNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SgMaAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SgMaDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SgMaGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SgMaNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SgNeAc",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SgNeDa",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SgNeGe",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SgNeNo",
+    "pos_code": "noun",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpPlFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpPlFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpPlFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpPlFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpPlMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpPlMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpPlMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpPlMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpPlNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpPlNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpPlNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpPlNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "plural",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpSgFeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpSgFeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpSgFeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpSgFeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpSgMaAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpSgMaDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpSgMaGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpSgMaNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "SpSgNeAc",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "SpSgNeDa",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "SpSgNeGe",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "SpSgNeNo",
+    "pos_code": "adjective",
+    "display_json": {
+      "degree": "superlative",
+      "number": "singular",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "Su",
+    "pos_code": "adverb",
+    "display_json": {
+      "degree": "superlative"
+    }
+  },
+  {
+    "code": "duac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duac2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duda2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duge1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duge2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "duno2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "if",
+    "pos_code": "verb",
+    "display_json": {}
+  },
+  {
+    "code": "imsg",
+    "pos_code": "verb",
+    "display_json": {
+      "mood": "imperative",
+      "number": "singular"
+    }
+  },
+  {
+    "code": "painpl",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "plural"
+    }
+  },
+  {
+    "code": "painsg1",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "past",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "1st"
+    }
+  },
+  {
+    "code": "papt",
+    "pos_code": "verb",
+    "display_json": {}
+  },
+  {
+    "code": "plac",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plac2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plac3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plda",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plda2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plda3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plfeac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "plfeac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plfeda",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "plfeda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plfege",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "plfege1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plfeno",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "plfeno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plge",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plge1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plge2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plge3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plmaac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "plmaac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plmada",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "plmada1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plmage",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "plmage1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plmano",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "plmano1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plneac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "plneac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plneda",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "plneda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plnege",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "plnege1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plneno",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "plural",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "plneno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plno",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plno2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "plno3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "psinsg2",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "2nd"
+    }
+  },
+  {
+    "code": "psinsg3",
+    "pos_code": "verb",
+    "display_json": {
+      "tense": "present",
+      "mood": "indicative",
+      "number": "singular",
+      "person": "3rd"
+    }
+  },
+  {
+    "code": "sgac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgac2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgda2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "sgfeac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeac3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeda",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "sgfeda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeda3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfege",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "sgfege1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfege3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeno",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "feminine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "sgfeno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgfeno3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgge1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgge2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmaac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "sgmaac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmaac3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmada",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "sgmada1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmada3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmage",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "sgmage1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmage3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmais",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "instrumental"
+    }
+  },
+  {
+    "code": "sgmano",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "masculine",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "sgmano1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgmano3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneac",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "accusative"
+    }
+  },
+  {
+    "code": "sgneac1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneac3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneda",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "dative"
+    }
+  },
+  {
+    "code": "sgneda1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneda3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgnege",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "genitive"
+    }
+  },
+  {
+    "code": "sgnege1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgnege3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneis",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "instrumental"
+    }
+  },
+  {
+    "code": "sgneno",
+    "pos_code": "numeral",
+    "display_json": {
+      "number": "singular",
+      "gender": "neuter",
+      "case": "nominative"
+    }
+  },
+  {
+    "code": "sgneno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgneno3",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgno1",
+    "pos_code": "pronoun",
+    "display_json": {}
+  },
+  {
+    "code": "sgno2",
+    "pos_code": "pronoun",
+    "display_json": {}
+  }
+]

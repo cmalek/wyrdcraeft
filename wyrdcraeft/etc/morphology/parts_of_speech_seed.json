@@ -1,0 +1,62 @@
+[
+  {
+    "code": "noun",
+    "display_label": "Noun",
+    "is_inflectable": 1
+  },
+  {
+    "code": "verb",
+    "display_label": "Verb",
+    "is_inflectable": 1
+  },
+  {
+    "code": "adjective",
+    "display_label": "Adjective",
+    "is_inflectable": 1
+  },
+  {
+    "code": "adverb",
+    "display_label": "Adverb",
+    "is_inflectable": 1
+  },
+  {
+    "code": "pronoun",
+    "display_label": "Pronoun",
+    "is_inflectable": 1
+  },
+  {
+    "code": "numeral",
+    "display_label": "Numeral",
+    "is_inflectable": 1
+  },
+  {
+    "code": "unknown",
+    "display_label": "Unknown",
+    "is_inflectable": 1
+  },
+  {
+    "code": "participle",
+    "display_label": "Participle",
+    "is_inflectable": 1
+  },
+  {
+    "code": "preposition",
+    "display_label": "Preposition",
+    "is_inflectable": 0
+  },
+  {
+    "code": "conjunction",
+    "display_label": "Conjunction",
+    "is_inflectable": 0
+  },
+  {
+    "code": "interjection",
+    "display_label": "Interjection",
+    "is_inflectable": 0
+  },
+  {
+    "code": "indeclinable",
+    "display_label": "Indeclinable",
+    "is_inflectable": 0
+  }
+]
