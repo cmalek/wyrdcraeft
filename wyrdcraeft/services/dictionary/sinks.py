@@ -13,8 +13,11 @@ from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.sqlalchemy import BTEditLog, BTEntry, BTSense, BTVariant
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.markup import normalize_morphology_title
+from wyrdcraeft.services.morphology.catalog.pos import pos_id_from_bt_pos
+from wyrdcraeft.services.morphology.catalog.pos_seed import ensure_parts_of_speech
 
 if TYPE_CHECKING:
+    import sqlite3
     from pathlib import Path
 
     from sqlalchemy.engine import Engine
@@ -123,6 +126,24 @@ class BTSqliteSink:
         """
         return json.dumps([gender.value for gender in genders], ensure_ascii=False)
 
+    @staticmethod
+    def _sqlite_connection(session: Session) -> sqlite3.Connection:
+        """
+        Unwrap SQLAlchemy's DB-API connection to the underlying SQLite driver.
+
+        Args:
+            session: Active SQLAlchemy write session.
+
+        Returns:
+            Raw ``sqlite3.Connection`` used by POS seed and resolver helpers.
+
+        """
+        dbapi_connection = session.connection().connection
+        driver_connection = getattr(dbapi_connection, "driver_connection", None)
+        if driver_connection is not None:
+            return cast("sqlite3.Connection", driver_connection)
+        return cast("sqlite3.Connection", dbapi_connection)
+
     def write_entries(
         self,
         entries: list[BTConsolidatedEntry],
@@ -149,13 +170,14 @@ class BTSqliteSink:
         variant_rows: list[dict[str, object]] = []
 
         with self._session_factory.begin() as session:
+            sqlite_connection = self._sqlite_connection(session)
+            ensure_parts_of_speech(sqlite_connection)
             for entry in entries:
                 entry_row = BTEntry(
                     norm_key=entry.norm_key,
-                    headword_raw=entry.headword_raw,
-                    headword_macronized=entry.headword_macronized,
+                    headword=entry.headword_macronized,
                     normalized_title=entry.normalized_title,
-                    pos=entry.pos.value,
+                    pos_id=pos_id_from_bt_pos(sqlite_connection, entry.pos.value),
                     genders_json=self._genders_json(entry.genders),
                     etymology=entry.etymology,
                     see_also_json=json.dumps(entry.see_also, ensure_ascii=False),

@@ -14,6 +14,7 @@ from wyrdcraeft.models.dictionary import (
     BTPos,
     BTSense,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import BTEntry, BTVariant
 from wyrdcraeft.services.dictionary.normalized_title_join import (
     NormalizedTitleJoinIndex,
@@ -26,14 +27,40 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import Connection, Engine
 
 
-#: CLI POS aliases mapped to stored ``bt_entries.pos`` values.
-_POS_ALIASES: dict[str, str] = {
-    "n": BTPos.NOUN.value,
-    "v": BTPos.VERB.value,
-    "a": BTPos.ADJ.value,
-    "adjective": BTPos.ADJ.value,
-    "adverb": BTPos.ADV.value,
-    "num": BTPos.NUMERAL.value,
+#: BT POS values and CLI aliases mapped to canonical ``parts_of_speech.code`` values.
+_BT_POS_TO_CODE: dict[str, str] = {
+    BTPos.NOUN.value: "noun",
+    BTPos.VERB.value: "verb",
+    BTPos.ADJ.value: "adjective",
+    BTPos.ADV.value: "adverb",
+    BTPos.PRON.value: "pronoun",
+    BTPos.NUMERAL.value: "numeral",
+    BTPos.PREP.value: "preposition",
+    BTPos.CONJ.value: "conjunction",
+    BTPos.INTERJ.value: "interjection",
+    BTPos.INDECL.value: "indeclinable",
+    BTPos.UNKNOWN.value: "unknown",
+    "n": "noun",
+    "v": "verb",
+    "a": "adjective",
+    "adjective": "adjective",
+    "adverb": "adverb",
+    "num": "numeral",
+}
+
+#: Canonical ``parts_of_speech.code`` values mapped back to BT enum values.
+_CODE_TO_BT_POS: dict[str, BTPos] = {
+    "noun": BTPos.NOUN,
+    "verb": BTPos.VERB,
+    "adjective": BTPos.ADJ,
+    "adverb": BTPos.ADV,
+    "pronoun": BTPos.PRON,
+    "numeral": BTPos.NUMERAL,
+    "preposition": BTPos.PREP,
+    "conjunction": BTPos.CONJ,
+    "interjection": BTPos.INTERJ,
+    "indeclinable": BTPos.INDECL,
+    "unknown": BTPos.UNKNOWN,
 }
 
 
@@ -70,13 +97,14 @@ def _normalize_lookup_key(value: str) -> str:
 
 def _normalize_pos_filter(pos: str | None) -> str | None:
     """
-    Normalize an optional CLI POS filter to stored ``bt_entries.pos`` values.
+    Normalize an optional CLI POS filter to canonical POS codes.
 
     Args:
         pos: Optional part-of-speech filter from CLI or API callers.
 
     Returns:
-        Stored POS string, or ``None`` when no filter is requested.
+        Canonical ``parts_of_speech.code`` string, or ``None`` when no filter is
+        requested.
 
     """
     if pos is None:
@@ -84,11 +112,28 @@ def _normalize_pos_filter(pos: str | None) -> str | None:
     candidate = pos.strip().lower()
     if not candidate:
         return None
-    candidate = _POS_ALIASES.get(candidate, candidate)
-    try:
-        return BTPos(candidate).value
-    except ValueError:
-        return candidate
+    return _BT_POS_TO_CODE.get(candidate, candidate)
+
+
+def _bt_pos_from_code(code: str) -> BTPos:
+    """
+    Convert a canonical POS code back to the BT enum used by CLI payloads.
+
+    Args:
+        code: Canonical ``parts_of_speech.code`` value loaded from SQLite.
+
+    Returns:
+        Matching Bosworth-Toller part-of-speech enum.
+
+    Raises:
+        LookupError: The canonical code has no BT-facing representation.
+
+    """
+    pos = _CODE_TO_BT_POS.get(code.strip().lower())
+    if pos is None:
+        msg = f"unsupported bt_entries POS code {code!r}"
+        raise LookupError(msg)
+    return pos
 
 
 def _genders_from_json(payload: str) -> list[BTGender]:
@@ -250,24 +295,28 @@ class BTQueryService:
 
         """
         entry_rows = self._connection.execute(
-            select(BTEntry.id, BTEntry.normalized_title, BTEntry.pos)
+            select(BTEntry.id, BTEntry.normalized_title, PartOfSpeech.code).join(
+                PartOfSpeech,
+                PartOfSpeech.id == BTEntry.pos_id,
+            )
         ).all()
         variant_rows = self._connection.execute(
             select(
                 BTVariant.entry_id,
                 BTVariant.normalized_title,
-                BTEntry.pos,
+                PartOfSpeech.code,
             )
             .join(BTEntry, BTEntry.id == BTVariant.entry_id)
+            .join(PartOfSpeech, PartOfSpeech.id == BTEntry.pos_id)
             .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
         ).all()
         return NormalizedTitleJoinIndex.from_entry_variant_rows(
             [
-                (int(row.id), str(row.normalized_title), str(row.pos))
+                (int(row.id), str(row.normalized_title), str(row.code))
                 for row in entry_rows
             ],
             [
-                (int(row.entry_id), str(row.normalized_title), str(row.pos))
+                (int(row.entry_id), str(row.normalized_title), str(row.code))
                 for row in variant_rows
             ],
         )
@@ -297,8 +346,9 @@ class BTQueryService:
                     """
                     SELECT e.id
                     FROM bt_entries e
-                    WHERE e.norm_key = :lookup_key AND e.pos = :pos_filter
-                    ORDER BY e.norm_key, e.pos, e.id
+                    JOIN parts_of_speech p ON p.id = e.pos_id
+                    WHERE e.norm_key = :lookup_key AND p.code = :pos_filter
+                    ORDER BY e.norm_key, p.code, e.id
                     """
                 ),
                 {"lookup_key": lookup_key, "pos_filter": pos_filter},
@@ -309,8 +359,9 @@ class BTQueryService:
                     """
                     SELECT e.id
                     FROM bt_entries e
+                    JOIN parts_of_speech p ON p.id = e.pos_id
                     WHERE e.norm_key = :lookup_key
-                    ORDER BY e.norm_key, e.pos, e.id
+                    ORDER BY e.norm_key, p.code, e.id
                     """
                 ),
                 {"lookup_key": lookup_key},
@@ -340,7 +391,8 @@ class BTQueryService:
                     SELECT v.entry_id, v.spelling_raw
                     FROM bt_variants v
                     JOIN bt_entries e ON e.id = v.entry_id
-                    WHERE e.pos = :pos_filter
+                    JOIN parts_of_speech p ON p.id = e.pos_id
+                    WHERE p.code = :pos_filter
                     ORDER BY v.entry_id
                     """
                 ),
@@ -385,17 +437,17 @@ class BTQueryService:
             text(
                 """
                 SELECT
-                    norm_key,
-                    headword_raw,
-                    headword_macronized,
-                    normalized_title,
-                    pos,
-                    genders_json,
-                    etymology,
-                    see_also_json,
-                    source_line_nos_json
-                FROM bt_entries
-                WHERE id = :entry_id
+                    e.norm_key,
+                    e.headword,
+                    e.normalized_title,
+                    p.code AS pos_code,
+                    e.genders_json,
+                    e.etymology,
+                    e.see_also_json,
+                    e.source_line_nos_json
+                FROM bt_entries e
+                JOIN parts_of_speech p ON p.id = e.pos_id
+                WHERE e.id = :entry_id
                 """
             ),
             {"entry_id": entry_id},
@@ -427,12 +479,16 @@ class BTQueryService:
             {"entry_id": entry_id},
         ).mappings().all()
 
+        headword = str(row["headword"])
+        pos = _bt_pos_from_code(str(row["pos_code"]))
         return BTConsolidatedEntry(
             norm_key=str(row["norm_key"]),
-            headword_raw=str(row["headword_raw"]),
-            headword_macronized=str(row["headword_macronized"]),
+            # Raw headwords are no longer persisted separately; expose the stored
+            # display headword for backward-compatible consolidated-entry reads.
+            headword_raw=headword,
+            headword_macronized=headword,
             normalized_title=str(row["normalized_title"]),
-            pos=BTPos(str(row["pos"])),
+            pos=pos,
             genders=_genders_from_json(str(row["genders_json"])),
             variants=[str(variant_row["spelling_raw"]) for variant_row in variant_rows],
             senses=[

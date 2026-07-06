@@ -7,10 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from wyrdcraeft.models.morphology import FormRow
+from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
-from wyrdcraeft.services.morphology.generation.sinks import SqliteIndexSink
 
 _SAMPLE_LINES = (
     Path(__file__).resolve().parents[1]
@@ -22,34 +21,48 @@ _SAMPLE_LINES = (
 
 def _seed_forms_table(db_path: Path, row_count: int) -> int:
     """Seed the canonical ``forms`` table via the real SQLAlchemy sink."""
-    sink = SqliteIndexSink(db_path)
-    sink.emit_rows(
-        [
-            FormRow(
-                counter=str(index),
-                formi=f"lemma-{index}",
-                BT=f"lemma-{index}",
-                title=f"lemma-{index}",
-                normalized_title=f"lemma-{index}",
-                stem=f"lemma-{index}",
-                form=f"lemma-{index}",
-                formParts="",
-                var="0",
-                probability="0",
-                function="No",
-                wright="0",
-                paradigm="demo",
-                paraID="0",
-                wordclass="noun",
-                class1="",
-                class2="",
-                class3="",
-                comment="",
-            )
-            for index in range(row_count)
-        ]
-    )
-    sink.close()
+    upgrade_canonical_db(db_path)
+    with sqlite3.connect(db_path) as conn:
+        conn.executemany(
+            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm, paraID,
+                wordclass, class1, class2, class3, comment, bt_key, title_key,
+                stem_key, form_key, formi_key
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    index,
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    "",
+                    "0",
+                    "0",
+                    "No",
+                    "0",
+                    "demo",
+                    "0",
+                    "noun",
+                    "",
+                    "",
+                    "",
+                    "",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                )
+                for index in range(row_count)
+            ],
+        )
+        conn.commit()
     return row_count
 
 
@@ -73,9 +86,10 @@ def test_attach_preserves_forms_and_writes_bt_entries(temp_dir: Path) -> None:
         bt_count = conn.execute("SELECT COUNT(*) FROM bt_entries").fetchone()[0]
         abbad = conn.execute(
             """
-            SELECT norm_key, pos, headword_raw
-            FROM bt_entries
-            WHERE norm_key = ? AND pos = ?
+            SELECT e.norm_key, p.code, e.headword
+            FROM bt_entries e
+            JOIN parts_of_speech p ON p.id = e.pos_id
+            WHERE e.norm_key = ? AND p.code = ?
             """,
             ("abbad", "noun"),
         ).fetchone()

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.models.dictionary import BTPos
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
@@ -30,20 +31,47 @@ _SAMPLE_LINES = (
 
 
 def _seed_forms_table(db_path: Path, row_count: int) -> int:
+    upgrade_canonical_db(db_path)
     with sqlite3.connect(db_path) as conn:
-        conn.executescript(
+        conn.executemany(
             """
-            CREATE TABLE forms (
-                id INTEGER PRIMARY KEY,
-                lemma TEXT NOT NULL
-            );
-            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm, paraID,
+                wordclass, class1, class2, class3, comment, bt_key, title_key,
+                stem_key, form_key, formi_key
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    index,
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    "",
+                    "0",
+                    "0",
+                    "No",
+                    "0",
+                    "demo",
+                    "0",
+                    "noun",
+                    "",
+                    "",
+                    "",
+                    "",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                    f"lemma-{index}",
+                )
+                for index in range(row_count)
+            ],
         )
-        for index in range(row_count):
-            conn.execute(
-                "INSERT INTO forms (lemma) VALUES (?)",
-                (f"lemma-{index}",),
-            )
         conn.commit()
     return row_count
 
