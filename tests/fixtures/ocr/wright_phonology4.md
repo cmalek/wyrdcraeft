@@ -1,5 +1,3 @@
-rannjan), to run, gallop, with metathesis of r and preservation of the older stage of umlaut.
-
 § 61. Nasals disappeared before the voiceless spirants, f, þ, s, and the preceding a (o) became ō through the intermediate stage of a long nasalized vowel (cp. § 40), as hōs, Goth. OHG. hansa, band, escort, multitude; ōþer, Goth. anþar, second, other; sōfte, OHG. samfto, gently, softly; and similarly gōs, goose; ōs-, god; ōsle (OHG. amsala), blackbird; smōpe, smoothly; sōþ, true; tōþ, tooth; þrōstle, thrush, throstle; wōs, moisture.
 
 § 62. ō became ē (older œ̄) by i-umlaut, as ēst, Goth. ansts, stem-form ansti-, favour; nēþan, Goth. ana-nanþjan, to venture on; tēþ from *tanþiz, teeth; and similarly fēþe, walking, movement; gēs, geese; gesēþan, to testify, declare; sēfte, soft; smēþe, smooth.
