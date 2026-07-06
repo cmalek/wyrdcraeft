@@ -16,6 +16,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphClass,
     MorphClassWrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.paths import CANONICAL_DB_FILENAME
 from wyrdcraeft.services.markup import normalize_morphology_title
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
@@ -152,10 +153,13 @@ def _seed_assignment(engine, *, title: str, pos: str, class_key: str) -> None:
         morph_class_id = session.execute(
             select(MorphClass.id).where(MorphClass.class_key == class_key)
         ).scalar_one()
+        pos_id = session.execute(
+            select(PartOfSpeech.id).where(PartOfSpeech.code == pos)
+        ).scalar_one()
         session.add(
             LemmaMorphClass(
                 normalized_title=normalized_title,
-                pos=pos,
+                pos_id=pos_id,
                 morph_class_id=morph_class_id,
                 assignment_source="test_fixture",
                 confidence=100,
@@ -173,8 +177,12 @@ def _verb_class_key_for_section(engine, section_no: int) -> str:
                 MorphClassWrightSection,
                 MorphClassWrightSection.morph_class_id == MorphClass.id,
             )
+            .join(
+                PartOfSpeech,
+                PartOfSpeech.id == MorphClass.pos_id,
+            )
             .where(
-                MorphClass.pos == "verb",
+                PartOfSpeech.code == "verb",
                 MorphClassWrightSection.section_no == section_no,
             )
             .limit(1)

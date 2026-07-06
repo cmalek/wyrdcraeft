@@ -17,6 +17,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphSource,
     WrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.services.markup import normalize_morphology_title
 
 if TYPE_CHECKING:
@@ -229,9 +230,14 @@ class MorphologyCatalogQueryService:
 
         with Session(self._engine) as session:
             assignment = session.scalar(
-                select(LemmaMorphClass).where(
+                select(LemmaMorphClass)
+                .join(
+                    PartOfSpeech,
+                    PartOfSpeech.id == LemmaMorphClass.pos_id,
+                )
+                .where(
                     LemmaMorphClass.normalized_title == title_key,
-                    LemmaMorphClass.pos == pos_key,
+                    PartOfSpeech.code == pos_key,
                 ),
             )
             if assignment is None:
@@ -258,10 +264,17 @@ class MorphologyCatalogQueryService:
                 .where(MorphClassSource.morph_class_id == morph_class.id)
                 .order_by(MorphSource.source_key),
             ).all()
+            pos_code = session.scalar(
+                select(PartOfSpeech.code).where(
+                    PartOfSpeech.id == assignment.pos_id,
+                ),
+            )
+            if pos_code is None:
+                return None
 
         return MorphClassView(
             class_key=morph_class.class_key,
-            pos=morph_class.pos,
+            pos=pos_code,
             canonical_name=morph_class.canonical_name,
             modern_class=morph_class.modern_class,
             assignment_source=assignment.assignment_source,

@@ -17,6 +17,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphSource,
     WrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -396,6 +397,12 @@ class MorphologyCatalogLoader:
 
         """
         class_keys = [str(morph_class["id"]) for morph_class in morph_classes]
+        pos_code_to_id = {
+            str(code): int(pos_id)
+            for code, pos_id in session.execute(
+                select(PartOfSpeech.code, PartOfSpeech.id),
+            ).all()
+        }
         existing_rows = {
             row.class_key: row
             for row in session.scalars(
@@ -410,7 +417,11 @@ class MorphologyCatalogLoader:
             if row is None:
                 row = MorphClass(class_key=class_key)
                 session.add(row)
-            self._apply_morph_class_fields(row, morph_class)
+            self._apply_morph_class_fields(
+                row,
+                morph_class,
+                pos_code_to_id=pos_code_to_id,
+            )
             session.flush()
             class_key_to_id[class_key] = int(row.id)
         return class_key_to_id
@@ -448,6 +459,8 @@ class MorphologyCatalogLoader:
     def _apply_morph_class_fields(
         row: MorphClass,
         morph_class: dict[str, Any],
+        *,
+        pos_code_to_id: dict[str, int],
     ) -> None:
         """
         Copy one fixture morph-class payload onto an ORM row.
@@ -456,8 +469,18 @@ class MorphologyCatalogLoader:
             row: Target ``MorphClass`` ORM instance.
             morph_class: Parsed fixture row.
 
+        Keyword Args:
+            pos_code_to_id: Mapping from canonical POS code to seeded surrogate id.
+
+        Raises:
+            ValueError: The fixture references a POS code missing from the DB.
+
         """
-        row.pos = str(morph_class["pos"])
+        pos_code = str(morph_class["pos"])
+        if pos_code not in pos_code_to_id:
+            msg = f"Unknown morph-class POS code in fixture: {pos_code}"
+            raise ValueError(msg)
+        row.pos_id = pos_code_to_id[pos_code]
         row.canonical_name = str(morph_class["canonical_name"])
         row.modern_class = str(morph_class["modern_class"])
         row.traditional_class = str(morph_class["traditional_class"])

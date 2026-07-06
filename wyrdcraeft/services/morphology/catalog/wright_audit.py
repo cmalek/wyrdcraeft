@@ -14,6 +14,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphClass,
     MorphClassWrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.services.markup import normalize_morphology_title
 from wyrdcraeft.services.morphology.catalog.pos import catalog_pos_from_wordclass
 from wyrdcraeft.services.morphology.loaders import load_dictionary, load_forms
@@ -400,13 +401,16 @@ class WrightAuditService:
             assignment_rows = session.execute(
                 select(
                     LemmaMorphClass.normalized_title,
-                    LemmaMorphClass.pos,
+                    PartOfSpeech.code,
                     LemmaMorphClass.assignment_source,
                     LemmaMorphClass.morph_class_id,
                     MorphClass.class_key,
                 ).join(
                     MorphClass,
                     MorphClass.id == LemmaMorphClass.morph_class_id,
+                ).join(
+                    PartOfSpeech,
+                    PartOfSpeech.id == LemmaMorphClass.pos_id,
                 )
             ).all()
 

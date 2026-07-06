@@ -12,6 +12,8 @@ from wyrdcraeft.db.base import Base
 if TYPE_CHECKING:
     from collections.abc import Sequence  # noqa: F401
 
+    from wyrdcraeft.models.reference import PartOfSpeech
+
 
 class MorphSource(Base):
     """Bibliographic source row cited by morphology catalog classes."""
@@ -54,7 +56,7 @@ class MorphClass(Base):
     __tablename__ = "morph_classes"
     #: Lookup indexes for part of speech and business key.
     __table_args__ = (
-        Index("idx_morph_classes_pos", "pos"),
+        Index("idx_morph_classes_pos", "pos_id"),
         Index("idx_morph_classes_class_key", "class_key"),
     )
 
@@ -62,8 +64,11 @@ class MorphClass(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     #: Stable dot-id business key (not the primary key).
     class_key: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
-    #: Part-of-speech label for this morph class.
-    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Referenced canonical part-of-speech identifier for this morph class.
+    pos_id: Mapped[int] = mapped_column(
+        ForeignKey("parts_of_speech.id"),
+        nullable=False,
+    )
     #: Canonical display name for the class.
     canonical_name: Mapped[str] = mapped_column(Text, nullable=False)
     #: Modern linguistic class label.
@@ -94,6 +99,8 @@ class MorphClass(Base):
     recognition_hints_json: Mapped[str] = mapped_column(
         Text, nullable=False, server_default="{}"
     )
+    #: Referenced canonical part-of-speech row.
+    part_of_speech: Mapped[PartOfSpeech] = relationship()
     #: Wright-section junction rows owned by this class.
     wright_section_links: Mapped[list["MorphClassWrightSection"]] = relationship(  # noqa: UP037
         back_populates="morph_class",
@@ -202,7 +209,7 @@ class LemmaMorphClass(Base):
     __tablename__ = "lemma_morph_classes"
     #: Uniqueness and lookup indexes for lemma assignment rows.
     __table_args__ = (
-        UniqueConstraint("normalized_title", "pos"),
+        UniqueConstraint("normalized_title", "pos_id"),
         Index("idx_lemma_morph_classes_morph_class_id", "morph_class_id"),
         Index("idx_lemma_morph_classes_normalized_title", "normalized_title"),
     )
@@ -211,8 +218,11 @@ class LemmaMorphClass(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     #: Normalized lemma title used as assignment lookup key.
     normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Catalog part-of-speech label for the lemma.
-    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Referenced canonical part-of-speech identifier for the lemma.
+    pos_id: Mapped[int] = mapped_column(
+        ForeignKey("parts_of_speech.id"),
+        nullable=False,
+    )
     #: Assigned morph-class identifier.
     morph_class_id: Mapped[int] = mapped_column(
         ForeignKey("morph_classes.id"), nullable=False
@@ -229,6 +239,8 @@ class LemmaMorphClass(Base):
     )
     #: Free-form assignment notes.
     notes: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    #: Referenced canonical part-of-speech row.
+    part_of_speech: Mapped[PartOfSpeech] = relationship()
     #: Referenced morph-class row.
     morph_class: Mapped[MorphClass] = relationship(
         back_populates="lemma_assignments",

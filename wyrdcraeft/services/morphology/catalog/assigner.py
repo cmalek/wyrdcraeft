@@ -15,6 +15,7 @@ from wyrdcraeft.models.morph_catalog import (
     MorphClass,
     MorphClassWrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.services.markup import normalize_morphology_title
 
 if TYPE_CHECKING:
@@ -169,14 +170,15 @@ class LemmaMorphClassAssigner:
         for morph_class in morph_classes:
             class_key_to_id[morph_class.class_key] = morph_class.id
             features = json.loads(morph_class.features_json)
+            pos_code = morph_class.part_of_speech.code
             catalog_class = _CatalogClass(
                 id=morph_class.id,
                 class_key=morph_class.class_key,
-                pos=morph_class.pos,
+                pos=pos_code,
                 features=features if isinstance(features, dict) else {},
                 wright_sections=frozenset(sections_by_class.get(morph_class.id, set())),
             )
-            classes_by_pos.setdefault(morph_class.pos, []).append(catalog_class)
+            classes_by_pos.setdefault(pos_code, []).append(catalog_class)
         return class_key_to_id, classes_by_pos
 
     def assign_all(self, words: Sequence[Word]) -> AssignmentResult:
@@ -526,16 +528,24 @@ class LemmaMorphClassAssigner:
 
         """
         existing = session.scalar(
-            select(LemmaMorphClass).where(
+            select(LemmaMorphClass)
+            .join(
+                PartOfSpeech,
+                PartOfSpeech.id == LemmaMorphClass.pos_id,
+            )
+            .where(
                 LemmaMorphClass.normalized_title == write.normalized_title,
-                LemmaMorphClass.pos == write.pos,
+                PartOfSpeech.code == write.pos,
             ),
         )
         if existing is None:
+            pos_id = session.execute(
+                select(MorphClass.pos_id).where(MorphClass.id == write.morph_class_id),
+            ).scalar_one()
             session.add(
                 LemmaMorphClass(
                     normalized_title=write.normalized_title,
-                    pos=write.pos,
+                    pos_id=int(pos_id),
                     morph_class_id=write.morph_class_id,
                     assignment_source=write.assignment_source,
                     confidence=write.confidence,

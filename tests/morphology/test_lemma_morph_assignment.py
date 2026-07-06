@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.morphology import VerbParadigm, Word
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.services.morphology.catalog.assigner import LemmaMorphClassAssigner
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMapper
@@ -89,9 +90,14 @@ def _assignment(
 ) -> LemmaMorphClass | None:
     with Session(catalog_db) as session:
         return session.scalar(
-            select(LemmaMorphClass).where(
+            select(LemmaMorphClass)
+            .join(
+                PartOfSpeech,
+                PartOfSpeech.id == LemmaMorphClass.pos_id,
+            )
+            .where(
                 LemmaMorphClass.normalized_title == normalized_title,
-                LemmaMorphClass.pos == pos,
+                PartOfSpeech.code == pos,
             ),
         )
 

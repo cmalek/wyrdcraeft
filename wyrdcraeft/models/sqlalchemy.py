@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from wyrdcraeft.db.base import Base
+
+if TYPE_CHECKING:
+    from wyrdcraeft.models.reference import PartOfSpeech
 
 
 class Form(Base):
@@ -76,13 +81,20 @@ class Form(Base):
 
 
 class BTEntry(Base):
-    """Canonical Bosworth-Toller dictionary entry row."""
+    """
+    Canonical Bosworth-Toller dictionary entry row keyed by normalized form and POS.
+
+    The row stores one display headword plus a foreign-key reference to the
+    canonical ``parts_of_speech`` lookup table used by normalized dictionary and
+    morphology joins.
+
+    """
 
     #: Canonical Bosworth-Toller dictionary entries table name.
     __tablename__ = "bt_entries"
     #: Dictionary entry uniqueness and lookup indexes.
     __table_args__ = (
-        UniqueConstraint("norm_key", "pos"),
+        UniqueConstraint("norm_key", "pos_id"),
         Index("idx_bt_entries_norm_key", "norm_key"),
         Index("idx_bt_entries_normalized_title", "normalized_title"),
     )
@@ -91,14 +103,15 @@ class BTEntry(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     #: Normalized dictionary key.
     norm_key: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Raw headword spelling.
-    headword_raw: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Macronized display headword.
-    headword_macronized: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Display headword spelling preserved for dictionary and lexicon output.
+    headword: Mapped[str] = mapped_column(Text, nullable=False)
     #: Macron/dot-preserving normalized headword for morphology joins.
     normalized_title: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Part-of-speech label.
-    pos: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Referenced canonical part-of-speech identifier.
+    pos_id: Mapped[int] = mapped_column(
+        ForeignKey("parts_of_speech.id"),
+        nullable=False,
+    )
     #: JSON-encoded gender labels.
     genders_json: Mapped[str] = mapped_column(Text, nullable=False)
     #: Etymology text.
@@ -107,6 +120,8 @@ class BTEntry(Base):
     see_also_json: Mapped[str] = mapped_column(Text, nullable=False)
     #: JSON-encoded source line numbers.
     source_line_nos_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Referenced canonical part-of-speech row.
+    part_of_speech: Mapped[PartOfSpeech] = relationship()
 
 
 class BTSense(Base):
