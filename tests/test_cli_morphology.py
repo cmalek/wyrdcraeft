@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 from wyrdcraeft.cli.cli import cli
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morph_catalog import MorphClass
+from wyrdcraeft.models.reference import InflectionCode, PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
@@ -93,12 +94,20 @@ def test_morphology_build_seeds_catalog_when_empty(
     engine = create_engine(isolated_morphology_index_db)
     try:
         with engine.connect() as connection:
-            count = connection.execute(
+            morph_class_count = connection.execute(
                 select(func.count()).select_from(MorphClass)
+            ).scalar_one()
+            pos_count = connection.execute(
+                select(func.count()).select_from(PartOfSpeech)
+            ).scalar_one()
+            inflection_code_count = connection.execute(
+                select(func.count()).select_from(InflectionCode)
             ).scalar_one()
     finally:
         engine.dispose()
-    assert count == _expected_morph_class_count()
+    assert morph_class_count == _expected_morph_class_count()
+    assert pos_count == 12
+    assert inflection_code_count > 0
 
 
 def test_morphology_build_skips_catalog_seed_when_populated(

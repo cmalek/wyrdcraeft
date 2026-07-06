@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from importlib import resources
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import click
 from sqlalchemy.exc import SQLAlchemyError
@@ -14,6 +14,10 @@ from wyrdcraeft.services.morphology.build_profile import MorphologyBuildProfiler
 from wyrdcraeft.services.morphology.catalog.assigner import LemmaMorphClassAssigner
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.paradigm_map import ParadigmClassMapper
+from wyrdcraeft.services.morphology.catalog.pos_seed import (
+    ensure_inflection_codes,
+    ensure_parts_of_speech,
+)
 from wyrdcraeft.services.morphology.catalog.wright_audit import (
     WrightAuditService,
     format_wright_audit_text,
@@ -52,10 +56,31 @@ from wyrdcraeft.services.morphology.reference_snapshots import (
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 if TYPE_CHECKING:
+    import sqlite3
     from collections.abc import Callable
+
+    from sqlalchemy.engine import Connection
 
     from wyrdcraeft.services.morphology.contracts import ParityFormOutput
     from wyrdcraeft.settings import Settings
+
+
+def _sqlite_connection(connection: Connection) -> sqlite3.Connection:
+    """
+    Unwrap SQLAlchemy's DB-API connection to the underlying SQLite driver.
+
+    Args:
+        connection: Active SQLAlchemy connection bound to the canonical database.
+
+    Returns:
+        Raw ``sqlite3.Connection`` used by reference seeding helpers.
+
+    """
+    dbapi_connection = connection.connection
+    driver_connection = getattr(dbapi_connection, "driver_connection", None)
+    if driver_connection is not None:
+        return cast("sqlite3.Connection", driver_connection)
+    return cast("sqlite3.Connection", dbapi_connection)
 
 
 def _current_stage_total(
@@ -484,6 +509,13 @@ def build(  # noqa: PLR0913, PLR0915
     default_fixture_path = resolved_data_dir / "wright_paradigms.json"
     catalog_engine = create_engine(resolved_index_db)
     try:
+        with (
+            profiler.time_setup("seed references"),
+            catalog_engine.begin() as connection,
+        ):
+            sqlite_connection = _sqlite_connection(connection)
+            pos_map = ensure_parts_of_speech(sqlite_connection)
+            ensure_inflection_codes(sqlite_connection, pos_map)
         with profiler.time_setup("seed catalog"):
             catalog_loader = MorphologyCatalogLoader(catalog_engine)
             catalog_loader.ensure_seeded(
