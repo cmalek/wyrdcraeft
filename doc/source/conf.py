@@ -51,6 +51,7 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.viewcode",
     "sphinxcontrib.autodoc_pydantic",
+    "sphinxcontrib.mermaid",
 ]
 
 # Mock optional dependencies so autodoc can import the package without them.
@@ -97,3 +98,6 @@ html_show_sourcelink: bool = False
 html_show_sphinx: bool = False
 html_show_copyright: bool = True
 html_theme_options: dict[str, Any] = {"collapse_navigation": False}
+
+# Render Mermaid diagrams client-side so docs builds do not depend on ``mmdc``.
+mermaid_output_format: str = "raw"

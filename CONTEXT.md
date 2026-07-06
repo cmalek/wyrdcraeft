@@ -42,9 +42,9 @@ Out of scope:
 |-------|----------|----------|
 | ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
-| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler` |
+| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query`, `wyrdcraeft morphology ingest-wright-text`, `wyrdcraeft morphology audit-wright` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler`, `MorphologyCatalogLoader`, `LemmaMorphClassAssigner`, `MorphologyCatalogQueryService`, `WrightSectionTextIngester`, `WrightAuditService` |
 | dictionary | `wyrdcraeft dictionary build`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
-| lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `form_decode`, `OldEnglishSearchInput` |
+| lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `WrightSectionTextScreen`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
@@ -113,6 +113,30 @@ Out of scope:
 - morphology function code: compact tag on a generated form row (for example
   `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
   other inflectional dimensions depending on part of speech
+- Wright morph catalog: reference tables in canonical SQLite seeded from
+  `wyrdcraeft/etc/morphology/wright_paradigms.json` (113 morph classes, Wright
+  § links, bibliographic sources); auto-seeded on morphology build when empty
+- morph class: reusable Wright inflection class row in `morph_classes` keyed by
+  dot-id `class_key` (for example `noun.masculine.a_stem`)
+- lemma morph assignment: `lemma_morph_classes` row mapping
+  `(normalized_title, pos)` to `morph_classes.id`; produced during morphology
+  build after paradigm assigners
+- ParadigmClassMapper: resolves generator paradigm labels and verb `paraID`
+  values to catalog `class_key` via fixture exemplars and `para_vb.txt`
+- MorphClassView: read-only DTO from `lookup_lemma_class()` with class metadata,
+  ordered Wright § numbers, and source citations
+- LemmaMorphClassSummary: browse-oriented morph-class payload on
+  `EntryDetails.morph_class` (display label, provenance, Wright § list, or
+  explicit `Unclassified`)
+- Wright section text ingest: explicit `morphology ingest-wright-text` command
+  that parses `§ N` headings from markdown into `wright_sections.section_text`
+  (idempotent; `--force` overwrites); not run automatically on build
+- Wright legacy audit: report-only `morphology audit-wright` command comparing
+  bundled source `wright` fields to deterministic `lemma_morph_classes`
+  assignments; optional `--json`; never rewrites source files
+- browse morph-class block: dictionary detail pane shows catalog class label,
+  assignment provenance, and selectable Wright § citations via join-at-read-time
+  lookup (no lexicon-table denormalization in v1)
 - morphology table: browse sidebar view that expands function codes into
   POS-aware paradigm grids (verb/noun/adjective/pronoun) filtered to the
   headword's part of speech; falls back to a flat table when no grid applies
@@ -204,6 +228,36 @@ Out of scope:
   Deferred index drop/recreate was tried and reverted (regression). Remaining
   bottlenecks: adj-stage CPU (`print_one_form`/FormRow validation,
   `normalize_output`) and SQLite flush time during bulk insert.
+- **Wright morph catalog Phase 1** (2026-07-04, commits `6249788`–`6e5ec18`):
+  Alembic `20260704_01` catalog tables; `MorphologyCatalogLoader`; auto-seed
+  on build; `--refresh-catalog`; session at
+  `doc/sessions/2026-07-04-morphology-wright-catalog-phase1.md`
+- **Wright morph catalog Phase 2** (2026-07-04, commits `0a66a51`–`b9b1d65`):
+  `lemma_morph_classes` + `recognition_hints_json`; POS helpers; paradigm mapper;
+  `LemmaMorphClassAssigner`; `MorphologyCatalogQueryService.lookup_lemma_class`;
+  Gates A/B passed; session at
+  `doc/sessions/2026-07-04-morphology-wright-catalog-phase2.md`.
+- **Morph-class browse + Wright audit plan** (2026-07-04, commits
+  `790785c`–`f126c38`; plan at
+  `docs/superpowers/plans/2026-07-04-morph-class-browse-audit-implementation.md`):
+  - **Phase 1** (`790785c`): lexicon browse dictionary detail shows catalog
+    morph class, provenance, and Wright § list (or explicit `Unclassified`) via
+    join-at-read-time; `LemmaMorphClassSummary` + shared display formatter
+  - **Phase 2** (`06d9b92`): `WrightSectionTextIngester` +
+    `morphology ingest-wright-text`; `lookup_wright_section_text()` on catalog
+    query service
+  - **Phase 3** (`cba8785`): selectable Wright § list in browse detail;
+    `WrightSectionTextScreen` modal reads SQLite text or shows ingest-needed
+    message
+  - **Phase 4** (`f126c38`): `WrightAuditService` +
+    `morphology audit-wright` (malformed legacy Wright, contradictions,
+    unclassified, blank-but-classified); report-only v1
+  - Session reports under `doc/sessions/task-phase{1,2,3,4}-*.md`
+  - **Deferred:** `forms.morph_class_id` FK propagation remains in
+    `doc/plans/morphology-wright-catalog/phase-3-forms-link-and-query.md`
+  - **Coverage gap:** bundled `data/sources/wright.md` currently has phonology
+    §1–58 only; browse cites inflection §330+ until a fuller markdown corpus is
+    ingested
 
 ## Key Flows
 
@@ -213,11 +267,15 @@ Out of scope:
 
 ### Morphology generation
 
-`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> generation dispatch
+`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> paradigm assigners
+-> Wright catalog seed (`MorphologyCatalogLoader.ensure_seeded`) -> lemma morph
+class assignment (`LemmaMorphClassAssigner.assign_all`) -> generation dispatch
 -> optional TSV sink and SQLAlchemy-backed batched `SqliteIndexSink` ->
-`forms` in `wyrdcraeft.sqlite3`. Default build is SQLite-only; pass
-`--output` for TSV. Use `--profile` for stderr stage/setup/sqlite_flush
-timings.
+`forms` plus catalog tables in `wyrdcraeft.sqlite3`. Default build is
+SQLite-only; pass `--output` for TSV. Use `--profile` for stderr stage/setup/sqlite_flush
+timings. Use `--refresh-catalog` to reload `wright_paradigms.json` into catalog
+tables. Wright paragraph text is **not** ingested during build; run
+`morphology ingest-wright-text` separately when markdown corpus is ready.
 
 ### Dictionary indexing
 
@@ -232,8 +290,12 @@ SQLAlchemy Core (optional POS inference, worker-thread runtime + typed build
 events -> default Textual build monitor or plain `--no-tui` renderer)
 
 `wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
--> Textual `LexiconBrowseApp` with search bar at top, results pane left,
-details plus POS-filtered paradigm grids right
+(composes shared-engine `MorphologyCatalogQueryService` for morph-class and
+Wright § text lookup) -> Textual `LexiconBrowseApp` with search bar at top,
+results pane left, details plus POS-filtered paradigm grids right. Dictionary
+detail shows catalog morph class / provenance / selectable Wright § citations;
+selecting a § opens `WrightSectionTextScreen` modal from stored
+`wright_sections.section_text` or an explicit ingest-needed message.
 
 Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with `forms`,
 `bt_*`, and empty or populated `lexicon_*` tables (from morphology build,
@@ -253,6 +315,19 @@ dictionary build, and startup readiness).
   default artifact is the canonical SQLite index only.
 - Use `wyrdcraeft morphology build --profile` to print stage wall times,
   setup steps, and cumulative `sqlite_flush` seconds to stderr.
+- Wright morph catalog seeds on first build when catalog tables are empty;
+  `--refresh-catalog` forces reload from `wright_paradigms.json`.
+- Lemma morph class assignment runs on dictionary-loaded lemmas before form
+  generation; verb-generated participles added to `session.adjectives` during
+  generation are not assigned until a later phase.
+- Canonical morph-class truth is `lemma_morph_classes`, not legacy source
+  `wright` cells; use `morphology audit-wright` to report source-field quality.
+- Wright section paragraph text requires explicit
+  `morphology ingest-wright-text`; bundled `data/sources/wright.md` currently
+  covers phonology §1–58 only, so inflection §330+ citations show an ingest-needed
+  message in browse until a fuller corpus is ingested.
+- Lexicon browse morph-class block is join-at-read-time only; no
+  `forms.morph_class_id` denormalization in the browse v1 release.
 - Dictionary indexing now writes `bt_*` through SQLAlchemy-backed persistence
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
