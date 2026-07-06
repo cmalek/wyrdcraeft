@@ -1,4 +1,4 @@
-from . import morph_catalog, sqlalchemy
+from . import morph_catalog, reference, sqlalchemy
 from .bosworth_toller import BTSearchEntry
 from .diacritics import (
     POS_CODE_LABELS,
@@ -108,5 +108,6 @@ __all__ = [
     "VerbParadigm",
     "Word",
     "morph_catalog",
+    "reference",
     "sqlalchemy",
 ]
