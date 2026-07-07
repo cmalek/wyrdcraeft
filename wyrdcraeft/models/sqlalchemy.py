@@ -55,21 +55,21 @@ class Form(Base):
     var: Mapped[str] = mapped_column(Text, nullable=False)
     #: Generation probability marker.
     probability: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Morphological function label.
+    #: Legacy morphological function label; superseded by inflection_code_id.
     function: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Wright source marker.
+    #: Legacy Wright source marker; superseded by morph_class_id.
     wright: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Paradigm label.
+    #: Legacy paradigm label; superseded by morph_class_id.
     paradigm: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Paradigm identifier.
+    #: Legacy paradigm identifier; superseded by morph_class_id.
     para_id: Mapped[str] = mapped_column("paraID", Text, nullable=False)
-    #: Part-of-speech word class.
+    #: Legacy part-of-speech word class; superseded by wordclass_id.
     wordclass: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Primary class label.
+    #: Legacy primary class label; superseded by morph_class_id.
     class1: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Secondary class label.
+    #: Legacy secondary class label; superseded by morph_class_id.
     class2: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Tertiary class label.
+    #: Legacy tertiary class label; superseded by morph_class_id.
     class3: Mapped[str] = mapped_column(Text, nullable=False)
     #: Free-form generation comment.
     comment: Mapped[str] = mapped_column(Text, nullable=False)
