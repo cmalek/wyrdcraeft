@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
 from wyrdcraeft.services.lexicon.query import EntryDetails, LexiconQueryService
 from wyrdcraeft.services.lexicon.tui import _format_entry_details
@@ -37,10 +38,14 @@ def _seed_catalog_assignment(
                 select(MorphClass).where(MorphClass.class_key == class_key),
             )
             assert morph_class is not None
+            pos_id = session.scalar(
+                select(PartOfSpeech.id).where(PartOfSpeech.code == catalog_pos),
+            )
+            assert pos_id is not None
             session.add(
                 LemmaMorphClass(
                     normalized_title=normalized_title,
-                    pos=catalog_pos,
+                    pos_id=pos_id,
                     morph_class_id=morph_class.id,
                     assignment_source=assignment_source,
                     confidence=100,

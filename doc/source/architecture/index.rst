@@ -91,18 +91,34 @@ Canonical Database ER Diagram
 
 The canonical app-data database is one ``wyrdcraeft.sqlite3`` file. The
 diagram below shows the declared SQL foreign-key relationships from
-``wyrdcraeft/models/sqlalchemy.py`` and ``wyrdcraeft/models/morph_catalog.py``.
+``wyrdcraeft/models/reference.py``, ``wyrdcraeft/models/sqlalchemy.py``, and
+``wyrdcraeft/models/morph_catalog.py``. A full ER refresh is deferred to
+Phase D under ``doc/plans/normalized-canonical-schema/``; ``forms`` and lexicon
+tables in this diagram still reflect the pre-refresh snapshot.
 
 .. mermaid::
 
    erDiagram
+       PARTS_OF_SPEECH {
+           int id PK
+           text code
+           text display_label
+           int is_inflectable
+       }
+
+       INFLECTION_CODES {
+           int id PK
+           text code
+           int pos_id FK
+           text display_json
+       }
+
        BT_ENTRIES {
            int id PK
            text norm_key
-           text headword_raw
-           text headword_macronized
+           text headword
            text normalized_title
-           text pos
+           int pos_id FK
            text genders_json
            text etymology
            text see_also_json
@@ -175,7 +191,7 @@ diagram below shows the declared SQL foreign-key relationships from
        MORPH_CLASSES {
            int id PK
            text class_key
-           text pos
+           int pos_id FK
            text canonical_name
            text modern_class
            text traditional_class
@@ -212,7 +228,7 @@ diagram below shows the declared SQL foreign-key relationships from
        LEMMA_MORPH_CLASSES {
            int id PK
            text normalized_title
-           text pos
+           int pos_id FK
            int morph_class_id FK
            text assignment_source
            int confidence
@@ -235,7 +251,7 @@ diagram below shows the declared SQL foreign-key relationships from
        LEXICON_FORMS {
            int form_id PK
            int entry_id FK
-            text bt
+           text bt
            text title
            text stem
            text form
@@ -264,6 +280,11 @@ diagram below shows the declared SQL foreign-key relationships from
            text value
        }
 
+       PARTS_OF_SPEECH ||--o{ INFLECTION_CODES : classifies
+       PARTS_OF_SPEECH ||--o{ BT_ENTRIES : classifies
+       PARTS_OF_SPEECH ||--o{ MORPH_CLASSES : classifies
+       PARTS_OF_SPEECH ||--o{ LEMMA_MORPH_CLASSES : classifies
+
        BT_ENTRIES ||--o{ BT_SENSES : has
        BT_ENTRIES ||--o{ BT_VARIANTS : has
 
@@ -284,7 +305,7 @@ diagram below shows the declared SQL foreign-key relationships from
    ones are:
 
    - ``forms.normalized_title`` to dictionary and lexicon normalized-title lookups
-   - ``lemma_morph_classes.(normalized_title, pos)`` to browse-time morph-class
+   - ``lemma_morph_classes.(normalized_title, pos_id)`` to browse-time morph-class
      lookup
    - ``bt_edit_log`` targets dictionary entries by stored business fields rather
      than an entry-id foreign key

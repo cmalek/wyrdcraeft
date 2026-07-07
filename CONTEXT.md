@@ -110,16 +110,20 @@ Out of scope:
   input like ``abbod`` matches macronized headwords; form-to-entry linking still
   uses ``normalized_title`` during ``lexicon build``, and browse reads the
   pre-joined ``lexicon_forms.entry_id`` at query time
+- parts of speech: canonical reference row naming the grammatical class of a
+  lemma or dictionary entry (noun, verb, adjective, and related closed classes)
 - morphology function code: compact tag on a generated form row (for example
   `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
   other inflectional dimensions depending on part of speech
+- inflection code: normalized reference label pairing one morphology function
+  code with its part-of-speech class
 - Wright morph catalog: reference tables in canonical SQLite seeded from
   `wyrdcraeft/etc/morphology/wright_paradigms.json` (113 morph classes, Wright
   § links, bibliographic sources); auto-seeded on morphology build when empty
 - morph class: reusable Wright inflection class row in `morph_classes` keyed by
   dot-id `class_key` (for example `noun.masculine.a_stem`)
 - lemma morph assignment: `lemma_morph_classes` row mapping
-  `(normalized_title, pos)` to `morph_classes.id`; produced during morphology
+  `(normalized_title, pos_id)` to `morph_classes.id`; produced during morphology
   build after paradigm assigners
 - ParadigmClassMapper: resolves generator paradigm labels and verb `paraID`
   values to catalog `class_key` via fixture exemplars and `para_vb.txt`

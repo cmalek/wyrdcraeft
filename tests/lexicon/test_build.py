@@ -403,13 +403,22 @@ def test_build_then_query_integration_smoke(lexicon_source_db: Path) -> None:
         service.close()
 
 
+def _unknown_pos_id(connection: sqlite3.Connection) -> int:
+    """Return the seeded ``unknown`` part-of-speech row id."""
+    row = connection.execute(
+        "SELECT id FROM parts_of_speech WHERE code = 'unknown'",
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
 def test_rebuild_lexicon_infers_pos_from_unambiguous_morphology(
     lexicon_source_db: Path,
 ) -> None:
     with sqlite3.connect(lexicon_source_db) as connection:
         connection.execute(
-            "UPDATE bt_entries SET pos = '' WHERE norm_key = ?",
-            ("abbad",),
+            "UPDATE bt_entries SET pos_id = ? WHERE norm_key = ?",
+            (_unknown_pos_id(connection), "abbad"),
         )
         connection.commit()
 
@@ -419,11 +428,16 @@ def test_rebuild_lexicon_infers_pos_from_unambiguous_morphology(
     with sqlite3.connect(lexicon_source_db) as connection:
         connection.row_factory = sqlite3.Row
         pos = connection.execute(
-            "SELECT pos FROM bt_entries WHERE norm_key = ?",
+            """
+            SELECT parts_of_speech.code
+            FROM bt_entries
+            JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
+            WHERE bt_entries.norm_key = ?
+            """,
             ("abbad",),
         ).fetchone()
         assert pos is not None
-        assert str(pos["pos"]) == "noun"
+        assert str(pos["code"]) == "noun"
 
 
 def test_rebuild_lexicon_emits_structured_stage_log_and_counter_event_contract(
@@ -464,8 +478,8 @@ def test_rebuild_lexicon_emits_infer_pos_stage_start_without_progress_callback(
 ) -> None:
     with sqlite3.connect(lexicon_source_db) as connection:
         connection.execute(
-            "UPDATE bt_entries SET pos = '' WHERE norm_key = ?",
-            ("abbad",),
+            "UPDATE bt_entries SET pos_id = ? WHERE norm_key = ?",
+            (_unknown_pos_id(connection), "abbad"),
         )
         connection.commit()
 

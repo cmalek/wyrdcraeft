@@ -24,6 +24,7 @@ from wyrdcraeft.models.lexicon_build import (
     LexiconBuildStage,
     LogLevel,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import (
     BTEntry,
     BTSense,
@@ -40,7 +41,9 @@ from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.dictionary.normalized_title_join import (
     NormalizedTitleJoinIndex,
 )
+from wyrdcraeft.services.dictionary.query import _bt_pos_from_code
 from wyrdcraeft.services.markup import normalize_old_english
+from wyrdcraeft.services.morphology.catalog.pos import pos_id_from_bt_pos
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_decode import WORDCLASS_TO_BT_POS, infer_bt_pos_from_wordclasses
@@ -60,6 +63,7 @@ from .schema import (
 )
 
 if TYPE_CHECKING:
+    import sqlite3
     import threading
 
     from .build_runtime import LexiconBuildController
@@ -219,6 +223,56 @@ class BuildReport:
     search_keys_written: int
     #: Dictionary entries whose POS was inferred from morphology.
     pos_inferred: int
+
+
+def _sqlite_connection(connection: Connection) -> sqlite3.Connection:
+    """
+    Unwrap one SQLAlchemy connection to the underlying SQLite driver.
+
+    Args:
+        connection: Open SQLAlchemy connection bound to canonical SQLite.
+
+    Returns:
+        Raw ``sqlite3.Connection`` used by POS resolver helpers.
+
+    """
+    dbapi_connection = connection.connection
+    driver_connection = getattr(dbapi_connection, "driver_connection", None)
+    if driver_connection is not None:
+        return cast("sqlite3.Connection", driver_connection)
+    return cast("sqlite3.Connection", dbapi_connection)
+
+
+def _bt_pos_value_from_code(code: str) -> str:
+    """
+    Convert one canonical POS code to the stored Bosworth-Toller POS label.
+
+    Args:
+        code: Canonical ``parts_of_speech.code`` value.
+
+    Returns:
+        Bosworth-Toller POS string stored in lexicon projection rows.
+
+    """
+    return _bt_pos_from_code(code).value
+
+
+def _unknown_pos_id(connection: Connection) -> int:
+    """
+    Resolve the seeded ``unknown`` part-of-speech identifier.
+
+    Args:
+        connection: Open SQLAlchemy connection bound to canonical SQLite.
+
+    Returns:
+        ``parts_of_speech.id`` for the ``unknown`` code row.
+
+    """
+    return int(
+        connection.execute(
+            select(PartOfSpeech.id).where(PartOfSpeech.code == "unknown"),
+        ).scalar_one(),
+    )
 
 
 def _normalize_morph_key(value: str) -> str:
@@ -751,13 +805,14 @@ class LexiconBuilder:
             Number of ``bt_entries`` rows updated with inferred POS labels.
 
         Side Effects:
-            Updates ``bt_entries.pos`` for entries with empty POS and one clear
-            morphology wordclass.
+            Updates ``bt_entries.pos_id`` for entries with unknown POS and one
+            clear morphology wordclass.
 
         """
+        unknown_pos_id = _unknown_pos_id(connection)
         rows = connection.execute(
             select(BTEntry.id, BTEntry.norm_key, BTEntry.normalized_title)
-            .where(func.trim(func.coalesce(BTEntry.pos, "")) == "")
+            .where(BTEntry.pos_id == unknown_pos_id)
             .order_by(BTEntry.id.asc())
         ).fetchall()
         total = len(rows) or 1
@@ -782,7 +837,12 @@ class LexiconBuilder:
                 connection.execute(
                     update(BTEntry)
                     .where(BTEntry.id == int(row.id))
-                    .values(pos=inferred_pos)
+                    .values(
+                        pos_id=pos_id_from_bt_pos(
+                            _sqlite_connection(connection),
+                            inferred_pos,
+                        ),
+                    )
                 )
                 updated += 1
             self._advance_stage(
@@ -862,11 +922,13 @@ class LexiconBuilder:
                 BTEntry.id,
                 BTEntry.norm_key,
                 BTEntry.normalized_title,
-                BTEntry.pos,
-                BTEntry.headword_macronized,
+                PartOfSpeech.code,
+                BTEntry.headword,
                 BTEntry.etymology,
                 BTEntry.genders_json,
-            ).order_by(BTEntry.id.asc())
+            )
+            .join(PartOfSpeech, PartOfSpeech.id == BTEntry.pos_id)
+            .order_by(BTEntry.id.asc())
         ).fetchall()
 
         total_entries = len(entry_rows) or 1
@@ -894,8 +956,8 @@ class LexiconBuilder:
                     "entry_id": entry_id,
                     "norm_key": str(entry_row.norm_key),
                     "normalized_title": str(entry_row.normalized_title),
-                    "pos": str(entry_row.pos),
-                    "headword": str(entry_row.headword_macronized),
+                    "pos": _bt_pos_value_from_code(str(entry_row.code)),
+                    "headword": str(entry_row.headword),
                     "summary_sense": summary_sense,
                     "etymology": str(entry_row.etymology),
                     "variants": variants_by_entry.get(entry_id, []),
@@ -990,8 +1052,13 @@ class LexiconBuilder:
         )
 
         variant_rows = connection.execute(
-            select(BTVariant.entry_id, BTVariant.normalized_title, BTEntry.pos)
+            select(
+                BTVariant.entry_id,
+                BTVariant.normalized_title,
+                PartOfSpeech.code,
+            )
             .join(BTEntry, BTEntry.id == BTVariant.entry_id)
+            .join(PartOfSpeech, PartOfSpeech.id == BTEntry.pos_id)
             .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
             .order_by(BTVariant.entry_id.asc(), BTVariant.spelling_raw.asc())
         ).fetchall()
@@ -1005,7 +1072,11 @@ class LexiconBuilder:
                 for entry in entries
             ],
             [
-                (int(row.entry_id), str(row.normalized_title), str(row.pos))
+                (
+                    int(row.entry_id),
+                    str(row.normalized_title),
+                    _bt_pos_value_from_code(str(row.code)),
+                )
                 for row in variant_rows
             ],
         )
