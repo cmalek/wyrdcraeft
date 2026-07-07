@@ -70,8 +70,7 @@ Derived lexicon browse/search pipeline
 - rebuild entrypoint: ``wyrdcraeft.services.lexicon.build.rebuild_lexicon()``
 - orchestrator: ``wyrdcraeft.services.lexicon.build.LexiconBuilder``
 - reads: ``forms`` plus ``bt_*`` tables
-- writes: ``lexicon_entries``, ``lexicon_forms``, ``lexicon_search_keys``,
-  ``lexicon_build_meta``
+- writes: ``search_keys``, ``search_build_meta``
 
 Optional Wright & Wright-backed section texts
 ---------------------------------------------
@@ -92,9 +91,10 @@ Canonical Database ER Diagram
 The canonical app-data database is one ``wyrdcraeft.sqlite3`` file. The
 diagram below shows the declared SQL foreign-key relationships from
 ``wyrdcraeft/models/reference.py``, ``wyrdcraeft/models/sqlalchemy.py``, and
-``wyrdcraeft/models/morph_catalog.py``. A full ER refresh is deferred to
-Phase D under ``doc/plans/normalized-canonical-schema/``; ``forms`` and lexicon
-tables in this diagram still reflect the pre-refresh snapshot.
+``wyrdcraeft/models/morph_catalog.py`` after Phase C search-index shrink
+(``20260706_03``). A full ER refresh is deferred to Phase D under
+``doc/plans/normalized-canonical-schema/``; legacy ``forms`` string columns in
+this diagram still reflect the pre-refresh snapshot.
 
 .. mermaid::
 
@@ -236,36 +236,7 @@ tables in this diagram still reflect the pre-refresh snapshot.
            text notes
        }
 
-       LEXICON_ENTRIES {
-           int entry_id PK
-           text norm_key
-           text pos
-           text headword
-           text summary_sense
-           text etymology
-           text variants_json
-           text genders_json
-           text senses_json
-       }
-
-       LEXICON_FORMS {
-           int form_id PK
-           int entry_id FK
-           text bt
-           text title
-           text stem
-           text form
-           text formi
-           text wordclass
-           text function
-           text probability
-           text class1
-           text class2
-           text class3
-           text paradigm
-       }
-
-       LEXICON_SEARCH_KEYS {
+       SEARCH_KEYS {
            int id PK
            text key_text
            text key_kind
@@ -275,7 +246,7 @@ tables in this diagram still reflect the pre-refresh snapshot.
            text display_text
        }
 
-       LEXICON_BUILD_META {
+       SEARCH_BUILD_META {
            text key PK
            text value
        }
@@ -294,9 +265,8 @@ tables in this diagram still reflect the pre-refresh snapshot.
        WRIGHT_SECTIONS ||--o{ MORPH_CLASS_WRIGHT_SECTIONS : anchored_by
        MORPH_CLASSES ||--o{ LEMMA_MORPH_CLASSES : assigned_to
 
-       LEXICON_ENTRIES o|--o{ LEXICON_FORMS : groups
-       LEXICON_ENTRIES o|--o{ LEXICON_SEARCH_KEYS : indexed_by
-       LEXICON_FORMS o|--o{ LEXICON_SEARCH_KEYS : indexed_by
+       BT_ENTRIES o|--o{ SEARCH_KEYS : indexed_by
+       FORMS o|--o{ SEARCH_KEYS : indexed_by
 
 .. note::
 
@@ -304,7 +274,8 @@ tables in this diagram still reflect the pre-refresh snapshot.
    because they are code-level joins, not declared SQL foreign keys. The main
    ones are:
 
-   - ``forms.normalized_title`` to dictionary and lexicon normalized-title lookups
+   - ``forms.normalized_title`` to dictionary normalized-title lookups
+   - ``forms.entry_id`` to dictionary entries when populated at morphology build
    - ``lemma_morph_classes.(normalized_title, pos_id)`` to browse-time morph-class
      lookup
    - ``bt_edit_log`` targets dictionary entries by stored business fields rather
@@ -427,12 +398,12 @@ Sink Matrix
      - ``WrightSectionTextIngester``
      - lexicon browse Wright modal
      - Optional stored Wright paragraph text.
-   * - ``lexicon_entries``, ``lexicon_forms``, ``lexicon_search_keys``,
-       ``lexicon_build_meta``
+   * - ``search_keys``, ``search_build_meta``
      - ``wyrdcraeft lexicon build``
      - ``rebuild_lexicon()`` via ``LexiconBuilder``
      - ``wyrdcraeft lexicon browse``
-     - Derived browse/search read model over dictionary plus morphology.
+     - Derived search index over dictionary plus morphology; browse reads
+       ``bt_*`` and ``forms`` directly at query time.
 
 Reading Guide
 -------------

@@ -62,8 +62,8 @@ Out of scope:
   workflows; morphology, dictionary, and lexicon should all use `build`, but
   each build remains explicit and separate
 - canonical database: the one app-data `wyrdcraeft.sqlite3` file that holds
-  morphology (`forms`), attached dictionary (`bt_*`), and derived lexicon
-  (`lexicon_*`) data for the product's lookup workflows
+  morphology (`forms`), attached dictionary (`bt_*`), and derived search index
+  (`search_keys`, `search_build_meta`) data for the product's lookup workflows
 - morphology index: morphology data stored inside canonical `wyrdcraeft.sqlite3`
   database rather than a standalone morphology-only file
 - dictionary index: attached `bt_*` tables inside canonical `wyrdcraeft.sqlite3`
@@ -74,22 +74,27 @@ Out of scope:
   SQLAlchemy query paths while preserving emitted ordering semantics
 - lexicon: combined dictionary-plus-morphology user workflow presented as one
   browse/search surface
-- lexicon read model: derived `lexicon_*` tables inside `wyrdcraeft.sqlite3`
-  rebuilt from existing `forms` and `bt_*` rows for fast lemma-centric browse/search
+- lexicon read model: slim derived search index inside `wyrdcraeft.sqlite3`
+  (`search_keys`, `search_build_meta`) rebuilt from existing `forms` and `bt_*`
+  rows; browse reads dictionary and morphology source tables directly at query time
+- search index: derived `search_keys` rows for ranked lemma/stem/form browse
+  lookup; not a duplicate of dictionary or morphology tables
 - lexicon SQLAlchemy rebuild slice: post–Phase 8 work (commit `64c6223`) that moved
   `lexicon build` to SQLAlchemy Core batched reads/writes with no raw `sqlite3`,
   no TEMP staging tables, and cooperative cancel via DBAPI `interrupt`; join
   resolver extraction remains pending in Slice 2
 - lexicon table DDL: Alembic-owned only (`20260630_01` initial schema plus later
-  revisions); `lexicon build` **truncates** existing `lexicon_*` rows and
-  repopulates them — it does not drop, recreate, or patch table shape
+  revisions); `lexicon build` **truncates** existing `search_keys` and
+  `search_build_meta` rows and repopulates them — it does not drop, recreate, or
+  patch table shape
 - lexicon staleness: compares stored source row counts (`forms`, `bt_entries`)
   against current counts; **no** lexicon `schema_version` meta key — app DDL
   changes are handled by startup Alembic migrations, often with in-migration
   backfill, without forcing a full read-model rebuild
-- lexicon build: replaces only `lexicon_*` row contents; does not regenerate morphology
-  or Bosworth-Toller source data; requires Alembic-managed lexicon tables to
-  already exist (startup readiness or `upgrade_canonical_db`)
+- lexicon build: rebuilds the search index only (`search_keys`,
+  `search_build_meta`); does not regenerate morphology or Bosworth-Toller source
+  data; requires Alembic-managed search-index tables to already exist (startup
+  readiness or `upgrade_canonical_db`)
 - orphan morphology hit: morphology match that does not join to a real
   dictionary entry and is shown outside the main lemma result list
 - norm_key: diacritic-stripped normalized Old English key used for generic
@@ -107,9 +112,10 @@ Out of scope:
   for dictionary browse and multi-hit lookups
 - lexicon browse search normalization: user queries and dictionary search-key
   indexing use ``normalize_old_english`` (diacritic-stripped) so undiacritized
-  input like ``abbod`` matches macronized headwords; form-to-entry linking still
-  uses ``normalized_title`` during ``lexicon build``, and browse reads the
-  pre-joined ``lexicon_forms.entry_id`` at query time
+  input like ``abbod`` matches macronized headwords; form-to-entry linking uses
+  ``forms.entry_id`` (populated at morphology build via ``normalized_title`` join
+  policy), and browse resolves entry and form details from ``bt_*`` and ``forms``
+  through ``search_keys`` at query time
 - parts of speech: canonical reference row naming the grammatical class of a
   lemma or dictionary entry (noun, verb, adjective, and related closed classes)
 - morphology function code: compact tag on a generated form row (for example
@@ -200,7 +206,7 @@ Out of scope:
 - Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
 - Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
 - Phase 3 (`914a4bb`): initial Alembic-managed canonical schema (includes
-  `lexicon_*` tables)
+  search-index tables; `lexicon_entries` / `lexicon_forms` removed in Phase C)
 - Phase 4 (`7b07991`): renamed DB-producing commands to `build`; removed old
   per-command DB-path overrides and standalone dictionary mode
 - Phase 5 (`82b1479`): moved lexicon query/bootstrap helpers to SQLAlchemy
@@ -262,6 +268,11 @@ Out of scope:
   - **Coverage gap:** bundled `data/sources/wright.md` currently has phonology
     §1–58 only; browse cites inflection §330+ until a fuller markdown corpus is
     ingested
+- **Normalized canonical schema Phase C** (2026-07-06, through `a65e4a0`):
+  dropped `lexicon_entries` / `lexicon_forms`; renamed `lexicon_search_keys` →
+  `search_keys` and `lexicon_build_meta` → `search_build_meta`; `lexicon build`
+  rebuilds the search index only; browse reads `bt_*` and `forms` directly at
+  query time. Plan at `doc/plans/normalized-canonical-schema/phase-c-lexicon-shrink.md`.
 
 ## Key Flows
 
@@ -289,9 +300,10 @@ dictionary sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
 ### Lexicon browse
 
 `wyrdcraeft.cli.lexicon:build` -> startup Alembic-managed schema must already
-exist -> `rebuild_lexicon` truncates and repopulates `lexicon_*` via
-SQLAlchemy Core (optional POS inference, worker-thread runtime + typed build
-events -> default Textual build monitor or plain `--no-tui` renderer)
+exist -> `rebuild_lexicon` truncates and repopulates `search_keys` and
+`search_build_meta` via SQLAlchemy Core (optional POS inference on `bt_entries`,
+worker-thread runtime + typed build events -> default Textual build monitor or
+plain `--no-tui` renderer)
 
 `wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
 (composes shared-engine `MorphologyCatalogQueryService` for morph-class and
@@ -302,8 +314,8 @@ selecting a § opens `WrightSectionTextScreen` modal from stored
 `wright_sections.section_text` or an explicit ingest-needed message.
 
 Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with `forms`,
-`bt_*`, and empty or populated `lexicon_*` tables (from morphology build,
-dictionary build, and startup readiness).
+`bt_*`, and empty or populated `search_keys` / `search_build_meta` tables (from
+morphology build, dictionary build, and startup readiness).
 
 ### OCR workflow
 
@@ -336,12 +348,13 @@ dictionary build, and startup readiness).
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
 - Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
-  required source or Alembic-managed `lexicon_*` tables are missing.
-- Lexicon build refuses to overwrite existing lexicon read-model data unless
-  `--force` is passed; the build can take ~30 minutes when source data is large.
-- Lexicon build truncates `lexicon_*` rows in place; table DDL comes from Alembic,
-  not from the rebuild job. App upgrades should migrate schema via Alembic
-  (often with backfill) without requiring a full lexicon rebuild for additive DDL.
+  required source or Alembic-managed search-index tables are missing.
+- Lexicon build refuses to overwrite existing search-index data unless `--force` is
+  passed; the build can take ~30 minutes when source data is large.
+- Lexicon build truncates `search_keys` and `search_build_meta` rows in place;
+  table DDL comes from Alembic, not from the rebuild job. App upgrades should
+  migrate schema via Alembic (often with backfill) without requiring a full
+  search-index rebuild for additive DDL.
 - Lexicon staleness is based on source table row counts only, not a lexicon
   schema version constant.
 - Lexicon build now launches a full-screen Textual monitor by default on an
@@ -350,8 +363,9 @@ dictionary build, and startup readiness).
 - Lexicon build stages stream typed progress through a worker-thread runtime.
   Single-step stages such as `verify sources` emit an explicit terminal
   progress event so the monitor does not appear stuck at `0/1`.
-- Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` after morphology or
-  dictionary **source data** changes, not after routine Alembic DDL upgrades.
+- Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` (search index
+  only) after morphology or dictionary **source data** changes, not after routine
+  Alembic DDL upgrades.
 - Lexicon browse and build expect the canonical Alembic-managed schema; startup
   database readiness applies migrations before DB-using commands run.
 - Lexicon build may infer missing dictionary POS from morphology when wordclass is
@@ -384,8 +398,8 @@ dictionary build, and startup readiness).
 
 - [0001: Lexicon data lives in morphology.sqlite3](docs/adr/0001-lexicon-data-lives-in-morphology-db.md)
   — **historical**; superseded by the canonical `wyrdcraeft.sqlite3` migration
-  (Phases 1–8). Lexicon read-model tables now live in the same canonical DB and
-  are Alembic-managed.
+  (Phases 1–8). Search-index tables (`search_keys`, `search_build_meta`) now
+  live in the same canonical DB and are Alembic-managed.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.
