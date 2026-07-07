@@ -8,10 +8,14 @@ from sqlalchemy import text
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos
-from wyrdcraeft.models.morphology import QueryFormRow
+from wyrdcraeft.models.morphology import MorphClassQueryMetadata, QueryFormRow
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.query import BTQueryService
 from wyrdcraeft.services.markup import normalize_morphology_title
+from wyrdcraeft.services.morphology.catalog.query import (
+    MorphClassView,
+    format_morph_class_display_label,
+)
 
 from ..text_utils import OENormalizer
 
@@ -52,6 +56,281 @@ def _normalize_key(value: str) -> str:
     return OENormalizer.normalize_output(value).casefold()
 
 
+#: Lemma lookup SQL without catalog joins.
+_FORM_LOOKUP_LEMMA_SQL = """
+    SELECT
+        f.counter,
+        f.formi,
+        f.BT,
+        f.title,
+        f.normalized_title,
+        f.stem,
+        f.form,
+        f.formParts,
+        f.var,
+        f.probability,
+        f.function,
+        f.wright,
+        f.paradigm,
+        f.paraID,
+        f.wordclass,
+        f.class1,
+        f.class2,
+        f.class3,
+        f.comment,
+        COALESCE(f.bt_key, '') || '|'
+            || COALESCE(f.title_key, '') || '|'
+            || COALESCE(f.stem_key, '') AS lemma_key,
+        f.form_key
+    FROM forms f
+    WHERE
+        f.bt_key = :lemma_key
+        OR f.title_key = :lemma_key
+        OR f.stem_key = :lemma_key
+    ORDER BY f.counter ASC, f.id ASC
+    LIMIT :limit
+"""
+#: Surface-form lookup SQL without catalog joins.
+_FORM_LOOKUP_FORM_SQL = """
+    SELECT
+        f.counter,
+        f.formi,
+        f.BT,
+        f.title,
+        f.normalized_title,
+        f.stem,
+        f.form,
+        f.formParts,
+        f.var,
+        f.probability,
+        f.function,
+        f.wright,
+        f.paradigm,
+        f.paraID,
+        f.wordclass,
+        f.class1,
+        f.class2,
+        f.class3,
+        f.comment,
+        COALESCE(f.bt_key, '') || '|'
+            || COALESCE(f.title_key, '') || '|'
+            || COALESCE(f.stem_key, '') AS lemma_key,
+        f.form_key
+    FROM forms f
+    WHERE f.form_key = :form_key OR f.formi_key = :form_key
+    ORDER BY f.counter ASC, f.id ASC
+    LIMIT :limit
+"""
+#: Lemma lookup SQL with catalog joins for FK-backed morph-class metadata.
+_FORM_LOOKUP_LEMMA_CATALOG_SQL = """
+    SELECT
+        f.counter,
+        f.formi,
+        f.BT,
+        f.title,
+        f.normalized_title,
+        f.stem,
+        f.form,
+        f.formParts,
+        f.var,
+        f.probability,
+        f.function,
+        f.wright,
+        f.paradigm,
+        f.paraID,
+        f.wordclass,
+        f.class1,
+        f.class2,
+        f.class3,
+        f.comment,
+        COALESCE(f.bt_key, '') || '|'
+            || COALESCE(f.title_key, '') || '|'
+            || COALESCE(f.stem_key, '') AS lemma_key,
+        f.form_key,
+        f.morph_class_id,
+        mc.class_key AS morph_class_class_key,
+        pos.code AS morph_class_pos,
+        mc.canonical_name AS morph_class_canonical_name,
+        mc.modern_class AS morph_class_modern_class,
+        mc.wright_label AS morph_class_wright_label,
+        mcws.wright_sections AS morph_class_wright_sections
+    FROM forms f
+    LEFT JOIN morph_classes mc ON mc.id = f.morph_class_id
+    LEFT JOIN parts_of_speech pos ON pos.id = mc.pos_id
+    LEFT JOIN (
+        SELECT
+            morph_class_id,
+            GROUP_CONCAT(section_no ORDER BY sort_order, section_no) AS wright_sections
+        FROM morph_class_wright_sections
+        GROUP BY morph_class_id
+    ) mcws ON mcws.morph_class_id = f.morph_class_id
+    WHERE
+        f.bt_key = :lemma_key
+        OR f.title_key = :lemma_key
+        OR f.stem_key = :lemma_key
+    ORDER BY f.counter ASC, f.id ASC
+    LIMIT :limit
+"""
+#: Surface-form lookup SQL with catalog joins for FK-backed morph-class metadata.
+_FORM_LOOKUP_FORM_CATALOG_SQL = """
+    SELECT
+        f.counter,
+        f.formi,
+        f.BT,
+        f.title,
+        f.normalized_title,
+        f.stem,
+        f.form,
+        f.formParts,
+        f.var,
+        f.probability,
+        f.function,
+        f.wright,
+        f.paradigm,
+        f.paraID,
+        f.wordclass,
+        f.class1,
+        f.class2,
+        f.class3,
+        f.comment,
+        COALESCE(f.bt_key, '') || '|'
+            || COALESCE(f.title_key, '') || '|'
+            || COALESCE(f.stem_key, '') AS lemma_key,
+        f.form_key,
+        f.morph_class_id,
+        mc.class_key AS morph_class_class_key,
+        pos.code AS morph_class_pos,
+        mc.canonical_name AS morph_class_canonical_name,
+        mc.modern_class AS morph_class_modern_class,
+        mc.wright_label AS morph_class_wright_label,
+        mcws.wright_sections AS morph_class_wright_sections
+    FROM forms f
+    LEFT JOIN morph_classes mc ON mc.id = f.morph_class_id
+    LEFT JOIN parts_of_speech pos ON pos.id = mc.pos_id
+    LEFT JOIN (
+        SELECT
+            morph_class_id,
+            GROUP_CONCAT(section_no ORDER BY sort_order, section_no) AS wright_sections
+        FROM morph_class_wright_sections
+        GROUP BY morph_class_id
+    ) mcws ON mcws.morph_class_id = f.morph_class_id
+    WHERE f.form_key = :form_key OR f.formi_key = :form_key
+    ORDER BY f.counter ASC, f.id ASC
+    LIMIT :limit
+"""
+
+
+def _lemma_lookup_sql(*, include_catalog_join: bool) -> str:
+    """
+    Return lemma lookup SQL with optional catalog joins.
+
+    Keyword Args:
+        include_catalog_join: Whether to append catalog FK joins and metadata.
+
+    Returns:
+        Parameterized lookup SQL for ``lookup_by_lemma``.
+
+    """
+    if include_catalog_join:
+        return _FORM_LOOKUP_LEMMA_CATALOG_SQL
+    return _FORM_LOOKUP_LEMMA_SQL
+
+
+def _form_lookup_sql(*, include_catalog_join: bool) -> str:
+    """
+    Return surface-form lookup SQL with optional catalog joins.
+
+    Keyword Args:
+        include_catalog_join: Whether to append catalog FK joins and metadata.
+
+    Returns:
+        Parameterized lookup SQL for ``lookup_by_form``.
+
+    """
+    if include_catalog_join:
+        return _FORM_LOOKUP_FORM_CATALOG_SQL
+    return _FORM_LOOKUP_FORM_SQL
+
+
+def _parse_wright_sections(raw_value: object) -> tuple[int, ...]:
+    """
+    Parse a comma-separated Wright section list from SQL aggregation.
+
+    Args:
+        raw_value: ``GROUP_CONCAT`` payload from catalog joins.
+
+    Returns:
+        Sorted Wright section numbers, or an empty tuple when absent.
+
+    """
+    if raw_value is None:
+        return ()
+    text_value = str(raw_value).strip()
+    if not text_value:
+        return ()
+    return tuple(
+        sorted(
+            {
+                int(section_no)
+                for section_no in text_value.split(",")
+                if section_no.strip()
+            }
+        )
+    )
+
+
+def _build_morph_class_metadata(
+    payload: dict[str, object],
+) -> MorphClassQueryMetadata | None:
+    """
+    Build FK-backed morph-class metadata from joined catalog columns.
+
+    Args:
+        payload: Mutable lookup row payload with optional catalog join fields.
+
+    Returns:
+        Joined morph-class metadata, or ``None`` when no assignment is linked.
+
+    """
+    class_key = payload.pop("morph_class_class_key", None)
+    if class_key is None:
+        payload.pop("morph_class_pos", None)
+        payload.pop("morph_class_canonical_name", None)
+        payload.pop("morph_class_modern_class", None)
+        payload.pop("morph_class_wright_label", None)
+        payload.pop("morph_class_wright_sections", None)
+        return None
+
+    pos = str(payload.pop("morph_class_pos", ""))
+    canonical_name = str(payload.pop("morph_class_canonical_name", ""))
+    modern_class = str(payload.pop("morph_class_modern_class", ""))
+    wright_label = str(payload.pop("morph_class_wright_label", ""))
+    wright_sections = _parse_wright_sections(
+        payload.pop("morph_class_wright_sections", None),
+    )
+    display_label = format_morph_class_display_label(
+        MorphClassView(
+            class_key=str(class_key),
+            pos=pos,
+            canonical_name=canonical_name,
+            modern_class=modern_class,
+            assignment_source="",
+            wright_label=wright_label,
+            wright_sections=wright_sections,
+            sources=(),
+        ),
+    )
+    return MorphClassQueryMetadata(
+        class_key=str(class_key),
+        pos=pos,
+        canonical_name=canonical_name,
+        modern_class=modern_class,
+        wright_label=wright_label,
+        display_label=display_label,
+        wright_sections=wright_sections,
+    )
+
+
 def _project_query_rows(rows: Sequence[RowMapping]) -> list[QueryFormRow]:
     """
     Convert raw SQLAlchemy row mappings into typed morphology query rows.
@@ -67,8 +346,68 @@ def _project_query_rows(rows: Sequence[RowMapping]) -> list[QueryFormRow]:
     for row in rows:
         payload = dict(row)
         payload["counter"] = str(payload["counter"])
-        projected.append(QueryFormRow.model_validate(payload))
+        morph_class_id = payload.pop("morph_class_id", None)
+        morph_class = _build_morph_class_metadata(payload)
+        projected.append(
+            QueryFormRow.model_validate(
+                {
+                    **payload,
+                    "morph_class_id": morph_class_id,
+                    "morph_class": morph_class,
+                },
+            ),
+        )
     return projected
+
+
+def _db_has_table(connection: Connection, table_name: str) -> bool:
+    """
+    Return whether one SQLite table exists in the active database.
+
+    Args:
+        connection: Active SQLAlchemy connection.
+        table_name: Table name to inspect.
+
+    Returns:
+        ``True`` when the named table is present.
+
+    """
+    row = connection.execute(
+        text(
+            """
+            SELECT 1
+            FROM sqlite_master
+            WHERE type = 'table' AND name = :table_name
+            LIMIT 1
+            """
+        ),
+        {"table_name": table_name},
+    ).first()
+    return row is not None
+
+
+def _forms_has_morph_class_id(connection: Connection) -> bool:
+    """
+    Return whether the ``forms`` table exposes ``morph_class_id``.
+
+    Args:
+        connection: Active SQLAlchemy connection.
+
+    Returns:
+        ``True`` when the FK column exists on ``forms``.
+
+    """
+    row = connection.execute(
+        text(
+            """
+            SELECT 1
+            FROM pragma_table_info('forms')
+            WHERE name = 'morph_class_id'
+            LIMIT 1
+            """
+        ),
+    ).first()
+    return row is not None
 
 
 def resolve_dictionary_db_path(
@@ -223,6 +562,8 @@ class MorphologyQueryService:
     _engine: Engine
     #: Active SQLAlchemy connection for morphology lookups.
     _connection: Connection
+    #: Whether catalog tables support FK-backed morph-class joins.
+    _catalog_join_available: bool
 
     def __init__(self, db_path: Path) -> None:
         """
@@ -243,6 +584,11 @@ class MorphologyQueryService:
         self._engine = create_sqlalchemy_engine(self._db_path)
         #: Active SQLAlchemy connection for morphology lookups.
         self._connection = self._engine.connect()
+        #: Whether catalog tables support FK-backed morph-class joins.
+        self._catalog_join_available = (
+            _db_has_table(self._connection, "morph_classes")
+            and _forms_has_morph_class_id(self._connection)
+        )
 
     def lookup_by_lemma(self, lemma: str, limit: int = 200) -> list[QueryFormRow]:
         """
@@ -264,40 +610,7 @@ class MorphologyQueryService:
         """
         lemma_key = _normalize_key(lemma)
         rows = self._connection.execute(
-            text(
-                """
-                SELECT
-                    counter,
-                    formi,
-                    BT,
-                    title,
-                    normalized_title,
-                    stem,
-                    form,
-                    formParts,
-                    var,
-                    probability,
-                    function,
-                    wright,
-                    paradigm,
-                    paraID,
-                    wordclass,
-                    class1,
-                    class2,
-                    class3,
-                    comment,
-                    COALESCE(bt_key, '') || '|'
-                        || COALESCE(title_key, '') || '|'
-                        || COALESCE(stem_key, '') AS lemma_key,
-                    form_key
-                FROM forms
-                WHERE bt_key = :lemma_key
-                    OR title_key = :lemma_key
-                    OR stem_key = :lemma_key
-                ORDER BY counter ASC, id ASC
-                LIMIT :limit
-                """
-            ),
+            text(_lemma_lookup_sql(include_catalog_join=self._catalog_join_available)),
             {"lemma_key": lemma_key, "limit": max(1, limit)},
         ).mappings().all()
         return _project_query_rows(rows)
@@ -321,38 +634,7 @@ class MorphologyQueryService:
         """
         form_key = _normalize_key(form)
         rows = self._connection.execute(
-            text(
-                """
-                SELECT
-                    counter,
-                    formi,
-                    BT,
-                    title,
-                    normalized_title,
-                    stem,
-                    form,
-                    formParts,
-                    var,
-                    probability,
-                    function,
-                    wright,
-                    paradigm,
-                    paraID,
-                    wordclass,
-                    class1,
-                    class2,
-                    class3,
-                    comment,
-                    COALESCE(bt_key, '') || '|'
-                        || COALESCE(title_key, '') || '|'
-                        || COALESCE(stem_key, '') AS lemma_key,
-                    form_key
-                FROM forms
-                WHERE form_key = :form_key OR formi_key = :form_key
-                ORDER BY counter ASC, id ASC
-                LIMIT :limit
-                """
-            ),
+            text(_form_lookup_sql(include_catalog_join=self._catalog_join_available)),
             {"form_key": form_key, "limit": max(1, limit)},
         ).mappings().all()
         return _project_query_rows(rows)

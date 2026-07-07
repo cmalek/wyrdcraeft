@@ -273,6 +273,35 @@ class FormRow(BaseModel):
     comment: str
 
 
+class MorphClassQueryMetadata(BaseModel):
+    """
+    FK-backed morph-class metadata joined from catalog tables.
+
+    Note:
+        Linguistic behavior follows ``data/OldEnglishGrammar.pdf`` and
+        ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, this exposes one
+        assigned Wright inflection class and its section citations for a form
+        row when ``morph_class_id`` is populated. Part-of-speech scope:
+        ``cross-PoS``.
+
+    """
+
+    #: Stable catalog business key for the morph class.
+    class_key: str
+    #: Catalog part-of-speech label.
+    pos: str
+    #: Canonical display name for the class.
+    canonical_name: str
+    #: Modern linguistic class label.
+    modern_class: str
+    #: Wright grammar label for the class.
+    wright_label: str
+    #: Browse-ready class label.
+    display_label: str
+    #: Wright section numbers in catalog sort order.
+    wright_sections: tuple[int, ...] = ()
+
+
 class QueryFormRow(FormRow):
     """Indexed morphology row enriched with normalized query keys."""
 
@@ -280,6 +309,10 @@ class QueryFormRow(FormRow):
     lemma_key: str
     #: Normalized emitted form lookup key.
     form_key: str
+    #: Assigned catalog morph-class identifier when resolved at insert time.
+    morph_class_id: int | None = None
+    #: FK-backed morph-class metadata joined when ``morph_class_id`` is set.
+    morph_class: MorphClassQueryMetadata | None = None
 
 
 @dataclass(frozen=True)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import sqlite3
+from importlib.resources import files
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,7 @@ from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.paths import CANONICAL_DB_FILENAME, DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
+from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.pos_seed import (
     ensure_inflection_codes,
     ensure_parts_of_speech,
@@ -52,6 +54,9 @@ _SAMPLE_LINES = (
     / "fixtures"
     / "dictionary"
     / "sample_lines.txt"
+)
+_CATALOG_FIXTURE = Path(
+    str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")),
 )
 
 
@@ -110,6 +115,124 @@ def _seed_abbod_noun_form(tmp_path: Path) -> Path:
     )
     sqlite_sink.close()
     return db_path
+
+
+def _seed_catalog_morph_class_assignment(
+    db_path: Path,
+    *,
+    normalized_title: str,
+    pos_code: str,
+    morph_class_key: str,
+) -> int:
+    engine = create_engine(db_path)
+    MorphologyCatalogLoader(engine).load_fixture(_CATALOG_FIXTURE)
+    engine.dispose()
+
+    with sqlite3.connect(db_path) as connection:
+        pos_id = connection.execute(
+            "SELECT id FROM parts_of_speech WHERE code = ?",
+            (pos_code,),
+        ).fetchone()[0]
+        morph_class_id = connection.execute(
+            "SELECT id FROM morph_classes WHERE class_key = ?",
+            (morph_class_key,),
+        ).fetchone()[0]
+        connection.execute(
+            """
+            INSERT INTO lemma_morph_classes (
+                normalized_title,
+                pos_id,
+                morph_class_id
+            ) VALUES (?, ?, ?)
+            """,
+            (normalized_title, pos_id, morph_class_id),
+        )
+        connection.commit()
+    return int(morph_class_id)
+
+
+def _seed_abbod_noun_form_with_catalog(tmp_path: Path) -> Path:
+    db_path = tmp_path / "catalog-morph-query.sqlite3"
+    upgrade_canonical_db(db_path)
+    with sqlite3.connect(db_path) as connection:
+        pos_map = ensure_parts_of_speech(connection)
+        ensure_inflection_codes(connection, pos_map)
+        connection.commit()
+
+    _seed_catalog_morph_class_assignment(
+        db_path,
+        normalized_title="abbod",
+        pos_code="noun",
+        morph_class_key="noun.masculine.a_stem",
+    )
+
+    session = GeneratorSession()
+    output = io.StringIO()
+    sqlite_sink = SqliteIndexSink(db_path)
+    sink = CompositeSink(TsvParitySink(output), sqlite_sink)
+    print_one_form(
+        session,
+        {
+            "BT": "000028",
+            "title": "abbod",
+            "stem": "abbod",
+            "form": "abbod",
+            "formParts": "0-abbod-0",
+            "var": "0",
+            "probability": "0",
+            "function": "No",
+            "wright": "0",
+            "paradigm": "demo",
+            "paraID": "0",
+            "wordclass": "noun",
+            "class1": "",
+            "class2": "",
+            "class3": "",
+            "comment": "",
+        },
+        sink,
+    )
+    sqlite_sink.close()
+    return db_path
+
+
+def test_query_service_exposes_morph_class_metadata_when_fk_set(
+    tmp_path: Path,
+) -> None:
+    db_path = _seed_abbod_noun_form_with_catalog(tmp_path)
+
+    query_service = MorphologyQueryService(db_path)
+    try:
+        lemma_rows = query_service.lookup_by_lemma("abbod", limit=10)
+        form_rows = query_service.lookup_by_form("abbod", limit=10)
+    finally:
+        query_service.close()
+
+    assert lemma_rows
+    assert form_rows
+    row = lemma_rows[0]
+    assert row.morph_class_id is not None
+    assert row.morph_class is not None
+    assert row.morph_class.class_key == "noun.masculine.a_stem"
+    assert row.morph_class.pos == "noun"
+    assert row.morph_class.canonical_name == "masculine a-stem declension"
+    assert row.morph_class.modern_class == "a-stem"
+    assert row.morph_class.wright_label == "masculine a-stems"
+    assert row.morph_class.display_label == "noun, a-stem"
+    assert row.morph_class.wright_sections == (
+        334,
+        335,
+        336,
+        337,
+        338,
+        339,
+        340,
+        341,
+    )
+    assert row.wright == "0"
+    assert row.paradigm == "demo"
+    assert form_rows[0].morph_class_id == row.morph_class_id
+    assert form_rows[0].morph_class == row.morph_class
 
 
 def test_query_service_lemma_and_form_lookup(subset_session, tmp_path) -> None:
