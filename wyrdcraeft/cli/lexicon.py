@@ -135,16 +135,6 @@ def build(  # noqa: PLR0912, PLR0915
             state.active_stage = event.stage
         if isinstance(event, BuildCounterUpdated):
             state.counters = BuildCounters(
-                entries_written=(
-                    event.value
-                    if event.counter == "entries_written"
-                    else state.counters.entries_written
-                ),
-                forms_written=(
-                    event.value
-                    if event.counter == "forms_written"
-                    else state.counters.forms_written
-                ),
                 search_keys_written=(
                     event.value
                     if event.counter == "search_keys_written"
@@ -264,8 +254,6 @@ def build(  # noqa: PLR0912, PLR0915
                     f"built_at={build_report.built_at}",
                     f"forms_source_count={build_report.forms_source_count}",
                     f"bt_entries_source_count={build_report.bt_entries_source_count}",
-                    f"entries_written={build_report.entries_written}",
-                    f"forms_written={build_report.forms_written}",
                     f"search_keys_written={build_report.search_keys_written}",
                     f"pos_inferred={build_report.pos_inferred}",
                 ]

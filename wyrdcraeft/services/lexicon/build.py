@@ -1,29 +1,16 @@
-"""Lexicon read-model builder from morphology and dictionary source tables."""
+"""Lexicon search-index builder from morphology and dictionary source tables."""
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Protocol, cast
 
-from sqlalchemy import (
-    Column,
-    Integer,
-    MetaData,
-    Table,
-    Text,
-    delete,
-    func,
-    insert,
-    select,
-    text,
-    update,
-)
+from sqlalchemy import delete, func, insert, select, text, update
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.lexicon_build import (
@@ -39,7 +26,6 @@ from wyrdcraeft.models.lexicon_build import (
 from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import (
     BTEntry,
-    BTSense,
     BTVariant,
     Form,
     SearchKey,
@@ -48,15 +34,11 @@ from wyrdcraeft.models.sqlalchemy import (
     SearchBuildMeta as SearchBuildMetaTable,
 )
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
-from wyrdcraeft.services.dictionary.normalized_title_join import (
-    NormalizedTitleJoinIndex,
-)
-from wyrdcraeft.services.dictionary.query import _bt_pos_from_code
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.catalog.pos import pos_id_from_bt_pos
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
-from .form_decode import WORDCLASS_TO_BT_POS, infer_bt_pos_from_wordclasses
+from .form_decode import infer_bt_pos_from_wordclasses
 from .schema import (
     KEY_KIND_FORM,
     KEY_KIND_LEMMA,
@@ -83,7 +65,7 @@ DbTarget = Engine | Connection | Path
 
 #: Allowed source tables for staleness row-count checks.
 _STALENESS_SOURCE_TABLES: Final[tuple[str, ...]] = ("forms", "bt_entries")
-#: Source tables required to rebuild ``lexicon_*`` rows.
+#: Source tables required to rebuild the ``search_keys`` search index.
 _REQUIRED_SOURCE_TABLES: Final[tuple[str, ...]] = (
     *_STALENESS_SOURCE_TABLES,
     "bt_senses",
@@ -92,45 +74,7 @@ _REQUIRED_SOURCE_TABLES: Final[tuple[str, ...]] = (
 #: Search-index tables that Alembic must create before rebuild.
 _REQUIRED_LEXICON_TABLES: Final[tuple[str, ...]] = SEARCH_TABLE_NAMES
 
-#: Legacy projection table removed in ``20260706_03``; retained until Task 2.
-_LEGACY_PROJECTION_METADATA: Final = MetaData()
-#: Legacy lexicon entry projection table reference for pre-Task-2 rebuild code.
-LexiconEntry: Final = Table(
-    "lexicon_entries",
-    _LEGACY_PROJECTION_METADATA,
-    Column("entry_id", Integer, primary_key=True),
-    Column("norm_key", Text, nullable=False),
-    Column("pos", Text, nullable=False),
-    Column("headword", Text, nullable=False),
-    Column("summary_sense", Text, nullable=False),
-    Column("etymology", Text, nullable=False),
-    Column("variants_json", Text, nullable=False),
-    Column("genders_json", Text, nullable=False),
-    Column("senses_json", Text, nullable=False),
-)
-#: Legacy lexicon form projection table reference for pre-Task-2 rebuild code.
-LexiconForm: Final = Table(
-    "lexicon_forms",
-    _LEGACY_PROJECTION_METADATA,
-    Column("form_id", Integer, primary_key=True),
-    Column("entry_id", Integer, nullable=True),
-    Column("bt", Text, nullable=False),
-    Column("title", Text, nullable=False),
-    Column("stem", Text, nullable=False),
-    Column("form", Text, nullable=False),
-    Column("formi", Text, nullable=False),
-    Column("wordclass", Text, nullable=False),
-    Column("function", Text, nullable=False),
-    Column("probability", Text, nullable=False),
-    Column("class1", Text, nullable=False),
-    Column("class2", Text, nullable=False),
-    Column("class3", Text, nullable=False),
-    Column("paradigm", Text, nullable=False),
-)
-
-#: Projected dictionary entry payload produced from ``bt_entries`` sources.
-EntryPayload = dict[str, object]
-#: Ranked search-key payload row for ``lexicon_search_keys`` inserts.
+#: Ranked search-key payload row for ``search_keys`` inserts.
 SearchKeyRow = tuple[str, str, int, int | None, int | None, str]
 
 #: Callback receiving typed build events as they are emitted.
@@ -196,7 +140,7 @@ class LexiconBuildProgress(Protocol):
 @dataclass(frozen=True)
 class LexiconBuildMeta:
     """
-    Build metadata persisted in ``lexicon_build_meta`` after a rebuild.
+    Build metadata persisted in ``search_build_meta`` after a rebuild.
 
     Attributes:
         built_at: UTC timestamp (ISO-8601) of the last rebuild.
@@ -242,15 +186,13 @@ class LexiconStalenessReport:
 @dataclass(frozen=True)
 class BuildReport:
     """
-    Result summary for one lexicon rebuild.
+    Result summary for one search-index rebuild.
 
     Attributes:
         built_at: UTC timestamp (ISO-8601) recorded for this rebuild.
         forms_source_count: Source ``forms`` row count consumed by rebuild.
         bt_entries_source_count: Source ``bt_entries`` row count consumed.
-        entries_written: ``lexicon_entries`` rows written.
-        forms_written: ``lexicon_forms`` rows written.
-        search_keys_written: ``lexicon_search_keys`` rows written.
+        search_keys_written: ``search_keys`` rows written.
         pos_inferred: Dictionary entries whose POS was inferred from morphology.
 
     """
@@ -261,11 +203,7 @@ class BuildReport:
     forms_source_count: int
     #: Source ``bt_entries`` row count consumed by rebuild.
     bt_entries_source_count: int
-    #: Number of rows inserted into ``lexicon_entries``.
-    entries_written: int
-    #: Number of rows inserted into ``lexicon_forms``.
-    forms_written: int
-    #: Number of rows inserted into ``lexicon_search_keys``.
+    #: Number of rows inserted into ``search_keys``.
     search_keys_written: int
     #: Dictionary entries whose POS was inferred from morphology.
     pos_inferred: int
@@ -287,20 +225,6 @@ def _sqlite_connection(connection: Connection) -> sqlite3.Connection:
     if driver_connection is not None:
         return cast("sqlite3.Connection", driver_connection)
     return cast("sqlite3.Connection", dbapi_connection)
-
-
-def _bt_pos_value_from_code(code: str) -> str:
-    """
-    Convert one canonical POS code to the stored Bosworth-Toller POS label.
-
-    Args:
-        code: Canonical ``parts_of_speech.code`` value.
-
-    Returns:
-        Bosworth-Toller POS string stored in lexicon projection rows.
-
-    """
-    return _bt_pos_from_code(code).value
 
 
 def _unknown_pos_id(connection: Connection) -> int:
@@ -356,7 +280,7 @@ def _normalize_dictionary_key(
 
 class LexiconBuilder:
     """
-    Rebuild ``lexicon_*`` read-model tables from ``forms`` and ``bt_*`` sources.
+    Rebuild the ``search_keys``/``search_build_meta`` search index from source tables.
 
     Args:
         db_path: Path to the canonical ``wyrdcraeft.sqlite3`` database.
@@ -367,7 +291,7 @@ class LexiconBuilder:
 
     """
 
-    #: Database file containing ``forms``, ``bt_*``, and target ``lexicon_*`` tables.
+    #: Database file containing ``forms``, ``bt_*``, and target search-index tables.
     _db_path: Path
     #: Spelling normalizer for dictionary headwords and variants.
     _spelling_normalizer: BTSpellingNormalizer
@@ -383,9 +307,9 @@ class LexiconBuilder:
     _event_seq: int
     #: Last announced total for each stage, used to emit terminal stage progress.
     _stage_totals: dict[LexiconBuildStage, int]
-    #: Row batch size for lexicon form bulk inserts.
+    #: Row cadence for morphology-scan progress heartbeats and search-key bulk inserts.
     _form_stage_batch_size: int = 25000
-    #: Minimum staged form rows between high-volume stage log lines.
+    #: Minimum scanned form rows between high-volume stage log lines.
     _form_log_interval_rows: int = 500_000
 
     def __init__(
@@ -410,7 +334,7 @@ class LexiconBuilder:
             runtime: Optional shared runtime controller for SQLite interrupts.
 
         """
-        #: Database file containing source and target lexicon tables.
+        #: Database file containing source and target search-index tables.
         self._db_path = db_path.expanduser().resolve()
         #: Spelling normalizer for dictionary headwords and variants.
         self._spelling_normalizer = BTSpellingNormalizer()
@@ -431,7 +355,7 @@ class LexiconBuilder:
 
     def rebuild(self) -> BuildReport:
         """
-        Rebuild all ``lexicon_*`` contents from current source tables.
+        Rebuild the ``search_keys``/``search_build_meta`` search index from sources.
 
         Returns:
             Build report with source counts, write counts, and metadata fields.
@@ -440,8 +364,9 @@ class LexiconBuilder:
             MissingLexiconSourceTablesError: Required source tables are missing.
 
         Side Effects:
-            Truncates all rows in ``lexicon_*`` tables within one transaction.
-            Table DDL is owned by Alembic; rebuild does not drop or recreate tables.
+            Truncates all rows in ``search_keys``/``search_build_meta`` within one
+            transaction. Table DDL is owned by Alembic; rebuild does not drop or
+            recreate tables.
 
             Registers and clears the runtime interrupt callback when a runtime
             controller is supplied.
@@ -773,29 +698,28 @@ class LexiconBuilder:
 
     def _clear_lexicon_tables(self, connection: Connection) -> None:
         """
-        Truncate prior ``lexicon_*`` rows while preserving table DDL and sources.
+        Truncate prior search-index rows while preserving table DDL and sources.
 
         Args:
             connection: Open SQLAlchemy connection receiving the delete statements.
 
         Side Effects:
-            Deletes all rows from ``lexicon_*`` tables without dropping them.
+            Deletes all rows from ``search_keys``/``search_build_meta`` without
+            dropping them.
 
         """
         connection.execute(delete(SearchKey))
-        connection.execute(delete(LexiconForm))
-        connection.execute(delete(LexiconEntry))
         connection.execute(delete(SearchBuildMetaTable))
 
     def _rebuild_into_connection(self, connection: Connection) -> BuildReport:
         """
-        Insert derived lexicon entries, forms, keys, and build metadata.
+        Insert derived search keys and build metadata from source tables.
 
         Args:
-            connection: Open SQLAlchemy connection with source and lexicon tables.
+            connection: Open SQLAlchemy connection with source and search-index tables.
 
         Returns:
-            Build report for inserted entry, form, and search-key rows.
+            Build report for source counts, search-key writes, and POS inference.
 
         """
         forms_source_count = int(
@@ -804,24 +728,10 @@ class LexiconBuilder:
         bt_entries_source_count = int(
             connection.execute(select(func.count()).select_from(BTEntry)).scalar_one()
         )
-        built_at = (
-            datetime.now(UTC)
-            .replace(microsecond=0)
-            .isoformat()
-            .replace(
-                "+00:00",
-                "Z",
-            )
-        )
+        built_at = self._now()
 
         pos_inferred = self._infer_missing_pos(connection)
-        entries = self._load_entry_payloads(connection)
-        self._insert_entries(connection, entries)
-
-        form_batches, forms_written = self._load_form_payloads(connection, entries)
-        self._insert_forms(connection, form_batches, forms_written)
-
-        search_key_rows = self._build_search_keys(connection, entries, forms_written)
+        search_key_rows = self._build_search_keys(connection, forms_source_count)
         search_keys_written = self._insert_search_keys(connection, search_key_rows)
 
         self._insert_build_meta(
@@ -834,8 +744,6 @@ class LexiconBuilder:
             built_at=built_at,
             forms_source_count=forms_source_count,
             bt_entries_source_count=bt_entries_source_count,
-            entries_written=len(entries),
-            forms_written=forms_written,
             search_keys_written=search_keys_written,
             pos_inferred=pos_inferred,
         )
@@ -850,9 +758,18 @@ class LexiconBuilder:
         Returns:
             Number of ``bt_entries`` rows updated with inferred POS labels.
 
+        Note:
+            ``bt_entries`` enforces a ``(norm_key, pos_id)`` uniqueness
+            constraint so that homograph entries stay distinguishable by
+            part of speech. When two entries share a ``norm_key`` and both
+            currently have the ``unknown`` POS, inferring the same target
+            POS for both would collide; the second such update is skipped
+            (its POS stays ``unknown``) rather than failing the whole build.
+
         Side Effects:
             Updates ``bt_entries.pos_id`` for entries with unknown POS and one
-            clear morphology wordclass.
+            clear morphology wordclass, skipping updates that would violate
+            the ``(norm_key, pos_id)`` uniqueness constraint.
 
         """
         unknown_pos_id = _unknown_pos_id(connection)
@@ -879,17 +796,12 @@ class LexiconBuilder:
             inferred_pos = infer_bt_pos_from_wordclasses(
                 {str(wordclass_row.wordclass) for wordclass_row in wordclass_rows}
             )
-            if inferred_pos is not None:
-                connection.execute(
-                    update(BTEntry)
-                    .where(BTEntry.id == int(row.id))
-                    .values(
-                        pos_id=pos_id_from_bt_pos(
-                            _sqlite_connection(connection),
-                            inferred_pos,
-                        ),
-                    )
-                )
+            if inferred_pos is not None and self._try_set_inferred_pos(
+                connection,
+                entry_id=int(row.id),
+                normalized_title=normalized_title,
+                inferred_pos=inferred_pos,
+            ):
                 updated += 1
             self._advance_stage(
                 LexiconBuildStage.INFER_POS,
@@ -906,528 +818,298 @@ class LexiconBuilder:
         self._finish_stage(LexiconBuildStage.INFER_POS)
         return updated
 
-    def _load_entry_payloads(
+    def _try_set_inferred_pos(
         self,
         connection: Connection,
-    ) -> list[EntryPayload]:
+        *,
+        entry_id: int,
+        normalized_title: str,
+        inferred_pos: str,
+    ) -> bool:
         """
-        Load and project dictionary rows into ``lexicon_entries`` payloads.
+        Attempt one inferred POS update, skipping ``(norm_key, pos_id)`` collisions.
 
         Args:
-            connection: Open SQLAlchemy connection queried for ``bt_*`` rows.
+            connection: Open SQLAlchemy connection containing ``bt_entries``.
+
+        Keyword Args:
+            entry_id: ``bt_entries.id`` of the row being updated.
+            normalized_title: Entry title used for the skip-warning log line.
+            inferred_pos: BT part-of-speech code inferred from morphology.
 
         Returns:
-            Projected dictionary entry payloads for lexicon inserts.
+            ``True`` when the update committed; ``False`` when skipped.
 
         """
-        self._emit_log(
-            stage=LexiconBuildStage.LOAD_ENTRIES,
-            message="loading senses",
-        )
-        sense_rows = connection.execute(
-            select(
-                BTSense.entry_id,
-                BTSense.sense_label,
-                BTSense.gloss_en,
-                BTSense.order_index,
-            ).order_by(
-                BTSense.entry_id.asc(),
-                BTSense.order_index.asc(),
-                BTSense.id.asc(),
+        target_pos_id = pos_id_from_bt_pos(_sqlite_connection(connection), inferred_pos)
+        savepoint = connection.begin_nested()
+        try:
+            connection.execute(
+                update(BTEntry)
+                .where(BTEntry.id == entry_id)
+                .values(pos_id=target_pos_id)
             )
-        ).fetchall()
-        senses_by_entry: dict[int, list[dict[str, object]]] = {}
-        for sense_row in sense_rows:
-            entry_id = int(sense_row.entry_id)
-            senses_by_entry.setdefault(entry_id, []).append(
-                {
-                    "sense_label": str(sense_row.sense_label),
-                    "gloss_en": str(sense_row.gloss_en),
-                    "order_index": int(sense_row.order_index),
-                }
+        except IntegrityError:
+            savepoint.rollback()
+            self._emit_log(
+                stage=LexiconBuildStage.INFER_POS,
+                level="warning",
+                message=(
+                    "skipped pos inference: another entry already uses this "
+                    "norm_key with the inferred part of speech"
+                ),
+                current_item=normalized_title,
             )
+            return False
+        savepoint.commit()
+        return True
 
-        variant_rows = connection.execute(
-            select(BTVariant.entry_id, BTVariant.spelling_macronized).order_by(
-                BTVariant.entry_id.asc(),
-                BTVariant.spelling_raw.asc(),
-            )
-        ).fetchall()
-        variants_by_entry: dict[int, list[str]] = {}
-        for variant_row in variant_rows:
-            entry_id = int(variant_row.entry_id)
-            variant = str(variant_row.spelling_macronized).strip()
-            if not variant:
-                continue
-            variants = variants_by_entry.setdefault(entry_id, [])
-            if variant not in variants:
-                variants.append(variant)
-
-        entry_rows = connection.execute(
-            select(
-                BTEntry.id,
-                BTEntry.norm_key,
-                BTEntry.normalized_title,
-                PartOfSpeech.code,
-                BTEntry.headword,
-                BTEntry.etymology,
-                BTEntry.genders_json,
-            )
-            .join(PartOfSpeech, PartOfSpeech.id == BTEntry.pos_id)
-            .order_by(BTEntry.id.asc())
-        ).fetchall()
-
-        total_entries = len(entry_rows) or 1
-        self._begin_stage(
-            LexiconBuildStage.LOAD_ENTRIES,
-            total=total_entries,
-        )
-
-        payloads: list[EntryPayload] = []
-        for index, entry_row in enumerate(entry_rows, start=1):
-            self._check_cancel(
-                stage=LexiconBuildStage.LOAD_ENTRIES,
-                current_item=str(entry_row.norm_key),
-            )
-            entry_id = int(entry_row.id)
-            senses = senses_by_entry.get(entry_id, [])
-            summary_sense = ""
-            for sense in senses:
-                gloss = str(sense["gloss_en"]).strip()
-                if gloss:
-                    summary_sense = gloss
-                    break
-            payloads.append(
-                {
-                    "entry_id": entry_id,
-                    "norm_key": str(entry_row.norm_key),
-                    "normalized_title": str(entry_row.normalized_title),
-                    "pos": _bt_pos_value_from_code(str(entry_row.code)),
-                    "headword": str(entry_row.headword),
-                    "summary_sense": summary_sense,
-                    "etymology": str(entry_row.etymology),
-                    "variants": variants_by_entry.get(entry_id, []),
-                    "genders_json": str(entry_row.genders_json),
-                    "senses": senses,
-                }
-            )
-            self._advance_stage(
-                LexiconBuildStage.LOAD_ENTRIES,
-                completed=index,
-                total=total_entries,
-            )
-        self._finish_stage(LexiconBuildStage.LOAD_ENTRIES)
-        return payloads
-
-    def _insert_entries(
-        self,
-        connection: Connection,
-        entries: list[EntryPayload],
+    @staticmethod
+    def _append_search_key_row(
+        rows: list[dict[str, object]],
+        row: SearchKeyRow,
     ) -> None:
         """
-        Insert projected dictionary entries into ``lexicon_entries``.
+        Append one candidate search-key row when its key and display text are set.
 
         Args:
-            connection: Open SQLAlchemy connection receiving entry inserts.
-            entries: Projected dictionary payload rows to insert.
+            rows: Accumulator list receiving the normalized row payload.
+            row: Candidate ``(key_text, key_kind, rank_tier, entry_id, form_id,
+                display_text)`` tuple.
+
+        Side Effects:
+            Mutates ``rows`` in place when the candidate row is non-empty.
 
         """
-        self._begin_stage(
-            LexiconBuildStage.INSERT_ENTRIES,
-            total=max(len(entries), 1),
-            detail="preparing rows",
+        key_text, key_kind, rank_tier, entry_id, form_id, display_text = row
+        normalized_key = key_text.strip()
+        display = display_text.strip()
+        if not normalized_key or not display:
+            return
+        rows.append(
+            {
+                "key_text": normalized_key,
+                "key_kind": key_kind,
+                "rank_tier": rank_tier,
+                "entry_id": entry_id,
+                "form_id": form_id,
+                "display_text": display,
+            }
         )
-        self._advance_stage(
-            LexiconBuildStage.INSERT_ENTRIES,
-            completed=0,
-            total=max(len(entries), 1),
-            detail="preparing rows",
-        )
-        if entries:
-            payload = [
-                {
-                    "entry_id": entry["entry_id"],
-                    "norm_key": entry["norm_key"],
-                    "pos": entry["pos"],
-                    "headword": entry["headword"],
-                    "summary_sense": entry["summary_sense"],
-                    "etymology": entry["etymology"],
-                    "variants_json": json.dumps(entry["variants"], ensure_ascii=False),
-                    "genders_json": entry["genders_json"],
-                    "senses_json": json.dumps(entry["senses"], ensure_ascii=False),
-                }
-                for entry in entries
-            ]
-            connection.execute(insert(LexiconEntry), payload)
-        self._advance_stage(
-            LexiconBuildStage.INSERT_ENTRIES,
-            completed=max(len(entries), 1),
-            total=max(len(entries), 1),
-        )
-        self._emit_counter(
-            counter="entries_written",
-            value=len(entries),
-            stage=LexiconBuildStage.INSERT_ENTRIES,
-        )
-        self._finish_stage(LexiconBuildStage.INSERT_ENTRIES)
-
-    def _load_form_payloads(
-        self,
-        connection: Connection,
-        entries: list[EntryPayload],
-    ) -> tuple[list[list[dict[str, object]]], int]:
-        """
-        Stream ``forms`` rows into batched lexicon form insert payloads.
-
-        Args:
-            connection: Open SQLAlchemy connection queried for ``forms`` rows.
-            entries: Projected dictionary entry payloads used for joining.
-
-        Returns:
-            Tuple of batched form payloads and the total source ``forms`` row count.
-
-        """
-        total_forms = int(
-            connection.execute(select(func.count()).select_from(Form)).scalar_one()
-        )
-        progress_total = total_forms or 1
-        self._begin_stage(
-            LexiconBuildStage.LOAD_FORMS,
-            total=progress_total,
-            detail="fetching forms",
-        )
-
-        variant_rows = connection.execute(
-            select(
-                BTVariant.entry_id,
-                BTVariant.normalized_title,
-                PartOfSpeech.code,
-            )
-            .join(BTEntry, BTEntry.id == BTVariant.entry_id)
-            .join(PartOfSpeech, PartOfSpeech.id == BTEntry.pos_id)
-            .where(func.trim(func.coalesce(BTVariant.normalized_title, "")) != "")
-            .order_by(BTVariant.entry_id.asc(), BTVariant.spelling_raw.asc())
-        ).fetchall()
-        join_index = NormalizedTitleJoinIndex.from_entry_variant_rows(
-            [
-                (
-                    cast("int", entry["entry_id"]),
-                    str(entry["normalized_title"]),
-                    str(entry["pos"]),
-                )
-                for entry in entries
-            ],
-            [
-                (
-                    int(row.entry_id),
-                    str(row.normalized_title),
-                    _bt_pos_value_from_code(str(row.code)),
-                )
-                for row in variant_rows
-            ],
-        )
-
-        form_rows = connection.execute(
-            select(
-                Form.id,
-                Form.BT,
-                Form.title,
-                Form.stem,
-                Form.form,
-                Form.formi,
-                Form.wordclass,
-                Form.function,
-                Form.probability,
-                Form.class1,
-                Form.class2,
-                Form.class3,
-                Form.paradigm,
-                Form.normalized_title,
-            ).order_by(Form.id.asc())
-        ).fetchall()
-
-        chunk: list[dict[str, object]] = []
-        form_batches: list[list[dict[str, object]]] = []
-        last_logged_row = 0
-        for index, row in enumerate(form_rows, start=1):
-            current_item = str(row.BT)
-            self._check_cancel(
-                stage=LexiconBuildStage.LOAD_FORMS,
-                current_item=current_item,
-            )
-            bt_pos = WORDCLASS_TO_BT_POS.get(str(row.wordclass).strip().lower(), "")
-            matched_entry_id = join_index.resolve_one(
-                str(row.normalized_title),
-                bt_pos or None,
-            )
-            chunk.append(
-                {
-                    "form_id": int(row.id),
-                    "entry_id": matched_entry_id,
-                    "bt": str(row.BT),
-                    "title": str(row.title),
-                    "stem": str(row.stem),
-                    "form": str(row.form),
-                    "formi": str(row.formi),
-                    "wordclass": str(row.wordclass),
-                    "function": str(row.function),
-                    "probability": str(row.probability),
-                    "class1": str(row.class1),
-                    "class2": str(row.class2),
-                    "class3": str(row.class3),
-                    "paradigm": str(row.paradigm),
-                }
-            )
-            should_emit_heartbeat = index in {1, progress_total} or len(
-                chunk
-            ) >= self._form_stage_batch_size
-            if len(chunk) >= self._form_stage_batch_size:
-                form_batches.append(chunk)
-                if (
-                    index in {1, progress_total}
-                    or index - last_logged_row >= self._form_log_interval_rows
-                ):
-                    self._emit_log(
-                        stage=LexiconBuildStage.LOAD_FORMS,
-                        message="staging form rows",
-                        current_item=current_item,
-                        counts=(index, progress_total),
-                    )
-                    last_logged_row = index
-                chunk = []
-            if should_emit_heartbeat:
-                self._advance_stage(
-                    LexiconBuildStage.LOAD_FORMS,
-                    completed=index,
-                    total=progress_total,
-                    current_item=current_item,
-                )
-        if chunk:
-            form_batches.append(chunk)
-            if total_forms != last_logged_row:
-                self._emit_log(
-                    stage=LexiconBuildStage.LOAD_FORMS,
-                    message="staging form rows",
-                    current_item=str(chunk[-1]["bt"]),
-                    counts=(total_forms, progress_total),
-                )
-        self._finish_stage(LexiconBuildStage.LOAD_FORMS)
-        return form_batches, total_forms
-
-    def _insert_forms(
-        self,
-        connection: Connection,
-        form_batches: list[list[dict[str, object]]],
-        forms_count: int,
-    ) -> None:
-        """
-        Insert projected morphology rows into ``lexicon_forms``.
-
-        Args:
-            connection: Open SQLAlchemy connection receiving form inserts.
-            form_batches: Batched form payload rows to insert.
-            forms_count: Number of source ``forms`` rows being projected.
-
-        """
-        total = max(forms_count, 1)
-        self._begin_stage(
-            LexiconBuildStage.INSERT_FORMS,
-            total=total,
-            detail="inserting rows",
-        )
-        self._advance_stage(
-            LexiconBuildStage.INSERT_FORMS,
-            completed=0,
-            total=total,
-            detail="inserting rows",
-        )
-        inserted = 0
-        for batch in form_batches:
-            self._check_cancel(stage=LexiconBuildStage.INSERT_FORMS)
-            if not batch:
-                continue
-            connection.execute(insert(LexiconForm), batch)
-            inserted += len(batch)
-            self._advance_stage(
-                LexiconBuildStage.INSERT_FORMS,
-                completed=inserted,
-                total=total,
-                detail="inserting rows",
-            )
-        final_completed = max(inserted, 1) if forms_count == 0 else inserted
-        self._advance_stage(
-            LexiconBuildStage.INSERT_FORMS,
-            completed=final_completed,
-            total=total,
-        )
-        self._emit_counter(
-            counter="forms_written",
-            value=forms_count,
-            stage=LexiconBuildStage.INSERT_FORMS,
-        )
-        self._finish_stage(LexiconBuildStage.INSERT_FORMS)
 
     def _build_search_keys(
         self,
         connection: Connection,
-        entries: list[EntryPayload],
-        forms_count: int,
+        forms_source_count: int,
     ) -> list[dict[str, object]]:
         """
-        Build ranked search-key rows for dictionary and morphology lookups.
+        Build combined dictionary and morphology search-key rows for one rebuild.
+
+        Args:
+            connection: Open SQLAlchemy connection queried for source rows.
+            forms_source_count: Source ``forms`` row count used for progress totals.
+
+        Returns:
+            Candidate search-key payload rows ready for insertion.
+
+        """
+        dictionary_rows = self._build_dictionary_search_keys(connection)
+        morphology_rows = self._build_morphology_search_keys(
+            connection,
+            forms_source_count,
+        )
+        return dictionary_rows + morphology_rows
+
+    def _build_dictionary_search_keys(
+        self,
+        connection: Connection,
+    ) -> list[dict[str, object]]:
+        """
+        Build ranked search-key rows for dictionary headword and variant matches.
 
         Note:
             Keys index diacritic-stripped ``normalize_old_english`` shapes so
-            lexicon browse accepts undiacritized queries. Form-to-entry joins
-            use macron-preserving ``normalized_title`` via
-            ``NormalizedTitleJoinIndex.resolve_one``.
+            lexicon browse accepts undiacritized queries.
 
         Args:
-            connection: Open SQLAlchemy connection queried for inserted form rows.
-            entries: Projected dictionary entry payloads.
-            forms_count: Number of inserted morphology form rows.
+            connection: Open SQLAlchemy connection queried for ``bt_entries`` and
+                ``bt_variants`` rows.
 
         Returns:
-            Candidate search-key payload rows ready for lexicon insertion.
+            Candidate dictionary search-key payload rows ready for insertion.
 
         """
-        total = max(len(entries) + forms_count, 1)
-        self._begin_stage(
-            LexiconBuildStage.BUILD_SEARCH_KEYS,
-            total=total,
-        )
-        progress_index = 0
-        progress_total = total
+        entry_rows = connection.execute(
+            select(BTEntry.id, BTEntry.headword).order_by(BTEntry.id.asc())
+        ).fetchall()
+        variant_rows = connection.execute(
+            select(BTVariant.entry_id, BTVariant.spelling_macronized)
+            .where(func.trim(BTVariant.spelling_macronized) != "")
+            .order_by(BTVariant.entry_id.asc(), BTVariant.spelling_raw.asc())
+        ).fetchall()
+
+        total = max(len(entry_rows) + len(variant_rows), 1)
+        self._begin_stage(LexiconBuildStage.BUILD_DICTIONARY_KEYS, total=total)
         search_key_rows: list[dict[str, object]] = []
+        progress_index = 0
 
-        def add(row: SearchKeyRow) -> None:
-            key_text, key_kind, rank_tier, entry_id, form_id, display_text = row
-            normalized_key = key_text.strip()
-            display = display_text.strip()
-            if not normalized_key or not display:
-                return
-            search_key_rows.append(
-                {
-                    "key_text": normalized_key,
-                    "key_kind": key_kind,
-                    "rank_tier": rank_tier,
-                    "entry_id": entry_id,
-                    "form_id": form_id,
-                    "display_text": display,
-                }
-            )
-
-        for entry in entries:
+        for entry_row in entry_rows:
             progress_index += 1
+            entry_id = int(entry_row.id)
+            headword = str(entry_row.headword)
             self._check_cancel(
-                stage=LexiconBuildStage.BUILD_SEARCH_KEYS,
-                current_item=str(entry["headword"]),
+                stage=LexiconBuildStage.BUILD_DICTIONARY_KEYS,
+                current_item=headword,
             )
-            entry_id = cast("int", entry["entry_id"])
-            headword = str(entry["headword"])
-            headword_key = _normalize_dictionary_key(
-                headword,
-                self._spelling_normalizer,
-            )
-            add(
+            self._append_search_key_row(
+                search_key_rows,
                 (
-                    headword_key,
+                    _normalize_dictionary_key(headword, self._spelling_normalizer),
                     KEY_KIND_LEMMA,
                     RANK_TIER_EXACT_ENTRY,
                     entry_id,
                     None,
                     headword,
-                )
+                ),
             )
-            for variant in cast("list[str]", entry["variants"]):
-                variant_text = str(variant)
-                variant_key = _normalize_dictionary_key(
-                    variant_text,
-                    self._spelling_normalizer,
-                )
-                add(
+            self._advance_stage(
+                LexiconBuildStage.BUILD_DICTIONARY_KEYS,
+                completed=progress_index,
+                total=total,
+            )
+
+        for variant_row in variant_rows:
+            progress_index += 1
+            entry_id = int(variant_row.entry_id)
+            variant_text = str(variant_row.spelling_macronized).strip()
+            self._check_cancel(
+                stage=LexiconBuildStage.BUILD_DICTIONARY_KEYS,
+                current_item=variant_text,
+            )
+            if variant_text:
+                self._append_search_key_row(
+                    search_key_rows,
                     (
-                        variant_key,
+                        _normalize_dictionary_key(
+                            variant_text,
+                            self._spelling_normalizer,
+                        ),
                         KEY_KIND_VARIANT,
                         RANK_TIER_EXACT_ENTRY,
                         entry_id,
                         None,
                         variant_text,
-                    )
+                    ),
                 )
-
             self._advance_stage(
-                LexiconBuildStage.BUILD_SEARCH_KEYS,
+                LexiconBuildStage.BUILD_DICTIONARY_KEYS,
                 completed=progress_index,
-                total=progress_total,
+                total=total,
             )
+        self._finish_stage(LexiconBuildStage.BUILD_DICTIONARY_KEYS)
+        return search_key_rows
+
+    def _build_morphology_search_keys(
+        self,
+        connection: Connection,
+        forms_source_count: int,
+    ) -> list[dict[str, object]]:
+        """
+        Build ranked search-key rows for morphology stem and form matches.
+
+        Note:
+            Reads ``forms.entry_id`` as populated by the morphology sink
+            (``FormFkResolver.resolve_entry_id``) rather than re-joining
+            dictionary entries at search-index build time. Forms without a
+            resolved dictionary link fall back to the orphan rank tier.
+
+        Args:
+            connection: Open SQLAlchemy connection queried for ``forms`` rows.
+            forms_source_count: Source ``forms`` row count used for progress totals.
+
+        Returns:
+            Candidate morphology search-key payload rows ready for insertion.
+
+        """
+        progress_total = forms_source_count or 1
+        self._begin_stage(
+            LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+            total=progress_total,
+            detail="scanning forms",
+        )
 
         form_rows = connection.execute(
             select(
-                LexiconForm.c.form_id,
-                LexiconForm.c.entry_id,
-                LexiconForm.c.bt,
-                LexiconForm.c.title,
-                LexiconForm.c.stem,
-                LexiconForm.c.form,
-                LexiconForm.c.formi,
+                Form.id,
+                Form.entry_id,
+                Form.BT,
+                Form.title,
+                Form.stem,
+                Form.form,
+                Form.formi,
                 Form.bt_key,
                 Form.title_key,
                 Form.stem_key,
                 Form.form_key,
                 Form.formi_key,
-            )
-            .join(Form, Form.id == LexiconForm.c.form_id)
-            .order_by(LexiconForm.c.form_id.asc())
+            ).order_by(Form.id.asc())
         ).fetchall()
-        for form in form_rows:
-            progress_index += 1
+
+        search_key_rows: list[dict[str, object]] = []
+        last_logged_row = 0
+        last_advanced_row = 0
+        for index, form in enumerate(form_rows, start=1):
+            current_item = str(form.BT)
             self._check_cancel(
-                stage=LexiconBuildStage.BUILD_SEARCH_KEYS,
-                current_item=str(form.form),
+                stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+                current_item=current_item,
             )
-            form_id = int(form.form_id)
+            form_id = int(form.id)
             form_entry_id = cast("int | None", form.entry_id)
-            if form_entry_id is None:
-                rank_tier = RANK_TIER_ORPHAN
-            else:
-                rank_tier = RANK_TIER_MORPH_LEMMA_STEM
-
-            add(
-                (
-                    str(form.bt_key) or _normalize_morph_key(str(form.bt)),
-                    KEY_KIND_LEMMA,
-                    rank_tier,
-                    form_entry_id,
-                    form_id,
-                    str(form.bt),
-                )
+            lemma_rank_tier = (
+                RANK_TIER_ORPHAN
+                if form_entry_id is None
+                else RANK_TIER_MORPH_LEMMA_STEM
             )
-            add(
-                (
-                    str(form.title_key) or _normalize_morph_key(str(form.title)),
-                    KEY_KIND_LEMMA,
-                    rank_tier,
-                    form_entry_id,
-                    form_id,
-                    str(form.title),
-                )
-            )
-            add(
-                (
-                    str(form.stem_key) or _normalize_morph_key(str(form.stem)),
-                    KEY_KIND_STEM,
-                    rank_tier,
-                    form_entry_id,
-                    form_id,
-                    str(form.stem),
-                )
-            )
-
             form_rank_tier = (
                 RANK_TIER_ORPHAN if form_entry_id is None else RANK_TIER_MORPH_FORM
             )
-            add(
+
+            self._append_search_key_row(
+                search_key_rows,
+                (
+                    str(form.bt_key) or _normalize_morph_key(str(form.BT)),
+                    KEY_KIND_LEMMA,
+                    lemma_rank_tier,
+                    form_entry_id,
+                    form_id,
+                    str(form.BT),
+                ),
+            )
+            self._append_search_key_row(
+                search_key_rows,
+                (
+                    str(form.title_key) or _normalize_morph_key(str(form.title)),
+                    KEY_KIND_LEMMA,
+                    lemma_rank_tier,
+                    form_entry_id,
+                    form_id,
+                    str(form.title),
+                ),
+            )
+            self._append_search_key_row(
+                search_key_rows,
+                (
+                    str(form.stem_key) or _normalize_morph_key(str(form.stem)),
+                    KEY_KIND_STEM,
+                    lemma_rank_tier,
+                    form_entry_id,
+                    form_id,
+                    str(form.stem),
+                ),
+            )
+            self._append_search_key_row(
+                search_key_rows,
                 (
                     str(form.form_key) or _normalize_morph_key(str(form.form)),
                     KEY_KIND_FORM,
@@ -1435,9 +1117,10 @@ class LexiconBuilder:
                     form_entry_id,
                     form_id,
                     str(form.form),
-                )
+                ),
             )
-            add(
+            self._append_search_key_row(
+                search_key_rows,
                 (
                     str(form.formi_key) or _normalize_morph_key(str(form.formi)),
                     KEY_KIND_FORM,
@@ -1445,14 +1128,32 @@ class LexiconBuilder:
                     form_entry_id,
                     form_id,
                     str(form.formi),
+                ),
+            )
+
+            if (
+                index in {1, progress_total}
+                or index - last_advanced_row >= self._form_stage_batch_size
+            ):
+                self._advance_stage(
+                    LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+                    completed=index,
+                    total=progress_total,
+                    current_item=current_item,
                 )
-            )
-            self._advance_stage(
-                LexiconBuildStage.BUILD_SEARCH_KEYS,
-                completed=progress_index,
-                total=progress_total,
-            )
-        self._finish_stage(LexiconBuildStage.BUILD_SEARCH_KEYS)
+                last_advanced_row = index
+            if (
+                index in {1, progress_total}
+                or index - last_logged_row >= self._form_log_interval_rows
+            ):
+                self._emit_log(
+                    stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+                    message="scanning form rows",
+                    current_item=current_item,
+                    counts=(index, progress_total),
+                )
+                last_logged_row = index
+        self._finish_stage(LexiconBuildStage.BUILD_MORPHOLOGY_KEYS)
         return search_key_rows
 
     def _insert_search_keys(
@@ -1461,35 +1162,44 @@ class LexiconBuilder:
         search_key_rows: list[dict[str, object]],
     ) -> int:
         """
-        Insert ranked search keys into ``lexicon_search_keys``.
+        Insert ranked search keys into ``search_keys``.
 
         Args:
             connection: Open SQLAlchemy connection receiving key inserts.
             search_key_rows: Candidate search-key payload rows to insert.
 
         Returns:
-            Number of rows written to ``lexicon_search_keys``.
+            Number of rows written to ``search_keys``.
 
         """
         staged_count = len(search_key_rows)
+        total = max(staged_count, 1)
         self._begin_stage(
             LexiconBuildStage.INSERT_SEARCH_KEYS,
-            total=max(staged_count, 1),
+            total=total,
             detail="writing keys",
         )
         self._advance_stage(
             LexiconBuildStage.INSERT_SEARCH_KEYS,
             completed=0,
-            total=max(staged_count, 1),
+            total=total,
             detail="writing keys",
         )
-        if search_key_rows:
-            for offset in range(0, len(search_key_rows), self._form_stage_batch_size):
-                batch = search_key_rows[offset : offset + self._form_stage_batch_size]
-                connection.execute(
-                    insert(SearchKey).prefix_with("OR IGNORE"),
-                    batch,
-                )
+        inserted = 0
+        for offset in range(0, staged_count, self._form_stage_batch_size):
+            self._check_cancel(stage=LexiconBuildStage.INSERT_SEARCH_KEYS)
+            batch = search_key_rows[offset : offset + self._form_stage_batch_size]
+            connection.execute(
+                insert(SearchKey).prefix_with("OR IGNORE"),
+                batch,
+            )
+            inserted += len(batch)
+            self._advance_stage(
+                LexiconBuildStage.INSERT_SEARCH_KEYS,
+                completed=inserted,
+                total=total,
+                detail="writing keys",
+            )
         written = int(
             connection.execute(
                 select(func.count()).select_from(SearchKey)
@@ -1498,7 +1208,7 @@ class LexiconBuilder:
         self._advance_stage(
             LexiconBuildStage.INSERT_SEARCH_KEYS,
             completed=max(staged_count, 1),
-            total=max(staged_count, 1),
+            total=total,
         )
         self._emit_counter(
             counter="search_keys_written",
@@ -1566,10 +1276,10 @@ def _open_db_connection(
 
 def read_lexicon_build_meta(target: DbTarget) -> LexiconBuildMeta | None:
     """
-    Read persisted lexicon build metadata from one database target.
+    Read persisted search-index build metadata from one database target.
 
     Args:
-        target: Engine, connection, or database path with ``lexicon_build_meta`` rows.
+        target: Engine, connection, or database path with ``search_build_meta`` rows.
 
     Returns:
         Parsed build metadata, or ``None`` when metadata rows are absent.
@@ -1610,29 +1320,26 @@ def read_lexicon_build_meta(target: DbTarget) -> LexiconBuildMeta | None:
 
 def lexicon_read_model_has_data(target: DbTarget) -> bool:
     """
-    Return whether one database already contains populated lexicon read-model rows.
+    Return whether one database already contains populated search-index rows.
 
     Args:
         target: Engine, connection, or database path to inspect.
 
     Returns:
-        ``True`` when build metadata or non-empty lexicon tables already exist.
+        ``True`` when build metadata or non-empty ``search_keys`` rows already exist.
 
     """
     connection, owned_engine, close_connection = _open_db_connection(target)
     try:
         if read_lexicon_build_meta(connection) is not None:
             return True
-        for table in (LexiconEntry, LexiconForm):
-            try:
-                count = connection.execute(
-                    select(func.count()).select_from(table)
-                ).scalar_one()
-            except OperationalError:
-                continue
-            if int(count) > 0:
-                return True
-        return False
+        try:
+            count = connection.execute(
+                select(func.count()).select_from(SearchKey)
+            ).scalar_one()
+        except OperationalError:
+            return False
+        return int(count) > 0
     finally:
         if close_connection:
             connection.close()
@@ -1734,7 +1441,7 @@ def rebuild_lexicon(
     runtime: LexiconBuildController | None = None,
 ) -> BuildReport:
     """
-    Rebuild lexicon read-model tables in the target canonical database.
+    Rebuild the lexicon search index in the target canonical database.
 
     Args:
         db_path: Path to ``wyrdcraeft.sqlite3`` containing ``forms`` and ``bt_*``.

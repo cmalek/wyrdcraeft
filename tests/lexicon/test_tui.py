@@ -761,7 +761,7 @@ async def test_build_monitor_renders_progress_and_final_state() -> None:
             BuildStageStarted(
                 seq=1,
                 at="2026-06-28T12:00:00Z",
-                stage=LexiconBuildStage.LOAD_FORMS,
+                stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
                 total=10,
                 detail="Loading forms",
             )
@@ -770,7 +770,7 @@ async def test_build_monitor_renders_progress_and_final_state() -> None:
             BuildStageProgress(
                 seq=2,
                 at="2026-06-28T12:00:01Z",
-                stage=LexiconBuildStage.LOAD_FORMS,
+                stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
                 completed=5,
                 total=10,
                 current_item="abbad",
@@ -782,8 +782,8 @@ async def test_build_monitor_renders_progress_and_final_state() -> None:
                 at="2026-06-28T12:00:02Z",
                 snapshot=BuildSnapshot(
                     status="complete",
-                    active_stage=LexiconBuildStage.LOAD_FORMS,
-                    counters=BuildCounters(forms_written=10),
+                    active_stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+                    counters=BuildCounters(search_keys_written=10),
                     status_message="Build complete.",
                 ),
                 built_at="2026-06-28T12:00:02Z",
@@ -794,11 +794,11 @@ async def test_build_monitor_renders_progress_and_final_state() -> None:
         await pilot.pause()
 
         assert "status: complete" in _static_text(app.query_one("#build-status", Static)).lower()
-        assert "forms_written: 10" in _static_text(
+        assert "search_keys_written: 10" in _static_text(
             app.query_one("#build-counters", Static)
         )
         stages_text = _static_text(app.query_one("#build-stages", Static))
-        assert "load forms 10/10" in stages_text.lower()
+        assert "build morphology keys 10/10" in stages_text.lower()
         assert "abbad" in stages_text.lower()
 
 
@@ -831,8 +831,8 @@ async def test_build_monitor_failure_shows_traceback_in_log() -> None:
                 at="2026-06-28T12:00:00Z",
                 snapshot=BuildSnapshot(
                     status="failed",
-                    active_stage=LexiconBuildStage.INSERT_FORMS,
-                    counters=BuildCounters(forms_written=9),
+                    active_stage=LexiconBuildStage.INSERT_SEARCH_KEYS,
+                    counters=BuildCounters(search_keys_written=9),
                     status_message="boom",
                 ),
                 error_type="RuntimeError",
@@ -859,7 +859,7 @@ async def test_build_monitor_enter_exits_after_terminal_event() -> None:
                 at="2026-06-28T12:00:00Z",
                 snapshot=BuildSnapshot(
                     status="cancelled",
-                    active_stage=LexiconBuildStage.BUILD_SEARCH_KEYS,
+                    active_stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
                     counters=BuildCounters(search_keys_written=4),
                     status_message="Build cancelled.",
                 ),
@@ -883,7 +883,7 @@ async def test_build_monitor_log_history_is_capped() -> None:
                 BuildLog(
                     seq=index,
                     at="2026-06-28T12:00:00Z",
-                    stage=LexiconBuildStage.LOAD_ENTRIES,
+                    stage=LexiconBuildStage.BUILD_DICTIONARY_KEYS,
                     level="info",
                     message=f"log {index}",
                 )
@@ -905,7 +905,7 @@ async def test_build_monitor_stage_progress_updates_after_many_logs() -> None:
                 BuildLog(
                     seq=index,
                     at="2026-06-28T12:00:00Z",
-                    stage=LexiconBuildStage.LOAD_FORMS,
+                    stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
                     level="info",
                     message=f"log {index}",
                 ),
@@ -915,7 +915,7 @@ async def test_build_monitor_stage_progress_updates_after_many_logs() -> None:
             BuildStageProgress(
                 seq=999,
                 at="2026-06-28T12:00:00Z",
-                stage=LexiconBuildStage.INSERT_FORMS,
+                stage=LexiconBuildStage.INSERT_SEARCH_KEYS,
                 completed=25000,
                 total=13648040,
                 detail="inserting rows",
@@ -924,4 +924,4 @@ async def test_build_monitor_stage_progress_updates_after_many_logs() -> None:
         await pilot.pause()
 
         stages_text = _static_text(app.query_one("#build-stages", Static))
-        assert "insert forms 25000/13648040" in stages_text
+        assert "insert search keys 25000/13648040" in stages_text

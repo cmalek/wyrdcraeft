@@ -8,22 +8,16 @@ from typing import Literal
 
 
 class LexiconBuildStage(StrEnum):
-    """Stable stage labels emitted during one lexicon rebuild."""
+    """Stable stage labels emitted during one search-index rebuild."""
 
     #: Source-table verification stage label.
     VERIFY_SOURCES = "verify sources"
     #: POS inference stage label.
     INFER_POS = "infer pos"
-    #: Entry projection stage label.
-    LOAD_ENTRIES = "load entries"
-    #: Entry insert stage label.
-    INSERT_ENTRIES = "insert entries"
-    #: Form projection stage label.
-    LOAD_FORMS = "load forms"
-    #: Form insert stage label.
-    INSERT_FORMS = "insert forms"
-    #: Search-key build stage label.
-    BUILD_SEARCH_KEYS = "build search keys"
+    #: Dictionary search-key build stage label.
+    BUILD_DICTIONARY_KEYS = "build dictionary keys"
+    #: Morphology search-key build stage label.
+    BUILD_MORPHOLOGY_KEYS = "build morphology keys"
     #: Search-key insert stage label.
     INSERT_SEARCH_KEYS = "insert search keys"
     #: Build-metadata write stage label.
@@ -42,8 +36,6 @@ BuildStatus = Literal[
 LogLevel = Literal["info", "warning", "error"]
 #: Counter names tracked by typed counter events.
 CounterName = Literal[
-    "entries_written",
-    "forms_written",
     "search_keys_written",
     "pos_inferred",
 ]
@@ -53,11 +45,7 @@ CounterName = Literal[
 class BuildCounters:
     """Monotonic counters accumulated while a build runs."""
 
-    #: Number of rows inserted into ``lexicon_entries``.
-    entries_written: int = 0
-    #: Number of rows inserted into ``lexicon_forms``.
-    forms_written: int = 0
-    #: Number of rows inserted into ``lexicon_search_keys``.
+    #: Number of rows inserted into ``search_keys``.
     search_keys_written: int = 0
     #: Number of dictionary entries whose POS was inferred.
     pos_inferred: int = 0

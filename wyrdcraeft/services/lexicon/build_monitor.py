@@ -232,16 +232,6 @@ class LexiconBuildMonitorApp(App[int]):
             )
         elif isinstance(event, BuildCounterUpdated):
             self._counters = BuildCounters(
-                entries_written=(
-                    event.value
-                    if event.counter == "entries_written"
-                    else self._counters.entries_written
-                ),
-                forms_written=(
-                    event.value
-                    if event.counter == "forms_written"
-                    else self._counters.forms_written
-                ),
                 search_keys_written=(
                     event.value
                     if event.counter == "search_keys_written"
@@ -434,8 +424,6 @@ class LexiconBuildMonitorApp(App[int]):
         """
         return (
             "Counters\n"
-            f"entries_written: {self._counters.entries_written}\n"
-            f"forms_written: {self._counters.forms_written}\n"
             f"search_keys_written: {self._counters.search_keys_written}\n"
             f"pos_inferred: {self._counters.pos_inferred}"
         )
@@ -445,7 +433,7 @@ class LexiconBuildMonitorApp(App[int]):
         Return the current stage list text.
 
         Returns:
-            Plain-text rendering of all nine top-level build stages.
+            Plain-text rendering of all top-level build stages.
 
         """
         lines = ["Stages"]

@@ -15,11 +15,8 @@ def test_stage_order_remains_stable() -> None:
     assert list(LexiconBuildStage) == [
         LexiconBuildStage.VERIFY_SOURCES,
         LexiconBuildStage.INFER_POS,
-        LexiconBuildStage.LOAD_ENTRIES,
-        LexiconBuildStage.INSERT_ENTRIES,
-        LexiconBuildStage.LOAD_FORMS,
-        LexiconBuildStage.INSERT_FORMS,
-        LexiconBuildStage.BUILD_SEARCH_KEYS,
+        LexiconBuildStage.BUILD_DICTIONARY_KEYS,
+        LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
         LexiconBuildStage.INSERT_SEARCH_KEYS,
         LexiconBuildStage.WRITE_META,
     ]
@@ -28,8 +25,8 @@ def test_stage_order_remains_stable() -> None:
 def test_terminal_events_carry_final_snapshot() -> None:
     snapshot = BuildSnapshot(
         status="failed",
-        active_stage=LexiconBuildStage.LOAD_FORMS,
-        counters=BuildCounters(forms_written=0, search_keys_written=0),
+        active_stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
+        counters=BuildCounters(search_keys_written=0),
     )
     event = BuildFailed(
         seq=10,
@@ -47,7 +44,7 @@ def test_log_event_keeps_structured_current_work() -> None:
     event = BuildLog(
         seq=3,
         at="2026-06-28T12:00:00Z",
-        stage=LexiconBuildStage.LOAD_FORMS,
+        stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
         level="info",
         message="heartbeat",
         current_item="abbad",

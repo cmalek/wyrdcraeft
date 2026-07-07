@@ -99,17 +99,10 @@ def test_lexicon_build_smoke(
     assert "built_at=" in result.output
     assert "forms_source_count=" in result.output
     assert "bt_entries_source_count=" in result.output
-    assert "entries_written=" in result.output
-    assert "forms_written=" in result.output
     assert "search_keys_written=" in result.output
 
     with sqlite3.connect(isolated_morphology_index_db) as connection:
-        assert connection.execute("SELECT COUNT(*) FROM lexicon_entries").fetchone()[0] > 0
-        assert connection.execute("SELECT COUNT(*) FROM lexicon_forms").fetchone()[0] > 0
-        assert (
-            connection.execute("SELECT COUNT(*) FROM lexicon_search_keys").fetchone()[0]
-            > 0
-        )
+        assert connection.execute("SELECT COUNT(*) FROM search_keys").fetchone()[0] > 0
     assert "[info] stage started:" in result.stderr
 
 

@@ -1,9 +1,8 @@
-"""Tests for lexicon read-model rebuild service."""
+"""Tests for lexicon search-index rebuild service."""
 
 from __future__ import annotations
 
 import io
-import json
 import sqlite3
 import threading
 from typing import TYPE_CHECKING
@@ -27,7 +26,6 @@ from wyrdcraeft.services.lexicon.build import (
     read_lexicon_build_meta,
     rebuild_lexicon,
 )
-from wyrdcraeft.services.lexicon.query import LexiconQueryService
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_FORM,
     KEY_KIND_LEMMA,
@@ -53,46 +51,72 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_rebuild_lexicon_projects_entries_forms_keys_and_meta(
+def _write_linked_abbod_form(db_path: Path) -> None:
+    """
+    Write one additional ``abbod`` form after dictionary tables already exist.
+
+    Note:
+        ``FormFkResolver.resolve_entry_id`` resolves this form's ``entry_id``
+        via ``bt_variants.normalized_title`` at write time (the ``abbad``
+        entry's ``abbod`` spelling variant), producing a form linked to a
+        dictionary entry for tests that exercise the morphology linked tier.
+
+    Args:
+        db_path: Morphology SQLite database already seeded with ``bt_*`` rows.
+
+    Side Effects:
+        Inserts one additional ``forms`` row into ``db_path``.
+
+    """
+    session = GeneratorSession()
+    output = io.StringIO()
+    sqlite_sink = SqliteIndexSink(db_path)
+    sink = CompositeSink(TsvParitySink(output), sqlite_sink)
+    try:
+        print_one_form(
+            session,
+            {
+                "BT": "abbod",
+                "title": "abbod",
+                "stem": "abbod",
+                "form": "abbod",
+                "formParts": "0-abbod-0",
+                "var": "0",
+                "probability": "0",
+                "function": "No",
+                "wright": "0",
+                "paradigm": "demo",
+                "paraID": "0",
+                "wordclass": "noun",
+                "class1": "",
+                "class2": "",
+                "class3": "",
+                "comment": "",
+            },
+            sink,
+        )
+    finally:
+        sqlite_sink.close()
+
+
+def test_rebuild_lexicon_emits_dictionary_and_morphology_search_keys(
     lexicon_source_db: Path,
 ) -> None:
+    _write_linked_abbod_form(lexicon_source_db)
+
     report = rebuild_lexicon(lexicon_source_db)
 
     assert report.bt_entries_source_count > 0
     assert report.forms_source_count > 0
-    assert report.entries_written == report.bt_entries_source_count
     assert report.search_keys_written > 0
 
     with sqlite3.connect(lexicon_source_db) as connection:
         connection.row_factory = sqlite3.Row
-        entry = connection.execute(
-            """
-            SELECT entry_id, norm_key, summary_sense, variants_json, senses_json
-            FROM lexicon_entries
-            WHERE norm_key = ?
-            """,
-            ("abbad",),
-        ).fetchone()
-        assert entry is not None
-        assert str(entry["summary_sense"]).strip()
-        assert json.loads(str(entry["variants_json"]))
-        senses = json.loads(str(entry["senses_json"]))
-        assert senses
-        assert str(senses[0]["gloss_en"]).strip()
-
-        linked_forms = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_forms WHERE entry_id IS NOT NULL"
-        ).fetchone()[0]
-        orphan_forms = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_forms WHERE entry_id IS NULL"
-        ).fetchone()[0]
-        assert linked_forms > 0
-        assert orphan_forms > 0
 
         tiers_present = {
             int(row[0])
             for row in connection.execute(
-                "SELECT DISTINCT rank_tier FROM lexicon_search_keys"
+                "SELECT DISTINCT rank_tier FROM search_keys"
             ).fetchall()
         }
         assert {
@@ -105,7 +129,7 @@ def test_rebuild_lexicon_projects_entries_forms_keys_and_meta(
         kinds_present = {
             str(row[0])
             for row in connection.execute(
-                "SELECT DISTINCT key_kind FROM lexicon_search_keys"
+                "SELECT DISTINCT key_kind FROM search_keys"
             ).fetchall()
         }
         assert {
@@ -115,9 +139,27 @@ def test_rebuild_lexicon_projects_entries_forms_keys_and_meta(
             KEY_KIND_FORM,
         }.issubset(kinds_present)
 
+        linked_row = connection.execute(
+            """
+            SELECT bt_entries.norm_key
+            FROM search_keys
+            JOIN bt_entries ON bt_entries.id = search_keys.entry_id
+            WHERE search_keys.rank_tier = ?
+            """,
+            (RANK_TIER_MORPH_LEMMA_STEM,),
+        ).fetchone()
+        assert linked_row is not None
+        assert linked_row["norm_key"] == "abbad"
+
+        orphan_count = connection.execute(
+            "SELECT COUNT(*) FROM search_keys WHERE rank_tier = ?",
+            (RANK_TIER_ORPHAN,),
+        ).fetchone()[0]
+        assert orphan_count > 0
+
         meta_rows = dict(
             connection.execute(
-                "SELECT key, value FROM lexicon_build_meta ORDER BY key"
+                "SELECT key, value FROM search_build_meta ORDER BY key"
             ).fetchall()
         )
         assert meta_rows[META_KEY_FORMS_SOURCE_COUNT] == str(report.forms_source_count)
@@ -152,23 +194,15 @@ def test_rebuild_lexicon_is_idempotent_and_preserves_sources(
             0
         ]
         senses_after = connection.execute("SELECT COUNT(*) FROM bt_senses").fetchone()[0]
-        lexicon_entries = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_entries"
-        ).fetchone()[0]
-        lexicon_forms = connection.execute("SELECT COUNT(*) FROM lexicon_forms").fetchone()[
-            0
-        ]
-        lexicon_keys = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_search_keys"
+        search_keys = connection.execute(
+            "SELECT COUNT(*) FROM search_keys"
         ).fetchone()[0]
 
     assert forms_before == forms_after
     assert entries_before == entries_after
     assert variants_before == variants_after
     assert senses_before == senses_after
-    assert first.entries_written == second.entries_written == lexicon_entries
-    assert first.forms_written == second.forms_written == lexicon_forms
-    assert first.search_keys_written == second.search_keys_written == lexicon_keys
+    assert first.search_keys_written == second.search_keys_written == search_keys
 
 
 def test_rebuild_lexicon_uses_existing_alembic_managed_lexicon_tables(
@@ -176,59 +210,46 @@ def test_rebuild_lexicon_uses_existing_alembic_managed_lexicon_tables(
 ) -> None:
     report = rebuild_lexicon(lexicon_source_db)
 
-    assert report.entries_written > 0
+    assert report.search_keys_written > 0
 
 
 def test_rebuild_lexicon_joins_abbod_form_via_variant_normalized_title(
     tmp_path: Path,
 ) -> None:
     db_path = make_lexicon_source_db(tmp_path / "variant-join.sqlite3")
-    session = GeneratorSession()
-    output = io.StringIO()
-    sqlite_sink = SqliteIndexSink(db_path)
-    sink = CompositeSink(TsvParitySink(output), sqlite_sink)
-    print_one_form(
-        session,
-        {
-            "BT": "abbod",
-            "title": "abbod",
-            "stem": "abbod",
-            "form": "abbod",
-            "formParts": "0-abbod-0",
-            "var": "0",
-            "probability": "0",
-            "function": "No",
-            "wright": "0",
-            "paradigm": "demo",
-            "paraID": "0",
-            "wordclass": "noun",
-            "class1": "",
-            "class2": "",
-            "class3": "",
-            "comment": "",
-        },
-        sink,
-    )
-    sqlite_sink.close()
+    _write_linked_abbod_form(db_path)
 
     rebuild_lexicon(db_path)
 
     with sqlite3.connect(db_path) as connection:
         connection.row_factory = sqlite3.Row
-        row = connection.execute(
-            """
-            SELECT lf.entry_id, f.normalized_title, le.norm_key
-            FROM lexicon_forms AS lf
-            JOIN forms AS f ON f.id = lf.form_id
-            JOIN lexicon_entries AS le ON le.entry_id = lf.entry_id
-            WHERE f.normalized_title = ?
-            """,
+        form_row = connection.execute(
+            "SELECT id, entry_id FROM forms WHERE normalized_title = ?",
             ("abbod",),
         ).fetchone()
+        assert form_row is not None
+        assert form_row["entry_id"] is not None
 
-    assert row is not None
-    assert int(row["entry_id"]) > 0
-    assert row["norm_key"] == "abbad"
+        entry_row = connection.execute(
+            "SELECT norm_key FROM bt_entries WHERE id = ?",
+            (form_row["entry_id"],),
+        ).fetchone()
+        assert entry_row is not None
+        assert entry_row["norm_key"] == "abbad"
+
+        search_key_row = connection.execute(
+            """
+            SELECT rank_tier
+            FROM search_keys
+            WHERE entry_id = ? AND form_id = ?
+            """,
+            (form_row["entry_id"], form_row["id"]),
+        ).fetchone()
+        assert search_key_row is not None
+        assert int(search_key_row["rank_tier"]) in {
+            RANK_TIER_MORPH_LEMMA_STEM,
+            RANK_TIER_MORPH_FORM,
+        }
 
 
 def test_alembic_managed_search_keys_dedupe_null_join_rows_with_insert_or_ignore(
@@ -239,7 +260,7 @@ def test_alembic_managed_search_keys_dedupe_null_join_rows_with_insert_or_ignore
     with sqlite3.connect(db_path) as connection:
         connection.execute(
             """
-            INSERT OR IGNORE INTO lexicon_search_keys (
+            INSERT OR IGNORE INTO search_keys (
                 key_text,
                 key_kind,
                 rank_tier,
@@ -252,7 +273,7 @@ def test_alembic_managed_search_keys_dedupe_null_join_rows_with_insert_or_ignore
         )
         connection.execute(
             """
-            INSERT OR IGNORE INTO lexicon_search_keys (
+            INSERT OR IGNORE INTO search_keys (
                 key_text,
                 key_kind,
                 rank_tier,
@@ -264,9 +285,7 @@ def test_alembic_managed_search_keys_dedupe_null_join_rows_with_insert_or_ignore
             ("abbad", KEY_KIND_LEMMA, RANK_TIER_ORPHAN, None, None, "abbad"),
         )
 
-        count = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_search_keys"
-        ).fetchone()[0]
+        count = connection.execute("SELECT COUNT(*) FROM search_keys").fetchone()[0]
 
     assert count == 1
 
@@ -291,10 +310,9 @@ def test_rebuild_lexicon_reports_search_keys_counter_from_db_truth(
     def build_duplicates(
         self: LexiconBuilder,
         connection: object,
-        entries: list[dict[str, object]],
-        forms_count: int,
+        forms_source_count: int,
     ) -> list[dict[str, object]]:
-        original(self, connection, entries, forms_count)
+        original(self, connection, forms_source_count)
         return [
             {
                 "key_text": "abbad",
@@ -327,9 +345,7 @@ def test_rebuild_lexicon_reports_search_keys_counter_from_db_truth(
     report = rebuild_lexicon(lexicon_source_db, event_sink=events.append)
 
     with sqlite3.connect(lexicon_source_db) as connection:
-        db_count = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_search_keys"
-        ).fetchone()[0]
+        db_count = connection.execute("SELECT COUNT(*) FROM search_keys").fetchone()[0]
 
     counter_values = [
         event.value
@@ -383,7 +399,9 @@ def test_check_lexicon_staleness_detects_new_forms_rows(
     assert "forms" in report.reason
 
 
-def test_build_then_query_integration_smoke(lexicon_source_db: Path) -> None:
+def test_build_then_search_keys_support_undiacritized_lookup(
+    lexicon_source_db: Path,
+) -> None:
     report = rebuild_lexicon(lexicon_source_db)
 
     meta = read_lexicon_build_meta(lexicon_source_db)
@@ -392,15 +410,20 @@ def test_build_then_query_integration_smoke(lexicon_source_db: Path) -> None:
     assert meta.built_at == report.built_at
     assert report.pos_inferred >= 0
 
-    service = LexiconQueryService(lexicon_source_db)
-    try:
-        results = service.search("ABBOD")
-        assert results.main_entry_count == 1
-        details = service.get_details(results.main_entries[0].entry_id)
-        assert details is not None
-        assert details.headword == "abbad"
-    finally:
-        service.close()
+    with sqlite3.connect(lexicon_source_db) as connection:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT bt_entries.headword
+            FROM search_keys
+            JOIN bt_entries ON bt_entries.id = search_keys.entry_id
+            WHERE search_keys.key_text = ?
+            """,
+            ("abbod",),
+        ).fetchone()
+
+    assert row is not None
+    assert row["headword"] == "abbad"
 
 
 def _unknown_pos_id(connection: sqlite3.Connection) -> int:
@@ -447,10 +470,11 @@ def test_rebuild_lexicon_emits_structured_stage_log_and_counter_event_contract(
 
     report = rebuild_lexicon(lexicon_source_db, event_sink=events.append)
 
-    assert report.entries_written > 0
+    assert report.search_keys_written > 0
     assert any(isinstance(event, BuildStageStarted) for event in events)
     assert any(
-        isinstance(event, BuildLog) and event.stage == LexiconBuildStage.LOAD_FORMS
+        isinstance(event, BuildLog)
+        and event.stage == LexiconBuildStage.BUILD_MORPHOLOGY_KEYS
         for event in events
     )
     assert any(
@@ -470,7 +494,7 @@ def test_rebuild_lexicon_emits_single_stage_start_per_top_level_stage(
     started_stages = [
         event.stage for event in events if isinstance(event, BuildStageStarted)
     ]
-    assert started_stages.count(LexiconBuildStage.LOAD_ENTRIES) == 1
+    assert started_stages.count(LexiconBuildStage.BUILD_DICTIONARY_KEYS) == 1
 
 
 def test_rebuild_lexicon_emits_infer_pos_stage_start_without_progress_callback(
@@ -523,7 +547,7 @@ def test_rebuild_lexicon_cancel_raises_cancelled_error_when_cancel_requested(
         events.append(event)
         if (
             isinstance(event, BuildStageStarted)
-            and event.stage == LexiconBuildStage.LOAD_FORMS
+            and event.stage == LexiconBuildStage.BUILD_MORPHOLOGY_KEYS
         ):
             cancel_event.set()
 
@@ -536,32 +560,32 @@ def test_rebuild_lexicon_cancel_raises_cancelled_error_when_cancel_requested(
 
     assert any(
         isinstance(event, BuildStageStarted)
-        and event.stage == LexiconBuildStage.LOAD_FORMS
+        and event.stage == LexiconBuildStage.BUILD_MORPHOLOGY_KEYS
         for event in events
     )
 
 
-def test_rebuild_lexicon_emits_load_forms_progress_with_current_item(
+def test_rebuild_lexicon_emits_morphology_key_progress_with_current_item(
     lexicon_source_db: Path,
 ) -> None:
     events: list[object] = []
 
     report = rebuild_lexicon(lexicon_source_db, event_sink=events.append)
 
-    load_form_events = [
+    morphology_events = [
         event
         for event in events
-        if getattr(event, "stage", None) == LexiconBuildStage.LOAD_FORMS
+        if getattr(event, "stage", None) == LexiconBuildStage.BUILD_MORPHOLOGY_KEYS
     ]
-    assert load_form_events
-    assert any(getattr(event, "current_item", "") for event in load_form_events)
+    assert morphology_events
+    assert any(getattr(event, "current_item", "") for event in morphology_events)
     progress_events = [
-        event for event in load_form_events if isinstance(event, BuildStageProgress)
+        event for event in morphology_events if isinstance(event, BuildStageProgress)
     ]
     assert len(progress_events) <= report.forms_source_count
 
 
-def test_rebuild_lexicon_emits_insert_forms_progress_during_batch_insert(
+def test_rebuild_lexicon_emits_insert_search_keys_progress_during_batch_insert(
     lexicon_source_db: Path,
 ) -> None:
     events: list[object] = []
@@ -572,13 +596,12 @@ def test_rebuild_lexicon_emits_insert_forms_progress_during_batch_insert(
         event
         for event in events
         if isinstance(event, BuildStageProgress)
-        and event.stage == LexiconBuildStage.INSERT_FORMS
+        and event.stage == LexiconBuildStage.INSERT_SEARCH_KEYS
     ]
     assert insert_progress_events
     assert insert_progress_events[0].completed == 0
-    assert insert_progress_events[-1].completed == max(report.forms_source_count, 1)
-    if report.forms_source_count > 1:
-        assert len(insert_progress_events) > 2
+    assert insert_progress_events[-1].completed == insert_progress_events[-1].total
+    assert insert_progress_events[-1].completed >= report.search_keys_written
 
 
 def test_rebuild_lexicon_cancel_rolls_back_partial_form_work(
@@ -588,7 +611,7 @@ def test_rebuild_lexicon_cancel_rolls_back_partial_form_work(
 
     def sink(event: object) -> None:
         if (
-            getattr(event, "stage", None) == LexiconBuildStage.LOAD_FORMS
+            getattr(event, "stage", None) == LexiconBuildStage.BUILD_MORPHOLOGY_KEYS
             and getattr(event, "completed", 0) >= 1
         ):
             cancel_event.set()
@@ -597,4 +620,4 @@ def test_rebuild_lexicon_cancel_rolls_back_partial_form_work(
         rebuild_lexicon(lexicon_source_db, event_sink=sink, cancel_event=cancel_event)
 
     with sqlite3.connect(lexicon_source_db) as connection:
-        assert connection.execute("SELECT COUNT(*) FROM lexicon_forms").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM search_keys").fetchone()[0] == 0
