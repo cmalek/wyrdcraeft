@@ -247,10 +247,12 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
     assert details.genders == ["m"]
     assert details.persons == []
     assert details.numbers == ["singular", "plural"]
-    assert len(details.morphology_groups) == 2
-    assert details.morphology_groups[0].wordclass == "noun"
-    assert details.morphology_groups[0].function == "genitive singular"
-    assert details.morphology_groups[1].function == "nominative plural"
+    groups_by_function = {
+        group.function: group for group in details.morphology_groups
+    }
+    assert groups_by_function["No"].wordclass == "noun"
+    assert groups_by_function["genitive singular"].wordclass == "noun"
+    assert groups_by_function["nominative plural"].function == "nominative plural"
 
 
 def test_main_results_sort_key_orders_by_lexical_distance() -> None:

@@ -102,8 +102,12 @@ def test_fresh_canonical_db_has_expected_tables(tmp_path: Path) -> None:
         table_names = _table_names(connection)
 
     assert table_names >= EXPECTED_CANONICAL_TABLES
+    assert "search_keys" in table_names
+    assert "search_build_meta" in table_names
     assert "lexicon_entries" not in table_names
     assert "lexicon_forms" not in table_names
+    assert "lexicon_search_keys" not in table_names
+    assert "lexicon_build_meta" not in table_names
 
 
 def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:

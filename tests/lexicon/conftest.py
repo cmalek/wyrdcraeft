@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 @pytest.fixture
 def lexicon_db_path(tmp_path: Path) -> Path:
     """
-    Temporary SQLite database with empty ``lexicon_*`` tables.
+    Temporary SQLite database with canonical source and search-index tables.
 
     Returns:
         Path to a database file with lexicon schema applied.
@@ -57,6 +57,15 @@ def lexicon_db_connection(
         connection.close()
 
 
+def _noun_pos_id(connection: sqlite3.Connection) -> int:
+    """Return the seeded ``noun`` part-of-speech row id."""
+    row = connection.execute(
+        "SELECT id FROM parts_of_speech WHERE code = 'noun'",
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
 @pytest.fixture
 def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
     """
@@ -67,107 +76,97 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
 
     """
     with sqlite3.connect(lexicon_db_path) as connection:
+        noun_pos_id = _noun_pos_id(connection)
         connection.execute(
             """
-            INSERT INTO lexicon_entries (
-                entry_id,
+            INSERT INTO bt_entries (
+                id,
                 norm_key,
-                pos,
                 headword,
-                summary_sense,
-                etymology,
-                variants_json,
+                normalized_title,
+                pos_id,
                 genders_json,
-                senses_json
+                etymology,
+                see_also_json,
+                source_line_nos_json
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 1,
                 "abbod",
-                "noun",
                 "abbod",
-                "an abbot",
-                "",
-                '["abbod"]',
+                "abbod",
+                noun_pos_id,
                 "[]",
-                '[{"sense_label": "I", "gloss_en": "an abbot"}]',
+                "",
+                "[]",
+                "[]",
             ),
         )
         connection.execute(
             """
-            INSERT INTO lexicon_forms (
-                form_id,
+            INSERT INTO bt_senses (
+                id,
                 entry_id,
-                bt,
-                title,
-                stem,
-                form,
-                formi,
-                wordclass,
-                function,
-                probability,
-                class1,
-                class2,
-                class3,
-                paradigm
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                sense_label,
+                gloss_en,
+                order_index
+            ) VALUES (?, ?, ?, ?, ?)
             """,
-            (
-                10,
-                1,
-                "abbod",
-                "abbod",
-                "abbod",
-                "abbodes",
-                "abbodes",
-                "noun",
-                "genitive singular",
-                "1",
-                "m",
-                "",
-                "",
-                "",
-            ),
-        )
-        connection.execute(
-            """
-            INSERT INTO lexicon_forms (
-                form_id,
-                entry_id,
-                bt,
-                title,
-                stem,
-                form,
-                formi,
-                wordclass,
-                function,
-                probability,
-                class1,
-                class2,
-                class3,
-                paradigm
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                11,
-                None,
-                "orphan-lemma",
-                "orphan-lemma",
-                "orphan-lemma",
-                "orphan-form",
-                "orphan-form",
-                "noun",
-                "nominative singular",
-                "1",
-                "m",
-                "",
-                "",
-                "",
-            ),
+            (1, 1, "I", "an abbot", 0),
         )
         connection.executemany(
             """
-            INSERT INTO lexicon_search_keys (
+            INSERT INTO forms (
+                id, counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm,
+                paraID, wordclass, class1, class2, class3, comment,
+                bt_key, title_key, stem_key, form_key, formi_key, entry_id
+            ) VALUES (
+                ?, 0, ?, ?, ?, ?, ?, ?, ?, '0', '1', ?, '0', '', '0', 'noun',
+                'm', '', '', '', ?, ?, ?, ?, ?, ?
+            )
+            """,
+            [
+                (
+                    10,
+                    "abbodes",
+                    "abbod",
+                    "abbod",
+                    "abbod",
+                    "abbod",
+                    "abbodes",
+                    "0-abbod-0",
+                    "genitive singular",
+                    "abbod",
+                    "abbod",
+                    "abbod",
+                    "abbodes",
+                    "abbodes",
+                    1,
+                ),
+                (
+                    11,
+                    "orphan-form",
+                    "orphan-lemma",
+                    "orphan-lemma",
+                    "orphan-lemma",
+                    "orphan-lemma",
+                    "orphan-form",
+                    "0-orphan-lemma-0",
+                    "nominative singular",
+                    "orphan-lemma",
+                    "orphan-lemma",
+                    "orphan-lemma",
+                    "orphan-form",
+                    "orphan-form",
+                    None,
+                ),
+            ],
+        )
+        connection.executemany(
+            """
+            INSERT INTO search_keys (
                 key_text,
                 key_kind,
                 rank_tier,
@@ -190,7 +189,7 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
         )
         connection.executemany(
             """
-            INSERT INTO lexicon_build_meta (key, value) VALUES (?, ?)
+            INSERT INTO search_build_meta (key, value) VALUES (?, ?)
             """,
             [
                 (META_KEY_BUILT_AT, "2026-06-28T00:00:00Z"),
