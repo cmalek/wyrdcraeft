@@ -229,8 +229,8 @@ def test_query_service_exposes_morph_class_metadata_when_fk_set(
         340,
         341,
     )
-    assert row.wright == "0"
-    assert row.paradigm == "demo"
+    assert row.wright == ""
+    assert row.paradigm == ""
     assert form_rows[0].morph_class_id == row.morph_class_id
     assert form_rows[0].morph_class == row.morph_class
 

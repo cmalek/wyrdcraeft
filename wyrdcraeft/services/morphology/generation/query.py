@@ -56,8 +56,19 @@ def _normalize_key(value: str) -> str:
     return OENormalizer.normalize_output(value).casefold()
 
 
+#: Legacy string columns dropped from ``forms`` in Phase D that have no direct
+#: FK replacement value. Query rows emit empty strings for these fields;
+#: ``wordclass``/``function`` are read from FK joins instead.
+_DROPPED_LEGACY_FIELDS_SQL = """
+        '' AS wright,
+        '' AS paradigm,
+        '' AS paraID,
+        '' AS class1,
+        '' AS class2,
+        '' AS class3,"""
 #: Lemma lookup SQL without catalog joins.
-_FORM_LOOKUP_LEMMA_SQL = """
+_FORM_LOOKUP_LEMMA_SQL = (
+    """
     SELECT
         f.counter,
         f.formi,
@@ -69,20 +80,18 @@ _FORM_LOOKUP_LEMMA_SQL = """
         f.formParts,
         f.var,
         f.probability,
-        f.function,
-        f.wright,
-        f.paradigm,
-        f.paraID,
-        f.wordclass,
-        f.class1,
-        f.class2,
-        f.class3,
+        COALESCE(ic.code, '') AS function,"""
+    + _DROPPED_LEGACY_FIELDS_SQL
+    + """
+        COALESCE(fpos.code, '') AS wordclass,
         f.comment,
         COALESCE(f.bt_key, '') || '|'
             || COALESCE(f.title_key, '') || '|'
             || COALESCE(f.stem_key, '') AS lemma_key,
         f.form_key
     FROM forms f
+    LEFT JOIN parts_of_speech fpos ON fpos.id = f.wordclass_id
+    LEFT JOIN inflection_codes ic ON ic.id = f.inflection_code_id
     WHERE
         f.bt_key = :lemma_key
         OR f.title_key = :lemma_key
@@ -90,8 +99,10 @@ _FORM_LOOKUP_LEMMA_SQL = """
     ORDER BY f.counter ASC, f.id ASC
     LIMIT :limit
 """
+)
 #: Surface-form lookup SQL without catalog joins.
-_FORM_LOOKUP_FORM_SQL = """
+_FORM_LOOKUP_FORM_SQL = (
+    """
     SELECT
         f.counter,
         f.formi,
@@ -103,26 +114,26 @@ _FORM_LOOKUP_FORM_SQL = """
         f.formParts,
         f.var,
         f.probability,
-        f.function,
-        f.wright,
-        f.paradigm,
-        f.paraID,
-        f.wordclass,
-        f.class1,
-        f.class2,
-        f.class3,
+        COALESCE(ic.code, '') AS function,"""
+    + _DROPPED_LEGACY_FIELDS_SQL
+    + """
+        COALESCE(fpos.code, '') AS wordclass,
         f.comment,
         COALESCE(f.bt_key, '') || '|'
             || COALESCE(f.title_key, '') || '|'
             || COALESCE(f.stem_key, '') AS lemma_key,
         f.form_key
     FROM forms f
+    LEFT JOIN parts_of_speech fpos ON fpos.id = f.wordclass_id
+    LEFT JOIN inflection_codes ic ON ic.id = f.inflection_code_id
     WHERE f.form_key = :form_key OR f.formi_key = :form_key
     ORDER BY f.counter ASC, f.id ASC
     LIMIT :limit
 """
+)
 #: Lemma lookup SQL with catalog joins for FK-backed morph-class metadata.
-_FORM_LOOKUP_LEMMA_CATALOG_SQL = """
+_FORM_LOOKUP_LEMMA_CATALOG_SQL = (
+    """
     SELECT
         f.counter,
         f.formi,
@@ -134,14 +145,10 @@ _FORM_LOOKUP_LEMMA_CATALOG_SQL = """
         f.formParts,
         f.var,
         f.probability,
-        f.function,
-        f.wright,
-        f.paradigm,
-        f.paraID,
-        f.wordclass,
-        f.class1,
-        f.class2,
-        f.class3,
+        COALESCE(ic.code, '') AS function,"""
+    + _DROPPED_LEGACY_FIELDS_SQL
+    + """
+        COALESCE(fpos.code, '') AS wordclass,
         f.comment,
         COALESCE(f.bt_key, '') || '|'
             || COALESCE(f.title_key, '') || '|'
@@ -149,14 +156,16 @@ _FORM_LOOKUP_LEMMA_CATALOG_SQL = """
         f.form_key,
         f.morph_class_id,
         mc.class_key AS morph_class_class_key,
-        pos.code AS morph_class_pos,
+        mcpos.code AS morph_class_pos,
         mc.canonical_name AS morph_class_canonical_name,
         mc.modern_class AS morph_class_modern_class,
         mc.wright_label AS morph_class_wright_label,
         mcws.wright_sections AS morph_class_wright_sections
     FROM forms f
+    LEFT JOIN parts_of_speech fpos ON fpos.id = f.wordclass_id
+    LEFT JOIN inflection_codes ic ON ic.id = f.inflection_code_id
     LEFT JOIN morph_classes mc ON mc.id = f.morph_class_id
-    LEFT JOIN parts_of_speech pos ON pos.id = mc.pos_id
+    LEFT JOIN parts_of_speech mcpos ON mcpos.id = mc.pos_id
     LEFT JOIN (
         SELECT
             morph_class_id,
@@ -171,8 +180,10 @@ _FORM_LOOKUP_LEMMA_CATALOG_SQL = """
     ORDER BY f.counter ASC, f.id ASC
     LIMIT :limit
 """
+)
 #: Surface-form lookup SQL with catalog joins for FK-backed morph-class metadata.
-_FORM_LOOKUP_FORM_CATALOG_SQL = """
+_FORM_LOOKUP_FORM_CATALOG_SQL = (
+    """
     SELECT
         f.counter,
         f.formi,
@@ -184,14 +195,10 @@ _FORM_LOOKUP_FORM_CATALOG_SQL = """
         f.formParts,
         f.var,
         f.probability,
-        f.function,
-        f.wright,
-        f.paradigm,
-        f.paraID,
-        f.wordclass,
-        f.class1,
-        f.class2,
-        f.class3,
+        COALESCE(ic.code, '') AS function,"""
+    + _DROPPED_LEGACY_FIELDS_SQL
+    + """
+        COALESCE(fpos.code, '') AS wordclass,
         f.comment,
         COALESCE(f.bt_key, '') || '|'
             || COALESCE(f.title_key, '') || '|'
@@ -199,14 +206,16 @@ _FORM_LOOKUP_FORM_CATALOG_SQL = """
         f.form_key,
         f.morph_class_id,
         mc.class_key AS morph_class_class_key,
-        pos.code AS morph_class_pos,
+        mcpos.code AS morph_class_pos,
         mc.canonical_name AS morph_class_canonical_name,
         mc.modern_class AS morph_class_modern_class,
         mc.wright_label AS morph_class_wright_label,
         mcws.wright_sections AS morph_class_wright_sections
     FROM forms f
+    LEFT JOIN parts_of_speech fpos ON fpos.id = f.wordclass_id
+    LEFT JOIN inflection_codes ic ON ic.id = f.inflection_code_id
     LEFT JOIN morph_classes mc ON mc.id = f.morph_class_id
-    LEFT JOIN parts_of_speech pos ON pos.id = mc.pos_id
+    LEFT JOIN parts_of_speech mcpos ON mcpos.id = mc.pos_id
     LEFT JOIN (
         SELECT
             morph_class_id,
@@ -218,6 +227,7 @@ _FORM_LOOKUP_FORM_CATALOG_SQL = """
     ORDER BY f.counter ASC, f.id ASC
     LIMIT :limit
 """
+)
 
 
 def _lemma_lookup_sql(*, include_catalog_join: bool) -> str:

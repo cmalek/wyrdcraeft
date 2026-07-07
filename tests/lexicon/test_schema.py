@@ -256,13 +256,11 @@ def test_orphan_form_without_entry_is_allowed(
         """
         INSERT INTO forms (
             counter, formi, BT, title, normalized_title, stem, form,
-            formParts, var, probability, function, wright, paradigm,
-            paraID, wordclass, class1, class2, class3, comment,
+            formParts, var, probability, comment,
             bt_key, title_key, stem_key, form_key, formi_key
         ) VALUES (
             99, 'unlinked-form', 'unlinked', 'unlinked', 'unlinked', 'unlinked',
-            'unlinked-form', '0-unlinked-0', '0', '1', 'present', '0', '',
-            '0', 'verb', '', '', '', '',
+            'unlinked-form', '0-unlinked-0', '0', '1', '',
             'unlinked', 'unlinked', 'unlinked', 'unlinked-form', 'unlinked-form'
         )
         """

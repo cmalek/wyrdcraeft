@@ -789,7 +789,9 @@ class LexiconBuilder:
             )
             normalized_title = str(row.normalized_title)
             wordclass_rows = connection.execute(
-                select(func.lower(func.trim(Form.wordclass)).label("wordclass"))
+                select(func.lower(func.trim(PartOfSpeech.code)).label("wordclass"))
+                .select_from(Form)
+                .join(PartOfSpeech, PartOfSpeech.id == Form.wordclass_id)
                 .where(Form.normalized_title == normalized_title)
                 .distinct()
             ).fetchall()

@@ -205,7 +205,6 @@ def test_morphology_build_populates_form_foreign_keys_for_known_lemma(
     assert form_row.wordclass_id == verb_pos_id
     assert form_row.inflection_code_id is not None
     assert form_row.morph_class_id is not None
-    assert form_row.wordclass == "verb"
 
 
 def test_catalog_loader_refresh_replaces_stale_rows(

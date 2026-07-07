@@ -397,7 +397,11 @@ class SqliteIndexSink:
             Foreign-key fields are resolved from canonical reference tables per
             ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
             In plain terms, unresolved lookups insert ``NULL`` for every
-            Part of Speech rather than inventing placeholder ids.
+            Part of Speech rather than inventing placeholder ids. Legacy
+            string fields (``function``, ``wright``, ``paradigm``, ``paraID``,
+            ``wordclass``, ``class1``-``class3``) are read from ``row`` to
+            resolve foreign keys but are not persisted; those columns were
+            dropped from ``forms`` in Phase D.
 
         Args:
             rows: Finalized rows in emitted order.
@@ -419,14 +423,6 @@ class SqliteIndexSink:
                 "formParts": row.formParts,
                 "var": row.var,
                 "probability": row.probability,
-                "function": row.function,
-                "wright": row.wright,
-                "paradigm": row.paradigm,
-                "paraID": row.paraID,
-                "wordclass": row.wordclass,
-                "class1": row.class1,
-                "class2": row.class2,
-                "class3": row.class3,
                 "comment": row.comment,
                 "bt_key": self._normalize_key(row.BT),
                 "title_key": self._normalize_key(row.title),

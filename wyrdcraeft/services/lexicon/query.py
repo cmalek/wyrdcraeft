@@ -172,6 +172,13 @@ class MorphologyRow:
     """
     One raw projected morphology row for sidebar rendering.
 
+    Note:
+        ``wordclass`` and ``function`` are read from the ``parts_of_speech``
+        and ``inflection_codes`` foreign-key joins. ``class1``-``class3`` and
+        ``paradigm`` have no FK replacement column on ``forms`` after the
+        Phase D legacy-string drop and are always empty pending FK-backed
+        class/paradigm display sourced from ``morph_classes``.
+
     Attributes:
         form_id: Morphology form identifier.
         lemma: Lemma-like BT display spelling.
@@ -182,10 +189,10 @@ class MorphologyRow:
         wordclass: Morphology wordclass label.
         function: Morphology function label.
         probability: Stored probability marker.
-        class1: First morphology class label.
-        class2: Second morphology class label.
-        class3: Third morphology class label.
-        paradigm: Morphology paradigm exemplar label.
+        class1: First morphology class label (always empty; see Note).
+        class2: Second morphology class label (always empty; see Note).
+        class3: Third morphology class label (always empty; see Note).
+        paradigm: Morphology paradigm exemplar label (always empty; see Note).
 
     """
 
@@ -242,6 +249,11 @@ class EntryDetails:
     """
     Full details payload for one dictionary-backed lexicon entry.
 
+    Note:
+        ``class_summary`` and ``declension_paradigm`` are always empty because
+        ``forms.class1``-``class3``/``paradigm`` have no FK replacement column
+        after the Phase D legacy-string drop; see ``MorphologyRow``.
+
     Attributes:
         entry_id: Dictionary entry identifier.
         headword: Preferred dictionary headword.
@@ -295,6 +307,11 @@ class EntryDetails:
 class OrphanDetails:
     """
     Full details payload for one morphology-only orphan row.
+
+    Note:
+        ``class_summary`` is always empty because ``forms.class1``-``class3``
+        have no FK replacement column after the Phase D legacy-string drop;
+        see ``MorphologyRow``.
 
     Attributes:
         form_id: Morphology form identifier.
@@ -465,7 +482,7 @@ def _row_to_morphology(row: RowMapping | Mapping[str, Any]) -> MorphologyRow:
         class1=str(row["class1"]),
         class2=str(row["class2"]),
         class3=str(row["class3"]),
-        paradigm=str(row["paradigm"]) if "paradigm" in row else "",
+        paradigm=str(row["paradigm"]),
     )
 
 
@@ -730,8 +747,8 @@ class LexiconQueryService:
                     ''
                 ) AS summary_sense,
                 f.BT AS bt,
-                COALESCE(fpos.code, f.wordclass) AS wordclass,
-                COALESCE(ic.code, f.function) AS function
+                COALESCE(fpos.code, '') AS wordclass,
+                COALESCE(ic.code, '') AS function
             FROM search_keys sk
             LEFT JOIN bt_entries e ON e.id = sk.entry_id
             LEFT JOIN parts_of_speech epos ON epos.id = e.pos_id
@@ -888,13 +905,13 @@ class LexiconQueryService:
                 forms.stem AS stem,
                 forms.form AS form,
                 forms.formi AS formi,
-                COALESCE(wordclass_pos.code, forms.wordclass) AS wordclass,
-                COALESCE(inflection_codes.code, forms.function) AS function,
+                COALESCE(wordclass_pos.code, '') AS wordclass,
+                COALESCE(inflection_codes.code, '') AS function,
                 forms.probability AS probability,
-                forms.class1 AS class1,
-                forms.class2 AS class2,
-                forms.class3 AS class3,
-                forms.paradigm AS paradigm
+                '' AS class1,
+                '' AS class2,
+                '' AS class3,
+                '' AS paradigm
             FROM forms
             LEFT JOIN parts_of_speech AS wordclass_pos
                 ON wordclass_pos.id = forms.wordclass_id
@@ -1049,13 +1066,13 @@ class LexiconQueryService:
                 forms.stem AS stem,
                 forms.form AS form,
                 forms.formi AS formi,
-                COALESCE(wordclass_pos.code, forms.wordclass) AS wordclass,
-                COALESCE(inflection_codes.code, forms.function) AS function,
+                COALESCE(wordclass_pos.code, '') AS wordclass,
+                COALESCE(inflection_codes.code, '') AS function,
                 forms.probability AS probability,
-                forms.class1 AS class1,
-                forms.class2 AS class2,
-                forms.class3 AS class3,
-                forms.paradigm AS paradigm
+                '' AS class1,
+                '' AS class2,
+                '' AS class3,
+                '' AS paradigm
             FROM forms
             LEFT JOIN parts_of_speech AS wordclass_pos
                 ON wordclass_pos.id = forms.wordclass_id

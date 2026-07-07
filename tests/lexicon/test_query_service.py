@@ -165,7 +165,7 @@ def test_search_separates_orphan_hits_from_dictionary_entries(
     assert orphan.form_id > 0
     assert orphan.lemma == "orphan-lemma"
     assert orphan.wordclass == "noun"
-    assert orphan.function == "No"
+    assert orphan.function == "SgMaNo"
     assert orphan.rank_tier == 4
     assert orphan.key_kind == "form"
     assert orphan.matched_text == "orphan-form"
@@ -183,6 +183,28 @@ def test_query_service_uses_existing_alembic_managed_schema(
     assert results.main_entry_count == 1
 
 
+def _insert_inflection_code(
+    connection: sqlite3.Connection,
+    *,
+    code: str,
+    pos_id: int,
+) -> int:
+    """Insert one ad-hoc ``inflection_codes`` row and return its id."""
+    connection.execute(
+        """
+        INSERT INTO inflection_codes (code, pos_id, display_json)
+        VALUES (?, ?, '{}')
+        """,
+        (code, pos_id),
+    )
+    return int(
+        connection.execute(
+            "SELECT id FROM inflection_codes WHERE code = ?",
+            (code,),
+        ).fetchone()[0]
+    )
+
+
 def test_get_details_returns_entry_payload_with_grouped_morphology(
     lexicon_source_db: Path,
 ) -> None:
@@ -195,37 +217,53 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
                 ("abbad",),
             ).fetchone()[0]
         )
-        connection.execute(
-            """
-            INSERT INTO forms (
-                counter, formi, BT, title, normalized_title, stem, form,
-                formParts, var, probability, function, wright, paradigm,
-                paraID, wordclass, class1, class2, class3, comment,
-                bt_key, title_key, stem_key, form_key, formi_key, entry_id
-            ) VALUES (
-                0, 'abbades', 'abbad', 'abbad', 'abbad', 'abbad', 'abbades',
-                '0-abbad-0', '0', '0', ?, '0', 'demo', '0', 'noun',
-                ?, ?, ?, '',
-                'abbad', 'abbad', 'abbad', 'abbades', 'abbades', ?
-            )
-            """,
-            ("genitive singular", "m", "strong", "a-stem", entry_id),
+        noun_pos_id = int(
+            connection.execute(
+                "SELECT id FROM parts_of_speech WHERE code = ?",
+                ("noun",),
+            ).fetchone()[0]
+        )
+        genitive_code_id = _insert_inflection_code(
+            connection,
+            code="genitive singular",
+            pos_id=noun_pos_id,
+        )
+        nominative_code_id = _insert_inflection_code(
+            connection,
+            code="nominative plural",
+            pos_id=noun_pos_id,
         )
         connection.execute(
             """
             INSERT INTO forms (
                 counter, formi, BT, title, normalized_title, stem, form,
-                formParts, var, probability, function, wright, paradigm,
-                paraID, wordclass, class1, class2, class3, comment,
-                bt_key, title_key, stem_key, form_key, formi_key, entry_id
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
             ) VALUES (
-                0, 'abbadu', 'abbad', 'abbad', 'abbad', 'abbad', 'abbadu',
-                '0-abbad-0', '0', '0', ?, '0', 'demo', '0', 'noun',
-                ?, ?, ?, '',
-                'abbad', 'abbad', 'abbad', 'abbadu', 'abbadu', ?
+                0, 'abbades', 'abbad', 'abbad', 'abbad', 'abbad', 'abbades',
+                '0-abbad-0', '0', '0', '',
+                'abbad', 'abbad', 'abbad', 'abbades', 'abbades',
+                ?, ?, ?
             )
             """,
-            ("nominative plural", "m", "strong", "a-stem", entry_id),
+            (entry_id, noun_pos_id, genitive_code_id),
+        )
+        connection.execute(
+            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
+            ) VALUES (
+                0, 'abbadu', 'abbad', 'abbad', 'abbad', 'abbad', 'abbadu',
+                '0-abbad-0', '0', '0', '',
+                'abbad', 'abbad', 'abbad', 'abbadu', 'abbadu',
+                ?, ?, ?
+            )
+            """,
+            (entry_id, noun_pos_id, nominative_code_id),
         )
         connection.commit()
 
@@ -243,14 +281,14 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
         "an abbot; abbot",
         "bishops were sometimes subject to an abbot, as they were to the abbots of Iona",
     ]
-    assert details.class_summary == ["m", "strong", "a-stem"]
+    assert details.class_summary == []
     assert details.genders == ["m"]
     assert details.persons == []
     assert details.numbers == ["singular", "plural"]
     groups_by_function = {
         group.function: group for group in details.morphology_groups
     }
-    assert groups_by_function["No"].wordclass == "noun"
+    assert groups_by_function["SgMaNo"].wordclass == "noun"
     assert groups_by_function["genitive singular"].wordclass == "noun"
     assert groups_by_function["nominative plural"].function == "nominative plural"
 

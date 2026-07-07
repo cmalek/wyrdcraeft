@@ -380,13 +380,11 @@ def test_check_lexicon_staleness_detects_new_forms_rows(
             """
             INSERT INTO forms (
                 counter, formi, BT, title, normalized_title, stem, form,
-                formParts, var, probability, function, wright, paradigm,
-                paraID, wordclass, class1, class2, class3, comment,
+                formParts, var, probability, comment,
                 bt_key, title_key, stem_key, form_key, formi_key
             ) VALUES (
                 999, 'new-form', 'new', 'new', 'new', 'new', 'new-form',
-                '0-new-0', '0', '0', 'No', '0', 'demo', '0', 'noun',
-                '', '', '', '',
+                '0-new-0', '0', '0', '',
                 'new', 'new', 'new', 'new-form', 'new-form'
             )
             """
