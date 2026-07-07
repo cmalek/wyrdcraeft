@@ -10,7 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from wyrdcraeft.db.base import Base
 
 if TYPE_CHECKING:
-    from wyrdcraeft.models.reference import PartOfSpeech
+    from wyrdcraeft.models.morph_catalog import MorphClass
+    from wyrdcraeft.models.reference import InflectionCode, PartOfSpeech
 
 
 class Form(Base):
@@ -18,7 +19,7 @@ class Form(Base):
 
     #: Canonical morphology forms table name.
     __tablename__ = "forms"
-    #: Lookup indexes for normalized morphology search keys.
+    #: Lookup indexes for normalized morphology search keys and foreign keys.
     __table_args__ = (
         Index("idx_forms_bt_key", "bt_key"),
         Index("idx_forms_title_key", "title_key"),
@@ -26,6 +27,10 @@ class Form(Base):
         Index("idx_forms_form_key", "form_key"),
         Index("idx_forms_formi_key", "formi_key"),
         Index("idx_forms_normalized_title", "normalized_title"),
+        Index("idx_forms_wordclass_id", "wordclass_id"),
+        Index("idx_forms_inflection_code_id", "inflection_code_id"),
+        Index("idx_forms_morph_class_id", "morph_class_id"),
+        Index("idx_forms_entry_id", "entry_id"),
     )
 
     #: Surrogate row identifier.
@@ -78,6 +83,28 @@ class Form(Base):
     form_key: Mapped[str] = mapped_column(Text, nullable=False)
     #: Normalized formi lookup key.
     formi_key: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Referenced canonical part-of-speech identifier.
+    wordclass_id: Mapped[int | None] = mapped_column(
+        ForeignKey("parts_of_speech.id"),
+    )
+    #: Referenced canonical inflection-code identifier.
+    inflection_code_id: Mapped[int | None] = mapped_column(
+        ForeignKey("inflection_codes.id"),
+    )
+    #: Referenced morphology catalog class identifier.
+    morph_class_id: Mapped[int | None] = mapped_column(
+        ForeignKey("morph_classes.id"),
+    )
+    #: Referenced Bosworth-Toller dictionary entry identifier.
+    entry_id: Mapped[int | None] = mapped_column(ForeignKey("bt_entries.id"))
+    #: Referenced canonical part-of-speech row.
+    part_of_speech: Mapped[PartOfSpeech | None] = relationship()
+    #: Referenced canonical inflection-code row.
+    inflection_code: Mapped[InflectionCode | None] = relationship()
+    #: Referenced morphology catalog class row.
+    morph_class: Mapped[MorphClass | None] = relationship()
+    #: Referenced Bosworth-Toller dictionary entry row.
+    dictionary_entry: Mapped[BTEntry | None] = relationship()
 
 
 class BTEntry(Base):
