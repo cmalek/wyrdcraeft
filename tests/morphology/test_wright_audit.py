@@ -1,4 +1,14 @@
-"""Tests for legacy Wright source auditing."""
+"""
+Tests for legacy Wright source auditing.
+
+Phase D source contract:
+    The audit compares bundled morphology source files to deterministic
+    ``lemma_morph_classes`` assignments. Legacy Wright values come from the
+    dictionary ``wright`` column in ``dict_adj-vb-part-num-adv-noun.txt`` and
+    from ``manual_forms.txt`` via :func:`~wyrdcraeft.services.morphology.loaders.load_dictionary`
+    and :func:`~wyrdcraeft.services.morphology.loaders.load_forms`. It does
+    not read the dropped ``forms.wright`` SQL column.
+"""
 
 from __future__ import annotations
 
@@ -254,7 +264,7 @@ def test_wright_audit_reports_all_phase4_categories(tmp_path: Path) -> None:
         )
         _seed_assignment(
             engine,
-                title="emptynoun",
+            title="emptynoun",
             pos="noun",
             class_key="noun.masculine.a_stem",
         )
@@ -291,6 +301,73 @@ def test_wright_audit_reports_all_phase4_categories(tmp_path: Path) -> None:
     )
 
 
+def test_wright_audit_reads_bundled_dict_source_not_forms_wright(
+    tmp_path: Path,
+) -> None:
+    """Legacy Wright findings must come from bundled source files, not ``forms.wright``."""
+    _db_path, engine = _seed_catalog_db(tmp_path)
+    data_dir = tmp_path / "morphology-data"
+    data_dir.mkdir()
+    distinctive_wright = "334;335"
+    (data_dir / "dict_adj-vb-part-num-adv-noun.txt").write_text(
+        _dictionary_line(
+            nid=99,
+            title="dictsourceverb",
+            wright=distinctive_wright,
+            verb=1,
+            vb_strong=1,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (data_dir / "manual_forms.txt").write_text(
+        _manual_form_line(
+            bt="000099",
+            title="manualsource",
+            form="manualsource",
+            function="Ns",
+            wright="",
+            wordclass="noun",
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (data_dir / "para_vb.txt").write_text("", encoding="utf-8")
+    try:
+        contradiction_class_key = _verb_class_key_for_section(engine, 490)
+        _seed_assignment(
+            engine,
+            title="dictsourceverb",
+            pos="verb",
+            class_key=contradiction_class_key,
+        )
+        _seed_assignment(
+            engine,
+            title="manualsource",
+            pos="noun",
+            class_key="noun.masculine.a_stem",
+        )
+
+        result = WrightAuditService(engine).audit(
+            dictionary_path=data_dir / "dict_adj-vb-part-num-adv-noun.txt",
+            manual_forms_path=data_dir / "manual_forms.txt",
+            para_vb_path=data_dir / "para_vb.txt",
+        )
+    finally:
+        engine.dispose()
+
+    assert len(result.contradictions) == 1
+    contradiction = result.contradictions[0]
+    assert contradiction.row.source_file == "dict_adj-vb-part-num-adv-noun.txt"
+    assert contradiction.row.raw_legacy_wright == distinctive_wright
+    assert contradiction.source_sections == (334, 335)
+
+    assert len(result.blank_legacy_but_classified) == 1
+    blank_issue = result.blank_legacy_but_classified[0]
+    assert blank_issue.row.source_file == "manual_forms.txt"
+    assert blank_issue.row.raw_legacy_wright == ""
+
+
 def test_wright_audit_json_payload_schema_smoke(tmp_path: Path) -> None:
     """The audit payload should expose stable summary counts and full finding lists."""
     _db_path, engine = _seed_catalog_db(tmp_path)
@@ -305,7 +382,7 @@ def test_wright_audit_json_payload_schema_smoke(tmp_path: Path) -> None:
         )
         _seed_assignment(
             engine,
-                title="emptynoun",
+            title="emptynoun",
             pos="noun",
             class_key="noun.masculine.a_stem",
         )
