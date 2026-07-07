@@ -55,22 +55,6 @@ class Form(Base):
     var: Mapped[str] = mapped_column(Text, nullable=False)
     #: Generation probability marker.
     probability: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy morphological function label; superseded by inflection_code_id.
-    function: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy Wright source marker; superseded by morph_class_id.
-    wright: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy paradigm label; superseded by morph_class_id.
-    paradigm: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy paradigm identifier; superseded by morph_class_id.
-    para_id: Mapped[str] = mapped_column("paraID", Text, nullable=False)
-    #: Legacy part-of-speech word class; superseded by wordclass_id.
-    wordclass: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy primary class label; superseded by morph_class_id.
-    class1: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy secondary class label; superseded by morph_class_id.
-    class2: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Legacy tertiary class label; superseded by morph_class_id.
-    class3: Mapped[str] = mapped_column(Text, nullable=False)
     #: Free-form generation comment.
     comment: Mapped[str] = mapped_column(Text, nullable=False)
     #: Normalized Bosworth-Toller lookup key.
