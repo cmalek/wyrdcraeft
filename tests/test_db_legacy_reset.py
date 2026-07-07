@@ -36,11 +36,7 @@ def test_legacy_morphology_db_is_backed_up_then_requires_rebuild(
         runtime.ensure_ready()
 
     assert runtime.db_path.read_text(encoding="utf-8") == "canonical"
-    assert excinfo.value.rebuild_instructions == (
-        "wyrdcraeft morphology build",
-        "wyrdcraeft dictionary build",
-        "wyrdcraeft lexicon build",
-    )
+    assert excinfo.value.rebuild_instructions == ("wyrdcraeft dictionary build",)
     assert Path(excinfo.value.backup_path).read_text(encoding="utf-8") == "legacy"
     assert messages == [
         "checking canonical database",
@@ -79,11 +75,7 @@ def test_legacy_bootstrap_failure_restores_cleanly_and_raises_typed_error(
     assert not runtime.db_path.exists()
     assert runtime.legacy_db_path.read_text(encoding="utf-8") == "legacy"
     assert "legacy boom" in excinfo.value.traceback_text
-    assert excinfo.value.rebuild_instructions == (
-        "wyrdcraeft morphology build",
-        "wyrdcraeft dictionary build",
-        "wyrdcraeft lexicon build",
-    )
+    assert excinfo.value.rebuild_instructions == ("wyrdcraeft dictionary build",)
     assert messages == [
         "checking canonical database",
         "found legacy database",

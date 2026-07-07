@@ -30,9 +30,7 @@ if TYPE_CHECKING:
 LEGACY_DB_FILENAME = "morphology.sqlite3"
 #: Explicit rebuild recipe printed after legacy reset or migration failure.
 REBUILD_INSTRUCTIONS = (
-    "wyrdcraeft morphology build",
     "wyrdcraeft dictionary build",
-    "wyrdcraeft lexicon build",
 )
 
 

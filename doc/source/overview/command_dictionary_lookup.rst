@@ -1,15 +1,19 @@
-``wyrdcraeft dictionary lookup``
+``wyrdcraeft dictionary query``
 =================================
 
 This command looks up consolidated Bosworth-Toller dictionary entries from the
 ``bt_*`` tables in the canonical ``wyrdcraeft.sqlite3`` database.
+
+.. note::
+   ``wyrdcraeft dictionary lookup`` remains as a hidden deprecated alias that
+   prints a warning and delegates to ``dictionary query``.
 
 Command usage
 -------------
 
 .. code-block:: bash
 
-    wyrdcraeft dictionary lookup LEMMA [OPTIONS]
+    wyrdcraeft dictionary query LEMMA [OPTIONS]
 
 Arguments
 ---------
@@ -28,8 +32,8 @@ Default database location
 The command always reads from the canonical app-data database resolved from
 ``WYRDCRAEFT_APP_DATA_DIR`` or ``app_data_dir`` in ``.wyrdcraeft.toml``. If the
 database does not exist, the command exits with an error pointing you to
-``wyrdcraeft morphology build`` first, then ``wyrdcraeft dictionary build`` to
-populate the dictionary tables.
+``wyrdcraeft dictionary build --with-morphology`` to populate dictionary and
+morphology tables.
 
 On macOS, that default file is typically:
 
@@ -49,11 +53,11 @@ Examples
 
 .. code-block:: bash
 
-    wyrdcraeft dictionary lookup abbod
+    wyrdcraeft dictionary query abbod
 
-    wyrdcraeft dictionary lookup a --pos adv
+    wyrdcraeft dictionary query a --pos adv
 
-    wyrdcraeft dictionary lookup abbod --json-output
+    wyrdcraeft dictionary query abbod --json-output
 
 See also
 --------

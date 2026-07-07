@@ -227,9 +227,7 @@ class WrightAuditResult:
                 "malformed_legacy_wright": len(self.malformed_legacy_wright),
                 "contradictions": len(self.contradictions),
                 "unclassified": len(self.unclassified),
-                "blank_legacy_but_classified": len(
-                    self.blank_legacy_but_classified
-                ),
+                "blank_legacy_but_classified": len(self.blank_legacy_but_classified),
             },
             "malformed_legacy_wright": [
                 asdict(issue) for issue in self.malformed_legacy_wright
@@ -293,7 +291,7 @@ class WrightAuditService:
         para_vb_path: Path,
     ) -> WrightAuditResult:
         """
-        Run the Phase 4 audit over bundled legacy source files.
+        Run the wright audit over bundled legacy source files.
 
         Keyword Args:
             dictionary_path: Path to ``dict_adj-vb-part-num-adv-noun.txt``.
@@ -405,19 +403,25 @@ class WrightAuditService:
                     LemmaMorphClass.assignment_source,
                     LemmaMorphClass.morph_class_id,
                     MorphClass.class_key,
-                ).join(
+                )
+                .join(
                     MorphClass,
                     MorphClass.id == LemmaMorphClass.morph_class_id,
-                ).join(
+                )
+                .join(
                     PartOfSpeech,
                     PartOfSpeech.id == LemmaMorphClass.pos_id,
                 )
             ).all()
 
         assignments: dict[tuple[str, str], _AssignedMorphClass] = {}
-        for normalized_title, pos, assignment_source, morph_class_id, class_key in (
-            assignment_rows
-        ):
+        for (
+            normalized_title,
+            pos,
+            assignment_source,
+            morph_class_id,
+            class_key,
+        ) in assignment_rows:
             assignments[(str(normalized_title), str(pos))] = _AssignedMorphClass(
                 class_key=str(class_key),
                 assignment_source=str(assignment_source),
@@ -450,9 +454,9 @@ class WrightAuditService:
 
         sections_by_class: dict[int, list[int]] = {}
         for morph_class_id, section_no in rows:
-            sections_by_class.setdefault(
-                int(morph_class_id), []
-            ).append(int(section_no))
+            sections_by_class.setdefault(int(morph_class_id), []).append(
+                int(section_no)
+            )
         return {
             morph_class_id: tuple(section_nos)
             for morph_class_id, section_nos in sections_by_class.items()
@@ -674,8 +678,7 @@ def format_wright_audit_text(
             f"  malformed_legacy_wright={len(result.malformed_legacy_wright)}",
             f"  contradictions={len(result.contradictions)}",
             f"  unclassified={len(result.unclassified)}",
-            "  blank_legacy_but_classified="
-            f"{len(result.blank_legacy_but_classified)}",
+            f"  blank_legacy_but_classified={len(result.blank_legacy_but_classified)}",
         ]
     )
 
@@ -843,9 +846,7 @@ def _format_unclassified_issue(issue: UnclassifiedIssue) -> str:
         Human-readable single-line summary.
 
     """
-    return (
-        f"{_format_row_prefix(issue.row)} legacy={_display_legacy_wright(issue.row)}"
-    )
+    return f"{_format_row_prefix(issue.row)} legacy={_display_legacy_wright(issue.row)}"
 
 
 def _format_blank_but_classified_issue(issue: BlankLegacyButClassifiedIssue) -> str:

@@ -1,6 +1,7 @@
 """Bosworth-Toller dictionary parsing and indexing services."""
 
 from .attestation_stripper import BTAttestationStripper
+from .browse_query import BrowseSearchHit, DictionaryBrowseQueryService
 from .bt_spelling import BTSpellingNormalizer
 from .build_pipeline import (
     DictionaryBuildPipeline,
@@ -41,6 +42,8 @@ __all__ = [
     "BTSplitLine",
     "BTSqliteSink",
     "BTTargetResolver",
+    "BrowseSearchHit",
+    "DictionaryBrowseQueryService",
     "DictionaryBuildPipeline",
     "DictionaryBuildReport",
     "FormsEntryRelinker",

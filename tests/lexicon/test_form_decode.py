@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from wyrdcraeft.services.lexicon.form_decode import (
+from wyrdcraeft.services.dictionary.form_decode import (
     MorphologyRowPayload,
     build_morphology_table,
     build_paradigm_sidebar,

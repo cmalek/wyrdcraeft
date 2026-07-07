@@ -145,11 +145,24 @@ def test_dictionary_group_help(runner) -> None:
     result = runner.invoke(cli, ["dictionary", "--help"])
     assert result.exit_code == 0
     assert "build" in result.output
-    assert "lookup" in result.output
+    assert "query" in result.output
+    assert "browse" in result.output
+    assert "ingest-wright-text" in result.output
+    assert "audit-wright" in result.output
+    assert "generate-reference-snapshots" in result.output
 
 
-def test_dictionary_lookup_help(runner) -> None:
-    result = runner.invoke(cli, ["dictionary", "lookup", "--help"])
+def test_dictionary_generate_reference_snapshots_help(runner) -> None:
+    result = runner.invoke(
+        cli,
+        ["dictionary", "generate-reference-snapshots", "--help"],
+    )
+    assert result.exit_code == 0
+    assert "--include-full" in result.output
+
+
+def test_dictionary_query_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "query", "--help"])
     assert result.exit_code == 0
     assert "--pos" in result.output
     assert "--index-db" not in result.output
@@ -158,13 +171,47 @@ def test_dictionary_lookup_help(runner) -> None:
     assert "--json-output" in result.output
 
 
+def test_dictionary_browse_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "browse", "--help"])
+    assert result.exit_code == 0
+    assert "--index-db" not in result.output
+    assert "--index-dir" not in result.output
+
+
+def test_lexicon_group_removed(runner) -> None:
+    result = runner.invoke(cli, ["lexicon", "--help"])
+    assert result.exit_code != 0
+    assert "No such command 'lexicon'" in result.output
+
+
+def test_lexicon_build_command_moved_to_dictionary(runner) -> None:
+    result = runner.invoke(cli, ["lexicon", "build", "--help"])
+    assert result.exit_code != 0
+    assert "No such command 'lexicon'" in result.output
+
+
+def test_dictionary_ingest_wright_text_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "ingest-wright-text", "--help"])
+    assert result.exit_code == 0
+    assert "--source" in result.output
+    assert "--force" in result.output
+
+
+def test_dictionary_audit_wright_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "audit-wright", "--help"])
+    assert result.exit_code == 0
+    assert "--json" in result.output
+    assert "--data-dir" in result.output
+    assert "--db" in result.output
+
+
 def test_dictionary_index_bt_command_is_gone(runner) -> None:
     result = runner.invoke(cli, ["dictionary", "index-bt", "--help"])
     assert result.exit_code != 0
     assert "No such command 'index-bt'" in result.output
 
 
-def test_dictionary_lookup_smoke(
+def test_dictionary_query_smoke(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
@@ -175,7 +222,7 @@ def test_dictionary_lookup_smoke(
         cli,
         [
             "dictionary",
-            "lookup",
+            "query",
             "abbad",
         ],
     )
@@ -187,7 +234,7 @@ def test_dictionary_lookup_smoke(
     assert "Variants:" in lookup_result.output
 
 
-def test_dictionary_lookup_json_output(
+def test_dictionary_query_json_output(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
@@ -198,7 +245,7 @@ def test_dictionary_lookup_json_output(
         cli,
         [
             "dictionary",
-            "lookup",
+            "query",
             "abbod",
             "--json-output",
         ],
@@ -395,7 +442,7 @@ def test_dictionary_build_relinks_forms_after_dictionary_rebuild(
     assert linked_entry_id != 999
 
 
-def test_dictionary_lookup_morphology_default(
+def test_dictionary_query_morphology_default(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
@@ -406,7 +453,7 @@ def test_dictionary_lookup_morphology_default(
         cli,
         [
             "dictionary",
-            "lookup",
+            "query",
             "abbod",
         ],
     )
@@ -416,7 +463,7 @@ def test_dictionary_lookup_morphology_default(
     assert "POS:" in lookup_result.output
 
 
-def test_dictionary_lookup_missing_morphology_db_fails(
+def test_dictionary_query_missing_morphology_db_fails(
     runner,
     isolated_morphology_app_data: Path,
 ) -> None:
@@ -426,7 +473,7 @@ def test_dictionary_lookup_missing_morphology_db_fails(
         cli,
         [
             "dictionary",
-            "lookup",
+            "query",
             "abbod",
         ],
     )

@@ -44,10 +44,10 @@ SQLite index database
 ---------------------
 
 By default, ``wyrdcraeft dictionary build`` attaches ``bt_*`` tables to the
-same ``wyrdcraeft.sqlite3`` database used by morphology and lexicon workflows.
+same ``wyrdcraeft.sqlite3`` database used by morphology workflows.
 The ``forms`` table and its rows are never dropped or altered. If the target
 database does not exist, the command exits with an error that points you to
-``wyrdcraeft morphology build``.
+``wyrdcraeft dictionary build --with-morphology``.
 
 Default path by operating system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,4 +108,4 @@ Examples
 See also
 --------
 
-- :doc:`command_morphology_generate` — morphology ``forms`` in the same app-data ``wyrdcraeft.sqlite3``
+- :doc:`command_morphology_generate` — morphology ``forms`` via ``dictionary build --with-morphology``

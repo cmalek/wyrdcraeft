@@ -1,4 +1,4 @@
-"""Shell-level tests for the lexicon Textual browse scaffold."""
+"""Shell-level tests for the dictionary Textual browse scaffold."""
 
 from __future__ import annotations
 
@@ -14,38 +14,202 @@ from textual import events
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Button, DataTable, Input, ListView, Static
 
-from wyrdcraeft.db.runtime import create_engine
-from wyrdcraeft.models.lexicon_build import (
-    BuildCancelled,
-    BuildCounters,
-    BuildFailed,
-    BuildFinished,
-    BuildLog,
-    BuildSnapshot,
-    BuildStageProgress,
-    BuildStageStarted,
-    LexiconBuildStage,
-)
+from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.reference import PartOfSpeech
-from wyrdcraeft.services.lexicon.build import rebuild_lexicon
-from wyrdcraeft.services.lexicon.build_monitor import LexiconBuildMonitorApp
-from wyrdcraeft.services.lexicon.build_runtime import LexiconBuildController
-from wyrdcraeft.services.lexicon.query import LexiconQueryService
-from wyrdcraeft.services.lexicon.tui import (
-    LexiconBrowseApp,
-    LexiconBrowseDataError,
+from wyrdcraeft.services.dictionary.browse_query import DictionaryBrowseQueryService
+from wyrdcraeft.services.dictionary.browse_tui import (
+    DictionaryBrowseApp,
+    DictionaryBrowseDataError,
     _MainResultItem,
-    _OrphanResultItem,
-    create_lexicon_browse_app,
-    run_lexicon_browse,
+    create_dictionary_browse_app,
+    run_dictionary_browse,
 )
+from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
+from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
+from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 
 if TYPE_CHECKING:
     from textual.widget import Widget
 
 FIXTURE = Path(str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")))
+_SAMPLE_LINES = (
+    Path(__file__).resolve().parents[1]
+    / "fixtures"
+    / "dictionary"
+    / "sample_lines.txt"
+)
+
+
+@pytest.fixture
+def lexicon_source_db(tmp_path: Path) -> Path:
+    """Dictionary-backed canonical DB fixture for browse TUI tests."""
+    db_path = tmp_path / "browse-tui.sqlite3"
+    upgrade_canonical_db(db_path)
+    sink = BTSqliteSink(db_path, attach_mode=True)
+    try:
+        BTIndexPipeline().run(_SAMPLE_LINES, sink)
+    finally:
+        sink.close()
+    return db_path
+
+
+@pytest.fixture
+def empty_browse_db(tmp_path: Path) -> Path:
+    """Canonical schema with no dictionary rows for browse readiness tests."""
+    db_path = tmp_path / "empty-browse.sqlite3"
+    upgrade_canonical_db(db_path)
+    return db_path
+
+
+def _bt_entry_id(db_path: Path, *, norm_key: str) -> int:
+    """Resolve one ``bt_entries.id`` by ``norm_key`` for test assertions."""
+    with sqlite3.connect(db_path) as connection:
+        row = connection.execute(
+            "SELECT id FROM bt_entries WHERE norm_key = ? ORDER BY id ASC LIMIT 1",
+            (norm_key,),
+        ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _pos_id(db_path: Path, *, code: str) -> int:
+    """Resolve one canonical part-of-speech id for ad-hoc test inserts."""
+    with sqlite3.connect(db_path) as connection:
+        row = connection.execute(
+            "SELECT id FROM parts_of_speech WHERE code = ?",
+            (code,),
+        ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _insert_inflection_code(
+    connection: sqlite3.Connection,
+    *,
+    code: str,
+    pos_id: int,
+) -> int:
+    """Insert one ad-hoc ``inflection_codes`` row and return its id."""
+    connection.execute(
+        """
+        INSERT INTO inflection_codes (code, pos_id, display_json)
+        VALUES (?, ?, '{}')
+        """,
+        (code, pos_id),
+    )
+    row = connection.execute(
+        "SELECT id FROM inflection_codes WHERE code = ? AND pos_id = ?",
+        (code, pos_id),
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _seed_abbad_morphology_forms(db_path: Path) -> None:
+    """Insert linked morphology rows for the ``abbad`` noun entry."""
+    entry_id = _bt_entry_id(db_path, norm_key="abbad")
+    noun_pos_id = _pos_id(db_path, code="noun")
+    with sqlite3.connect(db_path) as connection:
+        genitive_code_id = _insert_inflection_code(
+            connection,
+            code="genitive singular",
+            pos_id=noun_pos_id,
+        )
+        nominative_code_id = _insert_inflection_code(
+            connection,
+            code="nominative plural",
+            pos_id=noun_pos_id,
+        )
+        connection.execute(
+            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
+            ) VALUES (
+                0, 'abbades', 'abbad', 'abbad', 'abbad', 'abbad', 'abbades',
+                '0-abbad-0', '0', '0', '',
+                'abbad', 'abbad', 'abbad', 'abbades', 'abbades',
+                ?, ?, ?
+            )
+            """,
+            (entry_id, noun_pos_id, genitive_code_id),
+        )
+        connection.execute(
+            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
+            ) VALUES (
+                0, 'abades', 'abbad', 'abbad', 'abbad', 'abbad', 'abades',
+                '0-abbad-0', '0', '0', '',
+                'abbad', 'abbad', 'abbad', 'abades', 'abades',
+                ?, ?, ?
+            )
+            """,
+            (entry_id, noun_pos_id, nominative_code_id),
+        )
+        connection.commit()
+
+
+async def _select_abbad_hit(app: DictionaryBrowseApp, pilot) -> None:
+    """Select the first ``abbad`` noun hit from the results list."""
+    main_list = app.query_one("#results-list", ListView)
+    for index, child in enumerate(main_list.children):
+        if isinstance(child, _MainResultItem) and child.hit.headword == "abbad":
+            main_list.index = index
+            main_list.action_select_cursor()
+            await pilot.pause()
+            return
+    pytest.fail("abbad search hit not found in results list")
+
+
+def _insert_entry(
+    db_path: Path,
+    *,
+    headword: str,
+    pos: str,
+    summary_sense: str,
+) -> None:
+    """Insert one minimal browseable dictionary entry for TUI auto-select tests."""
+    norm_key = normalize_old_english(headword)
+    assert norm_key is not None
+    normalized_title = normalize_morphology_title(headword)
+    pos_id = _pos_id(db_path, code=pos)
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            """
+            INSERT INTO bt_entries (
+                norm_key,
+                headword,
+                normalized_title,
+                pos_id,
+                genders_json,
+                etymology,
+                see_also_json,
+                source_line_nos_json
+            ) VALUES (?, ?, ?, ?, '[]', '', '[]', '[]')
+            """,
+            (norm_key, headword, normalized_title, pos_id),
+        )
+        entry_id = connection.execute(
+            "SELECT id FROM bt_entries WHERE norm_key = ? AND pos_id = ?",
+            (norm_key, pos_id),
+        ).fetchone()
+        assert entry_id is not None
+        connection.execute(
+            """
+            INSERT INTO bt_senses (entry_id, sense_label, gloss_en, order_index)
+            VALUES (?, '', ?, 0)
+            """,
+            (int(entry_id[0]), summary_sense),
+        )
+        connection.commit()
 
 
 def _collect_widget_ids(widget: Widget) -> set[str]:
@@ -103,12 +267,10 @@ def _seed_catalog_assignment(
 
 
 def test_shell_create_app_wires_query_service(lexicon_source_db: Path) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
-        assert isinstance(app, LexiconBrowseApp)
-        assert isinstance(app.query_service, LexiconQueryService)
+        assert isinstance(app, DictionaryBrowseApp)
+        assert isinstance(app.query_service, DictionaryBrowseQueryService)
         assert app.db_path == lexicon_source_db
     finally:
         app.query_service.close()
@@ -116,9 +278,7 @@ def test_shell_create_app_wires_query_service(lexicon_source_db: Path) -> None:
 
 @pytest.mark.anyio
 async def test_shell_layout_exposes_search_and_two_panes(lexicon_source_db: Path) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
             search = app.query_one("#search-input", Input)
@@ -133,9 +293,10 @@ async def test_shell_layout_exposes_search_and_two_panes(lexicon_source_db: Path
             assert "details-content" in ids
             assert "details-content-scroll" in ids
             assert "morphology-sidebar" in ids
+            assert "orphans-header" not in ids
+            assert "orphans-list" not in ids
             details_body = app.query_one("#details-body")
             assert isinstance(details_body, Vertical)
-            assert not list(app.query("#search-box"))
             char_buttons = list(oe_char_bar.children)
             assert char_buttons
             assert all(isinstance(button, Button) for button in char_buttons)
@@ -147,28 +308,27 @@ def test_shell_rejects_missing_lexicon_tables(tmp_path: Path) -> None:
     db_path = tmp_path / "no-lexicon.sqlite3"
     db_path.touch()
 
-    with pytest.raises(LexiconBrowseDataError, match="tables are missing"):
-        create_lexicon_browse_app(db_path)
+    with pytest.raises(DictionaryBrowseDataError, match="tables are missing"):
+        create_dictionary_browse_app(db_path)
 
 
-def test_shell_rejects_empty_lexicon_tables(lexicon_db_path: Path) -> None:
-    with pytest.raises(LexiconBrowseDataError, match="tables are empty"):
-        create_lexicon_browse_app(lexicon_db_path)
+def test_shell_rejects_empty_lexicon_tables(empty_browse_db: Path) -> None:
+    with pytest.raises(DictionaryBrowseDataError, match="tables are empty"):
+        create_dictionary_browse_app(empty_browse_db)
 
 
 def test_shell_run_entrypoint_uses_textual_app(
     lexicon_source_db: Path,
     monkeypatch,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
     run_called = False
 
-    def _fake_run(_self: LexiconBrowseApp) -> None:
+    def _fake_run(_self: DictionaryBrowseApp) -> None:
         nonlocal run_called
         run_called = True
 
-    monkeypatch.setattr(LexiconBrowseApp, "run", _fake_run)
-    run_lexicon_browse(lexicon_source_db)
+    monkeypatch.setattr(DictionaryBrowseApp, "run", _fake_run)
+    run_dictionary_browse(lexicon_source_db)
 
     assert run_called
 
@@ -205,7 +365,7 @@ def _static_text(widget: Static) -> str:
     return str(widget.render())
 
 
-def _details_text(app: LexiconBrowseApp) -> str:
+def _details_text(app: DictionaryBrowseApp) -> str:
     """
     Read both details widgets as one plain-text assertion target.
 
@@ -221,7 +381,7 @@ def _details_text(app: LexiconBrowseApp) -> str:
     return "\n".join(part for part in (header, body) if part)
 
 
-async def _submit_search(app: LexiconBrowseApp, pilot, query: str) -> None:
+async def _submit_search(app: DictionaryBrowseApp, pilot, query: str) -> None:
     """
     Enter a query and submit the browse search box with Enter.
 
@@ -243,12 +403,10 @@ async def _submit_search(app: LexiconBrowseApp, pilot, query: str) -> None:
 async def test_browse_search_on_enter_populates_main_results_with_pos(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "ABBOD")
+            await _submit_search(app, pilot, "abbad")
 
             main_list = app.query_one("#results-list", ListView)
             first_item = main_list.children[0]
@@ -264,15 +422,13 @@ async def test_browse_search_on_enter_populates_main_results_with_pos(
 
 
 @pytest.mark.anyio
-async def test_browse_form_search_label_shows_root_in_parentheses(
+async def test_browse_variant_search_label_shows_headword_in_parentheses(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "abades")
+            await _submit_search(app, pilot, "ABBOD")
 
             main_list = app.query_one("#results-list", ListView)
             first_item = main_list.children[0]
@@ -280,16 +436,14 @@ async def test_browse_form_search_label_shows_root_in_parentheses(
             label_widget = first_item.children[0]
             assert isinstance(label_widget, Static)
             label = _static_text(label_widget)
-            assert label == "abades (abbad, noun)"
+            assert label == "abbod (abbad, noun)"
     finally:
         app.query_service.close()
 
 
 @pytest.mark.anyio
 async def test_browse_does_not_search_until_enter(lexicon_source_db: Path) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
             search = app.query_one("#search-input", Input)
@@ -307,20 +461,21 @@ async def test_browse_does_not_search_until_enter(lexicon_source_db: Path) -> No
 async def test_browse_single_main_result_auto_shows_details(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    _insert_entry(
+        lexicon_source_db,
+        headword="browseonly",
+        pos="noun",
+        summary_sense="unique browse-only gloss",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "ABBOD")
+            await _submit_search(app, pilot, "browseonly")
 
             details_text = _details_text(app)
-            assert "abbad" in details_text
+            assert "browseonly" in details_text
             assert "POS: noun" in details_text
-            assert "Summary" in details_text
-            assert "an abbot; abbot" in details_text
-            assert "Senses" in details_text
-            assert "bishops were sometimes subject to an abbot" in details_text
+            assert "unique browse-only gloss" in details_text
 
             main_list = app.query_one("#results-list", ListView)
             assert main_list.index == 0
@@ -332,7 +487,6 @@ async def test_browse_single_main_result_auto_shows_details(
 async def test_browse_wright_section_selection_opens_ingested_text_modal(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="abbad",
@@ -346,10 +500,11 @@ async def test_browse_wright_section_selection_opens_ingested_text_modal(
         )
         connection.commit()
 
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "ABBOD")
+            await _select_abbad_hit(app, pilot)
 
             sections_title = app.query_one("#wright-sections-title", Static)
             assert "hidden" not in sections_title.classes
@@ -374,7 +529,6 @@ async def test_browse_wright_section_selection_opens_ingested_text_modal(
 async def test_browse_wright_section_selection_shows_not_ingested_message(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="abbad",
@@ -382,10 +536,11 @@ async def test_browse_wright_section_selection_shows_not_ingested_message(
         class_key="noun.masculine.a_stem",
     )
 
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "ABBOD")
+            await _select_abbad_hit(app, pilot)
 
             sections_list = app.query_one("#wright-sections-list", ListView)
             sections_list.index = 0
@@ -395,7 +550,7 @@ async def test_browse_wright_section_selection_shows_not_ingested_message(
             modal_screen = app.screen_stack[-1]
             modal_text = _static_text(modal_screen.query_one("#wright-modal-text", Static))
             assert (
-                "Wright § 334 text not ingested — run morphology ingest-wright-text"
+                "Wright § 334 text not ingested — run dictionary ingest-wright-text"
                 in modal_text
             )
     finally:
@@ -403,10 +558,8 @@ async def test_browse_wright_section_selection_shows_not_ingested_message(
 
 
 @pytest.mark.anyio
-async def test_browse_orphans_shown_in_separate_section(lexicon_source_db: Path) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+async def test_browse_no_match_shows_empty_state(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "orphan-form")
@@ -415,43 +568,8 @@ async def test_browse_orphans_shown_in_separate_section(lexicon_source_db: Path)
             assert len(main_list.children) == 1
             assert not isinstance(main_list.children[0], _MainResultItem)
 
-            orphans_header = app.query_one("#orphans-header", Static)
-            assert "hidden" not in orphans_header.classes
-
-            orphans_list = app.query_one("#orphans-list", ListView)
-            assert "hidden" not in orphans_list.classes
-            orphan_item = orphans_list.children[0]
-            assert isinstance(orphan_item, _OrphanResultItem)
-            assert orphan_item.hit.lemma == "orphan-lemma"
-
             details_text = _details_text(app)
-            assert "No dictionary entries matched" in details_text
-    finally:
-        app.query_service.close()
-
-
-@pytest.mark.anyio
-async def test_browse_select_orphan_shows_details_and_morphology_sidebar(
-    lexicon_source_db: Path,
-) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
-    try:
-        async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "orphan-form")
-
-            orphans_list = app.query_one("#orphans-list", ListView)
-            orphans_list.index = 0
-            orphans_list.action_select_cursor()
-            await pilot.pause()
-
-            details_text = _details_text(app)
-            assert "orphan-lemma" in details_text
-            assert "Morphology-only form" in details_text
-
-            sidebar_text = _table_text(app.query_one("#morphology-table", DataTable))
-            assert "orphan-form" in sidebar_text
+            assert details_text == "No results."
     finally:
         app.query_service.close()
 
@@ -460,12 +578,12 @@ async def test_browse_select_orphan_shows_details_and_morphology_sidebar(
 async def test_browse_morphology_sidebar_groups_by_wordclass_and_function(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    _seed_abbad_morphology_forms(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "abades")
+            await _submit_search(app, pilot, "ABBOD")
+            await _select_abbad_hit(app, pilot)
 
             sidebar_text = _table_text(app.query_one("#morphology-table", DataTable))
             assert "abbades" in sidebar_text
@@ -478,9 +596,7 @@ async def test_browse_morphology_sidebar_groups_by_wordclass_and_function(
 async def test_browse_oe_character_bar_inserts_into_search(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             first_button = app.query(".oe-char-button").first()
@@ -501,9 +617,7 @@ async def test_browse_oe_character_bar_inserts_into_search(
 async def test_browse_search_accepts_keyboard_unicode_characters(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -534,9 +648,7 @@ async def test_browse_search_accepts_keyboard_unicode_characters(
 async def test_browse_oe_character_buttons_use_light_text_on_dark_background(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
             screenshot = app.export_screenshot()
@@ -560,9 +672,7 @@ async def test_browse_oe_character_buttons_use_light_text_on_dark_background(
 async def test_browse_search_accepts_app_level_unicode_key_fallback(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -580,9 +690,7 @@ async def test_browse_search_accepts_app_level_unicode_key_fallback(
 async def test_browse_search_accepts_input_level_oe_key_aliases(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -602,9 +710,7 @@ async def test_browse_search_accepts_input_level_oe_key_aliases(
 async def test_browse_search_accepts_macos_abc_extended_alt_keys(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -652,9 +758,7 @@ async def test_browse_search_accepts_macos_abc_extended_alt_keys(
 async def test_browse_search_normalizes_combining_old_english_marks(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -674,9 +778,7 @@ async def test_browse_search_normalizes_combining_old_english_marks(
 async def test_browse_oe_character_buttons_skip_tab_focus(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             search = app.query_one("#search-input", Input)
@@ -694,9 +796,7 @@ async def test_browse_oe_character_buttons_skip_tab_focus(
 async def test_browse_search_keeps_focus_after_submit(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "ABBOD")
@@ -707,29 +807,26 @@ async def test_browse_search_keeps_focus_after_submit(
 
 
 @pytest.mark.anyio
-async def test_browse_shows_build_timestamp_after_fresh_build(
+async def test_browse_shows_connect_message_before_search(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
             details_text = _static_text(app.query_one("#details-content", Static))
             assert "Connected to" in details_text
-            assert "Lexicon built at" in details_text
+            assert "Search and select a result to view details." in details_text
     finally:
         app.query_service.close()
 
 
 @pytest.mark.anyio
 async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> None:
-    rebuild_lexicon(lexicon_source_db)
-
-    app = create_lexicon_browse_app(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "ABBOD")
+            await _select_abbad_hit(app, pilot)
 
             main_list = app.query_one("#results-list", ListView)
             assert isinstance(main_list.children[0], _MainResultItem)
@@ -739,189 +836,3 @@ async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> N
             assert "POS: noun" in details_text
     finally:
         app.query_service.close()
-
-
-@pytest.mark.anyio
-async def test_build_monitor_layout_has_stage_and_log_panes() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test():
-        body = app.query_one("#build-body")
-        ids = _collect_widget_ids(body)
-        assert "build-stage-pane" in ids
-        assert "build-log-pane" in ids
-
-
-@pytest.mark.anyio
-async def test_build_monitor_renders_progress_and_final_state() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test() as pilot:
-        app.handle_event(
-            BuildStageStarted(
-                seq=1,
-                at="2026-06-28T12:00:00Z",
-                stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
-                total=10,
-                detail="Loading forms",
-            )
-        )
-        app.handle_event(
-            BuildStageProgress(
-                seq=2,
-                at="2026-06-28T12:00:01Z",
-                stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
-                completed=5,
-                total=10,
-                current_item="abbad",
-            )
-        )
-        app.handle_event(
-            BuildFinished(
-                seq=3,
-                at="2026-06-28T12:00:02Z",
-                snapshot=BuildSnapshot(
-                    status="complete",
-                    active_stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
-                    counters=BuildCounters(search_keys_written=10),
-                    status_message="Build complete.",
-                ),
-                built_at="2026-06-28T12:00:02Z",
-                forms_source_count=10,
-                bt_entries_source_count=1,
-            )
-        )
-        await pilot.pause()
-
-        assert "status: complete" in _static_text(app.query_one("#build-status", Static)).lower()
-        assert "search_keys_written: 10" in _static_text(
-            app.query_one("#build-counters", Static)
-        )
-        stages_text = _static_text(app.query_one("#build-stages", Static))
-        assert "build morphology keys 10/10" in stages_text.lower()
-        assert "abbad" in stages_text.lower()
-
-
-@pytest.mark.anyio
-async def test_build_monitor_q_requests_cancel_while_running(tmp_path: Path) -> None:
-    controller = LexiconBuildController(db_path=tmp_path / "lexicon.sqlite3", quiet=True)
-    app = LexiconBuildMonitorApp(
-        controller=controller,
-        db_path=tmp_path / "lexicon.sqlite3",
-    )
-
-    async with app.run_test() as pilot:
-        await pilot.press("q")
-        await pilot.pause()
-
-        assert controller.cancel_requested is True
-        assert "cancellation requested" in _static_text(
-            app.query_one("#build-status", Static)
-        ).lower()
-
-
-@pytest.mark.anyio
-async def test_build_monitor_failure_shows_traceback_in_log() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test() as pilot:
-        app.handle_event(
-            BuildFailed(
-                seq=1,
-                at="2026-06-28T12:00:00Z",
-                snapshot=BuildSnapshot(
-                    status="failed",
-                    active_stage=LexiconBuildStage.INSERT_SEARCH_KEYS,
-                    counters=BuildCounters(search_keys_written=9),
-                    status_message="boom",
-                ),
-                error_type="RuntimeError",
-                message="boom",
-                traceback_text="Traceback line 1\nTraceback line 2",
-            )
-        )
-        await pilot.pause()
-
-        log_text = _static_text(app.query_one("#build-log", Static))
-        assert "runtimeerror: boom" in log_text.lower()
-        assert "traceback line 1" in log_text.lower()
-        assert "traceback line 2" in log_text.lower()
-
-
-@pytest.mark.anyio
-async def test_build_monitor_enter_exits_after_terminal_event() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test() as pilot:
-        app.handle_event(
-            BuildCancelled(
-                seq=1,
-                at="2026-06-28T12:00:00Z",
-                snapshot=BuildSnapshot(
-                    status="cancelled",
-                    active_stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
-                    counters=BuildCounters(search_keys_written=4),
-                    status_message="Build cancelled.",
-                ),
-                message="Build cancelled.",
-            )
-        )
-        await pilot.pause()
-        await pilot.press("enter")
-        await pilot.pause()
-
-    assert app.return_value == 130
-
-
-@pytest.mark.anyio
-async def test_build_monitor_log_history_is_capped() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test() as pilot:
-        for index in range(205):
-            app.handle_event(
-                BuildLog(
-                    seq=index,
-                    at="2026-06-28T12:00:00Z",
-                    stage=LexiconBuildStage.BUILD_DICTIONARY_KEYS,
-                    level="info",
-                    message=f"log {index}",
-                )
-            )
-        await pilot.pause()
-
-        log_text = _static_text(app.query_one("#build-log", Static))
-        assert "log 0" not in log_text
-        assert "log 204" in log_text
-
-
-@pytest.mark.anyio
-async def test_build_monitor_stage_progress_updates_after_many_logs() -> None:
-    app = LexiconBuildMonitorApp.fake()
-
-    async with app.run_test() as pilot:
-        for index in range(205):
-            app.handle_event(
-                BuildLog(
-                    seq=index,
-                    at="2026-06-28T12:00:00Z",
-                    stage=LexiconBuildStage.BUILD_MORPHOLOGY_KEYS,
-                    level="info",
-                    message=f"log {index}",
-                ),
-                render=False,
-            )
-        app.handle_event(
-            BuildStageProgress(
-                seq=999,
-                at="2026-06-28T12:00:00Z",
-                stage=LexiconBuildStage.INSERT_SEARCH_KEYS,
-                completed=25000,
-                total=13648040,
-                detail="inserting rows",
-            )
-        )
-        await pilot.pause()
-
-        stages_text = _static_text(app.query_one("#build-stages", Static))
-        assert "insert search keys 25000/13648040" in stages_text

@@ -1,40 +1,41 @@
 Architecture
 ============
 
-This section documents the current lexicon-building architecture as it exists
-in the repository today.
+This section documents the current dictionary and morphology architecture as it
+exists in the repository today.
 
 The same concept stack is presented at two reading depths:
 
 - plain-language sections for scholars and translators
 - implementation-facing sections for engineers and computational linguists
 
-The three main flows are:
+The two main build flows are:
 
-- dictionary
+- dictionary (including browse/search)
 - morphology
-- lexicon
 
 .. toctree::
    :maxdepth: 2
 
    dictionary
    morphology
-   lexicon
 
-How the Three Flows Fit Together
---------------------------------
+How the Flows Fit Together
+--------------------------
 
-``wyrdcraeft`` builds its lexicon (the browse/search layer for the dictionary) in layers:
+``wyrdcraeft`` builds dictionary browse/search in layers:
 
-- ``wyrdcraeft dictionary build`` parses Bosworth-Toller source text into canonical dictionary entries in a SQL database.
-- ``wyrdcraeft morphology build`` uses Ondrej Tichy's Old English Morphology generator to generate inflected forms and Wright & Wright-backed class metadata.
-- ``wyrdcraeft lexicon build`` builds the browse/search layer helper tables from the already-built dictionary and morphology data.  It is this layer that is used by ``wyrdcraeft lexicon browse`` to run the browse/search layer.
+- ``wyrdcraeft dictionary build`` parses Bosworth-Toller source text into
+  canonical ``bt_*`` tables, relinks ``forms.entry_id``, and optionally
+  regenerates morphology when requested or when ``forms`` is empty.
+- ``wyrdcraeft dictionary browse`` opens a Textual shell that searches
+  ``bt_entries`` and ``bt_variants`` at query time and loads morphology details
+  for the selected entry.
 
 .. note::
-  ``wyrdcraeft morphology ingest-wright-text`` can be used to ingest Wright
+  ``wyrdcraeft dictionary ingest-wright-text`` can be used to ingest Wright
   section text as markdown into the database, so that it can be displayed on
-  demand in the browse/search layer.
+  demand in the browse shell.
 
 Critical build paths
 --------------------
@@ -44,13 +45,15 @@ Bosworth-Toller dictionary parsing pipeline
 
 - command: ``wyrdcraeft dictionary build``
 - input: ``data/oe_bt.txt``
-- orchestrator: ``wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline``
-- writes: ``bt_entries``, ``bt_senses``, ``bt_variants``, ``bt_edit_log``
+- orchestrator: ``wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`` /
+  ``DictionaryBuildPipeline``
+- writes: ``bt_entries``, ``bt_senses``, ``bt_variants``, ``bt_edit_log``;
+  relinks ``forms.entry_id``
 
 Ondrej Tichy's Old English Morphology generator pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- command: ``wyrdcraeft morphology build``
+- command: ``wyrdcraeft dictionary build --with-morphology``
 - inputs:
 
   - ``wyrdcraeft/etc/morphology/dict_adj-vb-part-num-adv-noun.txt``
@@ -63,14 +66,15 @@ Ondrej Tichy's Old English Morphology generator pipeline
 - writes: ``forms``, ``morph_sources``, ``morph_classes``, ``wright_sections``,
   ``morph_class_*``, ``lemma_morph_classes``
 
-Derived lexicon browse/search pipeline
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dictionary browse/search pipeline
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- command: ``wyrdcraeft lexicon build``
-- rebuild entrypoint: ``wyrdcraeft.services.lexicon.build.rebuild_lexicon()``
-- orchestrator: ``wyrdcraeft.services.lexicon.build.LexiconBuilder``
-- reads: ``forms`` plus ``bt_*`` tables
-- writes: ``search_keys``, ``search_build_meta``
+- command: ``wyrdcraeft dictionary browse``
+- query service:
+  ``wyrdcraeft.services.dictionary.browse_query.DictionaryBrowseQueryService``
+- TUI: ``wyrdcraeft.services.dictionary.browse_tui.DictionaryBrowseApp``
+- reads: ``bt_*``, ``forms``, catalog tables at query time
+- no derived search-index tables
 
 Optional Wright & Wright-backed section texts
 ---------------------------------------------
@@ -78,12 +82,12 @@ Optional Wright & Wright-backed section texts
 Wright & Wright-backed section text ingestion pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- command: ``wyrdcraeft morphology ingest-wright-text``
+- command: ``wyrdcraeft dictionary ingest-wright-text``
 - ingester:
   ``wyrdcraeft.services.morphology.catalog.wright_text.WrightSectionTextIngester``
 - input: ``data/sources/wright.md``
 - writes: ``wright_sections.section_text``
-- consumer: optional Wright excerpt display in ``wyrdcraeft lexicon browse``
+- consumer: optional Wright excerpt display in ``wyrdcraeft dictionary browse``
 
 Canonical Database ER Diagram
 -----------------------------
@@ -91,12 +95,11 @@ Canonical Database ER Diagram
 The canonical app-data database is one ``wyrdcraeft.sqlite3`` file. The
 diagram below shows the declared SQL foreign-key relationships from
 ``wyrdcraeft/models/reference.py``, ``wyrdcraeft/models/sqlalchemy.py``, and
-``wyrdcraeft/models/morph_catalog.py`` after normalized-schema Phases A–D
-(Alembic head ``20260706_04``). ``forms`` stores foreign keys to reference
-and catalog tables only; legacy denormalized string columns
-(``wordclass``, ``function``, ``wright``, ``paradigm``, ``paraID``,
-``class1``–``class3``) were dropped in Phase D. The lexicon layer is a slim
-search index only (``search_keys``, ``search_build_meta``).
+``wyrdcraeft/models/morph_catalog.py`` after normalized-schema Phases A–D and
+Phase B search-index removal (Alembic head ``20260707_01``). ``forms`` stores
+foreign keys to reference and catalog tables only; legacy denormalized string
+columns (``wordclass``, ``function``, ``wright``, ``paradigm``, ``paraID``,
+``class1``–``class3``) were dropped in Phase D.
 
 .. mermaid::
 
@@ -234,21 +237,6 @@ search index only (``search_keys``, ``search_build_meta``).
            text notes
        }
 
-       SEARCH_KEYS {
-           int id PK
-           text key_text
-           text key_kind
-           int rank_tier
-           int entry_id FK
-           int form_id FK
-           text display_text
-       }
-
-       SEARCH_BUILD_META {
-           text key PK
-           text value
-       }
-
        PARTS_OF_SPEECH ||--o{ INFLECTION_CODES : classifies
        PARTS_OF_SPEECH ||--o{ BT_ENTRIES : classifies
        PARTS_OF_SPEECH ||--o{ MORPH_CLASSES : classifies
@@ -268,9 +256,6 @@ search index only (``search_keys``, ``search_build_meta``).
        MORPH_CLASSES ||--o{ LEMMA_MORPH_CLASSES : assigned_to
        MORPH_CLASSES o|--o{ FORMS : assigned_to
 
-       BT_ENTRIES o|--o{ SEARCH_KEYS : indexed_by
-       FORMS o|--o{ SEARCH_KEYS : indexed_by
-
 .. note::
 
    Important business-key joins are intentionally omitted from the ER diagram
@@ -278,7 +263,8 @@ search index only (``search_keys``, ``search_build_meta``).
    ones are:
 
    - ``forms.normalized_title`` to dictionary normalized-title lookups when
-     ``forms.entry_id`` is populated at morphology build
+     ``forms.entry_id`` is populated during dictionary build morphology
+     regeneration
    - ``lemma_morph_classes.(normalized_title, pos_id)`` to browse-time morph-class
      lookup when ``forms.morph_class_id`` is NULL
    - ``bt_edit_log`` targets dictionary entries by stored business fields rather
@@ -360,7 +346,7 @@ Provenance Matrix
      - Checked-in Wright markdown source used only by the explicit ingest
        command.
      - ``data/sources/wright.md``
-     - morphology, lexicon
+     - morphology, dictionary
      - Optional source for populating ``wright_sections.section_text``.
      - high for current use; lower for OCR history not re-proven here
 
@@ -379,41 +365,34 @@ Sink Matrix
    * - ``bt_entries``, ``bt_senses``, ``bt_variants``, ``bt_edit_log``
      - ``wyrdcraeft dictionary build``
      - ``BTIndexPipeline`` via ``BTSqliteSink``
-     - ``wyrdcraeft dictionary lookup``, ``wyrdcraeft lexicon build``
+     - ``wyrdcraeft dictionary query``, ``wyrdcraeft dictionary browse``
      - Canonical dictionary index plus editorial audit trail.
    * - ``forms``
-     - ``wyrdcraeft morphology build``
+     - ``wyrdcraeft dictionary build --with-morphology`` (or automatic regen when
+       ``forms`` is empty)
      - ``SqliteIndexSink``
-     - ``wyrdcraeft morphology query``, ``wyrdcraeft lexicon build``
+     - ``wyrdcraeft morphology query``, ``wyrdcraeft dictionary browse``
      - Canonical generated morphology form store.
    * - morph catalog tables
-     - ``wyrdcraeft morphology build``
+     - ``wyrdcraeft dictionary build --with-morphology``
      - ``MorphologyCatalogLoader``
-     - ``MorphologyCatalogQueryService``, lexicon browse
+     - ``MorphologyCatalogQueryService``, dictionary browse
      - Wright-backed reference catalog for class lookup.
    * - ``lemma_morph_classes``
-     - ``wyrdcraeft morphology build``
+     - ``wyrdcraeft dictionary build --with-morphology``
      - ``LemmaMorphClassAssigner``
-     - ``MorphologyCatalogQueryService``, lexicon browse
+     - ``MorphologyCatalogQueryService``, dictionary browse
      - Lemma-to-class assignments keyed by normalized title and POS.
    * - ``wright_sections.section_text``
-     - ``wyrdcraeft morphology ingest-wright-text``
+     - ``wyrdcraeft dictionary ingest-wright-text``
      - ``WrightSectionTextIngester``
-     - lexicon browse Wright modal
+     - dictionary browse Wright modal
      - Optional stored Wright paragraph text.
-   * - ``search_keys``, ``search_build_meta``
-     - ``wyrdcraeft lexicon build``
-     - ``rebuild_lexicon()`` via ``LexiconBuilder``
-     - ``wyrdcraeft lexicon browse``
-     - Derived search index over dictionary plus morphology; browse reads
-       ``bt_*`` and ``forms`` directly at query time.
 
 Reading Guide
 -------------
 
 - Start with :doc:`dictionary` if you want to see how Bosworth-Toller source
-  becomes structured lexical data.
+  becomes structured lexical data and how browse/search works.
 - Start with :doc:`morphology` if you want to see how lemma data becomes
   generated inflected forms and Wright-backed class metadata.
-- Start with :doc:`lexicon` if you want to see how browse/search is rebuilt
-  from the already-built dictionary and morphology layers.

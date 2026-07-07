@@ -1,8 +1,8 @@
-``wyrdcraeft morphology generate-reference-snapshots``
+``wyrdcraeft dictionary generate-reference-snapshots``
 =======================================================
 
 This command is a developer-only tool for generating deterministic compressed
-JSONL snapshots used by morphology reference tests.  A regular user should not
+JSONL snapshots used by morphology reference tests. A regular user should not
 need to use this command.
 
 Command usage
@@ -10,7 +10,7 @@ Command usage
 
 .. code-block:: bash
 
-    wyrdcraeft morphology generate-reference-snapshots [OPTIONS]
+    wyrdcraeft dictionary generate-reference-snapshots [OPTIONS]
 
 Options
 -------

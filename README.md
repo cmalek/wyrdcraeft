@@ -57,7 +57,7 @@ uv sync --dev
 
 ## Canonical database
 
-Morphology, dictionary, and lexicon data live in one SQLite file:
+Morphology and dictionary data live in one SQLite file:
 **`wyrdcraeft.sqlite3`** under the OS application-data directory (override with
 `WYRDCRAEFT_APP_DATA_DIR` or `app_data_dir` in `.wyrdcraeft.toml`).
 
@@ -69,16 +69,14 @@ canonical database; the CLI then prints a rebuild recipe.
 Rebuild from scratch:
 
 ```bash
-wyrdcraeft morphology build
-wyrdcraeft dictionary build --source data/oe_bt.txt
-wyrdcraeft lexicon build
+wyrdcraeft dictionary build --source data/oe_bt.txt --with-morphology
 ```
 
 ## Documentation
 
 Full documentation (installation, quickstart, CLI, Python client, configuration, FAQ): [https://wyrdcraeft.readthedocs.io](https://wyrdcraeft.readthedocs.io)
 
-For `wyrdcraeft lexicon browse`, the search field accepts direct Old English
+For `wyrdcraeft dictionary browse`, the search field accepts direct Old English
 characters including `æ Æ ð Ð þ Þ ā Ā ē Ē ī Ī ō Ō ū Ū ȳ Ȳ ǣ Ǣ ċ Ċ ġ Ġ`. On macOS
 with the `ABC Extended` keyboard layout, those keys are supported directly in
 the browse input; on other terminals or keyboard layouts, direct typing may

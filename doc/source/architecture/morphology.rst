@@ -138,7 +138,7 @@ That means:
 
 - build can succeed without stored section prose
 - class assignment can succeed without stored section prose
-- lexicon browse can still work without stored section prose
+- dictionary browse can still work without stored section prose
 - only Wright excerpt display is degraded when prose has not been ingested
 
 Related Work and Alternatives

@@ -1109,12 +1109,11 @@ def _build_adjective_degree_section(
     if not cells:
         return None
     case_order: tuple[str, ...] = ("Nom", "Acc", "Gen", "Dat")
-    if any(cells.get((case, column)) for case in ("Inst",) for column in (
-        "Masc sg",
-        "Fem sg",
-        "Neut sg",
-        "Plural",
-    )):
+    if any(
+        cells.get((case, column))
+        for case in ("Inst",)
+        for column in ("Masc sg", "Fem sg", "Neut sg", "Plural")
+    ):
         case_order = (*case_order, "Inst")
     table_rows = tuple(
         (
@@ -1188,12 +1187,11 @@ def _build_pronoun_sidebar(rows: list[MorphologyRowPayload]) -> ParadigmSidebarS
             )
         )
     case_order: tuple[str, ...] = ("Nom", "Acc", "Gen", "Dat")
-    if any(cells.get((case, column)) for case in ("Inst",) for column in (
-        "Masc sg",
-        "Fem sg",
-        "Neut sg",
-        "Plural",
-    )):
+    if any(
+        cells.get((case, column))
+        for case in ("Inst",)
+        for column in ("Masc sg", "Fem sg", "Neut sg", "Plural")
+    ):
         case_order = (*case_order, "Inst")
     table_rows = tuple(
         (

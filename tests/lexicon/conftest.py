@@ -11,13 +11,6 @@ from wyrdcraeft.cli import (
     cli as _cli,  # noqa: F401 - ensure CLI loaded before generation imports
 )
 from wyrdcraeft.db.runtime import upgrade_canonical_db
-from wyrdcraeft.services.lexicon.schema import (
-    KEY_KIND_FORM,
-    KEY_KIND_LEMMA,
-    META_KEY_BUILT_AT,
-    RANK_TIER_EXACT_ENTRY,
-    RANK_TIER_ORPHAN,
-)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -182,37 +175,6 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                     noun_pos_id,
                     nominative_code_id,
                 ),
-            ],
-        )
-        connection.executemany(
-            """
-            INSERT INTO search_keys (
-                key_text,
-                key_kind,
-                rank_tier,
-                entry_id,
-                form_id,
-                display_text
-            ) VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            [
-                ("abbod", KEY_KIND_LEMMA, RANK_TIER_EXACT_ENTRY, 1, None, "abbod"),
-                (
-                    "orphan-form",
-                    KEY_KIND_FORM,
-                    RANK_TIER_ORPHAN,
-                    None,
-                    11,
-                    "orphan-form",
-                ),
-            ],
-        )
-        connection.executemany(
-            """
-            INSERT INTO search_build_meta (key, value) VALUES (?, ?)
-            """,
-            [
-                (META_KEY_BUILT_AT, "2026-06-28T00:00:00Z"),
             ],
         )
         connection.commit()

@@ -35,19 +35,16 @@ Basic Help
 
     # Old English morphology commands
     wyrdcraeft morphology --help
-    wyrdcraeft morphology build --help
     wyrdcraeft morphology query --help
-    wyrdcraeft morphology generate-reference-snapshots --help
 
     # Bosworth-Toller dictionary commands
     wyrdcraeft dictionary --help
     wyrdcraeft dictionary build --help
-    wyrdcraeft dictionary lookup abbod --help
-
-    # Lexicon browse workflow commands
-    wyrdcraeft lexicon --help
-    wyrdcraeft lexicon build --help
-    wyrdcraeft lexicon browse --help
+    wyrdcraeft dictionary generate-reference-snapshots --help
+    wyrdcraeft dictionary query abbod --help
+    wyrdcraeft dictionary browse --help
+    wyrdcraeft dictionary ingest-wright-text --help
+    wyrdcraeft dictionary audit-wright --help
 
 Command Structure
 -----------------
@@ -118,5 +115,4 @@ The following pages document the CLI commands in detail:
    command_morphology_generate_reference_snapshots
    command_dictionary_index_bt
    command_dictionary_lookup
-   command_lexicon_build
-   command_lexicon_browse
+   command_dictionary_browse

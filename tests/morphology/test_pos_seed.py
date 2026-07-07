@@ -33,7 +33,7 @@ INFLECTION_CODES_FIXTURE = (
 #: Snapshot directory containing current morphology output samples.
 SNAPSHOT_DATA_DIR = REPO_ROOT / "tests/morphology/data"
 #: Direct module path used to avoid lexicon package import-cycle side effects.
-FORM_DECODE_PATH = REPO_ROOT / "wyrdcraeft/services/lexicon/form_decode.py"
+FORM_DECODE_PATH = REPO_ROOT / "wyrdcraeft/services/dictionary/form_decode.py"
 
 _FORM_DECODE_SPEC = importlib.util.spec_from_file_location(
     "_test_form_decode_module",

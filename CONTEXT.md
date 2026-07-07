@@ -11,7 +11,7 @@ Primary capabilities:
 - restore and disambiguate diacritics
 - build and query Old English morphology
 - index and query Bosworth-Toller dictionary data
-- browse dictionary and morphology together via the lexicon workflow
+- browse dictionary entries with linked morphology via `dictionary browse`
 - run Old English OCR workflows for source PDFs
 - load configuration for CLI and service behavior
 
@@ -24,7 +24,7 @@ In scope:
 - source ingestion from text, TEI, and OCR-derived text
 - morphology generation and lookup
 - dictionary indexing and lookup
-- lexicon browse: unified lemma/stem/form search over morphology plus Bosworth-Toller
+- dictionary browse: query-time headword and variant search over Bosworth-Toller with morphology sidebar
 - diacritic restoration and curation
 - OCR pipeline support for Old English PDFs
 - CLI-first workflows with Python entrypoints underneath
@@ -42,9 +42,8 @@ Out of scope:
 |-------|----------|----------|
 | ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
-| morphology | `wyrdcraeft morphology build` (legacy), `wyrdcraeft morphology query`, `wyrdcraeft morphology ingest-wright-text`, `wyrdcraeft morphology audit-wright` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler`, `MorphologyCatalogLoader`, `LemmaMorphClassAssigner`, `MorphologyCatalogQueryService`, `WrightSectionTextIngester`, `WrightAuditService` |
-| dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline` |
-| lexicon | `wyrdcraeft lexicon build` (legacy), `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `WrightSectionTextScreen`, `form_decode`, `OldEnglishSearchInput` |
+| morphology | `wyrdcraeft morphology query` | `MorphologyQueryService`, `MorphologyCatalogQueryService` |
+| dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary query`, `wyrdcraeft dictionary browse`, `wyrdcraeft dictionary ingest-wright-text`, `wyrdcraeft dictionary audit-wright` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline`, `DictionaryBrowseQueryService`, `DictionaryBrowseApp`, `WrightSectionTextScreen`, `WrightSectionTextIngester`, `WrightAuditService`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
@@ -60,11 +59,10 @@ Out of scope:
   forms (optional TSV via `--output`); typically triggered by
   `dictionary build --with-morphology` or automatically when `forms` is empty
 - build command: standard subcommand name for long-running database-producing
-  workflows; `dictionary build` is the primary entrypoint for unified
-  indexing, while `lexicon build` (search index only) is legacy
+  workflows; `dictionary build` is the primary entrypoint for unified indexing
 - canonical database: the one app-data `wyrdcraeft.sqlite3` file that holds
-  morphology (`forms`), attached dictionary (`bt_*`), and derived search index
-  (`search_keys`, `search_build_meta`) data for the product's lookup workflows
+  morphology (`forms`), attached dictionary (`bt_*`), and Wright morph catalog
+  tables for the product's lookup workflows
 - morphology index: morphology data stored inside canonical `wyrdcraeft.sqlite3`
   database rather than a standalone morphology-only file
 - dictionary index: attached `bt_*` tables inside canonical `wyrdcraeft.sqlite3`
@@ -73,52 +71,28 @@ Out of scope:
 - morphology SQLAlchemy slice: Phase 7 migration that moved `forms` writes and
   reads from direct `sqlite3` code to SQLAlchemy Core bulk insert plus
   SQLAlchemy query paths while preserving emitted ordering semantics
-- lexicon: combined dictionary-plus-morphology user workflow presented as one
-  browse/search surface
-- lexicon read model: slim derived search index inside `wyrdcraeft.sqlite3`
-  only — `search_keys` (ranked lookup keys with optional `entry_id` /
-  `form_id` foreign keys) and `search_build_meta` (build metadata such as
-  source row counts). Rebuilt by `wyrdcraeft lexicon build` from existing
-  `forms` and `bt_*` rows. No projection tables (`lexicon_entries` /
-  `lexicon_forms` were dropped in Phase C). Browse resolves entry and form
-  details from `bt_*`, `forms`, and reference joins at query time.
-- search index: Alembic-managed `search_keys` plus `search_build_meta`; ranked
-  lemma/stem/form keys for browse lookup — not a duplicate of dictionary or
-  morphology tables
+- dictionary browse: Textual shell for query-time dictionary search plus
+  morphology sidebar details for the selected entry
+- dictionary browse search: 12-tier headword-and-variant ranking ladder
+  implemented by `DictionaryBrowseQueryService` querying `bt_entries` and
+  `bt_variants` directly; no derived search-index tables
 - normalized forms schema: Phase D (Alembic `20260706_04`) dropped legacy
   denormalized string columns from `forms` (`wordclass`, `function`, `wright`,
   `paradigm`, `paraID`, `class1`–`class3`). Persisted morphology metadata uses
   foreign keys (`wordclass_id`, `inflection_code_id`, `morph_class_id`,
   `entry_id`) plus materialized `*_key` lookup columns; product read paths join
   `parts_of_speech`, `inflection_codes`, and `morph_classes` for labels
-- lexicon SQLAlchemy rebuild slice: post–Phase 8 work (commit `64c6223`) that moved
-  `lexicon build` to SQLAlchemy Core batched reads/writes with no raw `sqlite3`,
-  no TEMP staging tables, and cooperative cancel via DBAPI `interrupt`; join
-  resolver extraction remains pending in Slice 2
-- lexicon table DDL: Alembic-owned only (`20260630_01` initial schema plus later
-  revisions); `lexicon build` **truncates** existing `search_keys` and
-  `search_build_meta` rows and repopulates them — it does not drop, recreate, or
-  patch table shape
-- lexicon staleness: compares stored source row counts (`forms`, `bt_entries`)
-  against current counts; **no** lexicon `schema_version` meta key — app DDL
-  changes are handled by startup Alembic migrations, often with in-migration
-  backfill, without forcing a full read-model rebuild
-- lexicon build: legacy command that rebuilt the search index only
-  (`search_keys`, `search_build_meta`); now superseded by the unified
-  `dictionary build` workflow
 - dictionary build: primary unified build command that rebuilds `bt_*`
   tables, relinks `forms.entry_id`, and optionally regenerates morphology
   when requested or when the `forms` table is empty
 - entry_id relink: post-build step in the unified dictionary pipeline that
   populates `forms.entry_id` foreign keys by joining morphology lemmas to
   newly indexed dictionary entries
-- orphan morphology hit: morphology match that does not join to a real
-  dictionary entry and is shown outside the main lemma result list
 - norm_key: diacritic-stripped normalized Old English key used for generic
   dictionary lookup and deduplication
 - normalized_title: macron- and dot-preserving normalized lemma/headword title
   used to join morphology ``forms`` rows with Bosworth-Toller ``bt_entries``
-  and ``bt_variants`` at lexicon build time; distinct from ``norm_key``, which
+  and ``bt_variants`` at dictionary build / relink time; distinct from ``norm_key``, which
   strips combining marks
 - normalized title join index: in-memory maps built at join time to match
   morphology lemma titles to dictionary entries using macron-preserving
@@ -127,13 +101,13 @@ Out of scope:
   ``resolve_one`` picks a single dictionary entry when the tier policy yields
   one unambiguous match, while ``resolve_all`` returns every matching entry id
   for dictionary browse and multi-hit lookups
-- lexicon browse search normalization: user queries and dictionary search-key
-  indexing use ``normalize_old_english`` (diacritic-stripped) so undiacritized
-  input like ``abbod`` matches macronized headwords; form-to-entry linking uses
-  ``forms.entry_id`` (declared foreign key populated at morphology build via
-  ``normalized_title`` join policy), and browse resolves entry and form details
-  from ``bt_*``, ``forms``, and reference joins through ``search_keys`` at
-  query time
+- dictionary browse search normalization: user queries use
+  ``normalize_old_english``, ``normalize_morphology_title``, and
+  ``BTSpellingNormalizer`` consistently with dictionary indexing so
+  undiacritized input like ``abbod`` matches macronized headwords; form-to-entry
+  linking uses ``forms.entry_id`` (populated after dictionary build via
+  ``FormsEntryRelinker``), and browse resolves entry and morphology details from
+  ``bt_*``, ``forms``, and reference joins at query time
 - parts of speech: canonical reference row naming the grammatical class of a
   lemma or dictionary entry (noun, verb, adjective, and related closed classes)
 - parts of speech: canonical `parts_of_speech` reference table; single POS
@@ -147,7 +121,8 @@ Out of scope:
   build and joined at query time via `forms.inflection_code_id`
 - Wright morph catalog: reference tables in canonical SQLite seeded from
   `wyrdcraeft/etc/morphology/wright_paradigms.json` (113 morph classes, Wright
-  § links, bibliographic sources); auto-seeded on morphology build when empty
+  § links, bibliographic sources); auto-seeded during dictionary build morphology
+  regeneration when empty
 - morph class: reusable Wright inflection class row in `morph_classes` keyed by
   dot-id `class_key` (for example `noun.masculine.a_stem`)
 - lemma morph assignment: `lemma_morph_classes` row mapping
@@ -160,25 +135,27 @@ Out of scope:
 - LemmaMorphClassSummary: browse-oriented morph-class payload on
   `EntryDetails.morph_class` (display label, provenance, Wright § list, or
   explicit `Unclassified`)
-- Wright section text ingest: explicit `morphology ingest-wright-text` command
+- Wright section text ingest: explicit `dictionary ingest-wright-text` command
   that parses `§ N` headings from markdown into `wright_sections.section_text`
   (idempotent; `--force` overwrites); not run automatically on build
-- Wright legacy audit: report-only `morphology audit-wright` command comparing
+- Wright legacy audit: report-only `dictionary audit-wright` command comparing
   bundled source `wright` fields to deterministic `lemma_morph_classes`
   assignments; optional `--json`; never rewrites source files
 - browse morph-class block: dictionary detail pane shows catalog class label,
   assignment provenance, and selectable Wright § citations via join-at-read-time
-  lookup (no lexicon-table denormalization in v1)
+  lookup
 - morphology table: browse sidebar view that expands function codes into
   POS-aware paradigm grids (verb/noun/adjective/pronoun) filtered to the
   headword's part of speech; falls back to a flat table when no grid applies
 - paradigm grid: case-by-number or person-by-number table built from morphology
   function codes; instrumental forms use code `Is` displayed as `Inst`
 - lexical distance: Levenshtein distance between normalized query and candidate
-  text; lexicon browse uses it to sort search results after rank tier and key kind
-- Old English search bar: lexicon browse input (`OldEnglishSearchInput`) with
+  text; dictionary browse uses it to sort search results after rank tier
+- Old English search bar: dictionary browse input (`OldEnglishSearchInput`) with
   keyboard entry as the primary path; optional character bar below the field
   inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
+- dictionary query: CLI name for consolidated Bosworth-Toller lookup by lemma
+  or variant; `dictionary lookup` remains a hidden deprecated alias
 - startup database readiness: mandatory startup step that ensures canonical
   `wyrdcraeft.sqlite3` exists at expected schema before any DB-using command
   reads or writes it
@@ -200,11 +177,7 @@ Out of scope:
   commands instead of trying in-place rename or migration
 - POS inference: dictionary build step that fills empty dictionary POS from
   unambiguous morphology `wordclass_id` when one clear mapping exists
-- lexicon build progress: live stderr stage progress during `lexicon build`
-- lexicon build monitor: default full-screen Textual monitor for `lexicon build`
-  showing typed stage progress, counters, structured logs, and cooperative
-  cancel state
-- lexicon browse startup progress: live stderr progress while opening browse
+- dictionary browse startup progress: live stderr progress while opening browse
   tables before the Textual shell appears
 - OCR proxy: local OpenAI-compatible proxy used to clamp and normalize OCR model traffic
 - app-data directory: OS-specific writable directory for default SQLite outputs
@@ -223,7 +196,7 @@ Out of scope:
     `docs/superpowers/handoffs/2026-07-03-lexicon-slice1-session-state.md`
   - Slice 2 **complete** (`564e927`): shared `NormalizedTitleJoinIndex`
     unifies morphology↔dictionary joins; removed duplicated join SQL from
-    lexicon build and `BTQueryService`; plan at
+    dictionary build paths and `BTQueryService`; plan at
     `docs/superpowers/plans/2026-07-03-lexicon-sqlalchemy-normalized-title-join.md`
 - Phase 1 (`fa34e5f`): canonical `wyrdcraeft.sqlite3` path and shared DB base
 - Phase 2 (`b21d0a4`): Alembic startup runtime, backup/restore, readiness gate
@@ -272,17 +245,17 @@ Out of scope:
 - **Morph-class browse + Wright audit plan** (2026-07-04, commits
   `790785c`–`f126c38`; plan at
   `docs/superpowers/plans/2026-07-04-morph-class-browse-audit-implementation.md`):
-  - **Phase 1** (`790785c`): lexicon browse dictionary detail shows catalog
+  - **Phase 1** (`790785c`): dictionary browse detail shows catalog
     morph class, provenance, and Wright § list (or explicit `Unclassified`) via
     join-at-read-time; `LemmaMorphClassSummary` + shared display formatter
   - **Phase 2** (`06d9b92`): `WrightSectionTextIngester` +
-    `morphology ingest-wright-text`; `lookup_wright_section_text()` on catalog
+    `dictionary ingest-wright-text`; `lookup_wright_section_text()` on catalog
     query service
   - **Phase 3** (`cba8785`): selectable Wright § list in browse detail;
     `WrightSectionTextScreen` modal reads SQLite text or shows ingest-needed
     message
   - **Phase 4** (`f126c38`): `WrightAuditService` +
-    `morphology audit-wright` (malformed legacy Wright, contradictions,
+    `dictionary audit-wright` (malformed legacy Wright, contradictions,
     unclassified, blank-but-classified); report-only v1
   - Session reports under `doc/sessions/task-phase{1,2,3,4}-*.md`
   - **Coverage gap:** bundled `data/sources/wright.md` currently has phonology
@@ -290,12 +263,16 @@ Out of scope:
     ingested
 - **Normalized canonical schema Phase C** (2026-07-06, through `a65e4a0`):
   dropped `lexicon_entries` / `lexicon_forms`; renamed `lexicon_search_keys` →
-  `search_keys` and `lexicon_build_meta` → `search_build_meta`; `lexicon build`
-  rebuilds the search index only; browse reads `bt_*` and `forms` directly at
-  query time. Plan at `doc/plans/normalized-canonical-schema/phase-c-lexicon-shrink.md`.
+  `search_keys` and `lexicon_build_meta` → `search_build_meta` (later removed in
+  Phase B). Plan at `doc/plans/normalized-canonical-schema/phase-c-lexicon-shrink.md`.
+- **Unified dictionary workflow Phase B** (2026-07-07): dropped
+  `search_keys` / `search_build_meta`; moved browse to `dictionary browse` with
+  query-time 12-tier search; removed `lexicon` CLI group; moved Wright ingest/audit
+  to dictionary; renamed `dictionary lookup` → `dictionary query`. Plan at
+  `doc/plans/unified-dictionary-workflow/phase-b-dictionary-browse-and-cli.md`.
 - **Normalized canonical schema Phase D** (2026-07-06, through `e686c74`):
   Alembic `20260706_04` dropped legacy `forms` string columns; morphology sink,
-  query, lexicon build, and browse read POS, inflection, morph-class, and
+  query, dictionary build, and browse read POS, inflection, morph-class, and
   dictionary metadata via foreign keys and reference joins only. Architecture ER
   refreshed in `doc/source/architecture/index.rst`. Plan at
   `doc/plans/normalized-canonical-schema/phase-d-legacy-column-drop.md`.
@@ -308,40 +285,37 @@ Out of scope:
 
 ### Morphology generation
 
-`wyrdcraeft.cli.morphology:build` -> session/setup helpers -> paradigm assigners
--> Wright catalog seed (`MorphologyCatalogLoader.ensure_seeded`) -> lemma morph
-class assignment (`LemmaMorphClassAssigner.assign_all`) -> generation dispatch
--> optional TSV sink and SQLAlchemy-backed batched `SqliteIndexSink` ->
-`forms` plus catalog tables in `wyrdcraeft.sqlite3`. Default build is
-SQLite-only; pass `--output` for TSV. Use `--profile` for stderr stage/setup/sqlite_flush
-timings. Use `--refresh-catalog` to reload `wright_paradigms.json` into catalog
-tables. Wright paragraph text is **not** ingested during build; run
-`morphology ingest-wright-text` separately when markdown corpus is ready.
+`wyrdcraeft.cli.dictionary:build` (with `--with-morphology` or when `forms` is
+empty) -> session/setup helpers -> paradigm assigners -> Wright catalog seed
+(`MorphologyCatalogLoader.ensure_seeded`) -> lemma morph class assignment
+(`LemmaMorphClassAssigner.assign_all`) -> generation dispatch -> optional TSV
+sink and SQLAlchemy-backed batched `SqliteIndexSink` -> `forms` plus catalog
+tables in `wyrdcraeft.sqlite3`. Default build is SQLite-only; pass `--output` for
+TSV. Use `--profile` for stderr stage/setup/sqlite_flush timings. Use
+`--refresh-catalog` to reload `wright_paradigms.json` into catalog tables.
+Wright paragraph text is **not** ingested during build; run
+`dictionary ingest-wright-text` separately when markdown corpus is ready.
 
 ### Dictionary indexing
 
-`wyrdcraeft.cli.dictionary:build` -> `BTIndexPipeline.run` -> SQLAlchemy-backed
-dictionary sink -> attached `bt_*` tables in `wyrdcraeft.sqlite3`
+`wyrdcraeft.cli.dictionary:build` -> `DictionaryBuildPipeline` or `BTIndexPipeline.run`
+-> SQLAlchemy-backed dictionary sink -> attached `bt_*` tables in
+`wyrdcraeft.sqlite3` -> `FormsEntryRelinker` repopulates `forms.entry_id`
 
-### Lexicon browse
+### Dictionary browse
 
-`wyrdcraeft.cli.lexicon:build` -> startup Alembic-managed schema must already
-exist -> `rebuild_lexicon` truncates and repopulates `search_keys` and
-`search_build_meta` via SQLAlchemy Core (optional POS inference on `bt_entries`,
-worker-thread runtime + typed build events -> default Textual build monitor or
-plain `--no-tui` renderer)
+`wyrdcraeft.cli.dictionary:browse` -> startup progress ->
+`DictionaryBrowseQueryService` (composes shared-engine
+`MorphologyCatalogQueryService` for morph-class and Wright § text lookup) ->
+Textual `DictionaryBrowseApp` with search bar at top, results pane left,
+details plus POS-filtered paradigm grids right. Dictionary detail shows catalog
+morph class / provenance / selectable Wright § citations; selecting a § opens
+`WrightSectionTextScreen` modal from stored `wright_sections.section_text` or
+an explicit ingest-needed message.
 
-`wyrdcraeft.cli.lexicon:browse` -> startup progress -> `LexiconQueryService`
-(composes shared-engine `MorphologyCatalogQueryService` for morph-class and
-Wright § text lookup) -> Textual `LexiconBrowseApp` with search bar at top,
-results pane left, details plus POS-filtered paradigm grids right. Dictionary
-detail shows catalog morph class / provenance / selectable Wright § citations;
-selecting a § opens `WrightSectionTextScreen` modal from stored
-`wright_sections.section_text` or an explicit ingest-needed message.
-
-Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with `forms`,
-`bt_*`, and empty or populated `search_keys` / `search_build_meta` tables (from
-morphology build, dictionary build, and startup readiness).
+Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
+`bt_*` tables (from dictionary build) and `forms` rows (from
+`dictionary build --with-morphology` or automatic regen when `forms` is empty).
 
 ### OCR workflow
 
@@ -355,17 +329,17 @@ morphology build, dictionary build, and startup readiness).
   `isolated_morphology_app_data` or explicit temp paths.
 - Morphology build no longer writes TSV unless `--output` is passed; the
   default artifact is the canonical SQLite index only.
-- Use `wyrdcraeft morphology build --profile` to print stage wall times,
-  setup steps, and cumulative `sqlite_flush` seconds to stderr.
+- Use `wyrdcraeft dictionary build --with-morphology --profile` to print stage
+  wall times, setup steps, and cumulative `sqlite_flush` seconds to stderr.
 - Wright morph catalog seeds on first build when catalog tables are empty;
   `--refresh-catalog` forces reload from `wright_paradigms.json`.
 - Lemma morph class assignment runs on dictionary-loaded lemmas before form
   generation; verb-generated participles added to `session.adjectives` during
   generation are not assigned until a later phase.
 - Canonical morph-class truth is `lemma_morph_classes`, not legacy source
-  `wright` cells; use `morphology audit-wright` to report source-field quality.
+  `wright` cells; use `dictionary audit-wright` to report source-field quality.
 - Wright section paragraph text requires explicit
-  `morphology ingest-wright-text`; bundled `data/sources/wright.md` currently
+  `dictionary ingest-wright-text`; bundled `data/sources/wright.md` currently
   covers phonology §1–58 only, so inflection §330+ citations show an ingest-needed
   message in browse until a fuller corpus is ingested.
 - Morphology form rows store `morph_class_id` when assigned at build time;
@@ -374,34 +348,16 @@ morphology build, dictionary build, and startup readiness).
 - Dictionary indexing now writes `bt_*` through SQLAlchemy-backed persistence
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
-- Lexicon build defaults to the same `wyrdcraeft.sqlite3` path and fails clearly if
-  required source or Alembic-managed search-index tables are missing.
-- Lexicon build refuses to overwrite existing search-index data unless `--force` is
-  passed; the build can take ~30 minutes when source data is large.
-- Lexicon build truncates `search_keys` and `search_build_meta` rows in place;
-  table DDL comes from Alembic, not from the rebuild job. App upgrades should
-  migrate schema via Alembic (often with backfill) without requiring a full
-  search-index rebuild for additive DDL.
-- Lexicon staleness is based on source table row counts only, not a lexicon
-  schema version constant.
-- Lexicon build now launches a full-screen Textual monitor by default on an
-  interactive terminal; use `--no-tui` for the plain renderer and `--quiet`
-  for final-summary-only output.
-- Lexicon build stages stream typed progress through a worker-thread runtime.
-  Single-step stages such as `verify sources` emit an explicit terminal
-  progress event so the monitor does not appear stuck at `0/1`.
-- Lexicon browse v1 is read-only; run `wyrdcraeft lexicon build` (search index
-  only) after morphology or dictionary **source data** changes, not after routine
-  Alembic DDL upgrades.
-- Lexicon browse and build expect the canonical Alembic-managed schema; startup
-  database readiness applies migrations before DB-using commands run.
-- Lexicon build may infer missing dictionary POS from morphology `wordclass_id`
-  when unambiguous; ambiguous lemmas stay POS-empty.
-- Lexicon browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
+- Dictionary browse v1 is read-only; run `wyrdcraeft dictionary build` after
+  dictionary source changes and ensure `forms` is current via
+  `dictionary build --with-morphology`.
+- Dictionary browse and build expect the canonical Alembic-managed schema;
+  startup database readiness applies migrations before DB-using commands run.
+- Dictionary browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
   dotted letters when the search field is focused; the character bar below the
   field is a fallback for terminals that cannot emit those keys.
-- Lexicon browse search results sort by rank tier and key kind, then lexical
-  distance from the query string.
+- Dictionary browse search results sort by rank tier, then lexical distance from
+  the query string.
 - Morphology sidebar shows only forms matching the headword POS and renders
   paradigm grids from inflection codes (via `inflection_code_id` joins);
   scrollable details and morphology panes share the right column below the
@@ -426,8 +382,7 @@ morphology build, dictionary build, and startup readiness).
 
 - [0001: Lexicon data lives in morphology.sqlite3](docs/adr/0001-lexicon-data-lives-in-morphology-db.md)
   — **historical**; superseded by the canonical `wyrdcraeft.sqlite3` migration
-  (Phases 1–8). Search-index tables (`search_keys`, `search_build_meta`) now
-  live in the same canonical DB and are Alembic-managed.
+  (Phases 1–8) and the unified dictionary workflow (Phase B).
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

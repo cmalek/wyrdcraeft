@@ -19,11 +19,21 @@ from wyrdcraeft.services.morphology.progress import (
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
-    assert "audit-wright" in result.output
+    assert "audit-wright" not in result.output
     assert "build" not in result.output
     assert "query" in result.output
-    assert "generate-reference-snapshots" in result.output
-    assert "ingest-wright-text" in result.output
+    assert "generate-reference-snapshots" not in result.output
+    assert "ingest-wright-text" not in result.output
+
+
+def test_morphology_wright_commands_moved_to_dictionary(runner) -> None:
+    ingest = runner.invoke(cli, ["morphology", "ingest-wright-text", "--help"])
+    assert ingest.exit_code != 0
+    assert "No such command 'ingest-wright-text'" in ingest.output
+
+    audit = runner.invoke(cli, ["morphology", "audit-wright", "--help"])
+    assert audit.exit_code != 0
+    assert "No such command 'audit-wright'" in audit.output
 
 
 def test_morphology_build_command_moved_to_dictionary(runner) -> None:
@@ -44,13 +54,6 @@ def test_morphology_query_help(runner) -> None:
     assert "--db" in result.output
     assert "--lemma" in result.output
     assert "--form" in result.output
-
-
-def test_morphology_ingest_wright_text_help(runner) -> None:
-    result = runner.invoke(cli, ["morphology", "ingest-wright-text", "--help"])
-    assert result.exit_code == 0
-    assert "--source" in result.output
-    assert "--force" in result.output
 
 
 def test_morphology_query_requires_exactly_one_lookup_mode(runner, tmp_path) -> None:
@@ -169,12 +172,3 @@ def test_progress_coordinator_setup_descriptions() -> None:
     )
 
     assert description == "setup | count syllables"
-
-
-def test_morphology_generate_reference_snapshots_help(runner) -> None:
-    result = runner.invoke(
-        cli,
-        ["morphology", "generate-reference-snapshots", "--help"],
-    )
-    assert result.exit_code == 0
-    assert "--include-full" in result.output

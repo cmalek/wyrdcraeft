@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint, text
+from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from wyrdcraeft.db.base import Base
@@ -140,6 +140,10 @@ class BTSense(Base):
 
     #: Canonical Bosworth-Toller senses table name.
     __tablename__ = "bt_senses"
+    #: Lookup index for ordered first-sense reads by dictionary entry.
+    __table_args__ = (
+        Index("idx_bt_senses_entry_order", "entry_id", "order_index", "id"),
+    )
 
     #: Surrogate sense identifier.
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -202,53 +206,3 @@ class BTEditLog(Base):
     applied: Mapped[int] = mapped_column(nullable=False)
     #: Human-readable edit note.
     note: Mapped[str] = mapped_column(Text, nullable=False)
-
-
-class SearchKey(Base):
-    """Canonical normalized search key row for lexicon browsing."""
-
-    #: Canonical search keys table name.
-    __tablename__ = "search_keys"
-    #: Lookup and deduplication indexes for search keys.
-    __table_args__ = (
-        Index("idx_search_keys_key_text", "key_text"),
-        Index("idx_search_keys_entry_id", "entry_id"),
-        Index("idx_search_keys_form_id", "form_id"),
-        Index(
-            "idx_search_keys_dedupe",
-            text("TRIM(key_text)"),
-            "key_kind",
-            "rank_tier",
-            text("COALESCE(entry_id, -1)"),
-            text("COALESCE(form_id, -1)"),
-            text("TRIM(display_text)"),
-            unique=True,
-        ),
-    )
-
-    #: Surrogate search-key identifier.
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    #: Normalized search key text.
-    key_text: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Search key kind label.
-    key_kind: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Search ranking tier.
-    rank_tier: Mapped[int] = mapped_column(nullable=False)
-    #: Optional joined dictionary entry identifier.
-    entry_id: Mapped[int | None] = mapped_column(ForeignKey("bt_entries.id"))
-    #: Optional joined morphology form identifier.
-    form_id: Mapped[int | None] = mapped_column(ForeignKey("forms.id"))
-    #: Display text shown for search hits.
-    display_text: Mapped[str] = mapped_column(Text, nullable=False)
-
-
-class SearchBuildMeta(Base):
-    """Canonical search-index build metadata key/value row."""
-
-    #: Canonical search build metadata table name.
-    __tablename__ = "search_build_meta"
-
-    #: Metadata key.
-    key: Mapped[str] = mapped_column(Text, primary_key=True)
-    #: Metadata value.
-    value: Mapped[str] = mapped_column(Text, nullable=False)

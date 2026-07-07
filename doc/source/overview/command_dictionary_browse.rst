@@ -1,27 +1,29 @@
-``wyrdcraeft lexicon browse``
-===============================
+``wyrdcraeft dictionary browse``
+====================================
 
-This command opens a read-only Textual browse shell for unified lexicon search
-over the ``lexicon_*`` read-model inside the canonical ``wyrdcraeft.sqlite3``
-database.
+This command opens a read-only Textual browse shell for dictionary search over
+``bt_entries`` and ``bt_variants`` inside the canonical ``wyrdcraeft.sqlite3``
+database. Search runs at query time with a 12-tier headword-and-variant ranking
+ladder; morphology sidebar details load from ``forms`` and catalog tables for
+the selected entry.
 
 The TUI is browse-only in v1: there are no edit or provenance-editing flows.
 
 Prerequisites
 -------------
 
-Run :doc:`command_lexicon_build` first. The browse shell requires populated
-``lexicon_entries`` and ``lexicon_search_keys`` tables.
+Run :doc:`command_dictionary_index_bt` first. The browse shell requires
+populated ``bt_entries``, ``bt_senses``, and ``bt_variants`` tables.
 
 If those tables are missing or empty, the command fails with guidance to run
-``wyrdcraeft lexicon build``.
+``wyrdcraeft dictionary build``.
 
 Command usage
 -------------
 
 .. code-block:: bash
 
-    wyrdcraeft lexicon browse [OPTIONS]
+    wyrdcraeft dictionary browse [OPTIONS]
 
 Options
 -------
@@ -45,16 +47,22 @@ The shell uses a simple two-pane layout:
 
 - top search box (search runs on Enter only)
 - left results pane for dictionary entries
-- lower orphan section for morphology-only matches
-- right details pane with summary sense, full senses, etymology, and grouped
-  morphology rows
+- right details pane with summary sense, full senses, etymology, morph-class
+  metadata, selectable Wright § citations, and POS-filtered morphology grids
 
-Search ranking:
+Search ranking (lower tier number = higher priority):
 
-1. exact dictionary lemma or variant hits
-2. morphology lemma or stem hits joined to a dictionary entry
-3. morphology form hits joined to a dictionary entry
-4. orphan morphology hits shown separately
+1. exact headword on ``bt_entries.headword``
+2. exact variant on ``bt_variants.spelling_macronized``
+3. headword ``normalized_title``
+4. variant ``normalized_title``
+5. headword ``norm_key`` (diacritic-stripped)
+6. variant norm key
+7.–12. prefix/suffix matches on display headword, variant spelling,
+   ``normalized_title``, and norm keys
+
+Within a tier, results sort by lexical distance, then headword. Browse returns
+dictionary entries only; there is no orphan morphology section.
 
 When exactly one dictionary entry matches, the details pane opens that entry
 immediately.
@@ -78,7 +86,7 @@ The browse shell accepts these characters:
 - ``ċ``, ``Ċ``
 - ``ġ``, ``Ġ``
 
-On macOS with the ``ABC Extended`` keyboard layout, ``wyrdcraeft lexicon browse``
+On macOS with the ``ABC Extended`` keyboard layout, ``wyrdcraeft dictionary browse``
 supports direct entry of those characters in the search box, including the
 dead-key compose paths for macrons and dotted letters.
 
@@ -91,29 +99,27 @@ use the fallback character buttons shown below the search field.
    :width: 100%
 
    ``textual keys`` on macOS ``ABC Extended`` shows the option-key events used
-   for direct Old English character entry in ``wyrdcraeft lexicon browse``.
+   for direct Old English character entry in ``wyrdcraeft dictionary browse``.
 
-Staleness hints
----------------
+Wright section text
+-------------------
 
-When source ``forms`` or ``bt_*`` row counts no longer match the stored build
-metadata, the browse shell shows a note suggesting ``wyrdcraeft lexicon build``.
-After a fresh build, the idle details pane shows the last ``built_at`` timestamp.
+Optional Wright paragraph text is loaded on demand when you select a § citation
+in the detail pane. Stored prose comes from
+``wyrdcraeft dictionary ingest-wright-text``; until that command has been run,
+the modal shows an ingest-needed message.
 
 Examples
 --------
 
 .. code-block:: bash
 
-    # Open browse against the default app-data morphology database
-    wyrdcraeft lexicon browse
-
     # Open browse against the default app-data database
-    wyrdcraeft lexicon browse
+    wyrdcraeft dictionary browse
 
 See also
 --------
 
-- :doc:`command_lexicon_build`
+- :doc:`command_dictionary_index_bt`
 - :doc:`command_morphology_query`
 - :doc:`command_dictionary_lookup`

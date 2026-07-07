@@ -12,9 +12,11 @@ from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import BTEntry
-from wyrdcraeft.services.lexicon.build import rebuild_lexicon
-from wyrdcraeft.services.lexicon.query import EntryDetails, LexiconQueryService
-from wyrdcraeft.services.lexicon.tui import _format_entry_details
+from wyrdcraeft.services.dictionary.browse_query import (
+    DictionaryBrowseQueryService,
+    EntryDetails,
+)
+from wyrdcraeft.services.dictionary.browse_tui import _format_entry_details
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.query import LemmaMorphClassSummary
 
@@ -107,7 +109,6 @@ def _insert_bt_entry(
 def test_get_details_includes_catalog_morph_class_and_unclassified(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="abbad",
@@ -123,7 +124,7 @@ def test_get_details_includes_catalog_morph_class_and_unclassified(
         catalog_pos="noun",
     )
 
-    service = LexiconQueryService(lexicon_source_db)
+    service = DictionaryBrowseQueryService(lexicon_source_db)
     try:
         noun_details = service.get_details(noun_entry_id)
         assert noun_details is not None
@@ -156,7 +157,6 @@ def test_get_details_includes_catalog_morph_class_and_unclassified(
 def test_get_details_maps_adj_to_catalog_adjective_lookup(
     lexicon_source_db: Path,
 ) -> None:
-    rebuild_lexicon(lexicon_source_db)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="gl\u00e6d",
@@ -171,7 +171,7 @@ def test_get_details_maps_adj_to_catalog_adjective_lookup(
         catalog_pos="adjective",
     )
 
-    service = LexiconQueryService(lexicon_source_db)
+    service = DictionaryBrowseQueryService(lexicon_source_db)
     try:
         details = service.get_details(entry_id)
         assert details is not None

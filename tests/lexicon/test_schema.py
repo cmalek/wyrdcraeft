@@ -8,18 +8,13 @@ from typing import TYPE_CHECKING
 import pytest
 
 from wyrdcraeft.db.runtime import DatabaseStartupRuntime, upgrade_canonical_db
-from wyrdcraeft.services import lexicon as lexicon_exports
-from wyrdcraeft.services.lexicon import schema as schema_module
-from wyrdcraeft.services.lexicon.schema import (
-    KEY_KIND_LEMMA,
-    RANK_TIER_EXACT_ENTRY,
-    SEARCH_TABLE_NAMES,
-)
 from wyrdcraeft.settings import Settings
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+
+DROPPED_SEARCH_TABLE_NAMES = frozenset({"search_keys", "search_build_meta"})
 
 EXPECTED_CANONICAL_TABLES = {
     "alembic_version",
@@ -28,8 +23,6 @@ EXPECTED_CANONICAL_TABLES = {
     "bt_senses",
     "bt_variants",
     "bt_edit_log",
-    "search_keys",
-    "search_build_meta",
 }
 
 EXPECTED_CANONICAL_INDEXES = {
@@ -47,10 +40,6 @@ EXPECTED_CANONICAL_INDEXES = {
     "idx_bt_entries_normalized_title",
     "idx_bt_variants_spelling",
     "idx_bt_variants_normalized_title",
-    "idx_search_keys_key_text",
-    "idx_search_keys_entry_id",
-    "idx_search_keys_form_id",
-    "idx_search_keys_dedupe",
 }
 
 EXPECTED_FORMS_COLUMNS = {
@@ -146,8 +135,7 @@ def test_fresh_canonical_db_has_expected_tables(tmp_path: Path) -> None:
         table_names = _table_names(connection)
 
     assert table_names >= EXPECTED_CANONICAL_TABLES
-    assert "search_keys" in table_names
-    assert "search_build_meta" in table_names
+    assert set(DROPPED_SEARCH_TABLE_NAMES).isdisjoint(table_names)
     assert "lexicon_entries" not in table_names
     assert "lexicon_forms" not in table_names
     assert "lexicon_search_keys" not in table_names
@@ -173,13 +161,13 @@ def test_fresh_canonical_db_has_expected_forms_columns(tmp_path: Path) -> None:
     assert DROPPED_FORMS_LEGACY_COLUMNS.isdisjoint(forms_columns)
 
 
-def test_alembic_upgrade_creates_expected_search_tables(
+def test_alembic_upgrade_drops_legacy_search_tables(
     lexicon_db_path: Path,
 ) -> None:
     with sqlite3.connect(lexicon_db_path) as connection:
         table_names = _table_names(connection)
 
-    assert set(SEARCH_TABLE_NAMES).issubset(table_names)
+    assert set(DROPPED_SEARCH_TABLE_NAMES).isdisjoint(table_names)
 
 
 def test_alembic_upgrade_is_idempotent(tmp_path: Path) -> None:
@@ -193,17 +181,6 @@ def test_alembic_upgrade_is_idempotent(tmp_path: Path) -> None:
         second_tables = _table_names(connection)
 
     assert first_tables == second_tables
-
-
-@pytest.mark.parametrize(
-    "attribute_name",
-    ["LEXICON_SCHEMA_DDL", "apply_lexicon_schema", "migrate_lexicon_schema", "create_lexicon_tables"],
-)
-def test_obsolete_lexicon_schema_compatibility_surface_is_removed(
-    attribute_name: str,
-) -> None:
-    assert not hasattr(schema_module, attribute_name)
-    assert not hasattr(lexicon_exports, attribute_name)
 
 
 def test_bt_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
@@ -252,56 +229,6 @@ def test_bt_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> Non
     assert row["headword"] == "cyning"
 
 
-def test_search_keys_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
-    connection = lexicon_db_connection
-    pos_id = _unknown_pos_id(connection)
-    connection.execute(
-        """
-        INSERT INTO bt_entries (
-            id,
-            norm_key,
-            headword,
-            normalized_title,
-            pos_id,
-            genders_json,
-            etymology,
-            see_also_json,
-            source_line_nos_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (7, "cyning", "cyning", "cyning", pos_id, "[]", "", "[]", "[]"),
-    )
-    connection.execute(
-        """
-        INSERT INTO search_keys (
-            key_text,
-            key_kind,
-            rank_tier,
-            entry_id,
-            form_id,
-            display_text
-        ) VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        ("cyning", KEY_KIND_LEMMA, RANK_TIER_EXACT_ENTRY, 7, None, "cyning"),
-    )
-    connection.commit()
-
-    row = connection.execute(
-        """
-        SELECT key_text, key_kind, rank_tier, entry_id, display_text
-        FROM search_keys
-        WHERE key_text = ?
-        """,
-        ("cyning",),
-    ).fetchone()
-
-    assert row is not None
-    assert row["key_kind"] == KEY_KIND_LEMMA
-    assert row["rank_tier"] == RANK_TIER_EXACT_ENTRY
-    assert row["entry_id"] == 7
-    assert row["display_text"] == "cyning"
-
-
 def test_orphan_form_without_entry_is_allowed(
     lexicon_db_connection: sqlite3.Connection,
 ) -> None:
@@ -339,8 +266,8 @@ def test_orphan_form_without_entry_is_allowed(
     assert entry_count == 0
 
 
-@pytest.mark.parametrize("table_name", SEARCH_TABLE_NAMES)
-def test_each_search_table_exists_after_alembic_upgrade(
+@pytest.mark.parametrize("table_name", sorted(DROPPED_SEARCH_TABLE_NAMES))
+def test_each_search_table_is_absent_after_alembic_upgrade(
     tmp_path: Path,
     table_name: str,
 ) -> None:
@@ -356,4 +283,4 @@ def test_each_search_table_exists_after_alembic_upgrade(
             (table_name,),
         ).fetchone()
 
-    assert exists is not None
+    assert exists is None

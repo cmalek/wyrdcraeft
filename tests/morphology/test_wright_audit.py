@@ -438,7 +438,7 @@ def test_morphology_audit_wright_cli_json_does_not_rewrite_source_files(
         result = runner.invoke(
             cli,
             [
-                "morphology",
+                "dictionary",
                 "audit-wright",
                 "--json",
                 "--data-dir",

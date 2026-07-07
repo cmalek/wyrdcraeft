@@ -1,15 +1,16 @@
-"""Textual shell for lexicon browse workflow."""
+"""Textual shell for dictionary browse workflow."""
 
 from __future__ import annotations
 
 import unicodedata
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Protocol, cast
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from textual import events
     from textual.binding import BindingType
+
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from textual.app import App, ComposeResult
@@ -17,8 +18,18 @@ from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
 
-from wyrdcraeft.services.lexicon.build import check_lexicon_staleness
-from wyrdcraeft.services.lexicon.form_decode import (
+from wyrdcraeft.services.dictionary.browse_progress import (
+    DictionaryBrowseStartupStage,
+    run_browse_startup_progress,
+)
+from wyrdcraeft.services.dictionary.browse_query import (
+    BrowseSearchHit,
+    DictionaryBrowseQueryService,
+    EntryDetails,
+    MorphologyGroup,
+    MorphologyRow,
+)
+from wyrdcraeft.services.dictionary.form_decode import (
     MorphologyRowPayload,
     ParadigmSidebarSpec,
     build_paradigm_sidebar,
@@ -26,23 +37,55 @@ from wyrdcraeft.services.lexicon.form_decode import (
     format_bt_gender_label,
     morphology_row_matches_pos,
 )
-from wyrdcraeft.services.lexicon.progress import (
-    LexiconBrowseStartupStage,
-    run_browse_startup_progress,
-)
-from wyrdcraeft.services.lexicon.query import (
-    EntryDetails,
-    LexiconQueryService,
-    MorphologyGroup,
-    MorphologyRow,
-    OrphanDetails,
-    OrphanHit,
-    SearchHit,
-)
 from wyrdcraeft.services.markup import normalize_old_english
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+class _MorphClassLike(Protocol):
+    """Structural morph-class payload used by browse detail formatters."""
+
+    #: Display label for the assigned morphology class.
+    display_label: str
+    #: Provenance label describing how the class was assigned.
+    assignment_source: str
+    #: Whether the entry remains unclassified in the catalog.
+    is_unclassified: bool
+
+
+class _SenseLike(Protocol):
+    """Structural dictionary sense payload used by browse detail formatters."""
+
+    #: Source sense label such as ``I`` or ``II``.
+    sense_label: str
+    #: English gloss text for the sense.
+    gloss_en: str
+
+
+class _EntryDetailsLike(Protocol):
+    """Structural detail payload accepted by shared browse text formatters."""
+
+    #: Dictionary headword for the selected entry.
+    headword: str
+    #: Part-of-speech label stored on the dictionary entry.
+    pos: str
+    #: Display variant spellings linked to the entry.
+    variants: list[str]
+    #: Gender markers stored on the dictionary entry.
+    genders: list[str]
+    #: Person markers inferred from morphology rows.
+    persons: list[str]
+    #: Number markers inferred from morphology rows.
+    numbers: list[str]
+    #: First non-empty gloss summary for the entry.
+    summary_sense: str
+    #: Ordered dictionary senses for the entry.
+    senses: list[_SenseLike]
+    #: Etymology text stored on the dictionary entry.
+    etymology: str
+    #: Catalog morph-class summary for the entry, when present.
+    morph_class: _MorphClassLike | None
 
 #: Insertable/searchable Old English characters plus button display text.
 _OE_BUTTONS: tuple[tuple[str, str], ...] = (
@@ -105,8 +148,8 @@ _OE_KEY_ALIASES = {
 }
 
 
-class LexiconBrowseDataError(RuntimeError):
-    """Raised when lexicon browse data is unavailable for the TUI shell."""
+class DictionaryBrowseDataError(RuntimeError):
+    """Raised when dictionary browse data is unavailable for the TUI shell."""
 
 
 class OldEnglishSearchInput(Input):
@@ -138,17 +181,16 @@ class OldEnglishSearchInput(Input):
             event.stop()
             event.prevent_default()
             return
-        if event.character is None:
-            if alias is not None:
-                if event.key in {"alt+a", "alt+w"}:
-                    self._pending_dead_key = alias
-                    event.stop()
-                    event.prevent_default()
-                    return
-                self.insert_text_at_cursor(alias)
+        if event.character is None and alias is not None:
+            if event.key in {"alt+a", "alt+w"}:
+                self._pending_dead_key = alias
                 event.stop()
                 event.prevent_default()
                 return
+            self.insert_text_at_cursor(alias)
+            event.stop()
+            event.prevent_default()
+            return
         await super()._on_key(event)
 
     def _on_paste(self, event: events.Paste) -> None:
@@ -181,7 +223,7 @@ class _MainResultItem(ListItem):
 
     """
 
-    def __init__(self, hit: SearchHit) -> None:
+    def __init__(self, hit: BrowseSearchHit) -> None:
         """
         Build one main-result list row with headword and POS labels.
 
@@ -191,28 +233,6 @@ class _MainResultItem(ListItem):
         """
         super().__init__(Static(_format_main_result_label(hit)))
         #: Search hit rendered in the main results list.
-        self.hit = hit
-
-
-class _OrphanResultItem(ListItem):
-    """
-    List row for one morphology-only orphan search hit.
-
-    Args:
-        hit: Orphan search hit rendered in the lower results section.
-
-    """
-
-    def __init__(self, hit: OrphanHit) -> None:
-        """
-        Build one orphan-result list row with lemma and morphology labels.
-
-        Args:
-            hit: Morphology-only search hit to display.
-
-        """
-        super().__init__(Static(_format_orphan_result_label(hit)))
-        #: Orphan search hit rendered in the lower results section.
         self.hit = hit
 
 
@@ -309,7 +329,7 @@ class WrightSectionTextScreen(ModalScreen[None]):
         self.app.pop_screen()
 
 
-def _format_main_result_label(hit: SearchHit) -> str:
+def _format_main_result_label(hit: BrowseSearchHit) -> str:
     """
     Format a main results row with headword and POS for homograph disambiguation.
 
@@ -326,26 +346,6 @@ def _format_main_result_label(hit: SearchHit) -> str:
     if hit.rank_tier > 1 and matched_norm and matched_norm != headword_norm:
         return f"{hit.matched_text} ({hit.headword}, {pos})"
     return f"{hit.headword} ({pos})"
-
-
-def _format_orphan_result_label(hit: OrphanHit) -> str:
-    """
-    Format an orphan results row with lemma and morphology labels.
-
-    Args:
-        hit: Morphology-only search hit.
-
-    Returns:
-        Single-line label for an orphan results list row.
-
-    """
-    wordclass = hit.wordclass.strip()
-    function = hit.function.strip()
-    if wordclass and function:
-        return f"{hit.lemma} [{wordclass}, {function}]"
-    if wordclass:
-        return f"{hit.lemma} [{wordclass}]"
-    return hit.lemma
 
 
 def _join_labels(labels: Iterable[str]) -> str:
@@ -435,8 +435,9 @@ def _filter_morphology_rows_for_entry(
     for row in pos_filtered:
         for candidate in (row.lemma, row.title):
             candidate_norm = normalize_old_english(candidate) or ""
-            if candidate_norm == headword_norm or candidate_norm.endswith(
-                headword_norm
+            if (
+                candidate_norm == headword_norm
+                or candidate_norm.endswith(headword_norm)
             ):
                 filtered.append(row)
                 break
@@ -584,7 +585,7 @@ def _format_pos_label(pos: str) -> str:
     return pos.strip() or "unknown"
 
 
-def _format_class_lines(details: EntryDetails) -> list[str]:
+def _format_class_lines(details: _EntryDetailsLike) -> list[str]:
     """
     Build catalog morph-class lines for the details pane.
 
@@ -604,26 +605,7 @@ def _format_class_lines(details: EntryDetails) -> list[str]:
     return lines
 
 
-def _ordered_distinct_classes(values: list[str]) -> list[str]:
-    """
-    Return ordered distinct non-empty class labels.
-
-    Args:
-        values: Candidate class labels.
-
-    Returns:
-        Ordered distinct class labels.
-
-    """
-    result: list[str] = []
-    for value in values:
-        candidate = value.strip()
-        if candidate and candidate not in result:
-            result.append(candidate)
-    return result
-
-
-def _format_entry_header_text(details: EntryDetails) -> str:
+def _format_entry_header_text(details: _EntryDetailsLike) -> str:
     """
     Build the metadata header block for one entry's details pane.
 
@@ -655,7 +637,7 @@ def _format_entry_header_text(details: EntryDetails) -> str:
     return "\n".join(lines)
 
 
-def _format_entry_body_text(details: EntryDetails) -> str:
+def _format_entry_body_text(details: _EntryDetailsLike) -> str:
     """
     Build the narrative body block for one entry's details pane.
 
@@ -693,7 +675,7 @@ def _format_entry_body_text(details: EntryDetails) -> str:
     return "\n".join(lines)
 
 
-def _format_entry_details(details: EntryDetails) -> str:
+def _format_entry_details(details: _EntryDetailsLike) -> str:
     """
     Format dictionary entry details with summary sense before the full sense list.
 
@@ -711,42 +693,12 @@ def _format_entry_details(details: EntryDetails) -> str:
     return f"{header}\n\n{body}"
 
 
-def _format_orphan_details(details: OrphanDetails) -> str:
+class DictionaryBrowseApp(App[None]):
     """
-    Format morphology-only orphan details for the details pane.
+    Textual browse app for dictionary search and read-only details.
 
     Args:
-        details: Orphan details payload from the query service.
-
-    Returns:
-        Multi-line details pane text.
-
-    """
-    lines = [
-        details.lemma,
-        "Morphology-only form (no dictionary entry)",
-    ]
-    class_summary = _join_labels(_ordered_distinct_classes(details.class_summary))
-    if class_summary:
-        lines.append(f"Classes: {class_summary}")
-    genders = _join_labels(format_bt_gender_label(gender) for gender in details.genders)
-    if genders:
-        lines.append(f"Gender: {genders}")
-    persons = _join_labels(details.persons)
-    if persons:
-        lines.append(f"Person: {persons}")
-    numbers = _join_labels(details.numbers)
-    if numbers:
-        lines.append(f"Number: {numbers}")
-    return "\n".join(lines)
-
-
-class LexiconBrowseApp(App[None]):
-    """
-    Textual browse app for unified lexicon search and read-only details.
-
-    Args:
-        query_service: Query service used for all lexicon data loading.
+        query_service: Query service used for all browse data loading.
         db_path: Path to the morphology-backed lexicon database.
 
     """
@@ -758,18 +710,13 @@ class LexiconBrowseApp(App[None]):
       overflow: hidden;
   }
 
-  #search-box {
-      height: auto;
+  #search-input {
+      margin: 1 1 0 1;
   }
 
   #results-title,
-  #details-title,
-  #orphans-header {
+  #details-title {
       height: auto;
-  }
-
-  #search-input {
-      margin: 1 1 0 1;
   }
 
   #oe-char-bar {
@@ -806,12 +753,6 @@ class LexiconBrowseApp(App[None]):
 
   #results-list {
       height: 1fr;
-      min-height: 0;
-  }
-
-  #orphans-list {
-      height: auto;
-      max-height: 8;
       min-height: 0;
   }
 
@@ -874,19 +815,6 @@ class LexiconBrowseApp(App[None]):
       min-height: 0;
   }
 
-  #orphans-header {
-      margin: 1 0 0 0;
-      text-style: bold;
-  }
-
-  #orphans-header.hidden {
-      display: none;
-  }
-
-  #orphans-list.hidden {
-      display: none;
-  }
-
   #wright-sections-title.hidden,
   #wright-sections-list.hidden {
       display: none;
@@ -930,19 +858,13 @@ class LexiconBrowseApp(App[None]):
   """
 
     #: Query service used by the shell and browse interactions.
-    query_service: LexiconQueryService
+    query_service: DictionaryBrowseQueryService
     #: Database path displayed in shell placeholders.
     db_path: Path
     #: Last main-result hits shown in the results pane.
-    _main_hits: list[SearchHit]
-    #: Last orphan hits shown in the lower results section.
-    _orphan_hits: list[OrphanHit]
+    _main_hits: list[BrowseSearchHit]
     #: Main dictionary-entry results list widget.
     _main_results_list: ListView
-    #: Section header above orphan morphology hits.
-    _orphans_header: Static
-    #: Orphan morphology results list widget.
-    _orphans_list: ListView
     #: Primary details header widget.
     _details_content: Static
     #: Title shown above the Wright section citation list.
@@ -959,17 +881,17 @@ class LexiconBrowseApp(App[None]):
     def __init__(
         self,
         *,
-        query_service: LexiconQueryService,
+        query_service: DictionaryBrowseQueryService,
         db_path: Path,
         initial_details_message: str | None = None,
     ) -> None:
         """
-        Initialize the lexicon browse shell.
+        Initialize the dictionary browse shell.
 
         Keyword Args:
-            query_service: Query service used for lexicon reads.
-            db_path: Path to morphology SQLite containing ``bt_*``, ``forms``, and
-                ``search_keys`` tables.
+            query_service: Query service used for browse reads.
+            db_path: Path to canonical SQLite containing ``bt_*`` and ``forms``
+                tables.
             initial_details_message: Optional idle details text before first search.
 
         """
@@ -980,8 +902,6 @@ class LexiconBrowseApp(App[None]):
         self.db_path = db_path
         #: Last main-result hits shown in the results pane.
         self._main_hits = []
-        #: Last orphan hits shown in the lower results section.
-        self._orphan_hits = []
         default_message = (
             f"Connected to {db_path}. Search and select a result to view details."
         )
@@ -997,7 +917,7 @@ class LexiconBrowseApp(App[None]):
 
         """
         yield OldEnglishSearchInput(
-            placeholder="Search lexicon (press Enter)",
+            placeholder="Search dictionary (press Enter)",
             id="search-input",
         )
         with Horizontal(id="oe-char-bar"):
@@ -1012,8 +932,6 @@ class LexiconBrowseApp(App[None]):
             with Vertical(id="results-pane"):
                 yield Static("Results", id="results-title")
                 yield ListView(id="results-list")
-                yield Static("Orphans", id="orphans-header", classes="hidden")
-                yield ListView(id="orphans-list", classes="hidden")
             with Vertical(id="details-pane"):
                 yield Static("Details", id="details-title")
                 with Vertical(id="details-body"):
@@ -1042,8 +960,6 @@ class LexiconBrowseApp(App[None]):
 
         """
         self._main_results_list = self.query_one("#results-list", ListView)
-        self._orphans_header = self.query_one("#orphans-header", Static)
-        self._orphans_list = self.query_one("#orphans-list", ListView)
         self._details_content = self.query_one("#details-content", Static)
         self._wright_sections_title = self.query_one("#wright-sections-title", Static)
         self._wright_sections_list = self.query_one("#wright-sections-list", ListView)
@@ -1125,13 +1041,13 @@ class LexiconBrowseApp(App[None]):
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
         """
-        Run unified search when the user submits the search box.
+        Run browse search when the user submits the search box.
 
         Args:
             event: Textual input submission event.
 
         Side Effects:
-            Rebuilds results lists and may auto-focus a single main hit.
+            Rebuilds results list and may auto-focus a single hit.
 
         """
         if event.input.id != "search-input":
@@ -1141,7 +1057,7 @@ class LexiconBrowseApp(App[None]):
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         """
-        Show details for a selected main or orphan search result.
+        Show details for a selected search result or Wright section.
 
         Args:
             event: Textual list selection event.
@@ -1156,12 +1072,6 @@ class LexiconBrowseApp(App[None]):
                 self._show_entry_details(item.hit.entry_id)
             return
 
-        if event.list_view.id == "orphans-list":
-            item = event.item
-            if isinstance(item, _OrphanResultItem):
-                self._show_orphan_details(item.hit.form_id)
-            return
-
         if event.list_view.id == "wright-sections-list":
             item = event.item
             if isinstance(item, _WrightSectionItem):
@@ -1169,67 +1079,43 @@ class LexiconBrowseApp(App[None]):
 
     def _run_search(self, query: str) -> None:
         """
-        Execute unified search and refresh browse panes from query results.
+        Execute search and refresh browse panes from query results.
 
         Args:
             query: Raw user-entered search string.
 
         Side Effects:
-            Rebuilds results lists and may auto-focus one main hit.
+            Rebuilds results list and may auto-focus one hit.
 
         """
-        results = self.query_service.search(query)
-        self._main_hits = list(results.main_entries)
-        self._orphan_hits = list(results.orphans)
-        self._populate_results_lists()
+        self._main_hits = list(self.query_service.search(query))
+        self._populate_results_list()
 
-        if results.main_entry_count == 1:
+        if len(self._main_hits) == 1:
             self._main_results_list.index = 0
             self._show_entry_details(self._main_hits[0].entry_id)
             return
 
-        if not self._main_hits and not self._orphan_hits:
-            self._show_idle_details("No results.")
-            return
-
         if not self._main_hits:
-            self._show_idle_details(
-                "No dictionary entries matched. Select an orphan below."
-            )
+            self._show_idle_details("No results.")
             return
 
         self._show_idle_details("Select a result to view details.")
 
-    def _populate_results_lists(self) -> None:
+    def _populate_results_list(self) -> None:
         """
-        Rebuild main and orphan result list views from the last search.
+        Rebuild the result list view from the last search.
 
         Side Effects:
-            Clears and repopulates results list widgets.
+            Clears and repopulates the results list widget.
 
         """
-        main_list = self._main_results_list
-        orphans_header = self._orphans_header
-        orphans_list = self._orphans_list
-
-        main_list.clear()
+        self._main_results_list.clear()
         if self._main_hits:
             for hit in self._main_hits:
-                main_list.append(_MainResultItem(hit))
-        else:
-            main_list.append(
-                ListItem(Static("No dictionary entries matched.")),
-            )
-
-        orphans_list.clear()
-        if self._orphan_hits:
-            orphans_header.remove_class("hidden")
-            orphans_list.remove_class("hidden")
-            for orphan_hit in self._orphan_hits:
-                orphans_list.append(_OrphanResultItem(orphan_hit))
-        else:
-            orphans_header.add_class("hidden")
-            orphans_list.add_class("hidden")
+                self._main_results_list.append(_MainResultItem(hit))
+            return
+        self._main_results_list.append(ListItem(Static("No results.")))
 
     def _show_entry_details(self, entry_id: int) -> None:
         """
@@ -1264,39 +1150,6 @@ class LexiconBrowseApp(App[None]):
             entry_genders=tuple(details.genders),
         )
 
-    def _show_orphan_details(self, form_id: int) -> None:
-        """
-        Load and render morphology-only orphan details in the details pane.
-
-        Args:
-            form_id: Morphology form identifier from orphan search results.
-
-        Side Effects:
-          Updates details and morphology sidebar widgets.
-
-        """
-        details = self.query_service.get_orphan_details(form_id)
-        if details is None:
-            self._show_idle_details(f"Orphan form {form_id} is unavailable.")
-            return
-        self._details_content.update(_format_orphan_details(details))
-        self._details_body_content.update("")
-        self._clear_wright_sections()
-        morphology_rows = _dedupe_morphology_rows(
-            _morphology_rows_from_groups(details.morphology_groups)
-        )
-        if morphology_rows:
-            wordclass = morphology_rows[0].wordclass
-            morphology_rows = [
-                row for row in morphology_rows if row.wordclass == wordclass
-            ]
-        _populate_morphology_table_for_rows(
-            self._morphology_table,
-            morphology_rows,
-            wordclass=morphology_rows[0].wordclass if morphology_rows else "morphology",
-            entry_genders=tuple(details.genders),
-        )
-
     def _show_idle_details(self, message: str) -> None:
         """
         Show a neutral details placeholder and clear the morphology sidebar.
@@ -1305,7 +1158,7 @@ class LexiconBrowseApp(App[None]):
             message: Idle-state message for the details pane.
 
         Side Effects:
-          Updates details and morphology sidebar widgets.
+            Updates details and morphology sidebar widgets.
 
         """
         self._details_content.update(message)
@@ -1324,7 +1177,7 @@ class LexiconBrowseApp(App[None]):
             Multi-line header text with headword, POS, morph class, and metadata.
 
         """
-        return _format_entry_header_text(details)
+        return _format_entry_header_text(cast("_EntryDetailsLike", details))
 
     def _format_entry_body(self, details: EntryDetails) -> str:
         """
@@ -1337,7 +1190,7 @@ class LexiconBrowseApp(App[None]):
             Summary, senses, and etymology text rendered below citation widgets.
 
         """
-        return _format_entry_body_text(details)
+        return _format_entry_body_text(cast("_EntryDetailsLike", details))
 
     def _populate_wright_sections(self, details: EntryDetails) -> None:
         """
@@ -1391,7 +1244,7 @@ class LexiconBrowseApp(App[None]):
         if section_text is None or not section_text.strip():
             section_text = (
                 f"Wright § {section_no} text not ingested — "
-                "run morphology ingest-wright-text"
+                "run dictionary ingest-wright-text"
             )
         self.push_screen(
             WrightSectionTextScreen(
@@ -1401,7 +1254,7 @@ class LexiconBrowseApp(App[None]):
         )
 
 
-def _ensure_browse_ready(query_service: LexiconQueryService) -> None:
+def _ensure_browse_ready(query_service: DictionaryBrowseQueryService) -> None:
     """
     Validate that browse tables exist and contain searchable rows.
 
@@ -1409,43 +1262,33 @@ def _ensure_browse_ready(query_service: LexiconQueryService) -> None:
         query_service: Query service bound to a morphology SQLite database.
 
     Raises:
-        LexiconBrowseDataError: Browse tables are missing or have no lexicon rows.
+        DictionaryBrowseDataError: Browse tables are missing or have no dictionary rows.
 
     """
     try:
         counts = query_service._connection.execute(  # noqa: SLF001
-            text(
-                """
-            SELECT
-                (SELECT COUNT(*) FROM bt_entries) AS entry_count,
-                (SELECT COUNT(*) FROM search_keys) AS key_count
-                """
-            )
+            text("SELECT COUNT(*) AS entry_count FROM bt_entries")
         ).mappings().first()
     except SQLAlchemyOperationalError as exc:
         msg = (
-            "Lexicon browse tables are missing. "
-            "Run `wyrdcraeft lexicon build` for this morphology database first."
+            "Dictionary browse tables are missing. "
+            "Run `wyrdcraeft dictionary build` for this database first."
         )
-        raise LexiconBrowseDataError(msg) from exc
+        raise DictionaryBrowseDataError(msg) from exc
 
-    if (
-        counts is not None
-        and int(counts["entry_count"]) > 0
-        and int(counts["key_count"]) > 0
-    ):
+    if counts is not None and int(counts["entry_count"]) > 0:
         return
 
     msg = (
-        "Lexicon browse tables are empty. "
-        "Run `wyrdcraeft lexicon build` for this morphology database first."
+        "Dictionary browse tables are empty. "
+        "Run `wyrdcraeft dictionary build` for this database first."
     )
-    raise LexiconBrowseDataError(msg)
+    raise DictionaryBrowseDataError(msg)
 
 
 def _format_browse_connect_message(db_path: Path) -> str:
     """
-    Build the initial browse details placeholder, including staleness hints.
+    Build the initial browse details placeholder.
 
     Args:
         db_path: Path to the morphology SQLite database.
@@ -1454,21 +1297,15 @@ def _format_browse_connect_message(db_path: Path) -> str:
         Idle-state message shown before the first search.
 
     """
-    lines = [
-        f"Connected to {db_path}.",
-        "Search and select a result to view details.",
-    ]
-    staleness = check_lexicon_staleness(db_path)
-    if staleness.is_stale:
-        lines.append(f"Note: {staleness.reason} Run `wyrdcraeft lexicon build`.")
-    elif staleness.meta is not None:
-        lines.append(f"Lexicon built at {staleness.meta.built_at}.")
-    return " ".join(lines)
+    return (
+        f"Connected to {db_path}. "
+        "Search and select a result to view details."
+    )
 
 
-def create_lexicon_browse_app(db_path: Path) -> LexiconBrowseApp:
+def create_dictionary_browse_app(db_path: Path) -> DictionaryBrowseApp:
     """
-    Build a validated lexicon browse shell instance for tests and CLI wiring.
+    Build a validated dictionary browse shell instance for tests and CLI wiring.
 
     Args:
         db_path: Path to the morphology SQLite database.
@@ -1477,25 +1314,25 @@ def create_lexicon_browse_app(db_path: Path) -> LexiconBrowseApp:
         Ready-to-run Textual app shell with injected query service.
 
     Raises:
-        LexiconBrowseDataError: Browse tables are missing or empty.
+        DictionaryBrowseDataError: Browse tables are missing or empty.
 
     """
-    query_service = LexiconQueryService(db_path)
+    query_service = DictionaryBrowseQueryService(db_path)
     try:
         _ensure_browse_ready(query_service)
-    except LexiconBrowseDataError:
+    except DictionaryBrowseDataError:
         query_service.close()
         raise
-    return LexiconBrowseApp(
+    return DictionaryBrowseApp(
         query_service=query_service,
         db_path=db_path,
         initial_details_message=_format_browse_connect_message(db_path),
     )
 
 
-def run_lexicon_browse(db_path: Path, *, show_progress: bool = True) -> None:
+def run_dictionary_browse(db_path: Path, *, show_progress: bool = True) -> None:
     """
-    Launch the lexicon browse Textual shell for one morphology database.
+    Launch the dictionary browse Textual shell for one canonical database.
 
     Args:
         db_path: Path to the morphology SQLite database.
@@ -1507,20 +1344,30 @@ def run_lexicon_browse(db_path: Path, *, show_progress: bool = True) -> None:
         Starts an interactive Textual terminal app.
 
     Raises:
-        LexiconBrowseDataError: Browse tables are missing or empty.
+        DictionaryBrowseDataError: Browse tables are missing or empty.
 
     """
-    app: LexiconBrowseApp | None = None
+    app: DictionaryBrowseApp | None = None
 
-    def _startup(stage: LexiconBrowseStartupStage) -> None:
+    def _startup(stage: DictionaryBrowseStartupStage) -> None:
         nonlocal app
-        if stage == LexiconBrowseStartupStage.VALIDATE:
-            app = create_lexicon_browse_app(db_path)
+        if stage == DictionaryBrowseStartupStage.VALIDATE:
+            app = create_dictionary_browse_app(db_path)
 
     run_browse_startup_progress(_startup, enabled=show_progress)
     if app is None:
-        app = create_lexicon_browse_app(db_path)
+        app = create_dictionary_browse_app(db_path)
     try:
         app.run()
     finally:
         app.query_service.close()
+
+
+__all__ = [
+    "DictionaryBrowseApp",
+    "DictionaryBrowseDataError",
+    "_MainResultItem",
+    "_format_entry_details",
+    "create_dictionary_browse_app",
+    "run_dictionary_browse",
+]

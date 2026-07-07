@@ -87,11 +87,7 @@ def test_pre_alembic_canonical_db_resets_and_requires_rebuild(
 
     assert runtime.db_path.read_text(encoding="utf-8") == "fresh"
     assert Path(excinfo.value.backup_path).read_text(encoding="utf-8") == "before"
-    assert excinfo.value.rebuild_instructions == (
-        "wyrdcraeft morphology build",
-        "wyrdcraeft dictionary build",
-        "wyrdcraeft lexicon build",
-    )
+    assert excinfo.value.rebuild_instructions == ("wyrdcraeft dictionary build",)
     assert messages == [
         "checking canonical database",
         "found canonical database",
@@ -248,11 +244,7 @@ def test_migration_failure_restores_backup_and_surfaces_traceback(
 
     assert runtime.db_path.read_text(encoding="utf-8") == "before"
     assert "boom" in excinfo.value.traceback_text
-    assert excinfo.value.rebuild_instructions == (
-        "wyrdcraeft morphology build",
-        "wyrdcraeft dictionary build",
-        "wyrdcraeft lexicon build",
-    )
+    assert excinfo.value.rebuild_instructions == ("wyrdcraeft dictionary build",)
     assert messages == [
         "checking canonical database",
         "found canonical database",
@@ -286,11 +278,7 @@ def test_fresh_bootstrap_failure_raises_typed_error_and_cleans_partial_db(
 
     assert not runtime.db_path.exists()
     assert "fresh boom" in excinfo.value.traceback_text
-    assert excinfo.value.rebuild_instructions == (
-        "wyrdcraeft morphology build",
-        "wyrdcraeft dictionary build",
-        "wyrdcraeft lexicon build",
-    )
+    assert excinfo.value.rebuild_instructions == ("wyrdcraeft dictionary build",)
     assert messages == [
         "checking canonical database",
         "checking alembic revision",
