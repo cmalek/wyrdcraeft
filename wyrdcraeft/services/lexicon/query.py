@@ -343,28 +343,6 @@ def _json_string_list(payload: str) -> list[str]:
     return values
 
 
-def _entry_senses_from_json(payload: str) -> list[EntrySense]:
-    """
-    Deserialize ordered sense payloads from ``lexicon_entries.senses_json``.
-
-    Args:
-        payload: JSON array of ordered sense mappings.
-
-    Returns:
-        Ordered lexicon sense dataclasses.
-
-    """
-    raw_values = json.loads(payload)
-    return [
-        EntrySense(
-            sense_label=str(value.get("sense_label", "")),
-            gloss_en=str(value.get("gloss_en", "")).strip(),
-            order_index=int(value.get("order_index", 0)),
-        )
-        for value in raw_values
-    ]
-
-
 def _append_unique(values: list[str], value: str) -> None:
     """
     Append a string to a list when it is non-empty and not already present.
@@ -411,7 +389,7 @@ def _search_candidate_keys(
         spelling_normalizer: Dictionary spelling normalizer shared with the builder.
 
     Returns:
-        Distinct normalized lookup keys suitable for ``lexicon_search_keys``.
+        Distinct normalized lookup keys suitable for ``search_keys``.
 
     """
     text = query.strip()
@@ -468,7 +446,7 @@ def _row_to_morphology(row: RowMapping | Mapping[str, Any]) -> MorphologyRow:
     Project one SQLite row into a ``MorphologyRow`` dataclass.
 
     Args:
-        row: Mapping row from ``lexicon_forms``.
+        row: Mapping row from a ``forms``-joined query.
 
     Returns:
         Typed morphology row payload.
@@ -673,10 +651,18 @@ def _unclassified_morph_class_summary() -> LemmaMorphClassSummary:
 
 class LexiconQueryService:
     """
-    Query interface over lexicon browse search and details tables in SQLite.
+    Query interface over lexicon browse search backed by canonical source tables.
+
+    Note:
+        Search hits join the ``search_keys`` index to ``bt_entries`` /
+        ``bt_senses`` / ``bt_variants`` for dictionary data and to ``forms``
+        (plus ``parts_of_speech`` and ``inflection_codes``) for morphology
+        data. There is no intermediate lexicon projection table; every browse
+        query reads source tables directly.
 
     Args:
-        db_path: Path to ``wyrdcraeft.sqlite3`` containing ``lexicon_*`` tables.
+        db_path: Path to ``wyrdcraeft.sqlite3`` containing ``search_keys``,
+            ``bt_*``, and ``forms`` tables.
 
     """
 
@@ -694,7 +680,8 @@ class LexiconQueryService:
         Initialize a lexicon query service for one SQLite database.
 
         Args:
-            db_path: Path to SQLite database file containing ``lexicon_*`` tables.
+            db_path: Path to SQLite database file containing ``search_keys``,
+                ``bt_*``, and ``forms`` tables.
 
         """
         #: SQLAlchemy engine bound to the canonical lexicon database.
@@ -731,14 +718,26 @@ class LexiconQueryService:
                 sk.form_id,
                 sk.display_text,
                 e.headword,
-                e.pos,
-                e.summary_sense,
-                f.bt,
-                f.wordclass,
-                f.function
-            FROM lexicon_search_keys sk
-            LEFT JOIN lexicon_entries e ON e.entry_id = sk.entry_id
-            LEFT JOIN lexicon_forms f ON f.form_id = sk.form_id
+                epos.code AS pos,
+                COALESCE(
+                    (
+                        SELECT bs.gloss_en
+                        FROM bt_senses bs
+                        WHERE bs.entry_id = e.id
+                        ORDER BY bs.order_index ASC
+                        LIMIT 1
+                    ),
+                    ''
+                ) AS summary_sense,
+                f.BT AS bt,
+                COALESCE(fpos.code, f.wordclass) AS wordclass,
+                COALESCE(ic.code, f.function) AS function
+            FROM search_keys sk
+            LEFT JOIN bt_entries e ON e.id = sk.entry_id
+            LEFT JOIN parts_of_speech epos ON epos.id = e.pos_id
+            LEFT JOIN forms f ON f.id = sk.form_id
+            LEFT JOIN parts_of_speech fpos ON fpos.id = f.wordclass_id
+            LEFT JOIN inflection_codes ic ON ic.id = f.inflection_code_id
             WHERE sk.key_text IN (
                 SELECT value
                 FROM json_each(:lookup_keys)
@@ -752,7 +751,7 @@ class LexiconQueryService:
                     WHEN 'form' THEN 3
                     ELSE 99
                 END ASC,
-                COALESCE(e.headword, f.bt, sk.display_text) ASC,
+                COALESCE(e.headword, f.BT, sk.display_text) ASC,
                 COALESCE(sk.entry_id, 0) ASC,
                 COALESCE(sk.form_id, 0) ASC
                 """
@@ -827,6 +826,13 @@ class LexiconQueryService:
         """
         Load the full browse details payload for one dictionary-backed entry.
 
+        Note:
+            Senses and variants are read directly from ``bt_senses`` and
+            ``bt_variants`` rather than a JSON projection. Morphology rows are
+            read from ``forms`` filtered by ``entry_id`` and, when set, by
+            ``wordclass_id`` matching the entry's own ``pos_id`` so that
+            wordclass-ambiguous form links cannot leak into the sidebar.
+
         Args:
             entry_id: Dictionary entry identifier from search results.
 
@@ -838,16 +844,15 @@ class LexiconQueryService:
             text(
                 """
             SELECT
-                entry_id,
-                headword,
-                pos,
-                summary_sense,
-                etymology,
-                variants_json,
-                genders_json,
-                senses_json
-            FROM lexicon_entries
-            WHERE entry_id = :entry_id
+                bt_entries.id AS entry_id,
+                bt_entries.headword AS headword,
+                bt_entries.etymology AS etymology,
+                bt_entries.genders_json AS genders_json,
+                bt_entries.pos_id AS pos_id,
+                parts_of_speech.code AS pos
+            FROM bt_entries
+            JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
+            WHERE bt_entries.id = :entry_id
             """
             ),
             {"entry_id": entry_id},
@@ -855,29 +860,52 @@ class LexiconQueryService:
         if entry_row is None:
             return None
 
+        variant_rows = self._connection.execute(
+            text(
+                """
+            SELECT spelling_macronized
+            FROM bt_variants
+            WHERE entry_id = :entry_id
+            ORDER BY spelling_raw ASC
+            """
+            ),
+            {"entry_id": entry_id},
+        ).scalars().all()
+
+        senses = self._load_entry_senses(entry_id)
+        summary_sense = next(
+            (sense.gloss_en for sense in senses if sense.gloss_en),
+            "",
+        )
+
         form_rows = self._connection.execute(
             text(
                 """
             SELECT
-                form_id,
-                bt,
-                title,
-                stem,
-                form,
-                formi,
-                wordclass,
-                function,
-                probability,
-                class1,
-                class2,
-                class3,
-                paradigm
-            FROM lexicon_forms
-            WHERE entry_id = :entry_id
-            ORDER BY wordclass ASC, function ASC, form_id ASC
+                forms.id AS form_id,
+                forms.BT AS bt,
+                forms.title AS title,
+                forms.stem AS stem,
+                forms.form AS form,
+                forms.formi AS formi,
+                COALESCE(wordclass_pos.code, forms.wordclass) AS wordclass,
+                COALESCE(inflection_codes.code, forms.function) AS function,
+                forms.probability AS probability,
+                forms.class1 AS class1,
+                forms.class2 AS class2,
+                forms.class3 AS class3,
+                forms.paradigm AS paradigm
+            FROM forms
+            LEFT JOIN parts_of_speech AS wordclass_pos
+                ON wordclass_pos.id = forms.wordclass_id
+            LEFT JOIN inflection_codes
+                ON inflection_codes.id = forms.inflection_code_id
+            WHERE forms.entry_id = :entry_id
+                AND (forms.wordclass_id IS NULL OR forms.wordclass_id = :pos_id)
+            ORDER BY wordclass ASC, function ASC, forms.id ASC
             """
             ),
-            {"entry_id": entry_id},
+            {"entry_id": entry_id, "pos_id": int(entry_row["pos_id"])},
         ).mappings().all()
 
         morphology_rows = [_row_to_morphology(row) for row in form_rows]
@@ -900,16 +928,14 @@ class LexiconQueryService:
         return EntryDetails(
             entry_id=int(entry_row["entry_id"]),
             headword=headword,
-            variants=filter_display_variants(
-                _json_string_list(str(entry_row["variants_json"]))
-            ),
+            variants=filter_display_variants([str(value) for value in variant_rows]),
             pos=entry_pos,
             class_summary=class_summary,
             genders=genders,
             persons=persons,
             numbers=numbers,
-            summary_sense=str(entry_row["summary_sense"]),
-            senses=_entry_senses_from_json(str(entry_row["senses_json"])),
+            summary_sense=summary_sense,
+            senses=senses,
             etymology=str(entry_row["etymology"]),
             morphology_groups=_group_morphology_rows(morphology_rows),
             declension_paradigm=_dominant_paradigm(morphology_rows),
@@ -918,6 +944,37 @@ class LexiconQueryService:
                 entry_pos=entry_pos,
             ),
         )
+
+    def _load_entry_senses(self, entry_id: int) -> list[EntrySense]:
+        """
+        Load ordered ``bt_senses`` rows for one dictionary entry.
+
+        Args:
+            entry_id: Dictionary entry identifier.
+
+        Returns:
+            Ordered lexicon sense dataclasses.
+
+        """
+        sense_rows = self._connection.execute(
+            text(
+                """
+            SELECT sense_label, gloss_en, order_index
+            FROM bt_senses
+            WHERE entry_id = :entry_id
+            ORDER BY order_index ASC
+            """
+            ),
+            {"entry_id": entry_id},
+        ).mappings().all()
+        return [
+            EntrySense(
+                sense_label=str(row["sense_label"]),
+                gloss_en=str(row["gloss_en"]).strip(),
+                order_index=int(row["order_index"]),
+            )
+            for row in sense_rows
+        ]
 
     def _lookup_entry_morph_class(
         self,
@@ -986,21 +1043,25 @@ class LexiconQueryService:
             text(
                 """
             SELECT
-                form_id,
-                bt,
-                title,
-                stem,
-                form,
-                formi,
-                wordclass,
-                function,
-                probability,
-                class1,
-                class2,
-                class3,
-                paradigm
-            FROM lexicon_forms
-            WHERE form_id = :form_id AND entry_id IS NULL
+                forms.id AS form_id,
+                forms.BT AS bt,
+                forms.title AS title,
+                forms.stem AS stem,
+                forms.form AS form,
+                forms.formi AS formi,
+                COALESCE(wordclass_pos.code, forms.wordclass) AS wordclass,
+                COALESCE(inflection_codes.code, forms.function) AS function,
+                forms.probability AS probability,
+                forms.class1 AS class1,
+                forms.class2 AS class2,
+                forms.class3 AS class3,
+                forms.paradigm AS paradigm
+            FROM forms
+            LEFT JOIN parts_of_speech AS wordclass_pos
+                ON wordclass_pos.id = forms.wordclass_id
+            LEFT JOIN inflection_codes
+                ON inflection_codes.id = forms.inflection_code_id
+            WHERE forms.id = :form_id AND forms.entry_id IS NULL
             """
             ),
             {"form_id": form_id},

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import sqlite3
 from typing import TYPE_CHECKING
 
@@ -15,6 +16,13 @@ from wyrdcraeft.services.lexicon.query import (
     _main_results_sort_key,
     _search_candidate_keys,
 )
+from wyrdcraeft.services.morphology.generation.common import print_one_form
+from wyrdcraeft.services.morphology.generation.sinks import (
+    CompositeSink,
+    SqliteIndexSink,
+    TsvParitySink,
+)
+from wyrdcraeft.services.morphology.session import GeneratorSession
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -23,6 +31,66 @@ if TYPE_CHECKING:
 def _rebuild_query_service(db_path: Path) -> LexiconQueryService:
     rebuild_lexicon(db_path)
     return LexiconQueryService(db_path)
+
+
+def _write_linked_form(
+    db_path: Path,
+    *,
+    bt: str,
+    form: str,
+    wordclass: str = "noun",
+    function: str = "No",
+) -> None:
+    """
+    Write one morphology form after ``bt_*`` tables already exist.
+
+    Note:
+        ``FormFkResolver.resolve_entry_id`` resolves ``entry_id`` for this
+        form at write time via ``NormalizedTitleJoinIndex``, so this helper
+        must run after ``lexicon_source_db`` has seeded dictionary tables.
+
+    Args:
+        db_path: Morphology SQLite database already seeded with ``bt_*`` rows.
+
+    Keyword Args:
+        bt: Lemma title text shared by ``BT``/``title``/``stem`` fields.
+        form: Emitted surface form text.
+        wordclass: Morphology generator wordclass label.
+        function: Morphology generator function code.
+
+    Side Effects:
+        Inserts one additional ``forms`` row into ``db_path``.
+
+    """
+    session = GeneratorSession()
+    output = io.StringIO()
+    sqlite_sink = SqliteIndexSink(db_path)
+    sink = CompositeSink(TsvParitySink(output), sqlite_sink)
+    try:
+        print_one_form(
+            session,
+            {
+                "BT": bt,
+                "title": bt,
+                "stem": bt,
+                "form": form,
+                "formParts": f"0-{bt}-0",
+                "var": "0",
+                "probability": "0",
+                "function": function,
+                "wright": "0",
+                "paradigm": "demo",
+                "paraID": "0",
+                "wordclass": wordclass,
+                "class1": "",
+                "class2": "",
+                "class3": "",
+                "comment": "",
+            },
+            sink,
+        )
+    finally:
+        sqlite_sink.close()
 
 
 def test_search_prefers_exact_dictionary_variant_and_dedupes_entries(
@@ -69,9 +137,10 @@ def test_search_finds_abbad_for_undiacritized_and_macron_queries(
 def test_search_returns_morphology_form_hits_after_exact_matches(
     lexicon_source_db: Path,
 ) -> None:
+    _write_linked_form(lexicon_source_db, bt="abbad", form="abbadum")
     service = _rebuild_query_service(lexicon_source_db)
 
-    results = service.search("abades")
+    results = service.search("abbadum")
 
     assert results.main_entry_count == 1
     assert not results.orphans
@@ -79,7 +148,7 @@ def test_search_returns_morphology_form_hits_after_exact_matches(
     assert hit.headword == "abbad"
     assert hit.rank_tier == 3
     assert hit.key_kind == "form"
-    assert hit.matched_text == "abades"
+    assert hit.matched_text == "abbadum"
 
 
 def test_search_separates_orphan_hits_from_dictionary_entries(
@@ -119,27 +188,44 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
 ) -> None:
     rebuild_lexicon(lexicon_source_db)
     with sqlite3.connect(lexicon_source_db) as connection:
+        connection.row_factory = sqlite3.Row
         entry_id = int(
             connection.execute(
-                "SELECT entry_id FROM lexicon_entries WHERE norm_key = ?",
+                "SELECT id FROM bt_entries WHERE norm_key = ?",
                 ("abbad",),
             ).fetchone()[0]
         )
         connection.execute(
             """
-            UPDATE lexicon_forms
-            SET function = ?, class1 = ?, class2 = ?, class3 = ?
-            WHERE form_id = ?
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm,
+                paraID, wordclass, class1, class2, class3, comment,
+                bt_key, title_key, stem_key, form_key, formi_key, entry_id
+            ) VALUES (
+                0, 'abbades', 'abbad', 'abbad', 'abbad', 'abbad', 'abbades',
+                '0-abbad-0', '0', '0', ?, '0', 'demo', '0', 'noun',
+                ?, ?, ?, '',
+                'abbad', 'abbad', 'abbad', 'abbades', 'abbades', ?
+            )
             """,
-            ("genitive singular", "m", "strong", "a-stem", 1),
+            ("genitive singular", "m", "strong", "a-stem", entry_id),
         )
         connection.execute(
             """
-            UPDATE lexicon_forms
-            SET function = ?, class1 = ?, class2 = ?, class3 = ?
-            WHERE form_id = ?
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, function, wright, paradigm,
+                paraID, wordclass, class1, class2, class3, comment,
+                bt_key, title_key, stem_key, form_key, formi_key, entry_id
+            ) VALUES (
+                0, 'abbadu', 'abbad', 'abbad', 'abbad', 'abbad', 'abbadu',
+                '0-abbad-0', '0', '0', ?, '0', 'demo', '0', 'noun',
+                ?, ?, ?, '',
+                'abbad', 'abbad', 'abbad', 'abbadu', 'abbadu', ?
+            )
             """,
-            ("nominative plural", "m", "strong", "a-stem", 2),
+            ("nominative plural", "m", "strong", "a-stem", entry_id),
         )
         connection.commit()
 

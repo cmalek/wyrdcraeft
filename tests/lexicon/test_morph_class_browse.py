@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sqlite3
 from importlib.resources import files
 from pathlib import Path
 
@@ -12,6 +11,7 @@ from sqlalchemy.orm import Session
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.reference import PartOfSpeech
+from wyrdcraeft.models.sqlalchemy import BTEntry
 from wyrdcraeft.services.lexicon.build import rebuild_lexicon
 from wyrdcraeft.services.lexicon.query import EntryDetails, LexiconQueryService
 from wyrdcraeft.services.lexicon.tui import _format_entry_details
@@ -56,6 +56,54 @@ def _seed_catalog_assignment(
         engine.dispose()
 
 
+def _insert_bt_entry(
+    db_path: Path,
+    *,
+    norm_key: str,
+    headword: str,
+    normalized_title: str,
+    catalog_pos: str,
+) -> int:
+    """
+    Insert one minimal ``bt_entries`` row into a temporary lexicon test database.
+
+    Args:
+        db_path: Target lexicon test database path.
+
+    Keyword Args:
+        norm_key: Diacritic-stripped homograph merge key.
+        headword: Display headword spelling.
+        normalized_title: Macron/dot-preserving normalized headword.
+        catalog_pos: Canonical ``parts_of_speech.code`` value.
+
+    Returns:
+        Surrogate ``bt_entries.id`` for the inserted row.
+
+    """
+    engine = create_engine(db_path)
+    try:
+        with Session(engine) as session:
+            pos_id = session.scalar(
+                select(PartOfSpeech.id).where(PartOfSpeech.code == catalog_pos),
+            )
+            assert pos_id is not None
+            entry = BTEntry(
+                norm_key=norm_key,
+                headword=headword,
+                normalized_title=normalized_title,
+                pos_id=pos_id,
+                genders_json="[]",
+                etymology="",
+                see_also_json="[]",
+                source_line_nos_json="[]",
+            )
+            session.add(entry)
+            session.commit()
+            return int(entry.id)
+    finally:
+        engine.dispose()
+
+
 def test_get_details_includes_catalog_morph_class_and_unclassified(
     lexicon_source_db: Path,
 ) -> None:
@@ -66,44 +114,14 @@ def test_get_details_includes_catalog_morph_class_and_unclassified(
         catalog_pos="noun",
         class_key="noun.masculine.a_stem",
     )
-    with sqlite3.connect(lexicon_source_db) as connection:
-        noun_entry_id = int(
-            connection.execute(
-                "SELECT entry_id FROM lexicon_entries WHERE norm_key = ?",
-                ("abbad",),
-            ).fetchone()[0]
-        )
-        unclassified_entry_id = int(
-            connection.execute("SELECT COALESCE(MAX(entry_id), 0) + 1 FROM lexicon_entries")
-            .fetchone()[0]
-        )
-        connection.execute(
-            """
-            INSERT INTO lexicon_entries (
-                entry_id,
-                norm_key,
-                pos,
-                headword,
-                summary_sense,
-                etymology,
-                variants_json,
-                genders_json,
-                senses_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                unclassified_entry_id,
-                "uncataloged",
-                "noun",
-                "uncataloged",
-                "an uncataloged noun",
-                "",
-                "[]",
-                "[]",
-                "[]",
-            ),
-        )
-        connection.commit()
+    noun_entry_id = _bt_entry_id(lexicon_source_db, norm_key="abbad")
+    unclassified_entry_id = _insert_bt_entry(
+        lexicon_source_db,
+        norm_key="uncataloged",
+        headword="uncataloged",
+        normalized_title="uncataloged",
+        catalog_pos="noun",
+    )
 
     service = LexiconQueryService(lexicon_source_db)
     try:
@@ -145,44 +163,19 @@ def test_get_details_maps_adj_to_catalog_adjective_lookup(
         catalog_pos="adjective",
         class_key="adj.strong.a_o_stem",
     )
-    with sqlite3.connect(lexicon_source_db) as connection:
-        entry_id = int(
-            connection.execute("SELECT COALESCE(MAX(entry_id), 0) + 1 FROM lexicon_entries")
-            .fetchone()[0]
-        )
-        connection.execute(
-            """
-            INSERT INTO lexicon_entries (
-                entry_id,
-                norm_key,
-                pos,
-                headword,
-                summary_sense,
-                etymology,
-                variants_json,
-                genders_json,
-                senses_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                entry_id,
-                "glad",
-                "adj",
-                "gl\u00e6d",
-                "glad",
-                "",
-                "[]",
-                "[]",
-                "[]",
-            ),
-        )
-        connection.commit()
+    entry_id = _insert_bt_entry(
+        lexicon_source_db,
+        norm_key="glad",
+        headword="gl\u00e6d",
+        normalized_title="gl\u00e6d",
+        catalog_pos="adjective",
+    )
 
     service = LexiconQueryService(lexicon_source_db)
     try:
         details = service.get_details(entry_id)
         assert details is not None
-        assert details.pos == "adj"
+        assert details.pos == "adjective"
         assert details.morph_class is not None
         assert details.morph_class.display_label == "strong a-/\u014d-stem adjective"
         assert details.morph_class.is_unclassified is False
@@ -190,12 +183,26 @@ def test_get_details_maps_adj_to_catalog_adjective_lookup(
         service.close()
 
 
+def _bt_entry_id(db_path: Path, *, norm_key: str) -> int:
+    """Resolve one ``bt_entries.id`` by ``norm_key`` for test assertions."""
+    engine = create_engine(db_path)
+    try:
+        with Session(engine) as session:
+            entry_id = session.scalar(
+                select(BTEntry.id).where(BTEntry.norm_key == norm_key),
+            )
+            assert entry_id is not None
+            return int(entry_id)
+    finally:
+        engine.dispose()
+
+
 def test_format_entry_details_shows_unclassified_for_unmappable_pos() -> None:
     details = EntryDetails(
         entry_id=1,
         headword="and",
         variants=[],
-        pos="conj",
+        pos="conjunction",
         class_summary=[],
         genders=[],
         persons=[],
