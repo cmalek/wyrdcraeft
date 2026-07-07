@@ -129,6 +129,9 @@ def test_pre_alembic_canonical_db_resets_before_real_initial_migration(
     assert revision is not None
     assert "bt_key" in forms_columns
     assert "lemma" not in forms_columns
+    assert "wordclass_id" in forms_columns
+    assert "wordclass" not in forms_columns
+    assert "function" not in forms_columns
     assert Path(excinfo.value.backup_path).exists()
     assert Path(excinfo.value.backup_path) != runtime.db_path
     assert messages == [
@@ -168,6 +171,9 @@ def test_legacy_morphology_db_creates_fresh_canonical_db_with_real_migration(
     assert revision is not None
     assert "bt_key" in forms_columns
     assert "lemma" not in forms_columns
+    assert "wordclass_id" in forms_columns
+    assert "wordclass" not in forms_columns
+    assert "function" not in forms_columns
     assert Path(excinfo.value.backup_path).exists()
     assert Path(excinfo.value.backup_path) != runtime.db_path
     assert messages == [

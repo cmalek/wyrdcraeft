@@ -27,10 +27,9 @@ def _seed_forms_table(db_path: Path, row_count: int) -> int:
             """
             INSERT INTO forms (
                 counter, formi, BT, title, normalized_title, stem, form,
-                formParts, var, probability, function, wright, paradigm, paraID,
-                wordclass, class1, class2, class3, comment, bt_key, title_key,
+                formParts, var, probability, comment, bt_key, title_key,
                 stem_key, form_key, formi_key
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 (
@@ -44,14 +43,6 @@ def _seed_forms_table(db_path: Path, row_count: int) -> int:
                     "",
                     "0",
                     "0",
-                    "No",
-                    "0",
-                    "demo",
-                    "0",
-                    "noun",
-                    "",
-                    "",
-                    "",
                     "",
                     f"lemma-{index}",
                     f"lemma-{index}",

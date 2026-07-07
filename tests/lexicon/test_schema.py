@@ -39,6 +39,10 @@ EXPECTED_CANONICAL_INDEXES = {
     "idx_forms_form_key",
     "idx_forms_formi_key",
     "idx_forms_normalized_title",
+    "idx_forms_wordclass_id",
+    "idx_forms_inflection_code_id",
+    "idx_forms_morph_class_id",
+    "idx_forms_entry_id",
     "idx_bt_entries_norm_key",
     "idx_bt_entries_normalized_title",
     "idx_bt_variants_spelling",
@@ -47,6 +51,41 @@ EXPECTED_CANONICAL_INDEXES = {
     "idx_search_keys_entry_id",
     "idx_search_keys_form_id",
     "idx_search_keys_dedupe",
+}
+
+EXPECTED_FORMS_COLUMNS = {
+    "id",
+    "counter",
+    "formi",
+    "BT",
+    "title",
+    "normalized_title",
+    "stem",
+    "form",
+    "formParts",
+    "var",
+    "probability",
+    "comment",
+    "bt_key",
+    "title_key",
+    "stem_key",
+    "form_key",
+    "formi_key",
+    "wordclass_id",
+    "inflection_code_id",
+    "morph_class_id",
+    "entry_id",
+}
+
+DROPPED_FORMS_LEGACY_COLUMNS = {
+    "wright",
+    "paradigm",
+    "paraID",
+    "wordclass",
+    "function",
+    "class1",
+    "class2",
+    "class3",
 }
 
 
@@ -60,6 +99,11 @@ def _table_names(connection: sqlite3.Connection) -> set[str]:
         """
     ).fetchall()
     return {str(row[0]) for row in rows}
+
+
+def _forms_column_names(connection: sqlite3.Connection) -> set[str]:
+    rows = connection.execute("PRAGMA table_info(forms)").fetchall()
+    return {str(row[1]) for row in rows}
 
 
 def _index_names(connection: sqlite3.Connection) -> set[str]:
@@ -117,6 +161,16 @@ def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:
         index_names = _index_names(connection)
 
     assert index_names >= EXPECTED_CANONICAL_INDEXES
+
+
+def test_fresh_canonical_db_has_expected_forms_columns(tmp_path: Path) -> None:
+    db_path = _fresh_canonical_db(tmp_path)
+
+    with sqlite3.connect(db_path) as connection:
+        forms_columns = _forms_column_names(connection)
+
+    assert forms_columns == EXPECTED_FORMS_COLUMNS
+    assert DROPPED_FORMS_LEGACY_COLUMNS.isdisjoint(forms_columns)
 
 
 def test_alembic_upgrade_creates_expected_search_tables(

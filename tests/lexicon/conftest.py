@@ -66,6 +66,16 @@ def _noun_pos_id(connection: sqlite3.Connection) -> int:
     return int(row[0])
 
 
+def _inflection_code_id(connection: sqlite3.Connection, *, code: str) -> int:
+    """Return a seeded inflection-code row id."""
+    row = connection.execute(
+        "SELECT id FROM inflection_codes WHERE code = ?",
+        (code,),
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
 @pytest.fixture
 def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
     """
@@ -77,6 +87,14 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
     """
     with sqlite3.connect(lexicon_db_path) as connection:
         noun_pos_id = _noun_pos_id(connection)
+        genitive_code_id = _inflection_code_id(
+            connection,
+            code="genitive singular",
+        )
+        nominative_code_id = _inflection_code_id(
+            connection,
+            code="nominative singular",
+        )
         connection.execute(
             """
             INSERT INTO bt_entries (
@@ -119,12 +137,12 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
             """
             INSERT INTO forms (
                 id, counter, formi, BT, title, normalized_title, stem, form,
-                formParts, var, probability, function, wright, paradigm,
-                paraID, wordclass, class1, class2, class3, comment,
-                bt_key, title_key, stem_key, form_key, formi_key, entry_id
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
             ) VALUES (
-                ?, 0, ?, ?, ?, ?, ?, ?, ?, '0', '1', ?, '0', '', '0', 'noun',
-                'm', '', '', '', ?, ?, ?, ?, ?, ?
+                ?, 0, ?, ?, ?, ?, ?, ?, ?, '0', '1', '',
+                ?, ?, ?, ?, ?, ?, ?, ?
             )
             """,
             [
@@ -137,13 +155,14 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                     "abbod",
                     "abbodes",
                     "0-abbod-0",
-                    "genitive singular",
                     "abbod",
                     "abbod",
                     "abbod",
                     "abbodes",
                     "abbodes",
                     1,
+                    noun_pos_id,
+                    genitive_code_id,
                 ),
                 (
                     11,
@@ -154,13 +173,14 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                     "orphan-lemma",
                     "orphan-form",
                     "0-orphan-lemma-0",
-                    "nominative singular",
                     "orphan-lemma",
                     "orphan-lemma",
                     "orphan-lemma",
                     "orphan-form",
                     "orphan-form",
                     None,
+                    noun_pos_id,
+                    nominative_code_id,
                 ),
             ],
         )
