@@ -123,6 +123,6 @@ def make_lexicon_source_db(db_path: Path) -> Path:
 
     """
     upgrade_canonical_db(db_path)
-    seed_forms(db_path)
     seed_bt_tables(db_path)
+    seed_forms(db_path)
     return db_path

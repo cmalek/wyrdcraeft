@@ -65,7 +65,7 @@ def lexicon_group() -> None:
 
 @lexicon_group.command(
     name="build",
-    help="Rebuild lexicon read-model tables from morphology and dictionary sources.",
+    help="Rebuild the lexicon search index from dictionary and morphology sources.",
 )
 @click.option(
     "--no-tui",
@@ -93,16 +93,17 @@ def build(  # noqa: PLR0912, PLR0915
     force: bool,
 ) -> None:
     """
-    Rebuild ``lexicon_*`` tables from ``forms`` and ``bt_*`` source tables.
+    Rebuild the lexicon search index from ``forms`` and ``bt_*`` source tables.
 
     Args:
         ctx: Click context carrying loaded settings and global flags.
         no_tui: When set, skip the full-screen Textual build monitor.
         quiet: When set, suppress live build output and keep the final summary.
-        force: When set, rebuild even when lexicon read-model data already exists.
+        force: When set, rebuild even when search-index data already exists.
 
     Side Effects:
-        Replaces ``lexicon_*`` rows in the target morphology SQLite database.
+        Replaces ``search_keys`` and ``search_build_meta`` rows in the target
+        morphology SQLite database.
 
     Raises:
         click.ClickException: Required source tables are missing or rebuild fails.

@@ -964,7 +964,8 @@ class LexiconBrowseApp(App[None]):
 
         Keyword Args:
             query_service: Query service used for lexicon reads.
-            db_path: Path to morphology SQLite containing ``lexicon_*`` tables.
+            db_path: Path to morphology SQLite containing ``bt_*``, ``forms``, and
+                ``search_keys`` tables.
             initial_details_message: Optional idle details text before first search.
 
         """
@@ -1412,8 +1413,8 @@ def _ensure_browse_ready(query_service: LexiconQueryService) -> None:
             text(
                 """
             SELECT
-                (SELECT COUNT(*) FROM lexicon_entries) AS entry_count,
-                (SELECT COUNT(*) FROM lexicon_search_keys) AS key_count
+                (SELECT COUNT(*) FROM bt_entries) AS entry_count,
+                (SELECT COUNT(*) FROM search_keys) AS key_count
                 """
             )
         ).mappings().first()
