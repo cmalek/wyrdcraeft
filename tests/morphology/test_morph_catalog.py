@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import func, select
 
+from wyrdcraeft.cli.cli import cli
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import (  # noqa: F401
     LemmaMorphClass,
@@ -15,9 +16,20 @@ from wyrdcraeft.models.morph_catalog import (  # noqa: F401
     MorphSource,
     WrightSection,
 )
+from wyrdcraeft.models.reference import PartOfSpeech
+from wyrdcraeft.models.sqlalchemy import Form
+from wyrdcraeft.paths import CANONICAL_DB_FILENAME
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 
 FIXTURE = Path(str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")))
+MORPHOLOGY_DATA_DIR = (
+    Path(__file__).resolve().parents[2] / "wyrdcraeft" / "etc" / "morphology"
+)
+SUBSET_DICTIONARY = (
+    Path(__file__).resolve().parents[1] / "fixtures" / "morphology" / "test_dict.txt"
+)
+
+pytestmark = pytest.mark.morphology
 
 
 @pytest.fixture
@@ -151,6 +163,49 @@ def test_catalog_loader_rejects_missing_morph_class_fields(
     loader = MorphologyCatalogLoader(catalog_db)
     with pytest.raises(ValueError, match="missing required keys"):
         loader.load_fixture(bad_fixture)
+
+
+def test_morphology_build_populates_form_foreign_keys_for_known_lemma(
+    runner,
+    isolated_morphology_app_data: Path,
+) -> None:
+    """Build a small morphology slice and verify normalized FK columns on forms."""
+    result = runner.invoke(
+        cli,
+        [
+            "morphology",
+            "build",
+            "--limit",
+            "50",
+            "--data-dir",
+            str(MORPHOLOGY_DATA_DIR),
+            "--dictionary",
+            str(SUBSET_DICTIONARY),
+        ],
+    )
+    assert result.exit_code == 0
+
+    db_path = isolated_morphology_app_data / CANONICAL_DB_FILENAME
+    assert db_path.exists()
+
+    engine = create_engine(db_path)
+    try:
+        with engine.connect() as connection:
+            verb_pos_id = connection.execute(
+                select(PartOfSpeech.id).where(PartOfSpeech.code == "verb"),
+            ).scalar_one()
+            form_row = connection.execute(
+                select(Form)
+                .where(Form.normalized_title == "āǣþan")
+                .limit(1),
+            ).one()
+    finally:
+        engine.dispose()
+
+    assert form_row.wordclass_id == verb_pos_id
+    assert form_row.inflection_code_id is not None
+    assert form_row.morph_class_id is not None
+    assert form_row.wordclass == "verb"
 
 
 def test_catalog_loader_refresh_replaces_stale_rows(

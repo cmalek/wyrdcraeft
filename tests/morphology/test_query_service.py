@@ -1,21 +1,27 @@
 from __future__ import annotations
 
 import io
+import sqlite3
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.orm import sessionmaker
 
 from wyrdcraeft.cli import (
     cli as _cli,  # noqa: F401 — load CLI before generation modules
 )
-from wyrdcraeft.db.runtime import create_engine
+from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morphology import FormRow, QueryFormRow
+from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import Form
-from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
+from wyrdcraeft.paths import CANONICAL_DB_FILENAME, DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
+from wyrdcraeft.services.morphology.catalog.pos_seed import (
+    ensure_inflection_codes,
+    ensure_parts_of_speech,
+)
 from wyrdcraeft.services.morphology.generation.common import print_one_form
 from wyrdcraeft.services.morphology.generation.dispatch import (
     generate_adjforms,
@@ -213,6 +219,10 @@ _EXPECTED_FORMS_LOOKUP_INDEXES = {
     "idx_forms_form_key",
     "idx_forms_formi_key",
     "idx_forms_normalized_title",
+    "idx_forms_wordclass_id",
+    "idx_forms_inflection_code_id",
+    "idx_forms_morph_class_id",
+    "idx_forms_entry_id",
 }
 
 
@@ -233,6 +243,114 @@ def test_sqlite_index_sink_bulk_inserts_via_sqlalchemy_form_model(
 
     assert len(forms) == 1
     assert forms[0].form == "abbod"
+
+
+def _insert_bt_entry(
+    connection: sqlite3.Connection,
+    *,
+    entry_id: int,
+    normalized_title: str,
+    pos_code: str,
+) -> None:
+    pos_id = connection.execute(
+        "SELECT id FROM parts_of_speech WHERE code = ?",
+        (pos_code,),
+    ).fetchone()[0]
+    connection.execute(
+        """
+        INSERT INTO bt_entries (
+            id,
+            norm_key,
+            headword,
+            normalized_title,
+            pos_id,
+            genders_json,
+            etymology,
+            see_also_json,
+            source_line_nos_json
+        ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[]')
+        """,
+        (entry_id, normalized_title, normalized_title, normalized_title, pos_id),
+    )
+
+
+def _insert_bt_variant(
+    connection: sqlite3.Connection,
+    *,
+    entry_id: int,
+    normalized_title: str,
+    spelling: str,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO bt_variants (
+            entry_id,
+            spelling_raw,
+            spelling_macronized,
+            normalized_title
+        ) VALUES (?, ?, ?, ?)
+        """,
+        (entry_id, spelling, spelling, normalized_title),
+    )
+
+
+def test_sqlite_index_sink_leaves_entry_id_null_for_ambiguous_homograph(
+    isolated_morphology_app_data: Path,
+) -> None:
+    """Ambiguous dictionary joins must persist NULL ``entry_id`` on inserted forms."""
+    db_path = isolated_morphology_app_data / CANONICAL_DB_FILENAME
+    upgrade_canonical_db(db_path)
+    with sqlite3.connect(db_path) as connection:
+        pos_map = ensure_parts_of_speech(connection)
+        ensure_inflection_codes(connection, pos_map)
+        _insert_bt_entry(
+            connection,
+            entry_id=1,
+            normalized_title="alpha",
+            pos_code="noun",
+        )
+        _insert_bt_entry(
+            connection,
+            entry_id=2,
+            normalized_title="beta",
+            pos_code="noun",
+        )
+        _insert_bt_variant(
+            connection,
+            entry_id=1,
+            normalized_title="alias",
+            spelling="alias",
+        )
+        _insert_bt_variant(
+            connection,
+            entry_id=2,
+            normalized_title="alias",
+            spelling="alias",
+        )
+        connection.commit()
+
+    sink = SqliteIndexSink(db_path)
+    sink.emit_rows([_form_row(counter="1", formi="alias", bt="alias")])
+    sink.close()
+
+    engine = create_engine(db_path)
+    try:
+        with engine.connect() as connection:
+            row = connection.execute(
+                select(
+                    Form.entry_id,
+                    Form.wordclass_id,
+                    Form.inflection_code_id,
+                ).where(Form.normalized_title == "alias"),
+            ).one()
+            noun_pos_id = connection.execute(
+                select(PartOfSpeech.id).where(PartOfSpeech.code == "noun"),
+            ).scalar_one()
+    finally:
+        engine.dispose()
+
+    assert row.entry_id is None
+    assert row.wordclass_id == noun_pos_id
 
 
 def test_sqlite_index_sink_keeps_lookup_indexes_after_close(tmp_path: Path) -> None:

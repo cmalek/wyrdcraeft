@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import sqlite3
 from time import perf_counter
 from typing import TYPE_CHECKING, Protocol, cast
 
@@ -11,7 +12,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import TextIO
 
-    from sqlalchemy.engine import Engine
+    from sqlalchemy.engine import Connection, Engine
 
     from ..contracts import FormWriter
     from ..session import GeneratorSession
@@ -22,9 +23,17 @@ from wyrdcraeft.db.base import Base
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morphology import FormRow
 from wyrdcraeft.models.sqlalchemy import Form
+from wyrdcraeft.services.dictionary.normalized_title_join import (
+    NormalizedTitleJoinIndex,
+)
 from wyrdcraeft.services.markup import normalize_morphology_title
+from wyrdcraeft.services.morphology.catalog.pos_seed import (
+    ensure_inflection_codes,
+    ensure_parts_of_speech,
+)
 
 from ..text_utils import OENormalizer
+from .form_fk_resolver import FormFkResolver, _load_join_index, _load_morph_class_ids
 
 #: Default row buffer size before flushing one bulk SQLite insert.
 _SQLITE_BATCH_SIZE = 25000
@@ -322,12 +331,77 @@ class SqliteIndexSink:
         return OENormalizer.normalize_output(value).casefold()
 
     @staticmethod
-    def _rows_to_payload(rows: list[FormRow]) -> list[dict[str, object]]:
+    def _sqlite_connection(connection: Connection) -> sqlite3.Connection:
+        """
+        Unwrap SQLAlchemy's DB-API connection to the underlying SQLite driver.
+
+        Args:
+            connection: Active SQLAlchemy connection bound to the canonical database.
+
+        Returns:
+            Raw ``sqlite3.Connection`` used by ``FormFkResolver`` preload helpers.
+
+        """
+        dbapi_connection = connection.connection
+        driver_connection = getattr(dbapi_connection, "driver_connection", None)
+        if driver_connection is not None:
+            return cast("sqlite3.Connection", driver_connection)
+        return cast("sqlite3.Connection", dbapi_connection)
+
+    def _build_fk_resolver(
+        self, sqlite_connection: sqlite3.Connection
+    ) -> FormFkResolver:
+        """
+        Build one resolver per flush using canonical reference data when present.
+
+        Note:
+            Scratch databases that only contain ``forms`` still resolve POS and
+            inflection-code ids from seeded reference tables while leaving
+            absent dictionary or lemma-assignment tables as empty lookups per
+            ``data/Ondej_Tich_40-54-1.pdf``. Part-of-speech scope: ``cross-PoS``.
+
+        Args:
+            sqlite_connection: Raw SQLite connection for the active flush
+                transaction.
+
+        Returns:
+            Resolver with preloaded lookup maps for this flush batch.
+
+        """
+        pos_map = ensure_parts_of_speech(sqlite_connection)
+        inflection_map = ensure_inflection_codes(sqlite_connection, pos_map)
+        try:
+            morph_class_ids = _load_morph_class_ids(sqlite_connection)
+        except sqlite3.OperationalError:
+            morph_class_ids = {}
+        try:
+            join_index = _load_join_index(sqlite_connection)
+        except sqlite3.OperationalError:
+            join_index = NormalizedTitleJoinIndex.from_entry_variant_rows([], [])
+        return FormFkResolver(
+            join_index=join_index,
+            inflection_code_ids=inflection_map,
+            morph_class_ids=morph_class_ids,
+            pos_ids_by_code=pos_map,
+        )
+
+    def _rows_to_payload(
+        self,
+        rows: list[FormRow],
+        resolver: FormFkResolver,
+    ) -> list[dict[str, object]]:
         """
         Convert finalized form rows into SQLAlchemy Core insert payloads.
 
+        Note:
+            Foreign-key fields are resolved from canonical reference tables per
+            ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+            In plain terms, unresolved lookups insert ``NULL`` for every
+            Part of Speech rather than inventing placeholder ids.
+
         Args:
             rows: Finalized rows in emitted order.
+            resolver: Preloaded resolver built once per flush batch.
 
         Returns:
             Insert payloads for the canonical ``forms`` table.
@@ -354,11 +428,25 @@ class SqliteIndexSink:
                 "class2": row.class2,
                 "class3": row.class3,
                 "comment": row.comment,
-                "bt_key": SqliteIndexSink._normalize_key(row.BT),
-                "title_key": SqliteIndexSink._normalize_key(row.title),
-                "stem_key": SqliteIndexSink._normalize_key(row.stem),
-                "form_key": SqliteIndexSink._normalize_key(row.form),
-                "formi_key": SqliteIndexSink._normalize_key(row.formi),
+                "bt_key": self._normalize_key(row.BT),
+                "title_key": self._normalize_key(row.title),
+                "stem_key": self._normalize_key(row.stem),
+                "form_key": self._normalize_key(row.form),
+                "formi_key": self._normalize_key(row.formi),
+                "wordclass_id": resolver.resolve_wordclass_id(row.wordclass),
+                "inflection_code_id": resolver.resolve_inflection_code_id(
+                    row.function,
+                    row.wordclass,
+                ),
+                "morph_class_id": resolver.resolve_morph_class_id(
+                    row.normalized_title,
+                    row.wordclass,
+                    row.function,
+                ),
+                "entry_id": resolver.resolve_entry_id(
+                    row.normalized_title,
+                    row.wordclass,
+                ),
             }
             for row in rows
         ]
@@ -377,9 +465,11 @@ class SqliteIndexSink:
         """
         if not rows:
             return
-        payload = self._rows_to_payload(rows)
         started_at = perf_counter()
         with self._engine.begin() as connection:
+            sqlite_connection = self._sqlite_connection(connection)
+            resolver = self._build_fk_resolver(sqlite_connection)
+            payload = self._rows_to_payload(rows, resolver)
             connection.execute(insert(Form), payload)
         if self._sqlite_flush_observer is not None:
             self._sqlite_flush_observer(perf_counter() - started_at, len(rows))
