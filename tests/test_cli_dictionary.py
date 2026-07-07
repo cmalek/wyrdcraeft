@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 from wyrdcraeft.cli.cli import cli
+from wyrdcraeft.db.runtime import upgrade_canonical_db
 
 _SAMPLE_LINES = (
     Path(__file__).resolve().parent
@@ -29,24 +31,114 @@ def _subset_dictionary() -> Path:
     )
 
 
-def _build_morphology_source_db(runner, target_db: Path) -> None:
-    target_db.parent.mkdir(parents=True, exist_ok=True)
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "50",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
-            "--output",
-            str(target_db.parent / "morphology.tsv"),
-        ],
+def _pos_id(connection: sqlite3.Connection, code: str) -> int:
+    row = connection.execute(
+        "SELECT id FROM parts_of_speech WHERE code = ?",
+        (code,),
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _insert_form(
+    connection: sqlite3.Connection,
+    *,
+    normalized_title: str,
+    wordclass_code: str,
+    entry_id: int | None = None,
+) -> None:
+    token = normalized_title
+    connection.execute(
+        """
+        INSERT INTO forms (
+            counter,
+            formi,
+            BT,
+            title,
+            normalized_title,
+            stem,
+            form,
+            formParts,
+            var,
+            probability,
+            comment,
+            bt_key,
+            title_key,
+            stem_key,
+            form_key,
+            formi_key,
+            wordclass_id,
+            entry_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            1,
+            token,
+            token,
+            token,
+            normalized_title,
+            token,
+            token,
+            "",
+            "0",
+            "0",
+            "",
+            token,
+            token,
+            token,
+            token,
+            token,
+            _pos_id(connection, wordclass_code),
+            entry_id,
+        ),
     )
+
+
+def _fetch_form_entry_id(connection: sqlite3.Connection, *, normalized_title: str) -> int | None:
+    row = connection.execute(
+        "SELECT entry_id FROM forms WHERE normalized_title = ?",
+        (normalized_title,),
+    ).fetchone()
+    assert row is not None
+    return None if row[0] is None else int(row[0])
+
+
+def _fetch_entry_id(connection: sqlite3.Connection, *, normalized_title: str) -> int:
+    row = connection.execute(
+        "SELECT id FROM bt_entries WHERE normalized_title = ?",
+        (normalized_title,),
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _build_unified_source_db(
+    runner,
+    target_db: Path,
+    *,
+    extra_args: list[str] | None = None,
+):
+    """Bootstrap canonical DB with dictionary + limited morphology generation."""
+    target_db.parent.mkdir(parents=True, exist_ok=True)
+    args = [
+        "dictionary",
+        "build",
+        "--source",
+        str(_SAMPLE_LINES),
+        "--data-dir",
+        str(_morphology_data_dir()),
+        "--dictionary",
+        str(_subset_dictionary()),
+        "--limit",
+        "50",
+        "--output",
+        str(target_db.parent / "morphology.tsv"),
+    ]
+    if extra_args:
+        args.extend(extra_args)
+    result = runner.invoke(cli, args)
     assert result.exit_code == 0, result.output
+    return result
 
 
 def test_dictionary_group_help(runner) -> None:
@@ -76,17 +168,7 @@ def test_dictionary_lookup_smoke(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
-    _build_morphology_source_db(runner, isolated_morphology_index_db)
-    index_result = runner.invoke(
-        cli,
-        [
-            "dictionary",
-            "build",
-            "--source",
-            str(_SAMPLE_LINES),
-        ],
-    )
-    assert index_result.exit_code == 0, index_result.output
+    _build_unified_source_db(runner, isolated_morphology_index_db)
     assert isolated_morphology_index_db.exists()
 
     lookup_result = runner.invoke(
@@ -109,17 +191,7 @@ def test_dictionary_lookup_json_output(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
-    _build_morphology_source_db(runner, isolated_morphology_index_db)
-    build_result = runner.invoke(
-        cli,
-        [
-            "dictionary",
-            "build",
-            "--source",
-            str(_SAMPLE_LINES),
-        ],
-    )
-    assert build_result.exit_code == 0, build_result.output
+    _build_unified_source_db(runner, isolated_morphology_index_db)
     assert isolated_morphology_index_db.exists()
 
     lookup_result = runner.invoke(
@@ -148,6 +220,19 @@ def test_dictionary_build_help(runner) -> None:
     assert "--index-dir" not in result.output
     assert "--standalone" not in result.output
     assert "--report" in result.output
+    assert "--with-morphology" in result.output
+    assert "--data-dir" in result.output
+    assert "--dictionary" in result.output
+    assert "--manual-forms" in result.output
+    assert "--verbal-paradigms" in result.output
+    assert "--prefixes" in result.output
+    assert "--output" in result.output
+    assert "--limit" in result.output
+    assert "--progress-every INTEGER" in result.output
+    assert "--enable-r-stem-nouns" in result.output
+    assert "--full / --no-full" in result.output
+    assert "--profile" in result.output
+    assert "--refresh-catalog" in result.output
 
 
 def test_dictionary_build_smoke(
@@ -155,8 +240,30 @@ def test_dictionary_build_smoke(
     isolated_morphology_index_db: Path,
     temp_dir,
 ) -> None:
-    _build_morphology_source_db(runner, isolated_morphology_index_db)
     report_path = temp_dir / "report.json"
+    result = _build_unified_source_db(
+        runner,
+        isolated_morphology_index_db,
+        extra_args=["--report", str(report_path)],
+    )
+    assert "Dictionary index complete." in result.output
+    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
+    assert isolated_morphology_index_db.is_file()
+    assert report_path.is_file()
+    assert '"pos_counts"' in report_path.read_text(encoding="utf-8")
+    assert "bt_entries_written=" in result.output
+    assert "forms_regenerated=" in result.output
+    assert "entry_ids_linked=" in result.output
+    assert "pos_inferred=" in result.output
+
+
+def test_dictionary_build_bootstraps_empty_app_data_dir(
+    runner,
+    isolated_morphology_app_data: Path,
+) -> None:
+    index_db = isolated_morphology_app_data / "wyrdcraeft.sqlite3"
+    assert not index_db.exists()
+
     result = runner.invoke(
         cli,
         [
@@ -164,24 +271,112 @@ def test_dictionary_build_smoke(
             "build",
             "--source",
             str(_SAMPLE_LINES),
-            "--report",
-            str(report_path),
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--limit",
+            "20",
         ],
     )
+
     assert result.exit_code == 0, result.output
+    assert index_db.exists()
     assert "Dictionary index complete." in result.output
-    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
-    assert isolated_morphology_index_db.is_file()
-    assert report_path.is_file()
-    assert '"pos_counts"' in report_path.read_text(encoding="utf-8")
+    assert "forms_regenerated=True" in result.output
 
 
-def test_dictionary_lookup_morphology_default(
+def test_dictionary_build_runs_morphology_when_forms_table_is_empty(
     runner,
     isolated_morphology_index_db: Path,
 ) -> None:
-    _build_morphology_source_db(runner, isolated_morphology_index_db)
-    build_result = runner.invoke(
+    upgrade_canonical_db(isolated_morphology_index_db)
+
+    result = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "build",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--limit",
+            "20",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "forms_regenerated=True" in result.output
+    with sqlite3.connect(isolated_morphology_index_db) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM forms").fetchone()[0] > 0
+
+
+def test_dictionary_build_skips_morphology_when_forms_exist_unless_requested(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    upgrade_canonical_db(isolated_morphology_index_db)
+    with sqlite3.connect(isolated_morphology_index_db) as connection:
+        _insert_form(
+            connection,
+            normalized_title="abbad",
+            wordclass_code="noun",
+        )
+        connection.commit()
+
+    skipped = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "build",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--limit",
+            "1",
+            "--full",
+        ],
+    )
+    assert skipped.exit_code == 0, skipped.output
+    assert "forms_regenerated=False" in skipped.output
+
+    rebuilt = runner.invoke(
+        cli,
+        [
+            "dictionary",
+            "build",
+            "--source",
+            str(_SAMPLE_LINES),
+            "--with-morphology",
+            "--data-dir",
+            str(_morphology_data_dir()),
+            "--dictionary",
+            str(_subset_dictionary()),
+            "--limit",
+            "20",
+        ],
+    )
+    assert rebuilt.exit_code == 0, rebuilt.output
+    assert "forms_regenerated=True" in rebuilt.output
+
+
+def test_dictionary_build_relinks_forms_after_dictionary_rebuild(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    upgrade_canonical_db(isolated_morphology_index_db)
+    with sqlite3.connect(isolated_morphology_index_db) as connection:
+        _insert_form(
+            connection,
+            normalized_title="abbad",
+            wordclass_code="noun",
+            entry_id=999,
+        )
+        connection.commit()
+
+    result = runner.invoke(
         cli,
         [
             "dictionary",
@@ -190,7 +385,21 @@ def test_dictionary_lookup_morphology_default(
             str(_SAMPLE_LINES),
         ],
     )
-    assert build_result.exit_code == 0, build_result.output
+
+    assert result.exit_code == 0, result.output
+    assert "entry_ids_linked=" in result.output
+    with sqlite3.connect(isolated_morphology_index_db) as connection:
+        linked_entry_id = _fetch_form_entry_id(connection, normalized_title="abbad")
+        current_entry_id = _fetch_entry_id(connection, normalized_title="abbad")
+    assert linked_entry_id == current_entry_id
+    assert linked_entry_id != 999
+
+
+def test_dictionary_lookup_morphology_default(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    _build_unified_source_db(runner, isolated_morphology_index_db)
     assert isolated_morphology_index_db.exists()
 
     lookup_result = runner.invoke(
@@ -225,4 +434,4 @@ def test_dictionary_lookup_missing_morphology_db_fails(
     assert result.exit_code != 0
     assert "missing required source tables: bt_entries, bt_senses, bt_variants" in result.output
     assert "wyrdcraeft dictionary build" in result.output
-    assert "wyrdcraeft morphology build" in result.output
+    assert "wyrdcraeft morphology build" not in result.output

@@ -6,21 +6,13 @@ import re
 from dataclasses import dataclass
 from typing import Final
 
+from wyrdcraeft.services.dictionary.wordclass_pos import (
+    WORDCLASS_TO_BT_POS,
+    infer_bt_pos_from_wordclasses,
+)
 from wyrdcraeft.services.markup import normalize_old_english
 
-#: Morphology ``wordclass`` values mapped to dictionary ``bt_entries.pos`` labels.
-WORDCLASS_TO_BT_POS: Final[dict[str, str]] = {
-    "noun": "noun",
-    "verb": "verb",
-    "adjective": "adj",
-    "adverb": "adv",
-    "numeral": "numeral",
-    "pronoun": "pron",
-    "preposition": "prep",
-    "conjunction": "conj",
-    "interjection": "interj",
-    "indeclinable": "indecl",
-}
+__all__ = ["WORDCLASS_TO_BT_POS", "infer_bt_pos_from_wordclasses"]
 
 #: Dictionary POS labels mapped to morphology ``wordclass`` values for filtering.
 BT_POS_TO_WORDCLASSES: Final[dict[str, tuple[str, ...]]] = {
@@ -431,28 +423,6 @@ def build_morphology_table(
         cells = [surface, *[dimensions.get(column, "") for column in columns[1:]]]
         table_rows.append(tuple(cells))
     return MorphologyTableSpec(columns=columns, rows=tuple(table_rows))
-
-
-def infer_bt_pos_from_wordclasses(wordclasses: set[str]) -> str | None:
-    """
-    Map distinct morphology wordclasses to one dictionary POS when unambiguous.
-
-    Args:
-        wordclasses: Distinct morphology ``wordclass`` labels for one lemma.
-
-    Returns:
-        Dictionary POS label, or ``None`` when inference is ambiguous.
-
-    """
-    mapped = {
-        WORDCLASS_TO_BT_POS[wc.strip().casefold()]
-        for wc in wordclasses
-        if wc.strip().casefold() in WORDCLASS_TO_BT_POS
-    }
-    mapped.discard("")
-    if len(mapped) == 1:
-        return next(iter(mapped))
-    return None
 
 
 #: Weak noun genitive endings that must not appear as spelling variants.

@@ -34,11 +34,11 @@ from wyrdcraeft.models.sqlalchemy import (
     SearchBuildMeta as SearchBuildMetaTable,
 )
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.dictionary.pos_inference import DictionaryPosInferer
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.catalog.pos import pos_id_from_bt_pos
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
-from .form_decode import infer_bt_pos_from_wordclasses
 from .schema import (
     KEY_KIND_FORM,
     KEY_KIND_LEMMA,
@@ -692,7 +692,7 @@ class LexiconBuilder:
             msg = (
                 "Lexicon rebuild requires Alembic-managed lexicon tables: "
                 f"{missing_csv}. Run startup database readiness or "
-                "`wyrdcraeft` once so migrations apply before `lexicon build`."
+                "`wyrdcraeft` once so migrations apply before `dictionary build`."
             )
             raise MissingLexiconSourceTablesError(msg)
 
@@ -748,6 +748,31 @@ class LexiconBuilder:
             pos_inferred=pos_inferred,
         )
 
+    @staticmethod
+    def _count_unknown_pos_entries(connection: Connection) -> int:
+        """
+        Return the number of dictionary rows currently carrying unknown POS.
+
+        Args:
+            connection: Open SQLAlchemy connection bound to canonical SQLite.
+
+        Returns:
+            Number of ``bt_entries`` rows joined to the ``unknown`` POS code.
+
+        """
+        return int(
+            connection.execute(
+                text(
+                    """
+                    SELECT COUNT(*)
+                    FROM bt_entries
+                    JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
+                    WHERE parts_of_speech.code = 'unknown'
+                    """
+                )
+            ).scalar_one()
+        )
+
     def _infer_missing_pos(self, connection: Connection) -> int:
         """
         Fill empty dictionary POS values from unambiguous morphology wordclasses.
@@ -761,56 +786,40 @@ class LexiconBuilder:
         Note:
             ``bt_entries`` enforces a ``(norm_key, pos_id)`` uniqueness
             constraint so that homograph entries stay distinguishable by
-            part of speech. When two entries share a ``norm_key`` and both
-            currently have the ``unknown`` POS, inferring the same target
-            POS for both would collide; the second such update is skipped
-            (its POS stays ``unknown``) rather than failing the whole build.
+            part of speech. Updates are skipped when another row with the
+            same ``normalized_title`` already holds the inferred POS, or when
+            the update would violate ``(norm_key, pos_id)`` for a homograph.
 
         Side Effects:
             Updates ``bt_entries.pos_id`` for entries with unknown POS and one
-            clear morphology wordclass, skipping updates that would violate
-            the ``(norm_key, pos_id)`` uniqueness constraint.
+            clear morphology wordclass, skipping rows that already have a POS
+            sibling or would violate the homograph uniqueness constraint.
 
         """
-        unknown_pos_id = _unknown_pos_id(connection)
-        rows = connection.execute(
-            select(BTEntry.id, BTEntry.norm_key, BTEntry.normalized_title)
-            .where(BTEntry.pos_id == unknown_pos_id)
-            .order_by(BTEntry.id.asc())
-        ).fetchall()
-        total = len(rows) or 1
+        total = self._count_unknown_pos_entries(connection)
         self._begin_stage(LexiconBuildStage.INFER_POS, total=total)
-
-        updated = 0
-        for index, row in enumerate(rows, start=1):
-            self._check_cancel(
+        updated = DictionaryPosInferer().infer_missing_pos(
+            connection,
+            progress=lambda completed, total_rows, updated_rows, current_item: (
+                self._advance_stage(
+                    LexiconBuildStage.INFER_POS,
+                    completed=completed,
+                    total=total_rows,
+                    detail=f"updated={updated_rows}",
+                    current_item=current_item,
+                )
+            ),
+            warning_sink=lambda message, current_item: self._emit_log(
                 stage=LexiconBuildStage.INFER_POS,
-                current_item=str(row.normalized_title),
-            )
-            normalized_title = str(row.normalized_title)
-            wordclass_rows = connection.execute(
-                select(func.lower(func.trim(PartOfSpeech.code)).label("wordclass"))
-                .select_from(Form)
-                .join(PartOfSpeech, PartOfSpeech.id == Form.wordclass_id)
-                .where(Form.normalized_title == normalized_title)
-                .distinct()
-            ).fetchall()
-            inferred_pos = infer_bt_pos_from_wordclasses(
-                {str(wordclass_row.wordclass) for wordclass_row in wordclass_rows}
-            )
-            if inferred_pos is not None and self._try_set_inferred_pos(
-                connection,
-                entry_id=int(row.id),
-                normalized_title=normalized_title,
-                inferred_pos=inferred_pos,
-            ):
-                updated += 1
-            self._advance_stage(
-                LexiconBuildStage.INFER_POS,
-                completed=index,
-                total=total,
-                detail=f"updated={updated}",
-            )
+                level="warning",
+                message=message,
+                current_item=current_item,
+            ),
+            cancel_check=lambda current_item: self._check_cancel(
+                stage=LexiconBuildStage.INFER_POS,
+                current_item=current_item,
+            ),
+        )
 
         self._emit_counter(
             counter="pos_inferred",
@@ -829,14 +838,14 @@ class LexiconBuilder:
         inferred_pos: str,
     ) -> bool:
         """
-        Attempt one inferred POS update, skipping ``(norm_key, pos_id)`` collisions.
+        Attempt one inferred POS update, skipping duplicate and homograph rows.
 
         Args:
             connection: Open SQLAlchemy connection containing ``bt_entries``.
 
         Keyword Args:
             entry_id: ``bt_entries.id`` of the row being updated.
-            normalized_title: Entry title used for the skip-warning log line.
+            normalized_title: Macron-preserving headword used for sibling checks.
             inferred_pos: BT part-of-speech code inferred from morphology.
 
         Returns:
@@ -844,6 +853,18 @@ class LexiconBuilder:
 
         """
         target_pos_id = pos_id_from_bt_pos(_sqlite_connection(connection), inferred_pos)
+        pos_sibling = connection.execute(
+            select(BTEntry.id)
+            .where(
+                BTEntry.normalized_title == normalized_title,
+                BTEntry.pos_id == target_pos_id,
+                BTEntry.id != entry_id,
+            )
+            .limit(1)
+        ).first()
+        if pos_sibling is not None:
+            return False
+
         savepoint = connection.begin_nested()
         try:
             connection.execute(
@@ -857,7 +878,7 @@ class LexiconBuilder:
                 stage=LexiconBuildStage.INFER_POS,
                 level="warning",
                 message=(
-                    "skipped pos inference: another entry already uses this "
+                    "skipped pos inference: another homograph already uses this "
                     "norm_key with the inferred part of speech"
                 ),
                 current_item=normalized_title,

@@ -461,6 +461,77 @@ def test_rebuild_lexicon_infers_pos_from_unambiguous_morphology(
         assert str(pos["code"]) == "noun"
 
 
+def test_rebuild_lexicon_skips_infer_pos_when_normalized_title_sibling_exists(
+    lexicon_source_db: Path,
+) -> None:
+    with sqlite3.connect(lexicon_source_db) as connection:
+        connection.row_factory = sqlite3.Row
+        noun_pos_id = connection.execute(
+            "SELECT id FROM parts_of_speech WHERE code = 'noun'",
+        ).fetchone()
+        unknown_pos_id = _unknown_pos_id(connection)
+        assert noun_pos_id is not None
+        known = connection.execute(
+            """
+            SELECT id, norm_key, headword, normalized_title
+            FROM bt_entries
+            WHERE norm_key = ?
+            """,
+            ("abbad",),
+        ).fetchone()
+        assert known is not None
+        connection.execute(
+            """
+            INSERT INTO bt_entries (
+                id, norm_key, headword, normalized_title, pos_id,
+                genders_json, etymology, see_also_json, source_line_nos_json
+            ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[999]')
+            """,
+            (
+                9001,
+                str(known["norm_key"]),
+                str(known["headword"]),
+                str(known["normalized_title"]),
+                unknown_pos_id,
+            ),
+        )
+        connection.execute(
+            """
+            INSERT INTO bt_senses (
+                id, entry_id, sense_label, gloss_en, order_index
+            ) VALUES (?, ?, ?, ?, ?)
+            """,
+            (9001, 9001, "I", "duplicate citation", 0),
+        )
+        connection.commit()
+
+    events: list[object] = []
+    rebuild_lexicon(lexicon_source_db, event_sink=events.append)
+
+    infer_pos_warnings = [
+        event
+        for event in events
+        if isinstance(event, BuildLog)
+        and event.stage == LexiconBuildStage.INFER_POS
+        and event.level == "warning"
+    ]
+    assert not infer_pos_warnings
+
+    with sqlite3.connect(lexicon_source_db) as connection:
+        connection.row_factory = sqlite3.Row
+        duplicate_pos = connection.execute(
+            """
+            SELECT parts_of_speech.code
+            FROM bt_entries
+            JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
+            WHERE bt_entries.id = ?
+            """,
+            (9001,),
+        ).fetchone()
+        assert duplicate_pos is not None
+        assert str(duplicate_pos["code"]) == "unknown"
+
+
 def test_rebuild_lexicon_emits_structured_stage_log_and_counter_event_contract(
     lexicon_source_db: Path,
 ) -> None:

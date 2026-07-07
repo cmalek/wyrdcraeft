@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Final
 
-from wyrdcraeft.services.dictionary.normalized_title_join import (
-    NormalizedTitleJoinIndex,
+from wyrdcraeft.services.dictionary.join_index_loader import (
+    load_normalized_title_join_index,
 )
-from wyrdcraeft.services.dictionary.query import _bt_pos_from_code
 from wyrdcraeft.services.markup import normalize_morphology_title
 from wyrdcraeft.services.morphology.catalog.pos import (
     _WORDCLASS_TO_POS_CODE,
@@ -23,6 +22,10 @@ from .query import _WORDCLASS_TO_BT_POS
 
 if TYPE_CHECKING:
     import sqlite3
+
+    from wyrdcraeft.services.dictionary.normalized_title_join import (
+        NormalizedTitleJoinIndex,
+    )
 
 #: Verbal participle morphology function codes that inherit verb lemma classes.
 _VERB_PARTICIPLE_FUNCTIONS: Final[frozenset[str]] = frozenset({"PsPt", "PaPt"})
@@ -49,49 +52,6 @@ def _load_morph_class_ids(connection: sqlite3.Connection) -> dict[tuple[str, int
         (str(normalized_title), int(pos_id)): int(morph_class_id)
         for normalized_title, pos_id, morph_class_id in rows
     }
-
-
-def _load_join_index(connection: sqlite3.Connection) -> NormalizedTitleJoinIndex:
-    """
-    Build a dictionary join index from canonical ``bt_entries`` and variants.
-
-    Args:
-        connection: Open canonical SQLite connection.
-
-    Returns:
-        Preloaded join index using Bosworth-Toller POS labels.
-
-    """
-    entry_rows = connection.execute(
-        """
-        SELECT bt_entries.id, bt_entries.normalized_title, parts_of_speech.code
-        FROM bt_entries
-        JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
-        """,
-    ).fetchall()
-    variant_rows = connection.execute(
-        """
-        SELECT bt_variants.entry_id, bt_variants.normalized_title, parts_of_speech.code
-        FROM bt_variants
-        JOIN bt_entries ON bt_entries.id = bt_variants.entry_id
-        JOIN parts_of_speech ON parts_of_speech.id = bt_entries.pos_id
-        WHERE trim(coalesce(bt_variants.normalized_title, '')) != ''
-        """,
-    ).fetchall()
-
-    def _bt_pos_label(code: str) -> str:
-        return _bt_pos_from_code(code).value
-
-    return NormalizedTitleJoinIndex.from_entry_variant_rows(
-        [
-            (int(entry_id), str(normalized_title), _bt_pos_label(str(pos_code)))
-            for entry_id, normalized_title, pos_code in entry_rows
-        ],
-        [
-            (int(entry_id), str(normalized_title), _bt_pos_label(str(pos_code)))
-            for entry_id, normalized_title, pos_code in variant_rows
-        ],
-    )
 
 
 class FormFkResolver:
@@ -169,7 +129,7 @@ class FormFkResolver:
             if morph_class_ids is None:
                 morph_class_ids = _load_morph_class_ids(connection)
             if join_index is None:
-                join_index = _load_join_index(connection)
+                join_index = load_normalized_title_join_index(connection)
         elif (
             join_index is None
             or inflection_code_ids is None

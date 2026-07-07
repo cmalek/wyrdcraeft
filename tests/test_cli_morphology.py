@@ -1,18 +1,12 @@
+"""CLI tests for remaining morphology commands after build moved to dictionary."""
+
 from __future__ import annotations
 
-import json
-from importlib.resources import files
 from io import StringIO
-from pathlib import Path
 
 from rich.console import Console
-from sqlalchemy import func, select
 
 from wyrdcraeft.cli.cli import cli
-from wyrdcraeft.db.runtime import create_engine
-from wyrdcraeft.models.morph_catalog import MorphClass
-from wyrdcraeft.models.reference import InflectionCode, PartOfSpeech
-from wyrdcraeft.models.sqlalchemy import Form
 from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologySetupStep,
@@ -22,157 +16,20 @@ from wyrdcraeft.services.morphology.progress import (
 )
 
 
-def _morphology_data_dir() -> Path:
-    return Path(__file__).resolve().parents[1] / "wyrdcraeft" / "etc" / "morphology"
-
-
-def _subset_dictionary() -> Path:
-    return (
-        Path(__file__).resolve().parents[1]
-        / "tests"
-        / "fixtures"
-        / "morphology"
-        / "test_dict.txt"
-    )
-
-
-def _isolated_generate_args() -> list[str]:
-    return [
-        "--data-dir",
-        str(_morphology_data_dir()),
-        "--dictionary",
-        str(_subset_dictionary()),
-    ]
-
-
-def _expected_morph_class_count() -> int:
-    fixture = Path(
-        str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json"))
-    )
-    payload = json.loads(fixture.read_text(encoding="utf-8"))
-    return len(payload["morph_classes"])
-
-
 def test_morphology_group_help(runner) -> None:
     result = runner.invoke(cli, ["morphology", "--help"])
     assert result.exit_code == 0
     assert "audit-wright" in result.output
-    assert "build" in result.output
+    assert "build" not in result.output
     assert "query" in result.output
     assert "generate-reference-snapshots" in result.output
+    assert "ingest-wright-text" in result.output
 
 
-def test_morphology_build_help(runner) -> None:
+def test_morphology_build_command_moved_to_dictionary(runner) -> None:
     result = runner.invoke(cli, ["morphology", "build", "--help"])
-    assert result.exit_code == 0
-    assert "--full / --no-full" in result.output
-    assert "--data-dir" in result.output
-    assert "--index-db" not in result.output
-    assert "--index-dir" not in result.output
-    assert "--progress-every INTEGER" in result.output
-    assert "--profile" in result.output
-    assert "--refresh-catalog" in result.output
-
-
-def test_morphology_build_seeds_catalog_when_empty(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "1",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            morph_class_count = connection.execute(
-                select(func.count()).select_from(MorphClass)
-            ).scalar_one()
-            pos_count = connection.execute(
-                select(func.count()).select_from(PartOfSpeech)
-            ).scalar_one()
-            inflection_code_count = connection.execute(
-                select(func.count()).select_from(InflectionCode)
-            ).scalar_one()
-    finally:
-        engine.dispose()
-    assert morph_class_count == _expected_morph_class_count()
-    assert pos_count == 12
-    assert inflection_code_count > 0
-
-
-def test_morphology_build_skips_catalog_seed_when_populated(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    build_args = [
-        "morphology",
-        "build",
-        "--limit",
-        "1",
-        *_isolated_generate_args(),
-    ]
-    first = runner.invoke(cli, build_args)
-    assert first.exit_code == 0
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            count_before = connection.execute(
-                select(func.count()).select_from(MorphClass)
-            ).scalar_one()
-    finally:
-        engine.dispose()
-
-    second = runner.invoke(cli, build_args)
-    assert second.exit_code == 0
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            count_after = connection.execute(
-                select(func.count()).select_from(MorphClass)
-            ).scalar_one()
-    finally:
-        engine.dispose()
-    assert count_before == count_after == _expected_morph_class_count()
-
-
-def test_morphology_build_refresh_catalog_reloads_fixture(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    build_args = [
-        "morphology",
-        "build",
-        "--limit",
-        "1",
-        *_isolated_generate_args(),
-    ]
-    first = runner.invoke(cli, build_args)
-    assert first.exit_code == 0
-
-    refreshed = runner.invoke(cli, [*build_args, "--refresh-catalog"])
-    assert refreshed.exit_code == 0
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            count = connection.execute(
-                select(func.count()).select_from(MorphClass)
-            ).scalar_one()
-    finally:
-        engine.dispose()
-    assert count == _expected_morph_class_count()
+    assert result.exit_code != 0
+    assert "No such command 'build'" in result.output
 
 
 def test_morphology_generate_command_is_gone(runner) -> None:
@@ -181,167 +38,30 @@ def test_morphology_generate_command_is_gone(runner) -> None:
     assert "No such command 'generate'" in result.output
 
 
-def test_morphology_generate_limit(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "50",
-            *_isolated_generate_args(),
-        ],
-    )
+def test_morphology_query_help(runner) -> None:
+    result = runner.invoke(cli, ["morphology", "query", "--help"])
     assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
-    assert "forms_written=" in result.output
-    assert "Morphology generation complete." in result.output
-    assert "output=" not in result.output
-    assert "verbs" in result.stderr
+    assert "--db" in result.output
+    assert "--lemma" in result.output
+    assert "--form" in result.output
 
 
-def test_morphology_build_writes_forms_to_canonical_db_via_sqlalchemy(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            *_isolated_generate_args(),
-        ],
-    )
+def test_morphology_ingest_wright_text_help(runner) -> None:
+    result = runner.invoke(cli, ["morphology", "ingest-wright-text", "--help"])
     assert result.exit_code == 0
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            count = connection.execute(
-                select(func.count()).select_from(Form)
-            ).scalar_one()
-    finally:
-        engine.dispose()
-    assert count > 0
+    assert "--source" in result.output
+    assert "--force" in result.output
 
 
-def test_morphology_generate_full_with_subset_inputs(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    data_dir = _morphology_data_dir()
+def test_morphology_query_requires_exactly_one_lookup_mode(runner, tmp_path) -> None:
+    db_path = tmp_path / "placeholder.sqlite3"
+    db_path.write_text("", encoding="utf-8")
     result = runner.invoke(
         cli,
-        [
-            "morphology",
-            "build",
-            "--full",
-            "--dictionary",
-            str(_subset_dictionary()),
-            "--manual-forms",
-            str(data_dir / "manual_forms.txt"),
-            "--verbal-paradigms",
-            str(data_dir / "para_vb.txt"),
-            "--prefixes",
-            str(data_dir / "prefixes.txt"),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert "full_mode=True" in result.output
-
-
-def test_morphology_generate_quiet_suppresses_progress(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "--quiet",
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert "Morphology generation complete." not in result.stderr
-
-
-def test_morphology_generate_rejects_non_positive_progress_every(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            "--progress-every",
-            "0",
-            *_isolated_generate_args(),
-        ],
+        ["morphology", "query", "--db", str(db_path), "--lemma", "foo", "--form", "bar"],
     )
     assert result.exit_code != 0
-    assert isolated_morphology_index_db.parent.exists()
-    assert "positive" in result.output.lower()
-
-
-def test_morphology_generate_progress_stays_on_stderr(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert "Morphology generation complete." in result.output
-    assert "forms_written=" in result.output
-    assert "Morphology generation complete." not in result.stderr
-    assert "setup" in result.stderr
-    assert "load data" in result.stderr
-    assert "assign noun paradigms" in result.stderr
-    assert "verbs" in result.stderr
-
-
-def test_morphology_generate_progress_shows_wright_when_present(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            "--progress-every",
-            "1",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert "wright=" in result.stderr
+    assert "Provide exactly one of --lemma or --form." in result.output
 
 
 def test_progress_coordinator_omits_empty_wright_and_throttles_lemma() -> None:
@@ -449,117 +169,6 @@ def test_progress_coordinator_setup_descriptions() -> None:
     )
 
     assert description == "setup | count syllables"
-
-
-def test_morphology_query_by_form(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    generate_result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "50",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert generate_result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-
-    engine = create_engine(isolated_morphology_index_db)
-    try:
-        with engine.connect() as connection:
-            form_value = connection.execute(select(Form.form).limit(1)).scalar_one()
-    finally:
-        engine.dispose()
-
-    query_result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "query",
-            "--db",
-            str(isolated_morphology_index_db),
-            "--form",
-            form_value,
-            "--limit",
-            "5",
-        ],
-    )
-    assert query_result.exit_code == 0
-    assert query_result.output.strip()
-
-
-def test_morphology_build_profile_prints_timing_summary(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            "--profile",
-            *_isolated_generate_args(),
-        ],
-    )
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert "Morphology build profile" in result.stderr
-    assert "sqlite_flush" in result.stderr
-    assert "manual" in result.stderr
-    assert "total" in result.stderr
-
-
-def test_morphology_generate_default_index_uses_app_data_dir(
-    runner,
-    isolated_morphology_index_db: Path,
-) -> None:
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            "--data-dir",
-            str(_morphology_data_dir()),
-            "--dictionary",
-            str(_subset_dictionary()),
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert isolated_morphology_index_db.exists()
-    assert f"index_db={isolated_morphology_index_db.resolve()}" in result.output
-
-
-def test_morphology_build_writes_tsv_when_output_requested(
-    runner,
-    temp_dir,
-    isolated_morphology_index_db: Path,
-) -> None:
-    output_file = temp_dir / "morph.tsv"
-    result = runner.invoke(
-        cli,
-        [
-            "morphology",
-            "build",
-            "--limit",
-            "20",
-            *_isolated_generate_args(),
-            "--output",
-            str(output_file),
-        ],
-    )
-    assert result.exit_code == 0
-    assert output_file.exists()
-    assert isolated_morphology_index_db.exists()
-    assert f"output={output_file}" in result.output
 
 
 def test_morphology_generate_reference_snapshots_help(runner) -> None:

@@ -42,9 +42,9 @@ Out of scope:
 |-------|----------|----------|
 | ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
-| morphology | `wyrdcraeft morphology build`, `wyrdcraeft morphology query`, `wyrdcraeft morphology ingest-wright-text`, `wyrdcraeft morphology audit-wright` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler`, `MorphologyCatalogLoader`, `LemmaMorphClassAssigner`, `MorphologyCatalogQueryService`, `WrightSectionTextIngester`, `WrightAuditService` |
-| dictionary | `wyrdcraeft dictionary build`, `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService` |
-| lexicon | `wyrdcraeft lexicon build`, `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `WrightSectionTextScreen`, `form_decode`, `OldEnglishSearchInput` |
+| morphology | `wyrdcraeft morphology build` (legacy), `wyrdcraeft morphology query`, `wyrdcraeft morphology ingest-wright-text`, `wyrdcraeft morphology audit-wright` | `wyrdcraeft.services.morphology.generation.dispatch`, `MorphologyQueryService`, `MorphologyBuildProfiler`, `MorphologyCatalogLoader`, `LemmaMorphClassAssigner`, `MorphologyCatalogQueryService`, `WrightSectionTextIngester`, `WrightAuditService` |
+| dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary lookup` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline` |
+| lexicon | `wyrdcraeft lexicon build` (legacy), `wyrdcraeft lexicon browse` | `rebuild_lexicon`, `LexiconQueryService`, `LexiconBrowseApp`, `WrightSectionTextScreen`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
@@ -57,10 +57,11 @@ Out of scope:
 - LLM ingest: extraction path using configured LLM settings
 - macron index: JSON payload used by diacritic tools for normalized-to-display mappings
 - morphology generation: SQLite lookup index production workflow for inflected
-  forms (optional TSV via `--output`)
+  forms (optional TSV via `--output`); typically triggered by
+  `dictionary build --with-morphology` or automatically when `forms` is empty
 - build command: standard subcommand name for long-running database-producing
-  workflows; morphology, dictionary, and lexicon should all use `build`, but
-  each build remains explicit and separate
+  workflows; `dictionary build` is the primary entrypoint for unified
+  indexing, while `lexicon build` (search index only) is legacy
 - canonical database: the one app-data `wyrdcraeft.sqlite3` file that holds
   morphology (`forms`), attached dictionary (`bt_*`), and derived search index
   (`search_keys`, `search_build_meta`) data for the product's lookup workflows
@@ -102,10 +103,15 @@ Out of scope:
   against current counts; **no** lexicon `schema_version` meta key — app DDL
   changes are handled by startup Alembic migrations, often with in-migration
   backfill, without forcing a full read-model rebuild
-- lexicon build: rebuilds the search index only (`search_keys`,
-  `search_build_meta`); does not regenerate morphology or Bosworth-Toller source
-  data; requires Alembic-managed search-index tables to already exist (startup
-  readiness or `upgrade_canonical_db`)
+- lexicon build: legacy command that rebuilt the search index only
+  (`search_keys`, `search_build_meta`); now superseded by the unified
+  `dictionary build` workflow
+- dictionary build: primary unified build command that rebuilds `bt_*`
+  tables, relinks `forms.entry_id`, and optionally regenerates morphology
+  when requested or when the `forms` table is empty
+- entry_id relink: post-build step in the unified dictionary pipeline that
+  populates `forms.entry_id` foreign keys by joining morphology lemmas to
+  newly indexed dictionary entries
 - orphan morphology hit: morphology match that does not join to a real
   dictionary entry and is shown outside the main lemma result list
 - norm_key: diacritic-stripped normalized Old English key used for generic
@@ -192,7 +198,7 @@ Out of scope:
   canonical rename to `wyrdcraeft.sqlite3`; current policy treats it as legacy
   input, backs it up, resets to fresh canonical DB, stops, and prints rebuild
   commands instead of trying in-place rename or migration
-- POS inference: lexicon build step that fills empty dictionary POS from
+- POS inference: dictionary build step that fills empty dictionary POS from
   unambiguous morphology `wordclass_id` when one clear mapping exists
 - lexicon build progress: live stderr stage progress during `lexicon build`
 - lexicon build monitor: default full-screen Textual monitor for `lexicon build`

@@ -23,6 +23,9 @@ from wyrdcraeft.db.base import Base
 from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morphology import FormRow
 from wyrdcraeft.models.sqlalchemy import Form
+from wyrdcraeft.services.dictionary.join_index_loader import (
+    load_normalized_title_join_index,
+)
 from wyrdcraeft.services.dictionary.normalized_title_join import (
     NormalizedTitleJoinIndex,
 )
@@ -33,7 +36,7 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
 )
 
 from ..text_utils import OENormalizer
-from .form_fk_resolver import FormFkResolver, _load_join_index, _load_morph_class_ids
+from .form_fk_resolver import FormFkResolver, _load_morph_class_ids
 
 #: Default row buffer size before flushing one bulk SQLite insert.
 _SQLITE_BATCH_SIZE = 25000
@@ -375,7 +378,7 @@ class SqliteIndexSink:
         except sqlite3.OperationalError:
             morph_class_ids = {}
         try:
-            join_index = _load_join_index(sqlite_connection)
+            join_index = load_normalized_title_join_index(sqlite_connection)
         except sqlite3.OperationalError:
             join_index = NormalizedTitleJoinIndex.from_entry_variant_rows([], [])
         return FormFkResolver(

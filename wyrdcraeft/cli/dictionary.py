@@ -10,13 +10,15 @@ from typing import TYPE_CHECKING
 import click
 
 from wyrdcraeft.paths import get_canonical_db_path
+from wyrdcraeft.services.dictionary.build_pipeline import (
+    DictionaryBuildPipeline,
+    MorphBuildOptions,
+)
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     DEFAULT_OLLAMA_ENDPOINT,
     BTLLMFixPass,
 )
-from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.query import BTQueryService, entry_to_dict
-from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
 from wyrdcraeft.services.markup import normalize_old_english
 
 if TYPE_CHECKING:
@@ -70,7 +72,8 @@ def _missing_canonical_index_message(db_path: Path) -> str:
     """
     return (
         f"Canonical database not found: {db_path}. "
-        "Run `wyrdcraeft morphology build` to build it."
+        "Run a DB-using command to trigger startup readiness, then "
+        "`wyrdcraeft dictionary build` to populate it."
     )
 
 
@@ -158,6 +161,91 @@ def dictionary_group() -> None:
     default=None,
     help="Optional parse_warnings.jsonl path (default: alongside index DB).",
 )
+@click.option(
+    "--with-morphology",
+    is_flag=True,
+    default=False,
+    help="Force morphology regeneration after rebuilding dictionary entries.",
+)
+@click.option(
+    "--data-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help="Directory containing default morphology data files.",
+)
+@click.option(
+    "--dictionary",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Morphology dictionary file path.",
+)
+@click.option(
+    "--manual-forms",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Manual morphology forms file path.",
+)
+@click.option(
+    "--verbal-paradigms",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Verbal morphology paradigms file path.",
+)
+@click.option(
+    "--prefixes",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Morphology prefixes file path.",
+)
+@click.option(
+    "--output",
+    default=None,
+    type=click.Path(path_type=Path),
+    help="Optional TSV output file path for regenerated morphology forms.",
+)
+@click.option(
+    "--limit",
+    default=None,
+    type=int,
+    help="Limit number of words processed during morphology regeneration.",
+)
+@click.option(
+    "--progress-every",
+    type=int,
+    default=None,
+    metavar="INTEGER",
+    help=(
+        "Update visible lemma banner every N processed words during "
+        "morphology regeneration."
+    ),
+)
+@click.option(
+    "--enable-r-stem-nouns",
+    is_flag=True,
+    default=False,
+    help=(
+        "Enable opt-in non-parity r-stem noun generation during "
+        "morphology regeneration."
+    ),
+)
+@click.option(
+    "--full/--no-full",
+    default=False,
+    show_default=True,
+    help="Generate full dictionary output during morphology regeneration.",
+)
+@click.option(
+    "--profile",
+    is_flag=True,
+    default=False,
+    help="Print stage and SQLite timing summary when morphology regeneration runs.",
+)
+@click.option(
+    "--refresh-catalog",
+    is_flag=True,
+    default=False,
+    help="Re-load Wright morph catalog before morphology regeneration.",
+)
 @click.pass_context
 def build(  # noqa: PLR0913
     ctx: click.Context,
@@ -167,6 +255,19 @@ def build(  # noqa: PLR0913
     llm_model: str,
     llm_endpoint: str,
     warnings_file: Path | None,
+    with_morphology: bool,
+    data_dir: Path | None,
+    dictionary: Path | None,
+    manual_forms: Path | None,
+    verbal_paradigms: Path | None,
+    prefixes: Path | None,
+    output: Path | None,
+    limit: int | None,
+    progress_every: int | None,
+    enable_r_stem_nouns: bool,
+    full: bool,
+    profile: bool,
+    refresh_catalog: bool,
 ) -> None:
     """
     Parse, merge, and persist Bosworth-Toller dictionary entries to SQLite.
@@ -179,9 +280,23 @@ def build(  # noqa: PLR0913
         llm_model: Ollama model identifier for the repair pass.
         llm_endpoint: Ollama generate endpoint URL.
         warnings_file: Optional parse warnings JSONL output path.
+        with_morphology: Forces morphology regeneration after dictionary rebuild.
+        data_dir: Optional base directory for default morphology files.
+        dictionary: Optional morphology dictionary file path override.
+        manual_forms: Optional manual-forms file path override.
+        verbal_paradigms: Optional verbal-paradigms file path override.
+        prefixes: Optional prefixes file path override.
+        output: Optional TSV output file path for regenerated morphology forms.
+        limit: Optional cap for non-full morphology generation.
+        progress_every: Optional visible-lemma update cadence override.
+        enable_r_stem_nouns: Enables opt-in non-parity r-stem noun generation.
+        full: Enables full-dictionary morphology generation mode.
+        profile: Enables stderr timing summary output when morphology runs.
+        refresh_catalog: Reloads the Wright morph catalog before morphology runs.
 
     Side Effects:
-        Attaches ``bt_*`` tables to ``wyrdcraeft.sqlite3``.
+        Rebuilds canonical ``bt_*`` tables and optionally regenerates linked
+        morphology rows inside ``wyrdcraeft.sqlite3``.
 
     Raises:
         click.ClickException: Source reading or SQLite writing fails.
@@ -191,14 +306,6 @@ def build(  # noqa: PLR0913
     resolved_index_db = get_canonical_db_path(
         app_data_dir=settings.app_data_dir if settings is not None else None
     )
-    if not resolved_index_db.is_file():
-        raise click.ClickException(_missing_canonical_index_message(resolved_index_db))
-    _require_non_empty_tables(
-        resolved_index_db,
-        ("forms",),
-        recovery_hint="Run `wyrdcraeft morphology build` to create them.",
-    )
-    attach_mode = True
 
     resolved_warnings_file = (
         warnings_file.expanduser().resolve()
@@ -210,26 +317,33 @@ def build(  # noqa: PLR0913
         if llm_fix_pass
         else None
     )
+    morph_options = MorphBuildOptions(
+        limit=limit,
+        full=full,
+        data_dir=data_dir,
+        output=output,
+        progress_every=progress_every,
+        enable_r_stem_nouns=enable_r_stem_nouns,
+        profile=profile,
+        refresh_catalog=refresh_catalog,
+        dictionary=dictionary,
+        manual_forms=manual_forms,
+        verbal_paradigms=verbal_paradigms,
+        prefixes=prefixes,
+    )
 
-    pipeline = BTIndexPipeline()
-    sqlite_sink: BTSqliteSink | None = None
     try:
-        sqlite_sink = BTSqliteSink(resolved_index_db, attach_mode=attach_mode)
-        index_report = pipeline.run(
-            source.resolve(),
-            sqlite_sink,
+        build_report = DictionaryBuildPipeline(resolved_index_db).run(
+            source=source.resolve(),
+            with_morphology=with_morphology,
+            morph_options=morph_options,
             warnings_path=resolved_warnings_file,
             llm_fix_pass=llm_repair,
+            report_path=report.resolve() if report is not None else None,
         )
-    except OSError as exc:
+    except (OSError, RuntimeError) as exc:
         msg = f"Failed to index dictionary source {source}: {exc}"
         raise click.ClickException(msg) from exc
-    finally:
-        if sqlite_sink is not None:
-            sqlite_sink.close()
-
-    if report is not None:
-        index_report.write_json(report.resolve())
 
     click.echo(
         "\n".join(
@@ -237,12 +351,13 @@ def build(  # noqa: PLR0913
                 "Dictionary index complete.",
                 f"source={source.resolve()}",
                 f"index_db={resolved_index_db}",
-                f"attach_mode={'yes' if attach_mode else 'no'}",
-                f"entries_written={index_report.merged}",
-                f"senses_written={index_report.senses_written}",
-                f"variants_written={index_report.variants_written}",
-                f"parsed={index_report.parsed}",
-                f"skipped={index_report.skipped}",
+                f"built_at={build_report.built_at}",
+                f"bt_entries_written={build_report.bt_entries_written}",
+                f"forms_source_count={build_report.forms_source_count}",
+                f"forms_regenerated={build_report.forms_regenerated}",
+                f"entry_ids_linked={build_report.entry_ids_linked}",
+                f"entry_ids_cleared={build_report.entry_ids_cleared}",
+                f"pos_inferred={build_report.pos_inferred}",
                 f"warnings_file={resolved_warnings_file}",
                 f"llm_fix_pass={'yes' if llm_fix_pass else 'no'}",
             ]
@@ -370,10 +485,7 @@ def lookup(
     _require_non_empty_tables(
         resolved_index_db,
         ("bt_entries", "bt_senses", "bt_variants"),
-        recovery_hint=(
-            "Run `wyrdcraeft morphology build` and then "
-            "`wyrdcraeft dictionary build`."
-        ),
+        recovery_hint="Run `wyrdcraeft dictionary build`.",
     )
 
     lookup_key = normalize_old_english(lemma) or ""

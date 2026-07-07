@@ -1,6 +1,10 @@
 ``wyrdcraeft lexicon build``
 ==============================
 
+.. warning::
+   This command is **deprecated** and has been superseded by :doc:`command_dictionary_index_bt` (``wyrdcraeft dictionary build``).
+   Search-index refresh remains on the legacy ``lexicon build`` path until Phase B removes ``search_keys``.
+
 This command rebuilds the lexicon browse read-model inside
 ``wyrdcraeft.sqlite3``. It replaces only ``lexicon_*`` tables derived from
 existing morphology ``forms`` rows and existing Bosworth-Toller ``bt_*`` tables.
