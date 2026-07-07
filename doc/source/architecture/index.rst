@@ -91,10 +91,12 @@ Canonical Database ER Diagram
 The canonical app-data database is one ``wyrdcraeft.sqlite3`` file. The
 diagram below shows the declared SQL foreign-key relationships from
 ``wyrdcraeft/models/reference.py``, ``wyrdcraeft/models/sqlalchemy.py``, and
-``wyrdcraeft/models/morph_catalog.py`` after Phase C search-index shrink
-(``20260706_03``). A full ER refresh is deferred to Phase D under
-``doc/plans/normalized-canonical-schema/``; legacy ``forms`` string columns in
-this diagram still reflect the pre-refresh snapshot.
+``wyrdcraeft/models/morph_catalog.py`` after normalized-schema Phases A–D
+(Alembic head ``20260706_04``). ``forms`` stores foreign keys to reference
+and catalog tables only; legacy denormalized string columns
+(``wordclass``, ``function``, ``wright``, ``paradigm``, ``paraID``,
+``class1``–``class3``) were dropped in Phase D. The lexicon layer is a slim
+search index only (``search_keys``, ``search_build_meta``).
 
 .. mermaid::
 
@@ -163,20 +165,16 @@ this diagram still reflect the pre-refresh snapshot.
            text formParts
            text var
            text probability
-           text function
-           text wright
-           text wordclass
-           text paradigm
-           text paraID
-           text class1
-           text class2
-           text class3
            text comment
            text bt_key
            text title_key
            text stem_key
            text form_key
            text formi_key
+           int wordclass_id FK
+           int inflection_code_id FK
+           int morph_class_id FK
+           int entry_id FK
        }
 
        MORPH_SOURCES {
@@ -255,15 +253,20 @@ this diagram still reflect the pre-refresh snapshot.
        PARTS_OF_SPEECH ||--o{ BT_ENTRIES : classifies
        PARTS_OF_SPEECH ||--o{ MORPH_CLASSES : classifies
        PARTS_OF_SPEECH ||--o{ LEMMA_MORPH_CLASSES : classifies
+       PARTS_OF_SPEECH ||--o{ FORMS : classifies
+
+       INFLECTION_CODES ||--o{ FORMS : tags
 
        BT_ENTRIES ||--o{ BT_SENSES : has
        BT_ENTRIES ||--o{ BT_VARIANTS : has
+       BT_ENTRIES o|--o{ FORMS : links
 
        MORPH_CLASSES ||--o{ MORPH_CLASS_SOURCES : cites
        MORPH_SOURCES ||--o{ MORPH_CLASS_SOURCES : sources
        MORPH_CLASSES ||--o{ MORPH_CLASS_WRIGHT_SECTIONS : anchors
        WRIGHT_SECTIONS ||--o{ MORPH_CLASS_WRIGHT_SECTIONS : anchored_by
        MORPH_CLASSES ||--o{ LEMMA_MORPH_CLASSES : assigned_to
+       MORPH_CLASSES o|--o{ FORMS : assigned_to
 
        BT_ENTRIES o|--o{ SEARCH_KEYS : indexed_by
        FORMS o|--o{ SEARCH_KEYS : indexed_by
@@ -274,10 +277,10 @@ this diagram still reflect the pre-refresh snapshot.
    because they are code-level joins, not declared SQL foreign keys. The main
    ones are:
 
-   - ``forms.normalized_title`` to dictionary normalized-title lookups
-   - ``forms.entry_id`` to dictionary entries when populated at morphology build
+   - ``forms.normalized_title`` to dictionary normalized-title lookups when
+     ``forms.entry_id`` is populated at morphology build
    - ``lemma_morph_classes.(normalized_title, pos_id)`` to browse-time morph-class
-     lookup
+     lookup when ``forms.morph_class_id`` is NULL
    - ``bt_edit_log`` targets dictionary entries by stored business fields rather
      than an entry-id foreign key
 

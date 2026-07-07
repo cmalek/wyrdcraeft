@@ -75,10 +75,21 @@ Out of scope:
 - lexicon: combined dictionary-plus-morphology user workflow presented as one
   browse/search surface
 - lexicon read model: slim derived search index inside `wyrdcraeft.sqlite3`
-  (`search_keys`, `search_build_meta`) rebuilt from existing `forms` and `bt_*`
-  rows; browse reads dictionary and morphology source tables directly at query time
-- search index: derived `search_keys` rows for ranked lemma/stem/form browse
-  lookup; not a duplicate of dictionary or morphology tables
+  only — `search_keys` (ranked lookup keys with optional `entry_id` /
+  `form_id` foreign keys) and `search_build_meta` (build metadata such as
+  source row counts). Rebuilt by `wyrdcraeft lexicon build` from existing
+  `forms` and `bt_*` rows. No projection tables (`lexicon_entries` /
+  `lexicon_forms` were dropped in Phase C). Browse resolves entry and form
+  details from `bt_*`, `forms`, and reference joins at query time.
+- search index: Alembic-managed `search_keys` plus `search_build_meta`; ranked
+  lemma/stem/form keys for browse lookup — not a duplicate of dictionary or
+  morphology tables
+- normalized forms schema: Phase D (Alembic `20260706_04`) dropped legacy
+  denormalized string columns from `forms` (`wordclass`, `function`, `wright`,
+  `paradigm`, `paraID`, `class1`–`class3`). Persisted morphology metadata uses
+  foreign keys (`wordclass_id`, `inflection_code_id`, `morph_class_id`,
+  `entry_id`) plus materialized `*_key` lookup columns; product read paths join
+  `parts_of_speech`, `inflection_codes`, and `morph_classes` for labels
 - lexicon SQLAlchemy rebuild slice: post–Phase 8 work (commit `64c6223`) that moved
   `lexicon build` to SQLAlchemy Core batched reads/writes with no raw `sqlite3`,
   no TEMP staging tables, and cooperative cancel via DBAPI `interrupt`; join
@@ -113,16 +124,21 @@ Out of scope:
 - lexicon browse search normalization: user queries and dictionary search-key
   indexing use ``normalize_old_english`` (diacritic-stripped) so undiacritized
   input like ``abbod`` matches macronized headwords; form-to-entry linking uses
-  ``forms.entry_id`` (populated at morphology build via ``normalized_title`` join
-  policy), and browse resolves entry and form details from ``bt_*`` and ``forms``
-  through ``search_keys`` at query time
+  ``forms.entry_id`` (declared foreign key populated at morphology build via
+  ``normalized_title`` join policy), and browse resolves entry and form details
+  from ``bt_*``, ``forms``, and reference joins through ``search_keys`` at
+  query time
 - parts of speech: canonical reference row naming the grammatical class of a
   lemma or dictionary entry (noun, verb, adjective, and related closed classes)
-- morphology function code: compact tag on a generated form row (for example
-  `PaInSg2`, `PlNeAc`) naming tense, mood, case, gender, number, degree, or
-  other inflectional dimensions depending on part of speech
-- inflection code: normalized reference label pairing one morphology function
-  code with its part-of-speech class
+- parts of speech: canonical `parts_of_speech` reference table; single POS
+  source of truth; product tables store `pos_id` / `wordclass_id` foreign keys
+- morphology function code: compact generator tag (for example `PaInSg2`,
+  `PlNeAc`) naming tense, mood, case, gender, number, degree, or other
+  inflectional dimensions depending on part of speech; persisted on `forms` as
+  `inflection_code_id`, not as a free-text column
+- inflection code: normalized `inflection_codes` lookup row pairing one
+  morphology function code with its part-of-speech class; resolved at morphology
+  build and joined at query time via `forms.inflection_code_id`
 - Wright morph catalog: reference tables in canonical SQLite seeded from
   `wyrdcraeft/etc/morphology/wright_paradigms.json` (113 morph classes, Wright
   § links, bibliographic sources); auto-seeded on morphology build when empty
@@ -177,7 +193,7 @@ Out of scope:
   input, backs it up, resets to fresh canonical DB, stops, and prints rebuild
   commands instead of trying in-place rename or migration
 - POS inference: lexicon build step that fills empty dictionary POS from
-  unambiguous morphology wordclass when one clear mapping exists
+  unambiguous morphology `wordclass_id` when one clear mapping exists
 - lexicon build progress: live stderr stage progress during `lexicon build`
 - lexicon build monitor: default full-screen Textual monitor for `lexicon build`
   showing typed stage progress, counters, structured logs, and cooperative
@@ -263,8 +279,6 @@ Out of scope:
     `morphology audit-wright` (malformed legacy Wright, contradictions,
     unclassified, blank-but-classified); report-only v1
   - Session reports under `doc/sessions/task-phase{1,2,3,4}-*.md`
-  - **Deferred:** `forms.morph_class_id` FK propagation remains in
-    `doc/plans/morphology-wright-catalog/phase-3-forms-link-and-query.md`
   - **Coverage gap:** bundled `data/sources/wright.md` currently has phonology
     §1–58 only; browse cites inflection §330+ until a fuller markdown corpus is
     ingested
@@ -273,6 +287,12 @@ Out of scope:
   `search_keys` and `lexicon_build_meta` → `search_build_meta`; `lexicon build`
   rebuilds the search index only; browse reads `bt_*` and `forms` directly at
   query time. Plan at `doc/plans/normalized-canonical-schema/phase-c-lexicon-shrink.md`.
+- **Normalized canonical schema Phase D** (2026-07-06, through `e686c74`):
+  Alembic `20260706_04` dropped legacy `forms` string columns; morphology sink,
+  query, lexicon build, and browse read POS, inflection, morph-class, and
+  dictionary metadata via foreign keys and reference joins only. Architecture ER
+  refreshed in `doc/source/architecture/index.rst`. Plan at
+  `doc/plans/normalized-canonical-schema/phase-d-legacy-column-drop.md`.
 
 ## Key Flows
 
@@ -342,8 +362,9 @@ morphology build, dictionary build, and startup readiness).
   `morphology ingest-wright-text`; bundled `data/sources/wright.md` currently
   covers phonology §1–58 only, so inflection §330+ citations show an ingest-needed
   message in browse until a fuller corpus is ingested.
-- Lexicon browse morph-class block is join-at-read-time only; no
-  `forms.morph_class_id` denormalization in the browse v1 release.
+- Morphology form rows store `morph_class_id` when assigned at build time;
+  browse and query join `morph_classes` (and fall back to
+  `lemma_morph_classes` lookup when the FK is NULL).
 - Dictionary indexing now writes `bt_*` through SQLAlchemy-backed persistence
   into app-data `wyrdcraeft.sqlite3`; CLI/product flows still fail clearly when
   that canonical database is missing.
@@ -368,16 +389,17 @@ morphology build, dictionary build, and startup readiness).
   Alembic DDL upgrades.
 - Lexicon browse and build expect the canonical Alembic-managed schema; startup
   database readiness applies migrations before DB-using commands run.
-- Lexicon build may infer missing dictionary POS from morphology when wordclass is
-  unambiguous; ambiguous lemmas stay POS-empty.
+- Lexicon build may infer missing dictionary POS from morphology `wordclass_id`
+  when unambiguous; ambiguous lemmas stay POS-empty.
 - Lexicon browse search accepts direct keyboard entry of æ/þ/ð, macrons, and
   dotted letters when the search field is focused; the character bar below the
   field is a fallback for terminals that cannot emit those keys.
 - Lexicon browse search results sort by rank tier and key kind, then lexical
   distance from the query string.
 - Morphology sidebar shows only forms matching the headword POS and renders
-  paradigm grids from function codes; scrollable details and morphology panes
-  share the right column below the search bar.
+  paradigm grids from inflection codes (via `inflection_code_id` joins);
+  scrollable details and morphology panes share the right column below the
+  search bar.
 - OCR `--pages` is currently not supported in `olmocr` mode.
 - Diacritic workflows use packaged JSON/TXT data under `wyrdcraeft/etc/diacritic`.
 - Settings docs in Sphinx are not always current; prefer code in `wyrdcraeft/settings.py` and CLI wiring in `wyrdcraeft/cli/cli.py`.
