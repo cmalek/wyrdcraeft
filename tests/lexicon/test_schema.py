@@ -12,8 +12,8 @@ from wyrdcraeft.services import lexicon as lexicon_exports
 from wyrdcraeft.services.lexicon import schema as schema_module
 from wyrdcraeft.services.lexicon.schema import (
     KEY_KIND_LEMMA,
-    LEXICON_TABLE_NAMES,
     RANK_TIER_EXACT_ENTRY,
+    SEARCH_TABLE_NAMES,
 )
 from wyrdcraeft.settings import Settings
 
@@ -28,10 +28,8 @@ EXPECTED_CANONICAL_TABLES = {
     "bt_senses",
     "bt_variants",
     "bt_edit_log",
-    "lexicon_entries",
-    "lexicon_forms",
-    "lexicon_search_keys",
-    "lexicon_build_meta",
+    "search_keys",
+    "search_build_meta",
 }
 
 EXPECTED_CANONICAL_INDEXES = {
@@ -45,12 +43,10 @@ EXPECTED_CANONICAL_INDEXES = {
     "idx_bt_entries_normalized_title",
     "idx_bt_variants_spelling",
     "idx_bt_variants_normalized_title",
-    "idx_lexicon_entries_norm_pos",
-    "idx_lexicon_forms_entry_id",
-    "idx_lexicon_search_keys_key_text",
-    "idx_lexicon_search_keys_entry_id",
-    "idx_lexicon_search_keys_form_id",
-    "idx_lexicon_search_keys_dedupe",
+    "idx_search_keys_key_text",
+    "idx_search_keys_entry_id",
+    "idx_search_keys_form_id",
+    "idx_search_keys_dedupe",
 }
 
 
@@ -78,6 +74,15 @@ def _index_names(connection: sqlite3.Connection) -> set[str]:
     return {str(row[0]) for row in rows}
 
 
+def _unknown_pos_id(connection: sqlite3.Connection) -> int:
+    """Return the seeded ``unknown`` part-of-speech row id."""
+    row = connection.execute(
+        "SELECT id FROM parts_of_speech WHERE code = 'unknown'",
+    ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
 def _fresh_canonical_db(tmp_path: Path) -> Path:
     settings = Settings(app_data_dir=tmp_path / "app-data")
     runtime = DatabaseStartupRuntime(
@@ -97,20 +102,8 @@ def test_fresh_canonical_db_has_expected_tables(tmp_path: Path) -> None:
         table_names = _table_names(connection)
 
     assert table_names >= EXPECTED_CANONICAL_TABLES
-
-
-def test_fresh_canonical_db_lexicon_forms_include_paradigm(
-    tmp_path: Path,
-) -> None:
-    db_path = _fresh_canonical_db(tmp_path)
-
-    with sqlite3.connect(db_path) as connection:
-        columns = {
-            str(row[1])
-            for row in connection.execute("PRAGMA table_info(lexicon_forms)").fetchall()
-        }
-
-    assert "paradigm" in columns
+    assert "lexicon_entries" not in table_names
+    assert "lexicon_forms" not in table_names
 
 
 def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:
@@ -122,13 +115,13 @@ def test_fresh_canonical_db_has_expected_indexes(tmp_path: Path) -> None:
     assert index_names >= EXPECTED_CANONICAL_INDEXES
 
 
-def test_alembic_upgrade_creates_expected_lexicon_tables(
+def test_alembic_upgrade_creates_expected_search_tables(
     lexicon_db_path: Path,
 ) -> None:
     with sqlite3.connect(lexicon_db_path) as connection:
         table_names = _table_names(connection)
 
-    assert set(LEXICON_TABLE_NAMES).issubset(table_names)
+    assert set(SEARCH_TABLE_NAMES).issubset(table_names)
 
 
 def test_alembic_upgrade_is_idempotent(tmp_path: Path) -> None:
@@ -155,76 +148,74 @@ def test_obsolete_lexicon_schema_compatibility_surface_is_removed(
     assert not hasattr(lexicon_exports, attribute_name)
 
 
-def test_lexicon_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
+def test_bt_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
     connection = lexicon_db_connection
+    pos_id = _unknown_pos_id(connection)
     connection.execute(
         """
-        INSERT INTO lexicon_entries (
-            entry_id,
+        INSERT INTO bt_entries (
+            id,
             norm_key,
-            pos,
             headword,
-            summary_sense,
-            etymology,
-            variants_json,
+            normalized_title,
+            pos_id,
             genders_json,
-            senses_json
+            etymology,
+            see_also_json,
+            source_line_nos_json
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             42,
             "cyning",
-            "noun",
             "cyning",
-            "a king",
-            "from PGmc *kuningaz",
-            '["cyning"]',
+            "cyning",
+            pos_id,
             '["masculine"]',
-            '[{"sense_label": "I", "gloss_en": "a king"}]',
+            "from PGmc *kuningaz",
+            "[]",
+            "[1]",
         ),
     )
     connection.commit()
 
     row = connection.execute(
         """
-        SELECT entry_id, norm_key, pos, headword, summary_sense
-        FROM lexicon_entries
-        WHERE entry_id = ?
+        SELECT id, norm_key, headword
+        FROM bt_entries
+        WHERE id = ?
         """,
         (42,),
     ).fetchone()
 
     assert row is not None
-    assert row["entry_id"] == 42
+    assert row["id"] == 42
     assert row["norm_key"] == "cyning"
-    assert row["pos"] == "noun"
     assert row["headword"] == "cyning"
-    assert row["summary_sense"] == "a king"
 
 
-def test_lexicon_search_keys_round_trip(
-    lexicon_db_connection: sqlite3.Connection,
-) -> None:
+def test_search_keys_round_trip(lexicon_db_connection: sqlite3.Connection) -> None:
     connection = lexicon_db_connection
+    pos_id = _unknown_pos_id(connection)
     connection.execute(
         """
-        INSERT INTO lexicon_entries (
-            entry_id,
+        INSERT INTO bt_entries (
+            id,
             norm_key,
-            pos,
             headword,
-            summary_sense,
-            etymology,
-            variants_json,
+            normalized_title,
+            pos_id,
             genders_json,
-            senses_json
+            etymology,
+            see_also_json,
+            source_line_nos_json
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (7, "cyning", "noun", "cyning", "a king", "", "[]", "[]", "[]"),
+        (7, "cyning", "cyning", "cyning", pos_id, "[]", "", "[]", "[]"),
     )
     connection.execute(
         """
-        INSERT INTO lexicon_search_keys (
+        INSERT INTO search_keys (
             key_text,
             key_kind,
             rank_tier,
@@ -240,7 +231,7 @@ def test_lexicon_search_keys_round_trip(
     row = connection.execute(
         """
         SELECT key_text, key_kind, rank_tier, entry_id, display_text
-        FROM lexicon_search_keys
+        FROM search_keys
         WHERE key_text = ?
         """,
         ("cyning",),
@@ -259,52 +250,31 @@ def test_orphan_form_without_entry_is_allowed(
     connection = lexicon_db_connection
     connection.execute(
         """
-        INSERT INTO lexicon_forms (
-            form_id,
-            entry_id,
-            bt,
-            title,
-            stem,
-            form,
-            formi,
-            wordclass,
-            function,
-            probability,
-            class1,
-            class2,
-            class3,
-            paradigm
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            99,
-            None,
-            "unlinked",
-            "unlinked",
-            "unlinked",
-            "unlinked-form",
-            "unlinked-form",
-            "verb",
-            "present",
-            "1",
-            "",
-            "",
-            "",
-            "",
-        ),
+        INSERT INTO forms (
+            counter, formi, BT, title, normalized_title, stem, form,
+            formParts, var, probability, function, wright, paradigm,
+            paraID, wordclass, class1, class2, class3, comment,
+            bt_key, title_key, stem_key, form_key, formi_key
+        ) VALUES (
+            99, 'unlinked-form', 'unlinked', 'unlinked', 'unlinked', 'unlinked',
+            'unlinked-form', '0-unlinked-0', '0', '1', 'present', '0', '',
+            '0', 'verb', '', '', '', '',
+            'unlinked', 'unlinked', 'unlinked', 'unlinked-form', 'unlinked-form'
+        )
+        """
     )
     connection.commit()
 
     row = connection.execute(
         """
-        SELECT form_id, entry_id, form
-        FROM lexicon_forms
-        WHERE form_id = ?
+        SELECT id, entry_id, form
+        FROM forms
+        WHERE form = ?
         """,
-        (99,),
+        ("unlinked-form",),
     ).fetchone()
     entry_count = connection.execute(
-        "SELECT COUNT(*) FROM lexicon_entries"
+        "SELECT COUNT(*) FROM bt_entries"
     ).fetchone()[0]
 
     assert row is not None
@@ -313,31 +283,8 @@ def test_orphan_form_without_entry_is_allowed(
     assert entry_count == 0
 
 
-def test_seeded_lexicon_db_fixture_has_orphan_and_entry(
-    seeded_lexicon_db: Path,
-) -> None:
-    with sqlite3.connect(seeded_lexicon_db) as connection:
-        entry_count = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_entries"
-        ).fetchone()[0]
-        linked_forms = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_forms WHERE entry_id IS NOT NULL"
-        ).fetchone()[0]
-        orphan_forms = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_forms WHERE entry_id IS NULL"
-        ).fetchone()[0]
-        search_key_count = connection.execute(
-            "SELECT COUNT(*) FROM lexicon_search_keys"
-        ).fetchone()[0]
-
-    assert entry_count == 1
-    assert linked_forms == 1
-    assert orphan_forms == 1
-    assert search_key_count == 2
-
-
-@pytest.mark.parametrize("table_name", LEXICON_TABLE_NAMES)
-def test_each_lexicon_table_exists_after_alembic_upgrade(
+@pytest.mark.parametrize("table_name", SEARCH_TABLE_NAMES)
+def test_each_search_table_exists_after_alembic_upgrade(
     tmp_path: Path,
     table_name: str,
 ) -> None:

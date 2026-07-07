@@ -4,21 +4,15 @@ from __future__ import annotations
 
 from typing import Final
 
-#: Lexicon dictionary-entry table storing one row per real Bosworth-Toller entry.
-TABLE_LEXICON_ENTRIES: Final = "lexicon_entries"
-#: Lexicon morphology projection table; rows may exist without a dictionary entry.
-TABLE_LEXICON_FORMS: Final = "lexicon_forms"
-#: Lexicon normalized search keys used for unified lookup and ranking.
-TABLE_LEXICON_SEARCH_KEYS: Final = "lexicon_search_keys"
-#: Lexicon build metadata key/value store.
-TABLE_LEXICON_BUILD_META: Final = "lexicon_build_meta"
+#: Normalized search keys used for unified lexicon lookup and ranking.
+TABLE_SEARCH_KEYS: Final = "search_keys"
+#: Search-index build metadata key/value store.
+TABLE_SEARCH_BUILD_META: Final = "search_build_meta"
 
-#: Ordered lexicon table names managed by Alembic and truncated during rebuild.
-LEXICON_TABLE_NAMES: Final = (
-    TABLE_LEXICON_ENTRIES,
-    TABLE_LEXICON_FORMS,
-    TABLE_LEXICON_SEARCH_KEYS,
-    TABLE_LEXICON_BUILD_META,
+#: Ordered search-index table names managed by Alembic and truncated during rebuild.
+SEARCH_TABLE_NAMES: Final = (
+    TABLE_SEARCH_KEYS,
+    TABLE_SEARCH_BUILD_META,
 )
 
 #: Metadata key storing the ISO-8601 UTC timestamp of the last rebuild.

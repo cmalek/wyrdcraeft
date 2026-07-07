@@ -9,7 +9,19 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Protocol, cast
 
-from sqlalchemy import delete, func, insert, select, text, update
+from sqlalchemy import (
+    Column,
+    Integer,
+    MetaData,
+    Table,
+    Text,
+    delete,
+    func,
+    insert,
+    select,
+    text,
+    update,
+)
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError
 
@@ -30,12 +42,10 @@ from wyrdcraeft.models.sqlalchemy import (
     BTSense,
     BTVariant,
     Form,
-    LexiconEntry,
-    LexiconForm,
-    LexiconSearchKey,
+    SearchKey,
 )
 from wyrdcraeft.models.sqlalchemy import (
-    LexiconBuildMeta as LexiconBuildMetaTable,
+    SearchBuildMeta as SearchBuildMetaTable,
 )
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.dictionary.normalized_title_join import (
@@ -52,7 +62,6 @@ from .schema import (
     KEY_KIND_LEMMA,
     KEY_KIND_STEM,
     KEY_KIND_VARIANT,
-    LEXICON_TABLE_NAMES,
     META_KEY_BT_ENTRIES_SOURCE_COUNT,
     META_KEY_BUILT_AT,
     META_KEY_FORMS_SOURCE_COUNT,
@@ -60,6 +69,7 @@ from .schema import (
     RANK_TIER_MORPH_FORM,
     RANK_TIER_MORPH_LEMMA_STEM,
     RANK_TIER_ORPHAN,
+    SEARCH_TABLE_NAMES,
 )
 
 if TYPE_CHECKING:
@@ -79,8 +89,44 @@ _REQUIRED_SOURCE_TABLES: Final[tuple[str, ...]] = (
     "bt_senses",
     "bt_variants",
 )
-#: Lexicon read-model tables that Alembic must create before rebuild.
-_REQUIRED_LEXICON_TABLES: Final[tuple[str, ...]] = LEXICON_TABLE_NAMES
+#: Search-index tables that Alembic must create before rebuild.
+_REQUIRED_LEXICON_TABLES: Final[tuple[str, ...]] = SEARCH_TABLE_NAMES
+
+#: Legacy projection table removed in ``20260706_03``; retained until Task 2.
+_LEGACY_PROJECTION_METADATA: Final = MetaData()
+#: Legacy lexicon entry projection table reference for pre-Task-2 rebuild code.
+LexiconEntry: Final = Table(
+    "lexicon_entries",
+    _LEGACY_PROJECTION_METADATA,
+    Column("entry_id", Integer, primary_key=True),
+    Column("norm_key", Text, nullable=False),
+    Column("pos", Text, nullable=False),
+    Column("headword", Text, nullable=False),
+    Column("summary_sense", Text, nullable=False),
+    Column("etymology", Text, nullable=False),
+    Column("variants_json", Text, nullable=False),
+    Column("genders_json", Text, nullable=False),
+    Column("senses_json", Text, nullable=False),
+)
+#: Legacy lexicon form projection table reference for pre-Task-2 rebuild code.
+LexiconForm: Final = Table(
+    "lexicon_forms",
+    _LEGACY_PROJECTION_METADATA,
+    Column("form_id", Integer, primary_key=True),
+    Column("entry_id", Integer, nullable=True),
+    Column("bt", Text, nullable=False),
+    Column("title", Text, nullable=False),
+    Column("stem", Text, nullable=False),
+    Column("form", Text, nullable=False),
+    Column("formi", Text, nullable=False),
+    Column("wordclass", Text, nullable=False),
+    Column("function", Text, nullable=False),
+    Column("probability", Text, nullable=False),
+    Column("class1", Text, nullable=False),
+    Column("class2", Text, nullable=False),
+    Column("class3", Text, nullable=False),
+    Column("paradigm", Text, nullable=False),
+)
 
 #: Projected dictionary entry payload produced from ``bt_entries`` sources.
 EntryPayload = dict[str, object]
@@ -736,10 +782,10 @@ class LexiconBuilder:
             Deletes all rows from ``lexicon_*`` tables without dropping them.
 
         """
-        connection.execute(delete(LexiconSearchKey))
+        connection.execute(delete(SearchKey))
         connection.execute(delete(LexiconForm))
         connection.execute(delete(LexiconEntry))
-        connection.execute(delete(LexiconBuildMetaTable))
+        connection.execute(delete(SearchBuildMetaTable))
 
     def _rebuild_into_connection(self, connection: Connection) -> BuildReport:
         """
@@ -1318,21 +1364,21 @@ class LexiconBuilder:
 
         form_rows = connection.execute(
             select(
-                LexiconForm.form_id,
-                LexiconForm.entry_id,
-                LexiconForm.bt,
-                LexiconForm.title,
-                LexiconForm.stem,
-                LexiconForm.form,
-                LexiconForm.formi,
+                LexiconForm.c.form_id,
+                LexiconForm.c.entry_id,
+                LexiconForm.c.bt,
+                LexiconForm.c.title,
+                LexiconForm.c.stem,
+                LexiconForm.c.form,
+                LexiconForm.c.formi,
                 Form.bt_key,
                 Form.title_key,
                 Form.stem_key,
                 Form.form_key,
                 Form.formi_key,
             )
-            .join(Form, Form.id == LexiconForm.form_id)
-            .order_by(LexiconForm.form_id.asc())
+            .join(Form, Form.id == LexiconForm.c.form_id)
+            .order_by(LexiconForm.c.form_id.asc())
         ).fetchall()
         for form in form_rows:
             progress_index += 1
@@ -1441,12 +1487,12 @@ class LexiconBuilder:
             for offset in range(0, len(search_key_rows), self._form_stage_batch_size):
                 batch = search_key_rows[offset : offset + self._form_stage_batch_size]
                 connection.execute(
-                    insert(LexiconSearchKey).prefix_with("OR IGNORE"),
+                    insert(SearchKey).prefix_with("OR IGNORE"),
                     batch,
                 )
         written = int(
             connection.execute(
-                select(func.count()).select_from(LexiconSearchKey)
+                select(func.count()).select_from(SearchKey)
             ).scalar_one()
         )
         self._advance_stage(
@@ -1484,7 +1530,7 @@ class LexiconBuilder:
         """
         self._begin_stage(LexiconBuildStage.WRITE_META)
         connection.execute(
-            insert(LexiconBuildMetaTable),
+            insert(SearchBuildMetaTable),
             [
                 {"key": META_KEY_BUILT_AT, "value": built_at},
                 {"key": META_KEY_FORMS_SOURCE_COUNT, "value": str(forms_source_count)},
@@ -1534,8 +1580,8 @@ def read_lexicon_build_meta(target: DbTarget) -> LexiconBuildMeta | None:
         try:
             rows = connection.execute(
                 select(
-                    LexiconBuildMetaTable.key,
-                    LexiconBuildMetaTable.value,
+                    SearchBuildMetaTable.key,
+                    SearchBuildMetaTable.value,
                 )
             ).fetchall()
         except OperationalError:

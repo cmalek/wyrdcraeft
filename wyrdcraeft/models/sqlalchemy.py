@@ -220,86 +220,18 @@ class BTEditLog(Base):
     note: Mapped[str] = mapped_column(Text, nullable=False)
 
 
-class LexiconEntry(Base):
-    """Canonical lexicon browse entry row."""
-
-    #: Canonical lexicon entries table name.
-    __tablename__ = "lexicon_entries"
-    #: Lookup index for normalized lexicon entry keys by part of speech.
-    __table_args__ = (Index("idx_lexicon_entries_norm_pos", "norm_key", "pos"),)
-
-    #: Dictionary entry identifier reused by lexicon rows.
-    entry_id: Mapped[int] = mapped_column(primary_key=True)
-    #: Normalized dictionary key.
-    norm_key: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Part-of-speech label.
-    pos: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Display headword.
-    headword: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Summary English sense.
-    summary_sense: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Etymology text.
-    etymology: Mapped[str] = mapped_column(Text, nullable=False)
-    #: JSON-encoded variant spellings.
-    variants_json: Mapped[str] = mapped_column(Text, nullable=False)
-    #: JSON-encoded gender labels.
-    genders_json: Mapped[str] = mapped_column(Text, nullable=False)
-    #: JSON-encoded sense payload.
-    senses_json: Mapped[str] = mapped_column(Text, nullable=False)
-
-
-class LexiconForm(Base):
-    """Canonical lexicon morphology projection row."""
-
-    #: Canonical lexicon forms table name.
-    __tablename__ = "lexicon_forms"
-    #: Lookup index for forms joined to dictionary entries.
-    __table_args__ = (Index("idx_lexicon_forms_entry_id", "entry_id"),)
-
-    #: Morphology form identifier.
-    form_id: Mapped[int] = mapped_column(primary_key=True)
-    #: Optional joined dictionary entry identifier.
-    entry_id: Mapped[int | None] = mapped_column(
-        ForeignKey("lexicon_entries.entry_id")
-    )
-    #: Bosworth-Toller lemma text.
-    bt: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Source lemma title.
-    title: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Morphological stem.
-    stem: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Emitted form text.
-    form: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Normalized emitted form.
-    formi: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Part-of-speech word class.
-    wordclass: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Morphological function label.
-    function: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Generation probability marker.
-    probability: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Primary class label.
-    class1: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Secondary class label.
-    class2: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Tertiary class label.
-    class3: Mapped[str] = mapped_column(Text, nullable=False)
-    #: Paradigm label.
-    paradigm: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
-
-
-class LexiconSearchKey(Base):
+class SearchKey(Base):
     """Canonical normalized search key row for lexicon browsing."""
 
-    #: Canonical lexicon search keys table name.
-    __tablename__ = "lexicon_search_keys"
-    #: Lookup and deduplication indexes for lexicon search keys.
+    #: Canonical search keys table name.
+    __tablename__ = "search_keys"
+    #: Lookup and deduplication indexes for search keys.
     __table_args__ = (
-        Index("idx_lexicon_search_keys_key_text", "key_text"),
-        Index("idx_lexicon_search_keys_entry_id", "entry_id"),
-        Index("idx_lexicon_search_keys_form_id", "form_id"),
+        Index("idx_search_keys_key_text", "key_text"),
+        Index("idx_search_keys_entry_id", "entry_id"),
+        Index("idx_search_keys_form_id", "form_id"),
         Index(
-            "idx_lexicon_search_keys_dedupe",
+            "idx_search_keys_dedupe",
             text("TRIM(key_text)"),
             "key_kind",
             "rank_tier",
@@ -319,20 +251,18 @@ class LexiconSearchKey(Base):
     #: Search ranking tier.
     rank_tier: Mapped[int] = mapped_column(nullable=False)
     #: Optional joined dictionary entry identifier.
-    entry_id: Mapped[int | None] = mapped_column(
-        ForeignKey("lexicon_entries.entry_id")
-    )
+    entry_id: Mapped[int | None] = mapped_column(ForeignKey("bt_entries.id"))
     #: Optional joined morphology form identifier.
-    form_id: Mapped[int | None] = mapped_column(ForeignKey("lexicon_forms.form_id"))
+    form_id: Mapped[int | None] = mapped_column(ForeignKey("forms.id"))
     #: Display text shown for search hits.
     display_text: Mapped[str] = mapped_column(Text, nullable=False)
 
 
-class LexiconBuildMeta(Base):
-    """Canonical lexicon build metadata key/value row."""
+class SearchBuildMeta(Base):
+    """Canonical search-index build metadata key/value row."""
 
-    #: Canonical lexicon build metadata table name.
-    __tablename__ = "lexicon_build_meta"
+    #: Canonical search build metadata table name.
+    __tablename__ = "search_build_meta"
 
     #: Metadata key.
     key: Mapped[str] = mapped_column(Text, primary_key=True)
