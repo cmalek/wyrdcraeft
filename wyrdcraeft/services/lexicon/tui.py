@@ -469,13 +469,17 @@ def _dedupe_morphology_rows(rows: list[MorphologyRow]) -> list[MorphologyRow]:
 
 def _morphology_payloads(rows: list[MorphologyRow]) -> list[MorphologyRowPayload]:
     """
-    Convert morphology dataclass rows into paradigm-builder payloads.
+    Convert FK-backed morphology rows into paradigm-builder payloads.
 
     Args:
         rows: Morphology rows for sidebar rendering.
 
     Returns:
         Payload rows for ``build_paradigm_sidebar``.
+
+    Note:
+        Legacy ``forms.class1``-``class3`` columns were dropped in Phase D.
+        Paradigm grids decode ``wordclass`` and ``function`` from FK joins only.
 
     """
     return [
@@ -484,9 +488,9 @@ def _morphology_payloads(rows: list[MorphologyRow]) -> list[MorphologyRowPayload
             formi=row.formi,
             function=row.function,
             wordclass=row.wordclass,
-            class1=row.class1,
-            class2=row.class2,
-            class3=row.class3,
+            class1="",
+            class2="",
+            class3="",
         )
         for row in rows
     ]

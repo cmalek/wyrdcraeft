@@ -479,10 +479,10 @@ def _row_to_morphology(row: RowMapping | Mapping[str, Any]) -> MorphologyRow:
         wordclass=str(row["wordclass"]),
         function=str(row["function"]),
         probability=str(row["probability"]),
-        class1=str(row["class1"]),
-        class2=str(row["class2"]),
-        class3=str(row["class3"]),
-        paradigm=str(row["paradigm"]),
+        class1="",
+        class2="",
+        class3="",
+        paradigm="",
     )
 
 
@@ -907,11 +907,7 @@ class LexiconQueryService:
                 forms.formi AS formi,
                 COALESCE(wordclass_pos.code, '') AS wordclass,
                 COALESCE(inflection_codes.code, '') AS function,
-                forms.probability AS probability,
-                '' AS class1,
-                '' AS class2,
-                '' AS class3,
-                '' AS paradigm
+                forms.probability AS probability
             FROM forms
             LEFT JOIN parts_of_speech AS wordclass_pos
                 ON wordclass_pos.id = forms.wordclass_id
@@ -926,13 +922,7 @@ class LexiconQueryService:
         ).mappings().all()
 
         morphology_rows = [_row_to_morphology(row) for row in form_rows]
-        class_summary = _ordered_distinct(
-            [
-                value
-                for row in morphology_rows
-                for value in (row.class1, row.class2, row.class3)
-            ]
-        )
+        class_summary: list[str] = []
         entry_genders = _json_string_list(str(entry_row["genders_json"]))
         genders, persons, numbers = _extract_gender_person_number(
             functions=[row.function for row in morphology_rows],
@@ -1068,11 +1058,7 @@ class LexiconQueryService:
                 forms.formi AS formi,
                 COALESCE(wordclass_pos.code, '') AS wordclass,
                 COALESCE(inflection_codes.code, '') AS function,
-                forms.probability AS probability,
-                '' AS class1,
-                '' AS class2,
-                '' AS class3,
-                '' AS paradigm
+                forms.probability AS probability
             FROM forms
             LEFT JOIN parts_of_speech AS wordclass_pos
                 ON wordclass_pos.id = forms.wordclass_id
@@ -1087,9 +1073,7 @@ class LexiconQueryService:
             return None
 
         morphology_row = _row_to_morphology(row)
-        class_summary = _ordered_distinct(
-            [morphology_row.class1, morphology_row.class2, morphology_row.class3]
-        )
+        class_summary: list[str] = []
         genders, persons, numbers = _extract_gender_person_number(
             functions=[morphology_row.function],
             class_values=class_summary,

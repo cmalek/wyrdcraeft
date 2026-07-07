@@ -62,6 +62,36 @@ def test_build_morphology_table_includes_surface_form_column() -> None:
     assert table.rows[0][1] == "genitive"
 
 
+def test_build_noun_paradigm_grid_uses_fk_joined_codes_without_legacy_classes() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="abbodes",
+                formi="abades",
+                function="SgMaGe",
+                wordclass="noun",
+                class1="",
+                class2="",
+                class3="",
+            ),
+            MorphologyRowPayload(
+                form="abbodas",
+                formi="abbodas",
+                function="PlMaNo",
+                wordclass="noun",
+                class1="",
+                class2="",
+                class3="",
+            ),
+        ],
+        wordclass="noun",
+        entry_genders=("m",),
+    )
+    assert sidebar.sections[0].title == "Noun"
+    assert sidebar.sections[0].columns == ("", "Singular", "Plural")
+    assert sidebar.sections[0].rows[2] == ("Gen", "abbodes", "-")
+
+
 def test_build_noun_paradigm_grid_groups_case_and_number() -> None:
     sidebar = build_paradigm_sidebar(
         [
