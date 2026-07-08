@@ -54,6 +54,26 @@ def _load_morph_class_ids(connection: sqlite3.Connection) -> dict[tuple[str, int
     }
 
 
+def _load_morph_class_ids_by_key(connection: sqlite3.Connection) -> dict[str, int]:
+    """
+    Load catalog morph-class ids keyed by stable ``class_key`` values.
+
+    Args:
+        connection: Open canonical SQLite connection.
+
+    Returns:
+        Mapping from ``morph_classes.class_key`` to surrogate id.
+
+    """
+    rows = connection.execute(
+        """
+        SELECT class_key, id
+        FROM morph_classes
+        """,
+    ).fetchall()
+    return {str(class_key): int(row_id) for class_key, row_id in rows}
+
+
 class FormFkResolver:
     """
     Resolve generated morphology form metadata to normalized-schema FK ids.
@@ -87,16 +107,19 @@ class FormFkResolver:
     _inflection_code_ids: dict[str, int]
     #: Lemma assignment map keyed by ``(normalized_title, pos_id)``.
     _morph_class_ids: dict[tuple[str, int], int]
+    #: Catalog morph-class ids keyed by ``class_key``.
+    _morph_class_ids_by_key: dict[str, int]
     #: Seeded canonical POS code to id map.
     _pos_ids_by_code: dict[str, int]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *,
         connection: sqlite3.Connection | None = None,
         join_index: NormalizedTitleJoinIndex | None = None,
         inflection_code_ids: dict[str, int] | None = None,
         morph_class_ids: dict[tuple[str, int], int] | None = None,
+        morph_class_ids_by_key: dict[str, int] | None = None,
         pos_ids_by_code: dict[str, int] | None = None,
     ) -> None:
         """
@@ -110,6 +133,8 @@ class FormFkResolver:
             inflection_code_ids: Optional ``inflection_codes.code`` to id map.
             morph_class_ids: Optional ``(normalized_title, pos_id)`` to
                 ``morph_class_id`` map.
+            morph_class_ids_by_key: Optional ``morph_classes.class_key`` to id
+                map.
             pos_ids_by_code: Optional canonical ``parts_of_speech.code`` to id
                 map.
 
@@ -128,12 +153,15 @@ class FormFkResolver:
                 )
             if morph_class_ids is None:
                 morph_class_ids = _load_morph_class_ids(connection)
+            if morph_class_ids_by_key is None:
+                morph_class_ids_by_key = _load_morph_class_ids_by_key(connection)
             if join_index is None:
                 join_index = load_normalized_title_join_index(connection)
         elif (
             join_index is None
             or inflection_code_ids is None
             or morph_class_ids is None
+            or morph_class_ids_by_key is None
             or pos_ids_by_code is None
         ):
             msg = "preloaded maps required when connection is omitted"
@@ -147,6 +175,8 @@ class FormFkResolver:
         self._inflection_code_ids = inflection_code_ids
         #: Lemma assignment map keyed by ``(normalized_title, pos_id)``.
         self._morph_class_ids = morph_class_ids
+        #: Catalog morph-class ids keyed by ``class_key``.
+        self._morph_class_ids_by_key = morph_class_ids_by_key
         #: Seeded canonical POS code to id map.
         self._pos_ids_by_code = pos_ids_by_code
 
@@ -201,6 +231,7 @@ class FormFkResolver:
         normalized_title: str,
         wordclass: str,
         function: str,
+        class1: str = "",
     ) -> int | None:
         """
         Resolve one lemma's assigned morph class for a generated form row.
@@ -209,7 +240,8 @@ class FormFkResolver:
             Verbal participles with ``wordclass=verb`` and ``function`` in
             ``PsPt`` or ``PaPt`` inherit the parent verb lemma assignment, as
             documented in ``data/OldEnglishGrammar.pdf`` and
-            ``data/Ondej_Tich_40-54-1.pdf``. Other forms use
+            ``data/Ondej_Tich_40-54-1.pdf``. Adjective rows with
+            ``class1=weak`` map to catalog ``adj.weak``; other forms use
             ``catalog_pos_from_wordclass`` before looking up
             ``lemma_morph_classes``. Part-of-speech scope: ``cross-PoS``.
 
@@ -217,6 +249,7 @@ class FormFkResolver:
             normalized_title: Macron-preserving normalized lemma title.
             wordclass: Morphology form ``wordclass`` label.
             function: Morphology form ``function`` code.
+            class1: Legacy strong/weak class label emitted by the generator.
 
         Returns:
             Assigned ``morph_class_id`` when exactly one lemma assignment
@@ -236,6 +269,11 @@ class FormFkResolver:
             catalog_pos = catalog_pos_from_wordclass(wordclass)
         if catalog_pos is None:
             return None
+
+        if catalog_pos == "adjective" and class1.strip().casefold() == "weak":
+            weak_id = self._morph_class_ids_by_key.get("adj.weak")
+            if weak_id is not None:
+                return weak_id
 
         pos_id = self._pos_ids_by_code.get(catalog_pos)
         if pos_id is None:

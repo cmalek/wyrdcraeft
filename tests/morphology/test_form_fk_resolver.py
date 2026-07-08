@@ -282,6 +282,7 @@ def test_preloaded_maps_without_connection() -> None:
         join_index=join_index,
         inflection_code_ids={"": 99, "PsInSg1": 12},
         morph_class_ids={("helpan", 3): 55},
+        morph_class_ids_by_key={"adj.weak": 88},
         pos_ids_by_code={"noun": 1, "verb": 3},
     )
 

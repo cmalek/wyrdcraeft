@@ -159,7 +159,61 @@ def test_normalized_query_at_affix_requires_start_or_end() -> None:
     assert not normalized_query_at_affix("iraland", "mod")
 
 
+def test_build_morphology_table_sorts_adjectives_by_degree_inflection_and_case() -> None:
+    table = build_morphology_table(
+        [
+            ("wīde", "CoPlFeNo", "", "", "", "wide", "weak"),
+            ("wīd", "PoSgMaNo", "", "", "", "wid", "strong"),
+            ("wīdne", "PoSgMaAc", "", "", "", "widne", "strong"),
+        ],
+        wordclass="adjective",
+    )
+    assert table.rows[0][1:] == ("positive", "strong", "nominative", "masculine", "singular")
+    assert table.rows[1][1:] == ("positive", "strong", "accusative", "masculine", "singular")
+    assert table.rows[2][1:] == ("comparative", "weak", "nominative", "feminine", "plural")
+
+
+def test_build_morphology_table_fills_inflection_from_morph_class_label() -> None:
+    table = build_morphology_table(
+        [("blindne", "PoSgMaAc", "", "", "", "blindne", "weak")],
+        wordclass="adjective",
+    )
+    assert table.rows[0][2] == "weak"
+
+
+def test_build_adjective_sidebar_uses_payload_inflection() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="wīd",
+                formi="wid",
+                function="PoSgMaNo",
+                wordclass="adjective",
+                class1="",
+                class2="",
+                class3="",
+                inflection="strong",
+            ),
+            MorphologyRowPayload(
+                form="wīdan",
+                formi="widan",
+                function="PoSgMaAc",
+                wordclass="adjective",
+                class1="",
+                class2="",
+                class3="",
+                inflection="weak",
+            ),
+        ],
+        wordclass="adjective",
+    )
+    titles = [section.title for section in sidebar.sections]
+    assert "Strong · Positive" in titles
+    assert "Weak · Positive" in titles
+
+
 def test_lexical_distance_prefers_exact_matches() -> None:
     assert lexical_distance("mōd", "mōd") == 0
     assert lexical_distance("abbad", "abbod") == 1
     assert lexical_distance("acol-mōd", "mōd") > lexical_distance("mōd", "mōd")
+

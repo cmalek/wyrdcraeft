@@ -36,7 +36,11 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
 )
 
 from ..text_utils import OENormalizer
-from .form_fk_resolver import FormFkResolver, _load_morph_class_ids
+from .form_fk_resolver import (
+    FormFkResolver,
+    _load_morph_class_ids,
+    _load_morph_class_ids_by_key,
+)
 
 #: Default row buffer size before flushing one bulk SQLite insert.
 _SQLITE_BATCH_SIZE = 25000
@@ -378,6 +382,10 @@ class SqliteIndexSink:
         except sqlite3.OperationalError:
             morph_class_ids = {}
         try:
+            morph_class_ids_by_key = _load_morph_class_ids_by_key(sqlite_connection)
+        except sqlite3.OperationalError:
+            morph_class_ids_by_key = {}
+        try:
             join_index = load_normalized_title_join_index(sqlite_connection)
         except sqlite3.OperationalError:
             join_index = NormalizedTitleJoinIndex.from_entry_variant_rows([], [])
@@ -385,6 +393,7 @@ class SqliteIndexSink:
             join_index=join_index,
             inflection_code_ids=inflection_map,
             morph_class_ids=morph_class_ids,
+            morph_class_ids_by_key=morph_class_ids_by_key,
             pos_ids_by_code=pos_map,
         )
 
@@ -441,6 +450,7 @@ class SqliteIndexSink:
                     row.normalized_title,
                     row.wordclass,
                     row.function,
+                    row.class1,
                 ),
                 "entry_id": resolver.resolve_entry_id(
                     row.normalized_title,
