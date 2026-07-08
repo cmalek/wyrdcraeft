@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+from importlib import resources
 from pathlib import Path
 
 import click
 
+from wyrdcraeft.services.morphology.dictionary_cleanup import (
+    MorphologyDictionaryCleaner,
+)
 from wyrdcraeft.services.morphology.generation.query import (
     MorphologyQueryService,
 )
@@ -16,6 +20,17 @@ from wyrdcraeft.services.morphology.generation.query import (
 )
 def morphology_group() -> None:
     """Morphology command group."""
+
+
+def _default_morphology_data_dir() -> Path:
+    """
+    Resolve the packaged default morphology data directory.
+
+    Returns:
+        Directory containing bundled morphology source files.
+
+    """
+    return Path(str(resources.files("wyrdcraeft").joinpath("etc/morphology")))
 
 
 def _format_dictionary_join_text(entry: dict[str, object]) -> str:
@@ -54,6 +69,82 @@ def _format_dictionary_join_text(entry: dict[str, object]) -> str:
         lines.append(f"Etymology: {etymology}")
 
     return "\n".join(lines)
+
+
+@morphology_group.command(
+    name="clean-dictionary",
+    help=(
+        "Backup, lowercase column-2 lemma titles, and deduplicate the "
+        "morphology dictionary TSV."
+    ),
+)
+@click.option(
+    "--data-dir",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    default=None,
+    help="Directory containing bundled morphology source files.",
+)
+@click.option(
+    "--dictionary",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Explicit path to dict_adj-vb-part-num-adv-noun.txt.",
+)
+def clean_dictionary(
+    data_dir: Path | None,
+    dictionary: Path | None,
+) -> None:
+    """
+    Normalize and deduplicate the morphology dictionary source file.
+
+    Note:
+        Cleanup follows morphology source conventions from
+        ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+        In plain terms, it lowercases all-uppercase lemma titles in column 2 and
+        removes rows that duplicate all other columns. Part-of-speech scope:
+        ``cross-PoS``.
+
+    Args:
+        data_dir: Optional base directory for bundled morphology source files.
+        dictionary: Optional explicit dictionary TSV path.
+
+    Side Effects:
+        Creates a timestamped backup and overwrites the dictionary source file.
+
+    Raises:
+        click.ClickException: The dictionary file is missing or cleanup fails.
+
+    """
+    resolved_data_dir = data_dir or _default_morphology_data_dir()
+    dictionary_path = dictionary or (
+        resolved_data_dir / "dict_adj-vb-part-num-adv-noun.txt"
+    )
+    if not dictionary_path.exists():
+        msg = (
+            f"Missing dictionary file: {dictionary_path}. "
+            "Provide an explicit path via --dictionary or --data-dir."
+        )
+        raise click.ClickException(msg)
+
+    try:
+        result = MorphologyDictionaryCleaner(dictionary_path).run()
+    except OSError as exc:
+        msg = f"Failed to clean morphology dictionary {dictionary_path}: {exc}"
+        raise click.ClickException(msg) from exc
+
+    click.echo(
+        "\n".join(
+            [
+                "Morphology dictionary cleanup complete.",
+                f"dictionary={dictionary_path}",
+                f"backup={result.backup_path}",
+                f"rows_read={result.rows_read}",
+                f"lowercase_changes={result.lowercase_changes}",
+                f"duplicates_removed={result.duplicates_removed}",
+                f"rows_written={result.rows_written}",
+            ]
+        )
+    )
 
 
 @morphology_group.command(

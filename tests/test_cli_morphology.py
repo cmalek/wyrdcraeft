@@ -22,6 +22,7 @@ def test_morphology_group_help(runner) -> None:
     assert "audit-wright" not in result.output
     assert "build" not in result.output
     assert "query" in result.output
+    assert "clean-dictionary" in result.output
     assert "generate-reference-snapshots" not in result.output
     assert "ingest-wright-text" not in result.output
 
@@ -46,6 +47,13 @@ def test_morphology_generate_command_is_gone(runner) -> None:
     result = runner.invoke(cli, ["morphology", "generate", "--help"])
     assert result.exit_code != 0
     assert "No such command 'generate'" in result.output
+
+
+def test_morphology_clean_dictionary_help(runner) -> None:
+    result = runner.invoke(cli, ["morphology", "clean-dictionary", "--help"])
+    assert result.exit_code == 0
+    assert "--data-dir" in result.output
+    assert "--dictionary" in result.output
 
 
 def test_morphology_query_help(runner) -> None:
