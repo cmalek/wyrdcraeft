@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from typing import Final
@@ -182,17 +183,56 @@ def _label(mapping: dict[str, str], code: str) -> str:
     return mapping.get(code, code)
 
 
-def _pick_inflection(*class_values: str) -> str:
+def inflection_strength_from_morph_class(
+    *,
+    traditional_class: str = "",
+    features_json: str = "",
+) -> str:
+    """
+    Derive strong/weak inflection labels from catalog morph-class metadata.
+
+    Keyword Args:
+        traditional_class: Wright traditional class label from ``morph_classes``.
+        features_json: Serialized ``morph_classes.features_json`` payload.
+
+    Returns:
+        ``strong``, ``weak``, or an empty string when unknown.
+
+    """
+    if features_json.strip():
+        try:
+            features = json.loads(features_json)
+        except json.JSONDecodeError:
+            features = {}
+        strength = str(features.get("strength", "")).strip().casefold()
+        if strength in {"strong", "weak"}:
+            return strength
+    normalized = traditional_class.strip().casefold()
+    if normalized.startswith("strong") or " strong" in f" {normalized} ":
+        return "strong"
+    if normalized.startswith("weak") or " weak" in f" {normalized} ":
+        return "weak"
+    return ""
+
+
+def _pick_inflection(*class_values: str, morph_class_inflection: str = "") -> str:
     """
     Derive adjective inflection metadata from morphology class columns.
 
     Args:
         class_values: ``class1`` through ``class3`` values from one form row.
 
+    Keyword Args:
+        morph_class_inflection: FK-backed strong/weak label when legacy classes
+            are empty.
+
     Returns:
         Strong/weak inflection label when present, otherwise joined classes.
 
     """
+    explicit = morph_class_inflection.strip().casefold()
+    if explicit in {"strong", "weak"}:
+        return explicit
     for value in class_values:
         normalized = value.strip().casefold()
         if normalized in {"strong", "weak"}:
@@ -200,13 +240,14 @@ def _pick_inflection(*class_values: str) -> str:
     return ", ".join(value.strip() for value in class_values if value.strip())
 
 
-def decode_function_dimensions(  # noqa: PLR0911
+def decode_function_dimensions(  # noqa: PLR0911, PLR0913
     *,
     function: str,
     wordclass: str,
     class1: str = "",
     class2: str = "",
     class3: str = "",
+    morph_class_inflection: str = "",
 ) -> dict[str, str]:
     """
     Decode one morphology function code into POS-specific table dimensions.
@@ -217,6 +258,8 @@ def decode_function_dimensions(  # noqa: PLR0911
         class1: First morphology class column.
         class2: Second morphology class column.
         class3: Third morphology class column.
+        morph_class_inflection: FK-backed strong/weak label when legacy classes
+            are empty.
 
     Returns:
         Dimension labels keyed by browse-table column name.
@@ -230,7 +273,13 @@ def decode_function_dimensions(  # noqa: PLR0911
     if pos in {"noun", "preposition", "conjunction", "interjection", "indeclinable"}:
         return _decode_noun_like(code)
     if pos == "adjective":
-        return _decode_adjective(code, class1, class2, class3)
+        return _decode_adjective(
+            code,
+            class1,
+            class2,
+            class3,
+            morph_class_inflection=morph_class_inflection,
+        )
     if pos in {"verb", "participle"}:
         return _decode_verb(code)
     if pos == "pronoun":
@@ -246,11 +295,96 @@ def decode_function_dimensions(  # noqa: PLR0911
             return {"degree": _label(_DEGREE_LABELS, degree_code)}
         return {"function": code}
     if pos == "numeral":
-        decoded = _decode_adjective(code, class1, class2, class3)
+        decoded = _decode_adjective(
+            code,
+            class1,
+            class2,
+            class3,
+            morph_class_inflection=morph_class_inflection,
+        )
         if decoded:
             return decoded
         return _decode_noun_like(code)
     return {"function": code}
+
+
+#: Browse sort order for adjective degree labels.
+_ADJECTIVE_DEGREE_ORDER: Final[dict[str, int]] = {
+    "positive": 0,
+    "comparative": 1,
+    "superlative": 2,
+}
+#: Browse sort order for adjective inflection labels.
+_ADJECTIVE_INFLECTION_ORDER: Final[dict[str, int]] = {
+    "strong": 0,
+    "weak": 1,
+}
+#: Browse sort order for gender labels.
+_ADJECTIVE_GENDER_ORDER: Final[dict[str, int]] = {
+    "masculine": 0,
+    "feminine": 1,
+    "neuter": 2,
+}
+#: Browse sort order for case labels.
+_ADJECTIVE_CASE_ORDER: Final[dict[str, int]] = {
+    "nominative": 0,
+    "accusative": 1,
+    "genitive": 2,
+    "dative": 3,
+    "instrumental": 4,
+}
+#: Browse sort order for number labels.
+_ADJECTIVE_NUMBER_ORDER: Final[dict[str, int]] = {
+    "singular": 0,
+    "plural": 1,
+    "dual": 2,
+}
+
+
+#: Minimum morphology table row width for sort-key extraction.
+_MORPHOLOGY_TABLE_MIN_COLUMNS: Final[int] = 2
+#: Row width when an explicit inflection label is supplied.
+_MORPHOLOGY_TABLE_WITH_INFLECTION_COLUMNS: Final[int] = 7
+#: Input row tuple accepted by ``build_morphology_table``.
+MorphologyTableInputRow = (
+    tuple[str, str, str, str, str, str] | tuple[str, str, str, str, str, str, str]
+)
+
+
+def _adjective_row_sort_key(row: tuple[str, ...], *, wordclass: str) -> tuple[int, ...]:
+    """
+    Build the browse sort key for one adjective morphology table row.
+
+    Args:
+        row: Rendered morphology table row cells.
+
+    Keyword Args:
+        wordclass: Morphology wordclass label for the table.
+
+    Returns:
+        Sort key ordered by degree, inflection, gender, case, and number.
+
+    """
+    if (
+        wordclass.strip().casefold() != "adjective"
+        or len(row) < _MORPHOLOGY_TABLE_MIN_COLUMNS
+    ):
+        return (99,)
+    dimensions = dict(
+        zip(
+            morphology_table_columns(wordclass)[1:],
+            row[1:],
+            strict=False,
+        )
+    )
+    inflection = dimensions.get("inflection", "").casefold()
+    return (
+        _ADJECTIVE_DEGREE_ORDER.get(dimensions.get("degree", "").casefold(), 99),
+        _ADJECTIVE_INFLECTION_ORDER.get(inflection, 99),
+        _ADJECTIVE_GENDER_ORDER.get(dimensions.get("gender", "").casefold(), 99),
+        _ADJECTIVE_CASE_ORDER.get(dimensions.get("case", "").casefold(), 99),
+        _ADJECTIVE_NUMBER_ORDER.get(dimensions.get("number", "").casefold(), 99),
+    )
 
 
 def _decode_noun_like(code: str) -> dict[str, str]:
@@ -279,6 +413,8 @@ def _decode_adjective(
     class1: str,
     class2: str,
     class3: str,
+    *,
+    morph_class_inflection: str = "",
 ) -> dict[str, str]:
     """
     Decode adjective degree/case/gender/number function codes.
@@ -288,6 +424,10 @@ def _decode_adjective(
         class1: First morphology class column.
         class2: Second morphology class column.
         class3: Third morphology class column.
+
+    Keyword Args:
+        morph_class_inflection: FK-backed strong/weak label when legacy classes
+            are empty.
 
     Returns:
         Dimension labels for adjective browse columns.
@@ -301,7 +441,12 @@ def _decode_adjective(
         return {"function": code}
     return {
         "degree": _label(_DEGREE_LABELS, match.group("degree")),
-        "inflection": _pick_inflection(class1, class2, class3),
+        "inflection": _pick_inflection(
+            class1,
+            class2,
+            class3,
+            morph_class_inflection=morph_class_inflection,
+        ),
         "case": _label(_CASE_LABELS, match.group("case")),
         "gender": _label(_GENDER_LABELS, match.group("gender")),
         "number": _label(_NUMBER_LABELS, match.group("number")),
@@ -388,7 +533,7 @@ def morphology_table_columns(wordclass: str) -> tuple[str, ...]:
 
 
 def build_morphology_table(
-    rows: list[tuple[str, str, str, str, str, str]],
+    rows: list[MorphologyTableInputRow],
     *,
     wordclass: str,
 ) -> MorphologyTableSpec:
@@ -396,7 +541,8 @@ def build_morphology_table(
     Build one morphology browse table for rows sharing a wordclass.
 
     Args:
-        rows: Tuple payloads of ``(form, function, class1, class2, class3, formi)``.
+        rows: Tuple payloads of
+            ``(form, function, class1, class2, class3, formi[, inflection])``.
 
     Keyword Args:
         wordclass: Shared morphology wordclass label for the table.
@@ -407,7 +553,9 @@ def build_morphology_table(
     """
     columns = morphology_table_columns(wordclass)
     table_rows: list[tuple[str, ...]] = []
-    for form, function, class1, class2, class3, formi in rows:
+    for row in rows:
+        values = [*row, "", "", "", "", "", "", ""]
+        form, function, class1, class2, class3, formi, inflection = values[:7]
         surface = form.strip() or formi.strip()
         dimensions = decode_function_dimensions(
             function=function,
@@ -415,6 +563,7 @@ def build_morphology_table(
             class1=class1,
             class2=class2,
             class3=class3,
+            morph_class_inflection=inflection,
         )
         if wordclass.strip().casefold() in {"verb", "participle"}:
             form_type = dimensions.pop("form", "")
@@ -422,6 +571,13 @@ def build_morphology_table(
                 dimensions["form_type"] = form_type
         cells = [surface, *[dimensions.get(column, "") for column in columns[1:]]]
         table_rows.append(tuple(cells))
+    if wordclass.strip().casefold() == "adjective":
+        table_rows.sort(
+            key=lambda table_row: _adjective_row_sort_key(
+                table_row,
+                wordclass=wordclass,
+            )
+        )
     return MorphologyTableSpec(columns=columns, rows=tuple(table_rows))
 
 
@@ -508,6 +664,7 @@ class MorphologyRowPayload:
         class1: First morphology class column.
         class2: Second morphology class column.
         class3: Third morphology class column.
+        inflection: FK-backed strong/weak label when legacy classes are empty.
 
     """
 
@@ -525,6 +682,8 @@ class MorphologyRowPayload:
     class2: str
     #: Third morphology class column.
     class3: str
+    #: FK-backed strong/weak label when legacy classes are empty.
+    inflection: str = ""
 
 
 def is_genitive_variant_token(token: str) -> bool:
@@ -837,6 +996,7 @@ def build_paradigm_sidebar(
                 row.class2,
                 row.class3,
                 row.formi,
+                row.inflection,
             )
             for row in rows
         ],
@@ -1085,6 +1245,7 @@ def _build_adjective_degree_section(
             row.class1,
             row.class2,
             row.class3,
+            morph_class_inflection=row.inflection,
         ).casefold()
         if inflection_label != inflection:
             continue

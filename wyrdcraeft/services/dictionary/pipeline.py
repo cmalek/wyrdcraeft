@@ -13,6 +13,9 @@ from wyrdcraeft.services.dictionary.attestation_stripper import (
     _substantive_html_content,
 )
 from wyrdcraeft.services.dictionary.editorial_merger import BTEditorialMerger
+from wyrdcraeft.services.dictionary.etymology_display import (
+    relocate_misplaced_etymology_attestations,
+)
 from wyrdcraeft.services.dictionary.line_parser import BTLineParser, ParsedBTLine
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     BTLLMFixPass,
@@ -280,10 +283,12 @@ class BTIndexPipeline:
         segment_result = self.sense_segmenter.segment_parsed_line(
             parsed.raw_line.raw_text
         )
-        return dataclasses.replace(
-            parsed,
-            senses=segment_result.senses,
-            segment_warnings=segment_result.warnings,
+        return relocate_misplaced_etymology_attestations(
+            dataclasses.replace(
+                parsed,
+                senses=segment_result.senses,
+                segment_warnings=segment_result.warnings,
+            )
         )
 
     def _collect_parse_warnings(self, parsed: ParsedBTLine) -> list[BTParseWarning]:

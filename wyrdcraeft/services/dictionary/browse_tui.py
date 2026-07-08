@@ -29,6 +29,10 @@ from wyrdcraeft.services.dictionary.browse_query import (
     MorphologyGroup,
     MorphologyRow,
 )
+from wyrdcraeft.services.dictionary.etymology_display import (
+    format_etymology_display,
+    parse_etymology_text,
+)
 from wyrdcraeft.services.dictionary.form_decode import (
     MorphologyRowPayload,
     ParadigmSidebarSpec,
@@ -480,7 +484,8 @@ def _morphology_payloads(rows: list[MorphologyRow]) -> list[MorphologyRowPayload
 
     Note:
         Legacy ``forms.class1``-``class3`` columns were dropped in Phase D.
-        Paradigm grids decode ``wordclass`` and ``function`` from FK joins only.
+        Paradigm grids decode ``wordclass`` and ``function`` from FK joins and
+        ``morph_classes`` strength metadata when available.
 
     """
     return [
@@ -489,9 +494,10 @@ def _morphology_payloads(rows: list[MorphologyRow]) -> list[MorphologyRowPayload
             formi=row.formi,
             function=row.function,
             wordclass=row.wordclass,
-            class1="",
-            class2="",
-            class3="",
+            class1=row.class1,
+            class2=row.class2,
+            class3=row.class3,
+            inflection=row.inflection,
         )
         for row in rows
     ]
@@ -670,8 +676,12 @@ def _format_entry_body_text(details: _EntryDetailsLike) -> str:
     if etymology:
         if lines:
             lines.append("")
-        lines.append("Etymology")
-        lines.append(etymology)
+        formatted = format_etymology_display(parse_etymology_text(etymology))
+        if formatted:
+            lines.append(formatted)
+        else:
+            lines.append("Etymology")
+            lines.append(etymology)
     return "\n".join(lines)
 
 

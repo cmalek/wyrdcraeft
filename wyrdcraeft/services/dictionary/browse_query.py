@@ -11,6 +11,9 @@ from sqlalchemy import text
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import format_sense_display_label, sense_path_sort_key
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.dictionary.form_decode import (
+    inflection_strength_from_morph_class,
+)
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 from wyrdcraeft.services.morphology.catalog.pos import catalog_pos_from_bt_pos
 from wyrdcraeft.services.morphology.catalog.query import (
@@ -101,6 +104,7 @@ class MorphologyRow:
         class2: Second morphology class label (always empty; see Note).
         class3: Third morphology class label (always empty; see Note).
         paradigm: Morphology paradigm exemplar label (always empty; see Note).
+        inflection: Strong/weak label from ``morph_classes`` when available.
 
     """
 
@@ -130,6 +134,8 @@ class MorphologyRow:
     class3: str
     #: Morphology paradigm exemplar label.
     paradigm: str
+    #: Strong/weak label from ``morph_classes`` when available.
+    inflection: str
 
 
 @dataclass(frozen=True)
@@ -429,6 +435,10 @@ def _row_to_morphology(row: RowMapping | Mapping[str, Any]) -> MorphologyRow:
         class2="",
         class3="",
         paradigm="",
+        inflection=inflection_strength_from_morph_class(
+            traditional_class=str(row.get("morph_traditional_class", "")),
+            features_json=str(row.get("morph_features_json", "")),
+        ),
     )
 
 
@@ -901,12 +911,17 @@ class DictionaryBrowseQueryService:
                     forms.formi AS formi,
                     COALESCE(wordclass_pos.code, '') AS wordclass,
                     COALESCE(inflection_codes.code, '') AS function,
-                    forms.probability AS probability
+                    forms.probability AS probability,
+                    COALESCE(morph_classes.traditional_class, '')
+                        AS morph_traditional_class,
+                    COALESCE(morph_classes.features_json, '{}') AS morph_features_json
                 FROM forms
                 LEFT JOIN parts_of_speech AS wordclass_pos
                     ON wordclass_pos.id = forms.wordclass_id
                 LEFT JOIN inflection_codes
                     ON inflection_codes.id = forms.inflection_code_id
+                LEFT JOIN morph_classes
+                    ON morph_classes.id = forms.morph_class_id
                 WHERE forms.entry_id = :entry_id
                     AND (forms.wordclass_id IS NULL OR forms.wordclass_id = :pos_id)
                 ORDER BY wordclass ASC, function ASC, forms.id ASC
