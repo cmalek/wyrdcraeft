@@ -7,6 +7,7 @@ from importlib.metadata import Distribution
 
 import click
 from rich.table import Table
+from rich.traceback import install
 
 import wyrdcraeft
 
@@ -17,6 +18,8 @@ from ..db.runtime import (
 )
 from ..settings import Settings
 from .utils import console, print_error
+
+# install(show_locals=True)
 
 #: Top-level commands that never need the canonical DB readiness gate.
 DATABASE_GATE_SKIP_COMMANDS = frozenset(

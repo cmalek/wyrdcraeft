@@ -99,8 +99,9 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 genders_json,
                 etymology,
                 see_also_json,
-                source_line_nos_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                source_line_nos_json,
+                entry_order
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 1,
@@ -112,6 +113,7 @@ def seeded_lexicon_db(lexicon_db_path: Path) -> Path:
                 "",
                 "[]",
                 "[]",
+                1,
             ),
         )
         connection.execute(

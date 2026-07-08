@@ -37,10 +37,6 @@ from wyrdcraeft.services.morphology.catalog.wright_audit import (
     format_wright_audit_text,
 )
 from wyrdcraeft.services.morphology.catalog.wright_text import WrightSectionTextIngester
-from wyrdcraeft.services.morphology.reference_snapshots import (
-    format_reference_snapshot_result,
-    generate_reference_snapshots,
-)
 
 if TYPE_CHECKING:
     from wyrdcraeft.models.dictionary import BTConsolidatedEntry
@@ -1014,6 +1010,11 @@ def generate_reference_snapshots_command(
         raise click.ClickException(msg)
 
     try:
+        from wyrdcraeft.services.morphology.reference_snapshots import (  # noqa: PLC0415
+            format_reference_snapshot_result,
+            generate_reference_snapshots,
+        )
+
         result = generate_reference_snapshots(
             output_dir=output_dir,
             update=update,

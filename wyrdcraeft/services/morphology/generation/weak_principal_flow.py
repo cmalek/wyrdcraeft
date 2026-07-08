@@ -712,6 +712,7 @@ def generate_weak_verb_parts(  # noqa: PLR0913
     emit_weak_principal_part_sequence(
         para_id=para_id,
         para_id_num=para_id_num,
+        paradigm_type=str(formhash.get("class1", "")),
         variant_id=variant_id,
         prefix=prefix,
         default_parts=(pre_vowel, root_vowel_actual, post_vowel, boundary),

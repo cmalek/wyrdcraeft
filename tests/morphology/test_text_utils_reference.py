@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from wyrdcraeft.services.morphology.text_utils import OENormalizer
+from wyrdcraeft.services.morphology.text_utils import (
+    OENormalizer,
+    canonicalize_inflection_code,
+)
 
 pytestmark = pytest.mark.morphology
 
@@ -60,6 +63,64 @@ def test_remove_diacritics_reference(input_text: str | None, expected: str) -> N
 )
 def test_move_accents_reference(input_text: str | None, expected: str) -> None:
     assert OENormalizer.move_accents(input_text) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("input_text", "expected"),
+    [
+        ("eā", "ēa"),
+        ("eō", "ēo"),
+        ("eī", "ēi"),
+        ("iē", "īe"),
+        ("EĀ", "ĒA"),
+        ("a-beātan", "a-bēatan"),
+        ("a-beōdan", "a-bēodan"),
+        ("eīg-land", "ēig-land"),
+        ("ælf-sciēne", "ælf-scīene"),
+        ("eá", "ēa"),
+        ("eó", "ēo"),
+        ("ié", "īe"),
+        ("ēa", "ēa"),
+        ("bēon", "bēon"),
+        ("bacan", "bacan"),
+        ("", ""),
+    ],
+)
+def test_swap_bt_diphthong_long_marks_reference(input_text: str, expected: str) -> None:
+    assert OENormalizer.swap_bt_diphthong_long_marks(input_text) == expected
+
+
+@pytest.mark.parametrize(
+    ("input_text", "expected"),
+    [
+        ("eā", "ēa"),
+        ("eō", "ēo"),
+        ("eī", "ēi"),
+        ("iē", "īe"),
+        ("a-beātan", "a-bēatan"),
+        ("a-beōdan", "a-bēodan"),
+        ("eīg-land", "ēig-land"),
+        ("ælf-sciēne", "ælf-scīene"),
+        ("eá", "ēa"),
+        ("eó", "ēo"),
+        ("ié", "īe"),
+        ("ēa", "ēa"),
+        ("bēon", "bēon"),
+        ("bacan", "bacan"),
+        ("", ""),
+    ],
+)
+def test_normalize_bt_display_spelling_reference(input_text: str, expected: str) -> None:
+    assert OENormalizer.normalize_bt_display_spelling(input_text) == expected
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["ēa", "ēo", "ēi", "īe", "a-bēodan", "ælf-scīene"],
+)
+def test_normalize_bt_display_spelling_is_idempotent(value: str) -> None:
+    normalized = OENormalizer.normalize_bt_display_spelling(value)
+    assert OENormalizer.normalize_bt_display_spelling(normalized) == normalized
 
 
 @pytest.mark.parametrize(
@@ -135,3 +196,19 @@ def test_syllable_count_reference(text: str | None, expected: int) -> None:
 )
 def test_normalize_output_reference(text: str | None, expected: str) -> None:
     assert OENormalizer.normalize_output(text) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("if", "If"),
+        ("psinsg1", "PsInSg1"),
+        ("pssusg", "PsSuSg"),
+        ("impsg", "ImSg"),
+        ("idif", "IdIf"),
+        ("PsInSg2", "PsInSg2"),
+        ("", ""),
+    ],
+)
+def test_canonicalize_inflection_code_reference(raw: str, expected: str) -> None:
+    assert canonicalize_inflection_code(raw) == expected

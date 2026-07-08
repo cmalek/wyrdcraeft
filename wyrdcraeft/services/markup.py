@@ -88,6 +88,7 @@ def normalize_morphology_title(text: str | None) -> str:
         - Lowercase
         - Replace ``ð`` with ``þ``
         - Remove internal hyphen/dash characters
+        - Correct BT-style long diphthong marks (for example ``beōn`` -> ``bēon``)
         - Preserve macrons, dotted ``c``/``g``, and OE letters like ``æ`` and ``þ``
 
     Args:
@@ -103,7 +104,10 @@ def normalize_morphology_title(text: str | None) -> str:
     if not lowered:
         return ""
     stripped_internal_hyphen = INTERNAL_DASH_RE.sub("", lowered)
-    return unicodedata.normalize("NFC", stripped_internal_hyphen)
+    nfc = unicodedata.normalize("NFC", stripped_internal_hyphen)
+    from .morphology.text_utils import OENormalizer  # noqa: PLC0415
+
+    return OENormalizer.normalize_bt_display_spelling(nfc)
 
 
 def _apply_case_pattern(source: str, target: str) -> str:

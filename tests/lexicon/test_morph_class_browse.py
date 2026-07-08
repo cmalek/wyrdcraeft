@@ -98,6 +98,7 @@ def _insert_bt_entry(
                 etymology="",
                 see_also_json="[]",
                 source_line_nos_json="[]",
+                entry_order=1,
             )
             session.add(entry)
             session.commit()

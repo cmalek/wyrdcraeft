@@ -680,6 +680,35 @@ def is_weak_item_shape_window(para_id_num: str) -> bool:
     return WEAK_ITEM_SHAPE_MIN_ID < para_id_int < WEAK_ITEM_SHAPE_MAX_ID
 
 
+def should_use_weak_item_shape(
+    para_id_num: str,
+    *,
+    paradigm_type: str,
+) -> bool:
+    """
+    Return whether weak generation should emit from ``para_vb`` item parts.
+
+    Note:
+        Anomalous (``a``) and preterite-present (``pp``) paradigms store fully
+        specified segments in ``para_vb.txt``; regular weak verbs in the legacy
+        ``89``--``92`` id window do the same. Other weak verbs derive forms from
+        principal-part branches. Part-of-speech scope: ``verb``.
+
+    Args:
+        para_id_num: Paradigm numeric ID string.
+
+    Keyword Args:
+        paradigm_type: ``VerbParadigm.type`` label from the active paradigm row.
+
+    Returns:
+        ``True`` when generation should use raw paradigm item shape.
+
+    """
+    if paradigm_type in {"a", "pp"}:
+        return True
+    return is_weak_item_shape_window(para_id_num)
+
+
 def emit_weak_principal_form(  # noqa: PLR0913
     *,
     para_id: str,
@@ -756,6 +785,7 @@ def emit_weak_principal_part_sequence(  # noqa: PLR0913
     *,
     para_id: str,
     para_id_num: str,
+    paradigm_type: str,
     variant_id: int,
     prefix: str,
     default_parts: WeakStemParts,
@@ -778,6 +808,7 @@ def emit_weak_principal_part_sequence(  # noqa: PLR0913
     Args:
         para_id: Principal function identifier from the paradigm row.
         para_id_num: Numeric paradigm ID used for legacy shape branching.
+        paradigm_type: ``VerbParadigm.type`` label for item-shape routing.
         variant_id: Variant index for principal probability rules.
         prefix: Word prefix component.
         default_parts: Stem parts from normalized root extraction.
@@ -795,7 +826,10 @@ def emit_weak_principal_part_sequence(  # noqa: PLR0913
         Uses keyword-only parameters for all inputs.
 
     """
-    use_item_shape = is_weak_item_shape_window(para_id_num)
+    use_item_shape = should_use_weak_item_shape(
+        para_id_num,
+        paradigm_type=paradigm_type,
+    )
     form_parts = emit_weak_principal_form(
         para_id=para_id,
         prefix=prefix,

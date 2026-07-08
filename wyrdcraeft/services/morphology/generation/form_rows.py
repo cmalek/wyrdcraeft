@@ -6,6 +6,7 @@ from functools import partial
 from typing import TYPE_CHECKING, cast
 
 from ..progress import MorphologyStage
+from ..text_utils import canonicalize_inflection_code
 from . import sound_dispatch_flow as _sound_dispatch_flow
 from .form_assembly import assemble_form_parts, materialize_form
 from .probability import format_probability
@@ -144,7 +145,7 @@ def generate_and_print_form(  # noqa: PLR0913
 
     """
     fh = formhash.copy()
-    fh["function"] = function
+    fh["function"] = canonicalize_inflection_code(function)
 
     form_parts_raw = assemble_form_parts(
         class1=fh["class1"],
@@ -193,7 +194,7 @@ def generate_and_print_manual(  # noqa: PLR0913
     fh = formhash.copy()
     fh["form"] = form
     fh["formParts"] = form_parts
-    fh["function"] = function
+    fh["function"] = canonicalize_inflection_code(function)
     fh["probability"] = format_probability(prob)
     print_one_form(session, fh, output_file)
 

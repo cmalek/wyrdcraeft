@@ -11,7 +11,7 @@
 3	rīsan	s	1	0	c	0	0	PaInPl	0	r	i	s	0	0	on
 3	rīsan	s	1	0	c	0	0	PaPt	0	r	i	s	0	0	en
 4	tēon	s	1	0	d	492	0	If	0	t	ēo	0	0	0	n
-4	tēon	s	1	0	d	492	0	PaInSg1	0	t	ā	0	h	0	
+4	tēon	s	1	0	d	492	0	PaInSg1	0	t	ā	0	h	0
 4	tēon	s	1	0	d	492	0	PaInPl	0	t	i	0	g	0	on
 4	tēon	s	1	0	d	492	0	PaPt	0	t	i	0	g	0	en
 4	tēon	s	1	0	d	492	1	If	0	t	īo	0	0	0	n
@@ -193,8 +193,35 @@
 25	cweðan	s	5	0	e	0	0	PaInSg1	0	cw	æ	0	ð	0	0
 25	cweðan	s	5	0	e	0	0	PaInPl	0	cw	ǣ	0	d	0	on
 25	cweðan	s	5	0	e	0	0	PaPt	0	cw	e	0	d	0	en
-26	wesan	s	5	0	f	0	0	If	0	w	e	0	s	0	an
-26	wesan	s	5	0	f	0	0	PaInPl	0	w	ǣ	0	r	0	on
+26	wesan	a	0	0	0	548	0	If	0	w	e	0	s	0	an
+26	wesan	a	0	0	0	548	0	PsInSg1	0	0	eo	m	0	0	0
+26	wesan	a	0	0	0	548	1	PsInSg1	0	0	ea	m	0	0	0
+26	wesan	a	0	0	0	548	2	PsInSg1	0	0	a	m	0	0	0
+26	wesan	a	0	0	0	548	0	PsInSg2	0	0	ea	rt	0	0	e
+26	wesan	a	0	0	0	548	1	PsInSg2	0	0	ea	rþ	0	0	e
+26	wesan	a	0	0	0	548	2	PsInSg2	0	0	a	rþ	0	0	e
+26	wesan	a	0	0	0	548	0	PsInSg3	0	0	i	s	0	0	e
+26	wesan	a	0	0	0	548	1	PsInSg3	0	0	y	s	0	0	e
+26	wesan	a	0	0	0	548	0	PsInPl	0	s	i	nd	0	0	on
+26	wesan	a	0	0	0	548	1	PsInPl	0	s	i	nd	0	0	un
+26	wesan	a	0	0	0	548	2	PsInPl	0	s	i	nt	0	0	0
+26	wesan	a	0	0	0	548	3	PsInPl	0	s	i	nd	0	0	on
+26	wesan	a	0	0	0	548	4	PsInPl	0	0	ea	r	0	0	on
+26	wesan	a	0	0	0	548	5	PsInPl	0	0	a	r	0	0	on
+26	wesan	a	0	0	0	548	6	PsInPl	0	0	a	r	0	0	un
+26	wesan	a	0	0	0	548	0	PsPt	0	w	e	s	0	0	ende
+26	wesan	a	0	0	0	548	0	PsSuSg	0	s	īe	0	0	0	0
+26	wesan	a	0	0	0	548	1	PsSuSg	0	s	ī	0	0	0	0
+26	wesan	a	0	0	0	548	2	PsSuSg	0	s	ȳ	0	0	0	0
+26	wesan	a	0	0	0	548	0	PsSuPl	0	s	īe	n	0	0	0
+26	wesan	a	0	0	0	548	1	PsSuPl	0	s	ī	n	0	0	0
+26	wesan	a	0	0	0	548	0	ImpSg	0	w	e	s	0	0	0
+26	wesan	a	0	0	0	548	0	PaInSg1	0	w	æ	0	s	0	0
+26	wesan	a	0	0	0	548	0	PaInSg2	0	w	ǣ	0	r	0	e
+26	wesan	a	0	0	0	548	0	PaInSg3	0	w	æ	0	s	0	0
+26	wesan	a	0	0	0	548	0	PaInPl	0	w	ǣ	0	r	0	on
+26	wesan	a	0	0	0	548	0	PaSuSg	0	w	ǣ	0	r	0	e
+26	wesan	a	0	0	0	548	0	PaSuPl	0	w	ǣ	0	r	0	en
 27	sēon	s	5	0	g	506	0	If	0	s	ēo	0	0	0	n
 27	sēon	s	5	0	g	506	0	PaInSg1	0	s	ea	0	h	0	0
 27	sēon	s	5	0	g	506	0	PaInPl	0	s	ā	0	w	0	on
@@ -646,36 +673,36 @@
 91	secgan	w	3	0	c	0	1	PaInSg2	0	s	æ	0	g	d	es
 91	secgan	w	3	0	c	0	1	ImPl	0	s	e	0	cg	0	eað
 91	secgan	w	3	0	c	0	1	ImSg	0	s	æ	0	g	0	e
-92	hycgan	w	3	0	d	0	0	If	0	h	y	0	cg	0	an
-92	hycgan	w	3	0	d	0	0	IdIf	0	h	y	0	cg	0	anne
-92	hycgan	w	3	0	d	0	0	PsInSg1	0	h	y	0	cg	0	e
-92	hycgan	w	3	0	d	0	0	PsInSg2	0	h	y	0	g	0	est
-92	hycgan	w	3	0	d	0	0	PsInSg3	0	h	y	0	g	0	eð
-92	hycgan	w	3	0	d	0	0	PsInPl	0	h	y	0	cg	0	að
-92	hycgan	w	3	0	d	0	0	PaInSg1	0	h	o	0	g	d	e
-92	hycgan	w	3	0	d	0	0	PaInSg2	0	h	o	0	g	d	est
-92	hycgan	w	3	0	d	0	0	PaInSg3	0	h	o	0	g	d	e
-92	hycgan	w	3	0	d	0	0	PaInPl	0	h	o	0	g	d	on
-92	hycgan	w	3	0	d	0	0	PaPt	ge	h	o	0	g	od	0
-92	hycgan	w	3	0	d	0	1	PaPt	ge	h	o	0	g	ed	0
-92	hycgan	w	3	0	d	0	0	PsPt	0	h	y	0	cg	0	ende
-92	hycgan	w	3	0	d	0	0	PsSuSg	0	h	y	0	cg	0	e
-92	hycgan	w	3	0	d	0	0	PsSuPl	0	h	y	0	cg	0	en
-92	hycgan	w	3	0	d	0	0	PaSuSg	0	h	o	0	g	d	e
-92	hycgan	w	3	0	d	0	0	PaSuPl	0	h	o	0	g	d	en
-92	hycgan	w	3	0	d	0	0	ImSg	0	h	o	0	g	0	a
-92	hycgan	w	3	0	d	0	0	ImPl	0	h	y	0	cg	0	að
-92	hycgan	w	3	0	d	0	1	If	0	h	y	0	cg	0	ean
-92	hycgan	w	3	0	d	0	1	IdIf	0	h	y	0	cg	0	eanne
-92	hycgan	w	3	0	d	0	1	PsInPl	0	h	y	0	cg	0	eað
-92	hycgan	w	3	0	d	0	1	PsInSg3	0	h	y	0	g	0	ð
-92	hycgan	w	3	0	d	0	2	PsInSg3	0	h	o	0	g	0	að
-92	hycgan	w	3	0	d	0	1	PsInSg2	0	h	y	0	g	0	st
-92	hycgan	w	3	0	d	0	2	PsInSg2	0	h	o	0	g	0	ast
-92	hycgan	w	3	0	d	0	3	PsInSg2	0	h	o	0	g	0	as
-92	hycgan	w	3	0	d	0	1	PaInSg2	0	h	o	0	g	d	es
-92	hycgan	w	3	0	d	0	1	ImSg	0	h	y	0	g	0	e
-92	hycgan	w	3	0	d	0	1	ImPl	0	h	y	0	cg	0	eað
+92	hycgan	w	3	0	d	538	0	If	0	h	y	0	cg	0	an
+92	hycgan	w	3	0	d	538	1	If	0	h	y	0	cg	0	ean
+92	hycgan	w	3	0	d	538	0	IdIf	0	h	y	0	cg	0	anne
+92	hycgan	w	3	0	d	538	1	IdIf	0	h	y	0	cg	0	eanne
+92	hycgan	w	3	0	d	538	0	PsInSg1	0	h	y	0	cg	0	e
+92	hycgan	w	3	0	d	538	0	PsInSg2	0	h	y	0	g	0	est
+92	hycgan	w	3	0	d	538	1	PsInSg2	0	h	y	0	g	0	st
+92	hycgan	w	3	0	d	538	2	PsInSg2	0	h	o	0	g	0	ast
+92	hycgan	w	3	0	d	538	3	PsInSg2	0	h	o	0	g	0	as
+92	hycgan	w	3	0	d	538	1	PaInSg2	0	h	o	0	g	d	es
+92	hycgan	w	3	0	d	538	0	PsInSg3	0	h	y	0	g	0	eð
+92	hycgan	w	3	0	d	538	1	PsInSg3	0	h	y	0	g	0	ð
+92	hycgan	w	3	0	d	538	2	PsInSg3	0	h	o	0	g	0	að
+92	hycgan	w	3	0	d	538	0	PsInPl	0	h	y	0	cg	0	að
+92	hycgan	w	3	0	d	538	1	PsInPl	0	h	y	0	cg	0	eað
+92	hycgan	w	3	0	d	538	0	PsSuSg	0	h	y	0	cg	0	e
+92	hycgan	w	3	0	d	538	0	PsSuPl	0	h	y	0	cg	0	en
+92	hycgan	w	3	0	d	538	0	PsPt	0	h	y	0	cg	0	ende
+92	hycgan	w	3	0	d	538	0	ImSg	0	h	o	0	g	0	a
+92	hycgan	w	3	0	d	538	1	ImSg	0	h	y	0	g	0	e
+92	hycgan	w	3	0	d	538	0	ImPl	0	h	y	0	cg	0	að
+92	hycgan	w	3	0	d	538	1	ImPl	0	h	y	0	cg	0	eað
+92	hycgan	w	3	0	d	538	0	PaInSg1	0	h	o	0	g	d	e
+92	hycgan	w	3	0	d	538	0	PaInSg2	0	h	o	0	g	d	est
+92	hycgan	w	3	0	d	538	0	PaInSg3	0	h	o	0	g	d	e
+92	hycgan	w	3	0	d	538	0	PaInPl	0	h	o	0	g	d	on
+92	hycgan	w	3	0	d	538	0	PaSuSg	0	h	o	0	g	d	e
+92	hycgan	w	3	0	d	538	0	PaSuPl	0	h	o	0	g	d	en
+92	hycgan	w	3	0	d	538	0	PaPt	ge	h	o	0	g	od	0
+92	hycgan	w	3	0	d	538	1	PaPt	ge	h	o	0	g	ed	0
 114	witan	pp	1	0	0	540	0	If	0	w	i	0	t	0	an
 114	witan	pp	1	0	0	540	0	PsPt	0	w	i	0	t	0	ende
 114	witan	pp	1	0	0	540	0	PsInSg1	0	w	ā	0	t	0	0
@@ -735,7 +762,7 @@
 116	unnan	pp	3		a	542	0	PsSuPl			u	0	nn		en
 116	unnan	pp	3		a	542	1	PsSuSg	0	0	u	0	ð		e
 116	unnan	pp	3		a	542	1	PsSuPl			u	0	ð		en
-116	unnan	pp	3		a	Camp	0	PsPa	0	0	u	0	nn		ende
+116	unnan	pp	3		a	542	0	PsPa	0	0	u	0	nn		ende
 116	unnan	pp	3		a	542	1	PsInSg1	0	0	a	0	n		0
 116	unnan	pp	3		a	542	2	PsInSg1	0	0	o	0	nn		0
 116	unnan	pp	3		a	542	3	PsInSg1	0	0	o	0	n		0
@@ -760,10 +787,10 @@
 117	cunnan	pp	3		b	542	0	PaInPl	0	c	ū	0	ð		on
 117	cunnan	pp	3		b	542	0	Pp	0	c	u	0	nn		en
 117	cunnan	pp	3		b	542	1	Pp	0	c	u	0	ð		0
-117	cunnan	pp	3		b	Camp	0	PsSuSg	0	c	u	0	nn		e
-117	cunnan	pp	3		b	Camp	0	PsSuPl	0	c	u	0	nn		en
-117	cunnan	pp	3		b	Camp	1	PsSuSg	0	c	u	0	ð		e
-117	cunnan	pp	3		b	Camp	1	PsSuPl	0	c	u	0	ð		en
+117	cunnan	pp	3		b	542	0	PsSuSg	0	c	u	0	nn		e
+117	cunnan	pp	3		b	542	0	PsSuPl	0	c	u	0	nn		en
+117	cunnan	pp	3		b	542	1	PsSuSg	0	c	u	0	ð		e
+117	cunnan	pp	3		b	542	1	PsSuPl	0	c	u	0	ð		en
 117	cunnan	pp	3		b	542	1	PsInSg1	0	c	a	0	n		0
 117	cunnan	pp	3		b	542	2	PsInSg1	0	c	o	0	nn		0
 117	cunnan	pp	3		b	542	3	PsInSg1	0	c	o	0	nn		0
@@ -771,13 +798,13 @@
 117	cunnan	pp	3		b	542	1	PsInSg3	0	c	a	0	n		0
 117	cunnan	pp	3		b	542	2	PsInSg3	0	c	o	0	nn		0
 117	cunnan	pp	3		b	542	3	PsInSg3	0	c	o	0	nn		0
-117	cunnan	pp	3		b	Camp	2	Pp	on	c	u	0	nn		en
-117	cunnan	pp	3		b	Camp	1	PsInPl	0	c	u	0	nn		að
-117	cunnan	pp	3		b	Camp	2	PsInPl	0	c	u	0	nn		eð
+117	cunnan	pp	3		b	542	2	Pp	on	c	u	0	nn		en
+117	cunnan	pp	3		b	542	1	PsInPl	0	c	u	0	nn		að
+117	cunnan	pp	3		b	542	2	PsInPl	0	c	u	0	nn		eð
 118	ðurfan	pp	3	0	c	542	0	If	0	ð	u	0	rf	0	an
 118	ðurfan	pp	3	0	c	542	0	PsInSg1	0	ð	ea	0	rf	0	0
 118	ðurfan	pp	3	0	c	542	0	PsInSg2	0	ð	ea	0	rft	0	t
-118	ðurfan	pp	3	0	c	Camp	0	PsInSg3	0	ð	ea	0	rf	0	0
+118	ðurfan	pp	3	0	c	542	0	PsInSg3	0	ð	ea	0	rf	0	0
 118	ðurfan	pp	3	0	c	542	0	PsInPl	0	ð	u	0	rf	0	on
 118	ðurfan	pp	3	0	c	542	0	PaInSg1	0	ð	o	0	rft	0	e
 118	ðurfan	pp	3	0	c	542	0	PaInPl	0	ð	o	0	rft	0	on
@@ -785,18 +812,18 @@
 118	ðurfan	pp	3	0	c	542	0	ImSg	0	ð	u	0	rf	0	e
 118	ðurfan	pp	3	0	c	542	0	ImPl	0	ð	u	0	rf	0	að
 118	ðurfan	pp	3	0	c	542	0	PsPt	0	ð	ea	0	rf	0	ende
-118	ðurfan	pp	3	0	c	Camp	0	PsSuSg	0	ð	u	0	rf	0	e
-118	ðurfan	pp	3	0	c	Camp	0	PsSuPl	0	ð	u	0	rf	0	en
-118	ðurfan	pp	3	0	c	Camp	1	PsSuSg	0	ð	y	0	rf	0	e
-118	ðurfan	pp	3	0	c	Camp	1	PsPt	0	ð	o	0	rf	0	ende
-118	ðurfan	pp	3	0	c	Camp	2	PsPt	0	ð	u	0	rf	0	ende
-118	ðurfan	pp	3	0	c	Camp	1	PsInSg3	0	ð	o	0	rf	0	eð
-118	ðurfan	pp	3	0	c	Camp	1	PsInPl	0	ð	o	0	rf	0	eð
-118	ðurfan	pp	3	0	c	Camp	2	PsInPl	0	ð	u	0	rf	0	u
+118	ðurfan	pp	3	0	c	542	0	PsSuSg	0	ð	u	0	rf	0	e
+118	ðurfan	pp	3	0	c	542	0	PsSuPl	0	ð	u	0	rf	0	en
+118	ðurfan	pp	3	0	c	542	1	PsSuSg	0	ð	y	0	rf	0	e
+118	ðurfan	pp	3	0	c	542	1	PsPt	0	ð	o	0	rf	0	ende
+118	ðurfan	pp	3	0	c	542	2	PsPt	0	ð	u	0	rf	0	ende
+118	ðurfan	pp	3	0	c	542	1	PsInSg3	0	ð	o	0	rf	0	eð
+118	ðurfan	pp	3	0	c	542	1	PsInPl	0	ð	o	0	rf	0	eð
+118	ðurfan	pp	3	0	c	542	2	PsInPl	0	ð	u	0	rf	0	u
 119	durran	pp	3	0	d	542	0	If	0	d	u	0	rr	0	an
 119	durran	pp	3	0	d	542	0	PsInSg1	0	d	ea	0	r	0	0
 119	durran	pp	3	0	d	542	0	PsInSg2	0	d	ea	0	r	0	st
-119	durran	pp	3	0	d	Camp	0	PsInSg3	0	d	ea	0	rr	0	0
+119	durran	pp	3	0	d	542	0	PsInSg3	0	d	ea	0	rr	0	0
 119	durran	pp	3	0	d	542	0	PsInPl	0	d	u	0	rr	0	on
 119	durran	pp	3	0	d	542	0	PaInSg1	0	d	o	0	rst	0	e
 119	durran	pp	3	0	d	542	0	PaInPl	0	d	o	0	rst	0	on
@@ -804,25 +831,25 @@
 119	durran	pp	3	0	d	542	0	ImSg	0	d	ea	0	r	0	e
 119	durran	pp	3	0	d	542	0	ImPl	0	d	ea	0	r	0	að
 119	durran	pp	3	0	d	542	0	PsPt	0	d	ea	0	r	0	ende
-119	durran	pp	3	0	d	Camp	0	PsSuSg	0	d	u	0	rr	0	e
-119	durran	pp	3	0	d	Camp	0	PsSuPl	0	d	u	0	rr	0	en
+119	durran	pp	3	0	d	542	0	PsSuSg	0	d	u	0	rr	0	e
+119	durran	pp	3	0	d	542	0	PsSuPl	0	d	u	0	rr	0	en
 119	durran	pp	3	0	d	542	1	If	0	d	ea	0	rr	0	an
 119	durran	pp	3	0	d	542	2	If	0	d	ea	0	rr	0	an
 119	durran	pp	3	0	d	542	1	PsInSg1	0	d	ea	0	rr	0	0
-119	durran	pp	3	0	d	Camp	1	PsSuSg	0	d	y	0	rr	0	e
-119	durran	pp	3	0	d	Camp	1	PaInSg1	0	d	u	0	rst	0	e
-119	durran	pp	3	0	d	Camp	2	PaInSg1	0	d	y	0	rst	0	e
-119	durran	pp	3	0	d	Camp	3	PaInSg1	0	d	y	0	st	0	e
-119	durran	pp	3	0	d	Camp	4	PaInSg1	0	d	a	0	rst	0	e
-119	durran	pp	3	0	d	Camp	1	PaInPl	0	d	u	0	rst	0	on
-119	durran	pp	3	0	d	Camp	2	PaInPl	0	d	y	0	rst	0	on
-119	durran	pp	3	0	d	Camp	3	PaInPl	0	d	y	0	st	0	on
-119	durran	pp	3	0	d	Camp	4	PaInPl	0	d	a	0	rst	0	on
-119	durran	pp	3	0	d	Camp	2	PsInSg1	0	d	a	0	rr	0	0
+119	durran	pp	3	0	d	542	1	PsSuSg	0	d	y	0	rr	0	e
+119	durran	pp	3	0	d	542	1	PaInSg1	0	d	u	0	rst	0	e
+119	durran	pp	3	0	d	542	2	PaInSg1	0	d	y	0	rst	0	e
+119	durran	pp	3	0	d	542	3	PaInSg1	0	d	y	0	st	0	e
+119	durran	pp	3	0	d	542	4	PaInSg1	0	d	a	0	rst	0	e
+119	durran	pp	3	0	d	542	1	PaInPl	0	d	u	0	rst	0	on
+119	durran	pp	3	0	d	542	2	PaInPl	0	d	y	0	rst	0	on
+119	durran	pp	3	0	d	542	3	PaInPl	0	d	y	0	st	0	on
+119	durran	pp	3	0	d	542	4	PaInPl	0	d	a	0	rst	0	on
+119	durran	pp	3	0	d	542	2	PsInSg1	0	d	a	0	rr	0	0
 120	sculan	pp	4	0	a	543	0	If	0	sc	u	0	l	0	an
 120	sculan	pp	4	0	a	543	0	PsInSg1	0	sc	ea	0	l	0	0
 120	sculan	pp	4	0	a	543	0	PsInSg2	0	sc	ea	0	l	0	t
-120	sculan	pp	4	0	a	Camp	0	PsInSg3	0	sc	ea	0	l	0	0
+120	sculan	pp	4	0	a	543	0	PsInSg3	0	sc	ea	0	l	0	0
 120	sculan	pp	4	0	a	543	0	PsInPl	0	sc	u	0	l	0	on
 120	sculan	pp	4	0	a	543	0	PaInSg1	0	sc	eo	0	ld	0	e
 120	sculan	pp	4	0	a	543	0	PaInPl	0	sc	eo	0	ld	0	on
@@ -838,53 +865,53 @@
 120	sculan	pp	4	0	a	543	0	ImSg	0	sc	u	0	l	0	e
 120	sculan	pp	4	0	a	543	0	ImPl	0	sc	u	0	l	0	að
 120	sculan	pp	4	0	a	543	0	PsPt	0	sc	u	0	l	0	ende
-120	sculan	pp	4	0	a	Camp	0	PsSuSg	0	sc	u	0	l	0	e
-120	sculan	pp	4	0	a	Camp	0	PsSuPl	0	sc	u	0	l	0	en
-120	sculan	pp	4	0	a	Camp	1	PsSuSg	0	sc	y	0	ld	0	e
+120	sculan	pp	4	0	a	543	0	PsSuSg	0	sc	u	0	l	0	e
+120	sculan	pp	4	0	a	543	0	PsSuPl	0	sc	u	0	l	0	en
+120	sculan	pp	4	0	a	543	1	PsSuSg	0	sc	y	0	ld	0	e
 120	sculan	pp	4	0	a	543	1	If	0	sc	eo	0	l	0	an
 120	sculan	pp	4	0	a	543	1	PsInPl	0	sc	eo	0	l	0	on
-120	sculan	pp	4	0	a	Camp	2	PsSuSg	0	sc	y	0	l	0	e
-120	sculan	pp	4	0	a	Camp	1	PsInSg2	0	sc	a	0	l	0	t
-120	sculan	pp	4	0	a	Camp	1	PsInSg3	0	sc	a	0	l	0	0
-120	sculan	pp	4	0	a	Camp	1	PsInSg1	0	sc	a	0	l	0	0
-120	sculan	pp	4	0	a	Camp	2	PsInPl	0	sc	y	0	l	0	un
-120	sculan	pp	4	0	a	Camp	3	PsInPl	0	sc	i	0	l	0	un
-120	sculan	pp	4	0	a	Camp	4	PsInPl	0	sc	iu	0	l	0	un
-120	sculan	pp	4	0	a	Camp	5	PsInPl	0	sc	io	0	l	0	un
+120	sculan	pp	4	0	a	543	2	PsSuSg	0	sc	y	0	l	0	e
+120	sculan	pp	4	0	a	543	1	PsInSg2	0	sc	a	0	l	0	t
+120	sculan	pp	4	0	a	543	1	PsInSg3	0	sc	a	0	l	0	0
+120	sculan	pp	4	0	a	543	1	PsInSg1	0	sc	a	0	l	0	0
+120	sculan	pp	4	0	a	543	2	PsInPl	0	sc	y	0	l	0	un
+120	sculan	pp	4	0	a	543	3	PsInPl	0	sc	i	0	l	0	un
+120	sculan	pp	4	0	a	543	4	PsInPl	0	sc	iu	0	l	0	un
+120	sculan	pp	4	0	a	543	5	PsInPl	0	sc	io	0	l	0	un
 121	munan	pp	4	0	b	543	0	If	0	m	u	0	n	0	an
 121	munan	pp	4	0	b	543	0	PsInSg1	0	m	a	0	n	0	0
 121	munan	pp	4	0	b	543	0	PsInSg2	0	m	a	0	n	0	st
-121	munan	pp	4	0	b	Camp	0	PsInSg3	ge	m	a	0	n	0	0
+121	munan	pp	4	0	b	543	0	PsInSg3	ge	m	a	0	n	0	0
 121	munan	pp	4	0	b	543	0	PsInPl	0	m	u	0	n	0	on
-121	munan	pp	4	0	b	Camp	0	PaInSg1	ge	m	u	0	nd	0	e
-121	munan	pp	4	0	b	Camp	0	PaInPl	ge	m	u	0	nd	0	on
+121	munan	pp	4	0	b	543	0	PaInSg1	ge	m	u	0	nd	0	e
+121	munan	pp	4	0	b	543	0	PaInPl	ge	m	u	0	nd	0	on
 121	munan	pp	4	0	b	543	0	PaPt	ge	m	u	0	n	0	en
 121	munan	pp	4	0	b	543	0	ImSg	0	m	u	0	n	0	0
-121	munan	pp	4	0	b	Camp	0	ImPl	ge	m	u	0	n	0	að
+121	munan	pp	4	0	b	543	0	ImPl	ge	m	u	0	n	0	að
 121	munan	pp	4	0	b	543	0	PsPt	0	m	u	0	n	0	ende
-121	munan	pp	4	0	b	Camp	0	PsSuSg	0	m	u	0	n	0	e
-121	munan	pp	4	0	b	Camp	0	PsSuPl	0	m	u	0	n	0	en
+121	munan	pp	4	0	b	543	0	PsSuSg	0	m	u	0	n	0	e
+121	munan	pp	4	0	b	543	0	PsSuPl	0	m	u	0	n	0	en
 121	munan	pp	4	0	b	543	1	If	0	m	o	0	n	0	0
 121	munan	pp	4	0	b	543	1	PsInSg1	0	m	o	0	n	0	st
 121	munan	pp	4	0	b	543	1	ImSg	0	m	y	0	n	0	e
 121	munan	pp	4	0	b	543	2	ImSg	0	m	u	0	n	0	e
-121	munan	pp	4	0	b	Camp	3	ImSg	ge	m	u	0	n	0	0
-121	munan	pp	4	0	b	Camp	2	If	0	m	u	0	n	0	an
-121	munan	pp	4	0	b	Camp	1	PsInSg2	ge	m	a	0	n	0	st
-121	munan	pp	4	0	b	Camp	1	PsInPl	ge	m	u	0	n	0	on
-121	munan	pp	4	0	b	Camp	1	PsSuSg	0	m	y	0	n	0	e
-121	munan	pp	4	0	b	Camp	1	PsPt	ge	m	u	0	n	0	ende
-121	munan	pp	4	0	b	Camp	2	PsInSg1	ge	m	u	0	n	0	u
-121	munan	pp	4	0	b	Camp	2	PsInSg2	ge	m	y	0	n	0	es
-121	munan	pp	4	0	b	Camp	3	PsInSg2	ge	m	y	0	n	0	est
-121	munan	pp	4	0	b	Camp	1	PsSuPl	ge	m	y	0	n	0	en
-121	munan	pp	4	0	b	Camp	4	ImSg	ge	m	y	0	n	0	e
+121	munan	pp	4	0	b	543	3	ImSg	ge	m	u	0	n	0	0
+121	munan	pp	4	0	b	543	2	If	0	m	u	0	n	0	an
+121	munan	pp	4	0	b	543	1	PsInSg2	ge	m	a	0	n	0	st
+121	munan	pp	4	0	b	543	1	PsInPl	ge	m	u	0	n	0	on
+121	munan	pp	4	0	b	543	1	PsSuSg	0	m	y	0	n	0	e
+121	munan	pp	4	0	b	543	1	PsPt	ge	m	u	0	n	0	ende
+121	munan	pp	4	0	b	543	2	PsInSg1	ge	m	u	0	n	0	u
+121	munan	pp	4	0	b	543	2	PsInSg2	ge	m	y	0	n	0	es
+121	munan	pp	4	0	b	543	3	PsInSg2	ge	m	y	0	n	0	est
+121	munan	pp	4	0	b	543	1	PsSuPl	ge	m	y	0	n	0	en
+121	munan	pp	4	0	b	543	4	ImSg	ge	m	y	0	n	0	e
 122	magan	pp	5	0	0	544	0	If	0	m	a	0	g	0	an
 122	magan	pp	5	0	0	544	0	PsInSg1	0	m	æ	0	g	0	0
 122	magan	pp	5	0	0	544	0	PsInSg2	0	m	ea	0	h	0	t
-122	magan	pp	5	0	0	Camp	0	PsInSg3	0	m	æ	0	g	0	0
+122	magan	pp	5	0	0	544	0	PsInSg3	0	m	æ	0	g	0	0
 122	magan	pp	5	0	0	544	0	PsInPl	0	m	a	0	g	0	on
-122	magan	pp	5	0	0	Camp	0	PaInSg1	0	m	ea	0	ht	0	e
+122	magan	pp	5	0	0	544	0	PaInSg1	0	m	ea	0	ht	0	e
 122	magan	pp	5	0	0	544	0	PaInPl	0	m	ea	0	ht	0	on
 122	magan	pp	5	0	0	544	0	PaPt	0	m	a	0	g	0	en
 122	magan	pp	5	0	0	544	0	ImSg	0	m	a	0	g	0	e
@@ -892,23 +919,23 @@
 122	magan	pp	5	0	0	544	0	PsSuSg	0	m	æ	0	g	0	e
 122	magan	pp	5	0	0	544	0	PsSuPl	0	m	æ	0	g	0	en
 122	magan	pp	5	0	0	544	0	PsPt	0	m	a	0	g	0	ende
-122	magan	pp	5	0	0	Camp	1	PaInSg1	0	m	e	0	ht	0	e
+122	magan	pp	5	0	0	544	1	PaInSg1	0	m	e	0	ht	0	e
 122	magan	pp	5	0	0	544	1	PaInPl	0	m	e	0	ht	0	on
-122	magan	pp	5	0	0	Camp	2	PaInSg1	0	m	i	0	ht	0	e
+122	magan	pp	5	0	0	544	2	PaInSg1	0	m	i	0	ht	0	e
 122	magan	pp	5	0	0	544	2	PaInPl	0	m	i	0	ht	0	on
-122	magan	pp	5	0	0	Camp	3	PaInSg1	0	m	æ	0	ht	0	e
-122	magan	pp	5	0	0	Camp	3	PaInPl	0	m	æ	0	ht	0	on
+122	magan	pp	5	0	0	544	3	PaInSg1	0	m	æ	0	ht	0	e
+122	magan	pp	5	0	0	544	3	PaInPl	0	m	æ	0	ht	0	on
 122	magan	pp	5	0	0	544	1	PsInSg2	0	m	i	0	h	0	t
-122	magan	pp	5	0	0	Camp	1	PsInPl	0	m	æ	0	g	0	on
-122	magan	pp	5	0	0	Camp	1	PsSuSg	0	m	a	0	g	0	e
-122	magan	pp	5	0	0	Camp	2	PsSuSg	0	m	u	0	g	0	e
-122	magan	pp	5	0	0	Camp	1	PsInSg3	0	m	e	0	g	0	0
-122	magan	pp	5	0	0	Camp	2	PsInSg2	0	m	æ	0	h	0	t
-122	magan	pp	5	0	0	Camp	3	PsInSg2	0	m	e	0	h	0	t
-122	magan	pp	5	0	0	Camp	3	PsSuSg	0	m	ei	0	g	0	e
-122	magan	pp	5	0	0	Camp	1	PsPt	0	m	e	0	g	0	ende
+122	magan	pp	5	0	0	544	1	PsInPl	0	m	æ	0	g	0	on
+122	magan	pp	5	0	0	544	1	PsSuSg	0	m	a	0	g	0	e
+122	magan	pp	5	0	0	544	2	PsSuSg	0	m	u	0	g	0	e
+122	magan	pp	5	0	0	544	1	PsInSg3	0	m	e	0	g	0	0
+122	magan	pp	5	0	0	544	2	PsInSg2	0	m	æ	0	h	0	t
+122	magan	pp	5	0	0	544	3	PsInSg2	0	m	e	0	h	0	t
+122	magan	pp	5	0	0	544	3	PsSuSg	0	m	ei	0	g	0	e
+122	magan	pp	5	0	0	544	1	PsPt	0	m	e	0	g	0	ende
 123	nugan	pp	5	0	0	544	0	If	0	n	u	0	g	0	an
-123	nugan	pp	5	0	0	544	0	PsInSg1	0	n	ea	0	h	0	
+123	nugan	pp	5	0	0	544	0	PsInSg1	0	n	ea	0	h	0
 123	nugan	pp	5	0	0	544	0	PsInSg2	0	n	ea	0	h	0	t
 123	nugan	pp	5	0	0	544	0	PsInSg3	ge	n	ea	0	h	0	0
 123	nugan	pp	5	0	0	544	0	PsInPl	ge	n	u	0	g	0	on
@@ -938,83 +965,44 @@
 124	mōtan	pp	6	0	a	545	0	PsPt	0	m	ō	0	t	0	ende
 125	āgan	pp	6	0	b	546	0	If	0	0	ā	0	g	0	an
 125	āgan	pp	6	0	b	546	0	PsInSg1	0	0	ā	0	g	0	0
+125	āgan	pp	6	0	b	546	1	PsInSg1	0	0	ā	0	h	0	0
+125	āgan	pp	6	0	b	546	2	PaInSg1	0	0	ā	0	ht	0	e
 125	āgan	pp	6	0	b	546	0	PsInSg2	0	0	ā	0	h	0	st
+125	āgan	pp	6	0	b	546	1	PsInSg2	0	0	ā	0	h	0	t
 125	āgan	pp	6	0	b	546	0	PsInSg3	0	0	ā	0	g	0	0
+125	āgan	pp	6	0	b	546	1	PsInSg3	0	0	ā	0	g	0	0
 125	āgan	pp	6	0	b	546	0	PsInPl	0	0	ā	0	g	0	on
-125	āgan	pp	6	0	b	546	0	PaInSg1	0	0	ā	0	ht	0	e
-125	āgan	pp	6	0	b	546	0	PaInPl	0	0	ā	0	ht	0	on
-125	āgan	pp	6	0	b	546	0	PaPt	0	0	ā	0	g	0	en
-125	āgan	pp	6	0	b	546	0	ImSg	0	0	ā	0	g	0	e
-125	āgan	pp	6	0	b	546	0	ImPl	0	0	ā	0	g	0	að
 125	āgan	pp	6	0	b	546	0	PsSuSg	0	0	ā	0	g	0	e
 125	āgan	pp	6	0	b	546	0	PsSuPl	0	0	ā	0	g	0	en
 125	āgan	pp	6	0	b	546	0	PsPt	0	0	ā	0	g	0	ende
-125	āgan	pp	6	0	b	546	1	PsInSg1	0	0	ā	0	h	0	0
-125	āgan	pp	6	0	b	546	1	PsInSg3	0	0	ā	0	g	0	0
+125	āgan	pp	6	0	b	546	0	PaInPl	0	0	ā	0	ht	0	on
+125	āgan	pp	6	0	b	546	0	PaPt	0	0	ā	0	g	0	en
 125	āgan	pp	6	0	b	546	1	PaPt	0	0	ǣ	0	g	0	en
-125	āgan	pp	6	0	b	546	1	PsInSg2	0	0	ā	0	h	0	t
+125	āgan	pp	6	0	b	546	0	ImSg	0	0	ā	0	g	0	e
+125	āgan	pp	6	0	b	546	0	ImPl	0	0	ā	0	g	0	að
 126	bēon	a	0	0	0	548	0	If	0	b	ē	0	0	0	on
-126	bēon	a	0	0	0	548	0	IdIf	0	w	o	0	s	0	anne
-126	bēon	a	0	0	0	548	0	PsInSg1	0	0	eo	0	m	0	0
-126	bēon	a	0	0	0	548	0	PsInSg2	0	0	ea	0	r	0	t
-126	bēon	a	0	0	0	548	0	PsInSg3	0	0	i	0	s	0	0
-126	bēon	a	0	0	0	548	0	PsInPl	0	s	i	0	n	0	t
-126	bēon	a	0	0	0	548	0	PaInSg1	0	w	æ	0	s	0	0
-126	bēon	a	0	0	0	548	0	PaInSg2	0	w	ǣ	0	r	0	on
-126	bēon	a	0	0	0	548	0	PaInSg3	0	w	æ	0	s	0	0
-126	bēon	a	0	0	0	548	0	PaInPl	0	w	ǣ	0	r	0	on
-126	bēon	a	0	0	0	548	0	PaPt	0	b	ē	0	0	0	on
-126	bēon	a	0	0	0	548	0	ImSg	0	b	īo	0	0	0	0
-126	bēon	a	0	0	0	548	0	ImPl	0	b	īo	0	0	0	ð
-126	bēon	a	0	0	0	548	0	PsSuSg	0	s	ī	0	0	0	e
-126	bēon	a	0	0	0	548	0	PsSuPl	0	s	ī	0	0	0	en
-126	bēon	a	0	0	0	548	0	PaSuSg	0	w	ǣ	0	r	0	e
-126	bēon	a	0	0	0	548	0	PaSuPl	0	w	ǣ	0	r	0	en
-126	bēon	a	0	0	0	548	0	PsPt	0	b	īo	0	0	0	nde
 126	bēon	a	0	0	0	548	1	If	0	b	ī	0	0	0	on
-126	bēon	a	0	0	0	548	2	If	0	w	e	0	s	0	an
-126	bēon	a	0	0	0	548	1	IdIf	0	w	o	0	ss	0	anne
-126	bēon	a	0	0	0	548	2	IdIf	0	w	o	0	s	0	ane
-126	bēon	a	0	0	0	548	1	PsInSg1	0	0	ea	0	m	0	0
-126	bēon	a	0	0	0	548	2	PsInSg1	0	0	a	0	m	0	0
-126	bēon	a	0	0	0	548	3	PsInSg1	0	b	īo	0	0	0	0
-126	bēon	a	0	0	0	548	4	PsInSg1	0	b	ēo	0	0	0	0
-126	bēon	a	0	0	0	548	5	PsInSg1	0	b	īo	0	m	0	0
-126	bēon	a	0	0	0	548	6	PsInSg1	0	n	ea	0	m	0	0
-126	bēon	a	0	0	0	548	1	PsInSg2	0	0	ea	0	r	0	ð
-126	bēon	a	0	0	0	548	2	PsInSg2	0	0	a	0	r	0	ð
-126	bēon	a	0	0	0	548	3	PsInSg2	0	b	i	0	0	0	st
-126	bēon	a	0	0	0	548	4	PsInSg2	0	b	i	0	0	0	s
-126	bēon	a	0	0	0	548	1	PsInSg3	0	b	i	0	0	0	ð
-126	bēon	a	0	0	0	548	2	PsInSg3	0	0	i	0	s	0	
-126	bēon	a	0	0	0	548	3	PsInSg3	0	n	i	0	s	0	
-126	bēon	a	0	0	0	548	1	PsInPl	0	s	i	0	nd	0	on
-126	bēon	a	0	0	0	548	2	PsInPl	0	s	i	0	nd	0	un
-126	bēon	a	0	0	0	548	3	PsInPl	0	s	i	0	nd	0	0
-126	bēon	a	0	0	0	548	4	PsInPl	0	0	ea	0	r	0	on
-126	bēon	a	0	0	0	548	5	PsInPl	0	0	a	0	r	0	on
-126	bēon	a	0	0	0	548	6	PsInPl	0	0	ea	0	r	0	un
-126	bēon	a	0	0	0	548	7	PsInPl	0	0	a	0	r	0	un
-126	bēon	a	0	0	0	548	8	PsInPl	0	b	īo	0	0	0	ð
-126	bēon	a	0	0	0	548	9	PsInPl	0	b	ēo	0	0	0	ð
-126	bēon	a	0	0	0	548	10	PsInPl	0	b	io	0	ð	0	on
-126	bēon	a	0	0	0	548	11	PsInPl	0	b	i	0	ð	0	on
-126	bēon	a	0	0	0	548	12	PsInPl	0	b	io	0	ð	0	un
-126	bēon	a	0	0	0	548	13	PsInPl	0	b	i	0	ð	0	un
-126	bēon	a	0	0	0	548	14	PsInPl	0	s	ie	0	nt	0	0
-126	bēon	a	0	0	0	548	15	PsInPl	0	s	ie	0	nd	0	on
-126	bēon	a	0	0	0	548	1	PsSuSg	0	s	ī	0	0	0	0
-126	bēon	a	0	0	0	548	2	PsSuSg	0	b	īo	0	0	0	0
-126	bēon	a	0	0	0	548	3	PsSuSg	0	b	ēo	0	0	0	0
-126	bēon	a	0	0	0	548	1	PsSuPl	0	s	ī	0	0	0	n
-126	bēon	a	0	0	0	548	2	PsSuPl	0	b	īo	0	0	0	n
-126	bēon	a	0	0	0	548	3	PsSuPl	0	b	ēo	0	0	0	n
-126	bēon	a	0	0	0	548	1	ImSg	0	b	ēo	0	0	0	0
-126	bēon	a	0	0	0	548	2	ImSg	0	w	e	0	s	0	0
-126	bēon	a	0	0	0	548	1	ImPl	0	b	ēo	0	0	0	ð
-126	bēon	a	0	0	0	548	2	ImPl	0	w	e	0	s	0	að
+126	bēon	a	0	0	0	548	0	IdIf	0	b	ēo	0	0	0	nne
+126	bēon	a	0	0	0	548	0	PsInSg1	0	b	īo	0	0	0	0
+126	bēon	a	0	0	0	548	1	PsInSg1	0	b	ēo	0	0	0	0
+126	bēon	a	0	0	0	548	2	PsInSg1	0	b	īo	0	m	0	0
+126	bēon	a	0	0	0	548	0	PsInSg2	0	b	i	0	0	0	st
+126	bēon	a	0	0	0	548	1	PsInSg2	0	b	i	0	0	0	s
+126	bēon	a	0	0	0	548	0	PsInSg3	0	b	i	0	0	0	ð
+126	bēon	a	0	0	0	548	0	PsInPl	0	b	ēo	0	0	0	ð
+126	bēon	a	0	0	0	548	1	PsInPl	0	b	īo	0	0	0	ð
+126	bēon	a	0	0	0	548	2	PsInPl	0	b	io	0	ð	0	on
+126	bēon	a	0	0	0	548	3	PsInPl	0	b	io	0	ð	0	un
+126	bēon	a	0	0	0	548	0	PsSuSg	0	b	ēo	0	0	0	0
+126	bēon	a	0	0	0	548	1	PsSuSg	0	b	īo	0	0	0	0
+126	bēon	a	0	0	0	548	0	PsSuPl	0	b	ēo	0	0	0	n
+126	bēon	a	0	0	0	548	1	PsSuPl	0	b	īo	0	0	0	n
+126	bēon	a	0	0	0	548	0	PsPt	0	b	īo	0	0	0	nde
 126	bēon	a	0	0	0	548	1	PsPt	0	b	ēo	0	0	0	nde
-126	bēon	a	0	0	0	548	2	PsPt	0	w	e	0	s	0	ende
+126	bēon	a	0	0	0	548	1	ImSg	0	b	ēo	0	0	0	0
+126	bēon	a	0	0	0	548	0	ImSg	0	b	īo	0	0	0	0
+126	bēon	a	0	0	0	548	0	ImPl	0	b	ēo	0	0	0	ð
+126	bēon	a	0	0	0	548	1	ImPl	0	b	īo	0	0	0	ð
 127	dōn	a	0	0	0	549	0	If	0	d	ō	0	0	0	n
 127	dōn	a	0	0	0	549	0	IdIf	0	d	ō	0	0	0	anne
 127	dōn	a	0	0	0	549	0	PsInSg1	0	d	ō	0	0	0	0

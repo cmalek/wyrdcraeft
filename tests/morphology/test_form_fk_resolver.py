@@ -70,8 +70,9 @@ def _insert_bt_entry(
             genders_json,
             etymology,
             see_also_json,
-            source_line_nos_json
-        ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[]')
+            source_line_nos_json,
+            entry_order
+        ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[]', ?)
         """,
         (
             entry_id,
@@ -79,6 +80,7 @@ def _insert_bt_entry(
             normalized_title,
             normalized_title,
             pos_id,
+            entry_id,
         ),
     )
 

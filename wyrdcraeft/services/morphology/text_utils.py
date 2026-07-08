@@ -52,6 +52,33 @@ class OENormalizer:
     LDIPHTHONG_REGEX: Final[re.Pattern[str]] = re.compile(LDIPHTHONG)
     #: The compiled regex for the consonants.
     CONSONANT_REGEX: Final[re.Pattern[str]] = re.compile(CONSONANT)
+    #: Acute-to-macron translation table for Bosworth-Toller display spellings.
+    ACUTE_TO_MACRON_TRANSLATION: Final[dict[int, str]] = str.maketrans(
+        {
+            "á": "ā",
+            "é": "ē",
+            "í": "ī",
+            "ó": "ō",
+            "ú": "ū",
+            "ý": "ȳ",
+            "ǽ": "ǣ",
+            "Á": "Ā",
+            "É": "Ē",
+            "Í": "Ī",
+            "Ó": "Ō",
+            "Ú": "Ū",
+            "Ý": "Ȳ",
+            "Ǽ": "Ǣ",
+        }
+    )
+    #: Regex for BT ``eō``/``eó`` long-mark-on-second-vowel diphthongs.
+    EO_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([eE])([ōóŌÓ])")
+    #: Regex for BT ``eā``/``eá`` long-mark-on-second-vowel diphthongs.
+    EA_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([eE])([āáĀÁ])")
+    #: Regex for BT ``iē``/``ié`` long-mark-on-second-vowel diphthongs.
+    IE_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([iI])([ēéĒÉ])")
+    #: Regex for BT ``eī``/``eí`` long-mark-on-second-vowel diphthongs.
+    EI_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([eE])([īíĪÍ])")
 
     @classmethod
     def eth2thorn(cls, text: str) -> str:
@@ -165,6 +192,106 @@ class OENormalizer:
         text = text.replace("e\u00f3", "\u0113o")  # eó -> ēo
         text = text.replace("e\u00e1", "\u0113a")  # eá -> ēa
         return text.replace("i\u00e9", "\u012be")  # ié -> īe
+
+    @classmethod
+    def normalize_bt_display_spelling(cls, spelling: str) -> str:
+        """
+        Convert one BT spelling to macronized Wright-style display spelling.
+
+        Note:
+            Bosworth-Toller long diphthongs often mark the second vowel in line
+            with ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+            In plain terms, this rewrites ``eā``/``eō``/``eī``/``iē`` to ``ēa``,
+            ``ēo``, ``ēi``, and ``īe`` for cross-PoS morphology and dictionary
+            display text.
+
+        Args:
+            spelling: Raw BT spelling string.
+
+        Returns:
+            Normalized display spelling.
+
+        """
+        normalized = unicodedata.normalize("NFC", spelling)
+        moved = cls.move_accents(normalized)
+        macronized = moved.translate(cls.ACUTE_TO_MACRON_TRANSLATION)
+        return cls.swap_bt_diphthong_long_marks(macronized)
+
+    @classmethod
+    def swap_bt_diphthong_long_marks(cls, spelling: str) -> str:
+        """
+        Rewrite BT second-vowel long-mark diphthongs to first-vowel long marks.
+
+        Note:
+            Long diphthong placement follows Wright-style morphology output from
+            ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
+            Part-of-speech scope: ``cross-PoS``.
+
+        Args:
+            spelling: NFC-normalized string with acute/macron vowels.
+
+        Returns:
+            Display spelling with corrected diphthong long-mark placement.
+
+        """
+        swapped = cls.EO_WRONG_LONG_RE.sub(
+            lambda match: cls._replace_diphthong_with_first_long(
+                match,
+                corrected_pair="ēo",
+            ),
+            spelling,
+        )
+        swapped = cls.EA_WRONG_LONG_RE.sub(
+            lambda match: cls._replace_diphthong_with_first_long(
+                match,
+                corrected_pair="ēa",
+            ),
+            swapped,
+        )
+        swapped = cls.IE_WRONG_LONG_RE.sub(
+            lambda match: cls._replace_diphthong_with_first_long(
+                match,
+                corrected_pair="īe",
+            ),
+            swapped,
+        )
+        return cls.EI_WRONG_LONG_RE.sub(
+            lambda match: cls._replace_diphthong_with_first_long(
+                match,
+                corrected_pair="ēi",
+            ),
+            swapped,
+        )
+
+    @classmethod
+    def _replace_diphthong_with_first_long(
+        cls,
+        match: re.Match[str],
+        *,
+        corrected_pair: str,
+    ) -> str:
+        """
+        Compose one corrected diphthong while preserving source case pattern.
+
+        Args:
+            match: Regex match for one wrong-vowel long-mark diphthong.
+
+        Keyword Args:
+            corrected_pair: Lowercase corrected diphthong (for example ``ēo``).
+
+        Returns:
+            Corrected two-character diphthong string.
+
+        """
+        first = match.group(1)
+        second = match.group(2)
+        first_replacement = (
+            corrected_pair[0].upper() if first.isupper() else corrected_pair[0]
+        )
+        second_replacement = (
+            corrected_pair[1].upper() if second.isupper() else corrected_pair[1]
+        )
+        return f"{first_replacement}{second_replacement}"
 
     @classmethod
     def iumlaut(cls, vowels: list[str]) -> list[str]:  # noqa: PLR0912
@@ -331,3 +458,62 @@ class OENormalizer:
         text = re.sub(r"\u0233|\u012Be", "\u012b", text)  # ȳ|īe -> ī
         text = unicodedata.normalize("NFKD", text)
         return "".join(c for c in text if not unicodedata.combining(c))
+
+
+#: Lowercase verb finite-function pattern from legacy ``para_vb`` ingest.
+_VERB_FINITE_FUNCTION_RE: Final[re.Pattern[str]] = re.compile(
+    r"^(?P<tense>ps|pa)(?P<mood>in|su)(?P<number>sg|pl)(?P<person>[123])?$",
+    re.IGNORECASE,
+)
+#: Lowercase imperative-function pattern from legacy ``para_vb`` ingest.
+_VERB_IMPERATIVE_FUNCTION_RE: Final[re.Pattern[str]] = re.compile(
+    r"^im(?:p)?(?P<number>sg|pl)$",
+    re.IGNORECASE,
+)
+#: Exact morphology function labels normalized to canonical PascalCase.
+_EXACT_INFLECTION_CODE_LABELS: Final[dict[str, str]] = {
+    "if": "If",
+    "inf": "Inf",
+    "idif": "IdIf",
+    "pspt": "PsPt",
+    "papt": "PaPt",
+    "pspa": "PsPa",
+    "pp": "Pp",
+    "camp": "Camp",
+}
+
+
+def canonicalize_inflection_code(code: str) -> str:
+    """
+    Normalize one morphology ``function`` code to canonical PascalCase.
+
+    Note:
+        Legacy ``para_vb.txt`` ingest lowercases principal-function labels before
+        generation emits them. Wright (``data/OldEnglishGrammar.pdf``) and
+        Tichý (``data/Ondej_Tich_40-54-1.pdf``) use PascalCase slot names such
+        as ``PsInSg1`` and ``PaSuPl``. Part-of-speech scope: ``cross-PoS``.
+
+    Args:
+        code: Raw morphology function label from generation or FK joins.
+
+    Returns:
+        Canonical function label, or the stripped input when no rule applies.
+
+    """
+    stripped = code.strip()
+    if not stripped:
+        return ""
+    exact = _EXACT_INFLECTION_CODE_LABELS.get(stripped.casefold())
+    if exact is not None:
+        return exact
+    finite = _VERB_FINITE_FUNCTION_RE.fullmatch(stripped)
+    if finite is not None:
+        tense = finite.group("tense").title()
+        mood = finite.group("mood").title()
+        number = finite.group("number").title()
+        person = finite.group("person") or ""
+        return f"{tense}{mood}{number}{person}"
+    imperative = _VERB_IMPERATIVE_FUNCTION_RE.fullmatch(stripped)
+    if imperative is not None:
+        return f"Im{imperative.group('number').title()}"
+    return stripped

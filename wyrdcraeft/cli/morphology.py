@@ -74,8 +74,8 @@ def _format_dictionary_join_text(entry: dict[str, object]) -> str:
 @morphology_group.command(
     name="clean-dictionary",
     help=(
-        "Backup, lowercase column-2 lemma titles, and deduplicate the "
-        "morphology dictionary TSV."
+        "Backup, normalize BT diphthongs, lowercase column-2 titles, and "
+        "deduplicate the morphology dictionary TSV."
     ),
 )
 @click.option(
@@ -100,9 +100,9 @@ def clean_dictionary(
     Note:
         Cleanup follows morphology source conventions from
         ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
-        In plain terms, it lowercases all-uppercase lemma titles in column 2 and
-        removes rows that duplicate all other columns. Part-of-speech scope:
-        ``cross-PoS``.
+        In plain terms, it corrects BT-style long diphthongs in column 2, lowercases
+        all-uppercase lemma titles, and removes rows that duplicate all other
+        columns. Part-of-speech scope: ``cross-PoS``.
 
     Args:
         data_dir: Optional base directory for bundled morphology source files.
@@ -140,6 +140,7 @@ def clean_dictionary(
                 f"backup={result.backup_path}",
                 f"rows_read={result.rows_read}",
                 f"lowercase_changes={result.lowercase_changes}",
+                f"diphthong_fixes={result.diphthong_fixes}",
                 f"duplicates_removed={result.duplicates_removed}",
                 f"rows_written={result.rows_written}",
             ]

@@ -217,3 +217,43 @@ def test_lexical_distance_prefers_exact_matches() -> None:
     assert lexical_distance("abbad", "abbod") == 1
     assert lexical_distance("acol-mōd", "mōd") > lexical_distance("mōd", "mōd")
 
+
+def test_build_verb_sidebar_accepts_lowercase_function_codes() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="eom",
+                formi="eom",
+                function="psinsg1",
+                wordclass="verb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+            MorphologyRowPayload(
+                form="wæs",
+                formi="wæs",
+                function="painsg1",
+                wordclass="verb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+            MorphologyRowPayload(
+                form="wesan",
+                formi="wesan",
+                function="if",
+                wordclass="verb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+        ],
+        wordclass="verb",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Verb"
+    assert any("eom" in cell for row in section.rows for cell in row)
+    assert any("wæs" in cell for row in section.rows for cell in row)
+    assert any("wesan" in cell for row in section.rows for cell in row)
+

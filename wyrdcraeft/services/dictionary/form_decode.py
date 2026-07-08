@@ -12,6 +12,7 @@ from wyrdcraeft.services.dictionary.wordclass_pos import (
     infer_bt_pos_from_wordclasses,
 )
 from wyrdcraeft.services.markup import normalize_old_english
+from wyrdcraeft.services.morphology.text_utils import canonicalize_inflection_code
 
 __all__ = ["WORDCLASS_TO_BT_POS", "infer_bt_pos_from_wordclasses"]
 
@@ -265,7 +266,7 @@ def decode_function_dimensions(  # noqa: PLR0911, PLR0913
         Dimension labels keyed by browse-table column name.
 
     """
-    code = function.strip()
+    code = canonicalize_inflection_code(function)
     if not code:
         return {}
 
@@ -1028,7 +1029,7 @@ def _build_verb_sidebar(rows: list[MorphologyRowPayload]) -> ParadigmSidebarSpec
     infinitive = ""
     for row in rows:
         surface = _surface_form(row.form, row.formi)
-        code = row.function.strip()
+        code = canonicalize_inflection_code(row.function)
         exact = _VERB_FUNCTION_LABELS.get(code)
         if exact is not None and exact.get("form") == "infinitive":
             infinitive = surface or infinitive

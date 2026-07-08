@@ -46,6 +46,7 @@ from wyrdcraeft.services.morphology.generation.weak_inflections import (
     emit_weak_derived_from_psinsg2_context,
     emit_weak_principal_form,
     is_weak_item_shape_window,
+    should_use_weak_item_shape,
 )
 from wyrdcraeft.services.morphology.generation.weak_derivation_flow import (
     WeakFormContextEmitter,
@@ -892,6 +893,13 @@ def test_is_weak_item_shape_window_bounds() -> None:
     assert not is_weak_item_shape_window("88")
     assert not is_weak_item_shape_window("93")
     assert not is_weak_item_shape_window("abc")
+
+
+def test_should_use_weak_item_shape_for_irregular_paradigm_types() -> None:
+    assert should_use_weak_item_shape("127", paradigm_type="a")
+    assert should_use_weak_item_shape("114", paradigm_type="pp")
+    assert not should_use_weak_item_shape("127", paradigm_type="w")
+    assert should_use_weak_item_shape("90", paradigm_type="w")
 
 
 def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:

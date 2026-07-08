@@ -28,6 +28,9 @@ MORPHOLOGY_DATA_DIR = (
 SUBSET_DICTIONARY = (
     Path(__file__).resolve().parents[1] / "fixtures" / "morphology" / "test_dict.txt"
 )
+_SAMPLE_LINES = (
+    Path(__file__).resolve().parents[1] / "fixtures" / "dictionary" / "sample_lines.txt"
+)
 
 pytestmark = pytest.mark.morphology
 
@@ -173,8 +176,10 @@ def test_morphology_build_populates_form_foreign_keys_for_known_lemma(
     result = runner.invoke(
         cli,
         [
-            "morphology",
+            "dictionary",
             "build",
+            "--source",
+            str(_SAMPLE_LINES),
             "--limit",
             "50",
             "--data-dir",

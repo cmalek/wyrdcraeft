@@ -155,15 +155,16 @@ def load_paradigms(path: str) -> dict[str, VerbParadigm]:
     paradigms = {}
     with _path.open(encoding="utf-8") as f:
         for line in f:
-            # Perl: $vparadigm_line = eth2thorn(lc($vparadigm_line));
-            _line = OENormalizer.eth2thorn(line.lower()).strip("\r\n")
-            parts = _line.split("\t")
-            if len(parts) < 16:  # noqa: PLR2004
+            parts_raw = line.strip("\r\n").split("\t")
+            if len(parts_raw) < 16:  # noqa: PLR2004
                 continue
 
+            # Perl lowercased ingest rows, but principal-function labels must
+            # stay PascalCase for inflection-code joins and browse grids.
+            parts = [OENormalizer.eth2thorn(part.lower()) for part in parts_raw]
             id_ = parts[0]
             variant_id = int(parts[7])
-            para_name = parts[8]
+            para_name = OENormalizer.eth2thorn(parts_raw[8].strip())
 
             if id_ not in paradigms:
                 paradigms[id_] = VerbParadigm.model_validate(

@@ -197,8 +197,9 @@ def test_bt_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> Non
             genders_json,
             etymology,
             see_also_json,
-            source_line_nos_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            source_line_nos_json,
+            entry_order
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             42,
@@ -210,6 +211,7 @@ def test_bt_entries_round_trip(lexicon_db_connection: sqlite3.Connection) -> Non
             "from PGmc *kuningaz",
             "[]",
             "[1]",
+            42,
         ),
     )
     connection.commit()

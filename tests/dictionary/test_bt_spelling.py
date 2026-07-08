@@ -36,6 +36,8 @@ from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
         ("a-deāf;", "a-dēaf;"),
         ("ā-deāfian.", "ā-dēafian."),
         ("ælf-sciēne,", "ælf-scīene,"),
+        ("eīg-land,", "ēig-land,"),
+        ("tō-geīht;", "tō-gēiht;"),
     ],
 )
 def test_normalize_real_bt_diphthong_cases(source: str, expected: str) -> None:
@@ -44,6 +46,26 @@ def test_normalize_real_bt_diphthong_cases(source: str, expected: str) -> None:
     """
     normalizer = BTSpellingNormalizer()
     assert normalizer.normalize(source) == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("eā", "ēa"),
+        ("eō", "ēo"),
+        ("eī", "ēi"),
+        ("iē", "īe"),
+    ],
+)
+def test_bt_spelling_normalizer_matches_oe_normalizer(
+    source: str,
+    expected: str,
+) -> None:
+    from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+    from wyrdcraeft.services.morphology.text_utils import OENormalizer
+
+    assert BTSpellingNormalizer().normalize(source) == expected
+    assert OENormalizer.normalize_bt_display_spelling(source) == expected
 
 
 @pytest.mark.parametrize("value", ["ā-bēodan", "abbod-lēast", "ælf-scīene"])

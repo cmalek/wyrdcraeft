@@ -54,6 +54,9 @@ def test_normalize_morphology_title_preserves_macrons_and_dots():
     assert normalize_morphology_title(None) == ""
     assert normalize_old_english("abbōd") == "abbod"
     assert normalize_morphology_title("abbōd") == "abbōd"
+    assert normalize_morphology_title("beōn") == "bēon"
+    assert normalize_morphology_title("bēon") == "bēon"
+    assert normalize_morphology_title("æt-beōn") == "ætbēon"
 
 
 def test_g_palatalizer_handles_compounds_and_exceptions():

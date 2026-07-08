@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from wyrdcraeft.services.morphology.text_utils import OENormalizer
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -24,6 +26,8 @@ class MorphologyDictionaryCleanupResult:
     rows_read: int
     #: Number of rows whose column-2 lemma title was lowercased.
     lowercase_changes: int
+    #: Number of rows whose column-2 BT diphthong spelling was corrected.
+    diphthong_fixes: int
     #: Number of duplicate rows removed after normalization.
     duplicates_removed: int
     #: Number of rows written back to the dictionary file.
@@ -35,11 +39,13 @@ class MorphologyDictionaryCleaner:
     Backup, normalize, and deduplicate one morphology dictionary TSV file.
 
     Note:
-        Column-2 lemma titles that use all-uppercase letters are lowercased in
-        line with morphology loader behavior from ``data/OldEnglishGrammar.pdf``
-        and ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, mixed-case titles
-        are left unchanged before duplicate rows sharing the same non-id columns
-        are collapsed. Part-of-speech scope: ``cross-PoS``.
+        Column-2 lemma titles are normalized with Bosworth-Toller diphthong
+        long-mark correction and all-uppercase lowercasing in line with
+        morphology loader behavior from ``data/OldEnglishGrammar.pdf`` and
+        ``data/Ondej_Tich_40-54-1.pdf``. In plain terms, BT-style ``eā``,
+        ``eō``, ``eī``, and ``iē`` sequences become ``ēa``, ``ēo``, ``ēi``,
+        and ``īe`` before duplicate rows sharing the same non-id columns are
+        collapsed. Part-of-speech scope: ``cross-PoS``.
 
     Args:
         dictionary_path: Path to ``dict_adj-vb-part-num-adv-noun.txt``.
@@ -90,6 +96,7 @@ class MorphologyDictionaryCleaner:
         raw_lines = self._dictionary_path.read_text(encoding="utf-8").splitlines()
         rows_read = 0
         lowercase_changes = 0
+        diphthong_fixes = 0
         normalized_rows: list[list[str]] = []
         seen_keys: set[tuple[str, ...]] = set()
         duplicates_removed = 0
@@ -99,9 +106,16 @@ class MorphologyDictionaryCleaner:
                 continue
             rows_read += 1
             columns = raw_line.split("\t")
-            if len(columns) > 1 and self._should_lowercase_col2(columns[1]):
-                columns[1] = columns[1].lower()
-                lowercase_changes += 1
+            if len(columns) > 1 and columns[1] not in _PRESERVE_CASE_COL2:
+                if self._should_lowercase_col2(columns[1]):
+                    columns[1] = columns[1].lower()
+                    lowercase_changes += 1
+                normalized_title = OENormalizer.normalize_bt_display_spelling(
+                    columns[1]
+                )
+                if normalized_title != columns[1]:
+                    columns[1] = normalized_title
+                    diphthong_fixes += 1
 
             dedupe_key = tuple(columns[1:])
             if dedupe_key in seen_keys:
@@ -119,6 +133,7 @@ class MorphologyDictionaryCleaner:
             backup_path=backup_path,
             rows_read=rows_read,
             lowercase_changes=lowercase_changes,
+            diphthong_fixes=diphthong_fixes,
             duplicates_removed=duplicates_removed,
             rows_written=len(normalized_rows),
         )

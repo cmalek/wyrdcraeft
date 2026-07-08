@@ -17,6 +17,7 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
     ensure_inflection_codes,
     ensure_parts_of_speech,
 )
+from wyrdcraeft.services.morphology.text_utils import canonicalize_inflection_code
 
 from .query import _WORDCLASS_TO_BT_POS
 
@@ -223,7 +224,9 @@ class FormFkResolver:
 
         """
         _ = wordclass
-        code = function.strip()
+        code = canonicalize_inflection_code(function)
+        if not code:
+            return self._inflection_code_ids.get("")
         return self._inflection_code_ids.get(code)
 
     def resolve_morph_class_id(
@@ -261,9 +264,12 @@ class FormFkResolver:
             return None
 
         wordclass_key = wordclass.strip().lower()
-        function_key = function.strip()
+        function_key = canonicalize_inflection_code(function)
         catalog_pos: str | None
-        if wordclass_key == "verb" and function_key in _VERB_PARTICIPLE_FUNCTIONS:
+        if (
+            wordclass_key == "verb"
+            and function_key in _VERB_PARTICIPLE_FUNCTIONS
+        ):
             catalog_pos = "verb"
         else:
             catalog_pos = catalog_pos_from_wordclass(wordclass)
