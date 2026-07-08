@@ -79,7 +79,7 @@ def test_resolve_one_variant_pos_filter_excludes_wrong_pos() -> None:
     assert index.resolve_one("abbod", "noun") == 1
 
 
-def test_resolve_one_tier_one_multi_match_returns_min_id() -> None:
+def test_resolve_one_tier_one_multi_match_returns_none() -> None:
     index = _index(
         entries=[
             (10, "dup", "noun"),
@@ -88,7 +88,7 @@ def test_resolve_one_tier_one_multi_match_returns_min_id() -> None:
     )
 
     assert index.resolve_all("dup", "noun") == [10, 20]
-    assert index.resolve_one("dup", "noun") == 10
+    assert index.resolve_one("dup", "noun") is None
 
 
 def test_resolve_all_no_match() -> None:

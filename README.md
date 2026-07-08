@@ -69,8 +69,11 @@ canonical database; the CLI then prints a rebuild recipe.
 Rebuild from scratch:
 
 ```bash
-wyrdcraeft dictionary build --source data/oe_bt.txt --with-morphology
+wyrdcraeft dictionary build --with-morphology
 ```
+
+Use `--source PATH` to index a custom Bosworth-Toller file instead of the
+packaged default (`wyrdcraeft/etc/dictionary/oe_bt.txt`).
 
 ## Documentation
 

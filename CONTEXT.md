@@ -85,6 +85,32 @@ Out of scope:
 - dictionary build: primary unified build command that rebuilds `bt_*`
   tables, relinks `forms.entry_id`, and optionally regenerates morphology
   when requested or when the `forms` table is empty
+- dictionary source block: one contiguous Bosworth-Toller headword entry in
+  source order, including its main text and any uniquely targetable editorial
+  follow-ons; this is canonical identity for one `bt_entries` row
+- dictionary homograph entry: distinct Bosworth-Toller entry sharing spelling
+  and part of speech with another entry but preserving a different meaning set;
+  homographs stay as separate dictionary source blocks rather than being merged
+- sense path: machine-only hierarchical identifier for one dictionary sense
+  such as `1`, `1.2`, or `2.1`; preserves parent/child sense structure while
+  dropping literal Bosworth-Toller labels like `I.` or `IVa.` from canonical
+  product output
+- source label raw: original Bosworth-Toller sense marker such as `I.` or
+  `IVa.` retained only for debugging and provenance; not canonical product
+  output and not used for normal query display
+- source fragment raw: exact raw source substring for one parsed sense before
+  attestation stripping and cleanup; retained for debugging and provenance
+- prefix fragment raw: raw leading fragment for one sense before the core gloss,
+  used to classify modifiers, grammatical context, and usage notes
+- sense modifier: controlled-vocabulary qualifier attached to one sense, such
+  as `intransitive`, `transitive`, `weak`, `indeclinable`, or
+  `interrogative`; modifiers stay separate from `gloss_en`, and grammatical
+  debris like gender or case markers should be dropped rather than stored as
+  modifiers
+- usage note: free-text note attached to one sense for longer construction or
+  scope phrases such as `with dative of person`, `in the phrase`, `of persons`,
+  or `as ecclesiastical term`; this stays outside the controlled modifier
+  vocabulary
 - entry_id relink: post-build step in the unified dictionary pipeline that
   populates `forms.entry_id` foreign keys by joining morphology lemmas to
   newly indexed dictionary entries
@@ -156,6 +182,10 @@ Out of scope:
   inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
 - dictionary query: CLI name for consolidated Bosworth-Toller lookup by lemma
   or variant; `dictionary lookup` remains a hidden deprecated alias
+- editorial target warning: build-time diagnostic emitted when an Add / Dele /
+  Substitute line cannot be attached to one unique dictionary source block; the
+  product should write the miss to `parse_warnings.jsonl` and `bt_edit_log`
+  rather than guessing across ambiguous homographs
 - startup database readiness: mandatory startup step that ensures canonical
   `wyrdcraeft.sqlite3` exists at expected schema before any DB-using command
   reads or writes it

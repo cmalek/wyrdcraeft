@@ -55,8 +55,9 @@ def _insert_bt_entry(
             genders_json,
             etymology,
             see_also_json,
-            source_line_nos_json
-        ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[]')
+            source_line_nos_json,
+            entry_order
+        ) VALUES (?, ?, ?, ?, ?, '[]', '', '[]', '[]', ?)
         """,
         (
             entry_id,
@@ -64,6 +65,7 @@ def _insert_bt_entry(
             normalized_title,
             normalized_title,
             _pos_id(connection, pos_code),
+            entry_id,
         ),
     )
 
@@ -229,6 +231,41 @@ def test_relink_all_leaves_entry_id_null_for_ambiguous_join(
         connection,
         form_id=1,
         normalized_title="alias",
+        wordclass_code="noun",
+    )
+    connection.commit()
+
+    engine = create_engine(db_path)
+    try:
+        relinker = FormsEntryRelinker(engine)
+        assert relinker.relink_all() == 1
+    finally:
+        engine.dispose()
+
+    assert _fetch_form_entry_id(connection, 1) is None
+
+
+def test_relink_leaves_entry_id_null_for_same_title_same_pos_homographs(
+    relinker_db: tuple[Path, sqlite3.Connection],
+) -> None:
+    db_path, connection = relinker_db
+    _insert_bt_entry(
+        connection,
+        entry_id=10,
+        normalized_title="dup",
+        pos_code="noun",
+    )
+    _insert_bt_entry(
+        connection,
+        entry_id=20,
+        normalized_title="dup",
+        pos_code="noun",
+        norm_key="dup-alt",
+    )
+    _insert_form(
+        connection,
+        form_id=1,
+        normalized_title="dup",
         wordclass_code="noun",
     )
     connection.commit()

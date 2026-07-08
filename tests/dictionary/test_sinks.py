@@ -94,6 +94,40 @@ def test_sink_persists_headword_with_normalized_pos_fk(temp_dir: Path) -> None:
     assert "pos" not in columns
 
 
+def test_bt_entries_allow_duplicate_norm_key_pos(temp_dir: Path) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    upgrade_canonical_db(index_db)
+
+    with sqlite3.connect(index_db) as conn:
+        pos_id = conn.execute(
+            "SELECT id FROM parts_of_speech WHERE code = ?",
+            ("noun",),
+        ).fetchone()[0]
+        conn.executemany(
+            """
+            INSERT INTO bt_entries (
+                norm_key, headword, normalized_title, pos_id, genders_json,
+                etymology, see_also_json, source_line_nos_json, entry_order
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                ("hom", "hom-one", "hom-one", pos_id, "[]", "", "[]", "[]", 1),
+                ("hom", "hom-two", "hom-two", pos_id, "[]", "", "[]", "[]", 2),
+            ],
+        )
+        conn.commit()
+        duplicate_count = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM bt_entries
+            WHERE norm_key = ? AND pos_id = ?
+            """,
+            ("hom", pos_id),
+        ).fetchone()[0]
+
+    assert duplicate_count == 2
+
+
 def test_sink_rerun_reuses_seeded_parts_of_speech_rows(temp_dir: Path) -> None:
     index_db = temp_dir / DICTIONARY_INDEX_FILENAME
     _seed_forms_table(index_db, row_count=1)

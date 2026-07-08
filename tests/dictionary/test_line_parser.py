@@ -59,6 +59,10 @@ def test_sample_fixture_contains_about_fifty_real_lines() -> None:
             BTLineKind.ADD,
         ),
         (
+            "yfeldond@<B>yfel-dōnd</B>. <I>Add :</I> Cf. gōd-dōnd.@yfel-dond",
+            BTLineKind.ADD,
+        ),
+        (
             "abaedan@<B>ā-bǣdan.</B> <I>Substitute the following:</I> "
             "<B>I.</B> <I>to force, wring</I> :-- Ele ābǣdan and āwringan.@a-bædan",
             BTLineKind.SUBSTITUTE,
@@ -191,3 +195,39 @@ def test_extracts_dele_references_until_stop_markers() -> None:
     assert parsed.raw_line is not None
     assert parsed.raw_line.kind == BTLineKind.DELE_AND_ADD
     assert parsed.dele_refs == ("Ælfc. T. 5", "25: Gen. 7", "23: 9", "11")
+
+
+class TestCompoundHeadwords:
+    """Regression for BT compound spellings inside one bold headword tag."""
+
+    def test_maegth_short_vowel_compound_spellings(self) -> None:
+        """``mægþ, mægeþ;`` keeps maiden canonical form and variant."""
+        line = (
+            "maegth@<B>mægþ, mægeþ;</B> <I>f. A maid, virgin</I> :-- sample.@mægeþ,mægþ"
+        )
+        parsed = BTLineParser().parse(source_line_no=38574, line=line)
+        assert parsed.raw_line is not None
+        assert parsed.raw_line.headword_raw == "mægþ"
+        assert parsed.variants == ("mægeþ",)
+
+    def test_maegth_long_vowel_compound_spellings(self) -> None:
+        """``mǣgþ, mǣgeþ,`` keeps kin/family canonical form and variant."""
+        line = (
+            "maegth@<B>mǣgþ, mǣgeþ,</B> e; <I>f. A collection of kinsmen</I>"
+            " :-- sample.@mægeþ,mægþ"
+        )
+        parsed = BTLineParser().parse(source_line_no=38576, line=line)
+        assert parsed.raw_line is not None
+        assert parsed.raw_line.headword_raw == "mǣgþ"
+        assert parsed.headword_macronized == "mǣgþ"
+        assert parsed.variants == ("mǣgeþ",)
+
+    def test_maegth_editorial_add_anchor_strips_sense_label(self) -> None:
+        """``mǣgþ. I.`` with ``add`` is editorial, not a new lemma."""
+        line = (
+            "maegth@<B>mǣgþ. I.</B> <I>add</I> :-- Mǣgþ <I>prosapia</I>.@mægeþ,mægþ"
+        )
+        parsed = BTLineParser().parse(source_line_no=38577, line=line)
+        assert parsed.raw_line is not None
+        assert parsed.raw_line.kind == BTLineKind.ADD
+        assert parsed.raw_line.headword_raw == "mǣgþ"

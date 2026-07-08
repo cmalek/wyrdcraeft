@@ -9,7 +9,13 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from wyrdcraeft.models.dictionary import BTLineKind, BTPos, BTSense, RawBTLine
+from wyrdcraeft.models.dictionary import (
+    BTLineKind,
+    BTPos,
+    BTSense,
+    RawBTLine,
+    legacy_bt_sense,
+)
 from wyrdcraeft.services.dictionary.line_parser import ParsedBTLine
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     BTLLMFixPass,
@@ -71,7 +77,7 @@ def test_patch_parsed_line_replaces_senses_and_etymology() -> None:
         etymology="[Lat. testus]",
     )
     patched = fix_pass.patch_parsed_line(parsed, fix)
-    assert patched.senses == (BTSense(sense_label="I", gloss_en="Repaired gloss"),)
+    assert patched.senses == (legacy_bt_sense("I", "Repaired gloss"),)
     assert patched.etymology_blocks == ("[Lat. testus]",)
 
 
@@ -127,7 +133,7 @@ def test_apply_fixes_patches_only_warning_lines(temp_dir: Path) -> None:
     assert stats.failed == 0
     assert parsed_lines[0].senses == ()
     assert parsed_lines[1].senses == (
-        BTSense(sense_label="I", gloss_en="Repaired gloss"),
+        legacy_bt_sense("I", "Repaired gloss"),
     )
 
 
@@ -241,3 +247,20 @@ def test_pipeline_llm_fix_pass_only_runs_on_warnings(temp_dir: Path) -> None:
 
     warning_lines = warnings_path.read_text(encoding="utf-8").strip().splitlines()
     assert len(calls) == len(warning_lines)
+
+
+def test_parse_warning_detail_round_trip_and_llm_compatibility(temp_dir: Path) -> None:
+    warnings_path = temp_dir / "parse_warnings.jsonl"
+    original = BTParseWarning(
+        line_no=9,
+        body="<B>test</B>",
+        headword="test",
+        pos_hint="noun",
+        failure_reason="target_missing",
+        detail="dele_refs did not match any sense paths",
+    )
+    write_parse_warnings(warnings_path, [original])
+    loaded = BTParseWarning.from_json(json.loads(warnings_path.read_text().strip()))
+    assert loaded.detail == original.detail
+    assert loaded.failure_reason == "target_missing"
+    assert "detail" in original.to_json()

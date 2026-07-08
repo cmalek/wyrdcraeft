@@ -1,9 +1,11 @@
 ``wyrdcraeft dictionary build``
 ====================================
 
-This command builds a compiled Bosworth-Toller dictionary SQLite index from
-``data/oe_bt.txt``. Editorial Add / Substitute / Dele lines are merged into
-canonical lookup entries keyed by ``(norm_key, pos)``.
+This command builds a compiled Bosworth-Toller dictionary SQLite index from the
+packaged Bosworth-Toller source (``wyrdcraeft/etc/dictionary/oe_bt.txt`` by
+default). Editorial Add / Substitute / Dele lines are merged into source-order
+dictionary entries; homographs with the same ``(norm_key, pos)`` remain
+separate rows distinguished by ``entry_order``.
 
 Command usage
 -------------
@@ -15,7 +17,8 @@ Command usage
 Options
 -------
 
-- ``--source PATH``: Bosworth-Toller source file (default: ``data/oe_bt.txt``).
+- ``--source PATH``: Bosworth-Toller source file (default: packaged
+  ``wyrdcraeft/etc/dictionary/oe_bt.txt``).
 - ``--report PATH``: optional JSON report with parse/merge statistics.
 - ``--warnings-file PATH``: optional ``parse_warnings.jsonl`` output path. When
   omitted, the file is written alongside the resolved index database as
@@ -33,8 +36,11 @@ Parse warnings
 Each ``build`` run writes ``parse_warnings.jsonl`` with one JSON object per
 line when deterministic parsing is uncertain. Triggers include low-confidence
 attestation stripping, unknown POS on a main headword line, and empty sense
-segmentation on a non-empty body. Without ``--llm-fix-pass``, the SQLite index
-matches the deterministic-only path; the warnings file is diagnostic only.
+segmentation on a non-empty body. After editorial merge, unapplied edits and
+editorial debris are appended to the same file; cross-check ``bt_edit_log`` for
+``applied=0`` rows whose ``note`` begins with ``target_missing`` or
+``target_ambiguous``. Without ``--llm-fix-pass``, the SQLite index matches the
+deterministic-only path; the warnings file is diagnostic only.
 
 When ``--llm-fix-pass`` is enabled, only warning records are sent to the LLM.
 Invalid JSON or schema validation failures are logged and the deterministic
@@ -97,11 +103,14 @@ Examples
 
 .. code-block:: bash
 
-    # Attach bt_* tables to the default app-data database
-    wyrdcraeft dictionary build --source data/oe_bt.txt --report /tmp/bt_report.json
+    # Packaged default source; attach bt_* tables to the app-data database
+    wyrdcraeft dictionary build --report /tmp/bt_report.json
+
+    # Custom Bosworth-Toller corpus override
+    wyrdcraeft dictionary build --source /path/to/oe_bt.txt --report /tmp/bt_report.json
 
     # Optional local LLM repair pass for parse warnings only
-    wyrdcraeft dictionary build --source data/oe_bt.txt --llm-fix-pass \
+    wyrdcraeft dictionary build --llm-fix-pass \
         --llm-model qwen2.5:14b-instruct \
         --warnings-file /tmp/parse_warnings.jsonl
 

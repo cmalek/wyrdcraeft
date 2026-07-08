@@ -172,7 +172,7 @@ class BTSqliteSink:
         with self._session_factory.begin() as session:
             sqlite_connection = self._sqlite_connection(session)
             ensure_parts_of_speech(sqlite_connection)
-            for entry in entries:
+            for entry_order, entry in enumerate(entries):
                 entry_row = BTEntry(
                     norm_key=entry.norm_key,
                     headword=entry.headword_macronized,
@@ -182,6 +182,7 @@ class BTSqliteSink:
                     etymology=entry.etymology,
                     see_also_json=json.dumps(entry.see_also, ensure_ascii=False),
                     source_line_nos_json=json.dumps(entry.source_line_nos),
+                    entry_order=entry.entry_order or entry_order + 1,
                 )
                 session.add(entry_row)
                 session.flush()
@@ -191,9 +192,23 @@ class BTSqliteSink:
                 sense_rows.extend(
                     {
                         "entry_id": entry_id,
-                        "sense_label": sense.sense_label,
+                        "sense_label": sense.source_label_raw,
                         "gloss_en": sense.gloss_en,
                         "order_index": order_index,
+                        "sense_path": sense.sense_path,
+                        "parent_path": sense.parent_path,
+                        "source_label_raw": sense.source_label_raw,
+                        "source_fragment_raw": sense.source_fragment_raw,
+                        "prefix_fragment_raw": sense.prefix_fragment_raw,
+                        "modifiers_json": json.dumps(
+                            list(sense.modifiers),
+                            ensure_ascii=False,
+                        ),
+                        "grammatical_context_json": json.dumps(
+                            list(sense.grammatical_context),
+                            ensure_ascii=False,
+                        ),
+                        "usage_note": sense.usage_note,
                     }
                     for order_index, sense in enumerate(entry.senses)
                 )

@@ -210,7 +210,9 @@ class NormalizedTitleJoinIndex:
 
         Returns:
             Matching entry id when the tier policy yields a single match,
-            otherwise ``None``.
+            otherwise ``None``. Tier-1 direct ``(normalized_title, pos)``
+            matches return ``None`` when more than one entry shares the title
+            and POS (homograph ambiguity).
 
         """
         title_key = normalize_morphology_title(title)
@@ -223,8 +225,10 @@ class NormalizedTitleJoinIndex:
                 (title_key, pos_filter),
                 [],
             )
-            if direct_pos_matches:
-                return min(direct_pos_matches)
+            if len(direct_pos_matches) == 1:
+                return direct_pos_matches[0]
+            if len(direct_pos_matches) > 1:
+                return None
 
         direct_matches = self._entry_ids_by_title.get(title_key, [])
         if len(direct_matches) == 1:

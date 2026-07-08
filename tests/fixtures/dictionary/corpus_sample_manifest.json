@@ -1,6 +1,6 @@
 {
   "build_ts": "2026-06-21T22:27:28.319492Z",
-  "source": "data/oe_bt.txt",
+  "source": "wyrdcraeft/etc/dictionary/oe_bt.txt",
   "target_line_range": [
     900,
     1150

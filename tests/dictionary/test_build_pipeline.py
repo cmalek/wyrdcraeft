@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from pathlib import Path
 
 import pytest
 
 from wyrdcraeft.db.runtime import upgrade_canonical_db
-from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos, BTSense
+from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos, legacy_bt_sense
 from wyrdcraeft.services.dictionary.pipeline import IndexReport
 
 _SAMPLE_LINES = (
@@ -302,7 +303,7 @@ def test_dictionary_build_pipeline_infers_pos_when_forms_exist(
             headword_macronized="lemma",
             normalized_title="lemma",
             pos=BTPos.UNKNOWN,
-            senses=[BTSense("I", "lemma gloss")],
+            senses=[legacy_bt_sense("I", "lemma gloss")],
         )
         sink.write_entries([entry], [])
         return IndexReport(
@@ -324,3 +325,50 @@ def test_dictionary_build_pipeline_infers_pos_when_forms_exist(
 
     assert report.pos_inferred == 1
     assert pos_code == "noun"
+
+
+def test_dictionary_build_pipeline_writes_parse_warnings(
+    build_pipeline_db: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from wyrdcraeft.services.dictionary import build_pipeline as build_module
+
+    def fake_run_morphology_generation(*, db_path: object, options: object) -> int:
+        _ = (db_path, options)
+        return 0
+
+    monkeypatch.setattr(
+        build_module,
+        "run_morphology_generation",
+        fake_run_morphology_generation,
+    )
+
+    source = _write_warning_fixture(
+        tmp_path,
+        [
+            "modtest@<B>modtest;</B> n. <B>I.</B> <I>intrans.</I>@modtest",
+        ],
+    )
+    warnings_path = tmp_path / "parse_warnings.jsonl"
+
+    report = build_module.DictionaryBuildPipeline(build_pipeline_db).run(
+        source=source,
+        with_morphology=False,
+        morph_options=build_module.MorphBuildOptions(limit=1),
+        warnings_path=warnings_path,
+    )
+
+    warnings = [
+        json.loads(line)
+        for line in warnings_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert report.bt_entries_written > 0
+    assert any(row["failure_reason"] == "modifier_only_fragment" for row in warnings)
+
+
+def _write_warning_fixture(tmp_path: Path, lines: list[str]) -> Path:
+    source = tmp_path / "warning_fixture.txt"
+    source.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return source

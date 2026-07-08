@@ -57,6 +57,55 @@ def _pos_id(db_path: Path, *, code: str) -> int:
     return int(row[0])
 
 
+def _next_entry_order(db_path: Path) -> int:
+    with sqlite3.connect(db_path) as connection:
+        row = connection.execute(
+            "SELECT COALESCE(MAX(entry_order), 0) + 1 FROM bt_entries"
+        ).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def _insert_bt_sense(
+    connection: sqlite3.Connection,
+    *,
+    entry_id: int,
+    sense_label: str,
+    gloss_en: str,
+    order_index: int,
+    sense_path: str | None = None,
+) -> None:
+    """Insert one minimal rich ``bt_senses`` row for browse test fixtures."""
+    path = sense_path if sense_path is not None else str(order_index + 1)
+    connection.execute(
+        """
+        INSERT INTO bt_senses (
+            entry_id,
+            sense_label,
+            gloss_en,
+            order_index,
+            sense_path,
+            parent_path,
+            source_label_raw,
+            source_fragment_raw,
+            prefix_fragment_raw,
+            modifiers_json,
+            grammatical_context_json,
+            usage_note
+        ) VALUES (?, ?, ?, ?, ?, NULL, ?, ?, '', '[]', '[]', '')
+        """,
+        (
+            entry_id,
+            sense_label,
+            gloss_en,
+            order_index,
+            path,
+            sense_label,
+            gloss_en,
+        ),
+    )
+
+
 def _insert_entry(  # noqa: PLR0913
     db_path: Path,
     *,
@@ -90,6 +139,7 @@ def _insert_entry(  # noqa: PLR0913
     assert norm_key is not None
     normalized_title = normalize_morphology_title(headword)
     pos_id = _pos_id(db_path, code=pos)
+    entry_order = _next_entry_order(db_path)
     with sqlite3.connect(db_path) as connection:
         cursor = connection.execute(
             """
@@ -101,8 +151,9 @@ def _insert_entry(  # noqa: PLR0913
                 genders_json,
                 etymology,
                 see_also_json,
-                source_line_nos_json
-            ) VALUES (?, ?, ?, ?, ?, '', '[]', '[]')
+                source_line_nos_json,
+                entry_order
+            ) VALUES (?, ?, ?, ?, ?, '', '[]', '[]', ?)
             """,
             (
                 norm_key,
@@ -110,16 +161,17 @@ def _insert_entry(  # noqa: PLR0913
                 normalized_title,
                 pos_id,
                 json.dumps(list(genders)),
+                entry_order,
             ),
         )
         assert cursor.lastrowid is not None
         entry_id = int(cursor.lastrowid)
-        connection.execute(
-            """
-            INSERT INTO bt_senses (entry_id, sense_label, gloss_en, order_index)
-            VALUES (?, '', ?, 0)
-            """,
-            (entry_id, summary_sense),
+        _insert_bt_sense(
+            connection,
+            entry_id=entry_id,
+            sense_label="",
+            gloss_en=summary_sense,
+            order_index=0,
         )
         for variant in variants:
             connection.execute(
@@ -306,20 +358,23 @@ def test_search_summary_uses_first_ordered_sense(lexicon_source_db: Path) -> Non
     )
     with sqlite3.connect(lexicon_source_db) as connection:
         connection.execute("DELETE FROM bt_senses WHERE entry_id = ?", (entry_id,))
-        connection.execute(
-            """
-            INSERT INTO bt_senses (entry_id, sense_label, gloss_en, order_index)
-            VALUES (?, 'II', 'later gloss', 1)
-            """,
-            (entry_id,),
+        _insert_bt_sense(
+            connection,
+            entry_id=entry_id,
+            sense_label="II",
+            gloss_en="later gloss",
+            order_index=1,
+            sense_path="2",
         )
-        connection.execute(
-            """
-            INSERT INTO bt_senses (entry_id, sense_label, gloss_en, order_index)
-            VALUES (?, 'I', 'first gloss', 0)
-            """,
-            (entry_id,),
+        _insert_bt_sense(
+            connection,
+            entry_id=entry_id,
+            sense_label="I",
+            gloss_en="first gloss",
+            order_index=0,
+            sense_path="1",
         )
+        connection.commit()
 
     service = DictionaryBrowseQueryService(lexicon_source_db)
     try:
@@ -397,6 +452,7 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
         "an abbot; abbot",
         "bishops were sometimes subject to an abbot, as they were to the abbots of Iona",
     ]
+    assert [sense.sense_label for sense in details.senses] == ["1", "2"]
     assert details.class_summary == []
     assert details.genders == ["m"]
     assert details.persons == []
@@ -407,3 +463,48 @@ def test_get_details_returns_entry_payload_with_grouped_morphology(
     assert len(groups_by_function) == 2
     assert groups_by_function["genitive singular"].wordclass == "noun"
     assert groups_by_function["nominative plural"].function == "nominative plural"
+
+
+def test_get_details_sorts_senses_by_hierarchical_path_not_order_index(
+    lexicon_source_db: Path,
+) -> None:
+    entry_id = _insert_entry(
+        lexicon_source_db,
+        headword="dóm",
+        pos="noun",
+        summary_sense="doom, judgment",
+    )
+    with sqlite3.connect(lexicon_source_db) as connection:
+        for order_index, sense_label, gloss_en, sense_path in (
+            (1, "II", "a ruling", "2"),
+            (2, "III", "might, power", "3"),
+            (3, "IV", "will, free will", "4"),
+            (4, "V", "sense, meaning", "5"),
+            (5, "VI", "judgement", "6"),
+            (6, "VII", "direction", "7"),
+            (7, "VIII", "will, discretion", "8"),
+            (8, "IV a", "an authority, a court", "4.1"),
+            (9, "IX", "reputation", "9"),
+        ):
+            _insert_bt_sense(
+                connection,
+                entry_id=entry_id,
+                sense_label=sense_label,
+                gloss_en=gloss_en,
+                order_index=order_index,
+                sense_path=sense_path,
+            )
+        connection.commit()
+
+    service = DictionaryBrowseQueryService(lexicon_source_db)
+    try:
+        details = service.get_details(entry_id)
+    finally:
+        service.close()
+
+    assert details is not None
+    sense_labels = [sense.sense_label for sense in details.senses]
+    four_index = sense_labels.index("4")
+    assert sense_labels[four_index + 1] == "4a"
+    assert sense_labels[four_index + 2] == "5"
+    assert sense_labels.index("8") > sense_labels.index("4a")

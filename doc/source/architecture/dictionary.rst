@@ -35,23 +35,28 @@ generation, not an independent philological source.
 Sources, Provenance, and Limits
 -------------------------------
 
-Current code paths use ``data/oe_bt.txt`` as the default dictionary source for
-``wyrdcraeft dictionary build``.
+``wyrdcraeft dictionary build`` defaults to the packaged Bosworth-Toller source
+at ``wyrdcraeft/etc/dictionary/oe_bt.txt`` (resolved at runtime through
+``importlib.resources``). Override with ``--source PATH`` when indexing a custom
+or updated corpus, for example:
+
+.. code-block:: bash
+
+    wyrdcraeft dictionary build --source /path/to/oe_bt.txt
+
+Wright section paragraph text uses a separate ingest step. The bundled markdown
+corpus lives at ``wyrdcraeft/etc/dictionary/wright.md`` and is passed
+explicitly to ``wyrdcraeft dictionary ingest-wright-text --source PATH``.
 
 Repository evidence supports these current-behavior claims:
 
-- the CLI defaults to ``data/oe_bt.txt``
+- the CLI resolves the packaged ``oe_bt.txt`` unless ``--source`` is supplied
 - the build path writes into the canonical ``wyrdcraeft.sqlite3`` database
 - the unified build can regenerate morphology when ``forms`` is empty or when
   ``--with-morphology`` is requested
 - the optional LLM repair pass is warning-scoped, not the primary parsing path
 - browse search requires populated ``bt_*`` tables only; there is no separate
   search-index rebuild step
-
-Repository evidence is less certain about upstream file history. Current docs
-suggest ``data/oe_bt.txt`` likely derives from an upstream
-``oe_bosworthtoller.txt.bz2`` source, but that upstream artifact is not checked
-into this repository.
 
 Process Flow
 ------------
@@ -114,7 +119,7 @@ Data Read and Data Written
 
 Build read:
 
-- ``data/oe_bt.txt`` by default
+- packaged ``wyrdcraeft/etc/dictionary/oe_bt.txt`` by default, or ``--source PATH``
 - optional warning-repair configuration for local Ollama use
 - existing ``forms`` rows when relinking ``entry_id``
 
@@ -192,10 +197,58 @@ Parsing and Editorial Merge
 
 The business logic hinge is the merge step.
 
-``BTIndexPipeline`` does not write one SQLite row per source line. Instead it
-parses many line-level fragments and then asks ``BTEditorialMerger`` to
-consolidate them into dictionary entries. That is why the sink writes entry,
-sense, variant, and edit-log tables rather than a line-for-line source shadow.
+``BTIndexPipeline`` does not write one SQLite row per source line. Instead
+``BTSourceBlockBuilder`` groups parsed lines into source-order blocks, and
+``BTEditorialMerger`` consolidates each block into one dictionary entry. That
+is why the sink writes entry, sense, variant, and edit-log tables rather than a
+line-for-line source shadow.
+
+Source-block entry identity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+One source block is one contiguous Bosworth-Toller headword entry in document
+order, including its main text and any editorial follow-ons that resolve to that
+block. Each block becomes one ``bt_entries`` row. ``entry_order`` preserves
+stable source-block ordering within the build.
+
+Homograph preservation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Homograph MAIN lines that share ``(norm_key, pos)`` remain separate source
+blocks and therefore separate ``bt_entries`` rows. The schema no longer enforces
+a unique ``(norm_key, pos_id)`` constraint.
+
+Canonical sense paths
+~~~~~~~~~~~~~~~~~~~~~
+
+``BTSenseSegmenter`` and ``SenseTreeNormalizer`` assign machine-only
+``sense_path`` values such as ``1``, ``1.2``, or ``2.1``. These preserve nested
+sense structure for merge scope and storage. They are internal identifiers, not
+literal Bosworth-Toller numerals. Original markers such as ``I.`` or ``IVa.``
+are retained in ``source_label_raw`` for provenance only.
+
+Warnings, audit, and operator diagnostics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Deterministic parse warnings are written to ``parse_warnings.jsonl`` during the
+line parse pass. After editorial merge, ``BTEditorialMerger.collect_editorial_warnings()``
+appends editorial debris and unapplied-edit warnings to the same file.
+
+``bt_edit_log`` stores one audit row per editorial operation with ``applied``,
+``note``, and scope metadata. Unapplied edits whose notes begin with
+``target_missing`` or ``target_ambiguous`` are mirrored into
+``parse_warnings.jsonl`` so operators can correlate line-level warnings with
+edit-log audit rows. The build report JSON also counts unapplied edits under
+``warning_counts``.
+
+``forms.entry_id`` after relink
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``FormsEntryRelinker`` runs after every dictionary rebuild. It clears stale
+foreign keys, then joins each morphology form to current ``bt_entries`` /
+``bt_variants`` rows through the shared normalized-title policy. When the join
+yields no match or more than one candidate (homograph ambiguity),
+``forms.entry_id`` is set to ``NULL`` rather than guessing.
 
 This is also where the repository keeps an explicit boundary between:
 

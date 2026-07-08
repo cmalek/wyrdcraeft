@@ -8,6 +8,11 @@ from pathlib import Path
 
 from wyrdcraeft.cli.cli import cli
 from wyrdcraeft.db.runtime import upgrade_canonical_db
+from wyrdcraeft.services.dictionary.resources import (
+    default_bt_abbreviations_path,
+    default_bt_source_path,
+    default_wright_source_path,
+)
 
 _SAMPLE_LINES = (
     Path(__file__).resolve().parent
@@ -259,6 +264,27 @@ def test_dictionary_query_json_output(
     assert payload[0]["pos"] == "noun"
 
 
+def test_dictionary_build_default_source_is_cwd_independent(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    source = default_bt_source_path()
+    assert source.is_file()
+    assert source.name == "oe_bt.txt"
+    assert "etc/dictionary" in source.as_posix()
+
+    abbreviations = default_bt_abbreviations_path()
+    assert abbreviations.is_file()
+    assert abbreviations.name == "bosworth_and_toller_abbreviations.json"
+
+    wright = default_wright_source_path()
+    assert wright.is_file()
+    assert wright.name == "wright.md"
+
+    monkeypatch.chdir(tmp_path)
+    assert default_bt_source_path().is_file()
+
+
 def test_dictionary_build_help(runner) -> None:
     result = runner.invoke(cli, ["dictionary", "build", "--help"])
     assert result.exit_code == 0
@@ -280,6 +306,7 @@ def test_dictionary_build_help(runner) -> None:
     assert "--full / --no-full" in result.output
     assert "--profile" in result.output
     assert "--refresh-catalog" in result.output
+    assert "wyrdcraeft/etc/dictionary/oe_bt.txt" in result.output
 
 
 def test_dictionary_build_smoke(

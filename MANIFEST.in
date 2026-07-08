@@ -6,3 +6,4 @@ include wyrdcraeft/py.typed
 recursive-include wyrdcraeft/etc/diacritic *.json *.txt
 
 recursive-include wyrdcraeft/etc/morphology *.txt *.json
+recursive-include wyrdcraeft/etc/dictionary *.txt *.md *.json

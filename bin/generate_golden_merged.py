@@ -467,7 +467,7 @@ def _parse_and_segment(
     if parsed.skip_reason is None and parsed.raw_line is not None:
         # Attach senses via dataclass replace
         import dataclasses
-        senses = segmenter.segment_parsed_line(parsed.raw_line.raw_text)
+        senses = segmenter.segment_parsed_line(parsed.raw_line.raw_text).senses
         parsed = dataclasses.replace(parsed, senses=senses)
     return parsed
 

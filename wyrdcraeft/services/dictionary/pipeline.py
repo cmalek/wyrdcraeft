@@ -17,6 +17,7 @@ from wyrdcraeft.services.dictionary.line_parser import BTLineParser, ParsedBTLin
 from wyrdcraeft.services.dictionary.llm_fix_pass import (
     BTLLMFixPass,
     BTParseWarning,
+    append_parse_warnings,
     write_parse_warnings,
 )
 from wyrdcraeft.services.dictionary.sense_segmenter import BTSenseSegmenter
@@ -161,7 +162,7 @@ class BTIndexPipeline:
         #: Editorial merge collaborator.
         self.editorial_merger = editorial_merger or BTEditorialMerger()
 
-    def run(
+    def run(  # noqa: PLR0912
         self,
         source: Path,
         sink: BTSqliteSink,
@@ -217,6 +218,14 @@ class BTIndexPipeline:
             llm_fix_pass.apply_fixes(warnings_path, parsed_lines)
 
         entries, edit_records = self.editorial_merger.merge(parsed_lines)
+        editorial_warnings = self.editorial_merger.collect_editorial_warnings(
+            parsed_lines,
+            edit_records,
+        )
+        if editorial_warnings:
+            parse_warnings.extend(editorial_warnings)
+            if warnings_path is not None:
+                append_parse_warnings(warnings_path, editorial_warnings)
         (
             entries_written,
             senses_written,
@@ -232,7 +241,11 @@ class BTIndexPipeline:
             warning_counts[f"parse:{warning.failure_reason}"] += 1
         for record in edit_records:
             if not record.applied:
-                warning_counts[f"edit_unapplied:{record.op.value}"] += 1
+                reason = record.note.split(":", maxsplit=1)[0]
+                if reason in {"target_missing", "target_ambiguous"}:
+                    warning_counts[f"edit_unapplied:{reason}"] += 1
+                else:
+                    warning_counts[f"edit_unapplied:{record.op.value}"] += 1
 
         return IndexReport(
             source=source.resolve(),
@@ -264,8 +277,14 @@ class BTIndexPipeline:
         parsed = self.line_parser.parse(line_no, line)
         if parsed.skip_reason is not None or parsed.raw_line is None:
             return parsed
-        senses = self.sense_segmenter.segment_parsed_line(parsed.raw_line.raw_text)
-        return dataclasses.replace(parsed, senses=senses)
+        segment_result = self.sense_segmenter.segment_parsed_line(
+            parsed.raw_line.raw_text
+        )
+        return dataclasses.replace(
+            parsed,
+            senses=segment_result.senses,
+            segment_warnings=segment_result.warnings,
+        )
 
     def _collect_parse_warnings(self, parsed: ParsedBTLine) -> list[BTParseWarning]:
         """
@@ -286,6 +305,17 @@ class BTIndexPipeline:
         pos_hint = parsed.pos.value
         line_no = parsed.raw_line.line_no
         warnings: list[BTParseWarning] = []
+
+        warnings.extend(
+            BTParseWarning(
+                line_no=line_no,
+                body=body,
+                headword=headword,
+                pos_hint=pos_hint,
+                failure_reason=code,
+            )
+            for code in parsed.segment_warnings
+        )
 
         if parsed.raw_line.kind == BTLineKind.MAIN and parsed.pos == BTPos.UNKNOWN:
             warnings.append(

@@ -192,8 +192,9 @@ def _insert_entry(
                 genders_json,
                 etymology,
                 see_also_json,
-                source_line_nos_json
-            ) VALUES (?, ?, ?, ?, '[]', '', '[]', '[]')
+                source_line_nos_json,
+                entry_order
+            ) VALUES (?, ?, ?, ?, '[]', '', '[]', '[]', 1)
             """,
             (norm_key, headword, normalized_title, pos_id),
         )
@@ -204,10 +205,22 @@ def _insert_entry(
         assert entry_id is not None
         connection.execute(
             """
-            INSERT INTO bt_senses (entry_id, sense_label, gloss_en, order_index)
-            VALUES (?, '', ?, 0)
+            INSERT INTO bt_senses (
+                entry_id,
+                sense_label,
+                gloss_en,
+                order_index,
+                sense_path,
+                parent_path,
+                source_label_raw,
+                source_fragment_raw,
+                prefix_fragment_raw,
+                modifiers_json,
+                grammatical_context_json,
+                usage_note
+            ) VALUES (?, '', ?, 0, '1', NULL, '', ?, '', '[]', '[]', '')
             """,
-            (int(entry_id[0]), summary_sense),
+            (int(entry_id[0]), summary_sense, summary_sense),
         )
         connection.commit()
 

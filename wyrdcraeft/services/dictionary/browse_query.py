@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import text
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
+from wyrdcraeft.models.dictionary import format_sense_display_label, sense_path_sort_key
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 from wyrdcraeft.services.morphology.catalog.pos import catalog_pos_from_bt_pos
@@ -737,7 +738,7 @@ class DictionaryBrowseQueryService:
                 FROM bt_entries e
                 JOIN parts_of_speech p ON p.id = e.pos_id
                 LEFT JOIN first_senses fs ON fs.entry_id = e.id
-                ORDER BY e.id ASC
+                ORDER BY e.entry_order ASC, e.id ASC
                 """
             )
         ).mappings().all()
@@ -959,7 +960,12 @@ class DictionaryBrowseQueryService:
         sense_rows = self._connection.execute(
             text(
                 """
-                SELECT sense_label, gloss_en, order_index
+                SELECT
+                    sense_label,
+                    gloss_en,
+                    order_index,
+                    source_label_raw,
+                    sense_path
                 FROM bt_senses
                 WHERE entry_id = :entry_id
                 ORDER BY order_index ASC, id ASC
@@ -967,13 +973,21 @@ class DictionaryBrowseQueryService:
             ),
             {"entry_id": entry_id},
         ).mappings().all()
+        sorted_rows = sorted(
+            sense_rows,
+            key=lambda row: sense_path_sort_key(str(row["sense_path"])),
+        )
         return [
             EntrySense(
-                sense_label=str(row["sense_label"]),
+                sense_label=(
+                    format_sense_display_label(str(row["sense_path"]))
+                    if str(row.get("source_label_raw") or "").strip()
+                    else ""
+                ),
                 gloss_en=str(row["gloss_en"]).strip(),
                 order_index=int(row["order_index"]),
             )
-            for row in sense_rows
+            for row in sorted_rows
         ]
 
     def _lookup_entry_morph_class(

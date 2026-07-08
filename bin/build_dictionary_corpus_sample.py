@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from wyrdcraeft.services.dictionary import BTLineSplitter
+from wyrdcraeft.services.dictionary.resources import default_bt_source_path
 
 
 @dataclass(frozen=True)
@@ -42,7 +43,7 @@ class CorpusSampleResult:
 
 class DictionaryCorpusSampler:
     """
-    Build a stratified parser-regression corpus from ``data/oe_bt.txt``.
+    Build a stratified parser-regression corpus from packaged ``oe_bt.txt``.
 
     The sampler indexes every valid three-field ``@`` line by its lookup key
     (the third field), then picks approximately 750 keys in corpus order and
@@ -231,7 +232,7 @@ def main() -> None:
 
     """
     project_root = Path(__file__).resolve().parents[1]
-    source_path = project_root / "data" / "oe_bt.txt"
+    source_path = default_bt_source_path()
     fixture_dir = project_root / "tests" / "fixtures" / "dictionary"
     fixture_dir.mkdir(parents=True, exist_ok=True)
     corpus_path = fixture_dir / "corpus_sample.txt"
@@ -243,7 +244,7 @@ def main() -> None:
     corpus_path.write_text("\n".join(sample.lines) + "\n", encoding="utf-8")
     manifest = {
         "build_ts": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        "source": "data/oe_bt.txt",
+        "source": "wyrdcraeft/etc/dictionary/oe_bt.txt",
         "target_line_range": [sampler.min_lines, sampler.max_lines],
         "sampled_key_target": sampler.target_keys,
         "step": sample.step,

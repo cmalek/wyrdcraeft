@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import WrightSection
+from wyrdcraeft.services.dictionary.resources import default_wright_source_path
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.query import MorphologyCatalogQueryService
 from wyrdcraeft.services.morphology.catalog.wright_text import (
@@ -33,6 +34,15 @@ def catalog_db(tmp_path: Path):
     MorphologyCatalogLoader(engine).load_fixture(FIXTURE)
     yield engine, tmp_path
     engine.dispose()
+
+
+def test_packaged_wright_source_path_is_readable() -> None:
+    wright_path = default_wright_source_path()
+    assert wright_path.is_file()
+    assert wright_path.name == "wright.md"
+
+    sections = parse_wright_sections_from_path(wright_path)
+    assert sections
 
 
 def test_parse_section_334_snippet_preserves_oe_unicode() -> None:

@@ -13,6 +13,7 @@ from wyrdcraeft.models.dictionary import (
     BTGender,
     BTPos,
     BTSense,
+    sense_path_sort_key,
 )
 from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import BTEntry, BTVariant
@@ -22,6 +23,7 @@ from wyrdcraeft.services.dictionary.normalized_title_join import (
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
     from sqlalchemy.engine import Connection, Engine
@@ -151,6 +153,67 @@ def _genders_from_json(payload: str) -> list[BTGender]:
     return [BTGender(value) for value in raw_values]
 
 
+def _json_tuple(payload: str | None) -> tuple[str, ...]:
+    """
+    Deserialize a JSON string array into an immutable tuple.
+
+    Args:
+        payload: JSON array text or ``None`` when the column is absent.
+
+    Returns:
+        Parsed string tuple; empty when payload is missing or blank.
+
+    """
+    if payload is None or not str(payload).strip():
+        return ()
+    raw_values = json.loads(payload)
+    return tuple(str(value) for value in raw_values)
+
+
+def _sense_from_row(sense_row: Mapping[str, object]) -> BTSense:
+    """
+    Reconstruct one ``BTSense`` from a persisted ``bt_senses`` row mapping.
+
+    Args:
+        sense_row: Row mapping returned by SQLAlchemy execution.
+
+    Returns:
+        Consolidated sense with defaults for legacy rows missing rich columns.
+
+    """
+    gloss_en = str(sense_row["gloss_en"])
+    source_label_raw = str(
+        sense_row.get("source_label_raw") or sense_row.get("sense_label") or ""
+    )
+    order_index_raw = sense_row.get("order_index")
+    order_index = int(order_index_raw) if isinstance(order_index_raw, int) else 0
+    fallback_path = source_label_raw or str(order_index + 1)
+    sense_path = str(sense_row.get("sense_path") or fallback_path)
+    parent_path_raw = sense_row.get("parent_path")
+    parent_path = None if parent_path_raw in (None, "") else str(parent_path_raw)
+    return BTSense(
+        gloss_en=gloss_en,
+        sense_path=sense_path,
+        parent_path=parent_path,
+        source_label_raw=source_label_raw,
+        source_fragment_raw=str(
+            sense_row.get("source_fragment_raw") or gloss_en
+        ),
+        prefix_fragment_raw=str(sense_row.get("prefix_fragment_raw") or ""),
+        modifiers=_json_tuple(
+            None
+            if sense_row.get("modifiers_json") is None
+            else str(sense_row["modifiers_json"])
+        ),
+        grammatical_context=_json_tuple(
+            None
+            if sense_row.get("grammatical_context_json") is None
+            else str(sense_row["grammatical_context_json"])
+        ),
+        usage_note=str(sense_row.get("usage_note") or ""),
+    )
+
+
 def _entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
     """
     Serialize one consolidated entry for JSON CLI output.
@@ -170,8 +233,19 @@ def _entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
         "pos": entry.pos.value,
         "genders": [gender.value for gender in entry.genders],
         "variants": list(entry.variants),
+        "entry_order": entry.entry_order,
         "senses": [
-            {"sense_label": sense.sense_label, "gloss_en": sense.gloss_en}
+            {
+                "sense_label": sense.display_label,
+                "gloss_en": sense.gloss_en,
+                "sense_path": sense.sense_path,
+                "parent_path": sense.parent_path,
+                "source_fragment_raw": sense.source_fragment_raw,
+                "prefix_fragment_raw": sense.prefix_fragment_raw,
+                "modifiers": list(sense.modifiers),
+                "grammatical_context": list(sense.grammatical_context),
+                "usage_note": sense.usage_note,
+            }
             for sense in entry.senses
         ],
         "etymology": entry.etymology,
@@ -348,7 +422,7 @@ class BTQueryService:
                     FROM bt_entries e
                     JOIN parts_of_speech p ON p.id = e.pos_id
                     WHERE e.norm_key = :lookup_key AND p.code = :pos_filter
-                    ORDER BY e.norm_key, p.code, e.id
+                    ORDER BY e.norm_key, p.code, e.entry_order, e.id
                     """
                 ),
                 {"lookup_key": lookup_key, "pos_filter": pos_filter},
@@ -361,7 +435,7 @@ class BTQueryService:
                     FROM bt_entries e
                     JOIN parts_of_speech p ON p.id = e.pos_id
                     WHERE e.norm_key = :lookup_key
-                    ORDER BY e.norm_key, p.code, e.id
+                    ORDER BY e.norm_key, p.code, e.entry_order, e.id
                     """
                 ),
                 {"lookup_key": lookup_key},
@@ -444,7 +518,8 @@ class BTQueryService:
                     e.genders_json,
                     e.etymology,
                     e.see_also_json,
-                    e.source_line_nos_json
+                    e.source_line_nos_json,
+                    e.entry_order
                 FROM bt_entries e
                 JOIN parts_of_speech p ON p.id = e.pos_id
                 WHERE e.id = :entry_id
@@ -459,7 +534,18 @@ class BTQueryService:
         sense_rows = self._connection.execute(
             text(
                 """
-                SELECT sense_label, gloss_en
+                SELECT
+                    sense_label,
+                    gloss_en,
+                    order_index,
+                    sense_path,
+                    parent_path,
+                    source_label_raw,
+                    source_fragment_raw,
+                    prefix_fragment_raw,
+                    modifiers_json,
+                    grammatical_context_json,
+                    usage_note
                 FROM bt_senses
                 WHERE entry_id = :entry_id
                 ORDER BY order_index ASC, id ASC
@@ -467,6 +553,8 @@ class BTQueryService:
             ),
             {"entry_id": entry_id},
         ).mappings().all()
+        senses = [_sense_from_row(dict(sense_row)) for sense_row in sense_rows]
+        senses.sort(key=lambda sense: sense_path_sort_key(sense.sense_path))
         variant_rows = self._connection.execute(
             text(
                 """
@@ -491,16 +579,11 @@ class BTQueryService:
             pos=pos,
             genders=_genders_from_json(str(row["genders_json"])),
             variants=[str(variant_row["spelling_raw"]) for variant_row in variant_rows],
-            senses=[
-                BTSense(
-                    sense_label=str(sense_row["sense_label"]),
-                    gloss_en=str(sense_row["gloss_en"]),
-                )
-                for sense_row in sense_rows
-            ],
+            senses=senses,
             etymology=str(row["etymology"]),
             see_also=json.loads(str(row["see_also_json"])),
             source_line_nos=json.loads(str(row["source_line_nos_json"])),
+            entry_order=int(row["entry_order"]),
         )
 
     def close(self) -> None:

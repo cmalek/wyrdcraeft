@@ -86,21 +86,165 @@ class BTEditorialOp(StrEnum):
     DELE_AND_ADD = "dele_and_add"
 
 
+def format_sense_display_label(sense_path: str) -> str:
+    """
+    Convert canonical ``sense_path`` to Arabic display text.
+
+    Top-level paths stay as Arabic numerals. Nested numeric segments become
+    lowercase letters (``2.1`` → ``2a``, ``4.3`` → ``4c``).
+
+    Args:
+        sense_path: Canonical hierarchical path such as ``2.1``.
+
+    Returns:
+        Human-facing sense label without a trailing period.
+
+    """
+    if not sense_path:
+        return ""
+    parts = sense_path.split(".")
+    if not parts:
+        return ""
+    display = parts[0]
+    max_letter_index = ord("z") - ord("a") + 1
+    for segment in parts[1:]:
+        if segment.isdigit():
+            index = int(segment)
+            if 1 <= index <= max_letter_index:
+                display += chr(ord("a") + index - 1)
+            else:
+                display += segment
+        else:
+            display += segment
+    return display
+
+
+def sense_path_sort_key(sense_path: str) -> tuple[int, ...]:
+    """
+    Build a sort key that orders senses by hierarchical path.
+
+    ``4`` sorts before ``4.1`` (displayed as ``4a``), which sorts before ``5``.
+
+    Args:
+        sense_path: Canonical hierarchical path such as ``4.1``.
+
+    Returns:
+        Tuple of integer path segments for stable sorting.
+
+    """
+    if not sense_path:
+        return (0,)
+    key: list[int] = []
+    for segment in sense_path.split("."):
+        if segment.isdigit():
+            key.append(int(segment))
+        else:
+            key.append(0)
+    return tuple(key)
+
+
 @dataclass(frozen=True)
 class BTSense:
     """
     One English gloss sense for a consolidated dictionary entry.
 
     Attributes:
-        sense_label: Roman-numeral or letter label (for example ``I.``).
         gloss_en: English definition text with attestations stripped.
+        sense_path: Hierarchical sense path within the source entry block.
+        parent_path: Parent sense path when nested; ``None`` for top-level senses.
+        source_label_raw: Raw Roman-numeral or letter label from the source.
+        source_fragment_raw: Raw HTML/text fragment for this sense body.
+        prefix_fragment_raw: POS/gender prefix fragment preceding the sense body.
+        modifiers: Editorial modifier tokens attached to the sense.
+        grammatical_context: Grammatical context tags for the sense gloss.
+        usage_note: Free-text usage note when present in the source.
 
     """
 
-    #: Sense label such as ``I.`` or ``II.``.
-    sense_label: str
     #: English gloss only; no OE/Latin citation tails.
     gloss_en: str
+    #: Hierarchical sense path within one source entry block.
+    sense_path: str
+    #: Parent sense path when nested; ``None`` for top-level senses.
+    parent_path: str | None
+    #: Raw Roman-numeral or letter label from the source.
+    source_label_raw: str
+    #: Raw HTML/text fragment for this sense body.
+    source_fragment_raw: str
+    #: POS/gender prefix fragment preceding the sense body.
+    prefix_fragment_raw: str
+    #: Editorial modifier tokens attached to the sense.
+    modifiers: tuple[str, ...]
+    #: Grammatical context tags for the sense gloss.
+    grammatical_context: tuple[str, ...]
+    #: Free-text usage note when present in the source.
+    usage_note: str
+
+    @property
+    def sense_label(self) -> str:
+        """
+        Backward-compatible sense label derived from ``source_label_raw``.
+
+        Returns:
+            Normalized sense label without a trailing period.
+
+        """
+        return self.source_label_raw.rstrip(".")
+
+    @property
+    def display_label(self) -> str:
+        """
+        User-facing sense label derived from ``sense_path``.
+
+        Roman source labels are not shown. Unlabeled single senses return an
+        empty string so browse output stays label-free.
+
+        Returns:
+            Arabic display label such as ``2a``; empty when unlabeled.
+
+        """
+        if not self.source_label_raw.strip():
+            return ""
+        return format_sense_display_label(self.sense_path)
+
+
+def legacy_bt_sense(
+    sense_label: str,
+    gloss_en: str,
+    *,
+    sense_path: str | None = None,
+    source_fragment_raw: str | None = None,
+) -> BTSense:
+    """
+    Build a minimal ``BTSense`` from legacy label and gloss fields.
+
+    Args:
+        sense_label: Roman-numeral or letter label (for example ``I.``).
+        gloss_en: English definition text with attestations stripped.
+
+    Keyword Args:
+        sense_path: Optional explicit sense path; defaults to ``sense_label`` or
+            ``"1"`` when the label is empty.
+        source_fragment_raw: Optional raw source fragment; defaults to
+            ``gloss_en``.
+
+    Returns:
+        Rich ``BTSense`` populated with empty optional fields.
+
+    """
+    path = sense_path if sense_path is not None else (sense_label or "1")
+    fragment = gloss_en if source_fragment_raw is None else source_fragment_raw
+    return BTSense(
+        gloss_en=gloss_en,
+        sense_path=path,
+        parent_path=None,
+        source_label_raw=sense_label,
+        source_fragment_raw=fragment,
+        prefix_fragment_raw="",
+        modifiers=(),
+        grammatical_context=(),
+        usage_note="",
+    )
 
 
 @dataclass(frozen=True)
@@ -146,6 +290,7 @@ class BTConsolidatedEntry:
         etymology: Bracket etymology blocks as plain text.
         see_also: Cross-reference targets from ``v.`` / ``vide`` lines.
         source_line_nos: Contributing ``oe_bt.txt`` line numbers.
+        entry_order: Stable source-block ordering within the dictionary build.
 
     """
 
@@ -171,3 +316,5 @@ class BTConsolidatedEntry:
     see_also: list[str] = field(default_factory=list)
     #: Source line numbers that contributed to this entry.
     source_line_nos: list[int] = field(default_factory=list)
+    #: Stable source-block ordering within the dictionary build.
+    entry_order: int = 0

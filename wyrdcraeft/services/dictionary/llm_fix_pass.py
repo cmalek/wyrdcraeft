@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Final, cast
 import httpx
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from wyrdcraeft.models.dictionary import BTSense
+from wyrdcraeft.models.dictionary import legacy_bt_sense
 from wyrdcraeft.models.llm import AnyLLMConfig
 
 if TYPE_CHECKING:
@@ -69,6 +69,7 @@ class BTParseWarning:
         headword: Display headword used as LLM context.
         pos_hint: Normalized POS label or ``unknown``.
         failure_reason: Diagnostic code describing the parse failure.
+        detail: Optional human-readable diagnostic context.
 
     """
 
@@ -82,6 +83,8 @@ class BTParseWarning:
     pos_hint: str
     #: Machine-readable warning reason.
     failure_reason: str
+    #: Optional human-readable diagnostic context.
+    detail: str = ""
 
     def to_json(self) -> dict[str, object]:
         """
@@ -97,6 +100,7 @@ class BTParseWarning:
             "headword": self.headword,
             "pos_hint": self.pos_hint,
             "failure_reason": self.failure_reason,
+            **({"detail": self.detail} if self.detail else {}),
         }
 
     @classmethod
@@ -117,6 +121,7 @@ class BTParseWarning:
             headword=str(payload["headword"]),
             pos_hint=str(payload["pos_hint"]),
             failure_reason=str(payload["failure_reason"]),
+            detail=str(payload.get("detail", "")),
         )
 
 
@@ -294,7 +299,7 @@ class BTLLMFixPass:
 
         """
         senses = tuple(
-            BTSense(sense_label=sense.sense_label, gloss_en=sense.gloss_en)
+            legacy_bt_sense(sense.sense_label, sense.gloss_en)
             for sense in fix.senses
         )
         if fix.etymology and not parsed.etymology_blocks:
@@ -355,6 +360,26 @@ def write_parse_warnings(path: Path, warnings: list[BTParseWarning]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [json.dumps(warning.to_json(), ensure_ascii=False) for warning in warnings]
     path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+
+
+def append_parse_warnings(path: Path, warnings: list[BTParseWarning]) -> None:
+    """
+    Append parse warnings to an existing JSONL file.
+
+    Args:
+        path: Destination ``parse_warnings.jsonl`` path.
+        warnings: Additional warning records to append.
+
+    Side Effects:
+        Creates parent directories when needed and appends UTF-8 JSONL rows.
+
+    """
+    if not warnings:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [json.dumps(warning.to_json(), ensure_ascii=False) for warning in warnings]
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write("\n".join(lines) + "\n")
 
 
 def _build_prompt(warning: BTParseWarning) -> str:

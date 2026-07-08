@@ -105,6 +105,9 @@ wyrdcraeft = [
     "etc/diacritic/*/*.txt",
     "etc/morphology/*.txt",
     "etc/morphology/*.json",
+    "etc/dictionary/*.txt",
+    "etc/dictionary/*.md",
+    "etc/dictionary/*.json",
 ]
 
 [build-system]

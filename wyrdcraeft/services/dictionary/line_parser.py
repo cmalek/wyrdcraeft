@@ -12,8 +12,8 @@ from .bt_spelling import BTSpellingNormalizer
 from .line_splitter import BTLineSplitter, BTSplitLine
 from .pos_gender import BTPosGenderExtractor
 
-#: ``<I>Add:</I>`` or ``<I>Add</I>`` marker.
-_ADD_RE: Final[re.Pattern[str]] = re.compile(r"<I>\s*Add:?\s*</I>", re.IGNORECASE)
+#: ``<I>Add:</I>``, ``<I>Add :</I>``, or ``<I>Add</I>`` marker.
+_ADD_RE: Final[re.Pattern[str]] = re.compile(r"<I>\s*Add\s*:?\s*</I>", re.IGNORECASE)
 #: ``Substitute`` marker (typically in italic tags).
 _SUBSTITUTE_RE: Final[re.Pattern[str]] = re.compile(r"\bSubstitute\b", re.IGNORECASE)
 #: ``Dele`` marker (typically in italic tags).
@@ -42,6 +42,51 @@ _BRACKET_BLOCK_RE: Final[re.Pattern[str]] = re.compile(r"\[[^\[\]]+\]")
 _TRAILING_BRACKETS_RE: Final[re.Pattern[str]] = re.compile(r"(?:\s*\[[^\[\]]+\]\s*)+$")
 #: Whitespace normalizer for skip reasons and extracted fragments.
 _WS_RE: Final[re.Pattern[str]] = re.compile(r"\s+")
+#: Splits compound bold headwords such as ``mægþ, mægeþ;``.
+_HEADWORD_FORM_SPLIT_RE: Final[re.Pattern[str]] = re.compile(r"[,;]+")
+#: Strips editorial sense anchors from bold headwords such as ``mǣgþ. I.``.
+_EDITORIAL_HEADWORD_SENSE_SUFFIX_RE: Final[re.Pattern[str]] = re.compile(
+    r"^(.+?)\.\s*([IVX]+(?:\s+[a-z])?|[A-Z])\.\s*$"
+)
+
+
+def _split_headword_forms(capture: str) -> tuple[str, tuple[str, ...]] | None:
+    """
+    Split one bold headword capture into canonical and variant spellings.
+
+    Bosworth-Toller often lists multiple spellings inside the first ``<B>`` tag
+    (for example ``mægþ, mægeþ;``). Editorial add lines may instead anchor a
+    sense label in the bold tag (for example ``mǣgþ. I.``).
+
+    Args:
+        capture: Raw text from the first ``<B>…</B>`` match.
+
+    Returns:
+        Canonical headword plus any additional spellings from the bold tag, or
+        ``None`` when no wordlike form is present.
+
+    """
+    stripped = capture.strip()
+    sense_suffix = _EDITORIAL_HEADWORD_SENSE_SUFFIX_RE.match(stripped)
+    if sense_suffix is not None:
+        cleaned = TRAILING_HEADWORD_PUNCT_RE.sub("", sense_suffix.group(1).strip())
+    else:
+        cleaned = TRAILING_HEADWORD_PUNCT_RE.sub("", stripped)
+
+    forms: list[str] = []
+    seen: set[str] = set()
+    for fragment in _HEADWORD_FORM_SPLIT_RE.split(cleaned):
+        candidate = TRAILING_HEADWORD_PUNCT_RE.sub("", fragment.strip())
+        if not candidate or not _is_oe_wordlike(candidate):
+            continue
+        lowered = candidate.casefold()
+        if lowered in seen:
+            continue
+        seen.add(lowered)
+        forms.append(candidate)
+    if not forms:
+        return None
+    return forms[0], tuple(forms[1:])
 
 
 @dataclass(frozen=True)
@@ -66,6 +111,7 @@ class ParsedBTLine:
         dele_refs: Parsed deletion references from ``Dele`` fragments.
         etymology_blocks: Trailing ``[...]`` blocks preserved as raw text.
         senses: Ordered English gloss senses; empty until phase 03 populates it.
+        segment_warnings: Segmentation warning codes from phase 03.
         skip_reason: Non-empty when line was skipped.
 
     """
@@ -92,6 +138,8 @@ class ParsedBTLine:
     etymology_blocks: tuple[str, ...]
     #: Ordered sense glosses populated by phase 03 segmentation; empty by default.
     senses: tuple[BTSense, ...] = field(default_factory=tuple)
+    #: Segmentation warning codes emitted by phase 03; empty by default.
+    segment_warnings: tuple[str, ...] = field(default_factory=tuple)
     #: Skip reason string when parsing was rejected.
     skip_reason: str | None = None
 
@@ -148,12 +196,10 @@ class BTLineParser:
         if headword_match is None:
             return self._skip("no <B> headword")
 
-        headword_raw = TRAILING_HEADWORD_PUNCT_RE.sub(
-            "",
-            headword_match.group(1).strip(),
-        )
-        if not headword_raw or not _is_oe_wordlike(headword_raw):
+        headword_forms = _split_headword_forms(headword_match.group(1))
+        if headword_forms is None:
             return self._skip("headword not wordlike")
+        headword_raw, bold_variants = headword_forms
         headword_macronized = self.spelling_normalizer.normalize(headword_raw)
 
         pos_fragment = self._extract_pos_fragment(split_line, headword_match.end())
@@ -167,17 +213,16 @@ class BTLineParser:
             pos_fragment=pos_fragment,
             raw_text=split_line.body,
         )
+        prefix_variants = self._extract_variants(
+            headword_raw=headword_raw,
+            pos_fragment=pos_fragment,
+        )
         return ParsedBTLine(
             raw_line=raw_line,
             lookup_keys=split_line.lookup_keys,
             slug_field=split_line.slug_field,
             headword_macronized=headword_macronized,
-            variants=self._normalize_variants(
-                self._extract_variants(
-                    headword_raw=headword_raw,
-                    pos_fragment=pos_fragment,
-                )
-            ),
+            variants=self._normalize_variants(bold_variants + prefix_variants),
             pos=pos_gender.pos,
             genders=pos_gender.genders,
             editorial_target=self._extract_editorial_target(split_line.body),

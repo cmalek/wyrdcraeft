@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from wyrdcraeft.db.runtime import upgrade_canonical_db
-from wyrdcraeft.models.dictionary import BTPos
+from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos, BTSense
 from wyrdcraeft.paths import DICTIONARY_INDEX_FILENAME
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.query import BTQueryService, entry_to_dict
@@ -89,6 +89,57 @@ def corpus_index_db(temp_dir: Path) -> Path:
     return _index_fixture(_CORPUS_SAMPLE, temp_dir)
 
 
+def test_bt_senses_round_trip_rich_fields(temp_dir: Path) -> None:
+    index_db = temp_dir / DICTIONARY_INDEX_FILENAME
+    _seed_forms_table(index_db, row_count=1)
+    entry = BTConsolidatedEntry(
+        norm_key="richsense",
+        headword_raw="richsense",
+        headword_macronized="richsense",
+        normalized_title="richsense",
+        pos=BTPos.NOUN,
+        entry_order=7,
+        senses=[
+            BTSense(
+                gloss_en="meaning one",
+                sense_path="1.a",
+                parent_path="1",
+                source_label_raw="I a",
+                source_fragment_raw="raw fragment",
+                prefix_fragment_raw="prefix bit",
+                modifiers=("mod-one", "mod-two"),
+                grammatical_context=("genitive",),
+                usage_note="usage note",
+            ),
+        ],
+    )
+    sink = BTSqliteSink(index_db)
+    try:
+        sink.write_entries([entry], [])
+    finally:
+        sink.close()
+
+    service = BTQueryService(index_db)
+    try:
+        entries = service.lookup_by_norm_key("richsense", pos="noun")
+    finally:
+        service.close()
+
+    assert len(entries) == 1
+    sense = entries[0].senses[0]
+    assert sense.gloss_en == "meaning one"
+    assert sense.sense_path == "1.a"
+    assert sense.parent_path == "1"
+    assert sense.source_label_raw == "I a"
+    assert sense.source_fragment_raw == "raw fragment"
+    assert sense.prefix_fragment_raw == "prefix bit"
+    assert sense.modifiers == ("mod-one", "mod-two")
+    assert sense.grammatical_context == ("genitive",)
+    assert sense.usage_note == "usage note"
+    assert sense.sense_label == "I a"
+    assert entries[0].entry_order == 7
+
+
 def test_lookup_abbod_variant_returns_abbad_noun(sample_index_db: Path) -> None:
     service = BTQueryService(sample_index_db)
     try:
@@ -149,6 +200,8 @@ def test_lookup_by_norm_key_reconstructs_senses_and_variants(
     assert entry.senses[0].gloss_en.startswith("an abbot")
     assert entry.senses[0].sense_label == "I"
     assert entry.senses[1].sense_label == "II"
+    assert entry.senses[0].display_label == "1"
+    assert entry.senses[1].display_label == "2"
     assert entry.variants
 
 
@@ -164,11 +217,12 @@ def test_lookup_a_pos_filter_returns_distinct_homographs(
         service.close()
 
     assert len(adv_entries) == 1
-    assert len(prep_entries) == 1
+    assert len(prep_entries) == 2
     assert adv_entries[0].pos == BTPos.ADV
-    assert prep_entries[0].pos == BTPos.PREP
+    assert all(entry.pos == BTPos.PREP for entry in prep_entries)
     assert adv_entries[0].norm_key == prep_entries[0].norm_key == "a"
     assert adv_entries[0].senses[0].gloss_en != prep_entries[0].senses[0].gloss_en
+    assert prep_entries[0].entry_order != prep_entries[1].entry_order
     assert noun_entries == []
 
 
@@ -195,6 +249,8 @@ def test_entry_to_dict_is_json_serializable(sample_index_db: Path) -> None:
     assert decoded["norm_key"] == "abbad"
     assert decoded["pos"] == "noun"
     assert decoded["senses"][0]["gloss_en"].startswith("an abbot")
+    assert decoded["senses"][0]["sense_label"] == "1"
+    assert decoded["senses"][1]["sense_label"] == "2"
 
 
 def test_lookup_normalizes_old_english_input(sample_index_db: Path) -> None:

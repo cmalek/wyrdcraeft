@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Index, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from wyrdcraeft.db.base import Base
@@ -103,11 +103,11 @@ class BTEntry(Base):
 
     #: Canonical Bosworth-Toller dictionary entries table name.
     __tablename__ = "bt_entries"
-    #: Dictionary entry uniqueness and lookup indexes.
+    #: Dictionary entry lookup indexes.
     __table_args__ = (
-        UniqueConstraint("norm_key", "pos_id"),
         Index("idx_bt_entries_norm_key", "norm_key"),
         Index("idx_bt_entries_normalized_title", "normalized_title"),
+        Index("idx_bt_entries_entry_order", "entry_order"),
     )
 
     #: Surrogate dictionary entry identifier.
@@ -131,6 +131,8 @@ class BTEntry(Base):
     see_also_json: Mapped[str] = mapped_column(Text, nullable=False)
     #: JSON-encoded source line numbers.
     source_line_nos_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Stable source-block ordering within the dictionary build.
+    entry_order: Mapped[int] = mapped_column(nullable=False)
     #: Referenced canonical part-of-speech row.
     part_of_speech: Mapped[PartOfSpeech] = relationship()
 
@@ -157,6 +159,22 @@ class BTSense(Base):
     gloss_en: Mapped[str] = mapped_column(Text, nullable=False)
     #: Sense ordering within the entry.
     order_index: Mapped[int] = mapped_column(nullable=False)
+    #: Hierarchical sense path within one source entry block.
+    sense_path: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Parent sense path when nested; ``None`` for top-level senses.
+    parent_path: Mapped[str | None] = mapped_column(Text, nullable=True)
+    #: Raw Roman-numeral or letter label from the source.
+    source_label_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Raw HTML/text fragment for this sense body.
+    source_fragment_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    #: POS/gender prefix fragment preceding the sense body.
+    prefix_fragment_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded editorial modifier tokens.
+    modifiers_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: JSON-encoded grammatical context tags.
+    grammatical_context_json: Mapped[str] = mapped_column(Text, nullable=False)
+    #: Free-text usage note when present in the source.
+    usage_note: Mapped[str] = mapped_column(Text, nullable=False)
 
 
 class BTVariant(Base):

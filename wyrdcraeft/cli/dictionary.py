@@ -26,6 +26,10 @@ from wyrdcraeft.services.dictionary.llm_fix_pass import (
     BTLLMFixPass,
 )
 from wyrdcraeft.services.dictionary.query import BTQueryService, entry_to_dict
+from wyrdcraeft.services.dictionary.resources import (
+    default_bt_source_path,
+    default_wright_source_path,
+)
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.catalog.wright_audit import (
     WrightAuditService,
@@ -47,10 +51,10 @@ def _default_source_path() -> Path:
     Resolve the default Bosworth-Toller source file path.
 
     Returns:
-        Path to ``data/oe_bt.txt`` relative to the current working directory.
+        Path to the packaged ``oe_bt.txt`` dictionary source file.
 
     """
-    return Path("data/oe_bt.txt")
+    return default_bt_source_path()
 
 
 def _default_morphology_data_dir() -> Path:
@@ -221,7 +225,7 @@ def dictionary_group() -> None:
     "--source",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=_default_source_path,
-    show_default="data/oe_bt.txt",
+    show_default="wyrdcraeft/etc/dictionary/oe_bt.txt",
     help="Bosworth-Toller source file to index.",
 )
 @click.option(
@@ -507,7 +511,7 @@ def _format_entry_text(
 
     lines = [lemma_line, "  ".join(pos_bits), "Senses:"]
     for sense in entry.senses:
-        label = _format_sense_label(sense.sense_label)
+        label = _format_sense_label(sense.display_label)
         prefix = f"  {label} " if label else "  "
         lines.append(f"{prefix}{sense.gloss_en}".rstrip())
 
@@ -698,7 +702,8 @@ def browse(
     required=True,
     help=(
         "Markdown file containing Wright section headings "
-        "(for example data/sources/wright.md)."
+        f"(for example {default_wright_source_path().name} from the packaged "
+        "dictionary resources)."
     ),
 )
 @click.option(
