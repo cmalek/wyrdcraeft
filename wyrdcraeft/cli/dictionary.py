@@ -30,6 +30,7 @@ from wyrdcraeft.services.dictionary.resources import (
     default_bt_source_path,
     default_wright_source_path,
 )
+from wyrdcraeft.services.dictionary.source_cleanup import BTSourceHeadwordCleaner
 from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.catalog.wright_audit import (
     WrightAuditService,
@@ -457,6 +458,58 @@ def build(  # noqa: PLR0913
                 f"pos_inferred={build_report.pos_inferred}",
                 f"warnings_file={resolved_warnings_file}",
                 f"llm_fix_pass={'yes' if llm_fix_pass else 'no'}",
+            ]
+        )
+    )
+
+
+@dictionary_group.command(
+    name="clean-headwords",
+    help="Lowercase all-uppercase Bosworth-Toller headwords in oe_bt.txt.",
+)
+@click.option(
+    "--source",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=_default_source_path,
+    show_default="wyrdcraeft/etc/dictionary/oe_bt.txt",
+    help="Bosworth-Toller source file to normalize.",
+)
+def clean_headwords(source: Path) -> None:
+    """
+    Backup and lowercase fully uppercased first headwords in oe_bt.txt.
+
+    Args:
+        source: Bosworth-Toller source file path.
+
+    Side Effects:
+        Creates a timestamped backup and overwrites the source file.
+
+    Raises:
+        click.ClickException: The source file is missing or cleanup fails.
+
+    """
+    if not source.exists():
+        msg = (
+            f"Missing dictionary source file: {source}. "
+            "Provide an explicit path via --source."
+        )
+        raise click.ClickException(msg)
+
+    try:
+        result = BTSourceHeadwordCleaner(source).run()
+    except OSError as exc:
+        msg = f"Failed to clean dictionary headwords in {source}: {exc}"
+        raise click.ClickException(msg) from exc
+
+    click.echo(
+        "\n".join(
+            [
+                "Dictionary headword cleanup complete.",
+                f"source={source.resolve()}",
+                f"backup={result.backup_path}",
+                f"lines_read={result.lines_read}",
+                f"lowercase_changes={result.lowercase_changes}",
+                f"lines_written={result.lines_written}",
             ]
         )
     )

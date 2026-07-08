@@ -150,11 +150,18 @@ def test_dictionary_group_help(runner) -> None:
     result = runner.invoke(cli, ["dictionary", "--help"])
     assert result.exit_code == 0
     assert "build" in result.output
+    assert "clean-headwords" in result.output
     assert "query" in result.output
     assert "browse" in result.output
     assert "ingest-wright-text" in result.output
     assert "audit-wright" in result.output
     assert "generate-reference-snapshots" in result.output
+
+
+def test_dictionary_clean_headwords_help(runner) -> None:
+    result = runner.invoke(cli, ["dictionary", "clean-headwords", "--help"])
+    assert result.exit_code == 0
+    assert "--source" in result.output
 
 
 def test_dictionary_generate_reference_snapshots_help(runner) -> None:
