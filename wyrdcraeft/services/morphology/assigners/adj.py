@@ -75,7 +75,7 @@ def set_adj_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912
     # Heuristics
     for word in adjectives:
         if not word.adj_paradigm:
-            if re.search(r"(sum|lic|l\u00EDc|isc)$", word.stem):
+            if re.search(r"(sum|lic|l\u00EDc|isc|ig)$", word.stem):
                 word.adj_paradigm.append("til")
             elif re.search(r"(cund|feald|f\u00E6st|l\u00E9as|full|iht)$", word.stem):
                 word.adj_paradigm.append("blind")

@@ -91,6 +91,11 @@ class _EntryDetailsLike(Protocol):
     #: Catalog morph-class summary for the entry, when present.
     morph_class: _MorphClassLike | None
 
+#: Dictionary POS codes whose entries omit the morphology sidebar.
+_POS_WITHOUT_MORPHOLOGY: frozenset[str] = frozenset(
+    {"preposition", "conjunction", "interjection", "indeclinable"},
+)
+
 #: Insertable/searchable Old English characters plus button display text.
 _OE_BUTTONS: tuple[tuple[str, str], ...] = (
     ("æ", "æ"),
@@ -1145,6 +1150,9 @@ class DictionaryBrowseApp(App[None]):
         self._details_content.update(self._format_entry_header(details))
         self._details_body_content.update(self._format_entry_body(details))
         self._populate_wright_sections(details)
+        if details.pos in _POS_WITHOUT_MORPHOLOGY:
+            self._morphology_table.clear(columns=True)
+            return
         morphology_rows = _dedupe_morphology_rows(
             _filter_morphology_rows_for_entry(
                 _morphology_rows_from_groups(details.morphology_groups),

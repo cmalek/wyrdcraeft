@@ -50,6 +50,42 @@ Out of scope:
 ## Canonical Terms
 
 - source text: raw input text, local file or supported remote source
+- lossless source-grounded AST: first-pass Bosworth-Toller parse output that
+  preserves source order, source text, and fragment boundaries before any
+  normalization or cleanup; later views may derive normalized dictionary data
+  from it
+- typed source fragment: one contiguous span from a dictionary source block
+  classified as a concrete source role such as headword, grammar, sense label,
+  gloss, attestation, editorial note, etymology, cross-reference, or explicit
+  unclassified remainder; together these fragments must account for all source
+  text in order
+- source witness: one concrete textual or image-backed source for a
+  Bosworth-Toller entry, such as current OCR text, corrected digital text,
+  scanned page image, or human correction layer
+- markdown witness: verbatim OCR output retained in Markdown form as a source
+  witness, with any block or span structure derived from it stored separately
+  so model-emitted formatting cues do not become canonical facts by accident
+- witness provenance: metadata attached to a source witness recording where it
+  came from, how it was produced, and how it maps to entry fragments, so built
+  entries retain raw supporting text instead of only normalized fields
+- witness-first review: human adjudication workflow that shows raw source
+  witnesses before or alongside parsed output, so reviewers can validate parser
+  claims against evidence instead of trusting normalized fields alone
+- page-region-line anchor: primary alignment scaffold for Bosworth-Toller
+  witness comparison, where scans, OCR outputs, and derived text blocks are
+  first tied to page, region, and line coordinates before headword or sense
+  extraction
+- case bundle: file-first prototype package for one difficult dictionary case,
+  containing source images, raw witnesses, anchor data, fragment adjudications,
+  and exported entry output without requiring database storage
+- shareable structured data: output and intermediate artifacts designed so
+  engineers and researchers can inspect, diff, reuse, and cite them outside the
+  product runtime; file-first bundles are preferred early because they travel
+  well across tools and institutions
+- adjudication overlay: human-authored YAML layer applied on top of machine
+  generated witness and parse JSON, preserving original output while recording
+  corrections, accept/reject decisions, fragment edits, and review notes in a
+  diffable form
 - document JSON: normalized structured output produced by ingestion
 - deterministic ingest: heuristic extraction path that does not call an LLM
 - TEI ingest: direct TEI/XML parsing path

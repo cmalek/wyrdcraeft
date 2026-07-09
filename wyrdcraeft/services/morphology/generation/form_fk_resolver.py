@@ -244,8 +244,9 @@ class FormFkResolver:
             ``PsPt`` or ``PaPt`` inherit the parent verb lemma assignment, as
             documented in ``data/OldEnglishGrammar.pdf`` and
             ``data/Ondej_Tich_40-54-1.pdf``. Adjective rows with
-            ``class1=weak`` map to catalog ``adj.weak``; other forms use
-            ``catalog_pos_from_wordclass`` before looking up
+            ``class1=weak`` map to catalog ``adj.weak``; adjective rows with
+            ``class1=strong`` map to catalog ``adj.strong.a_o_stem``; other
+            forms use ``catalog_pos_from_wordclass`` before looking up
             ``lemma_morph_classes``. Part-of-speech scope: ``cross-PoS``.
 
         Args:
@@ -276,10 +277,16 @@ class FormFkResolver:
         if catalog_pos is None:
             return None
 
-        if catalog_pos == "adjective" and class1.strip().casefold() == "weak":
-            weak_id = self._morph_class_ids_by_key.get("adj.weak")
-            if weak_id is not None:
-                return weak_id
+        if catalog_pos == "adjective":
+            class1_key = class1.strip().casefold()
+            if class1_key == "weak":
+                weak_id = self._morph_class_ids_by_key.get("adj.weak")
+                if weak_id is not None:
+                    return weak_id
+            if class1_key == "strong":
+                strong_id = self._morph_class_ids_by_key.get("adj.strong.a_o_stem")
+                if strong_id is not None:
+                    return strong_id
 
         pos_id = self._pos_ids_by_code.get(catalog_pos)
         if pos_id is None:

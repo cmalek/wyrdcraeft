@@ -606,6 +606,57 @@ async def test_browse_morphology_sidebar_groups_by_wordclass_and_function(
 
 
 @pytest.mark.anyio
+async def test_browse_prep_entry_leaves_morphology_table_empty(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="tō",
+        pos="preposition",
+        summary_sense="to, toward",
+    )
+    entry_id = _bt_entry_id(lexicon_source_db, norm_key="to")
+    prep_pos_id = _pos_id(lexicon_source_db, code="preposition")
+    with sqlite3.connect(lexicon_source_db) as connection:
+        dative_code_id = _insert_inflection_code(
+            connection,
+            code="dative singular",
+            pos_id=prep_pos_id,
+        )
+        connection.execute(
+            """
+            INSERT INTO forms (
+                counter, formi, BT, title, normalized_title, stem, form,
+                formParts, var, probability, comment,
+                bt_key, title_key, stem_key, form_key, formi_key,
+                entry_id, wordclass_id, inflection_code_id
+            ) VALUES (
+                0, 'to', 'to', 'tō', 'to', 'to', 'tō',
+                '0-to-0', '0', '0', '',
+                'to', 'to', 'to', 'to', 'to',
+                ?, ?, ?
+            )
+            """,
+            (entry_id, prep_pos_id, dative_code_id),
+        )
+        connection.commit()
+
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "to")
+
+            morphology_table = app.query_one("#morphology-table", DataTable)
+            assert _table_text(morphology_table) == ""
+            assert "No morphology rows linked." not in _table_text(morphology_table)
+
+            details_text = _details_text(app)
+            assert "POS: preposition" in details_text
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
 async def test_browse_oe_character_bar_inserts_into_search(
     lexicon_source_db: Path,
 ) -> None:

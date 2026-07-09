@@ -141,6 +141,36 @@ def test_build_noun_paradigm_grid_includes_instrumental_case() -> None:
     assert ("Inst", "by", "-") in sidebar.sections[0].rows
 
 
+def test_build_noun_paradigm_grid_falls_back_when_entry_gender_mismatches_forms() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="ge-līcan",
+                formi="gelican",
+                function="SgMaNo",
+                wordclass="noun",
+                class1="",
+                class2="",
+                class3="",
+            ),
+            MorphologyRowPayload(
+                form="ge-līcan",
+                formi="gelican",
+                function="SgMaGe",
+                wordclass="noun",
+                class1="",
+                class2="",
+                class3="",
+            ),
+        ],
+        wordclass="noun",
+        entry_genders=("f",),
+    )
+    assert sidebar.sections[0].title == "Noun"
+    assert sidebar.sections[0].rows[0] == ("Nom", "ge-līcan", "-")
+    assert sidebar.sections[0].rows[2] == ("Gen", "ge-līcan", "-")
+
+
 def test_format_verb_class_maps_strong_and_weak_labels() -> None:
     assert format_verb_class("s", "5", "f") == "Strong 5"
     assert format_verb_class("w", "2", "a") == "Weak II"
@@ -256,4 +286,62 @@ def test_build_verb_sidebar_accepts_lowercase_function_codes() -> None:
     assert any("eom" in cell for row in section.rows for cell in row)
     assert any("wæs" in cell for row in section.rows for cell in row)
     assert any("wesan" in cell for row in section.rows for cell in row)
+
+
+def test_build_verb_sidebar_places_ps_su_sg_on_subjunctive_sing_row() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="singe",
+                formi="singe",
+                function="PsSuSg",
+                wordclass="verb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+            MorphologyRowPayload(
+                form="sunge",
+                formi="sunge",
+                function="PaSuSg",
+                wordclass="verb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+        ],
+        wordclass="verb",
+    )
+    section = sidebar.sections[0]
+    subjunctive_sing_row = next(
+        row for row in section.rows if row[0] == "Subjunctive Sing" and row[1] == "1,2,3"
+    )
+    assert "singe" in subjunctive_sing_row[2]
+    assert "sunge" in subjunctive_sing_row[3]
+    subjunctive_pl_row = next(
+        row for row in section.rows if row[0] == "Subjunctive Pl" and row[1] == "1,2,3"
+    )
+    assert subjunctive_pl_row[2] == "-"
+    assert subjunctive_pl_row[3] == "-"
+
+
+def test_build_adverb_sidebar_decodes_superlative_su_code() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            MorphologyRowPayload(
+                form="wīdest",
+                formi="widest",
+                function="Su",
+                wordclass="adverb",
+                class1="",
+                class2="",
+                class3="",
+            ),
+        ],
+        wordclass="adverb",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Adverb"
+    superlative_row = next(row for row in section.rows if row[0] == "Superlative")
+    assert "wīdest" in superlative_row[1]
 

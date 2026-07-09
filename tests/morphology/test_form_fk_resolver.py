@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
-from collections.abc import Iterator
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from sqlalchemy import select
@@ -27,6 +28,9 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
 from wyrdcraeft.services.morphology.generation.form_fk_resolver import (
     FormFkResolver,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 pytestmark = pytest.mark.morphology
 
@@ -260,6 +264,37 @@ def test_resolve_morph_class_id_verbal_participle_uses_verb_assignment(
 
     assert resolver.resolve_morph_class_id("helpan", "verb", "PsPt") == expected_id
     assert resolver.resolve_morph_class_id("helpan", "verb", "PaPt") == expected_id
+
+
+def test_resolve_morph_class_id_strong_adjective_maps_to_strong_catalog_class(
+    resolver_db: tuple[Path, sqlite3.Connection],
+) -> None:
+    db_path, connection = resolver_db
+    engine = create_engine(db_path)
+    MorphologyCatalogLoader(engine).load_fixture(CATALOG_FIXTURE)
+    engine.dispose()
+    connection.commit()
+    resolver = FormFkResolver(connection=connection)
+
+    morph_class_id = resolver.resolve_morph_class_id(
+        "blind",
+        "adjective",
+        "SgMaSt",
+        class1="strong",
+    )
+    assert morph_class_id is not None
+    class_key, features_json = connection.execute(
+        """
+        SELECT class_key, features_json
+        FROM morph_classes
+        WHERE id = ?
+        """,
+        (morph_class_id,),
+    ).fetchone()
+    features = json.loads(features_json)
+
+    assert class_key == "adj.strong.a_o_stem"
+    assert features.get("strength") == "strong"
 
 
 def test_resolve_morph_class_id_returns_none_when_unassigned(

@@ -289,6 +289,8 @@ def decode_function_dimensions(  # noqa: PLR0911, PLR0913
             return decoded
         return {"function": code}
     if pos == "adverb":
+        if code == "Su":
+            return {"degree": "superlative"}
         if code in _DEGREE_LABELS:
             return {"degree": _label(_DEGREE_LABELS, code)}
         if code.startswith(("Po", "Co", "Sp")):
@@ -1073,7 +1075,9 @@ def _build_verb_sidebar(rows: list[MorphologyRowPayload]) -> ParadigmSidebarSpec
             if mood == "indicative":
                 row_label = "Indicative Pl"
             elif mood == "subjunctive":
-                row_label = "Subjunctive Pl"
+                row_label = (
+                    "Subjunctive Sing" if number == "singular" else "Subjunctive Pl"
+                )
             else:
                 row_label = mood.title()
             _append_surface(cells, (row_label, "1,2,3", tense), surface)
@@ -1124,29 +1128,30 @@ def _build_verb_sidebar(rows: list[MorphologyRowPayload]) -> ParadigmSidebarSpec
     )
 
 
-def _build_noun_sidebar(
+def _collect_noun_sidebar_cells(
     rows: list[MorphologyRowPayload],
     *,
-    entry_genders: tuple[str, ...],
-) -> ParadigmSidebarSpec:
+    allowed_genders: frozenset[str] | None = None,
+) -> dict[tuple[str, ...], set[str]]:
     """
-    Build the case-by-number noun declension grid.
+    Collect noun declension cells keyed by case and number labels.
 
     Args:
         rows: Noun morphology rows.
 
     Keyword Args:
-        entry_genders: Gender markers stored on the dictionary entry.
+        allowed_genders: Morphology gender codes to keep; ``None`` keeps all.
 
     Returns:
-        Noun sidebar specification.
+        Case/number cell map for noun sidebar rendering.
+
+    Note:
+        Per ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``,
+        noun paradigms are keyed by case and number; optional gender filtering
+        follows dictionary-entry gender tags when they agree with form codes.
+        PoS scope: ``noun``.
 
     """
-    allowed_genders = {
-        _gender_code_from_label(format_bt_gender_label(gender))
-        for gender in entry_genders
-        if gender.strip()
-    }
     cells: dict[tuple[str, ...], set[str]] = {}
     for row in rows:
         decoded = _decode_noun_like(row.function.strip())
@@ -1167,6 +1172,47 @@ def _build_noun_sidebar(
             (case_label, number_label),
             _surface_form(row.form, row.formi),
         )
+    return cells
+
+
+def _build_noun_sidebar(
+    rows: list[MorphologyRowPayload],
+    *,
+    entry_genders: tuple[str, ...],
+) -> ParadigmSidebarSpec:
+    """
+    Build the case-by-number noun declension grid.
+
+    Args:
+        rows: Noun morphology rows.
+
+    Keyword Args:
+        entry_genders: Gender markers stored on the dictionary entry.
+
+    Returns:
+        Noun sidebar specification.
+
+    Note:
+        Per ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``,
+        noun paradigms group surface forms by case and number. When entry gender
+        tags disagree with generated masculine/feminine/neuter form codes, the
+        grid falls back to unfiltered cells so mis-tagged lemmas still display.
+        PoS scope: ``noun``.
+
+    """
+    allowed_genders = frozenset(
+        {
+            _gender_code_from_label(format_bt_gender_label(gender))
+            for gender in entry_genders
+            if gender.strip()
+        }
+    )
+    cells = _collect_noun_sidebar_cells(
+        rows,
+        allowed_genders=allowed_genders or None,
+    )
+    if not cells and rows and allowed_genders:
+        cells = _collect_noun_sidebar_cells(rows)
     case_order: tuple[str, ...] = ("Nom", "Acc", "Gen", "Dat")
     if any(cells.get(("Inst", number)) for number in ("Singular", "Plural")):
         case_order = (*case_order, "Inst")
