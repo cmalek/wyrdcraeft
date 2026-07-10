@@ -13,6 +13,8 @@ Primary capabilities:
 - index and query Bosworth-Toller dictionary data
 - browse dictionary entries with linked morphology via `dictionary browse`
 - run Old English OCR workflows for source PDFs
+- prepare Bosworth-Toller JP2 scan witnesses into OCR-ready tiles and
+  provenance manifests (library-first)
 - load configuration for CLI and service behavior
 
 ## Boundary
@@ -27,6 +29,7 @@ In scope:
 - dictionary browse: query-time headword and variant search over Bosworth-Toller with morphology sidebar
 - diacritic restoration and curation
 - OCR pipeline support for Old English PDFs
+- BT-specific JP2 witness preparation for dense dictionary scans
 - CLI-first workflows with Python entrypoints underneath
 
 Out of scope:
@@ -45,6 +48,7 @@ Out of scope:
 | morphology | `wyrdcraeft morphology query` | `MorphologyQueryService`, `MorphologyCatalogQueryService` |
 | dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary query`, `wyrdcraeft dictionary browse`, `wyrdcraeft dictionary ingest-wright-text`, `wyrdcraeft dictionary audit-wright` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline`, `DictionaryBrowseQueryService`, `DictionaryBrowseApp`, `WrightSectionTextScreen`, `WrightSectionTextIngester`, `WrightAuditService`, `form_decode`, `OldEnglishSearchInput` |
 | ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
+| bt witness prep | library-first (no dedicated CLI yet) | `wyrdcraeft.services.ocr.bt_witness_prep.prepare_pages` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
 ## Canonical Terms
@@ -78,6 +82,9 @@ Out of scope:
 - case bundle: file-first prototype package for one difficult dictionary case,
   containing source images, raw witnesses, anchor data, fragment adjudications,
   and exported entry output without requiring database storage
+- starter case bundle: current in-repo prototype bundle under
+  `data/bt_cases/wesan/`, seeded to make the first Bosworth-Toller
+  lossless-first workflow concrete before broader parser work
 - shareable structured data: output and intermediate artifacts designed so
   engineers and researchers can inspect, diff, reuse, and cite them outside the
   product runtime; file-first bundles are preferred early because they travel
@@ -86,6 +93,18 @@ Out of scope:
   generated witness and parse JSON, preserving original output while recording
   corrections, accept/reject decisions, fragment edits, and review notes in a
   diffable form
+- BT dictionary structuring workflow: operator workflow for Bosworth-Toller
+  OCR structuring that starts from witness gathering, anchoring, raw fragment
+  sequencing, and overlay-based review inside a case bundle rather than going
+  straight to final dictionary rows; documented in
+  `doc/source/runbook/bt_dictionary_structuring_workflow.rst`
+- BT JP2 witness preparation: library-first Bosworth-Toller slice that turns
+  immutable JP2 scan pages into conservative preprocessed pages, overlapping
+  four-tile OCR witnesses, quality-scored manifests, and page-region anchor
+  seeds; stops before OCR text becomes canonical truth; entrypoint
+  `wyrdcraeft.services.ocr.bt_witness_prep.prepare_pages`; docs in
+  `doc/source/overview/bt_ocr_witness_preparation.rst` and
+  `doc/source/overview/bt_ocr_witness_preparation_method.rst`
 - document JSON: normalized structured output produced by ingestion
 - deterministic ingest: heuristic extraction path that does not call an LLM
 - TEI ingest: direct TEI/XML parsing path
@@ -387,7 +406,16 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 
 `wyrdcraeft.cli.ocr:old_english_ocr` -> `run_old_english_ocr_pipeline` -> managed proxy / `olmocr` run -> normalized text and unknown-token report
 
-## Sharp Edges
+### BT JP2 witness preparation
+
+`prepare_pages(BTWitnessPrepInput)` -> enumerate JP2 pages -> conservative
+preprocess -> fixed four-tile split (or explicit fallback) -> tile quality
+scoring -> `manifests/pages.jsonl`, `manifests/tiles.jsonl`,
+`anchors/anchor_seeds.jsonl`
+
+Stage B recipe checks use
+`scripts/ocr/benchmark_bt_witness_prep.py` plus helpers in
+`wyrdcraeft.services.ocr.bt_witness_prep.validation`.
 
 - Morphology generation writes real app-data `wyrdcraeft.sqlite3` by default
   through batched SQLAlchemy-backed `forms` persistence (25K-row bulk inserts
@@ -429,6 +457,9 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
   scrollable details and morphology panes share the right column below the
   search bar.
 - OCR `--pages` is currently not supported in `olmocr` mode.
+- BT JP2 witness prep is library-first and JP2-only; it does not mutate case
+  bundles and does not treat OCR text as canonical truth. Non-standard pages
+  must emit explicit fallback status instead of silent forced tiling.
 - Diacritic workflows use packaged JSON/TXT data under `wyrdcraeft/etc/diacritic`.
 - Settings docs in Sphinx are not always current; prefer code in `wyrdcraeft/settings.py` and CLI wiring in `wyrdcraeft/cli/cli.py`.
 - TODO: add a real primary key or uniqueness constraint to `bt_variants` in a
@@ -449,6 +480,9 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 - [0001: Lexicon data lives in morphology.sqlite3](docs/adr/0001-lexicon-data-lives-in-morphology-db.md)
   — **historical**; superseded by the canonical `wyrdcraeft.sqlite3` migration
   (Phases 1–8) and the unified dictionary workflow (Phase B).
+- [0004: BT OCR parsing starts with lossless source-grounded AST](docs/adr/0004-bt-ocr-parsing-starts-with-lossless-source-grounded-ast.md)
+- [0005: BT source acquisition uses multi-witness download set](docs/adr/0005-bt-source-acquisition-uses-multi-witness-download-set.md)
+- [0006: BT JP2 witness preparation is library-first](docs/adr/0006-bt-jp2-witness-preparation-is-library-first.md)
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.
