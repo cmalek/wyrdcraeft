@@ -23,6 +23,8 @@ def test_enumerate_source_pages_finds_jp2_in_stable_sorted_order() -> None:
         "BT 0002.jp2",
         "BT 0007.jp2",
         "BT 0010.jp2",
+        "anglosaxondictio00bosw_0142.jp2",
+        "anglosaxondictio00bosw_0397.jp2",
     ]
 
 
@@ -30,14 +32,33 @@ def test_enumerate_source_pages_ignores_unsupported_files() -> None:
     pages = enumerate_source_pages(FIXTURE_DIR, RECIPE_ID)
 
     names = {page.source_path.name for page in pages}
-    assert names == {"BT 0002.jp2", "BT 0007.jp2", "BT 0010.jp2"}
+    assert names == {
+        "BT 0002.jp2",
+        "BT 0007.jp2",
+        "BT 0010.jp2",
+        "anglosaxondictio00bosw_0142.jp2",
+        "anglosaxondictio00bosw_0397.jp2",
+    }
 
 
 def test_enumerate_source_pages_derives_page_ids_from_filenames() -> None:
     pages = enumerate_source_pages(FIXTURE_DIR, RECIPE_ID)
 
-    assert [page.page_id for page in pages] == ["bt-0002", "bt-0007", "bt-0010"]
+    assert [page.page_id for page in pages] == [
+        "bt-0002",
+        "bt-0007",
+        "bt-0010",
+        "anglosaxondictio00bosw-0142",
+        "anglosaxondictio00bosw-0397",
+    ]
     assert all(page.page_id == BTSourcePage.page_id_for(page.source_path) for page in pages)
+
+
+def test_page_id_for_normalizes_underscores_to_hyphens() -> None:
+    assert (
+        BTSourcePage.page_id_for(Path("anglosaxondictio00bosw_0142.jp2"))
+        == "anglosaxondictio00bosw-0142"
+    )
 
 
 def test_enumerate_source_pages_stamps_recipe_id_and_dimensions(

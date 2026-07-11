@@ -35,15 +35,19 @@ def test_prepare_pages_runs_end_to_end_pipeline(tmp_path: Path) -> None:
         "bt-0002",
         "bt-0007",
         "bt-0010",
+        "anglosaxondictio00bosw-0142",
+        "anglosaxondictio00bosw-0397",
     ]
-    assert len(run.preprocessed_pages) == 3
-    assert len(run.tiles) == 9
-    assert len(run.anchor_seeds) == 9
+    assert len(run.preprocessed_pages) == 5
+    assert len(run.tiles) == 11
+    assert len(run.anchor_seeds) == 11
 
     pages_by_id = {page.page_id: page for page in run.preprocessed_pages}
     assert pages_by_id["bt-0002"].status == "fallback_whole_page_only"
     assert pages_by_id["bt-0007"].status == "ready"
     assert pages_by_id["bt-0010"].status == "ready"
+    assert pages_by_id["anglosaxondictio00bosw-0142"].status == "fallback_whole_page_only"
+    assert pages_by_id["anglosaxondictio00bosw-0397"].status == "fallback_whole_page_only"
 
     tiles_by_page: dict[str, list] = {}
     for tile in run.tiles:
@@ -52,6 +56,8 @@ def test_prepare_pages_runs_end_to_end_pipeline(tmp_path: Path) -> None:
     assert len(tiles_by_page["bt-0002"]) == 1
     assert tiles_by_page["bt-0002"][0].quality.status == "fallback"
     assert tiles_by_page["bt-0002"][0].quality.composite_score is None
+    assert len(tiles_by_page["anglosaxondictio00bosw-0142"]) == 1
+    assert len(tiles_by_page["anglosaxondictio00bosw-0397"]) == 1
 
     assert len(tiles_by_page["bt-0007"]) == 4
     assert len(tiles_by_page["bt-0010"]) == 4
@@ -80,8 +86,12 @@ def test_prepare_pages_runs_end_to_end_pipeline(tmp_path: Path) -> None:
         .read_text(encoding="utf-8")
         .splitlines()
     ]
-    assert len(page_rows) == 3
-    assert len(tile_rows) == 9
-    assert page_rows[0]["page_id"] == "bt-0002"
-    assert page_rows[0]["status"] == "fallback_whole_page_only"
-    assert tile_rows[0]["quality"]["status"] == "fallback"
+    assert len(page_rows) == 5
+    assert len(tile_rows) == 11
+    pages_by_manifest_id = {row["page_id"]: row for row in page_rows}
+    assert pages_by_manifest_id["bt-0002"]["status"] == "fallback_whole_page_only"
+    assert pages_by_manifest_id["anglosaxondictio00bosw-0142"]["status"] == (
+        "fallback_whole_page_only"
+    )
+    assert any(row["quality"]["status"] == "fallback" for row in tile_rows)
+    assert any(row["quality"]["status"] == "ready" for row in tile_rows)

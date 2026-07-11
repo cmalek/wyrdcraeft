@@ -15,7 +15,8 @@ def format_page_id(source_path_or_stem: Path | str) -> str:
         source_path_or_stem: Source scan path or bare filename stem.
 
     Returns:
-        Lowercase slug derived from the filename stem.
+        Lowercase slug derived from the filename stem, with spaces and
+        underscores normalized to hyphens.
 
     """
     if isinstance(source_path_or_stem, Path):
@@ -23,7 +24,7 @@ def format_page_id(source_path_or_stem: Path | str) -> str:
     else:
         path = Path(source_path_or_stem)
         stem = path.stem if path.suffix else source_path_or_stem
-    return stem.lower().replace(" ", "-")
+    return stem.lower().replace(" ", "-").replace("_", "-")
 
 
 def format_tile_id(page_id: str, column: int, part: int) -> str:

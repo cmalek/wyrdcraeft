@@ -203,3 +203,39 @@ def test_run_benchmark_live_arms_use_distinct_image_inputs(
     assert summary["baseline_arm"]["kind"] == "raw_whole_page"
     assert summary["candidate_arm"]["kind"] == "prepared_tiles_concatenated"
     assert summary["page_arm_metadata"][0]["candidate_tile_count"] == 4
+
+
+def test_full_validation_fixture_supports_live_five_page_pairing(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.ocr.bt_witness_prep import (
+        BTWitnessPrepInput,
+        prepare_pages,
+    )
+    from wyrdcraeft.services.ocr.bt_witness_prep.validation import (
+        load_validation_manifest,
+    )
+
+    fixture_dir = (
+        Path(__file__).resolve().parents[1] / "fixtures" / "ocr" / "bt_witness_prep"
+    )
+    manifest = load_validation_manifest(fixture_dir / "validation_manifest.json")
+    prep_dir = tmp_path / "prep"
+    prepare_pages(
+        BTWitnessPrepInput(
+            source_dir=fixture_dir,
+            output_dir=prep_dir,
+            recipe_id="bt-two-column-v1",
+        ),
+    )
+    baseline_images = benchmark.materialize_baseline_pages(
+        manifest,
+        fixture_dir,
+        tmp_path / "baseline_pages",
+    )
+
+    assert set(baseline_images) == {page.page_id for page in manifest.pages}
+    for page in manifest.pages:
+        tiles = benchmark.discover_candidate_tile_images(prep_dir, page.page_id)
+        assert tiles
+        assert baseline_images[page.page_id].is_file()

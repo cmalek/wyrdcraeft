@@ -74,6 +74,19 @@ def test_validation_manifest_page_ids_are_unique(
     assert len(page_ids) == len(set(page_ids))
 
 
+def test_validation_manifest_source_files_exist_and_match_page_ids(
+    manifest: BTValidationManifest,
+) -> None:
+    from wyrdcraeft.services.ocr.bt_witness_prep.models import BTSourcePage
+
+    for page in manifest.pages:
+        source_path = FIXTURE_DIR / page.source_filename
+        assert source_path.is_file(), (
+            f"missing source for {page.page_id}: {source_path}"
+        )
+        assert BTSourcePage.page_id_for(source_path) == page.page_id
+
+
 def test_diacritic_sensitive_cer_is_zero_for_identical_text() -> None:
     reference = "Ðīn abal and cræft thy strength and power"
 
