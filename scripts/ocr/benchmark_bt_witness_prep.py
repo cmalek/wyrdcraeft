@@ -3,10 +3,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
+
+from PIL import Image
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -16,9 +18,12 @@ from wyrdcraeft.services.ocr.bt_witness_prep import (
     BTWitnessPrepInput,
     prepare_pages,
 )
+from wyrdcraeft.services.ocr.bt_witness_prep.manifest import TILES_MANIFEST_REL
+from wyrdcraeft.services.ocr.bt_witness_prep.pipeline import TILES_OUTPUT_DIR
 from wyrdcraeft.services.ocr.bt_witness_prep.validation import (
     STAGE_B_RULE_DESCRIPTION,
     BTRecipeStageBComparison,
+    BTValidationManifest,
     evaluate_stage_b_recipe,
     load_validation_manifest,
 )
@@ -39,6 +44,13 @@ DEFAULT_MANIFEST_DIR = DEFAULT_MANIFEST.parent
 DEFAULT_RECIPE_ID = "bt-two-column-v1"
 #: Callable signature for injectable OCR runners in tests and offline runs.
 OCRRunner = Callable[[Path, Path], str]
+#: Candidate tile geometry suffixes in reading order for ready pages.
+CANDIDATE_TILE_READING_ORDER = (
+    "col-1-part-1",
+    "col-1-part-2",
+    "col-2-part-1",
+    "col-2-part-2",
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -114,7 +126,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--ocr-input-dir",
         type=Path,
         default=None,
-        help="Image directory used when live OCR is enabled.",
+        help=(
+            "Deprecated for Stage B live pairing; baseline images are rendered "
+            "from --source-dir via validation_manifest source_filename."
+        ),
     )
     parser.add_argument(
         "--ocr-output-dir",
@@ -123,6 +138,137 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Workspace root for live OCR runs when --skip-ocr is not set.",
     )
     return parser.parse_args(argv)
+
+
+def materialize_baseline_pages(
+    manifest: BTValidationManifest,
+    source_dir: Path,
+    output_dir: Path,
+) -> dict[str, Path]:
+    """
+    Render raw whole-page baseline PNGs from validation source JP2 files.
+
+    Side Effects:
+        Creates ``output_dir`` and writes one PNG per validation page.
+
+    Args:
+        manifest: Validation manifest whose ``source_filename`` values select
+            baseline inputs.
+        source_dir: Directory containing raw JP2 (or other scan) source pages.
+        output_dir: Destination directory for ``<page_id>.png`` baseline images.
+
+    Returns:
+        Baseline image paths keyed by manifest ``page_id``.
+
+    Raises:
+        FileNotFoundError: When a manifest ``source_filename`` is missing under
+            ``source_dir``.
+
+    """
+    resolved_source = source_dir.resolve()
+    resolved_output = output_dir.resolve()
+    resolved_output.mkdir(parents=True, exist_ok=True)
+
+    baseline_paths: dict[str, Path] = {}
+    for page in manifest.pages:
+        source_path = resolved_source / page.source_filename
+        if not source_path.is_file():
+            message = (
+                f"missing baseline source for {page.page_id}: "
+                f"{source_path} (from source_filename={page.source_filename!r})"
+            )
+            raise FileNotFoundError(message)
+        image_path = resolved_output / f"{page.page_id}.png"
+        with Image.open(source_path) as image:
+            image.convert("RGB").save(image_path, format="PNG")
+        baseline_paths[page.page_id] = image_path
+    return baseline_paths
+
+
+def discover_candidate_tile_images(
+    prep_output_dir: Path,
+    page_id: str,
+) -> list[Path]:
+    """
+    Discover prepared candidate tile images for one page in reading order.
+
+    Args:
+        prep_output_dir: ``prepare_pages()`` workspace containing ``tiles/``.
+        page_id: Validation page id whose tiles should be collected.
+
+    Returns:
+        Tile image paths in reading order, or one whole-page fallback tile.
+
+    Raises:
+        FileNotFoundError: When no prepared tile images exist for ``page_id``.
+
+    """
+    tiles_dir = prep_output_dir.resolve() / TILES_OUTPUT_DIR
+    ordered: list[Path] = []
+    for geometry in CANDIDATE_TILE_READING_ORDER:
+        candidate = tiles_dir / f"{page_id}-{geometry}.png"
+        if candidate.is_file():
+            ordered.append(candidate)
+    if ordered:
+        return ordered
+
+    fallback = tiles_dir / f"{page_id}-whole-page.png"
+    if fallback.is_file():
+        return [fallback]
+
+    message = f"no prepared candidate tiles for {page_id} under {tiles_dir}"
+    raise FileNotFoundError(message)
+
+
+def concatenate_candidate_ocr_texts(tile_texts: Sequence[str]) -> str:
+    """
+    Join per-tile OCR texts into one page-level candidate witness.
+
+    Args:
+        tile_texts: OCR texts for one page's tiles in reading order.
+
+    Returns:
+        Page-level candidate text with blank-line separators between tiles.
+
+    """
+    parts = [text.strip() for text in tile_texts if text.strip()]
+    if not parts:
+        return ""
+    return "\n\n".join(parts) + "\n"
+
+
+def run_candidate_page_ocr(
+    tile_paths: Sequence[Path],
+    output_dir: Path,
+    *,
+    skip_ocr: bool = False,
+    ocr_runner: OCRRunner | None = None,
+) -> str:
+    """
+    OCR prepared candidate tiles and concatenate them page-wise.
+
+    Args:
+        tile_paths: Candidate tile images in reading order.
+        output_dir: Workspace directory for per-tile OCR outputs.
+
+    Keyword Args:
+        skip_ocr: When ``True``, reuse cached OCR outputs when present.
+        ocr_runner: Injectable OCR runner for tests or custom integrations.
+
+    Returns:
+        Page-level candidate OCR text.
+
+    """
+    tile_texts = [
+        run_page_ocr(
+            tile_path,
+            output_dir / f"tile-{index:02d}",
+            skip_ocr=skip_ocr,
+            ocr_runner=ocr_runner,
+        )
+        for index, tile_path in enumerate(tile_paths)
+    ]
+    return concatenate_candidate_ocr_texts(tile_texts)
 
 
 def load_hypothesis_dir(
@@ -214,7 +360,7 @@ def collect_guardrail_flags(prep_output_dir: Path | None) -> dict[str, bool]:
     if prep_output_dir is None:
         return {}
 
-    tiles_manifest = prep_output_dir / "tiles.jsonl"
+    tiles_manifest = prep_output_dir / TILES_MANIFEST_REL
     if not tiles_manifest.is_file():
         return {}
 
@@ -239,6 +385,9 @@ def build_stage_b_summary(  # noqa: PLR0913
     candidate_hypotheses: dict[str, str],
     guardrail_flags: dict[str, bool] | None = None,
     ocr_mode: str,
+    baseline_arm: dict[str, Any] | None = None,
+    candidate_arm: dict[str, Any] | None = None,
+    page_arm_metadata: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """
     Build one Stage B benchmark summary payload.
@@ -253,6 +402,9 @@ def build_stage_b_summary(  # noqa: PLR0913
     Keyword Args:
         guardrail_flags: Optional small-component guardrail flags keyed by page id.
         ocr_mode: OCR execution mode recorded in the summary.
+        baseline_arm: Optional provenance metadata for the baseline OCR arm.
+        candidate_arm: Optional provenance metadata for the candidate OCR arm.
+        page_arm_metadata: Optional per-page image provenance rows.
 
     Returns:
         JSON-serializable benchmark summary with pass rule and ranking fields.
@@ -267,7 +419,7 @@ def build_stage_b_summary(  # noqa: PLR0913
         candidate_hypotheses=candidate_hypotheses,
         small_component_guardrail_by_page=guardrail_flags,
     )
-    return {
+    summary: dict[str, Any] = {
         "manifest": str(manifest_path),
         "manifest_dir": str(manifest_dir),
         "recipe_id": recipe_id,
@@ -276,6 +428,13 @@ def build_stage_b_summary(  # noqa: PLR0913
         "ranking": rank_stage_b_results((comparison,)),
         "comparison": asdict(comparison),
     }
+    if baseline_arm is not None:
+        summary["baseline_arm"] = baseline_arm
+    if candidate_arm is not None:
+        summary["candidate_arm"] = candidate_arm
+    if page_arm_metadata is not None:
+        summary["page_arm_metadata"] = page_arm_metadata
+    return summary
 
 
 def rank_stage_b_results(
@@ -315,12 +474,19 @@ def rank_stage_b_results(
     ]
 
 
-def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
+def run_benchmark(
+    args: argparse.Namespace,
+    *,
+    ocr_runner: OCRRunner | None = None,
+) -> dict[str, Any]:
     """
     Execute one Stage B benchmark run from parsed CLI arguments.
 
     Args:
         args: Parsed benchmark CLI namespace.
+
+    Keyword Args:
+        ocr_runner: Injectable OCR runner for tests; live mode only.
 
     Returns:
         JSON-serializable benchmark summary.
@@ -352,6 +518,10 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             ),
         )
 
+    baseline_arm: dict[str, Any] | None = None
+    candidate_arm: dict[str, Any] | None = None
+    page_arm_metadata: list[dict[str, Any]] | None = None
+
     if args.skip_ocr:
         if args.baseline_dir is None or args.candidate_dir is None:
             message = "--baseline-dir and --candidate-dir are required with --skip-ocr"
@@ -366,25 +536,64 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         )
         ocr_mode = "offline_pre_supplied_text"
     else:
-        if args.ocr_input_dir is None or args.ocr_output_dir is None:
+        if args.ocr_output_dir is None:
             message = (
-                "Live OCR requires --ocr-input-dir and --ocr-output-dir, or use "
-                "--skip-ocr with pre-supplied text directories."
+                "Live OCR requires --ocr-output-dir, or use --skip-ocr with "
+                "pre-supplied text directories."
             )
             raise RuntimeError(message)
-        baseline_hypotheses = {
-            page_id: run_page_ocr(
-                args.ocr_input_dir.resolve() / f"{page_id}.png",
-                args.ocr_output_dir.resolve() / "baseline" / page_id,
+        if args.source_dir is None:
+            message = (
+                "Live OCR requires --source-dir so baseline pages can be "
+                "rendered from validation_manifest source_filename values."
             )
-            for page_id in page_ids
+            raise RuntimeError(message)
+        if prep_output_dir is None:
+            message = (
+                "Live OCR requires --prepare-output-dir with prepared candidate "
+                "tiles from prepare_pages()."
+            )
+            raise RuntimeError(message)
+
+        ocr_output_dir = args.ocr_output_dir.resolve()
+        baseline_image_dir = ocr_output_dir / "baseline_pages"
+        baseline_images = materialize_baseline_pages(
+            manifest,
+            args.source_dir.resolve(),
+            baseline_image_dir,
+        )
+        baseline_hypotheses = {}
+        candidate_hypotheses = {}
+        page_arm_metadata = []
+        for page in manifest.pages:
+            page_id = page.page_id
+            baseline_image = baseline_images[page_id]
+            baseline_hypotheses[page_id] = run_page_ocr(
+                baseline_image,
+                ocr_output_dir / "baseline" / page_id,
+                ocr_runner=ocr_runner,
+            )
+            tile_paths = discover_candidate_tile_images(prep_output_dir, page_id)
+            candidate_hypotheses[page_id] = run_candidate_page_ocr(
+                tile_paths,
+                ocr_output_dir / "candidate" / page_id,
+                ocr_runner=ocr_runner,
+            )
+            page_arm_metadata.append(
+                {
+                    "page_id": page_id,
+                    "baseline_image_path": str(baseline_image),
+                    "candidate_image_paths": [str(path) for path in tile_paths],
+                    "candidate_tile_count": len(tile_paths),
+                },
+            )
+        baseline_arm = {
+            "kind": "raw_whole_page",
+            "image_dir": str(baseline_image_dir),
         }
-        candidate_hypotheses = {
-            page_id: run_page_ocr(
-                args.ocr_input_dir.resolve() / f"{page_id}.png",
-                args.ocr_output_dir.resolve() / "candidate" / page_id,
-            )
-            for page_id in page_ids
+        candidate_arm = {
+            "kind": "prepared_tiles_concatenated",
+            "workspace_dir": str(prep_output_dir),
         }
         ocr_mode = "live_olmocr"
 
@@ -396,6 +605,9 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         candidate_hypotheses=candidate_hypotheses,
         guardrail_flags=collect_guardrail_flags(prep_output_dir),
         ocr_mode=ocr_mode,
+        baseline_arm=baseline_arm,
+        candidate_arm=candidate_arm,
+        page_arm_metadata=page_arm_metadata,
     )
 
 

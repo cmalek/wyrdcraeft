@@ -96,3 +96,70 @@ def test_live_ocr_pipeline_meets_quality_thresholds(
     assert metrics["thorn_to_p_rate"] <= thresholds["max_thorn_to_p_rate"], metrics
     assert thorn_recall >= thresholds["min_thorn_recall"], metrics
     assert metrics["macron_recall"] >= thresholds["min_macron_recall"], metrics
+
+
+@pytest.mark.ocr_integration
+def test_bt_witness_prep_live_stage_b_arms_use_distinct_inputs(
+    ensure_llama_server,  # noqa: ARG001
+    temp_dir: Path,
+) -> None:
+    """Gated smoke: baseline raw page and candidate tile are distinct OCR inputs."""
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[1]
+    script_dir = repo_root / "scripts" / "ocr"
+    if str(script_dir) not in sys.path:
+        sys.path.insert(0, str(script_dir))
+    import benchmark_bt_witness_prep as benchmark
+
+    from wyrdcraeft.services.ocr.bt_witness_prep import (
+        BTWitnessPrepInput,
+        prepare_pages,
+    )
+    from wyrdcraeft.services.ocr.bt_witness_prep.validation import (
+        BTValidationManifest,
+        BTValidationPage,
+    )
+
+    fixture_dir = repo_root / "tests/fixtures/ocr/bt_witness_prep"
+    prep_dir = temp_dir / "prep"
+    prepare_pages(
+        BTWitnessPrepInput(
+            source_dir=fixture_dir,
+            output_dir=prep_dir,
+            recipe_id="bt-two-column-v1",
+        ),
+    )
+    page_id = "bt-0002"
+    manifest = BTValidationManifest(
+        pages=(
+            BTValidationPage(
+                page_id=page_id,
+                source_filename="BT 0002.jp2",
+                classification="standard_dense",
+                comparison_witness_available=False,
+            ),
+        ),
+    )
+    baseline_dir = temp_dir / "baseline_pages"
+    baseline_images = benchmark.materialize_baseline_pages(
+        manifest,
+        fixture_dir,
+        baseline_dir,
+    )
+    tile_paths = benchmark.discover_candidate_tile_images(prep_dir, page_id)
+    baseline_path = baseline_images[page_id]
+
+    assert baseline_path.resolve() != tile_paths[0].resolve()
+
+    baseline_text = benchmark.run_page_ocr(
+        baseline_path,
+        temp_dir / "ocr" / "baseline" / page_id,
+    )
+    candidate_text = benchmark.run_candidate_page_ocr(
+        tile_paths,
+        temp_dir / "ocr" / "candidate" / page_id,
+    )
+
+    assert baseline_text.strip()
+    assert candidate_text.strip()

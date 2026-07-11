@@ -190,3 +190,52 @@ def test_evaluate_stage_b_recipe_pairs_baseline_and_candidate_texts(
     assert len(result.pages) == 5
     assert result.pages[0].baseline_cer is not None
     assert result.pages[0].candidate_cer is not None
+
+
+def test_evaluate_stage_b_recipe_accepts_stitched_candidate_page_text(
+    manifest: BTValidationManifest,
+) -> None:
+    page = next(page for page in manifest.pages if page.page_id == "bt-0002")
+    reference = load_comparison_witness(FIXTURE_DIR, page)
+    assert reference is not None
+
+    # ponytail: page-level CER only; tile concat is benchmark-script concern
+    baseline_text = reference.replace("Ð", "D").replace("ī", "i")
+    tile_a, tile_b = reference[: len(reference) // 2], reference[len(reference) // 2 :]
+    stitched_candidate = f"{tile_a.strip()}\n\n{tile_b.strip()}\n"
+
+    result = evaluate_stage_b_recipe(
+        recipe_id="bt-two-column-v1",
+        manifest=BTValidationManifest(pages=(page,)),
+        manifest_dir=FIXTURE_DIR,
+        baseline_hypotheses={page.page_id: baseline_text},
+        candidate_hypotheses={page.page_id: stitched_candidate},
+        small_component_guardrail_by_page={page.page_id: False},
+    )
+
+    assert result.pages[0].baseline_cer is not None
+    assert result.pages[0].candidate_cer is not None
+    assert result.pages[0].candidate_cer < result.pages[0].baseline_cer
+
+
+def test_evaluate_stage_b_recipe_keeps_none_metrics_without_comparison_witness(
+    manifest: BTValidationManifest,
+) -> None:
+    page = next(
+        page for page in manifest.pages if not page.comparison_witness_available
+    )
+
+    result = evaluate_stage_b_recipe(
+        recipe_id="bt-two-column-v1",
+        manifest=BTValidationManifest(pages=(page,)),
+        manifest_dir=FIXTURE_DIR,
+        baseline_hypotheses={},
+        candidate_hypotheses={},
+        small_component_guardrail_by_page={page.page_id: True},
+    )
+
+    assert result.pages[0].baseline_cer is None
+    assert result.pages[0].candidate_cer is None
+    assert result.pages[0].historical_char_exact_match_rate is None
+    assert result.pages[0].small_component_guardrail_failed is True
+    assert result.small_component_guardrail_failed is True
