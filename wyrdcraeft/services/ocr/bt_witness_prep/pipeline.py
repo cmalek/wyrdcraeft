@@ -213,12 +213,7 @@ def prepare_pages(input_config: BTWitnessPrepInput) -> BTWitnessPrepRun:
 
     """
     recipe = BTPreprocessRecipe.conservative_default(input_config.recipe_id)
-    tiling_config = BTTilingConfig.standard_two_column()
-    if input_config.overlap_px is not None:
-        tiling_config = replace(tiling_config, overlap_px=input_config.overlap_px)
-    return BTWitnessPrepPipeline(recipe=recipe, tiling_config=tiling_config).prepare(
-        input_config,
-    )
+    return BTWitnessPrepPipeline(recipe=recipe).prepare(input_config)
 
 
 def _filter_source_pages(
@@ -249,6 +244,9 @@ def _filter_source_pages(
         allowed = {page_id.strip().lower() for page_id in page_ids if page_id.strip()}
         filtered = [page for page in filtered if page.page_id in allowed]
     if limit is not None:
+        if limit < 1:
+            message = "limit must be at least 1"
+            raise ValueError(message)
         filtered = filtered[:limit]
     if not filtered:
         if page_ids is not None:

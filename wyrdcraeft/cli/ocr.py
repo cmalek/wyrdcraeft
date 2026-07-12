@@ -490,7 +490,7 @@ def bosworth_toller_ocr(  # noqa: PLR0913
     overlap_px: int,
     pages: str | None,
     limit: int | None,
-    prep_only: bool,  # noqa: ARG001
+    prep_only: bool,  # noqa: ARG001  # Phase 2: gates --ocr stage
     force: bool,
 ) -> None:
     """

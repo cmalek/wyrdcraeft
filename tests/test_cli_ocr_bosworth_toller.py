@@ -17,10 +17,7 @@ from wyrdcraeft.services.ocr.bt_witness_prep import (
     BTWitnessPrepRun,
     prepare_pages,
 )
-from wyrdcraeft.services.ocr.bt_witness_prep.manifest import (
-    PAGES_MANIFEST_REL,
-    TILES_MANIFEST_REL,
-)
+from wyrdcraeft.services.ocr.bt_witness_prep.manifest import TILES_MANIFEST_REL
 from wyrdcraeft.services.ocr.bt_witness_prep.pipeline import _filter_source_pages
 from wyrdcraeft.services.ocr.bt_witness_prep.source import BTSourcePageEnumerator
 
@@ -79,6 +76,33 @@ def test_bosworth_toller_default_prep(mock_orchestrator_cls, runner, tmp_path) -
     assert "Bosworth-Toller witness prep complete." in result.output
 
 
+@patch("wyrdcraeft.cli.ocr.BTWitnessOCROrchestrator")
+def test_bosworth_toller_passes_overlap_px(mock_orchestrator_cls, runner, tmp_path) -> None:
+    mock_orchestrator = mock_orchestrator_cls.return_value
+    mock_run = MagicMock(spec=BTWitnessPrepRun)
+    mock_run.preprocessed_pages = ()
+    mock_run.tiles = ()
+    mock_orchestrator.run_prep.return_value = mock_run
+
+    result = runner.invoke(
+        cli,
+        [
+            "ocr",
+            "bosworth-toller",
+            "--source-dir",
+            str(FIXTURE_DIR),
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--overlap-px",
+            "40",
+        ],
+    )
+
+    assert result.exit_code == 0
+    config = mock_orchestrator.run_prep.call_args.args[0]
+    assert config.overlap_px == 40
+
+
 def test_bosworth_toller_passes_page_filter_and_force(runner, tmp_path) -> None:
     with patch("wyrdcraeft.cli.ocr.BTWitnessOCROrchestrator") as mock_cls:
         mock_orchestrator = mock_cls.return_value
@@ -134,7 +158,21 @@ def test_bosworth_toller_surfaces_prep_errors(runner, tmp_path) -> None:
 def test_orchestrator_refuses_nonempty_output_without_force(tmp_path) -> None:
     output_dir = tmp_path / "prep"
     (output_dir / "manifests").mkdir(parents=True)
-    (output_dir / PAGES_MANIFEST_REL).write_text("{}\n", encoding="utf-8")
+
+    orchestrator = BTWitnessOCROrchestrator()
+    config = BTWitnessOCRConfig(
+        source_dir=FIXTURE_DIR,
+        output_dir=output_dir,
+        force=False,
+    )
+
+    with pytest.raises(RuntimeError, match="--force"):
+        orchestrator.run_prep(config)
+
+
+def test_orchestrator_refuses_existing_tiles_dir_without_force(tmp_path) -> None:
+    output_dir = tmp_path / "prep"
+    (output_dir / "tiles").mkdir(parents=True)
 
     orchestrator = BTWitnessOCROrchestrator()
     config = BTWitnessOCRConfig(
@@ -210,6 +248,28 @@ def test_filter_source_pages_applies_limit_after_page_ids() -> None:
     )
 
     assert [page.page_id for page in filtered] == ["bt-0007"]
+
+
+def test_bosworth_toller_zero_page_filter_raises_click_exception(
+    runner,
+    tmp_path,
+) -> None:
+    result = runner.invoke(
+        cli,
+        [
+            "ocr",
+            "bosworth-toller",
+            "--source-dir",
+            str(FIXTURE_DIR),
+            "--output-dir",
+            str(tmp_path / "out"),
+            "--pages",
+            "bt-missing",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "bt-missing" in result.output
 
 
 def test_filter_source_pages_zero_match_raises() -> None:

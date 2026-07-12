@@ -6,10 +6,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from wyrdcraeft.services.ocr.bt_witness_prep.manifest import (
-    PAGES_MANIFEST_REL,
-    TILES_MANIFEST_REL,
-)
 from wyrdcraeft.services.ocr.bt_witness_prep.models import (
     BTWitnessPrepInput,
     BTWitnessPrepRun,
@@ -24,6 +20,8 @@ DEFAULT_BT_OUTPUT_DIR = Path("data/ocr/bosworth-toller/prep")
 DEFAULT_BT_RECIPE_ID = "bt-two-column-v1"
 #: Default vertical overlap between upper and lower column halves.
 DEFAULT_BT_OVERLAP_PX = 30
+#: Callable that executes one witness-prep run.
+_PrepRunner = Callable[[BTWitnessPrepInput], BTWitnessPrepRun]
 
 
 @dataclass(frozen=True)
@@ -128,15 +126,9 @@ class BTWitnessOCROrchestrator:
             return
 
         resolved = output_dir.resolve()
-        pages_manifest = resolved / PAGES_MANIFEST_REL
-        tiles_manifest = resolved / TILES_MANIFEST_REL
-        if pages_manifest.exists() or tiles_manifest.exists():
+        if (resolved / "manifests").is_dir() or (resolved / "tiles").is_dir():
             message = (
                 "Witness-prep output directory already contains prep artifacts: "
                 f"{resolved}. Use --force or choose a fresh --output-dir."
             )
             raise RuntimeError(message)
-
-
-#: Callable that executes one witness-prep run.
-_PrepRunner = Callable[[BTWitnessPrepInput], BTWitnessPrepRun]
