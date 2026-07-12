@@ -34,6 +34,7 @@ def test_ocr_group_help(runner) -> None:
     result = runner.invoke(cli, ["ocr", "--help"])
     assert result.exit_code == 0
     assert "old-english" in result.output
+    assert "bosworth-toller" in result.output
     assert "proxy" in result.output
 
 

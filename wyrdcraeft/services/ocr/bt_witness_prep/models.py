@@ -52,6 +52,9 @@ class BTWitnessPrepInput:
         source_dir: Directory containing source scan images.
         output_dir: Workspace directory for prepared artifacts.
         recipe_id: Preprocessing recipe identifier applied to every page.
+        overlap_px: Optional vertical overlap override for upper/lower column halves.
+        page_ids: Optional ``page_id`` slugs to keep after enumeration.
+        limit: Optional maximum page count applied after ``page_ids`` filtering.
 
     """
 
@@ -61,6 +64,12 @@ class BTWitnessPrepInput:
     output_dir: Path
     #: Preprocessing recipe identifier applied to every page.
     recipe_id: str
+    #: Optional vertical overlap override for upper/lower column halves.
+    overlap_px: int | None = None
+    #: Optional ``page_id`` slugs to keep after enumeration.
+    page_ids: tuple[str, ...] | None = None
+    #: Optional maximum page count applied after ``page_ids`` filtering.
+    limit: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -70,11 +79,18 @@ class BTWitnessPrepInput:
             Dictionary suitable for ``json.dumps``.
 
         """
-        return {
+        payload: dict[str, Any] = {
             "source_dir": str(self.source_dir),
             "output_dir": str(self.output_dir),
             "recipe_id": self.recipe_id,
         }
+        if self.overlap_px is not None:
+            payload["overlap_px"] = self.overlap_px
+        if self.page_ids is not None:
+            payload["page_ids"] = list(self.page_ids)
+        if self.limit is not None:
+            payload["limit"] = self.limit
+        return payload
 
 
 @dataclass(frozen=True)

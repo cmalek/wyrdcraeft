@@ -11,6 +11,18 @@ from wyrdcraeft.services.ocr import (
     OldEnglishOCRConfig,
     run_old_english_ocr_pipeline,
 )
+from wyrdcraeft.services.ocr.bt_witness_ocr import (
+    DEFAULT_BT_OUTPUT_DIR,
+    DEFAULT_BT_OVERLAP_PX,
+    DEFAULT_BT_RECIPE_ID,
+    DEFAULT_BT_SOURCE_DIR,
+    BTWitnessOCRConfig,
+    BTWitnessOCROrchestrator,
+)
+from wyrdcraeft.services.ocr.bt_witness_prep.manifest import (
+    PAGES_MANIFEST_REL,
+    TILES_MANIFEST_REL,
+)
 
 
 @click.group(
@@ -392,6 +404,137 @@ def old_english_ocr(  # noqa: PLR0913
     click.echo(f"Raw text: {output.raw_text_path}")
     click.echo(f"Normalized text: {output.normalized_text_path}")
     click.echo(f"Unknown token report: {output.unknown_tokens_path}")
+
+
+def _parse_page_ids(pages: str | None) -> tuple[str, ...] | None:
+    """
+    Parse a comma-separated ``page_id`` list from one CLI option value.
+
+    Args:
+        pages: Raw comma-separated ``page_id`` slugs from Click.
+
+    Returns:
+        Normalized ``page_id`` slugs, or ``None`` when no filter was requested.
+
+    """
+    if pages is None:
+        return None
+    parsed = tuple(
+        page_id.strip().lower()
+        for page_id in pages.split(",")
+        if page_id.strip()
+    )
+    if not parsed:
+        return None
+    return parsed
+
+
+@ocr_group.command(
+    name="bosworth-toller",
+    help="Prepare Bosworth-Toller JP2 scan witnesses for OCR and case-bundle work.",
+)
+@click.option(
+    "--source-dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_BT_SOURCE_DIR,
+    show_default=True,
+    help="Directory containing Bosworth-Toller .jp2 scan pages.",
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_BT_OUTPUT_DIR,
+    show_default=True,
+    help="Witness-prep workspace directory.",
+)
+@click.option(
+    "--recipe-id",
+    default=DEFAULT_BT_RECIPE_ID,
+    show_default=True,
+    help="Preprocessing recipe identifier.",
+)
+@click.option(
+    "--overlap-px",
+    type=int,
+    default=DEFAULT_BT_OVERLAP_PX,
+    show_default=True,
+    help="Vertical overlap between upper and lower column halves.",
+)
+@click.option(
+    "--pages",
+    default=None,
+    help="Comma-separated page_id slugs to prepare (for example bt-0002,bt-0007).",
+)
+@click.option(
+    "--limit",
+    type=int,
+    default=None,
+    help="Maximum number of pages to prepare after --pages filtering.",
+)
+@click.option(
+    "--prep-only/--no-prep-only",
+    default=True,
+    show_default=True,
+    help="Prepare image witnesses only. This is the default stage.",
+)
+@click.option(
+    "--force/--no-force",
+    default=False,
+    show_default=True,
+    help="Overwrite an existing witness-prep workspace.",
+)
+def bosworth_toller_ocr(  # noqa: PLR0913
+    source_dir: Path,
+    output_dir: Path,
+    recipe_id: str,
+    overlap_px: int,
+    pages: str | None,
+    limit: int | None,
+    prep_only: bool,  # noqa: ARG001
+    force: bool,
+) -> None:
+    """
+    Prepare Bosworth-Toller JP2 scan witnesses under the ``wyrdcraeft`` CLI.
+
+    Side Effects:
+        Writes page and tile images plus JSONL manifests under ``output_dir``.
+
+    Args:
+        source_dir: Directory containing Bosworth-Toller ``.jp2`` scan pages.
+        output_dir: Witness-prep workspace directory.
+        recipe_id: Preprocessing recipe identifier.
+        overlap_px: Vertical overlap between upper and lower column halves.
+        pages: Optional comma-separated ``page_id`` filter.
+        limit: Optional maximum page count after ``pages`` filtering.
+        prep_only: Explicit prep-only stage flag retained for future OCR stages.
+        force: Whether to overwrite an existing witness-prep workspace.
+
+    Raises:
+        click.ClickException: If configuration or witness preparation fails.
+
+    """
+    config = BTWitnessOCRConfig(
+        source_dir=source_dir,
+        output_dir=output_dir,
+        recipe_id=recipe_id,
+        overlap_px=overlap_px,
+        page_ids=_parse_page_ids(pages),
+        limit=limit,
+        force=force,
+    )
+    orchestrator = BTWitnessOCROrchestrator()
+    try:
+        run = orchestrator.run_prep(config)
+    except (RuntimeError, ValueError, FileNotFoundError, NotADirectoryError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    click.echo("Bosworth-Toller witness prep complete.")
+    click.echo(f"Source directory: {config.source_dir}")
+    click.echo(f"Output directory: {config.output_dir}")
+    click.echo(f"Pages prepared: {len(run.preprocessed_pages)}")
+    click.echo(f"Tiles prepared: {len(run.tiles)}")
+    click.echo(f"Pages manifest: {config.output_dir / PAGES_MANIFEST_REL}")
+    click.echo(f"Tiles manifest: {config.output_dir / TILES_MANIFEST_REL}")
 
 
 @ocr_group.command(

@@ -12,6 +12,7 @@ from wyrdcraeft.services.ocr.bt_witness_prep.anchors import (
 from wyrdcraeft.services.ocr.bt_witness_prep.manifest import BTWitnessManifestWriter
 from wyrdcraeft.services.ocr.bt_witness_prep.models import (
     BTPreprocessedPage,
+    BTSourcePage,
     BTTile,
     BTWitnessPrepInput,
     BTWitnessPrepRun,
@@ -113,14 +114,30 @@ class BTWitnessPrepPipeline:
             enumerator = self._enumerator
             preprocessor = self._preprocessor
 
-        source_pages = enumerator.enumerate(prep_input.source_dir)
+        source_pages = _filter_source_pages(
+            enumerator.enumerate(prep_input.source_dir),
+            page_ids=prep_input.page_ids,
+            limit=prep_input.limit,
+        )
+        tiling_config = self._tiling_config
+        if prep_input.overlap_px is not None:
+            tiling_config = replace(tiling_config, overlap_px=prep_input.overlap_px)
+        tiler = (
+            self._tiler
+            if tiling_config.overlap_px == self._tiling_config.overlap_px
+            else BTPageTiler(tiling_config)
+        )
         preprocessed_pages: list[BTPreprocessedPage] = []
         all_tiles: list[BTTile] = []
 
         for source_page in source_pages:
             preprocessed = preprocessor.preprocess(source_page, pages_dir)
-            tiled_page, tiles = self._tiler.tile(preprocessed, tiles_dir)
-            scored_tiles = self._score_tiles(tiled_page, tiles)
+            tiled_page, tiles = tiler.tile(preprocessed, tiles_dir)
+            scored_tiles = self._score_tiles(
+                tiled_page,
+                tiles,
+                column_gutter_px=tiling_config.column_gutter_px,
+            )
             preprocessed_pages.append(tiled_page)
             all_tiles.extend(scored_tiles)
 
@@ -143,6 +160,8 @@ class BTWitnessPrepPipeline:
         self,
         page: BTPreprocessedPage,
         tiles: tuple[BTTile, ...],
+        *,
+        column_gutter_px: int,
     ) -> tuple[BTTile, ...]:
         """
         Score ready tiles while preserving explicit fallback quality metadata.
@@ -150,6 +169,9 @@ class BTWitnessPrepPipeline:
         Args:
             page: Preprocessed page that owns the tile crop geometry.
             tiles: Prepared tile records emitted by the tiler.
+
+        Keyword Args:
+            column_gutter_px: Horizontal gutter width used for contamination scoring.
 
         Returns:
             Tiles with populated quality metrics for ready regions only.
@@ -167,7 +189,7 @@ class BTWitnessPrepPipeline:
                     crop_box=tile.crop_box,
                     page_width_px=page.width_px,
                     page_height_px=page.height_px,
-                    column_gutter_px=self._tiling_config.column_gutter_px,
+                    column_gutter_px=column_gutter_px,
                 ),
                 status=_READY_TILE_STATUS,
             )
@@ -191,4 +213,48 @@ def prepare_pages(input_config: BTWitnessPrepInput) -> BTWitnessPrepRun:
 
     """
     recipe = BTPreprocessRecipe.conservative_default(input_config.recipe_id)
-    return BTWitnessPrepPipeline(recipe=recipe).prepare(input_config)
+    tiling_config = BTTilingConfig.standard_two_column()
+    if input_config.overlap_px is not None:
+        tiling_config = replace(tiling_config, overlap_px=input_config.overlap_px)
+    return BTWitnessPrepPipeline(recipe=recipe, tiling_config=tiling_config).prepare(
+        input_config,
+    )
+
+
+def _filter_source_pages(
+    source_pages: list[BTSourcePage],
+    *,
+    page_ids: tuple[str, ...] | None,
+    limit: int | None,
+) -> list[BTSourcePage]:
+    """
+    Filter enumerated source pages in memory for one witness-prep run.
+
+    Args:
+        source_pages: Enumerated JP2 source pages in stable filename order.
+
+    Keyword Args:
+        page_ids: Optional ``page_id`` slugs to keep.
+        limit: Optional maximum page count applied after ``page_ids`` filtering.
+
+    Raises:
+        ValueError: When filtering removes every source page.
+
+    Returns:
+        Filtered source pages in stable order.
+
+    """
+    filtered = source_pages
+    if page_ids is not None:
+        allowed = {page_id.strip().lower() for page_id in page_ids if page_id.strip()}
+        filtered = [page for page in filtered if page.page_id in allowed]
+    if limit is not None:
+        filtered = filtered[:limit]
+    if not filtered:
+        if page_ids is not None:
+            requested = ", ".join(page_id.strip().lower() for page_id in page_ids)
+            message = f"No JP2 pages matched requested page_ids: {requested}"
+            raise ValueError(message)
+        message = "No JP2 pages remain after page filtering"
+        raise ValueError(message)
+    return filtered

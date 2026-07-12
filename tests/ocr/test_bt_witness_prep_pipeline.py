@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from wyrdcraeft.services.ocr.bt_witness_prep import (
     BTWitnessPrepInput,
     BTWitnessPrepRun,
@@ -95,3 +97,46 @@ def test_prepare_pages_runs_end_to_end_pipeline(tmp_path: Path) -> None:
     )
     assert any(row["quality"]["status"] == "fallback" for row in tile_rows)
     assert any(row["quality"]["status"] == "ready" for row in tile_rows)
+
+
+def test_prepare_pages_honors_overlap_px_override(tmp_path: Path) -> None:
+    prep_input = BTWitnessPrepInput(
+        source_dir=FIXTURE_DIR,
+        output_dir=tmp_path / "overlap-prep",
+        recipe_id=RECIPE_ID,
+        page_ids=("bt-0007",),
+        overlap_px=40,
+    )
+
+    run = prepare_pages(prep_input)
+
+    overlap_values = {
+        tile.overlap_px for tile in run.tiles if tile.overlap_px > 0
+    }
+    assert overlap_values == {40}
+
+
+def test_prepare_pages_filters_page_ids_in_memory(tmp_path: Path) -> None:
+    prep_input = BTWitnessPrepInput(
+        source_dir=FIXTURE_DIR,
+        output_dir=tmp_path / "filtered-prep",
+        recipe_id=RECIPE_ID,
+        page_ids=("bt-0007", "bt-0010"),
+    )
+
+    run = prepare_pages(prep_input)
+
+    assert [page.page_id for page in run.source_pages] == ["bt-0007", "bt-0010"]
+    assert len(run.preprocessed_pages) == 2
+
+
+def test_prepare_pages_zero_page_filter_raises(tmp_path: Path) -> None:
+    prep_input = BTWitnessPrepInput(
+        source_dir=FIXTURE_DIR,
+        output_dir=tmp_path / "empty-prep",
+        recipe_id=RECIPE_ID,
+        page_ids=("bt-missing",),
+    )
+
+    with pytest.raises(ValueError, match="bt-missing"):
+        prepare_pages(prep_input)
