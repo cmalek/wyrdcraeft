@@ -43,15 +43,19 @@ DEFAULT_OLMOCR_MAX_CONCURRENT_REQUESTS = 1
 DEFAULT_OLMOCR_TARGET_LONGEST_IMAGE_DIM = 1024
 #: Default retry count for page-level olmocr failures.
 DEFAULT_OLMOCR_MAX_PAGE_RETRIES = 5
-#: Supported image file suffixes for OCR input normalization.
+#: Supported loose image file suffixes for literary OCR input normalization.
 SUPPORTED_IMAGE_SUFFIXES = {
-    ".jp2",
     ".jpeg",
     ".jpg",
     ".png",
     ".tif",
     ".tiff",
 }
+#: Hint shown when Bosworth-Toller witness inputs are passed to old-english OCR.
+BOSWORTH_TOLLER_WITNESS_INPUT_HINT = (
+    "JP2 scans and image directories are Bosworth-Toller witness input. "
+    "Use: wyrdcraeft ocr bosworth-toller --source-dir <jp2-dir>"
+)
 
 
 @dataclass(frozen=True)
@@ -60,7 +64,7 @@ class OldEnglishOCRConfig:
     Configuration contract for one Old English OCR pipeline run.
 
     Args:
-        input_path: Input PDF file, image file, or image directory path.
+        input_path: Input PDF file or single loose image file path.
         output_dir: Destination directory for generated artifacts.
         pages: Optional page-range expression (not supported in olmocr mode).
         lang: Legacy OCR language option retained for CLI compatibility.
@@ -92,7 +96,7 @@ class OldEnglishOCRConfig:
 
     """
 
-    #: Input PDF file, image file, or image directory path.
+    #: Input PDF file or single loose image file path.
     input_path: Path
     #: Destination directory for generated artifacts.
     output_dir: Path | None = None
@@ -203,7 +207,8 @@ def run_old_english_ocr_pipeline(config: OldEnglishOCRConfig) -> OldEnglishOCROu
         config: Pipeline configuration object.
 
     Raises:
-        RuntimeError: If inputs are missing or required tools fail.
+        RuntimeError: If inputs are missing, a JP2 file or image directory is
+        supplied, or required tools fail.
 
     Returns:
         Output artifact paths for the completed run.
@@ -211,6 +216,7 @@ def run_old_english_ocr_pipeline(config: OldEnglishOCRConfig) -> OldEnglishOCROu
     """
     input_path = config.input_path.resolve()
     _require_existing_path(input_path, label="Input path")
+    _validate_old_english_input_path(input_path)
 
     output_dir = _resolve_output_dir(
         input_path=input_path,
@@ -393,6 +399,23 @@ def _resolve_output_dir(*, input_path: Path, configured: Path | None) -> Path:
     return build_default_output_dir(input_path)
 
 
+def _validate_old_english_input_path(input_path: Path) -> None:
+    """
+    Reject Bosworth-Toller witness inputs from the literary OCR command.
+
+    Args:
+        input_path: Resolved source input path.
+
+    Raises:
+        RuntimeError: If ``input_path`` is a JP2 file or image directory.
+
+    """
+    if input_path.is_dir():
+        raise RuntimeError(BOSWORTH_TOLLER_WITNESS_INPUT_HINT)
+    if input_path.suffix.lower() == ".jp2":
+        raise RuntimeError(BOSWORTH_TOLLER_WITNESS_INPUT_HINT)
+
+
 def _normalize_ocr_input_to_pdf(*, input_path: Path, workspace: Path) -> Path:
     """
     Normalize OCR input into PDF path for downstream olmocr use.
@@ -411,27 +434,12 @@ def _normalize_ocr_input_to_pdf(*, input_path: Path, workspace: Path) -> Path:
         Existing PDF path or generated workspace PDF path.
 
     """
-    if input_path.is_file():
-        if input_path.suffix.lower() == ".pdf":
-            return input_path
-        if not _is_supported_image_path(input_path):
-            message = f"Unsupported OCR input file: {input_path}"
-            raise RuntimeError(message)
-        return _write_image_pdf([input_path], workspace / "input.pdf")
-
-    if not input_path.is_dir():
-        message = f"Unsupported OCR input path: {input_path}"
+    if input_path.suffix.lower() == ".pdf":
+        return input_path
+    if not _is_supported_image_path(input_path):
+        message = f"Unsupported OCR input file: {input_path}"
         raise RuntimeError(message)
-
-    image_paths = sorted(
-        path
-        for path in input_path.iterdir()
-        if path.is_file() and _is_supported_image_path(path)
-    )
-    if not image_paths:
-        message = f"No supported image files found in {input_path}"
-        raise RuntimeError(message)
-    return _write_image_pdf(image_paths, workspace / "input.pdf")
+    return _write_image_pdf([input_path], workspace / "input.pdf")
 
 
 def _is_supported_image_path(path: Path) -> bool:
