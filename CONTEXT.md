@@ -47,8 +47,8 @@ Out of scope:
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
 | morphology | `wyrdcraeft morphology query` | `MorphologyQueryService`, `MorphologyCatalogQueryService` |
 | dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary query`, `wyrdcraeft dictionary browse`, `wyrdcraeft dictionary ingest-wright-text`, `wyrdcraeft dictionary audit-wright` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline`, `DictionaryBrowseQueryService`, `DictionaryBrowseApp`, `WrightSectionTextScreen`, `WrightSectionTextIngester`, `WrightAuditService`, `form_decode`, `OldEnglishSearchInput` |
-| ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
-| bt witness prep | library-first (no dedicated CLI yet) | `wyrdcraeft.services.ocr.bt_witness_prep.prepare_pages` |
+| ocr | `wyrdcraeft ocr old-english`, `wyrdcraeft ocr bosworth-toller`, `wyrdcraeft ocr proxy` | `wyrdcraeft.services.ocr.run_old_english_ocr_pipeline` |
+| bt witness prep | `wyrdcraeft ocr bosworth-toller` | `wyrdcraeft.services.ocr.bt_witness_prep.prepare_pages` |
 | settings | `wyrdcraeft settings` plus global CLI flags | `wyrdcraeft.settings.Settings` |
 
 ## Canonical Terms
@@ -98,12 +98,13 @@ Out of scope:
   sequencing, and overlay-based review inside a case bundle rather than going
   straight to final dictionary rows; documented in
   `doc/source/runbook/bt_dictionary_structuring_workflow.rst`
-- BT JP2 witness preparation: library-first Bosworth-Toller slice that turns
-  immutable JP2 scan pages into conservative preprocessed pages, overlapping
-  four-tile OCR witnesses, quality-scored manifests, and page-region anchor
-  seeds; stops before OCR text becomes canonical truth; entrypoint
-  `wyrdcraeft.services.ocr.bt_witness_prep.prepare_pages`; docs in
-  `doc/source/overview/bt_ocr_witness_preparation.rst` and
+- BT JP2 witness preparation: Bosworth-Toller slice that turns immutable JP2
+  scan pages into conservative preprocessed pages, overlapping four-tile OCR
+  witnesses, quality-scored manifests, and page-region anchor seeds; stops
+  before OCR text becomes canonical truth; CLI
+  `wyrdcraeft ocr bosworth-toller`; docs in
+  `doc/source/overview/command_ocr_bosworth_toller.rst`,
+  `doc/source/overview/bt_ocr_witness_preparation.rst`, and
   `doc/source/overview/bt_ocr_witness_preparation_method.rst`
 - document JSON: normalized structured output produced by ingestion
 - deterministic ingest: heuristic extraction path that does not call an LLM
@@ -408,10 +409,11 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 
 ### BT JP2 witness preparation
 
-`prepare_pages(BTWitnessPrepInput)` -> enumerate JP2 pages -> conservative
-preprocess -> fixed four-tile split (or explicit fallback) -> tile quality
-scoring -> `manifests/pages.jsonl`, `manifests/tiles.jsonl`,
-`anchors/anchor_seeds.jsonl`
+`wyrdcraeft.cli.ocr:bosworth_toller_ocr` -> `BTWitnessOCROrchestrator` ->
+enumerate JP2 pages -> conservative preprocess -> fixed four-tile split (or
+explicit fallback) -> tile quality scoring -> `manifests/pages.jsonl`,
+`manifests/tiles.jsonl`, `anchors/anchor_seeds.jsonl`; optional `--ocr` adds
+`witnesses/tiles/` and `witnesses/pages/`
 
 Stage B recipe checks use
 `scripts/ocr/benchmark_bt_witness_prep.py` plus helpers in

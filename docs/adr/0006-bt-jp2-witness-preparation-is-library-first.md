@@ -49,3 +49,13 @@ Implemented on branch ``cmalek/bt-parsing`` (commit ``1d81cd7f``):
 
 This ADR sits between ADR 0005 (multi-witness acquisition, JP2 as primary scan
 witness) and ADR 0004 (lossless source-grounded AST / case-bundle structuring).
+
+CLI follow-up
+-------------
+
+A dedicated operator CLI now exists as ``wyrdcraeft ocr bosworth-toller``.
+Documented in ``doc/source/overview/command_ocr_bosworth_toller.rst``.
+
+This does not change the library-first primary entrypoint
+(``prepare_pages``) or the witness-not-truth boundary: OCR text produced by
+the command remains a source witness, not canonical dictionary data.

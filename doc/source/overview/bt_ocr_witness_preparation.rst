@@ -8,8 +8,9 @@ JP2 scan witnesses of the Bosworth-Toller dictionary before OCR and case-bundle
 work.
 
 It documents the library slice in
-``wyrdcraeft.services.ocr.bt_witness_prep``. It is **not** a CLI command guide
-and it is **not** the same workflow as ``wyrdcraeft dictionary build``.
+``wyrdcraeft.services.ocr.bt_witness_prep``. For operator command usage, see
+:doc:`/overview/command_ocr_bosworth_toller`. It is **not** the same workflow as
+``wyrdcraeft dictionary build``.
 
 What This Slice Does
 --------------------
@@ -55,8 +56,9 @@ This documentation is for:
 - engineers wiring OCR into the witness-first case-bundle workflow
 - operators who need reproducible image preparation before olmocr or other OCR
 
-You do **not** need to use the wyrdcraeft CLI to run this slice. Import the
-library, point it at JP2 scans, and inspect the emitted manifests.
+Operators can run :doc:`/overview/command_ocr_bosworth_toller` from the repository
+root. Researchers and tests may also import the library directly, point it at
+JP2 scans, and inspect the emitted manifests.
 
 Why Witness Preparation Exists
 ------------------------------
@@ -162,6 +164,8 @@ reproducibility steps, and architecture detail.
 Related Documentation
 ---------------------
 
+- :doc:`/overview/command_ocr_bosworth_toller` — operator command guide for
+  ``wyrdcraeft ocr bosworth-toller``
 - :doc:`bt_ocr_witness_preparation_method` — architecture, artifact model,
   preprocessing and tiling rationale, quality metrics, validation methodology,
   limits, and reproducibility

@@ -32,8 +32,10 @@ The ``--pages`` option is intentionally unsupported in the olmocr-backed path.
 Supported inputs for this slice:
 
 - PDF file
-- single image file (including IA-style ``.jp2`` page scans)
-- flat image directory in lexicographic filename order
+- single loose image file (``.png``, ``.jpg``, ``.jpeg``, ``.tif``, ``.tiff``)
+
+JP2 page scans and flat image directories are Bosworth-Toller witness input.
+Use :doc:`/overview/command_ocr_bosworth_toller` instead.
 
 Core Commands
 -------------
@@ -48,7 +50,7 @@ Run OCR pipeline:
 .. code-block:: shell
 
     .venv/bin/python -m wyrdcraeft.main ocr old-english \
-      --input-path path/to/ia-jp2-pages/
+      --input-path scans/page_0001.png
 
 Run standalone proxy:
 

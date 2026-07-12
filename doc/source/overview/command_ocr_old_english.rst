@@ -2,7 +2,7 @@
 ==============================
 
 This command runs the Old English OCR pipeline and emits normalized text
-artifacts from a PDF or page-image witness set.
+artifacts from a PDF or single loose page image.
 
 Command usage
 -------------
@@ -18,8 +18,10 @@ Inputs
   Supported for this slice:
 
   - PDF file
-  - single image file (``.jp2``, ``.jpg``, ``.jpeg``, ``.png``, ``.tif``, ``.tiff``)
-  - flat image directory with supported image files in lexicographic filename order
+  - single image file (``.jpg``, ``.jpeg``, ``.png``, ``.tif``, ``.tiff``)
+
+  JP2 page scans and flat image directories are Bosworth-Toller witness input.
+  Use :doc:`/overview/command_ocr_bosworth_toller` instead.
 
 - ``--input-pdf``: compatibility alias for ``--input-path``.
 
@@ -38,9 +40,8 @@ Behavior
 --------
 
 - PDFs are reused unchanged.
-- Image files and image directories are converted to one temporary workspace PDF
-  before ``olmocr`` runs.
-- Image directories are non-recursive.
+- Single image files are converted to one temporary workspace PDF before
+  ``olmocr`` runs.
 - ``--pages`` remains unsupported in the ``olmocr`` path; pre-slice the PDF
   before running if needed.
 
@@ -59,12 +60,12 @@ Examples
 
     wyrdcraeft ocr old-english --input-path tests/fixtures/ocr/wright1.pdf
 
-    wyrdcraeft ocr old-english --input-path scans/page_0001.jp2
-
-    wyrdcraeft ocr old-english --input-path scans/wright_main_volume/
+    wyrdcraeft ocr old-english --input-path scans/page_0001.png
 
 See also
 --------
 
+- :doc:`/overview/command_ocr_bosworth_toller` — JP2 scan directories and
+  Bosworth-Toller witness preparation
 - :doc:`/runbook/old_english_ocr_pipeline`
 - :doc:`configuration_cli`

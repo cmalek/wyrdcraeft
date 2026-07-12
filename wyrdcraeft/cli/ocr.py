@@ -73,8 +73,8 @@ def _resolve_cli_value(value: Any | None, fallback: Any) -> Any:
     "--input-pdf",
     "input_path",
     required=True,
-    type=click.Path(exists=True, file_okay=True, dir_okay=True, path_type=Path),
-    help="Path to input PDF, image file, or image directory.",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, path_type=Path),
+    help="Path to input PDF or single image file.",
 )
 @click.option(
     "--output-dir",
@@ -259,7 +259,7 @@ def old_english_ocr(  # noqa: PLR0913
 
     Args:
         ctx: Click context containing loaded application settings.
-        input_path: Path to source PDF, image file, or image directory.
+        input_path: Path to source PDF or single image file.
         output_dir: Optional destination directory for emitted artifacts.
         pages: Legacy page-range option; not supported in olmocr mode.
         lang: Legacy OCR option (ignored in olmocr mode).
