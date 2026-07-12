@@ -1,0 +1,28 @@
+{
+  "project": "bosworth-toller-dictionary-index",
+  "spec_dir": "docs/superpowers/specs/2026-06-21-bosworth-toller-dictionary-index",
+  "log_path": "docs/superpowers/bt-dictionary/orchestrator.log",
+  "model_policy": "cost_aware",
+  "context_compact_threshold": 0.60,
+  "context_last_compact_at": null,
+  "context_checkpoint_path": "docs/superpowers/bt-dictionary/orchestrator.checkpoint.md",
+  "current_phase": null,
+  "phases": {
+    "01": {"status": "pending", "spec": "phase-01-models-and-pos.md", "recommended_model": "composer-2.5-fast", "model_tier": "fast", "model_used": null, "retry_count": 0},
+    "02": {"status": "pending", "spec": "phase-02-line-parser.md", "recommended_model": "gpt-5.3-codex", "model_tier": "standard", "model_used": null, "retry_count": 0},
+    "03": {"status": "pending", "spec": "phase-03-sense-segmentation.md", "recommended_model": "claude-4.6-sonnet-medium-thinking", "model_tier": "reasoning", "model_used": null, "retry_count": 0},
+    "04": {"status": "pending", "spec": "phase-04-editorial-merger.md", "recommended_model": "claude-4.6-sonnet-medium-thinking", "model_tier": "reasoning", "model_used": null, "retry_count": 0},
+    "05": {"status": "pending", "spec": "phase-05-sqlite-and-index-cli.md", "recommended_model": "gpt-5.3-codex", "model_tier": "standard", "model_used": null, "retry_count": 0},
+    "06": {"status": "pending", "spec": "phase-06-attach-morphology-db.md", "recommended_model": "composer-2.5-fast", "model_tier": "fast", "model_used": null, "retry_count": 0},
+    "07": {"status": "pending", "spec": "phase-07-dictionary-lookup.md", "recommended_model": "gpt-5.4-medium", "model_tier": "standard", "model_used": null, "retry_count": 0},
+    "08": {"status": "pending", "spec": "phase-08-morphology-join.md", "recommended_model": "gpt-5.4-medium", "model_tier": "standard", "model_used": null, "retry_count": 0},
+    "09": {"status": "pending", "spec": "phase-09-llm-fix-pass-optional.md", "optional": true, "recommended_model": "gpt-5.3-codex", "model_tier": "standard", "model_used": null, "retry_count": 0}
+  },
+  "blockers": [],
+  "cost_guardrails": {
+    "max_heavy_dispatches": 2,
+    "never_heavy_on_first_dispatch_phases": ["01", "02", "05", "06", "07", "08", "09"],
+    "lint_fail_retry_same_model": true,
+    "golden_fail_upgrade_tier": true
+  }
+}
