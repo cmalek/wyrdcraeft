@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections.abc import Callable, Sequence
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -14,22 +13,30 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from wyrdcraeft.services.ocr.bt_tile_ocr import (
+    CANDIDATE_TILE_READING_ORDER,
+    OCRRunner,
+)
+from wyrdcraeft.services.ocr.bt_tile_ocr import (
+    discover_tile_images as discover_candidate_tile_images,
+)
+from wyrdcraeft.services.ocr.bt_tile_ocr import (
+    run_page_witness_ocr as run_candidate_page_ocr,
+)
+from wyrdcraeft.services.ocr.bt_tile_ocr import (
+    run_tile_ocr as run_page_ocr,
+)
 from wyrdcraeft.services.ocr.bt_witness_prep import (
     BTWitnessPrepInput,
     prepare_pages,
 )
 from wyrdcraeft.services.ocr.bt_witness_prep.manifest import TILES_MANIFEST_REL
-from wyrdcraeft.services.ocr.bt_witness_prep.pipeline import TILES_OUTPUT_DIR
 from wyrdcraeft.services.ocr.bt_witness_prep.validation import (
     STAGE_B_RULE_DESCRIPTION,
     BTRecipeStageBComparison,
     BTValidationManifest,
     evaluate_stage_b_recipe,
     load_validation_manifest,
-)
-from wyrdcraeft.services.ocr.old_english_pipeline import (
-    OldEnglishOCRConfig,
-    run_old_english_ocr_pipeline,
 )
 
 DEFAULT_MANIFEST = (
@@ -42,15 +49,14 @@ DEFAULT_MANIFEST = (
 )
 DEFAULT_MANIFEST_DIR = DEFAULT_MANIFEST.parent
 DEFAULT_RECIPE_ID = "bt-two-column-v1"
-#: Callable signature for injectable OCR runners in tests and offline runs.
-OCRRunner = Callable[[Path, Path], str]
-#: Candidate tile geometry suffixes in reading order for ready pages.
-CANDIDATE_TILE_READING_ORDER = (
-    "col-1-part-1",
-    "col-1-part-2",
-    "col-2-part-1",
-    "col-2-part-2",
-)
+
+__all__ = [
+    "CANDIDATE_TILE_READING_ORDER",
+    "OCRRunner",
+    "discover_candidate_tile_images",
+    "run_candidate_page_ocr",
+    "run_page_ocr",
+]
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -185,92 +191,6 @@ def materialize_baseline_pages(
     return baseline_paths
 
 
-def discover_candidate_tile_images(
-    prep_output_dir: Path,
-    page_id: str,
-) -> list[Path]:
-    """
-    Discover prepared candidate tile images for one page in reading order.
-
-    Args:
-        prep_output_dir: ``prepare_pages()`` workspace containing ``tiles/``.
-        page_id: Validation page id whose tiles should be collected.
-
-    Returns:
-        Tile image paths in reading order, or one whole-page fallback tile.
-
-    Raises:
-        FileNotFoundError: When no prepared tile images exist for ``page_id``.
-
-    """
-    tiles_dir = prep_output_dir.resolve() / TILES_OUTPUT_DIR
-    ordered: list[Path] = []
-    for geometry in CANDIDATE_TILE_READING_ORDER:
-        candidate = tiles_dir / f"{page_id}-{geometry}.png"
-        if candidate.is_file():
-            ordered.append(candidate)
-    if ordered:
-        return ordered
-
-    fallback = tiles_dir / f"{page_id}-whole-page.png"
-    if fallback.is_file():
-        return [fallback]
-
-    message = f"no prepared candidate tiles for {page_id} under {tiles_dir}"
-    raise FileNotFoundError(message)
-
-
-def concatenate_candidate_ocr_texts(tile_texts: Sequence[str]) -> str:
-    """
-    Join per-tile OCR texts into one page-level candidate witness.
-
-    Args:
-        tile_texts: OCR texts for one page's tiles in reading order.
-
-    Returns:
-        Page-level candidate text with blank-line separators between tiles.
-
-    """
-    parts = [text.strip() for text in tile_texts if text.strip()]
-    if not parts:
-        return ""
-    return "\n\n".join(parts) + "\n"
-
-
-def run_candidate_page_ocr(
-    tile_paths: Sequence[Path],
-    output_dir: Path,
-    *,
-    skip_ocr: bool = False,
-    ocr_runner: OCRRunner | None = None,
-) -> str:
-    """
-    OCR prepared candidate tiles and concatenate them page-wise.
-
-    Args:
-        tile_paths: Candidate tile images in reading order.
-        output_dir: Workspace directory for per-tile OCR outputs.
-
-    Keyword Args:
-        skip_ocr: When ``True``, reuse cached OCR outputs when present.
-        ocr_runner: Injectable OCR runner for tests or custom integrations.
-
-    Returns:
-        Page-level candidate OCR text.
-
-    """
-    tile_texts = [
-        run_page_ocr(
-            tile_path,
-            output_dir / f"tile-{index:02d}",
-            skip_ocr=skip_ocr,
-            ocr_runner=ocr_runner,
-        )
-        for index, tile_path in enumerate(tile_paths)
-    ]
-    return concatenate_candidate_ocr_texts(tile_texts)
-
-
 def load_hypothesis_dir(
     hypothesis_dir: Path,
     page_ids: tuple[str, ...],
@@ -297,53 +217,6 @@ def load_hypothesis_dir(
             raise FileNotFoundError(message)
         hypotheses[page_id] = text_path.read_text(encoding="utf-8")
     return hypotheses
-
-
-def run_page_ocr(
-    image_path: Path,
-    output_dir: Path,
-    *,
-    skip_ocr: bool = False,
-    ocr_runner: OCRRunner | None = None,
-) -> str:
-    """
-    Run or load OCR text for one prepared page or tile image.
-
-    Args:
-        image_path: Prepared image path passed to olmocr.
-        output_dir: Workspace directory for one OCR invocation.
-
-    Keyword Args:
-        skip_ocr: When ``True``, reuse existing normalized OCR output if present.
-        ocr_runner: Injectable OCR runner for tests or custom integrations.
-
-    Returns:
-        Normalized OCR text for the image.
-
-    Raises:
-        RuntimeError: When live OCR is unavailable and no cached text exists.
-
-    """
-    if ocr_runner is not None:
-        return ocr_runner(image_path, output_dir)
-
-    normalized_path = output_dir / "03_normalized.txt"
-    if skip_ocr:
-        if normalized_path.is_file():
-            return normalized_path.read_text(encoding="utf-8")
-        message = (
-            f"skip-ocr enabled but no cached OCR output exists for {image_path} "
-            f"at {normalized_path}"
-        )
-        raise RuntimeError(message)
-
-    result = run_old_english_ocr_pipeline(
-        OldEnglishOCRConfig(
-            input_path=image_path,
-            output_dir=output_dir,
-        ),
-    )
-    return result.normalized_text_path.read_text(encoding="utf-8")
 
 
 def collect_guardrail_flags(prep_output_dir: Path | None) -> dict[str, bool]:
@@ -574,9 +447,22 @@ def run_benchmark(
                 ocr_runner=ocr_runner,
             )
             tile_paths = discover_candidate_tile_images(prep_output_dir, page_id)
+            def _candidate_tile_output_dir(
+                _tile_path: Path,
+                index: int,
+                *,
+                resolved_page_id: str = page_id,
+            ) -> Path:
+                return (
+                    ocr_output_dir
+                    / "candidate"
+                    / resolved_page_id
+                    / f"tile-{index:02d}"
+                )
+
             candidate_hypotheses[page_id] = run_candidate_page_ocr(
                 tile_paths,
-                ocr_output_dir / "candidate" / page_id,
+                _candidate_tile_output_dir,
                 ocr_runner=ocr_runner,
             )
             page_arm_metadata.append(

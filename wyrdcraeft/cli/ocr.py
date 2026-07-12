@@ -478,19 +478,62 @@ def _parse_page_ids(pages: str | None) -> tuple[str, ...] | None:
     help="Prepare image witnesses only. This is the default stage.",
 )
 @click.option(
+    "--ocr/--no-ocr",
+    default=False,
+    show_default=True,
+    help="Run tile OCR and write witnesses/ artifacts after prep.",
+)
+@click.option(
+    "--skip-prep",
+    is_flag=True,
+    default=False,
+    help="With --ocr, require existing manifests/ and tiles/ under --output-dir.",
+)
+@click.option(
+    "--skip-ocr",
+    is_flag=True,
+    default=False,
+    help="With --ocr, reuse cached witnesses/tiles/*/03_normalized.txt files.",
+)
+@click.option(
+    "--olmocr-workers",
+    type=int,
+    default=None,
+    help="Worker count forwarded to olmocr.pipeline --workers.",
+)
+@click.option(
+    "--olmocr-target-longest-image-dim",
+    type=int,
+    default=None,
+    help="Image dimension forwarded to olmocr.pipeline.",
+)
+@click.option(
+    "--upstream-base-url",
+    default=None,
+    help="Upstream OpenAI-compatible base URL used by the managed proxy.",
+)
+@click.option(
     "--force/--no-force",
     default=False,
     show_default=True,
     help="Overwrite an existing witness-prep workspace.",
 )
+@click.pass_context
 def bosworth_toller_ocr(  # noqa: PLR0913
+    ctx: click.Context,
     source_dir: Path,
     output_dir: Path,
     recipe_id: str,
     overlap_px: int,
     pages: str | None,
     limit: int | None,
-    prep_only: bool,  # noqa: ARG001  # Phase 2: gates --ocr stage
+    prep_only: bool,  # noqa: ARG001
+    ocr: bool,
+    skip_prep: bool,
+    skip_ocr: bool,
+    olmocr_workers: int | None,
+    olmocr_target_longest_image_dim: int | None,
+    upstream_base_url: str | None,
     force: bool,
 ) -> None:
     """
@@ -498,21 +541,69 @@ def bosworth_toller_ocr(  # noqa: PLR0913
 
     Side Effects:
         Writes page and tile images plus JSONL manifests under ``output_dir``.
+        When ``--ocr`` is set, also writes ``witnesses/tiles/`` and
+        ``witnesses/pages/`` artifacts.
 
     Args:
+        ctx: Click context containing loaded application settings.
         source_dir: Directory containing Bosworth-Toller ``.jp2`` scan pages.
         output_dir: Witness-prep workspace directory.
         recipe_id: Preprocessing recipe identifier.
         overlap_px: Vertical overlap between upper and lower column halves.
         pages: Optional comma-separated ``page_id`` filter.
         limit: Optional maximum page count after ``pages`` filtering.
-        prep_only: Explicit prep-only stage flag retained for future OCR stages.
+        prep_only: Explicit prep-only stage flag retained for compatibility.
+        ocr: Whether to run tile OCR and emit ``witnesses/`` artifacts.
+        skip_prep: Require existing prep artifacts instead of running prep.
+        skip_ocr: Reuse cached per-tile OCR text instead of calling olmocr.
+        olmocr_workers: Worker count forwarded to olmocr.pipeline.
+        olmocr_target_longest_image_dim: Raster dimension forwarded to olmocr.
+        upstream_base_url: Upstream OpenAI-compatible base URL for proxy forwarding.
         force: Whether to overwrite an existing witness-prep workspace.
 
     Raises:
         click.ClickException: If configuration or witness preparation fails.
 
     """
+    settings = ctx.obj["settings"]
+    resolved_upstream_base_url = _resolve_cli_value(
+        upstream_base_url,
+        settings.ocr_upstream_base_url,
+    )
+    resolved_olmocr_workers = _resolve_cli_value(
+        olmocr_workers,
+        settings.ocr_olmocr_workers,
+    )
+    resolved_olmocr_target_longest_image_dim = _resolve_cli_value(
+        olmocr_target_longest_image_dim,
+        settings.ocr_olmocr_target_longest_image_dim,
+    )
+    resolved_olmocr_model = settings.ocr_olmocr_model
+    tile_ocr_base: OldEnglishOCRConfig | None = None
+    if ocr:
+        tile_ocr_base = OldEnglishOCRConfig(
+            input_path=source_dir,
+            upstream_base_url=resolved_upstream_base_url,
+            olmocr_model=resolved_olmocr_model,
+            olmocr_workers=resolved_olmocr_workers,
+            olmocr_max_concurrent_requests=settings.ocr_olmocr_max_concurrent_requests,
+            olmocr_target_longest_image_dim=resolved_olmocr_target_longest_image_dim,
+            olmocr_max_page_retries=settings.ocr_olmocr_max_page_retries,
+            proxy_host=settings.ocr_proxy_host,
+            proxy_max_tokens_cap=settings.ocr_proxy_max_tokens_cap,
+            proxy_override_length_to_stop=settings.ocr_proxy_override_length_to_stop,
+            proxy_min_body_chars_after_yaml=settings.ocr_proxy_min_body_chars_after_yaml,
+            proxy_min_body_lines_after_yaml=settings.ocr_proxy_min_body_lines_after_yaml,
+            proxy_clamp_both_token_fields=settings.ocr_proxy_clamp_both_token_fields,
+            proxy_temperature_override=settings.ocr_proxy_temperature_override,
+            proxy_top_p_override=settings.ocr_proxy_top_p_override,
+            proxy_upstream_timeout_seconds=settings.ocr_proxy_upstream_timeout_seconds,
+            proxy_upstream_max_retries=settings.ocr_proxy_upstream_max_retries,
+            proxy_upstream_retry_backoff_seconds=(
+                settings.ocr_proxy_upstream_retry_backoff_seconds
+            ),
+            proxy_startup_timeout_seconds=settings.ocr_proxy_startup_timeout_seconds,
+        )
     config = BTWitnessOCRConfig(
         source_dir=source_dir,
         output_dir=output_dir,
@@ -521,20 +612,32 @@ def bosworth_toller_ocr(  # noqa: PLR0913
         page_ids=_parse_page_ids(pages),
         limit=limit,
         force=force,
+        run_ocr=ocr,
+        skip_prep=skip_prep,
+        skip_ocr=skip_ocr,
+        tile_ocr_base=tile_ocr_base,
     )
     orchestrator = BTWitnessOCROrchestrator()
     try:
-        run = orchestrator.run_prep(config)
+        run = orchestrator.run(config)
     except (RuntimeError, ValueError, FileNotFoundError, NotADirectoryError) as exc:
         raise click.ClickException(str(exc)) from exc
 
-    click.echo("Bosworth-Toller witness prep complete.")
-    click.echo(f"Source directory: {config.source_dir}")
-    click.echo(f"Output directory: {config.output_dir}")
-    click.echo(f"Pages prepared: {len(run.preprocessed_pages)}")
-    click.echo(f"Tiles prepared: {len(run.tiles)}")
-    click.echo(f"Pages manifest: {config.output_dir / PAGES_MANIFEST_REL}")
-    click.echo(f"Tiles manifest: {config.output_dir / TILES_MANIFEST_REL}")
+    if run.prep_run is not None:
+        click.echo("Bosworth-Toller witness prep complete.")
+        click.echo(f"Source directory: {config.source_dir}")
+        click.echo(f"Output directory: {config.output_dir}")
+        click.echo(f"Pages prepared: {len(run.prep_run.preprocessed_pages)}")
+        click.echo(f"Tiles prepared: {len(run.prep_run.tiles)}")
+        click.echo(f"Pages manifest: {config.output_dir / PAGES_MANIFEST_REL}")
+        click.echo(f"Tiles manifest: {config.output_dir / TILES_MANIFEST_REL}")
+
+    if config.run_ocr:
+        click.echo("Bosworth-Toller tile OCR complete.")
+        if run.witnesses_dir is not None:
+            click.echo(f"Witnesses directory: {run.witnesses_dir}")
+        for page_path in run.page_witness_paths:
+            click.echo(f"Page witness: {page_path}")
 
 
 @ocr_group.command(

@@ -40,8 +40,8 @@ def test_discover_candidate_tile_images_uses_reading_order(tmp_path: Path) -> No
 
     assert [path.name for path in discovered] == [
         f"{page_id}-col-1-part-1.png",
-        f"{page_id}-col-1-part-2.png",
         f"{page_id}-col-2-part-1.png",
+        f"{page_id}-col-1-part-2.png",
         f"{page_id}-col-2-part-2.png",
     ]
 
@@ -196,8 +196,8 @@ def test_run_benchmark_live_arms_use_distinct_image_inputs(
     assert baseline_images[0].name == f"{page_id}.png"
     assert [path.name for path in candidate_images] == [
         f"{page_id}-col-1-part-1.png",
-        f"{page_id}-col-1-part-2.png",
         f"{page_id}-col-2-part-1.png",
+        f"{page_id}-col-1-part-2.png",
         f"{page_id}-col-2-part-2.png",
     ]
     assert summary["baseline_arm"]["kind"] == "raw_whole_page"
