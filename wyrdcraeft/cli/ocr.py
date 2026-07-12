@@ -54,13 +54,15 @@ def _resolve_cli_value(value: Any | None, fallback: Any) -> Any:
 
 @ocr_group.command(
     name="old-english",
-    help="Run olmocr + normalization pipeline for Old English PDFs.",
+    help="Run olmocr + normalization pipeline for Old English PDFs or page images.",
 )
 @click.option(
+    "--input-path",
     "--input-pdf",
+    "input_path",
     required=True,
-    type=click.Path(exists=True, dir_okay=False, path_type=Path),
-    help="Path to input PDF.",
+    type=click.Path(exists=True, file_okay=True, dir_okay=True, path_type=Path),
+    help="Path to input PDF, image file, or image directory.",
 )
 @click.option(
     "--output-dir",
@@ -210,7 +212,7 @@ def _resolve_cli_value(value: Any | None, fallback: Any) -> Any:
 @click.pass_context
 def old_english_ocr(  # noqa: PLR0913
     ctx: click.Context,
-    input_pdf: Path,
+    input_path: Path,
     output_dir: Path | None,
     pages: str | None,
     lang: str | None,
@@ -245,7 +247,7 @@ def old_english_ocr(  # noqa: PLR0913
 
     Args:
         ctx: Click context containing loaded application settings.
-        input_pdf: Path to source PDF.
+        input_path: Path to source PDF, image file, or image directory.
         output_dir: Optional destination directory for emitted artifacts.
         pages: Legacy page-range option; not supported in olmocr mode.
         lang: Legacy OCR option (ignored in olmocr mode).
@@ -350,7 +352,7 @@ def old_english_ocr(  # noqa: PLR0913
     )
 
     config = OldEnglishOCRConfig(
-        input_pdf=input_pdf,
+        input_path=input_path,
         output_dir=output_dir,
         pages=pages,
         lang=resolved_lang,
@@ -385,7 +387,7 @@ def old_english_ocr(  # noqa: PLR0913
         raise click.ClickException(str(e)) from e
 
     click.echo("OCR pipeline complete.")
-    click.echo(f"Input PDF: {output.input_pdf}")
+    click.echo(f"Input path: {output.input_path}")
     click.echo(f"Output directory: {output.output_dir}")
     click.echo(f"Raw text: {output.raw_text_path}")
     click.echo(f"Normalized text: {output.normalized_text_path}")

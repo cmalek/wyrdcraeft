@@ -19,14 +19,16 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Run olmocr + text extraction + deterministic normalization for Old "
-            "English PDFs."
+            "English PDFs or page images."
         )
     )
     parser.add_argument(
+        "--input-path",
         "--input-pdf",
         required=True,
+        dest="input_path",
         type=Path,
-        help="Path to input PDF.",
+        help="Path to input PDF, image file, or image directory.",
     )
     parser.add_argument(
         "--output-dir",
@@ -105,7 +107,7 @@ def main() -> int:
     """
     args = _parse_args()
     config = OldEnglishOCRConfig(
-        input_pdf=args.input_pdf,
+        input_path=args.input_path,
         output_dir=args.output_dir,
         pages=args.pages,
         lang=args.lang,
@@ -124,7 +126,7 @@ def main() -> int:
         return 1
 
     print("OCR pipeline complete.")
-    print(f"Input PDF: {output.input_pdf}")
+    print(f"Input path: {output.input_path}")
     print(f"Output directory: {output.output_dir}")
     print(f"Raw text: {output.raw_text_path}")
     print(f"Normalized text: {output.normalized_text_path}")

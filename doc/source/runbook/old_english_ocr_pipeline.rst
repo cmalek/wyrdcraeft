@@ -14,19 +14,26 @@ The primary objective is lower OCR page latency with explicit quality gates.
 Current Architecture
 --------------------
 
-End-to-end flow for one source PDF:
+End-to-end flow for one source PDF or image-backed witness:
 
-1. ``wyrdcraeft ocr old-english`` starts a managed local proxy subprocess.
-2. ``olmocr.pipeline`` is launched with proxy URL forced as ``--server``.
-3. Proxy forwards to local upstream server (typically ``http://127.0.0.1:8080/v1``).
-4. ``olmocr`` writes markdown outputs into ``olmocr_workspace/markdown``.
-5. ``wyrdcraeft`` collects markdown, writes:
+1. ``wyrdcraeft ocr old-english`` normalizes input into PDF when needed.
+2. A managed local proxy subprocess starts.
+3. ``olmocr.pipeline`` is launched with proxy URL forced as ``--server``.
+4. Proxy forwards to local upstream server (typically ``http://127.0.0.1:8080/v1``).
+5. ``olmocr`` writes markdown outputs into ``olmocr_workspace/markdown``.
+6. ``wyrdcraeft`` collects markdown, writes:
 
    - ``02_raw.txt``
    - ``03_normalized.txt``
    - ``04_unknown_tokens.tsv``
 
 The ``--pages`` option is intentionally unsupported in the olmocr-backed path.
+
+Supported inputs for this slice:
+
+- PDF file
+- single image file (including IA-style ``.jp2`` page scans)
+- flat image directory in lexicographic filename order
 
 Core Commands
 -------------
@@ -36,7 +43,12 @@ Run OCR pipeline:
 .. code-block:: shell
 
     .venv/bin/python -m wyrdcraeft.main ocr old-english \
-      --input-pdf tests/fixtures/ocr/wright1.pdf
+      --input-path tests/fixtures/ocr/wright1.pdf
+
+.. code-block:: shell
+
+    .venv/bin/python -m wyrdcraeft.main ocr old-english \
+      --input-path path/to/ia-jp2-pages/
 
 Run standalone proxy:
 
@@ -49,7 +61,7 @@ Compatibility script shim:
 .. code-block:: shell
 
     .venv/bin/python scripts/ocr/old_english_ocr_pipeline.py \
-      --input-pdf tests/fixtures/ocr/wright1.pdf
+      --input-path tests/fixtures/ocr/wright1.pdf
 
 llama.cpp Profiles
 ------------------

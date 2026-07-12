@@ -40,6 +40,7 @@ def test_ocr_group_help(runner) -> None:
 def test_ocr_old_english_help(runner) -> None:
     result = runner.invoke(cli, ["ocr", "old-english", "--help"])
     assert result.exit_code == 0
+    assert "--input-path" in result.output
     assert "--input-pdf" in result.output
     assert "--skip-ocr" in result.output
     assert "--rules-file" in result.output
@@ -65,7 +66,7 @@ def test_ocr_old_english_option_flow(mock_run, runner, temp_dir) -> None:
     wordlist_file.write_text("word\n", encoding="utf-8")
 
     output = OldEnglishOCROutput(
-        input_pdf=input_pdf.resolve(),
+        input_path=input_pdf.resolve(),
         output_dir=(temp_dir / "out").resolve(),
         ocr_pdf=(temp_dir / "out" / "01_ocr.pdf").resolve(),
         raw_text_path=(temp_dir / "out" / "02_raw.txt").resolve(),
@@ -107,7 +108,7 @@ def test_ocr_old_english_option_flow(mock_run, runner, temp_dir) -> None:
 
     assert mock_run.call_count == 1
     config = mock_run.call_args.args[0]
-    assert config.input_pdf == input_pdf
+    assert config.input_path == input_pdf
     assert config.output_dir == temp_dir / "out"
     assert config.pages == "1-5"
     assert config.lang == "eng+lat"
@@ -117,6 +118,45 @@ def test_ocr_old_english_option_flow(mock_run, runner, temp_dir) -> None:
     assert config.rules_file == rules_file
     assert config.wordlist_file == wordlist_file
     assert config.upstream_base_url == "http://127.0.0.1:8080/v1"
+
+
+@patch("wyrdcraeft.cli.ocr.run_old_english_ocr_pipeline")
+def test_ocr_old_english_accepts_input_path(mock_run, runner, temp_dir) -> None:
+    input_pdf = temp_dir / "source.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n%stub\n")
+
+    rules_file = temp_dir / "rules.tsv"
+    rules_file.write_text("", encoding="utf-8")
+    wordlist_file = temp_dir / "wordlist.txt"
+    wordlist_file.write_text("word\n", encoding="utf-8")
+
+    mock_run.return_value = OldEnglishOCROutput(
+        input_path=input_pdf.resolve(),
+        output_dir=(temp_dir / "out").resolve(),
+        ocr_pdf=input_pdf.resolve(),
+        raw_text_path=(temp_dir / "out" / "02_raw.txt").resolve(),
+        normalized_text_path=(temp_dir / "out" / "03_normalized.txt").resolve(),
+        unknown_tokens_path=(temp_dir / "out" / "04_unknown_tokens.tsv").resolve(),
+    )
+
+    result = runner.invoke(
+        cli,
+        [
+            "ocr",
+            "old-english",
+            "--input-path",
+            str(input_pdf),
+            "--rules-file",
+            str(rules_file),
+            "--wordlist-file",
+            str(wordlist_file),
+        ],
+    )
+
+    assert result.exit_code == 0
+    config = mock_run.call_args.args[0]
+    assert config.input_path == input_pdf
+    assert f"Input path: {input_pdf.resolve()}" in result.output
 
 
 @patch("wyrdcraeft.cli.ocr.run_old_english_ocr_pipeline")
@@ -130,7 +170,7 @@ def test_ocr_old_english_uses_settings_fallback(mock_run, runner, temp_dir) -> N
     wordlist_file.write_text("word\n", encoding="utf-8")
 
     mock_run.return_value = OldEnglishOCROutput(
-        input_pdf=input_pdf.resolve(),
+        input_path=input_pdf.resolve(),
         output_dir=(temp_dir / "out").resolve(),
         ocr_pdf=input_pdf.resolve(),
         raw_text_path=(temp_dir / "out" / "02_raw.txt").resolve(),
