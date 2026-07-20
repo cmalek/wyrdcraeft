@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0001: Sound Change and Reconstruction</title>
+  <link rel="stylesheet" href="../assets/course.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"></script>
+  <script defer src="../assets/ipa-play.js"></script>
+</head>
+<body>
+<main>
+  <h1>Sound Change and Reconstruction</h1>
+  <p class="lede">This lesson gives you one mental model: first, broad inherited sound changes create Proto-Germanic; later, branch-specific changes shape Old English, Old Norse, Old High German, and the rest. Reconstruction works because those outcomes are regular enough to compare.</p>
+
+  <div class="card">
+    <strong>Win for today:</strong> by the end, you should be able to place Grimm's Law, Verner's Law, and i-mutation on the same timeline, and explain in one sentence how linguists reconstruct unattested forms.
+  </div>
+
+  <h2>1. The Big Picture</h2>
+  <p>When historical linguists talk about named changes, they are usually talking about different layers of history, not rival explanations. A useful beginner sequence is:</p>
+  <div class="timeline">
+    <div class="step"><strong>Proto-Indo-European:</strong> the earlier ancestor, reconstructed rather than directly attested.</div>
+    <div class="step"><strong>Shared Germanic innovations:</strong> Grimm's Law and Verner's Law help produce Proto-Germanic's characteristic consonant system.</div>
+    <div class="step"><strong>Later branch changes:</strong> Old English, Old Norse, Old High German, and others each continue changing in their own ways.</div>
+    <div class="step"><strong>Morphological remodeling:</strong> analogy may smooth paradigms and partly hide older phonological history.</div>
+  </div>
+
+  <p>If you remember only one distinction, remember this: <strong>Grimm and Verner are early shared consonant history; i-mutation and similar mutations are later branch-level vowel history.</strong> After that, still later processes like syncope, assimilation, gemination, and analogy can reshape what survives on the page.</p>
+
+  <h2>1a. Branching Sketch</h2>
+  <p>This Mermaid sketch is a rough orientation map, not a last-word family tree. The split dates are approximate and are meant to help you see <strong>relative depth</strong> on the way from PIE to Proto-Germanic and then to Old English.</p>
+  <pre class="mermaid">flowchart TD
+    PIE["Proto-Indo-European (Late PIE, c. 3000-2500 BCE)"]
+    Anatolian["Anatolian split (before or by c. 3000 BCE)"]
+    Tocharian["Tocharian split (perhaps 3000-2500 BCE)"]
+    Core["Post-Anatolian / Core Indo-European (3rd millennium BCE)"]
+    Hellenic["Pre-Hellenic / Greek (2nd millennium BCE)"]
+    IndoIranian["Pre-Indo-Iranian (2nd millennium BCE)"]
+    ItalicCeltic["Pre-Italic / Pre-Celtic (2nd millennium BCE)"]
+    BaltoSlavic["Pre-Balto-Slavic (2nd millennium BCE)"]
+    PreGermanic["Pre-Proto-Germanic (later 2nd millennium BCE)"]
+    Grimm["Grimm's Law"]
+    Verner["Verner's Law"]
+    PGmc["Proto-Germanic (prehistoric; early 1st millennium BCE into early CE centuries)"]
+    NWGmc["Northwest Germanic (late prehistoric / early historical)"]
+    N_Gmc["North Germanic"]
+    W_Gmc["West Germanic"]
+    PreOE["Pre-Old English"]
+    OE["Old English"]
+
+    PIE --> Anatolian
+    PIE --> Tocharian
+    PIE --> Core
+    Core --> Hellenic
+    Core --> IndoIranian
+    Core --> ItalicCeltic
+    Core --> BaltoSlavic
+    Core --> PreGermanic
+    PreGermanic --> Grimm
+    Grimm --> Verner
+    Verner --> PGmc
+    PGmc --> NWGmc
+    PGmc --> N_Gmc
+    NWGmc --> W_Gmc
+    W_Gmc --> PreOE
+    PreOE --> OE
+  </pre>
+  <p>The safest reading of this sketch is: <strong>most models place the main Indo-European dispersals in the 3rd millennium BCE, while many daughter branches continue differentiating through the 2nd millennium BCE.</strong> So the later dates in the chart usually mark branch history, not the first start of Indo-European expansion as a whole.</p>
+
+  <h2>1b. Where the Old English Dialects Fit</h2>
+  <p>West Saxon, Mercian, Northumbrian, and Kentish are <strong>not</strong> separate descendants directly branching off from Proto-Germanic alongside Greek or Indo-Iranian. They are much later <strong>dialects inside Old English</strong>, after the path PIE → Proto-Germanic → West Germanic → Pre-Old English has already happened.</p>
+
+  <table>
+    <tr><th>Level</th><th>Examples</th><th>Why it matters</th></tr>
+    <tr><td>Indo-European branch</td><td>Germanic, Greek, Indo-Iranian</td><td>These are very deep splits in prehistory.</td></tr>
+    <tr><td>Germanic subgroup / language history</td><td>Proto-Germanic, West Germanic, Pre-Old English</td><td>This is the path that leads specifically toward English.</td></tr>
+    <tr><td>Old English dialect</td><td>West Saxon, Mercian, Northumbrian, Kentish</td><td>These are later regional varieties inside Old English itself.</td></tr>
+  </table>
+
+  <div class="card">
+    <p>So when you see different OE forms in grammars, glosses, or dictionaries, the question is often not "Which branch of Indo-European is this?" but "Which <strong>Old English dialect</strong> is preserving or innovating this form?" For historical grammar, that matters because some changes spread unevenly. A sound change may look regular in West Saxon, but show a different outcome, timing, or spelling in Northumbrian or Kentish.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Quick dialect cues:</strong> West Saxon is the dominant literary dialect for many surviving texts, so learners often mistake it for "Old English as a whole." Northumbrian and Mercian belong to the Anglian area and often preserve different vowel developments or earlier/later sound-change timing. Kentish is the southeastern dialect and can show its own vowel spellings and developments. So the dialects factor in as a <strong>late interpretive layer</strong> on top of the older Germanic history, not as rivals to Grimm's Law or Verner's Law.</p>
+  </div>
+
+  <h2>2. How the Famous Laws Fit Together</h2>
+  <div class="card">
+    <p><strong>Grimm's Law</strong> is the big consonant shift from Proto-Indo-European into Proto-Germanic: roughly, PIE voiceless stops become fricatives, voiced stops become voiceless stops, and voiced aspirated stops become voiced fricatives/stops. The University of Texas Proto-Germanic phonology chapter gives the compact standard statement of this shift <a href="https://lrc.la.utexas.edu/books/pgmc/2-phonology">here</a>.</p>
+    <p><strong>Verner's Law</strong> explains why Grimm's Law seems to have exceptions. Those "exceptions" turn out to be regular once you account for the older Indo-European accent: some fricatives became voiced when the preceding syllable had not carried the inherited accent.</p>
+    <p><strong>i-mutation</strong> is much later. It is a vowel change triggered by a following <code>i</code> or <code>j</code>, and it is especially visible in Old English alternations like <code>mann ~ menn</code> and <code>fōt ~ fēt</code>. This is not a rival to Grimm or Verner; it is a later layer.</p>
+    <p><strong>Umlaut</strong> in this context is basically another name for this kind of mutation: one vowel changes because a later vowel or glide influences it from the next syllable. <strong>Ablaut</strong> is different: it is an older inherited pattern of vowel alternation inside a word-family or paradigm, not a later local trigger. So <code>fōt ~ fēt</code> shows both: inherited ablaut in the older paradigm background, plus later i-umlaut in the plural.</p>
+  </div>
+
+  <h2>2aa. Which Branches Actually Undergo Grimm's Law?</h2>
+  <p><strong>Only Germanic.</strong> Grimm's Law is not a sound law of Indo-European as a whole. It is one of the major innovations that defines the branch that became Proto-Germanic.</p>
+
+  <table>
+    <tr><th>Branch</th><th>Grimm's Law?</th><th>Safe beginner reminder</th></tr>
+    <tr><td>Germanic</td><td>Yes</td><td>This is the branch where PIE <code>p</code> can become Germanic <code>f</code>, as in Latin <code>pater</code> beside Gothic <code>fadar</code> and OE <code>fæder</code>.</td></tr>
+    <tr><td>Anatolian</td><td>No</td><td>Anatolian has its own early history and split off too early to share Grimm's Law as a Germanic innovation.</td></tr>
+    <tr><td>Hellenic (Greek)</td><td>No</td><td>Greek preserves a very different consonant history; it does not show the Germanic <code>p → f</code>-type shift.</td></tr>
+    <tr><td>Indo-Iranian</td><td>No</td><td>Indo-Iranian has its own major developments, including satem-type changes, but not Grimm's Law.</td></tr>
+    <tr><td>Italic</td><td>No</td><td>Italic does not undergo Grimm's Law; Latin <code>pater</code> is the classic comparison point against Germanic <code>fadar</code>/<code>fæder</code>.</td></tr>
+    <tr><td>Romance</td><td>No</td><td>Romance comes much later from Latin, so it inherits Italic history, not a separate PIE-to-Germanic shift.</td></tr>
+  </table>
+
+  <div class="card">
+    <p>A useful shortcut is this: if a form belongs to <strong>Germanic</strong>, Grimm's Law may be part of its prehistory. If it belongs to <strong>Greek, Sanskrit, Latin, or their descendants</strong>, Grimm's Law is usually there as a <em>comparison point</em>, not as the sound change that shaped the form itself.</p>
+  </div>
+
+  <h2>2a. Why Did These Changes Happen?</h2>
+  <div class="card">
+    <p>The honest answer is: linguists often know <strong>that</strong> a change happened and <strong>in what relative order</strong> better than they know its ultimate physical cause. Lehmann explicitly notes that many attempts to explain the first consonant shift have been made, but that none has been widely accepted and the cause may be obscure because the change is so early <a href="https://lrc.la.utexas.edu/books/pgmc/2-phonology">here</a>.</p>
+    <p>Still, there are useful kinds of explanation. Some changes are <strong>phonetic</strong>: sounds drift because certain articulations are easy to weaken, voice, front, reduce, or assimilate in particular environments. Some are <strong>prosodic</strong>: stress or pitch accent weakens unstressed syllables, which encourages vowel reduction, syncope, and loss of endings. Some are <strong>systemic</strong>: a sound system may reorganize itself as a chain shift. And some are <strong>morphological</strong>: analogy levels paradigms after the phonetic changes have already happened.</p>
+    <p>That is also the safest general explanation for <strong>loss of intervocalic <code>h</code></strong>. Between vowels, a weak fricative is in a very unstable position: the surrounding vowels keep the airflow open, so the consonant can be reduced and eventually disappear. In other words, this kind of loss is usually treated as ordinary <strong>lenition in a weak environment</strong>, not as a mysterious one-off event.</p>
+  </div>
+
+  <h2>2b. Why This Order?</h2>
+  <p>For many famous changes, the order is inferred from dependency rather than guessed. A short classroom version is:</p>
+  <div class="timeline">
+    <div class="step"><strong>Older PIE accent first:</strong> Verner's Law depends on where the inherited accent used to be, so that accent pattern must still have mattered when the voicing happened.</div>
+    <div class="step"><strong>Grimm before Verner:</strong> Verner's Law operates on the fricatives created by Grimm's Law, so Grimm has to come first.</div>
+    <div class="step"><strong>Germanic fixed stress later:</strong> Proto-Germanic eventually developed strong initial stress, and once that happened the older mobile accent could no longer feed Verner in the same way. Lehmann treats late Proto-Germanic stress as a later development visible in runic and poetic evidence <a href="https://lrc.la.utexas.edu/books/pgmc/2-phonology">here</a>.</div>
+    <div class="step"><strong>Branch-specific mutations later still:</strong> changes like i-mutation belong to later Old English or subgroup history, not to the earliest shared Germanic consonant shift.</div>
+  </div>
+
+  <div class="card">
+    <p><strong>Do we know when fixed initial stress appeared?</strong> Not to an exact year. The relative order is much clearer than the calendar date. The safest source-backed teaching claim is that the shift from the older PIE mobile accent system to Germanic fixed initial stress happened <strong>during prehistoric Proto-Germanic</strong>, after the stage needed for Verner's Law but before the breakup into the earliest attested Germanic branches. In other words: early enough to be prehistoric, late enough that it belongs after Grimm and Verner in the usual story.</p>
+  </div>
+
+  <h2>2ba. Rough Timeline for the Main Changes</h2>
+  <table>
+    <tr><th>Stage or change</th><th>Very rough date</th><th>What to remember</th></tr>
+    <tr><td>Late Proto-Indo-European</td><td>roughly 3000-2500 BCE</td><td>Mobile accent system and the older stop system belong here.</td></tr>
+    <tr><td>Grimm's Law</td><td>roughly later 2nd to early 1st millennium BCE</td><td>Usually placed in prehistoric pre-Proto-Germanic or early Proto-Germanic time.</td></tr>
+    <tr><td>Verner's Law</td><td>after Grimm, before fixed initial stress</td><td>The exact date is uncertain, but it must belong to a stage when the older accent was still active enough to matter.</td></tr>
+    <tr><td>Germanic fixed initial stress</td><td>prehistoric Proto-Germanic; exact date uncertain</td><td>This is the switch that stops the old PIE-style accent from feeding new Verner-type effects.</td></tr>
+    <tr><td>Common Proto-Germanic stage</td><td>roughly last centuries BCE to first centuries CE</td><td>Shared Germanic morphology and phonology continue developing after the big consonant shifts.</td></tr>
+    <tr><td>Pre-Old English to early Old English mutations</td><td>roughly 5th-7th centuries CE</td><td>i-mutation and other branch-specific vowel changes belong here, not back in Proto-Germanic proper.</td></tr>
+    <tr><td>Many classic Old English written-form developments</td><td>roughly 6th-9th centuries CE</td><td>Breaking, palatalization, contraction, syncope, and leveling belong to the later branch history that shapes the forms you actually read.</td></tr>
+  </table>
+
+  <p>The main caution is this: <strong>the farther back you go, the more secure the sequence is compared with the exact dates.</strong> So "Grimm before Verner before fixed Germanic stress" is much firmer than any single century assignment.</p>
+
+  <h2>2c. The Major PIE Stop Consonants</h2>
+  <p>One traditional way to organize the PIE stop system is the three-way contrast used in standard presentations of Grimm's Law. Lehmann's Proto-Indo-European phonemic inventory includes these obstruents: <code>p t k kʷ</code>, <code>b d g gʷ</code>, and <code>bʰ dʰ gʰ gʷʰ</code>, plus <code>s</code> <a href="https://lrc.la.utexas.edu/books/piep/13-pie-phonemics">here</a>.</p>
+
+  <table>
+    <tr><th>Traditional class</th><th>Typical members</th><th>Why you care</th></tr>
+    <tr><td>Voiceless stops</td><td><code>p t k kʷ</code></td><td>These are the sounds that Grimm's Law shifts to Germanic fricatives like <code>f þ h</code>.</td></tr>
+    <tr><td>Voiced stops</td><td><code>b d g gʷ</code></td><td>These typically become Germanic voiceless stops like <code>p t k</code>.</td></tr>
+    <tr><td>Voiced aspirated stops</td><td><code>bʰ dʰ gʰ gʷʰ</code></td><td>These are the traditional “aspirates” in Grimm's Law and typically become Germanic voiced fricatives/stops.</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Very rough pronunciation guide:</strong> these symbols are reconstructed, so no one thinks we can hear PIE directly. But a beginner-friendly approximation is still useful.</p>
+  </div>
+
+  <table>
+    <tr><th>PIE symbol</th><th>Rough value</th><th>Beginner cue</th></tr>
+    <tr><td><code>p t k</code></td><td>Plain voiceless stops</td><td>Roughly like English <code>p, t, k</code>, but imagine them a little less strongly puffed than at the start of English <code>pin, top, cat</code>.</td></tr>
+    <tr><td><code>kʷ</code></td><td>Labiovelar stop</td><td>A <code>k</code>-sound pronounced with lip-rounding at the same time, roughly <code>kw</code>.</td></tr>
+    <tr><td><code>b d g</code></td><td>Voiced stops</td><td>Roughly like English <code>b, d, g</code>.</td></tr>
+    <tr><td><code>gʷ</code></td><td>Voiced labiovelar stop</td><td>Roughly <code>gw</code>, a voiced partner to <code>kʷ</code>.</td></tr>
+    <tr><td><code>bʰ dʰ gʰ</code></td><td>Voiced aspirated stops</td><td>Think “voiced stop plus breathy release”: something like <code>bh, dh, gh</code>, not English <code>b</code> followed by a full separate <code>h</code>.</td></tr>
+    <tr><td><code>gʷʰ</code></td><td>Voiced aspirated labiovelar stop</td><td>The same breathy release, but with lip-rounding too: very roughly <code>gwh</code>.</td></tr>
+    <tr><td><code>s</code></td><td>Voiceless sibilant fricative</td><td>Basically <code>s</code> as in English <code>see</code>.</td></tr>
+  </table>
+
+  <p>You do not need to memorize every reconstructed consonant now. What matters is the shape of the system: historical linguists are comparing <strong>classes</strong>, not just isolated letters.</p>
+
+  <h2>2d. How Did Accent Work in PIE?</h2>
+  <div class="card">
+    <p>A safe beginner summary is that PIE had a <strong>mobile accent system</strong>, not the later Germanic fixed-initial stress system. Lehmann describes early Proto-Germanic as still having a pitch-based accentual system and treats later fixed stress as a later development <a href="https://lrc.la.utexas.edu/books/pgmc/1-introduction">here</a>. In his earlier PIE work he also discusses pitch accent in relation to vowel alternations and accent shifts <a href="https://lrc.la.utexas.edu/books/piep/15-development">here</a>.</p>
+    <p>For Verner's Law, the only part you need right now is this: if the inherited accent was <strong>not</strong> on the syllable immediately before a Grimm-law fricative, that fricative could become voiced. That is why a form like OE <code>fæder</code> can show <code>d</code> where a simpler Grimm-only expectation would suggest <code>þ</code>.</p>
+  </div>
+
+  <h2>3. A Simple Analogy</h2>
+  <p>Think of a word as carrying several coats of paint from different centuries. Grimm's Law is an older, whole-house repaint. Verner's Law explains why part of that repaint came out differently in certain rooms. i-mutation is a later renovation that affects vowels in a more local way. Analogy is when later speakers repaint a few rooms again so the pattern looks tidier.</p>
+
+  <h2>3a. The Other Processes You Should Expect</h2>
+  <div class="card">
+    <p><strong>Assimilation</strong> makes neighboring sounds more alike. <strong>Syncope</strong> removes unstressed vowels. <strong>Gemination</strong> lengthens consonants in certain environments. <strong>Breaking</strong> changes a simple vowel into a more complex one near certain consonants. <strong>Palatalization</strong> pulls a consonant forward toward a <code>y</code>-like or front-vowel environment. These are not side trivia: they are part of the normal machinery of language change, and they often matter more for reading Old English forms than the grand famous laws do.</p>
+  </div>
+
+  <h2>3c. Old English c/g Palatalization</h2>
+  <div class="card">
+    <p>Old English is one of the places where palatalization becomes very visible in ordinary spelling and pronunciation. Old English Online describes <code>c</code> as like <code>k</code> in <code>cold</code> in guttural environments, but like <code>ch</code> in <code>chin</code> in certain palatal environments; it likewise describes <code>g</code> as a velar sound with guttural vowels but like <code>y</code> in <code>you</code> with palatal vowels <a href="https://lrc.la.utexas.edu/eieol/engol/10">here</a>.</p>
+    <p>In practice, this is why modern editors often write dotted <code>ċ</code> and <code>ġ</code>: not because Old English manuscripts consistently did so, but because the dots help learners keep the palatal values separate from the velar ones.</p>
+  </div>
+
+  <table>
+    <tr><th>Letter</th><th>Velar value</th><th>Palatal value</th><th>Rough cue</th></tr>
+    <tr><td><code>c</code></td><td><code>k</code>-like</td><td><code>ch</code>-like</td><td>often written <code>ċ</code> in modern teaching texts</td></tr>
+    <tr><td><code>g</code></td><td><code>g</code>-like or fricative/spirant-like by environment</td><td><code>y</code>-like</td><td>often written <code>ġ</code> in modern teaching texts</td></tr>
+  </table>
+
+  <div class="card">
+    <p>Good mental examples are <code>cild</code> and <code>ċild</code>-type pronunciation history on the one hand, and <code>ġeard</code>, <code>ġiefan</code>-type <code>y</code>-like values on the other. In this repository's own Old English tooling, dotted <code>ċ</code> and <code>ġ</code> are treated as important enough to preserve explicitly, which matches real learner needs.</p>
+  </div>
+
+  <h2>3d. Is This Just Old English?</h2>
+  <p>Not entirely, but Old English makes it especially prominent. A useful comparison from the LRC materials comes in a discussion of Slavic palatalization that pauses to note a Germanic contrast: Old Norse <code>skip</code> keeps the velar <code>sk</code> before <code>i</code>, while Old English <code>scip</code> shows the palatalized development that leads toward modern <code>ship</code> <a href="https://lrc.la.utexas.edu/eieol/oruol/10">here</a>.</p>
+  <p>So the safe beginner takeaway is: <strong>OE belongs to the side of Germanic where front-vowel and <code>j</code>-adjacent palatal effects become highly visible; Old Norse and Old High German do not show the same development in the same way.</strong> For now, that contrast is enough. A full cross-Germanic palatalization lesson can wait until you want a branch-by-branch comparison.</p>
+
+  <h2>3b. Sound Words You Should Be Comfortable With</h2>
+  <p>You do not need a full modern phonetics course for Old English, but you do need a compact working vocabulary. These terms are labels for how a sound is physically made, and historical linguists use them constantly because sound changes often target whole classes at once.</p>
+
+  <table>
+    <tr><th>Term</th><th>Short description</th><th>Rough example</th></tr>
+    <tr><td>Vowel</td><td>A sound made with relatively open airflow and no strong closure.</td><td><code>a, e, i, o, u</code></td></tr>
+    <tr><td>Consonant</td><td>A sound made with more obstruction in the mouth.</td><td><code>t, f, m</code></td></tr>
+    <tr><td>Stop</td><td>A consonant with complete closure and then release.</td><td><code>p, t, k, b, d, g</code></td></tr>
+    <tr><td>Fricative</td><td>A consonant made by forcing air through a narrow gap, creating friction.</td><td><code>f, þ, s, h</code></td></tr>
+    <tr><td>Sibilant</td><td>A particularly hissy or hushing fricative.</td><td><code>s, z, sh</code></td></tr>
+    <tr><td>Nasal</td><td>A sound where air flows through the nose.</td><td><code>m, n</code></td></tr>
+    <tr><td>Liquid</td><td>A traditional class including <code>l</code> and <code>r</code>.</td><td><code>l, r</code></td></tr>
+    <tr><td>Glide</td><td>A very vowel-like consonant.</td><td><code>j, w</code></td></tr>
+    <tr><td>Voiced</td><td>The vocal folds vibrate during the sound.</td><td><code>z, d, v</code></td></tr>
+    <tr><td>Voiceless</td><td>The vocal folds do not vibrate during the sound.</td><td><code>s, t, f</code></td></tr>
+    <tr><td>Aspirated</td><td>Pronounced with a noticeable puff of breath after release.</td><td>like the <code>p</code> in English <code>pin</code></td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Why this matters for historical linguistics:</strong> sound changes usually do not target isolated letters. They target classes such as voiceless stops, voiced fricatives, unstressed vowels, or consonants before front vowels. Once you can read those class labels quickly, historical explanations become much less foggy.</p>
+  </div>
+
+  <h2>4. How Reconstruction Works</h2>
+  <p>Linguists reconstruct proto-languages mainly by the <strong>comparative method</strong>. They compare related languages, find recurring sound correspondences, and infer the earlier form that best explains them. The Proto-Germanic introduction at Texas names the comparative method and internal reconstruction as core methods <a href="https://lrc.la.utexas.edu/books/pgmc/1-introduction">here</a>, and the Indo-European Lexicon user guide gives a compact explanation of reconstructed roots and reflexes <a href="https://lrc.la.utexas.edu/guides/lex_user">here</a>.</p>
+
+  <table>
+    <tr><th>Observed fact</th><th>Inference</th></tr>
+    <tr><td>Related languages keep showing regular matches, not random ones.</td><td>They likely descend from a common source.</td></tr>
+    <tr><td>English <code>f</code> often matches non-Germanic <code>p</code>.</td><td>A regular earlier change probably shifted inherited <code>p</code> to Germanic <code>f</code>.</td></tr>
+    <tr><td>Some "exceptions" cluster by accent environment.</td><td>The exceptions are actually conditioned changes, not chaos.</td></tr>
+  </table>
+
+  <p>So reconstruction is not guesswork in the casual sense. It is inference from repeated structured evidence. It is still hypothetical, which is why reconstructed forms wear the asterisk, but it is constrained hypothesis rather than free invention.</p>
+
+  <h2>4a. Worked Walk-Backs from Old English</h2>
+  <p>Here are three compact examples. This time the point is not just ancestry, but <strong>layering</strong>: Grimm's Law is usually only one step in a chain. A visible Old English form may also reflect inherited ablaut, OE vowel development, loss of <code>h</code>, contraction, analogy, or paradigm leveling.</p>
+
+  <div class="card">
+    <p><strong>OE <code>fōt</code> "foot"</strong></p>
+    <p>PIE root and family evidence: the IE Lexicon gives PIE <code>*pē̆d-, *pō̆d-</code> "foot" with reflexes including OE <code>fōt</code> and Latin <code>pes</code> <a href="https://lrc.la.utexas.edu/lex/master/1458">here</a>. The main walk-back is:</p>
+    <p><strong>Cognates to compare:</strong> OE <code>fōt</code>, ModE <code>foot</code>, Gothic <code>fōtus</code>, Old Norse <code>fótr</code>, Latin <code>pēs</code>, Greek <code>poús</code>.</p>
+    <p><code>*pōd-</code> (PIE) → a Proto-Germanic form of the <code>*fōt-</code> type: Grimm gives the regular consonant shifts <code>p → f</code> and <code>d → t</code>, while the inherited <strong>o-grade vocalism</strong> is what makes this the <code>fōt</code>-type member of the paradigm rather than the mutated plural <code>fēt</code>. Here <code>o-grade</code> just means "the version of the inherited ablaut pattern that contains <code>o</code>," as in <code>*pōd-</code> beside other related vowel grades → <code>fōt</code> (OE), with no special late Old English contraction step needed.</p>
+    <p>So the useful warning here is different from the one for <code>tēon</code>: this word looks simple because it mostly is. The important extra step is not contraction or palatalization, but recognizing that the singular and plural preserve different historical layers: inherited ablaut underneath, and then later i-mutation in forms like <code>fēt</code>.</p>
+    <p>That also explains why the pair <code>fōt ~ fēt</code> can look puzzling at first. The trigger for i-mutation was not visible in the surviving monosyllabic forms themselves, but in an <strong>older plural ending</strong>. A common reconstruction is a Proto-Germanic plural of the <code>*fōtiz</code> type: the following <code>i</code>-sound fronted the root vowel, and later the ending was reduced or lost, leaving the mutated plural <code>fēt</code>. The same logic helps with <code>mann ~ menn</code>, often traced back to an older plural of the <code>*manniz</code> type.</p>
+    <p>For pronunciation labels in this discussion, the <code>j</code> of i-mutation is the glide <button data-ipa-play="j">[j]</button>, like the start of English <code>yes</code> or German <code>ja</code>, not IPA [ʝ]. And the <code>i</code> is the high front vowel family, roughly <button data-ipa-play="i">[i]</button> (or long [iː] when long).</p>
+    <p>Processes to notice: <strong>Grimm's Law</strong>, inherited <strong>ablaut</strong>, and later paradigm layering. What you do <em>not</em> need here is Verner's Law, breaking, gemination, or OE vowel contraction.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>OE <code>fæder</code> "father"</strong></p>
+    <p>The IE Lexicon gives PIE <code>pətḗ(r), genitive pətr-és</code> with reflexes including OE <code>fæder</code>, Gothic <code>fadar</code>, Latin <code>pater</code>, and Sanskrit <code>pitár-</code> <a href="https://lrc.la.utexas.edu/lex/master/1521">here</a>. The walk-back is:</p>
+    <p><strong>Cognates to compare:</strong> OE <code>fæder</code>, ModE <code>father</code>, Gothic <code>fadar</code>, Old Norse <code>faðir</code>, Latin <code>pater</code>, Greek <code>patḗr</code>, Sanskrit <code>pitár-</code>.</p>
+    <p><code>*pətḗr</code> (PIE) → an early Germanic form of the <code>*faþēr</code>-type: Grimm first gives the expected consonant shifts <code>p → f</code> and <code>t → þ</code> → that still does not explain the historical <code>d</code>, so Verner must apply next. The crucial accent fact is in the PIE form itself: <code>*pətḗr</code> has the accent on the <code>-tḗr</code> syllable, not on the first syllable. So the consonant that became Germanic <code>þ</code> was <strong>not</strong> immediately preceded by the inherited accent, and Verner therefore voices it, giving the <code>d</code>-type development seen in Gothic <code>fadar</code> and OE <code>fæder</code>.</p>
+    <p>So the hidden middle step is exactly the one learners often miss: <code>t</code> does not jump straight to <code>d</code>. It first becomes the Grimm-style fricative, and only then can Verner's Law voice it. And yes, your stress intuition is right: the later Proto-Germanic fixed initial stress belongs <em>after</em> this stage. By the time you are looking at a Germanic form like <code>*faþēr</code>, the accent is no longer in the old PIE position, so <code>*faþēr</code> itself is not the form that triggers Verner; it is the earlier accented pre-Germanic stage behind it.</p>
+    <p>Processes to notice: <strong>Grimm</strong> plus <strong>Verner</strong>. What you do <em>not</em> need here is OE contraction, breaking, or palatalization.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>OE <code>tēon</code> "draw, pull"</strong></p>
+    <p>The IE Lexicon gives PIE <code>*deuk-</code> "to tug, pull, drag, tow" and lists OE <code>tēon, tēah, tugon, togen</code>, Gothic <code>tiuhan</code>, and Latin <code>dūcō</code> among the reflexes <a href="https://lrc.la.utexas.edu/lex/master/0355">here</a>.</p>
+    <p><strong>Cognates to compare:</strong> OE <code>tēon</code>, Gothic <code>tiuhan</code>, Old Saxon <code>tiohan</code>, Old High German <code>ziohan</code>, Latin <code>dūcō</code>.</p>
+    <p>The less hand-wavey walk-back is:</p>
+    <p><code>*deuk-</code> (PIE root) → a Proto-Germanic strong-verb preform of the <code>*teuhan-</code> type: Grimm gives <code>d → t</code>, and the inherited vowel material appears in the Germanic cognates Wright lines up under this root, especially Gothic <code>tiuhan</code>, OS <code>tiohan</code>, and OHG <code>ziohan</code> → pre-OE <code>*teohan</code>-type form, because Wright's sound section explicitly treats Germanic <code>eu</code> as yielding OE <code>ēo</code> in this word-family (§ 32) → OE <code>tēon</code>, because Wright's contraction section groups it with forms where intervocalic <code>h</code> disappeared and the neighboring vowels contracted (§ 139).</p>
+    <p>So the immediate answer to "why not <code>tēhan</code>?" is: because the <code>h</code> between vowels was lost. A plausible phonetic reason is that intervocalic <code>h</code> was a weak fricative in a weak environment, and consonants in that position often lenite or disappear. And the answer to "why not <code>tēan</code>?" is: because this is not just bare <code>h</code>-loss leaving two vowels side by side; in Wright's account the loss triggers a regular Old English <strong>vowel contraction</strong>, producing the contracted infinitive <code>tēon</code>. A helpful parallel is <code>slēan</code> from earlier <code>*sleahan</code>, which Wright cites in the same neighborhood.</p>
+    <p>The macron matters here. The pre-contraction forms are not usually taken as already containing long <code>ēa</code> or <code>ēo</code>. Rather, loss of <code>h</code> creates a vowel sequence such as <code>*teoan</code> or <code>*sleaan</code>, and the contraction yields a <strong>long diphthongal outcome</strong>, written <code>ēo</code> or <code>ēa</code>. So the length belongs to the contracted result, not to an already-long first vowel in the older pre-contraction form.</p>
+    <p>The usual linguistic explanation is <strong>compensatory lengthening through contraction</strong>: when a consonant disappears and two vowels collapse into one long nucleus, the resulting syllable preserves weight by becoming long. You do not need a more exotic theory than that here; this is a standard kind of historical change.</p>
+    <p>The rest of the paradigm reminds you that one citation form is not the whole story. Wright also gives the alternation <code>tēah</code> : <code>tugon</code> : <code>togen</code>. In his summary of consonant alternations, he places <code>tēon</code> with verbs showing <code>h ~ g</code> across the paradigm, just like <code>flēon ~ flugon</code> and <code>slēan ~ slōgon</code>. So the real historical object is not just <code>tēon</code>; it is the whole inherited strong-verb pattern.</p>
+    <p>Processes to notice: <strong>Grimm's Law</strong>, inherited <strong>ablaut</strong>, OE development of Germanic vowel material, <strong>loss of intervocalic h</strong>, <strong>vowel contraction</strong>, and then paradigm-internal consonant alternation and later leveling. Just as important is what not to force into this example: the key step to the infinitive is <em>not</em> breaking, gemination, or ordinary syncope. This is exactly the kind of word where a single-arrow reconstruction hides too much.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Two good next examples to try later:</strong> <code>dēop</code> "deep" for a cleaner Grimm-plus-vowel-history example, and <code>fēt</code> beside <code>fōt</code> for seeing i-mutation layered on top of an older inherited noun pattern.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Method note:</strong> when you reconstruct backward, ask at each step: "Is this difference from the previous stage due to a broad inherited Germanic law, a later Old English sound change, or just a different ablaut grade inside the same paradigm?" That question prevents a lot of false simplification.</p>
+  </div>
+
+  <h2>5. Practice</h2>
+  <div class="card quiz" data-check data-answer="later branch vowel change">
+    <div class="prompt"><strong>Prompt 1.</strong> What kind of thing is i-mutation in this lesson's map?</div>
+    <input type="text" aria-label="Prompt 1 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="comparative method">
+    <div class="prompt"><strong>Prompt 2.</strong> What is the main name for reconstructing an unattested ancestor by comparing related languages?</div>
+    <input type="text" aria-label="Prompt 2 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="older shared consonant change" data-alt="shared consonant change">
+    <div class="prompt"><strong>Prompt 3.</strong> In one short phrase, what is Grimm's Law in this lesson's map?</div>
+    <input type="text" aria-label="Prompt 3 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="fricative">
+    <div class="prompt"><strong>Prompt 4.</strong> What do we call a consonant made by forcing air through a narrow gap?</div>
+    <input type="text" aria-label="Prompt 4 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="older inherited accent" data-alt="inherited accent">
+    <div class="prompt"><strong>Prompt 5.</strong> What older feature does Verner's Law depend on?</div>
+    <input type="text" aria-label="Prompt 5 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="palatalization">
+    <div class="prompt"><strong>Prompt 6.</strong> What do we call the change that pulls a consonant toward a front-vowel or <code>y</code>-like environment?</div>
+    <input type="text" aria-label="Prompt 6 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <h2>6. What To Read Next</h2>
+  <p>Your primary source for this lesson is the University of Texas <a href="https://lrc.la.utexas.edu/books/pgmc/1-introduction">Proto-Germanic introduction</a>, then the <a href="https://lrc.la.utexas.edu/books/pgmc/2-phonology">phonology chapter</a>. For Old English-centered follow-up, keep Wright and Wright's <em>Old English Grammar</em> and Bosworth-Toller close by.</p>
+
+  <h2>7. Keep Nearby</h2>
+  <ul>
+    <li><a href="../reference/0001-sound-change-map.html">Reference: Germanic Sound-Change Map</a></li>
+    <li><a href="../reference/0002-reconstruction-glossary.html">Reference: Reconstruction Glossary</a></li>
+    <li><a href="../reference/0003-sound-terms.html">Reference: Sound Terms for Historical Linguistics</a></li>
+  </ul>
+
+  <h2>Sources Used</h2>
+  <ul>
+    <li>Winfred P. Lehmann, <a href="https://lrc.la.utexas.edu/books/pgmc/1-introduction"><em>A Grammar of Proto-Germanic</em>, Introduction</a>.</li>
+    <li>Winfred P. Lehmann, <a href="https://lrc.la.utexas.edu/books/pgmc/2-phonology"><em>A Grammar of Proto-Germanic</em>, Phonology</a>.</li>
+    <li>Winfred P. Lehmann, <a href="https://lrc.la.utexas.edu/books/piep/13-pie-phonemics"><em>Proto-Indo-European Phonology</em>, PIE phonemics</a>.</li>
+    <li>Winfred P. Lehmann, <a href="https://lrc.la.utexas.edu/books/piep/15-development"><em>Proto-Indo-European Phonology</em>, development and accent discussion</a>.</li>
+    <li>University of Texas LRC, <a href="https://lrc.la.utexas.edu/guides/lex_user">Indo-European Lexicon User Guide</a>.</li>
+    <li>University of Texas LRC IE Lexicon entries for <a href="https://lrc.la.utexas.edu/lex/master/1458">foot</a>, <a href="https://lrc.la.utexas.edu/lex/master/1521">father</a>, and <a href="https://lrc.la.utexas.edu/lex/master/0355">draw / tug</a>.</li>
+    <li>University of Texas LRC, <a href="https://lrc.la.utexas.edu/eieol/engol/10">Old English Online, phonology overview</a>.</li>
+    <li>University of Texas LRC, <a href="https://lrc.la.utexas.edu/eieol/oruol/10">Old Norse comparison material used for the <code>skip</code> / <code>scip</code> contrast</a>.</li>
+    <li>Joseph Wright and Elizabeth Mary Wright, <em>Old English Grammar</em>, used in this workspace through [data/sources/wright.md](/Users/cmalek/src/workspace/wyrdcraeft/data/sources/wright.md), especially the sections on vowel contraction, strong verbs, and consonant alternations.</li>
+    <li>Bosworth-Toller, kept as a supporting lexical reference for Old English forms and spellings.</li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever a term feels slippery. Historical linguistics gets much easier once the terminology is tied to a timeline and a method.</blockquote>
+</main>
+<script src="../assets/check.js"></script>
+</body>
+</html>
