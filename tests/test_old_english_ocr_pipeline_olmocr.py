@@ -52,6 +52,39 @@ def test_pipeline_reads_olmocr_markdown_output(mock_run, temp_dir) -> None:
 
 
 @patch("wyrdcraeft.services.ocr.old_english_pipeline.run_olmocr_pipeline_with_managed_proxy")
+def test_pipeline_passes_api_key_to_olmocr(mock_run, temp_dir) -> None:
+    input_pdf = temp_dir / "source.pdf"
+    input_pdf.write_bytes(b"%PDF-1.4\n%stub\n")
+
+    output_dir = temp_dir / "out"
+    rules_file = temp_dir / "rules.tsv"
+    rules_file.write_text("", encoding="utf-8")
+    wordlist_file = temp_dir / "wordlist.txt"
+    wordlist_file.write_text("known\n", encoding="utf-8")
+
+    def _mock_olmocr(args, *, launch_config) -> int:  # noqa: ARG001
+        workspace = output_dir / "olmocr_workspace" / "markdown"
+        workspace.mkdir(parents=True, exist_ok=True)
+        (workspace / "source_pg1.md").write_text("known", encoding="utf-8")
+        assert "--api-key" in args
+        api_key_index = args.index("--api-key")
+        assert args[api_key_index + 1] == "hf-pipeline-key"
+        return 0
+
+    mock_run.side_effect = _mock_olmocr
+
+    run_old_english_ocr_pipeline(
+        OldEnglishOCRConfig(
+            input_path=input_pdf,
+            output_dir=output_dir,
+            rules_file=rules_file,
+            wordlist_file=wordlist_file,
+            api_key="hf-pipeline-key",
+        )
+    )
+
+
+@patch("wyrdcraeft.services.ocr.old_english_pipeline.run_olmocr_pipeline_with_managed_proxy")
 def test_pipeline_skip_ocr_uses_existing_workspace(mock_run, temp_dir) -> None:
     input_pdf = temp_dir / "source.pdf"
     input_pdf.write_bytes(b"%PDF-1.4\n%stub\n")

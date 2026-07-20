@@ -440,6 +440,8 @@ def test_bosworth_toller_passes_olmocr_overrides(
             "2048",
             "--upstream-base-url",
             "http://127.0.0.1:8080/v1",
+            "--api-key",
+            "hf-cli-key",
         ],
         env=env,
     )
@@ -452,3 +454,4 @@ def test_bosworth_toller_passes_olmocr_overrides(
     assert config.tile_ocr_base.olmocr_workers == 5
     assert config.tile_ocr_base.olmocr_target_longest_image_dim == 2048
     assert config.tile_ocr_base.upstream_base_url == "http://127.0.0.1:8080/v1"
+    assert config.tile_ocr_base.api_key == "hf-cli-key"

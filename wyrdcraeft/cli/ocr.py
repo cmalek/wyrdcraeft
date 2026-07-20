@@ -129,6 +129,11 @@ def _resolve_cli_value(value: Any | None, fallback: Any) -> Any:
     help="Upstream OpenAI-compatible base URL used by the managed proxy.",
 )
 @click.option(
+    "--api-key",
+    default=None,
+    help="API key forwarded to olmocr. Defaults to HUGGINGFACE_API_KEY when set.",
+)
+@click.option(
     "--olmocr-model",
     default=None,
     help="Optional olmocr model passed to olmocr.pipeline --model.",
@@ -234,6 +239,7 @@ def old_english_ocr(  # noqa: PLR0913
     rules_file: Path,
     wordlist_file: Path,
     upstream_base_url: str | None,
+    api_key: str | None,
     olmocr_model: str | None,
     olmocr_workers: int | None,
     olmocr_max_concurrent_requests: int | None,
@@ -269,6 +275,7 @@ def old_english_ocr(  # noqa: PLR0913
         rules_file: TSV regex-correction rules path.
         wordlist_file: Seed lexicon file path for unknown-token report.
         upstream_base_url: Upstream OpenAI-compatible base URL for proxy forwarding.
+        api_key: API key forwarded to olmocr.
         olmocr_model: Optional olmocr model passed through to pipeline.
         olmocr_workers: Worker count passed through to olmocr.pipeline.
         olmocr_max_concurrent_requests: Max request concurrency for olmocr.
@@ -302,6 +309,7 @@ def old_english_ocr(  # noqa: PLR0913
     resolved_upstream_base_url = _resolve_cli_value(
         upstream_base_url, settings.ocr_upstream_base_url
     )
+    resolved_api_key = _resolve_cli_value(api_key, settings.ocr_api_key)
     resolved_olmocr_model = _resolve_cli_value(olmocr_model, settings.ocr_olmocr_model)
     resolved_olmocr_workers = _resolve_cli_value(
         olmocr_workers, settings.ocr_olmocr_workers
@@ -374,6 +382,7 @@ def old_english_ocr(  # noqa: PLR0913
         rules_file=rules_file,
         wordlist_file=wordlist_file,
         upstream_base_url=resolved_upstream_base_url,
+        api_key=resolved_api_key,
         olmocr_model=resolved_olmocr_model,
         olmocr_workers=resolved_olmocr_workers,
         olmocr_max_concurrent_requests=resolved_olmocr_max_concurrent_requests,
@@ -513,6 +522,11 @@ def _parse_page_ids(pages: str | None) -> tuple[str, ...] | None:
     help="Upstream OpenAI-compatible base URL used by the managed proxy.",
 )
 @click.option(
+    "--api-key",
+    default=None,
+    help="API key forwarded to olmocr. Defaults to HUGGINGFACE_API_KEY when set.",
+)
+@click.option(
     "--force/--no-force",
     default=False,
     show_default=True,
@@ -534,6 +548,7 @@ def bosworth_toller_ocr(  # noqa: PLR0913
     olmocr_workers: int | None,
     olmocr_target_longest_image_dim: int | None,
     upstream_base_url: str | None,
+    api_key: str | None,
     force: bool,
 ) -> None:
     """
@@ -559,6 +574,7 @@ def bosworth_toller_ocr(  # noqa: PLR0913
         olmocr_workers: Worker count forwarded to olmocr.pipeline.
         olmocr_target_longest_image_dim: Raster dimension forwarded to olmocr.
         upstream_base_url: Upstream OpenAI-compatible base URL for proxy forwarding.
+        api_key: API key forwarded to olmocr.
         force: Whether to overwrite an existing witness-prep workspace.
 
     Raises:
@@ -570,6 +586,7 @@ def bosworth_toller_ocr(  # noqa: PLR0913
         upstream_base_url,
         settings.ocr_upstream_base_url,
     )
+    resolved_api_key = _resolve_cli_value(api_key, settings.ocr_api_key)
     resolved_olmocr_workers = _resolve_cli_value(
         olmocr_workers,
         settings.ocr_olmocr_workers,
@@ -584,6 +601,7 @@ def bosworth_toller_ocr(  # noqa: PLR0913
         tile_ocr_base = OldEnglishOCRConfig(
             input_path=source_dir,
             upstream_base_url=resolved_upstream_base_url,
+            api_key=resolved_api_key,
             olmocr_model=resolved_olmocr_model,
             olmocr_workers=resolved_olmocr_workers,
             olmocr_max_concurrent_requests=settings.ocr_olmocr_max_concurrent_requests,

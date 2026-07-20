@@ -101,6 +101,11 @@ class Settings(BaseSettings):
         default=5,
         description="Per-page retry budget for olmocr runs.",
     )
+    #: API key forwarded to upstream olmocr-backed OCR runs.
+    ocr_api_key: str | None = Field(
+        default_factory=lambda: os.environ.get("HUGGINGFACE_API_KEY"),
+        description="API key for upstream olmocr-backed OCR runs.",
+    )
     #: Legacy OCR language option retained for compatibility.
     ocr_legacy_lang: str = Field(
         default="eng+lat",

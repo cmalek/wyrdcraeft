@@ -28,6 +28,8 @@ EXPECTED_SETTINGS_PROXY_MIN_BODY_LINES = 9
 EXPECTED_SETTINGS_PROXY_TIMEOUT_SECONDS = 88.5
 #: Settings-fallback startup timeout in CLI tests.
 EXPECTED_SETTINGS_PROXY_STARTUP_TIMEOUT_SECONDS = 22.5
+#: Settings-fallback OCR API key in CLI tests.
+EXPECTED_SETTINGS_OCR_API_KEY = "hf-test-key"
 
 
 def test_ocr_group_help(runner) -> None:
@@ -43,6 +45,7 @@ def test_ocr_old_english_help(runner) -> None:
     assert result.exit_code == 0
     assert "--input-path" in result.output
     assert "--input-pdf" in result.output
+    assert "--api-key" in result.output
     assert "--skip-ocr" in result.output
     assert "--rules-file" in result.output
     assert "--upstream-base-url" in result.output
@@ -100,6 +103,8 @@ def test_ocr_old_english_option_flow(mock_run, runner, temp_dir) -> None:
             str(wordlist_file),
             "--upstream-base-url",
             "http://127.0.0.1:8080/v1",
+            "--api-key",
+            "hf-cli-key",
         ],
     )
 
@@ -119,6 +124,7 @@ def test_ocr_old_english_option_flow(mock_run, runner, temp_dir) -> None:
     assert config.rules_file == rules_file
     assert config.wordlist_file == wordlist_file
     assert config.upstream_base_url == "http://127.0.0.1:8080/v1"
+    assert config.api_key == "hf-cli-key"
 
 
 @patch("wyrdcraeft.cli.ocr.run_old_english_ocr_pipeline")
@@ -208,6 +214,7 @@ def test_ocr_old_english_uses_settings_fallback(mock_run, runner, temp_dir) -> N
         "wyrdcraeft_OCR_PROXY_STARTUP_TIMEOUT_SECONDS": str(
             EXPECTED_SETTINGS_PROXY_STARTUP_TIMEOUT_SECONDS
         ),
+        "HUGGINGFACE_API_KEY": EXPECTED_SETTINGS_OCR_API_KEY,
     }
     result = runner.invoke(
         cli,
@@ -234,6 +241,7 @@ def test_ocr_old_english_uses_settings_fallback(mock_run, runner, temp_dir) -> N
     assert config.olmocr_target_longest_image_dim == EXPECTED_SETTINGS_OLMOCR_TARGET_DIM
     assert config.olmocr_max_page_retries == EXPECTED_SETTINGS_OLMOCR_PAGE_RETRIES
     assert config.upstream_base_url == "http://127.0.0.1:9999/v1"
+    assert config.api_key == EXPECTED_SETTINGS_OCR_API_KEY
     assert config.proxy_max_tokens_cap == EXPECTED_SETTINGS_PROXY_MAX_TOKENS_CAP
     assert config.proxy_override_length_to_stop is False
     assert (

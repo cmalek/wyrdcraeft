@@ -73,6 +73,7 @@ class OldEnglishOCRConfig:
         skip_ocr: If ``True``, skips olmocr run and reuses existing markdown output.
         rules_file: TSV regex correction rules file path.
         wordlist_file: Seed wordlist file path for unknown-token reporting.
+        api_key: Optional API key forwarded to ``olmocr`` as ``--api-key``.
         olmocr_model: Optional olmocr model argument passed through to pipeline.
         olmocr_workers: Number of local workers for olmocr pipeline.
         olmocr_max_concurrent_requests: Max concurrent request budget for olmocr.
@@ -114,6 +115,8 @@ class OldEnglishOCRConfig:
     rules_file: Path = Path("data/ocr/rules/old_english_safe.tsv")
     #: Seed wordlist file path for unknown-token reporting.
     wordlist_file: Path = Path("data/ocr/wordlists/old_english_seed.txt")
+    #: Optional API key forwarded to ``olmocr`` as ``--api-key``.
+    api_key: str | None = None
     #: Optional olmocr model argument passed through to pipeline.
     olmocr_model: str | None = None
     #: Number of local workers for olmocr pipeline.
@@ -318,6 +321,8 @@ def _run_olmocr(
     ]
     if config.olmocr_model:
         olmocr_args.extend(["--model", config.olmocr_model])
+    if config.api_key:
+        olmocr_args.extend(["--api-key", config.api_key])
 
     launch_config = ProxyLaunchConfig(
         upstream_base_url=config.upstream_base_url,
