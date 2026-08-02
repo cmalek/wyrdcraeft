@@ -131,6 +131,7 @@ index.db-shm
 index.db-wal
 backups/*
 data/bosworth_toller/anglosaxondictio00bosw_jp2
+data/bosworth_toller/anglosaxondictio00bosw.pdf
 anglosaxondictio00bosw_jp2.zip
 work_index_list.csv.zstd
 data/source/raw/bosworth_toller
