@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
 from delb import Document, tag
@@ -17,26 +16,7 @@ if TYPE_CHECKING:
     )
 
 
-class BaseExporter(ABC):
-    """
-    Base class for all exporters.
-    """
-
-    @abstractmethod
-    def export(self, doc: OldEnglishText) -> str:
-        """
-        Export an OldEnglishText document to a string representation.
-
-        Args:
-            doc: The document to export.
-
-        Returns:
-            The exported document as a string.
-
-        """
-
-
-class TEIExporter(BaseExporter):
+class TEIExporter:
     """
     Exporter for TEI XML format using delb for XML manipulation.
     """
