@@ -23,7 +23,7 @@ from .utils import console, print_error
 
 #: Top-level commands that never need the canonical DB readiness gate.
 DATABASE_GATE_SKIP_COMMANDS = frozenset(
-    {"version", "settings", "source", "ocr", "diacritic"}
+    {"version", "settings", "source", "diacritic"}
 )
 
 
@@ -229,7 +229,6 @@ from .diacritic import diacritic_group
 from .diacritic_disambiguate import diacritic_disambiguate
 from .dictionary import dictionary_group
 from .morphology import morphology_group
-from .ocr import ocr_group
 from .settings import settings_group
 from .source import reading_group
 
@@ -238,5 +237,4 @@ cli.add_command(diacritic_group)
 cli.add_command(reading_group)
 cli.add_command(morphology_group)
 cli.add_command(dictionary_group)
-cli.add_command(ocr_group)
 diacritic_group.add_command(diacritic_disambiguate)

@@ -129,3 +129,15 @@ class TestCLIErrorHandling:
         result = runner.invoke(cli, ["invalid-command"])
         assert result.exit_code != 0
         assert "No such command" in result.output
+
+
+def test_ocr_command_group_removed():
+    """Test that the OCR command group has been removed from the CLI."""
+    from click.testing import CliRunner
+
+    from wyrdcraeft.cli.cli import cli
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["ocr", "--help"])
+    assert result.exit_code != 0
+    assert "ocr" not in cli.commands
