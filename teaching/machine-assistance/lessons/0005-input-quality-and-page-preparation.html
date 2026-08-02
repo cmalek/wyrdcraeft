@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0005: Input Quality and Page Preparation</title>
+  <link rel="stylesheet" href="../../shared/assets/course.css">
+</head>
+<body>
+<main>
+  <h1>Input Quality and Page Preparation</h1>
+  <p class="lede">This lesson is about improving your odds before OCR even starts: choosing a good source, deciding when to split pages, and applying only the preparation that actually helps the recognizer.</p>
+
+  <div class="card">
+    <strong>Win for today:</strong> by the end, you should be able to decide whether a source is good enough for first-pass OCR, whether a page should stay whole or be split into smaller regions, and which preprocessing steps are worth trying first.
+  </div>
+
+  <h2>1. Start With The Best Source You Can Get</h2>
+  <p>The cheapest OCR improvement is often <strong>not</strong> an image-processing trick. It is finding a better input witness. If you have three candidate PDFs of the same book, compare the source quality before you tune the recognizer.</p>
+
+  <table>
+    <tr><th>If a source has...</th><th>Prefer it?</th><th>Why</th></tr>
+    <tr><td>high-resolution page images with stable contrast</td><td>yes</td><td>small glyph details and diacritics survive better</td></tr>
+    <tr><td>crooked pages, warped lines, or shadowed gutters</td><td>no if a better witness exists</td><td>you will spend your whole pipeline compensating for geometry problems</td></tr>
+    <tr><td>already-compressed JPEG artifacts or smeared text</td><td>no if avoidable</td><td>the recognizer loses stroke shape before it even sees the page</td></tr>
+    <tr><td>clear typography but weak metadata</td><td>often yes</td><td>OCR usually cares more about pixels than catalog quality</td></tr>
+    <tr><td>a trustworthy corrected text witness alongside the scans</td><td>yes, as support</td><td>that witness can become your gold or alignment aid later</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Rule of thumb:</strong> prefer the best visual witness for OCR, even if a worse-looking source is easier to download or already bundled into another workflow.</p>
+  </div>
+
+  <h2>2. Diagnose The Page Before You Preprocess It</h2>
+  <p>Before changing contrast or slicing the page, identify the real bottleneck. First-pass OCR quality usually fails because of one or more of these:</p>
+
+  <ul>
+    <li>text is too small relative to the model's effective input resolution</li>
+    <li>columns or tables confuse reading order</li>
+    <li>the page is skewed, warped, or shadowed</li>
+    <li>contrast is weak enough that strokes disappear into the background</li>
+    <li>typographic distinctions like bold and italics are too subtle at page scale</li>
+    <li>the page contains more text density than one model input can handle cleanly</li>
+  </ul>
+
+  <p>Do not preprocess blindly. Each transformation can help one failure mode while damaging another.</p>
+
+  <h2>3. The Preparation Ladder</h2>
+  <p>Try the least destructive move that solves the problem.</p>
+
+  <div class="timeline">
+    <div class="step"><strong>Better source first:</strong> swap in a cleaner scan if possible.</div>
+    <div class="step"><strong>Geometry fixes second:</strong> crop borders, deskew, and dewarp before you do heavy tonal changes.</div>
+    <div class="step"><strong>Contrast and denoising third:</strong> increase legibility only as much as needed to preserve strokes.</div>
+    <div class="step"><strong>Region splitting fourth:</strong> split a page only when scale or layout is the real bottleneck.</div>
+    <div class="step"><strong>Aggressive transforms last:</strong> hard binarization, morphology, or extreme sharpening only when simpler steps still fail.</div>
+  </div>
+
+  <h2>4. What Usually Helps</h2>
+  <table>
+    <tr><th>Problem</th><th>Useful first move</th><th>Main caution</th></tr>
+    <tr><td>page is rotated slightly</td><td>deskew</td><td>small errors here can hurt line structure if overdone</td></tr>
+    <tr><td>book curvature or gutter warp</td><td>dewarp or crop to stable text regions</td><td>warping tools can distort glyph shapes if they guess wrong</td></tr>
+    <tr><td>weak contrast</td><td>gentle contrast lift or local contrast normalization</td><td>too much can erase thin diacritics</td></tr>
+    <tr><td>salt-and-pepper noise</td><td>light denoising</td><td>heavy denoising can delete punctuation and marks</td></tr>
+    <tr><td>tiny dense text</td><td>split the page into smaller regions</td><td>you must preserve reading order when you reassemble</td></tr>
+    <tr><td>multi-column layout</td><td>segment by column before OCR or preserve layout-bearing outputs</td><td>a whole-page text pass may scramble order even when words are recognized well</td></tr>
+    <tr><td>tables</td><td>treat table regions separately or keep table-aware witness artifacts</td><td>plain text can look readable while still losing the table structure</td></tr>
+  </table>
+
+  <h2>5. When To Split A Page</h2>
+  <p>Splitting is appropriate when the model cannot devote enough effective resolution to each line or column on the full page. This often happens with dictionaries, glossaries, and grammars in small type.</p>
+
+  <div class="card">
+    <p><strong>Split when:</strong> the page is dense, the text is small, the layout has narrow columns, or typographic distinctions disappear at full-page scale.</p>
+    <p><strong>Do not split just because you can:</strong> every split creates a reassembly problem, and bad reassembly can destroy reading order or table structure.</p>
+  </div>
+
+  <h2>6. Bosworth-Toller As A Case Study</h2>
+  <p><code>anglosaxondictio00bosw.pdf</code> is a good example of a page that benefits from splitting. The pages are densely packed, the font is small, and the text is laid out in two columns. At full-page scale, each column can become too small relative to the OCR model's usable input budget.</p>
+
+  <p>The strategy you described is exactly the kind of thing to try:</p>
+  <ul>
+    <li>split each page into four images</li>
+    <li>make each tile's longest side match the model's preferred maximum input dimension</li>
+    <li>run OCR on each tile separately</li>
+    <li>reassemble in a fixed reading order</li>
+  </ul>
+
+  <p>Why this helps:</p>
+  <ul>
+    <li>each line of text occupies more pixels</li>
+    <li>small diacritics and ligatures are less likely to vanish</li>
+    <li>column order becomes easier to control</li>
+    <li>bold/italic or other style differences may survive better if the glyphs are rendered larger</li>
+  </ul>
+
+  <p>What you must guard against:</p>
+  <ul>
+    <li>tiles cutting through lines or entries awkwardly</li>
+    <li>reassembly in the wrong reading order</li>
+    <li>duplicate text in overlapping regions</li>
+    <li>tables or marginal structures no longer matching the prose assumptions</li>
+  </ul>
+
+  <h2>6a. One Model Or Two Stages?</h2>
+  <p>If you care about both <strong>hard-text recognition</strong> and <strong>typographic structure</strong>, do not assume one OCR model will do both equally well.</p>
+
+  <table>
+    <tr><th>Approach</th><th>Strength</th><th>Weakness</th></tr>
+    <tr><td>single OCR model</td><td>simpler pipeline, fewer moving parts</td><td>the best text recognizer may strip or flatten bold, italics, and font distinctions</td></tr>
+    <tr><td>two-stage pipeline</td><td>lets you optimize text recognition and style/layout separately</td><td>you must align the outputs back together</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Good practical rule:</strong> if the typography carries meaning, treat style as its own evidence layer. Let one system focus on producing the best witness text, and let another system detect style/layout spans such as bold, italic, or region classes.</p>
+  </div>
+
+  <p>This matters for sources like Wright and Bosworth-Toller. A model that gives excellent readable text may still discard the distinction between bold Old English headwords and italic modern-language glosses. In that case the right question is not “which one model is perfect?” but “how do I combine the best text witness with the best style/layout witness?”</p>
+
+  <p>A strong pattern is:</p>
+  <div class="timeline">
+    <div class="step"><strong>Stage 1:</strong> run the OCR engine that gives the best hard-text recognition on difficult pages.</div>
+    <div class="step"><strong>Stage 2:</strong> run a layout or document-analysis system that preserves spans, regions, or font properties.</div>
+    <div class="step"><strong>Stage 3:</strong> align style spans back onto the OCR witness.</div>
+    <div class="step"><strong>Stage 4:</strong> validate text fidelity and style retention separately.</div>
+  </div>
+
+  <h2>7. Contrast, Binarization, and Other Common Temptations</h2>
+  <p>People often jump straight to “increase contrast” or “make it black and white.” Sometimes that helps. Sometimes it ruins the very features you care about.</p>
+
+  <table>
+    <tr><th>Transformation</th><th>Can help</th><th>Can hurt</th></tr>
+    <tr><td>contrast boost</td><td>faint text on gray paper</td><td>thin macrons, breathings, or punctuation can blow out</td></tr>
+    <tr><td>binarization</td><td>clear dark text with noisy background</td><td>subtle stroke width and typographic differences may disappear</td></tr>
+    <tr><td>sharpening</td><td>soft scans</td><td>halos can make glyph shapes less realistic</td></tr>
+    <tr><td>erosion / dilation</td><td>special cases of broken or swollen strokes</td><td>very easy to destroy ligatures and diacritics</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Safe default:</strong> keep the first pass as close to the source image as possible, with only the minimum geometry and tonal cleanup needed to make the page legible. Heavy transforms are worth trying only when you can measure that they helped.</p>
+  </div>
+
+  <h2>8. What A Good First-Pass Experiment Looks Like</h2>
+  <p>For one difficult source, compare a few variants rather than guessing:</p>
+
+  <div class="timeline">
+    <div class="step"><strong>Variant A:</strong> whole page, minimal cleanup.</div>
+    <div class="step"><strong>Variant B:</strong> whole page, gentle deskew and contrast normalization.</div>
+    <div class="step"><strong>Variant C:</strong> split by column or tile, same cleanup.</div>
+    <div class="step"><strong>Variant D:</strong> split plus any extra transformation you suspect helps, such as denoising.</div>
+  </div>
+
+  <p>Then compare them using the validation approach from Lesson 0004. For small-font dictionary pages, the winner is often not the cleanest-looking image to human eyes, but the one that best preserves the exact graphemes and structure you care about.</p>
+
+  <h2>9. A Good Preparation Checklist</h2>
+  <table>
+    <tr><th>Question</th><th>If yes...</th><th>If no...</th></tr>
+    <tr><td>Is there a better scan source?</td><td>switch sources before tuning OCR</td><td>proceed to preprocessing</td></tr>
+    <tr><td>Is the page skewed or warped?</td><td>fix geometry first</td><td>leave geometry alone</td></tr>
+    <tr><td>Is the text too small at page scale?</td><td>test region splitting</td><td>keep the page whole</td></tr>
+    <tr><td>Are columns or tables confusing order?</td><td>segment layout or keep richer witness formats</td><td>plain text may be enough</td></tr>
+    <tr><td>Are diacritics vanishing after tonal changes?</td><td>back off aggressive contrast or binarization</td><td>keep the transform if metrics improve</td></tr>
+    <tr><td>Does typography encode structure?</td><td>treat style retention as a first-class requirement</td><td>you may accept simpler witness output</td></tr>
+  </table>
+
+  <h2>10. Keep Nearby</h2>
+  <ul>
+    <li><a href="./0004-lossless-ocr-pipeline.html">Lesson 0004: Lossless OCR Pipeline for Difficult PDFs</a></li>
+    <li><a href="./0006-bt-entry-structuring-from-witnesses.html">Lesson 0006: BT Entry Structuring From Witnesses</a></li>
+    <li><a href="../reference/0005-ocr-structuring-checklist.html">Reference 0005: OCR Structuring Checklist</a></li>
+    <li><a href="../reference/0006-ocr-output-formats.html">Reference 0006: OCR Output Formats</a></li>
+  </ul>
+
+  <h2>Primary Sources To Read Next</h2>
+  <ul>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html">Tesseract: Improving the quality of the output</a> for concrete preprocessing ideas and their tradeoffs.</li>
+    <li><a href="https://ocr-d.de/en/workflows.src.html">OCR-D Workflow Guide</a> for a more explicit staged workflow covering optimization, layout analysis, and segmentation.</li>
+    <li><a href="https://github.com/allenai/olmocr">AllenAI olmOCR repository</a> for the model's page-rendering options, including longest-side image sizing.</li>
+  </ul>
+
+  <h2>Sources Used</h2>
+  <ul>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html">Tesseract: Improving the quality of the output</a></li>
+    <li><a href="https://ocr-d.de/en/workflows.src.html">OCR-D Workflow Guide</a></li>
+    <li><a href="https://ocr-d.de/en/spec/glossary.html">OCR-D Glossary</a></li>
+    <li><a href="https://github.com/allenai/olmocr">AllenAI olmOCR repository</a></li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever you want to test a concrete page-prep strategy. The next useful step is often a tiny A/B experiment on one page rather than a whole-book preprocessing decision.</blockquote>
+</main>
+</body>
+</html>

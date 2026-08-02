@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference 0006: OCR Output Formats</title>
+  <link rel="stylesheet" href="../../shared/assets/course.css">
+</head>
+<body>
+<main>
+  <h1>OCR Output Formats</h1>
+  <p class="lede">Use this page when you need to remember what <code>hOCR</code>, <code>TSV</code>, <code>ALTO</code>, and <code>PAGE XML</code> are actually for.</p>
+
+  <div class="card">
+    <strong>Quick rule:</strong> plain text is for reading, but these formats are for keeping <strong>layout, coordinates, structure, and confidence</strong> attached to the recognized text.
+  </div>
+
+  <h2>At A Glance</h2>
+  <table>
+    <tr><th>Format</th><th>Shape</th><th>Best use</th><th>Main tradeoff</th></tr>
+    <tr><td><code>hOCR</code></td><td>HTML / XHTML</td><td>easy visual inspection with coordinates</td><td>less tidy for strict downstream data pipelines</td></tr>
+    <tr><td><code>TSV</code></td><td>tabular text</td><td>quick scripting and filtering</td><td>lighter structure than the XML formats</td></tr>
+    <tr><td><code>ALTO</code></td><td>XML</td><td>library / archive workflows</td><td>more verbose and heavier to parse</td></tr>
+    <tr><td><code>PAGE XML</code></td><td>XML</td><td>layout analysis and reading-order work</td><td>also verbose; best when structure matters a lot</td></tr>
+  </table>
+
+  <h2><code>hOCR</code></h2>
+  <p><code>hOCR</code> is an OCR output format built on HTML/XHTML. It stores recognized text inside markup that can also carry bounding boxes, line structure, page structure, and sometimes confidence values.</p>
+
+  <div class="card">
+    <p><strong>Use it when:</strong> you want something human-inspectable, browser-friendly, and still rich enough to show where the text came from on the page.</p>
+    <p><strong>Think of it as:</strong> OCR text plus page geometry in an HTML-shaped wrapper.</p>
+  </div>
+
+  <h2><code>TSV</code></h2>
+  <p><code>TSV</code> means tab-separated values. In OCR output, it usually gives you one row per page, block, paragraph, line, or word, with columns for text, confidence, and coordinates.</p>
+
+  <div class="card">
+    <p><strong>Use it when:</strong> you want to script quickly, filter low-confidence words, compute simple layout statistics, or push OCR results into a dataframe without much ceremony.</p>
+    <p><strong>Think of it as:</strong> the fastest low-friction format for analysis, but not the richest structural model.</p>
+  </div>
+
+  <h2><code>ALTO</code></h2>
+  <p><code>ALTO</code> is an XML standard used widely in digitization and library settings. It represents pages, regions, lines, strings, coordinates, and metadata in a more formal archival structure.</p>
+
+  <div class="card">
+    <p><strong>Use it when:</strong> you want a richer, more standardized interchange format for OCR output in long-lived collections or digital-humanities pipelines.</p>
+    <p><strong>Think of it as:</strong> archive-grade OCR XML.</p>
+  </div>
+
+  <h2><code>PAGE XML</code></h2>
+  <p><code>PAGE XML</code> is another XML standard, especially common in OCR and document-analysis research. It is strong at representing page regions, text lines, segmentation, and reading order.</p>
+
+  <div class="card">
+    <p><strong>Use it when:</strong> layout structure itself is part of the problem, for example when you care about regions, line segmentation, table zones, or the exact reading order.</p>
+    <p><strong>Think of it as:</strong> layout-analysis XML with OCR text attached.</p>
+  </div>
+
+  <h2>Which One Should You Reach For?</h2>
+  <table>
+    <tr><th>If you need...</th><th>Start with...</th></tr>
+    <tr><td>something easy to inspect in a browser</td><td><code>hOCR</code></td></tr>
+    <tr><td>something easy to script against quickly</td><td><code>TSV</code></td></tr>
+    <tr><td>a richer archival interchange format</td><td><code>ALTO</code></td></tr>
+    <tr><td>serious layout and reading-order structure</td><td><code>PAGE XML</code></td></tr>
+  </table>
+
+  <h2>Common OCR Quality Metrics</h2>
+  <table>
+    <tr><th>Metric</th><th>What it means</th><th>Best use</th><th>Main caution</th></tr>
+    <tr><td><code>CER</code></td><td>Character Error Rate: the share of characters that must be inserted, deleted, or substituted to turn OCR output into the reference text.</td><td>fine-grained text quality, especially for short forms, diacritics, and symbol-heavy material</td><td>a decent CER can still hide structurally important failures such as table collapse or lost italics</td></tr>
+    <tr><td><code>WER</code></td><td>Word Error Rate: the share of words that must be inserted, deleted, or substituted to turn OCR output into the reference text.</td><td>coarser readability checks and page-level comparisons</td><td>WER is less sensitive than CER to single-character damage inside a word, which matters a lot in philological work</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Quick rule:</strong> use <code>CER</code> when character fidelity matters, and use <code>WER</code> when you want a rougher sense of how readable the recognized text is. For Old English and similar material, <code>CER</code> is usually the more informative of the two, because one wrong character can change morphology, script, or diacritics even when the word still looks close enough to a human reader.</p>
+  </div>
+
+  <h2>Practical Caution</h2>
+  <p>These formats do not solve OCR quality by themselves. They solve a different problem: <strong>they keep evidence about where the text came from and how it was segmented.</strong> That matters a lot when plain text looks plausible but the layout, reading order, or symbol handling may be wrong.</p>
+
+  <h2>Keep Nearby</h2>
+  <ul>
+    <li><a href="../lessons/0004-lossless-ocr-pipeline.html">Lesson 0004: Lossless OCR Pipeline for Difficult PDFs</a></li>
+    <li><a href="./0005-ocr-structuring-checklist.html">Reference 0005: OCR Structuring Checklist</a></li>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract FAQ</a></li>
+  </ul>
+
+  <h2>Sources Used</h2>
+  <ul>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract FAQ</a></li>
+    <li><a href="https://github.com/tesseract-ocr/tesseract/blob/main/doc/tesseract.1.asc">Tesseract manual page</a></li>
+    <li><a href="https://ocr-d.de/en/workflows">OCR-D Workflow Guide</a></li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever you want examples of what these formats actually look like on disk. Seeing one sample file usually makes the differences click.</blockquote>
+</main>
+</body>
+</html>

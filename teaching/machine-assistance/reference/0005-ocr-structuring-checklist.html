@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reference 0005: OCR Structuring Checklist</title>
+  <link rel="stylesheet" href="../../shared/assets/course.css">
+</head>
+<body>
+<main>
+  <h1>OCR Structuring Checklist</h1>
+  <p class="lede">Use this when you are turning a hard, image-only Old English PDF into machine-usable data without losing the original evidence.</p>
+
+  <div class="card">
+    <strong>One-line rule:</strong> treat OCR output as a <strong>witness</strong>, not as final truth. Corrections belong in overlays or derived structure, not by erasing the raw evidence.
+  </div>
+
+  <h2>Pipeline</h2>
+  <table>
+    <tr><th>Stage</th><th>Goal</th><th>Main artifact</th><th>Stop if...</th></tr>
+    <tr><td>1. Acquire</td><td>Get stable page images or PDF pages</td><td>source PDF / page images</td><td>the source is incomplete or mixed with unrelated pages</td></tr>
+    <tr><td>2. Prepare</td><td>Normalize page inputs for OCR</td><td>page images / tiles / page PDFs</td><td>layout damage is introduced by preprocessing</td></tr>
+    <tr><td>3. OCR</td><td>Generate readable witness text</td><td>markdown or raw text witness</td><td>you cannot recover page provenance</td></tr>
+    <tr><td>4. Validate</td><td>Measure quality, not vibes</td><td>CER / WER / character-preservation metrics</td><td>thorn, macrons, or table structure collapse badly</td></tr>
+    <tr><td>5. Anchor</td><td>Tie text back to page/region/line</td><td>anchors / spans / bbox links</td><td>text cannot be traced back to image evidence</td></tr>
+    <tr><td>6. Adjudicate</td><td>Record only the exceptions humans must fix</td><td>overlay or review notes</td><td>you are silently rewriting raw OCR in place</td></tr>
+    <tr><td>7. Export</td><td>Produce derived, structured data</td><td>JSON / YAML / JSONL bundle</td><td>the structure cannot point back to witnesses</td></tr>
+  </table>
+
+  <h2>Artifact Ladder</h2>
+  <table>
+    <tr><th>Artifact</th><th>What it is for</th><th>What it must preserve</th></tr>
+    <tr><td>Raw witness</td><td>Verbatim OCR output</td><td>page identity, line breaks when meaningful, hard characters</td></tr>
+    <tr><td>Normalized text</td><td>Searchability and downstream cleanup</td><td>a link back to the raw witness</td></tr>
+    <tr><td>Overlay</td><td>Human corrections by exception</td><td>what changed, why, and where</td></tr>
+    <tr><td>Structured record</td><td>Data for software and agents</td><td>provenance to witness spans or fragments</td></tr>
+  </table>
+
+  <h2>Hard-PDF Failure Modes</h2>
+  <table>
+    <tr><th>If you see...</th><th>Likely problem</th><th>First response</th></tr>
+    <tr><td><code>p</code> for <code>þ</code> or <code>ð</code></td><td>glyph confusion in noisy scans</td><td>track character-preservation metrics before broad correction</td></tr>
+    <tr><td>macrons dropped or flattened</td><td>image quality or model weakness on diacritics</td><td>treat diacritic recall as a separate gate</td></tr>
+    <tr><td>Greek or linguistic symbols normalized away</td><td>model over-regularization</td><td>keep a diplomatic witness and compare against image snippets</td></tr>
+    <tr><td>tables linearized into nonsense</td><td>reading-order collapse</td><td>preserve table witness separately from prose witness</td></tr>
+    <tr><td>good prose but wrong structure</td><td>layout anchoring lost</td><td>recover page/region/line evidence before parsing harder</td></tr>
+    <tr><td>cleaned text with no traceability</td><td>over-eager post-correction</td><td>reintroduce raw witness and overlay layers</td></tr>
+  </table>
+
+  <h2>Minimal-Human-Involvement Rules</h2>
+  <div class="timeline">
+    <div class="step"><strong>Automate generation:</strong> source prep, OCR, normalization, scoring, bundle assembly.</div>
+    <div class="step"><strong>Gate automatically:</strong> fail runs that lose thorns, macrons, or layout integrity.</div>
+    <div class="step"><strong>Review by exception:</strong> humans should touch only uncertain spans, not retype whole pages.</div>
+    <div class="step"><strong>Never destroy evidence:</strong> corrections add layers; they do not replace witnesses.</div>
+  </div>
+
+  <h2>Use These Files In This Repo</h2>
+  <ul>
+    <li><a href="../lessons/0004-lossless-ocr-pipeline.html">Lesson 0004: Lossless OCR Pipeline for Difficult PDFs</a></li>
+    <li><a href="./0006-ocr-output-formats.html">Reference 0006: OCR Output Formats</a></li>
+    <li><a href="https://ocr-d.de/en/workflows">OCR-D Workflow Guide</a></li>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract FAQ</a></li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever a stage feels fuzzy. The whole point is to keep the pipeline understandable enough that you know where a mistake belongs.</blockquote>
+</main>
+</body>
+</html>

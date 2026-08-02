@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0004: Lossless OCR Pipeline for Difficult PDFs</title>
+  <link rel="stylesheet" href="../../shared/assets/course.css">
+  <script defer src="../../shared/assets/check.js"></script>
+</head>
+<body>
+<main>
+  <h1>Lossless OCR Pipeline for Difficult PDFs</h1>
+  <p class="lede">This lesson gives you the core mental model for hard philological PDFs: generate witnesses first, measure quality early, and only then derive structure for software or agents.</p>
+
+  <div class="card">
+    <strong>Win for today:</strong> by the end, you should be able to sketch a seven-stage OCR-to-structured-data workflow and say where raw witnesses, overlays, and normalized exports each belong.
+  </div>
+
+  <h2>1. The Big Idea</h2>
+  <p>If a PDF is image-only and full of diacritics, Greek, tables, and philological symbols, the first mistake to avoid is treating OCR text as already-correct text. OCR output is a <strong>witness</strong>: useful, valuable, and often surprisingly good, but still something that must remain traceable back to the page image.</p>
+
+  <div class="card">
+    <p><strong>Use this sentence until it feels obvious:</strong> <em>OCR produces evidence; structured data produces claims.</em> Evidence should be preserved. Claims should point back to evidence.</p>
+  </div>
+
+  <h2>2. The Seven Stages</h2>
+  <table>
+    <tr><th>Stage</th><th>Question it answers</th><th>Typical artifact</th></tr>
+    <tr><td>Acquire</td><td>What exact pages are we transcribing?</td><td>source PDF or page images</td></tr>
+    <tr><td>Prepare</td><td>What OCR input should the model actually see?</td><td>rendered page PDF, page image, or page tiles</td></tr>
+    <tr><td>OCR</td><td>What witness text can we extract automatically?</td><td>markdown or raw text</td></tr>
+    <tr><td>Validate</td><td>Did this run preserve the characters and structure we care about?</td><td>quality metrics and review flags</td></tr>
+    <tr><td>Anchor</td><td>Where on the page did this text come from?</td><td>page/region/line spans or bundle anchors</td></tr>
+    <tr><td>Adjudicate</td><td>What small set of things still need a human decision?</td><td>overlay edits and review notes</td></tr>
+    <tr><td>Export</td><td>What structured record can downstream software trust?</td><td>JSON, YAML, or JSONL with provenance</td></tr>
+  </table>
+
+  <h2>3. How To Split The Work</h2>
+  <div class="timeline">
+    <div class="step"><strong>OCR engine:</strong> use a strong recognizer for the first pass, especially one that preserves reading order and tolerates tables, equations, and mixed layouts. Modern VLM-based systems such as <code>olmocr</code> are often better than classic OCR alone on messy scholarly PDFs.</div>
+    <div class="step"><strong>Layout-bearing fallback artifacts:</strong> when you need coordinates or line-level evidence, keep formats like <code>hOCR</code>, <code>TSV</code>, <code>ALTO</code>, or <code>PAGE XML</code> instead of relying only on cleaned plain text.</div>
+    <div class="step"><strong>Case bundle or review packet:</strong> for hard structured-data work, keep witnesses, anchors, raw fragments, review decisions, and derived normalized output side by side so nothing important becomes invisible.</div>
+  </div>
+
+  <p>This is the lazy but correct split: one layer produces OCR artifacts, another layer evaluates them, and a later layer turns the trustworthy parts into shareable structure.</p>
+
+  <h2>4. Minimal Human Involvement Does Not Mean Zero Review</h2>
+  <p>The durable goal is not "never look at the text." The durable goal is <strong>review by exception</strong>. Let the machine do the bulk work, then spend human attention only on uncertain spans, damaged characters, broken table order, or places where the structured claim would otherwise outrun the evidence.</p>
+
+  <table>
+    <tr><th>Automate hard</th><th>Keep human for</th></tr>
+    <tr><td>page prep, OCR, normalization, scoring, bundle assembly</td><td>ambiguous characters, fragment splits, table interpretation, hard symbols</td></tr>
+    <tr><td>metrics for CER, WER, thorn, eth, and macron preservation</td><td>accept/reject decisions on flagged exceptions</td></tr>
+    <tr><td>export of machine-usable JSON/YAML</td><td>final trust decisions on the uncertain tail</td></tr>
+  </table>
+
+  <h2>5. The Three Layers You Must Not Confuse</h2>
+  <div class="card">
+    <p><strong>Raw witness:</strong> what the OCR system said.</p>
+    <p><strong>Overlay:</strong> what a human or later pass decided to correct.</p>
+    <p><strong>Normalized export:</strong> what downstream software or agents should consume.</p>
+  </div>
+
+  <p>If you collapse these into one file, you lose the ability to audit mistakes, improve the pipeline, or compare one OCR run against another. A good practical rule is to keep one raw layer, one correction layer, and one derived-consumer layer even if your exact filenames differ.</p>
+
+  <h2>6. What Quality Gates Matter Here</h2>
+  <p>On difficult Old English material, a generic "looks readable" check is too weak. Historical OCR research and practical workflow guides both point toward evaluation that is specific to the document and to the downstream use case, not just a single coarse score.</p>
+
+  <table>
+    <tr><th>Feature</th><th>Why it matters</th><th>Gate idea</th></tr>
+    <tr><td>thorn / eth</td><td>they change lexical identity and morphology</td><td>track preservation and thorn-to-<code>p</code> rate</td></tr>
+    <tr><td>macrons</td><td>they matter for philology, lookup, and normalization</td><td>track macron recall separately</td></tr>
+    <tr><td>Greek / symbols</td><td>they often encode grammatical or comparative meaning</td><td>sample-check against witness images</td></tr>
+    <tr><td>tables</td><td>bad reading order destroys structure</td><td>preserve table witness separately from prose</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Important warning from the post-correction literature:</strong> a system can lower CER and still make the text less trustworthy by silently normalizing, modernizing, or hallucinating. So your gates should ask both <strong>"Did the text get cleaner?"</strong> and <strong>"Did we preserve the characters, symbols, and uncertainty that matter?"</strong></p>
+  </div>
+
+  <h2>6a. How To Define Good Metrics</h2>
+  <p>Start from the kinds of mistakes that would actually hurt your downstream use. For philological PDFs, that usually means <strong>not</strong> one score but a small bundle of scores, each tied to one failure family. A good metric suite should tell you <em>what broke</em>, not just that the page got a worse number.</p>
+
+  <table>
+    <tr><th>Failure family</th><th>What to measure</th><th>Why it matters</th></tr>
+    <tr><td>Diacritic preservation</td><td>recall for macrons and other marks, plus confusion counts</td><td><code>ā</code>, <code>ī̆</code>, <code>ū̆</code>, <code>ό</code>, and <code>ā̃</code> are not decoration; losing them destroys evidence</td></tr>
+    <tr><td>Character-substitution drift</td><td>confusion matrix for philological and Greek characters</td><td><code>η α ρ ι χ ν</code> becoming <code>n a p i x v</code> is a different class of error from ordinary OCR noise</td></tr>
+    <tr><td>Normalization drift</td><td>counts of expansions and substitutions such as <code>æ → ae</code> or macron-to-umlaut</td><td>the text may look readable while still no longer being diplomatically faithful</td></tr>
+    <tr><td>Line-join fidelity</td><td>precision and recall for dehyphenation at line breaks</td><td>some split words should be rejoined, but real hyphenated forms should not be flattened blindly</td></tr>
+    <tr><td>Table fidelity</td><td>cell coverage, row/column order, and reading-order accuracy</td><td>table OCR can have decent word accuracy while still destroying the structure you care about</td></tr>
+    <tr><td>Typographic signal retention</td><td>retention of bold, italics, size/weight classes, or at least tagged spans for them</td><td>font distinctions may carry real structure, such as lemma vs. gloss or Old English vs. Modern English definition</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Good default rule:</strong> define one general text score, then add a few targeted philology scores. For example: CER or WER for overall OCR quality, diacritic recall for marked vowels, a character-confusion report for Greek and special symbols, dehyphenation accuracy for line endings, and a table-structure score for paradigm pages.</p>
+  </div>
+
+  <h2>6b. Build Metrics From Your Own Failure Modes</h2>
+  <p>Your observed scan problems already tell you what to measure.</p>
+
+  <table>
+    <tr><th>If you observe...</th><th>Add this metric</th><th>Simple pass/fail idea</th></tr>
+    <tr><td>macrons lost or changed into umlauts</td><td>macron recall plus macron-to-diaeresis confusion count</td><td>fail if recall drops below your floor or if the confusion count rises above a small tolerated threshold</td></tr>
+    <tr><td><code>æ</code> rendered as <code>ae</code></td><td>ligature preservation rate and explicit <code>æ → ae</code> substitutions</td><td>fail if expansions exceed the rate your downstream consumer can safely repair</td></tr>
+    <tr><td>hyphenated line-break words need joining</td><td>line-break join accuracy</td><td>score separately for true joins and false joins so aggressive cleanup does not look better than it is</td></tr>
+    <tr><td>tables are complex</td><td>table cell recovery and row/column ordering</td><td>require a stronger review flag on pages whose table structure score is below threshold even if plain-text OCR looks fine</td></tr>
+    <tr><td>bold or italics encode structure</td><td>style-span retention rate</td><td>fail if the witness step strips distinctions you later need for parsing or labeling</td></tr>
+    <tr><td>Greek letters look like Latin letters</td><td>script-confusion matrix for a fixed watchlist</td><td>track per-character substitutions such as <code>ρ → p</code> or <code>ν → v</code>, not just overall CER</td></tr>
+    <tr><td>rare diacritics are frequently missed</td><td>watchlist recall for specific rare forms</td><td>treat rare-mark loss as a first-class metric, because averages will hide it</td></tr>
+  </table>
+
+  <h2>6c. What To Do With Wright-Like Documents</h2>
+  <p>A document like <code>WrightAndWright.pdf</code> is a good reminder that validation should be <strong>document-aware</strong>. If bold Old English headwords and italic Modern English glosses carry structure, then style retention is not a cosmetic metric. It is part of whether the OCR witness preserved information that later parsing could use.</p>
+
+  <div class="card">
+    <p><strong>For documents like this, define a watchlist before you run experiments:</strong> macronized vowels, ligatures like <code>æ</code>, Greek letters, rare diacritics, line-break joins, table pages, and style-marked spans. Then require every OCR run to report those categories separately instead of hiding them inside one average score.</p>
+  </div>
+
+  <h2>6d. A Practical Metric Stack</h2>
+  <div class="timeline">
+    <div class="step"><strong>Layer 1:</strong> overall CER or WER for a coarse sanity check.</div>
+    <div class="step"><strong>Layer 2:</strong> philology-sensitive character metrics for macrons, ligatures, thorn/eth, Greek, and rare diacritics.</div>
+    <div class="step"><strong>Layer 3:</strong> structure metrics for line joins, tables, and reading order.</div>
+    <div class="step"><strong>Layer 4:</strong> formatting or style-retention metrics when typography encodes meaning.</div>
+    <div class="step"><strong>Layer 5:</strong> exception flags that force review even when the averages look acceptable.</div>
+  </div>
+
+  <p>The main idea is simple: <strong>measure exactly the kinds of damage you cannot afford to miss.</strong> If a failure mode matters to later parsing, translation, or scholarly trust, it deserves its own metric.</p>
+
+  <h2>6e. Walkthrough: Designing A Macron Metric On Wright Page 26</h2>
+  <p>The natural question is: <strong>how do I measure recall without just eyeballing the whole page every time?</strong> The answer is: you use your eyes <em>once</em> to create a small gold reference, and after that the metric runs automatically.</p>
+
+  <div class="card">
+    <p><strong>Why this page works well:</strong> PDF page 26 of <code>WrightAndWright.pdf</code> (printed page 6 in the Phonology section) is rich in long vowels and also carries other useful signal: <code>æ</code>, <code>ǣ</code>, <code>þ</code>, bold Old English forms, italic Modern English glosses, and several places where script and typography matter to later structure.</p>
+  </div>
+
+  <h3>Step 1: Choose The Exact Thing You Want Recall To Mean</h3>
+  <p>For this page, do <strong>not</strong> define recall as “page looked mostly right.” Define it narrowly:</p>
+  <div class="card">
+    <p><strong>Macron recall</strong> = number of expected macron-bearing graphemes preserved correctly in the OCR witness, divided by the number of macron-bearing graphemes in the gold transcription.</p>
+  </div>
+
+  <p>That means you are checking grapheme occurrences like <code>ā</code>, <code>ǣ</code>, <code>ē</code>, <code>ī</code>, <code>ō</code>, and <code>ū</code>, not just whether the surrounding word is “close enough.”</p>
+
+  <div class="card">
+    <p><strong>Important distinction:</strong> if you want <em>true recall</em>, you need an expected count from a gold reference. Without that, you can still do anomaly detection or heuristic estimation, but you cannot honestly claim exact recall. The practical compromise is <strong>micro-gold</strong>: correct only the phenomena you care about on a few calibration pages, then score future OCR runs automatically against those.</p>
+  </div>
+
+  <h3>Step 2: Build A Small Gold Slice Once</h3>
+  <p>Pick a bounded region from the page and transcribe it carefully by hand one time. For this page, you already did that. Your corrected text is exactly the kind of gold slice we want.</p>
+
+  <div class="card">
+    <p><strong>Gold excerpt from your corrected page:</strong></p>
+    <blockquote>
+      <p><code>*land*; **lang**, **long**, *long*; **mann**, **monn**, *man*; **nama**, **noma**, *name*. See § 59.</code></p>
+      <p><code>**ā** had the same sound as the **a** in NE. **father**, as **ān**, *one*; **bān**, *bone*; **rāp**, *rope*; **twā**, *two*; **cnāwan**, *to know*; **māwan**, *to mow*; **sāwan**, *to sow*.</code></p>
+      <p><code>**æ** had the same sound as the **a** in NE. hat, as **dæg**, *day*; **fæder**, *father*; **fæstan**, *to fasten*; **hæfde**, *he had*; **mægden**, *maiden*.</code></p>
+      <p><code>**ǣ** had the same sound as the **ai** in NE. air, and the **è** in French **père**, as **dǣd**, *deed*; **sǣd**, *seed*; **wǣpen**, *weapon*; **clǣne**, *clean*; **hǣlan**, *to heal*; **lǣdan**, *to lead*; **sǣ**, *sea*.</code></p>
+      <p><code>**ē** had the same sound as the **e** in NHG. reh, as **hēr**, *here*; **cwēn**, *queen*; **fēdan**, *to feed*; **grēne**, *green*; **tēþ**, *teeth*.</code></p>
+      <p><code>**ī** had the same sound as the **i** in NHG. ihn, and nearly the same sound as the ee in NE. feed, as **līf**, *life*; **mīn**, *my*; **tīd**, *time*; **fīf**, *five*; **sīþe**, *scythe*.</code></p>
+      <p><code>**ō** had the same sound as the **o** in NHG. bote, as **brōþor**, *brother*; **grōwan**, *to grow*; **mōdor**, *mother*; **mōna**, *moon*; **sōna**, *soon*; **gōs**, *goose*; **ōþer**, *other*; **þōhte**, *he thought*.</code></p>
+      <p><code>**ū** had the same sound as the **u** in NHG. gut, and nearly the same sound as the oo in NE. food, as **cū**, *cow*; **hūs**, *house*; **sūr**, *sour*; **ūt**, *out*; **mūþ**, *mouth*; **ūs**, *us*.</code></p>
+    </blockquote>
+  </div>
+
+  <p>This gives you several things at once:</p>
+
+  <ul>
+    <li>the exact Unicode graphemes</li>
+    <li>macron-bearing forms such as <code>ān</code>, <code>bān</code>, <code>hēr</code>, <code>līf</code>, <code>brōþor</code>, and <code>mūþ</code></li>
+    <li>ligatures like <code>æ</code> and <code>ǣ</code></li>
+    <li>thorn in forms like <code>tēþ</code>, <code>sīþe</code>, <code>brōþor</code>, and <code>þōhte</code></li>
+    <li>style markers for bold Old English and italic Modern English glosses</li>
+  </ul>
+
+  <p>After that one careful transcription, every future OCR candidate can be compared against the same gold automatically.</p>
+
+  <h3>Step 3: Decide What Counts As Correct</h3>
+  <table>
+    <tr><th>OCR output</th><th>Count as preserved?</th><th>Why</th></tr>
+    <tr><td><code>ā</code> for expected <code>ā</code></td><td>yes</td><td>exact target preserved</td></tr>
+    <tr><td><code>a</code> for expected <code>ā</code></td><td>no</td><td>macron lost</td></tr>
+    <tr><td><code>ä</code> for expected <code>ā</code></td><td>no</td><td>wrong diacritic, even if visually similar</td></tr>
+    <tr><td><code>ae</code> for expected <code>æ</code> or <code>ǣ</code></td><td>no for ligature-preservation</td><td>expansion may be readable but is not diplomatically faithful</td></tr>
+    <tr><td>wrong base letter with a mark, such as <code>ō</code> for expected <code>ā</code></td><td>no</td><td>base-letter identity also matters</td></tr>
+  </table>
+
+  <h3>Step 4: Compute The Metric Automatically</h3>
+  <p>Now you can count the expected targets from the gold transcription rather than from guesswork. Suppose your gold slice contains <code>40</code> macron-bearing grapheme occurrences. If the OCR witness preserves <code>36</code> of them exactly, drops <code>3</code>, and changes <code>1</code> into an umlauted form, then:</p>
+  <div class="card">
+    <p><code>macron_recall = 36 / 40 = 0.90 = 90%</code></p>
+  </div>
+
+  <p>Do <strong>not</strong> stop there. Also record the confusion breakdown, because <code>lost macron</code> and <code>wrong diacritic substituted</code> are different failure modes:</p>
+  <ul>
+    <li><code>macron_lost = 3</code></li>
+    <li><code>macron_to_umlaut = 1</code></li>
+    <li><code>wrong_base_letter_with_mark = 0</code></li>
+  </ul>
+
+  <h3>Step 5: Set A Floor From Review Cost, Not Vibes</h3>
+  <p>A “floor” is the lowest score you will still accept before the page or run is kicked into manual review. The easiest way to choose one is to connect it to how many fixes a human would have to make.</p>
+
+  <div class="card">
+    <p><strong>Example rule:</strong> on a validation slice of about <code>40</code> macron-bearing graphemes, allow at most <code>2</code> macron failures. That implies a floor of <code>38 / 40 = 95%</code> macron recall.</p>
+  </div>
+
+  <p>Why this is better than guessing:</p>
+  <ul>
+    <li>it ties the threshold to visible correction burden</li>
+    <li>it scales to larger samples the same way</li>
+    <li>it makes the review rule explicit: “more than two macron repairs on this slice is too much”</li>
+  </ul>
+
+  <p>You can do the same for the other signals on this page:</p>
+  <ul>
+    <li><strong>ligature floor:</strong> maybe zero tolerated <code>æ → ae</code> expansions on the validation slice if ligature fidelity is critical</li>
+    <li><strong>thorn floor:</strong> maybe zero tolerated <code>þ → p</code> substitutions because the confusion is too damaging</li>
+    <li><strong>style floor:</strong> require that bold Old English forms and italic Modern English glosses are retained above some minimum span-level recall if you plan to parse those distinctions later</li>
+  </ul>
+
+  <h3>Step 5a: What If You Do Not Yet Have A Gold Count?</h3>
+  <p>Then be explicit that you are doing something weaker than recall.</p>
+  <table>
+    <tr><th>What you have</th><th>What you can claim</th><th>What you cannot claim</th></tr>
+    <tr><td>hand-corrected page or slice</td><td>true recall and exact confusion counts</td><td>nothing special; this is real ground truth</td></tr>
+    <tr><td>trusted corrected edition or parallel text</td><td>approximate recall after alignment</td><td>perfect page-faithful counts without checking alignment errors</td></tr>
+    <tr><td>only OCR outputs and heuristics</td><td>anomaly rates, disagreement rates, suspicious-substitution counts</td><td>true recall</td></tr>
+  </table>
+
+  <p>So the honest workflow is:</p>
+  <div class="timeline">
+    <div class="step"><strong>Micro-gold:</strong> correct a few representative pages like this one.</div>
+    <div class="step"><strong>Calibrate:</strong> use those pages to set thresholds for macrons, ligatures, thorn, and style.</div>
+    <div class="step"><strong>Scale:</strong> use cheaper anomaly metrics on the rest of the corpus to decide what needs review.</div>
+  </div>
+
+  <div class="card">
+    <p><strong>Recommended startup workflow:</strong> do <em>not</em> begin by trying to gold the whole book. Start with one calibration page, build real metrics for that page, iterate the OCR pipeline until the scores and correction burden are acceptable, then expand to a small multi-page calibration set. Only after that should you roll the workflow out to the broader corpus.</p>
+  </div>
+
+  <h3>Step 6: Use More Than One Slice Before You Freeze The Threshold</h3>
+  <p>Do not set the permanent floor from one page alone. Use page 26 as your first calibration slice, then add a few more pages with different difficulty profiles: one table-heavy page, one page with Greek, one page with rare diacritics, one page with many line-break joins. Run your OCR candidates across all of them and ask:</p>
+  <ul>
+    <li>what score range do the acceptable runs actually achieve?</li>
+    <li>at what score does manual cleanup become annoying enough to reject the run?</li>
+    <li>which failure types are rare but unacceptable, even when the average score looks fine?</li>
+  </ul>
+
+  <p>That gives you a defensible floor. In practice, the workflow is:</p>
+  <div class="timeline">
+    <div class="step"><strong>Calibrate:</strong> build a few gold slices and measure several OCR candidates.</div>
+    <div class="step"><strong>Inspect:</strong> compare the scores against actual correction burden.</div>
+    <div class="step"><strong>Choose:</strong> set the floor just above the point where the witness becomes too expensive or too lossy to trust.</div>
+    <div class="step"><strong>Separate:</strong> keep “average quality” thresholds distinct from “hard failure” thresholds like losing bold/italic structure or misreading Greek as Latin.</div>
+  </div>
+
+  <p>So the short answer is: <strong>you test recall with your eyes once to make a gold sample, then with code forever after.</strong> And you define the floor by deciding how much specific damage you are willing to repair by hand.</p>
+
+  <h2>7. Practice</h2>
+  <div class="card quiz" data-check data-answer="witness">
+    <div class="prompt"><strong>Prompt 1.</strong> A verb paradigm page was OCR'd automatically. What is the first status of that text: raw truth, witness, or final export?</div>
+    <input type="text" aria-label="Prompt 1 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="overlay">
+    <div class="prompt"><strong>Prompt 2.</strong> You discover one misread thorn in an otherwise good line. Which layer should record the correction first?</div>
+    <input type="text" aria-label="Prompt 2 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="card quiz" data-check data-answer="provenance">
+    <div class="prompt"><strong>Prompt 3.</strong> What must every structured record keep so later software can trace it back to evidence?</div>
+    <input type="text" aria-label="Prompt 3 answer">
+    <button type="button">Check</button>
+    <div class="feedback"></div>
+  </div>
+
+  <h2>8. Keep Nearby</h2>
+  <ul>
+    <li><a href="./0005-input-quality-and-page-preparation.html">Lesson 0005: Input Quality and Page Preparation</a></li>
+    <li><a href="./0006-bt-entry-structuring-from-witnesses.html">Lesson 0006: BT Entry Structuring From Witnesses</a></li>
+    <li><a href="../reference/0005-ocr-structuring-checklist.html">Reference 0005: OCR Structuring Checklist</a></li>
+    <li><a href="../reference/0006-ocr-output-formats.html">Reference 0006: OCR Output Formats</a></li>
+    <li><a href="https://ocr-d.de/en/workflows">OCR-D Workflow Guide</a></li>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract FAQ and output-format docs</a></li>
+  </ul>
+
+  <h2>Primary Sources To Read Next</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2502.18443">olmOCR: Unlocking Trillions of Tokens in PDFs with Vision Language Models</a> for the current VLM OCR approach to reading order, tables, equations, and noisy layouts.</li>
+    <li><a href="https://github.com/allenai/olmocr">AllenAI olmOCR repository</a> for practical behavior, inputs, outputs, and deployment modes.</li>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract documentation</a> for output formats like <code>hOCR</code>, <code>TSV</code>, and searchable PDF when you need lower-level layout evidence.</li>
+    <li><a href="https://ocr-d.de/en/workflows">OCR-D Workflow Guide</a> for a more explicit historical-document workflow that treats segmentation, recognition, post-correction, and evaluation as separate concerns.</li>
+  </ul>
+
+  <h2>Sources Used</h2>
+  <ul>
+    <li><a href="https://arxiv.org/abs/2502.18443">olmOCR paper</a></li>
+    <li><a href="https://github.com/allenai/olmocr">AllenAI olmOCR repository</a></li>
+    <li><a href="https://tesseract-ocr.github.io/tessdoc/FAQ.html">Tesseract FAQ</a></li>
+    <li><a href="https://github.com/tesseract-ocr/tesseract/blob/main/doc/tesseract.1.asc">Tesseract manual page</a></li>
+    <li><a href="https://ocr-d.de/en/workflows">OCR-D Workflow Guide</a></li>
+    <li><a href="https://arxiv.org/abs/2502.01205">OCR Error Post-Correction with LLMs in Historical Documents: No Free Lunches</a></li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever you want to zoom into one stage. The next good lessons from here are usually post-correction strategy, table handling, evaluation design, or a repo-specific implementation example.</blockquote>
+</main>
+</body>
+</html>

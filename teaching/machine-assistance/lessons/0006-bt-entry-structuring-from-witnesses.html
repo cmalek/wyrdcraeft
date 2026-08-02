@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 0006: BT Entry Structuring From Witnesses</title>
+  <link rel="stylesheet" href="../../shared/assets/course.css">
+</head>
+<body>
+<main>
+  <h1>BT Entry Structuring From Witnesses</h1>
+  <p class="lede">This lesson shows how to go from a Bosworth-Toller OCR witness page to structured, machine-readable dictionary entries without flattening away the evidence that makes the entry trustworthy.</p>
+
+  <div class="card">
+    <strong>Win for today:</strong> by the end, you should be able to explain why the unit of work is an entry block rather than a page, and sketch a schema plus a parsing workflow using <code>abbad</code> as the worked example.
+  </div>
+
+  <h2>1. The Unit Of Work Is The Entry</h2>
+  <p>For Bosworth-Toller, page OCR is only the witness layer. The useful structuring unit is the <strong>entry block</strong>: one headword plus its variants, grammar, glosses, attestations, citations, derivations, and editorial material.</p>
+
+  <div class="card">
+    <p><strong>Do not start by asking:</strong> “How do I turn this whole page into final rows?”</p>
+    <p><strong>Start by asking:</strong> “Where does one entry start, where does it end, and how do I preserve all the fragments inside it?”</p>
+  </div>
+
+  <h2>2. The Witness We Start From</h2>
+  <p>For this lesson, the source page is <a href="/Users/cmalek/src/workspace/wyrdcraeft/data/sources/raw/bosworth_toller/pages/anglosaxondictio00bosw-0030.png">anglosaxondictio00bosw-0030.png</a>, split into tiles such as <a href="/Users/cmalek/src/workspace/wyrdcraeft/data/sources/raw/bosworth_toller/tiles/anglosaxondictio00bosw-0030-col-1-part-1.png">anglosaxondictio00bosw-0030-col-1-part-1.png</a> and <a href="/Users/cmalek/src/workspace/wyrdcraeft/data/sources/raw/bosworth_toller/tiles/anglosaxondictio00bosw-0030-col-2-part-1.png">anglosaxondictio00bosw-0030-col-2-part-1.png</a>, with the reassembled OCR witness in <a href="/Users/cmalek/src/workspace/wyrdcraeft/data/sources/raw/bosworth_toller/witnesses/pages/anglosaxondictio00bosw-0030.md">anglosaxondictio00bosw-0030.md</a>.</p>
+
+  <p>That witness already gives us strong clues:</p>
+  <ul>
+    <li>new entries begin with a bold-like headword shape at the start of a line in the page image</li>
+    <li>the witness preserves many variant spellings inline</li>
+    <li>grammar often appears early, in patterns like <code>es; m.</code> or <code>an; f.</code></li>
+    <li>definitions, Latin glosses, and attestations are mixed into one block rather than clean columns</li>
+  </ul>
+
+  <h2>3. First Goal: A Lossless Raw Entry</h2>
+  <p>Before you build a final dictionary schema, build a <strong>lossless raw entry representation</strong>. This is where you preserve order and provenance.</p>
+
+  <table>
+    <tr><th>Fragment type</th><th>What it holds</th></tr>
+    <tr><td><code>headword</code></td><td>the canonical displayed entry head</td></tr>
+    <tr><td><code>variant</code></td><td>orthographic or inflectional alternatives listed near the head</td></tr>
+    <tr><td><code>grammar</code></td><td>things like <code>es; m.</code>, <code>an; f.</code>, verb principal-part hints, or inflection info</td></tr>
+    <tr><td><code>sense</code></td><td>one meaning unit or numbered subentry</td></tr>
+    <tr><td><code>translation_en</code></td><td>Modern English gloss or explanation</td></tr>
+    <tr><td><code>translation_la</code></td><td>Latin gloss when present</td></tr>
+    <tr><td><code>attestation</code></td><td>quoted or cited Old English evidence</td></tr>
+    <tr><td><code>source_citation</code></td><td>abbreviated source reference such as <code>Bd.</code>, <code>Chr.</code>, <code>Cd.</code></td></tr>
+    <tr><td><code>editorial_note</code></td><td>long explanatory prose, etymology, or bracketed note</td></tr>
+    <tr><td><code>derivation</code></td><td><code>DER.</code> lists or related-form sections</td></tr>
+    <tr><td><code>unclassified_remainder</code></td><td>anything you cannot safely classify yet</td></tr>
+  </table>
+
+  <p>The win here is simple: nothing gets lost just because the parser does not yet fully understand it.</p>
+
+  <h2>4. Worked Example: <code>abbad</code></h2>
+  <p>From the witness page, the <code>abbad</code> block begins around:</p>
+
+  <blockquote>
+    <p><code>abbad, abbod, abbud, abbot, es; m.: abboda, an; m. I. an abbot; abbās,...</code></p>
+  </blockquote>
+
+  <p>Even before perfect correction, we can already see several layers:</p>
+  <ul>
+    <li><strong>headword:</strong> <code>abbad</code></li>
+    <li><strong>variants:</strong> <code>abbod</code>, <code>abbud</code>, <code>abbot</code></li>
+    <li><strong>grammar:</strong> <code>es; m.</code> and <code>abboda, an; m.</code></li>
+    <li><strong>sense labels:</strong> <code>I.</code> and <code>II.</code></li>
+    <li><strong>Latin gloss:</strong> <code>abbās</code></li>
+    <li><strong>attestations and citations:</strong> lines beginning with quoted OE plus references like <code>Bd. pref.</code>, <code>Chr. 803</code>, <code>L.I.P. 13</code></li>
+    <li><strong>editorial note:</strong> the long prose explanation of what an abbot is and how the title developed</li>
+    <li><strong>derivations:</strong> <code>DER. abbad-dôm, -hād, -isse, -ríce : abboda.</code></li>
+  </ul>
+
+  <h2>5. A Raw Entry Schema</h2>
+  <p>This is the sort of schema to aim for first. Keep it permissive and evidence-friendly.</p>
+
+  <pre><code class="language-python">from pydantic import BaseModel, Field
+
+
+class Citation(BaseModel):
+    source: str | None = None
+    locator: str | None = None
+    quote_oe: str | None = None
+    translation_en: str | None = None
+    translation_la: str | None = None
+
+
+class Sense(BaseModel):
+    label: str | None = None
+    definition_en: str | None = None
+    definition_la: str | None = None
+    notes: list[str] = Field(default_factory=list)
+    citations: list[Citation] = Field(default_factory=list)
+
+
+class RawFragment(BaseModel):
+    kind: str
+    text: str
+    note: str | None = None
+
+
+class DictionaryEntry(BaseModel):
+    headword: str
+    variants: list[str] = Field(default_factory=list)
+    inflections: list[str] = Field(default_factory=list)
+    part_of_speech: str | None = None
+    grammatical_notes: list[str] = Field(default_factory=list)
+    senses: list[Sense] = Field(default_factory=list)
+    derivations: list[str] = Field(default_factory=list)
+    editorial_notes: list[str] = Field(default_factory=list)
+    raw_fragments: list[RawFragment] = Field(default_factory=list)
+    unclassified_remainder: str | None = None
+</code></pre>
+
+  <p>This schema is intentionally boring. That is good. It is stable enough for code, broad enough for partial parses, and explicit enough that you can tell what the parser does not yet know.</p>
+
+  <h2>6. A First Structured Draft For <code>abbad</code></h2>
+  <pre><code class="language-json">{
+  "headword": "abbad",
+  "variants": ["abbod", "abbud", "abbot"],
+  "inflections": ["es; m.", "abboda, an; m."],
+  "part_of_speech": "noun",
+  "grammatical_notes": ["masculine"],
+  "senses": [
+    {
+      "label": "I",
+      "definition_en": "an abbot",
+      "definition_la": "abbās",
+      "notes": [
+        "title of the male superior of certain religious establishments",
+        "long editorial explanation of historical monastic usage follows"
+      ],
+      "citations": [
+        {
+          "quote_oe": "Se árwurda abbad Albínus",
+          "translation_en": "the reverend abbot Albinus",
+          "source": "Bd.",
+          "locator": "pref."
+        }
+      ]
+    },
+    {
+      "label": "II",
+      "definition_en": "bishops were sometimes subject to an abbot"
+    }
+  ],
+  "derivations": ["abbad-dôm", "abbad-hād", "abbadisse", "abbad-ríce"],
+  "editorial_notes": [
+    "long prose note on the office and historical usage of abbots"
+  ]
+}</code></pre>
+
+  <p>This is still not “final truth.” It is the first useful structured draft. The important thing is that the parser can emit this draft while still preserving the raw fragments that produced it.</p>
+
+  <h2>7. What To Gold By Hand</h2>
+  <p>Yes: there is still a gold step. But for BT the gold should be at the <strong>entry-structure</strong> level, not just page text.</p>
+
+  <div class="timeline">
+    <div class="step"><strong>Gold 1:</strong> one page witness correction, so the OCR text itself is trustworthy.</div>
+    <div class="step"><strong>Gold 2:</strong> entry boundaries for that page.</div>
+    <div class="step"><strong>Gold 3:</strong> hand-labeled fragments for 5-10 representative entries like <code>abbad</code>, <code>abbadisse</code>, and <code>abbod-ríce</code>.</div>
+  </div>
+
+  <p>That gives you real targets for:</p>
+  <ul>
+    <li>entry-boundary accuracy</li>
+    <li>headword extraction accuracy</li>
+    <li>variant extraction accuracy</li>
+    <li>part-of-speech / grammar extraction accuracy</li>
+    <li>citation detection accuracy</li>
+  </ul>
+
+  <h2>8. Parsing Strategy: Deterministic First, AI Second</h2>
+  <p>For BT, start with deterministic parsing. Use AI only for the residue.</p>
+
+  <table>
+    <tr><th>First-pass deterministic cues</th><th>Why they help</th></tr>
+    <tr><td>new line plus headword-like token</td><td>good signal for entry starts</td></tr>
+    <tr><td>patterns like <code>es; m.</code>, <code>an; f.</code></td><td>good grammar / inflection hooks</td></tr>
+    <tr><td><code>I.</code>, <code>II.</code>, <code>DER.</code></td><td>good internal structure markers</td></tr>
+    <tr><td>citation abbreviations like <code>Bd.</code>, <code>Chr.</code>, <code>Cd.</code></td><td>good source-reference hooks</td></tr>
+    <tr><td>em dash / colon transitions</td><td>often mark gloss or attestation boundaries</td></tr>
+  </table>
+
+  <div class="card">
+    <p><strong>Good practical rule:</strong> deterministic code should get you a safe partial parse with leftovers. AI should help only with the leftovers, ambiguities, or review suggestions, not replace the base parser.</p>
+  </div>
+
+  <h2>9. Where Pydantic Helps</h2>
+  <p><code>pydantic</code> is very useful here. It gives you:</p>
+  <ul>
+    <li>a stable schema for entries, senses, citations, and fragments</li>
+    <li>validation of partial parses</li>
+    <li>clear optional vs. required fields</li>
+    <li>easy JSON export for later review or downstream agents</li>
+  </ul>
+
+  <p><code>PydanticAI</code> can be useful later, but not as the foundation. The foundation should still be explicit schemas plus gold examples. AI is better used for:</p>
+  <ul>
+    <li>classifying unclassified fragments</li>
+    <li>proposing repairs for ambiguous entries</li>
+    <li>generating review suggestions</li>
+  </ul>
+
+  <h2>10. Recommended Startup Workflow</h2>
+  <div class="timeline">
+    <div class="step"><strong>Step 1:</strong> choose one BT page and produce a trustworthy witness.</div>
+    <div class="step"><strong>Step 2:</strong> hand-mark entry boundaries on that page.</div>
+    <div class="step"><strong>Step 3:</strong> hand-annotate a handful of entries like <code>abbad</code> into fragments.</div>
+    <div class="step"><strong>Step 4:</strong> write deterministic parsers against those examples.</div>
+    <div class="step"><strong>Step 5:</strong> emit Pydantic-validated structured drafts with leftovers preserved.</div>
+    <div class="step"><strong>Step 6:</strong> use AI only for the residue the deterministic parser cannot handle cleanly.</div>
+  </div>
+
+  <p>This keeps the system inspectable, measurable, and extensible. Most importantly, it lets you improve parsing without ever losing the witness layer.</p>
+
+  <h2>11. Keep Nearby</h2>
+  <ul>
+    <li><a href="./0004-lossless-ocr-pipeline.html">Lesson 0004: Lossless OCR Pipeline for Difficult PDFs</a></li>
+    <li><a href="./0005-input-quality-and-page-preparation.html">Lesson 0005: Input Quality and Page Preparation</a></li>
+    <li><a href="../reference/0005-ocr-structuring-checklist.html">Reference 0005: OCR Structuring Checklist</a></li>
+  </ul>
+
+  <blockquote>Ask follow-up questions whenever you want to refine the schema. The normal next step is either “define better fragment types” or “turn one raw fragment type into a deterministic parser.”</blockquote>
+</main>
+</body>
+</html>
