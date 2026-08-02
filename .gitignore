@@ -135,3 +135,5 @@ data/bosworth_toller/anglosaxondictio00bosw_jp2
 anglosaxondictio00bosw_jp2.zip
 work_index_list.csv.zstd
 data/source/raw/bosworth_toller
+data/sources/raw
+data/sources/.exclude
