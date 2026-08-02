@@ -57,4 +57,3 @@ Outputs:
 - [../../CONTEXT.md](../../CONTEXT.md)
 - [../context/morphology.md](morphology.md)
 - [../context/dictionary.md](dictionary.md)
-- [../context/ocr.md](ocr.md)

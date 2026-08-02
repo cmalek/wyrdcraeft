@@ -1,5 +1,7 @@
 # BT OCR parsing starts with lossless source-grounded AST
 
+> **Superseded:** The OCR/witness-prep pipeline this ADR describes has moved to the `bochord` repo (see [ADR 0007](0007-ocr-pipeline-moves-to-bochord.md)). Kept here as historical record of the original design rationale.
+
 Bosworth-Toller OCR parsing will first produce a lossless source-grounded AST instead of directly producing normalized dictionary senses. We chose this because the source is messy, editorially layered, and OCR-noisy enough that early normalization drops information and hides parser mistakes; every character must therefore be accounted for by ordered typed source fragments, with uncertain text preserved as explicit unclassified fragments rather than discarded.
 
 Current prototype note

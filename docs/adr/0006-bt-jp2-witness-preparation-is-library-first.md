@@ -1,5 +1,7 @@
 # BT JP2 witness preparation is library-first
 
+> **Superseded:** The OCR/witness-prep pipeline this ADR describes has moved to the `bochord` repo (see [ADR 0007](0007-ocr-pipeline-moves-to-bochord.md)). Kept here as historical record of the original design rationale.
+
 Bosworth-Toller JP2 scan witness preparation is a library-first, BT-specific
 slice that stops at image-backed witness artifacts. It does not collapse OCR
 text into canonical dictionary truth, and it is not a generic OCR framework.
