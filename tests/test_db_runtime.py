@@ -394,7 +394,6 @@ def test_interactive_blank_prompt_keeps_backup_without_retry(
         ("version", False),
         ("settings", False),
         ("source", False),
-        ("ocr", False),
         ("diacritic", False),
         ("morphology", True),
         ("dictionary", True),

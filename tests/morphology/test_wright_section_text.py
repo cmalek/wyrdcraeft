@@ -22,7 +22,7 @@ from wyrdcraeft.services.morphology.catalog.wright_text import (
 
 FIXTURE = Path(str(files("wyrdcraeft").joinpath("etc/morphology/wright_paradigms.json")))
 SECTION_334_SNIPPET = (
-    Path(__file__).resolve().parents[1] / "fixtures" / "ocr" / "wright_nouns.md"
+    Path(__file__).resolve().parents[1] / "fixtures" / "morphology" / "wright_nouns.md"
 )
 
 
