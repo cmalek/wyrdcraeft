@@ -141,3 +141,12 @@ def test_ocr_command_group_removed():
     result = runner.invoke(cli, ["ocr", "--help"])
     assert result.exit_code != 0
     assert "ocr" not in cli.commands
+
+
+def test_settings_has_no_ocr_fields():
+    """Test that Settings has no ocr_ fields."""
+    from wyrdcraeft.settings import Settings
+
+    field_names = Settings.model_fields.keys()
+    ocr_fields = [name for name in field_names if name.startswith("ocr_")]
+    assert ocr_fields == []
