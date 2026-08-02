@@ -1,0 +1,2267 @@
+{
+  "doc/quality/napoleon_gate_baseline.json": {
+    "mtime": 1772595640.4565504,
+    "ast_hash": "6a885bfeb13f7efbea4e386cd78ebc20",
+    "semantic_hash": "6a885bfeb13f7efbea4e386cd78ebc20"
+  },
+  "doc/source/__init__.py": {
+    "mtime": 1768887549.441991,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "doc/source/conf.py": {
+    "mtime": 1783350725.5823781,
+    "ast_hash": "a709539a98e03606643b469f0d93fd36",
+    "semantic_hash": "a709539a98e03606643b469f0d93fd36"
+  },
+  "tests/__init__.py": {
+    "mtime": 1768699578.760973,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/conftest.py": {
+    "mtime": 1782859585.8135962,
+    "ast_hash": "a973626299de318fa113f0b0d9cffc9d",
+    "semantic_hash": "a973626299de318fa113f0b0d9cffc9d"
+  },
+  "tests/dictionary/__init__.py": {
+    "mtime": 1782078749.2518487,
+    "ast_hash": "b59e9e38df632e17399d7a1b36b06d88",
+    "semantic_hash": "b59e9e38df632e17399d7a1b36b06d88"
+  },
+  "tests/dictionary/test_attach_morphology_db.py": {
+    "mtime": 1783399218.497115,
+    "ast_hash": "0a2c609e44912919d8511b0564fecbdf",
+    "semantic_hash": "0a2c609e44912919d8511b0564fecbdf"
+  },
+  "tests/dictionary/test_attestation_stripper.py": {
+    "mtime": 1782083847.2808664,
+    "ast_hash": "b82d0c9592cc668ec0190ee32622fd8b",
+    "semantic_hash": "b82d0c9592cc668ec0190ee32622fd8b"
+  },
+  "tests/dictionary/test_browse_query.py": {
+    "mtime": 1783471585.628623,
+    "ast_hash": "98ece6f16b42cc8110c871d480084156",
+    "semantic_hash": "98ece6f16b42cc8110c871d480084156"
+  },
+  "tests/dictionary/test_browse_tui.py": {
+    "mtime": 1785633695.6141691,
+    "ast_hash": "e0dfab25989bb506b5eae99a34624480",
+    "semantic_hash": "e0dfab25989bb506b5eae99a34624480"
+  },
+  "tests/dictionary/test_bt_spelling.py": {
+    "mtime": 1783533428.1558878,
+    "ast_hash": "fbe1cf2dbab7ff02342f42a4aefcdc9f",
+    "semantic_hash": "fbe1cf2dbab7ff02342f42a4aefcdc9f"
+  },
+  "tests/dictionary/test_build_pipeline.py": {
+    "mtime": 1783467118.3678746,
+    "ast_hash": "13419452e89ba6b2abe2a3c31c9d1cb5",
+    "semantic_hash": "13419452e89ba6b2abe2a3c31c9d1cb5"
+  },
+  "tests/dictionary/test_corpus_sample.py": {
+    "mtime": 1782080870.5574517,
+    "ast_hash": "4f742bce05084ad75c1db979690426a9",
+    "semantic_hash": "4f742bce05084ad75c1db979690426a9"
+  },
+  "tests/dictionary/test_editorial_merger.py": {
+    "mtime": 1783470292.7438629,
+    "ast_hash": "a3088a5ad20e343c35595573557d92a8",
+    "semantic_hash": "a3088a5ad20e343c35595573557d92a8"
+  },
+  "tests/dictionary/test_etymology_display.py": {
+    "mtime": 1783522828.0636756,
+    "ast_hash": "aba8979961aa85901d87130ee6bc4400",
+    "semantic_hash": "aba8979961aa85901d87130ee6bc4400"
+  },
+  "tests/dictionary/test_forms_entry_relinker.py": {
+    "mtime": 1783467224.902749,
+    "ast_hash": "5e43e4c5760b341d1b746f8094c692a1",
+    "semantic_hash": "5e43e4c5760b341d1b746f8094c692a1"
+  },
+  "tests/dictionary/test_index_pipeline.py": {
+    "mtime": 1783467531.2710502,
+    "ast_hash": "f95e360b602718ca1ce16436e8d19b9a",
+    "semantic_hash": "f95e360b602718ca1ce16436e8d19b9a"
+  },
+  "tests/dictionary/test_line_parser.py": {
+    "mtime": 1783470179.468916,
+    "ast_hash": "2313b7bc497f11c86e317c20c219bfe2",
+    "semantic_hash": "2313b7bc497f11c86e317c20c219bfe2"
+  },
+  "tests/dictionary/test_llm_fix_pass.py": {
+    "mtime": 1783467083.940694,
+    "ast_hash": "3453803a5d9590c850968f7e50f49682",
+    "semantic_hash": "3453803a5d9590c850968f7e50f49682"
+  },
+  "tests/dictionary/test_normalized_title_join.py": {
+    "mtime": 1783467220.5692976,
+    "ast_hash": "c4dbc3dbef5fee5ec243fdab5bc60e78",
+    "semantic_hash": "c4dbc3dbef5fee5ec243fdab5bc60e78"
+  },
+  "tests/dictionary/test_pos_gender.py": {
+    "mtime": 1782078756.0604315,
+    "ast_hash": "610e91db8e9f06a47779fbf997a94ca0",
+    "semantic_hash": "610e91db8e9f06a47779fbf997a94ca0"
+  },
+  "tests/dictionary/test_query_service.py": {
+    "mtime": 1783471137.8520017,
+    "ast_hash": "958f65a4414807c6fd880412b9d41fa1",
+    "semantic_hash": "958f65a4414807c6fd880412b9d41fa1"
+  },
+  "tests/dictionary/test_sense_segmenter.py": {
+    "mtime": 1783471589.7898598,
+    "ast_hash": "aa61cd31aa64f19ebe6d4592c067fba7",
+    "semantic_hash": "aa61cd31aa64f19ebe6d4592c067fba7"
+  },
+  "tests/dictionary/test_sinks.py": {
+    "mtime": 1783464905.3169098,
+    "ast_hash": "e56a797d5fd54627414bc241d2bcff53",
+    "semantic_hash": "e56a797d5fd54627414bc241d2bcff53"
+  },
+  "tests/dictionary/test_source_cleanup.py": {
+    "mtime": 1783530394.1559849,
+    "ast_hash": "4a615458c590042aa1887fa544ec7ede",
+    "semantic_hash": "4a615458c590042aa1887fa544ec7ede"
+  },
+  "tests/fixtures/alfred-gregory-pastoral-care.json": {
+    "mtime": 1772423012.0871668,
+    "ast_hash": "5b7fa336097ade939074b240bde84729",
+    "semantic_hash": "5b7fa336097ade939074b240bde84729"
+  },
+  "tests/fixtures/beowulf.json": {
+    "mtime": 1772422948.76938,
+    "ast_hash": "130f7f6a854f921fbcaa26b500c2319e",
+    "semantic_hash": "130f7f6a854f921fbcaa26b500c2319e"
+  },
+  "tests/fixtures/caedmon.json": {
+    "mtime": 1772422908.4005055,
+    "ast_hash": "a7c5adc46668640ac97f508d957b2a0f",
+    "semantic_hash": "a7c5adc46668640ac97f508d957b2a0f"
+  },
+  "tests/fixtures/definitions/bt_belgan.json": {
+    "mtime": 1769664753.019418,
+    "ast_hash": "b5b5324c9289cc1189be006ade64166f",
+    "semantic_hash": "b5b5324c9289cc1189be006ade64166f"
+  },
+  "tests/fixtures/definitions/bt_bell.json": {
+    "mtime": 1769664720.9714077,
+    "ast_hash": "788be59717f468e0c3357a6ab08d0e27",
+    "semantic_hash": "788be59717f468e0c3357a6ab08d0e27"
+  },
+  "tests/fixtures/definitions/bt_belt.json": {
+    "mtime": 1769664625.854209,
+    "ast_hash": "0c56395579cd6fbd6fb15d8411e29502",
+    "semantic_hash": "0c56395579cd6fbd6fb15d8411e29502"
+  },
+  "tests/fixtures/definitions/bt_wundor.json": {
+    "mtime": 1769665844.1640189,
+    "ast_hash": "ee37970c3fb5b46ccc3710375358e686",
+    "semantic_hash": "ee37970c3fb5b46ccc3710375358e686"
+  },
+  "tests/fixtures/definitions/bt_wundorlice.json": {
+    "mtime": 1769664574.534105,
+    "ast_hash": "c93e0ac55535773d3819d6d6a70c362f",
+    "semantic_hash": "c93e0ac55535773d3819d6d6a70c362f"
+  },
+  "tests/fixtures/definitions/bt_wyndecraeft.json": {
+    "mtime": 1769477440.5011125,
+    "ast_hash": "94da54de53683cd9aff9432a28ada466",
+    "semantic_hash": "94da54de53683cd9aff9432a28ada466"
+  },
+  "tests/fixtures/definitions/bt_yfel-sprecende.json": {
+    "mtime": 1769664595.615465,
+    "ast_hash": "2b574c7c0894a1f21b3f66d3d8dc4fa8",
+    "semantic_hash": "2b574c7c0894a1f21b3f66d3d8dc4fa8"
+  },
+  "tests/fixtures/definitions/bt_yfel-wyrde.json": {
+    "mtime": 1769664564.8901505,
+    "ast_hash": "db4a21302aa70df0e34cca433307cbbc",
+    "semantic_hash": "db4a21302aa70df0e34cca433307cbbc"
+  },
+  "tests/fixtures/definitions/bt_ymbhumne copy.json": {
+    "mtime": 1769477642.366469,
+    "ast_hash": "4f9e3de773f18bc22a236330ae26d94f",
+    "semantic_hash": "4f9e3de773f18bc22a236330ae26d94f"
+  },
+  "tests/fixtures/definitions/bt_ymbhumne.json": {
+    "mtime": 1769475475.6065776,
+    "ast_hash": "4f9e3de773f18bc22a236330ae26d94f",
+    "semantic_hash": "4f9e3de773f18bc22a236330ae26d94f"
+  },
+  "tests/fixtures/definitions/bt_\u00e6cer.json": {
+    "mtime": 1769664684.2647913,
+    "ast_hash": "685aff363abe74eab2fdaccd5bb4f564",
+    "semantic_hash": "685aff363abe74eab2fdaccd5bb4f564"
+  },
+  "tests/fixtures/dictionary/corpus_sample_manifest.json": {
+    "mtime": 1783464654.064538,
+    "ast_hash": "c1623e3dcd066fa44cec31fbc6f5149d",
+    "semantic_hash": "c1623e3dcd066fa44cec31fbc6f5149d"
+  },
+  "tests/fixtures/expected_dialogue.json": {
+    "mtime": 1768707401.8561563,
+    "ast_hash": "230713d112fb9c486f89c92e972a6aae",
+    "semantic_hash": "230713d112fb9c486f89c92e972a6aae"
+  },
+  "tests/fixtures/expected_poetry.json": {
+    "mtime": 1768707401.8552887,
+    "ast_hash": "398177757774f3da0b616fadac271ba5",
+    "semantic_hash": "398177757774f3da0b616fadac271ba5"
+  },
+  "tests/fixtures/expected_prose.json": {
+    "mtime": 1768707401.8566158,
+    "ast_hash": "a055e8409df246a18de4f1b1ca4b7ca5",
+    "semantic_hash": "a055e8409df246a18de4f1b1ca4b7ca5"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/validation_manifest.json": {
+    "mtime": 1783963219.1828556,
+    "ast_hash": "0f95da3cedffb467a05585e3ab95dffe",
+    "semantic_hash": "0f95da3cedffb467a05585e3ab95dffe"
+  },
+  "tests/fixtures/ocr/wright_quality_thresholds.json": {
+    "mtime": 1772823647.1986387,
+    "ast_hash": "dfd650d8d34a66186efbd730ba9b4af6",
+    "semantic_hash": "dfd650d8d34a66186efbd730ba9b4af6"
+  },
+  "tests/fixtures/seafarer.json": {
+    "mtime": 1772422909.8214498,
+    "ast_hash": "a79df4dcbff3837cbc531763f3f08c5f",
+    "semantic_hash": "a79df4dcbff3837cbc531763f3f08c5f"
+  },
+  "tests/lexicon/__init__.py": {
+    "mtime": 1782681980.862573,
+    "ast_hash": "387426401aa7c12b1663677b859cd377",
+    "semantic_hash": "387426401aa7c12b1663677b859cd377"
+  },
+  "tests/lexicon/conftest.py": {
+    "mtime": 1783534124.517582,
+    "ast_hash": "2e0e181d050df788aa28c04f89c59f57",
+    "semantic_hash": "2e0e181d050df788aa28c04f89c59f57"
+  },
+  "tests/lexicon/source_db.py": {
+    "mtime": 1783522753.7593322,
+    "ast_hash": "089785b781ce4e4572c0ca924c5a1c3e",
+    "semantic_hash": "089785b781ce4e4572c0ca924c5a1c3e"
+  },
+  "tests/lexicon/test_form_decode.py": {
+    "mtime": 1785633695.606481,
+    "ast_hash": "09f0f8ab2ba30d6860479bbe8f7601fe",
+    "semantic_hash": "09f0f8ab2ba30d6860479bbe8f7601fe"
+  },
+  "tests/lexicon/test_morph_class_browse.py": {
+    "mtime": 1783534136.3596575,
+    "ast_hash": "f5e10435566c83c5e9c0a6d071cec13a",
+    "semantic_hash": "f5e10435566c83c5e9c0a6d071cec13a"
+  },
+  "tests/lexicon/test_schema.py": {
+    "mtime": 1783534128.2712908,
+    "ast_hash": "78b8497a54ffb08215307389f3911c7f",
+    "semantic_hash": "78b8497a54ffb08215307389f3911c7f"
+  },
+  "tests/morphology/__init__.py": {
+    "mtime": 1772406454.2054222,
+    "ast_hash": "ff8acdd351f3e116e9e44af09650aff7",
+    "semantic_hash": "ff8acdd351f3e116e9e44af09650aff7"
+  },
+  "tests/morphology/conftest.py": {
+    "mtime": 1772406454.205925,
+    "ast_hash": "2121bf9f4807c2922d68a8b4d5c08c60",
+    "semantic_hash": "2121bf9f4807c2922d68a8b4d5c08c60"
+  },
+  "tests/morphology/data/refactor_baseline.json": {
+    "mtime": 1772561416.2596128,
+    "ast_hash": "a41cbb08b4df513f77b8819c2bab8201",
+    "semantic_hash": "a41cbb08b4df513f77b8819c2bab8201"
+  },
+  "tests/morphology/parity_harness.py": {
+    "mtime": 1772916812.5436952,
+    "ast_hash": "b010c108148e0abb2b12b93fe8c73efb",
+    "semantic_hash": "b010c108148e0abb2b12b93fe8c73efb"
+  },
+  "tests/morphology/snapshot_io.py": {
+    "mtime": 1772560743.1879475,
+    "ast_hash": "439667ff012bb2a1f42eda80cef27337",
+    "semantic_hash": "439667ff012bb2a1f42eda80cef27337"
+  },
+  "tests/morphology/test_assigner_branches.py": {
+    "mtime": 1783122585.1695044,
+    "ast_hash": "23b1f3779e21dbf5d9af72256f944aef",
+    "semantic_hash": "23b1f3779e21dbf5d9af72256f944aef"
+  },
+  "tests/morphology/test_build_profile.py": {
+    "mtime": 1783121157.7674778,
+    "ast_hash": "a8847ddbdcf3acf6b48b50a19c5ffa09",
+    "semantic_hash": "a8847ddbdcf3acf6b48b50a19c5ffa09"
+  },
+  "tests/morphology/test_dictionary_cleanup.py": {
+    "mtime": 1783533426.0865552,
+    "ast_hash": "80ce62c73c76ba6c42c6e8ee82b69fba",
+    "semantic_hash": "80ce62c73c76ba6c42c6e8ee82b69fba"
+  },
+  "tests/morphology/test_form_fk_resolver.py": {
+    "mtime": 1785633695.6064935,
+    "ast_hash": "3a91ce808d367bc4cbf8ca9c71147a56",
+    "semantic_hash": "3a91ce808d367bc4cbf8ca9c71147a56"
+  },
+  "tests/morphology/test_form_generation_reference.py": {
+    "mtime": 1772916153.8315008,
+    "ast_hash": "0b02fc49d82b4aec7a594930f320afd9",
+    "semantic_hash": "0b02fc49d82b4aec7a594930f320afd9"
+  },
+  "tests/morphology/test_full_flow_reference.py": {
+    "mtime": 1772916156.8950229,
+    "ast_hash": "51447cd165c66ad896034cff0dfb94aa",
+    "semantic_hash": "51447cd165c66ad896034cff0dfb94aa"
+  },
+  "tests/morphology/test_generation_branches.py": {
+    "mtime": 1783532580.33023,
+    "ast_hash": "008159a81b88d8a873275ebb8f683951",
+    "semantic_hash": "008159a81b88d8a873275ebb8f683951"
+  },
+  "tests/morphology/test_lemma_morph_assignment.py": {
+    "mtime": 1783374631.7210026,
+    "ast_hash": "3c40ae6fa1ec682b2c7dd464e7e4e205",
+    "semantic_hash": "3c40ae6fa1ec682b2c7dd464e7e4e205"
+  },
+  "tests/morphology/test_morph_catalog.py": {
+    "mtime": 1783534574.1854634,
+    "ast_hash": "34b4b1c75de174758641f138c3336102",
+    "semantic_hash": "34b4b1c75de174758641f138c3336102"
+  },
+  "tests/morphology/test_morph_catalog_pos.py": {
+    "mtime": 1783376837.5110846,
+    "ast_hash": "87eb52dfa9c7641202ee100e775b3cb3",
+    "semantic_hash": "87eb52dfa9c7641202ee100e775b3cb3"
+  },
+  "tests/morphology/test_morph_catalog_query.py": {
+    "mtime": 1783204180.8639991,
+    "ast_hash": "2fecb164b1e8f243ff8df43041269c85",
+    "semantic_hash": "2fecb164b1e8f243ff8df43041269c85"
+  },
+  "tests/morphology/test_paradigm_map.py": {
+    "mtime": 1783198829.45426,
+    "ast_hash": "e3a0fc79d5b8854042862e958ee35491",
+    "semantic_hash": "e3a0fc79d5b8854042862e958ee35491"
+  },
+  "tests/morphology/test_paradigm_reference.py": {
+    "mtime": 1772406454.2110066,
+    "ast_hash": "9301e5651489cf3fcd8ce818accb4238",
+    "semantic_hash": "9301e5651489cf3fcd8ce818accb4238"
+  },
+  "tests/morphology/test_parity_harness.py": {
+    "mtime": 1772916637.6653903,
+    "ast_hash": "5789763626910746a42bc1ae4f2be6d2",
+    "semantic_hash": "5789763626910746a42bc1ae4f2be6d2"
+  },
+  "tests/morphology/test_pos_seed.py": {
+    "mtime": 1783454965.2275393,
+    "ast_hash": "3307c8f5560da8ab53018e307146272b",
+    "semantic_hash": "3307c8f5560da8ab53018e307146272b"
+  },
+  "tests/morphology/test_preprocess_reference.py": {
+    "mtime": 1772406454.211483,
+    "ast_hash": "4c8f8f0901eae930bdd181a9fe11433e",
+    "semantic_hash": "4c8f8f0901eae930bdd181a9fe11433e"
+  },
+  "tests/morphology/test_query_service.py": {
+    "mtime": 1783534134.087968,
+    "ast_hash": "30c6e246d658f8880b49874b05b32bfe",
+    "semantic_hash": "30c6e246d658f8880b49874b05b32bfe"
+  },
+  "tests/morphology/test_text_utils_reference.py": {
+    "mtime": 1783536656.1375327,
+    "ast_hash": "e8feca73ff4d5b3d917fde65d4ccf22d",
+    "semantic_hash": "e8feca73ff4d5b3d917fde65d4ccf22d"
+  },
+  "tests/morphology/test_wright_audit.py": {
+    "mtime": 1783454362.8954256,
+    "ast_hash": "24792c37b9137bd269e428e437f29966",
+    "semantic_hash": "24792c37b9137bd269e428e437f29966"
+  },
+  "tests/morphology/test_wright_section_text.py": {
+    "mtime": 1783464688.2213778,
+    "ast_hash": "9a2263066c64a82e0aee8fad5874efdb",
+    "semantic_hash": "9a2263066c64a82e0aee8fad5874efdb"
+  },
+  "tests/ocr/__init__.py": {
+    "mtime": 1783963219.185532,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "tests/ocr/test_benchmark_bt_witness_prep.py": {
+    "mtime": 1785468049.2333753,
+    "ast_hash": "5ee5b75541b4dacf5639797bea39fb5e",
+    "semantic_hash": "5ee5b75541b4dacf5639797bea39fb5e"
+  },
+  "tests/ocr/test_bt_tile_ocr.py": {
+    "mtime": 1785468049.233668,
+    "ast_hash": "a271d76c89ac5bed406bdb9c9d8e1681",
+    "semantic_hash": "a271d76c89ac5bed406bdb9c9d8e1681"
+  },
+  "tests/ocr/test_bt_witness_prep_manifest.py": {
+    "mtime": 1783963219.1864822,
+    "ast_hash": "eef72aa4534acd7bd2fa0b7ce1a341b4",
+    "semantic_hash": "eef72aa4534acd7bd2fa0b7ce1a341b4"
+  },
+  "tests/ocr/test_bt_witness_prep_pipeline.py": {
+    "mtime": 1783963219.1866777,
+    "ast_hash": "c62563bf2d46acee274cce5301cf2c97",
+    "semantic_hash": "c62563bf2d46acee274cce5301cf2c97"
+  },
+  "tests/ocr/test_bt_witness_prep_preprocess.py": {
+    "mtime": 1783963219.186944,
+    "ast_hash": "e54161142c064f0c890e543cf0121f03",
+    "semantic_hash": "e54161142c064f0c890e543cf0121f03"
+  },
+  "tests/ocr/test_bt_witness_prep_quality.py": {
+    "mtime": 1783963219.1870825,
+    "ast_hash": "3415e52368851bebcbd420bcbe42925f",
+    "semantic_hash": "3415e52368851bebcbd420bcbe42925f"
+  },
+  "tests/ocr/test_bt_witness_prep_source.py": {
+    "mtime": 1783963219.1873114,
+    "ast_hash": "c498ea9bad3851eded38bba7008a9a5d",
+    "semantic_hash": "c498ea9bad3851eded38bba7008a9a5d"
+  },
+  "tests/ocr/test_bt_witness_prep_tiling.py": {
+    "mtime": 1783963219.1874127,
+    "ast_hash": "e9691ff14fdd0f3ad0a0d2b198711f9f",
+    "semantic_hash": "e9691ff14fdd0f3ad0a0d2b198711f9f"
+  },
+  "tests/ocr/test_bt_witness_prep_validation.py": {
+    "mtime": 1783963219.1877038,
+    "ast_hash": "ddd6d6cac50c4f7a1f5c030383aa70a6",
+    "semantic_hash": "ddd6d6cac50c4f7a1f5c030383aa70a6"
+  },
+  "tests/ocr/test_old_english_input.py": {
+    "mtime": 1783963219.1879117,
+    "ast_hash": "a7eb97deb8b191adf8c6193032f2119c",
+    "semantic_hash": "a7eb97deb8b191adf8c6193032f2119c"
+  },
+  "tests/ocr_metrics.py": {
+    "mtime": 1772823721.3036618,
+    "ast_hash": "65517f23cc87794995c03a6dd516c14c",
+    "semantic_hash": "65517f23cc87794995c03a6dd516c14c"
+  },
+  "tests/test_bosworthtoller.py": {
+    "mtime": 1772476474.9393818,
+    "ast_hash": "b97d13d6e6d8ec8899dddd988710dd4d",
+    "semantic_hash": "b97d13d6e6d8ec8899dddd988710dd4d"
+  },
+  "tests/test_cli_commands.py": {
+    "mtime": 1782666409.8559327,
+    "ast_hash": "a5587b9abff022111ac119e4603ce5b9",
+    "semantic_hash": "a5587b9abff022111ac119e4603ce5b9"
+  },
+  "tests/test_cli_convert.py": {
+    "mtime": 1772475872.1952882,
+    "ast_hash": "b53e96202bc414a76b305c37c1674b83",
+    "semantic_hash": "b53e96202bc414a76b305c37c1674b83"
+  },
+  "tests/test_cli_diacritic_disambiguate.py": {
+    "mtime": 1772476477.2336066,
+    "ast_hash": "6817ced18d245ca40a5f7a3516977d1e",
+    "semantic_hash": "6817ced18d245ca40a5f7a3516977d1e"
+  },
+  "tests/test_cli_dictionary.py": {
+    "mtime": 1783530395.6219118,
+    "ast_hash": "bdc507d2c850de03da4963ce01dd0817",
+    "semantic_hash": "bdc507d2c850de03da4963ce01dd0817"
+  },
+  "tests/test_cli_mark_diacritics.py": {
+    "mtime": 1772475872.1956935,
+    "ast_hash": "ddebab59676e183815600afe8cb7a8c4",
+    "semantic_hash": "ddebab59676e183815600afe8cb7a8c4"
+  },
+  "tests/test_cli_morphology.py": {
+    "mtime": 1783529535.6399276,
+    "ast_hash": "3c3b4b0d7d5a104508015b0c7cb7d054",
+    "semantic_hash": "3c3b4b0d7d5a104508015b0c7cb7d054"
+  },
+  "tests/test_cli_ocr.py": {
+    "mtime": 1784584971.5918531,
+    "ast_hash": "fbf02ceebed0aa3801c5b2d3c4edc142",
+    "semantic_hash": "fbf02ceebed0aa3801c5b2d3c4edc142"
+  },
+  "tests/test_cli_ocr_bosworth_toller.py": {
+    "mtime": 1785468049.2340286,
+    "ast_hash": "4777508b19d91296309b3773208d99d8",
+    "semantic_hash": "4777508b19d91296309b3773208d99d8"
+  },
+  "tests/test_cli_utils.py": {
+    "mtime": 1769106645.8219655,
+    "ast_hash": "773ae3880452b01145d4706bce11f490",
+    "semantic_hash": "773ae3880452b01145d4706bce11f490"
+  },
+  "tests/test_configuration.py": {
+    "mtime": 1772666790.54237,
+    "ast_hash": "9f5292f43176721fe1c1522bdb5138c9",
+    "semantic_hash": "9f5292f43176721fe1c1522bdb5138c9"
+  },
+  "tests/test_db_backup.py": {
+    "mtime": 1782862464.3069549,
+    "ast_hash": "8f3c142aa06908355cb5e747e5a2f9d0",
+    "semantic_hash": "8f3c142aa06908355cb5e747e5a2f9d0"
+  },
+  "tests/test_db_legacy_reset.py": {
+    "mtime": 1783451928.654896,
+    "ast_hash": "364be37a6c7ca588ae61fc6486ca4a60",
+    "semantic_hash": "364be37a6c7ca588ae61fc6486ca4a60"
+  },
+  "tests/test_db_runtime.py": {
+    "mtime": 1783451916.4705932,
+    "ast_hash": "7145564956459aaaf65143ccaae9accc",
+    "semantic_hash": "7145564956459aaaf65143ccaae9accc"
+  },
+  "tests/test_deterministic_regression.py": {
+    "mtime": 1769106645.8219328,
+    "ast_hash": "9c7547326202f70e14f078dcd3b70a2e",
+    "semantic_hash": "9c7547326202f70e14f078dcd3b70a2e"
+  },
+  "tests/test_exporters.py": {
+    "mtime": 1769106645.8214288,
+    "ast_hash": "96be6660b30037795bd7a2b60473ff2d",
+    "semantic_hash": "96be6660b30037795bd7a2b60473ff2d"
+  },
+  "tests/test_extractors.py": {
+    "mtime": 1769106645.8219886,
+    "ast_hash": "fb6988c0079883712cfe846dd335aa92",
+    "semantic_hash": "fb6988c0079883712cfe846dd335aa92"
+  },
+  "tests/test_golden_regression.py": {
+    "mtime": 1772561043.5941,
+    "ast_hash": "61c256a7bf42e02591845c7ec28f5aac",
+    "semantic_hash": "61c256a7bf42e02591845c7ec28f5aac"
+  },
+  "tests/test_llm.py": {
+    "mtime": 1769106645.8220334,
+    "ast_hash": "6a2f05af71c41bdb6da033dffb28d693",
+    "semantic_hash": "6a2f05af71c41bdb6da033dffb28d693"
+  },
+  "tests/test_loaders.py": {
+    "mtime": 1769106645.8214302,
+    "ast_hash": "8b2e7facd95ae621fd812cc43171906d",
+    "semantic_hash": "8b2e7facd95ae621fd812cc43171906d"
+  },
+  "tests/test_macron_index_builder.py": {
+    "mtime": 1772305567.1062984,
+    "ast_hash": "d11c92dd50750894229f27b1ea4a5292",
+    "semantic_hash": "d11c92dd50750894229f27b1ea4a5292"
+  },
+  "tests/test_main.py": {
+    "mtime": 1769106645.8213978,
+    "ast_hash": "66836dcb3e81ca509cf8713eea7a98ca",
+    "semantic_hash": "66836dcb3e81ca509cf8713eea7a98ca"
+  },
+  "tests/test_markup.py": {
+    "mtime": 1783533224.212449,
+    "ast_hash": "606df3734a669aa9739d4fde1ab862c2",
+    "semantic_hash": "606df3734a669aa9739d4fde1ab862c2"
+  },
+  "tests/test_ocr_live_integration.py": {
+    "mtime": 1783963219.188633,
+    "ast_hash": "65b72e14dc8c402e85e6f5de87a59d71",
+    "semantic_hash": "65b72e14dc8c402e85e6f5de87a59d71"
+  },
+  "tests/test_ocr_proxy.py": {
+    "mtime": 1772665774.8762493,
+    "ast_hash": "387caad0847c997b65e3986fda489c3b",
+    "semantic_hash": "387caad0847c997b65e3986fda489c3b"
+  },
+  "tests/test_ocr_proxy_runtime.py": {
+    "mtime": 1772666310.6940403,
+    "ast_hash": "4439f746c29f301857b0bddbb4338fcc",
+    "semantic_hash": "4439f746c29f301857b0bddbb4338fcc"
+  },
+  "tests/test_old_english_ocr_pipeline_olmocr.py": {
+    "mtime": 1784600495.2042763,
+    "ast_hash": "ec432614d73d4a3b30551d896aa0d773",
+    "semantic_hash": "ec432614d73d4a3b30551d896aa0d773"
+  },
+  "tests/test_paths.py": {
+    "mtime": 1782861014.9850547,
+    "ast_hash": "d62fb7211f453d71f039dc9f3e0f2a3d",
+    "semantic_hash": "d62fb7211f453d71f039dc9f3e0f2a3d"
+  },
+  "tests/test_pipeline_classes.py": {
+    "mtime": 1772414331.252332,
+    "ast_hash": "6e634d602b9443c8071ea991e60530a4",
+    "semantic_hash": "6e634d602b9443c8071ea991e60530a4"
+  },
+  "tests/test_pipeline_llm.py": {
+    "mtime": 1769106645.8214407,
+    "ast_hash": "d7ce100054c7f01642659e5713cc1028",
+    "semantic_hash": "d7ce100054c7f01642659e5713cc1028"
+  },
+  "tests/test_preparse_speaker_mixed.py": {
+    "mtime": 1769106645.8214138,
+    "ast_hash": "3c54cf49c261cc2edd15331a2656e0b5",
+    "semantic_hash": "3c54cf49c261cc2edd15331a2656e0b5"
+  },
+  "tests/test_prompt_regression.py": {
+    "mtime": 1769106645.8214357,
+    "ast_hash": "5d0cc2bb644b60a8d6e239a320404374",
+    "semantic_hash": "5d0cc2bb644b60a8d6e239a320404374"
+  },
+  "tests/test_settings_llm.py": {
+    "mtime": 1769106645.8219967,
+    "ast_hash": "d0f64685e71662e652f9e9c9abffbb28",
+    "semantic_hash": "d0f64685e71662e652f9e9c9abffbb28"
+  },
+  "tests/test_tei_bridge.py": {
+    "mtime": 1769106645.8214157,
+    "ast_hash": "aac730b7b141a7d541e4599555b89cef",
+    "semantic_hash": "aac730b7b141a7d541e4599555b89cef"
+  },
+  "wyrdcraeft/__init__.py": {
+    "mtime": 1782859687.3280807,
+    "ast_hash": "b759576839dfccb4b1388143bfd0d4be",
+    "semantic_hash": "b759576839dfccb4b1388143bfd0d4be"
+  },
+  "wyrdcraeft/cli/__init__.py": {
+    "mtime": 1768699578.7755017,
+    "ast_hash": "e9070fe03a9cee3d3ee7c80b890585fd",
+    "semantic_hash": "e9070fe03a9cee3d3ee7c80b890585fd"
+  },
+  "wyrdcraeft/cli/cli.py": {
+    "mtime": 1783484531.922423,
+    "ast_hash": "4a8e8159093ba925301c1f21ae2ae3da",
+    "semantic_hash": "4a8e8159093ba925301c1f21ae2ae3da"
+  },
+  "wyrdcraeft/cli/diacritic.py": {
+    "mtime": 1772475872.1979,
+    "ast_hash": "0f1e0a2b2588c826c968badd32cd7050",
+    "semantic_hash": "0f1e0a2b2588c826c968badd32cd7050"
+  },
+  "wyrdcraeft/cli/diacritic_disambiguate.py": {
+    "mtime": 1772477345.2121124,
+    "ast_hash": "7ccffbc952497a29c81e3e5264d7b888",
+    "semantic_hash": "7ccffbc952497a29c81e3e5264d7b888"
+  },
+  "wyrdcraeft/cli/dictionary.py": {
+    "mtime": 1783536672.9825559,
+    "ast_hash": "0197b7f732e3c83f9fbf56d24d46c2f0",
+    "semantic_hash": "0197b7f732e3c83f9fbf56d24d46c2f0"
+  },
+  "wyrdcraeft/cli/morphology.py": {
+    "mtime": 1783532867.6640005,
+    "ast_hash": "c5dc4a52a421f38c727315e4a5a8614c",
+    "semantic_hash": "c5dc4a52a421f38c727315e4a5a8614c"
+  },
+  "wyrdcraeft/cli/ocr.py": {
+    "mtime": 1785468049.234606,
+    "ast_hash": "647d82e19695060d0dbbadf38a7f2be0",
+    "semantic_hash": "647d82e19695060d0dbbadf38a7f2be0"
+  },
+  "wyrdcraeft/cli/settings.py": {
+    "mtime": 1772475872.1982124,
+    "ast_hash": "b7e057b72dfe24efcd648cd8c6296cb2",
+    "semantic_hash": "b7e057b72dfe24efcd648cd8c6296cb2"
+  },
+  "wyrdcraeft/cli/source.py": {
+    "mtime": 1775594442.1204755,
+    "ast_hash": "3b95b8c9afaf054bb88ed956a2774b05",
+    "semantic_hash": "3b95b8c9afaf054bb88ed956a2774b05"
+  },
+  "wyrdcraeft/cli/utils.py": {
+    "mtime": 1782836519.2994142,
+    "ast_hash": "c69b6711dafefc6eae9e5bf6854641dc",
+    "semantic_hash": "c69b6711dafefc6eae9e5bf6854641dc"
+  },
+  "wyrdcraeft/db/__init__.py": {
+    "mtime": 1782859683.6955783,
+    "ast_hash": "01e9bcc7e224def468fb3e759246d9cb",
+    "semantic_hash": "01e9bcc7e224def468fb3e759246d9cb"
+  },
+  "wyrdcraeft/db/alembic/__init__.py": {
+    "mtime": 1782862464.1165955,
+    "ast_hash": "49bf6c0bfec29eff730da87a61fd31c6",
+    "semantic_hash": "49bf6c0bfec29eff730da87a61fd31c6"
+  },
+  "wyrdcraeft/db/alembic/env.py": {
+    "mtime": 1782877455.402209,
+    "ast_hash": "386e0cbaaa7534f9fab3463b389b6308",
+    "semantic_hash": "386e0cbaaa7534f9fab3463b389b6308"
+  },
+  "wyrdcraeft/db/alembic/versions/20260630_01_initial_canonical_schema.py": {
+    "mtime": 1782877731.8808215,
+    "ast_hash": "c60fafecc4beefb03018d924e9b58399",
+    "semantic_hash": "c60fafecc4beefb03018d924e9b58399"
+  },
+  "wyrdcraeft/db/alembic/versions/20260703_01_add_normalized_title_columns.py": {
+    "mtime": 1783105071.323298,
+    "ast_hash": "05299795830adb5254207c478cccee5c",
+    "semantic_hash": "05299795830adb5254207c478cccee5c"
+  },
+  "wyrdcraeft/db/alembic/versions/20260704_01_morph_catalog_tables.py": {
+    "mtime": 1783193181.8828542,
+    "ast_hash": "963519b99d41718249467c02c4129761",
+    "semantic_hash": "963519b99d41718249467c02c4129761"
+  },
+  "wyrdcraeft/db/alembic/versions/20260704_02_lemma_morph_classes.py": {
+    "mtime": 1783195561.9110868,
+    "ast_hash": "ac3f7478a4689485c123c5df947f3908",
+    "semantic_hash": "ac3f7478a4689485c123c5df947f3908"
+  },
+  "wyrdcraeft/db/alembic/versions/20260706_01_parts_of_speech_and_dictionary_pos.py": {
+    "mtime": 1783374743.7584674,
+    "ast_hash": "c525e88e9e171b90e7ff9a651bd81a66",
+    "semantic_hash": "c525e88e9e171b90e7ff9a651bd81a66"
+  },
+  "wyrdcraeft/db/alembic/versions/20260706_02_forms_foreign_keys.py": {
+    "mtime": 1783386447.052861,
+    "ast_hash": "87754c95c632b78716b3954e557e5f4a",
+    "semantic_hash": "87754c95c632b78716b3954e557e5f4a"
+  },
+  "wyrdcraeft/db/alembic/versions/20260706_03_lexicon_shrink_search_keys.py": {
+    "mtime": 1783388618.8878903,
+    "ast_hash": "55ef2dc078a9f89a0dd91966b260325f",
+    "semantic_hash": "55ef2dc078a9f89a0dd91966b260325f"
+  },
+  "wyrdcraeft/db/alembic/versions/20260706_04_drop_forms_legacy_strings.py": {
+    "mtime": 1783394598.7036374,
+    "ast_hash": "0827df8835cd4051a1d48429647ed907",
+    "semantic_hash": "0827df8835cd4051a1d48429647ed907"
+  },
+  "wyrdcraeft/db/alembic/versions/20260707_01_drop_search_keys.py": {
+    "mtime": 1783452878.6919098,
+    "ast_hash": "0347ee416862109908cb1d709eb50ed6",
+    "semantic_hash": "0347ee416862109908cb1d709eb50ed6"
+  },
+  "wyrdcraeft/db/alembic/versions/20260707_02_bt_senses_entry_order_index.py": {
+    "mtime": 1783458674.343644,
+    "ast_hash": "063a3a3bbbc32d998dd9219b7a283c5b",
+    "semantic_hash": "063a3a3bbbc32d998dd9219b7a283c5b"
+  },
+  "wyrdcraeft/db/alembic/versions/20260707_03_bt_source_blocks_and_rich_senses.py": {
+    "mtime": 1783464943.4137475,
+    "ast_hash": "7b3c1306c9a25d66304b87575a25bc32",
+    "semantic_hash": "7b3c1306c9a25d66304b87575a25bc32"
+  },
+  "wyrdcraeft/db/alembic/versions/__init__.py": {
+    "mtime": 1782877670.4696605,
+    "ast_hash": "b01bafd5e7c5ccf265450184af27cf7e",
+    "semantic_hash": "b01bafd5e7c5ccf265450184af27cf7e"
+  },
+  "wyrdcraeft/db/backup.py": {
+    "mtime": 1782862464.6822567,
+    "ast_hash": "25f1e534e4da987e5de58e24a5ff087e",
+    "semantic_hash": "25f1e534e4da987e5de58e24a5ff087e"
+  },
+  "wyrdcraeft/db/base.py": {
+    "mtime": 1782859683.8781497,
+    "ast_hash": "a4ea0d9cfde3cfb44f501522678c35f2",
+    "semantic_hash": "a4ea0d9cfde3cfb44f501522678c35f2"
+  },
+  "wyrdcraeft/db/runtime.py": {
+    "mtime": 1783451851.5788143,
+    "ast_hash": "ff4484829d7ae521a9bd94b1ef0313ab",
+    "semantic_hash": "ff4484829d7ae521a9bd94b1ef0313ab"
+  },
+  "wyrdcraeft/db/state.py": {
+    "mtime": 1782862504.0845191,
+    "ast_hash": "17a5d53f71672c0943b926fce500796b",
+    "semantic_hash": "17a5d53f71672c0943b926fce500796b"
+  },
+  "wyrdcraeft/etc/diacritic/oe_bt_macron_index.json": {
+    "mtime": 1772477592.9332461,
+    "ast_hash": "d9f848cd254a32ff299a1741f834bb0e",
+    "semantic_hash": "d9f848cd254a32ff299a1741f834bb0e"
+  },
+  "wyrdcraeft/etc/dictionary/bosworth_and_toller_abbreviations.json": {
+    "mtime": 1783464641.6761181,
+    "ast_hash": "27206b526c216d47800a2df97ae89dd8",
+    "semantic_hash": "27206b526c216d47800a2df97ae89dd8"
+  },
+  "wyrdcraeft/etc/morphology/inflection_codes_seed.json": {
+    "mtime": 1783373247.2398458,
+    "ast_hash": "dfc1bfc603c168c9f32d76aae7ca1406",
+    "semantic_hash": "dfc1bfc603c168c9f32d76aae7ca1406"
+  },
+  "wyrdcraeft/etc/morphology/paradigm_exemplar_map.json": {
+    "mtime": 1783196078.616314,
+    "ast_hash": "cf457b6325af849640a30098faca498c",
+    "semantic_hash": "cf457b6325af849640a30098faca498c"
+  },
+  "wyrdcraeft/etc/morphology/parts_of_speech_seed.json": {
+    "mtime": 1783373247.1059136,
+    "ast_hash": "ad0df7107eccf28d423e848bd6c86bb7",
+    "semantic_hash": "ad0df7107eccf28d423e848bd6c86bb7"
+  },
+  "wyrdcraeft/etc/morphology/wright-morphology-fixture.schema.json": {
+    "mtime": 1783190996.7281313,
+    "ast_hash": "3e1289125c7f6a21a7f1025a32c34777",
+    "semantic_hash": "3e1289125c7f6a21a7f1025a32c34777"
+  },
+  "wyrdcraeft/etc/morphology/wright_adjective_paradigm_mapping.json": {
+    "mtime": 1783123397.208329,
+    "ast_hash": "bcec51fdfef963cdca5dfd8ba78ef4a5",
+    "semantic_hash": "bcec51fdfef963cdca5dfd8ba78ef4a5"
+  },
+  "wyrdcraeft/etc/morphology/wright_adverb_paradigm_mapping.json": {
+    "mtime": 1783123567.4176838,
+    "ast_hash": "776d936e971c1ee7556453fa1bba2f67",
+    "semantic_hash": "776d936e971c1ee7556453fa1bba2f67"
+  },
+  "wyrdcraeft/etc/morphology/wright_noun_paradigm_mapping.json": {
+    "mtime": 1782076572.4215772,
+    "ast_hash": "1e41fe6248497964759d9ed0b122c189",
+    "semantic_hash": "1e41fe6248497964759d9ed0b122c189"
+  },
+  "wyrdcraeft/etc/morphology/wright_paradigms.json": {
+    "mtime": 1783190855.823487,
+    "ast_hash": "6c102ab01c3b40019f7b4c418a7eb26d",
+    "semantic_hash": "6c102ab01c3b40019f7b4c418a7eb26d"
+  },
+  "wyrdcraeft/etc/morphology/wright_verb_paradigm_mapping.json": {
+    "mtime": 1783123196.9391866,
+    "ast_hash": "63ea37522035c29be354874501877b06",
+    "semantic_hash": "63ea37522035c29be354874501877b06"
+  },
+  "wyrdcraeft/exc.py": {
+    "mtime": 1769106645.8213336,
+    "ast_hash": "5426189995171ef9868d7cd9d7270f4e",
+    "semantic_hash": "5426189995171ef9868d7cd9d7270f4e"
+  },
+  "wyrdcraeft/ingest/__init__.py": {
+    "mtime": 1768883593.8797987,
+    "ast_hash": "467286426978901a886cbc2f9e90d56f",
+    "semantic_hash": "467286426978901a886cbc2f9e90d56f"
+  },
+  "wyrdcraeft/ingest/exporters.py": {
+    "mtime": 1772233546.4973855,
+    "ast_hash": "acd327bc380fddd8c5dfbca581070b4e",
+    "semantic_hash": "acd327bc380fddd8c5dfbca581070b4e"
+  },
+  "wyrdcraeft/ingest/extractors.py": {
+    "mtime": 1777260539.3459568,
+    "ast_hash": "bdc7af28051f9d34a875a4d8ec283508",
+    "semantic_hash": "bdc7af28051f9d34a875a4d8ec283508"
+  },
+  "wyrdcraeft/ingest/loaders.py": {
+    "mtime": 1772561145.03355,
+    "ast_hash": "0bd7c1bd5c569311eafe4b23a21a3add",
+    "semantic_hash": "0bd7c1bd5c569311eafe4b23a21a3add"
+  },
+  "wyrdcraeft/ingest/normalizers.py": {
+    "mtime": 1772488105.099231,
+    "ast_hash": "ca72ea8fbe2902fed99408d18163da14",
+    "semantic_hash": "ca72ea8fbe2902fed99408d18163da14"
+  },
+  "wyrdcraeft/ingest/pipeline.py": {
+    "mtime": 1772422893.5263278,
+    "ast_hash": "783ec78b00f2176a09f9a0a1a0dd3a98",
+    "semantic_hash": "783ec78b00f2176a09f9a0a1a0dd3a98"
+  },
+  "wyrdcraeft/main.py": {
+    "mtime": 1769106645.821321,
+    "ast_hash": "0201f75f54411ccfe28d4d52ed3528fc",
+    "semantic_hash": "0201f75f54411ccfe28d4d52ed3528fc"
+  },
+  "wyrdcraeft/models/__init__.py": {
+    "mtime": 1783454485.1032522,
+    "ast_hash": "813b256ae647632af62b0a898eb66d08",
+    "semantic_hash": "813b256ae647632af62b0a898eb66d08"
+  },
+  "wyrdcraeft/models/bosworth_toller.py": {
+    "mtime": 1772423667.0520415,
+    "ast_hash": "9ce66abb7a1d8e611f75766b418ac6a2",
+    "semantic_hash": "9ce66abb7a1d8e611f75766b418ac6a2"
+  },
+  "wyrdcraeft/models/diacritics.py": {
+    "mtime": 1772426434.6782134,
+    "ast_hash": "d6848bbb59fd07b9f4ef5ffa3bd3978f",
+    "semantic_hash": "d6848bbb59fd07b9f4ef5ffa3bd3978f"
+  },
+  "wyrdcraeft/models/dictionary.py": {
+    "mtime": 1783471519.2817185,
+    "ast_hash": "72f91ed07252cac40e9aaf152c7b8beb",
+    "semantic_hash": "72f91ed07252cac40e9aaf152c7b8beb"
+  },
+  "wyrdcraeft/models/dictionary_build.py": {
+    "mtime": 1783451041.1892705,
+    "ast_hash": "31ec73f7663b808c118bf8ac2723853d",
+    "semantic_hash": "31ec73f7663b808c118bf8ac2723853d"
+  },
+  "wyrdcraeft/models/llm.py": {
+    "mtime": 1769106645.8213985,
+    "ast_hash": "53a3894162ea77555a3a4f7e5d0ab230",
+    "semantic_hash": "53a3894162ea77555a3a4f7e5d0ab230"
+  },
+  "wyrdcraeft/models/macron_index.py": {
+    "mtime": 1772423659.6513617,
+    "ast_hash": "12a92b04eb36ae30a85c1da96957817a",
+    "semantic_hash": "12a92b04eb36ae30a85c1da96957817a"
+  },
+  "wyrdcraeft/models/morph_catalog.py": {
+    "mtime": 1783374631.7210479,
+    "ast_hash": "995296a2f4337c4723c67dcd4e9b75da",
+    "semantic_hash": "995296a2f4337c4723c67dcd4e9b75da"
+  },
+  "wyrdcraeft/models/morphology.py": {
+    "mtime": 1783480056.1209118,
+    "ast_hash": "050813b5dad3df65fb1787457e8483b1",
+    "semantic_hash": "050813b5dad3df65fb1787457e8483b1"
+  },
+  "wyrdcraeft/models/parsing.py": {
+    "mtime": 1772560536.276657,
+    "ast_hash": "52ad2ac1c230d455a16149fb066a3adb",
+    "semantic_hash": "52ad2ac1c230d455a16149fb066a3adb"
+  },
+  "wyrdcraeft/models/reference.py": {
+    "mtime": 1783373982.4971068,
+    "ast_hash": "d0de830d60a189a6da77270799962857",
+    "semantic_hash": "d0de830d60a189a6da77270799962857"
+  },
+  "wyrdcraeft/models/source_text.py": {
+    "mtime": 1772406454.2198076,
+    "ast_hash": "51db5e86a6add0ac1b6f4866ef1ef6bc",
+    "semantic_hash": "51db5e86a6add0ac1b6f4866ef1ef6bc"
+  },
+  "wyrdcraeft/models/sqlalchemy.py": {
+    "mtime": 1783464938.714419,
+    "ast_hash": "3561a312efd7436535a61250f89c04cc",
+    "semantic_hash": "3561a312efd7436535a61250f89c04cc"
+  },
+  "wyrdcraeft/models/syllable.py": {
+    "mtime": 1772423682.7556875,
+    "ast_hash": "b4ab48663ab4f44c1abb8ede02af2c06",
+    "semantic_hash": "b4ab48663ab4f44c1abb8ede02af2c06"
+  },
+  "wyrdcraeft/paths.py": {
+    "mtime": 1782860991.0975802,
+    "ast_hash": "bf3fa8ac5cd5892418aac311ab436e59",
+    "semantic_hash": "bf3fa8ac5cd5892418aac311ab436e59"
+  },
+  "wyrdcraeft/services/__init__.py": {
+    "mtime": 1768944174.0927758,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "wyrdcraeft/services/bosworthtoller.py": {
+    "mtime": 1772560542.9221153,
+    "ast_hash": "2ffd936a1e5dc271459a747c8b94233a",
+    "semantic_hash": "2ffd936a1e5dc271459a747c8b94233a"
+  },
+  "wyrdcraeft/services/dictionary/__init__.py": {
+    "mtime": 1783453252.105767,
+    "ast_hash": "0b544c7adae041c665065a1555fbd04b",
+    "semantic_hash": "0b544c7adae041c665065a1555fbd04b"
+  },
+  "wyrdcraeft/services/dictionary/attestation_stripper.py": {
+    "mtime": 1782104118.6152883,
+    "ast_hash": "578dc3f496500e099f07dc14c4f3abc5",
+    "semantic_hash": "578dc3f496500e099f07dc14c4f3abc5"
+  },
+  "wyrdcraeft/services/dictionary/browse_progress.py": {
+    "mtime": 1783454325.6249897,
+    "ast_hash": "3a9435548b7b7b8a6f775f2fd52f54c2",
+    "semantic_hash": "3a9435548b7b7b8a6f775f2fd52f54c2"
+  },
+  "wyrdcraeft/services/dictionary/browse_query.py": {
+    "mtime": 1783522828.0421548,
+    "ast_hash": "d819026ca37b3385cd25563a096fd7c9",
+    "semantic_hash": "d819026ca37b3385cd25563a096fd7c9"
+  },
+  "wyrdcraeft/services/dictionary/browse_tui.py": {
+    "mtime": 1785633695.6141703,
+    "ast_hash": "8a2a88c4529079108c10ef3d698d8ab0",
+    "semantic_hash": "8a2a88c4529079108c10ef3d698d8ab0"
+  },
+  "wyrdcraeft/services/dictionary/bt_spelling.py": {
+    "mtime": 1783533352.3632476,
+    "ast_hash": "845733bc8e4d4d9ceb71c908baf4c1b0",
+    "semantic_hash": "845733bc8e4d4d9ceb71c908baf4c1b0"
+  },
+  "wyrdcraeft/services/dictionary/build_pipeline.py": {
+    "mtime": 1783452673.9110894,
+    "ast_hash": "21e3ef6c20f4f54cec587f7cb861db2d",
+    "semantic_hash": "21e3ef6c20f4f54cec587f7cb861db2d"
+  },
+  "wyrdcraeft/services/dictionary/editorial_merger.py": {
+    "mtime": 1783471088.9704223,
+    "ast_hash": "1cf3f400d3323b73dc2e7fd92ed8fe54",
+    "semantic_hash": "1cf3f400d3323b73dc2e7fd92ed8fe54"
+  },
+  "wyrdcraeft/services/dictionary/etymology_display.py": {
+    "mtime": 1783522828.0421124,
+    "ast_hash": "6be0037dbdc9375174f9711ec7b24d9d",
+    "semantic_hash": "6be0037dbdc9375174f9711ec7b24d9d"
+  },
+  "wyrdcraeft/services/dictionary/form_decode.py": {
+    "mtime": 1785633695.6063488,
+    "ast_hash": "e5cd33b818350e845adf94ddb216e485",
+    "semantic_hash": "e5cd33b818350e845adf94ddb216e485"
+  },
+  "wyrdcraeft/services/dictionary/forms_entry_relinker.py": {
+    "mtime": 1783452099.979091,
+    "ast_hash": "0a529eab88e76efb9e909fc3a6b7559e",
+    "semantic_hash": "0a529eab88e76efb9e909fc3a6b7559e"
+  },
+  "wyrdcraeft/services/dictionary/join_index_loader.py": {
+    "mtime": 1783452087.654623,
+    "ast_hash": "bb3ae7dfb4eaf0312e54e15e905bc623",
+    "semantic_hash": "bb3ae7dfb4eaf0312e54e15e905bc623"
+  },
+  "wyrdcraeft/services/dictionary/line_parser.py": {
+    "mtime": 1783470234.6092095,
+    "ast_hash": "7c50f77c43e0d6dd858f44f17ddc4b1f",
+    "semantic_hash": "7c50f77c43e0d6dd858f44f17ddc4b1f"
+  },
+  "wyrdcraeft/services/dictionary/line_splitter.py": {
+    "mtime": 1782079769.5857987,
+    "ast_hash": "00fca0ea6b0184350ad74fa3e86aa4ef",
+    "semantic_hash": "00fca0ea6b0184350ad74fa3e86aa4ef"
+  },
+  "wyrdcraeft/services/dictionary/llm_fix_pass.py": {
+    "mtime": 1783466631.9327357,
+    "ast_hash": "93e040ce2228583a1c399fc7cb296043",
+    "semantic_hash": "93e040ce2228583a1c399fc7cb296043"
+  },
+  "wyrdcraeft/services/dictionary/normalized_title_join.py": {
+    "mtime": 1783467263.014587,
+    "ast_hash": "4a95a65cc93453ece2bc73bd6f9135e1",
+    "semantic_hash": "4a95a65cc93453ece2bc73bd6f9135e1"
+  },
+  "wyrdcraeft/services/dictionary/pipeline.py": {
+    "mtime": 1783522828.0637705,
+    "ast_hash": "bd63c8bea9804a0de7dc0589bb47ddfa",
+    "semantic_hash": "bd63c8bea9804a0de7dc0589bb47ddfa"
+  },
+  "wyrdcraeft/services/dictionary/pos_gender.py": {
+    "mtime": 1782078802.6659234,
+    "ast_hash": "6fa3ee253212f738c97a302f0dbd2de4",
+    "semantic_hash": "6fa3ee253212f738c97a302f0dbd2de4"
+  },
+  "wyrdcraeft/services/dictionary/pos_inference.py": {
+    "mtime": 1783451287.6413622,
+    "ast_hash": "06bd21eff2ebef97d9f0239b7de25b94",
+    "semantic_hash": "06bd21eff2ebef97d9f0239b7de25b94"
+  },
+  "wyrdcraeft/services/dictionary/query.py": {
+    "mtime": 1783471533.6322398,
+    "ast_hash": "e2a85e676cf66a28fb24d047a6689b04",
+    "semantic_hash": "e2a85e676cf66a28fb24d047a6689b04"
+  },
+  "wyrdcraeft/services/dictionary/resources.py": {
+    "mtime": 1783464649.569464,
+    "ast_hash": "e7e9ca152b8dfcb9cad3c584f43ff004",
+    "semantic_hash": "e7e9ca152b8dfcb9cad3c584f43ff004"
+  },
+  "wyrdcraeft/services/dictionary/sense_metadata.py": {
+    "mtime": 1783466130.6182854,
+    "ast_hash": "5a99095d64538b0f11b7594f2b647371",
+    "semantic_hash": "5a99095d64538b0f11b7594f2b647371"
+  },
+  "wyrdcraeft/services/dictionary/sense_segmenter.py": {
+    "mtime": 1783466598.882554,
+    "ast_hash": "0e65ebc2f5ae90cc5e69759629bf8666",
+    "semantic_hash": "0e65ebc2f5ae90cc5e69759629bf8666"
+  },
+  "wyrdcraeft/services/dictionary/sense_tree.py": {
+    "mtime": 1783471058.8470953,
+    "ast_hash": "3e4a7280ff22b65709ccb2e4708e3641",
+    "semantic_hash": "3e4a7280ff22b65709ccb2e4708e3641"
+  },
+  "wyrdcraeft/services/dictionary/sinks.py": {
+    "mtime": 1783464946.6557841,
+    "ast_hash": "eec7a6beb7fdaa28185a1194a035c741",
+    "semantic_hash": "eec7a6beb7fdaa28185a1194a035c741"
+  },
+  "wyrdcraeft/services/dictionary/source_blocks.py": {
+    "mtime": 1783466447.7146227,
+    "ast_hash": "b058fe6d16955c67df3f79e4ce3bb331",
+    "semantic_hash": "b058fe6d16955c67df3f79e4ce3bb331"
+  },
+  "wyrdcraeft/services/dictionary/source_cleanup.py": {
+    "mtime": 1783530376.8039021,
+    "ast_hash": "448a06c7a152e061b3db600cdddeb403",
+    "semantic_hash": "448a06c7a152e061b3db600cdddeb403"
+  },
+  "wyrdcraeft/services/dictionary/target_resolver.py": {
+    "mtime": 1783471089.707709,
+    "ast_hash": "d063095c7d2575ba78910148005e30d9",
+    "semantic_hash": "d063095c7d2575ba78910148005e30d9"
+  },
+  "wyrdcraeft/services/dictionary/wordclass_pos.py": {
+    "mtime": 1783451181.9164414,
+    "ast_hash": "cdb7ce8328f9e28e6a5b8f5873422aaa",
+    "semantic_hash": "cdb7ce8328f9e28e6a5b8f5873422aaa"
+  },
+  "wyrdcraeft/services/markup.py": {
+    "mtime": 1783534878.8940172,
+    "ast_hash": "5b648c1855c8f3b17b86392c5d0f2136",
+    "semantic_hash": "5b648c1855c8f3b17b86392c5d0f2136"
+  },
+  "wyrdcraeft/services/morphology/__init__.py": {
+    "mtime": 1772406454.2206564,
+    "ast_hash": "747e25d1f721fa10dff2530a9be982c6",
+    "semantic_hash": "747e25d1f721fa10dff2530a9be982c6"
+  },
+  "wyrdcraeft/services/morphology/assigners/__init__.py": {
+    "mtime": 1772560383.555083,
+    "ast_hash": "935518a3325537ed02d60805cd0a3427",
+    "semantic_hash": "935518a3325537ed02d60805cd0a3427"
+  },
+  "wyrdcraeft/services/morphology/assigners/adj.py": {
+    "mtime": 1785633695.6063268,
+    "ast_hash": "323ec1403a76767c877ab6f6c8748a72",
+    "semantic_hash": "323ec1403a76767c877ab6f6c8748a72"
+  },
+  "wyrdcraeft/services/morphology/assigners/noun.py": {
+    "mtime": 1783122572.7230256,
+    "ast_hash": "fc3f9a535a97f4635a5190635bde8469",
+    "semantic_hash": "fc3f9a535a97f4635a5190635bde8469"
+  },
+  "wyrdcraeft/services/morphology/assigners/verb.py": {
+    "mtime": 1772922740.7453434,
+    "ast_hash": "b4d47378f9647b7a25124a82d4399ffe",
+    "semantic_hash": "b4d47378f9647b7a25124a82d4399ffe"
+  },
+  "wyrdcraeft/services/morphology/build_profile.py": {
+    "mtime": 1783121173.2178986,
+    "ast_hash": "9cd16d158f925697ff7152d8a5624fe8",
+    "semantic_hash": "9cd16d158f925697ff7152d8a5624fe8"
+  },
+  "wyrdcraeft/services/morphology/build_runner.py": {
+    "mtime": 1783451270.923587,
+    "ast_hash": "857ad1a51906d5b88f00b0792ae7cc26",
+    "semantic_hash": "857ad1a51906d5b88f00b0792ae7cc26"
+  },
+  "wyrdcraeft/services/morphology/catalog/__init__.py": {
+    "mtime": 1783204147.9017282,
+    "ast_hash": "3be84a409724d9a8e6139363ce4e1c48",
+    "semantic_hash": "3be84a409724d9a8e6139363ce4e1c48"
+  },
+  "wyrdcraeft/services/morphology/catalog/assigner.py": {
+    "mtime": 1783374593.3617191,
+    "ast_hash": "ae78eff475c6ee5e0d19de957af4ade1",
+    "semantic_hash": "ae78eff475c6ee5e0d19de957af4ade1"
+  },
+  "wyrdcraeft/services/morphology/catalog/loader.py": {
+    "mtime": 1783374588.0980906,
+    "ast_hash": "4092030a5207354b7e2785e54824b8b2",
+    "semantic_hash": "4092030a5207354b7e2785e54824b8b2"
+  },
+  "wyrdcraeft/services/morphology/catalog/paradigm_map.py": {
+    "mtime": 1783196193.1706815,
+    "ast_hash": "0d3c08cfa21893e1df0e37b00e0a5581",
+    "semantic_hash": "0d3c08cfa21893e1df0e37b00e0a5581"
+  },
+  "wyrdcraeft/services/morphology/catalog/pos.py": {
+    "mtime": 1783376820.8210192,
+    "ast_hash": "f9e7eecf6292818c0bf2fc7c85a4cf84",
+    "semantic_hash": "f9e7eecf6292818c0bf2fc7c85a4cf84"
+  },
+  "wyrdcraeft/services/morphology/catalog/pos_seed.py": {
+    "mtime": 1783373316.029056,
+    "ast_hash": "d5508417405e9c21c8ac9eb7c1db9d8c",
+    "semantic_hash": "d5508417405e9c21c8ac9eb7c1db9d8c"
+  },
+  "wyrdcraeft/services/morphology/catalog/query.py": {
+    "mtime": 1783375472.9055457,
+    "ast_hash": "36841b35527919e1f652c45dc79161f0",
+    "semantic_hash": "36841b35527919e1f652c45dc79161f0"
+  },
+  "wyrdcraeft/services/morphology/catalog/wright_audit.py": {
+    "mtime": 1783449644.8687155,
+    "ast_hash": "d60d080800d54672b0b7add95a4d4b9f",
+    "semantic_hash": "d60d080800d54672b0b7add95a4d4b9f"
+  },
+  "wyrdcraeft/services/morphology/catalog/wright_text.py": {
+    "mtime": 1783205678.2559566,
+    "ast_hash": "cb84839365d717ba52a0ed6b3f643296",
+    "semantic_hash": "cb84839365d717ba52a0ed6b3f643296"
+  },
+  "wyrdcraeft/services/morphology/contracts.py": {
+    "mtime": 1772922624.1978393,
+    "ast_hash": "04c9b92b043d2b36c85536fd715203f7",
+    "semantic_hash": "04c9b92b043d2b36c85536fd715203f7"
+  },
+  "wyrdcraeft/services/morphology/dictionary_cleanup.py": {
+    "mtime": 1783533377.860972,
+    "ast_hash": "2e41a9268ed48f5ded73257d2f42ee0d",
+    "semantic_hash": "2e41a9268ed48f5ded73257d2f42ee0d"
+  },
+  "wyrdcraeft/services/morphology/generation/__init__.py": {
+    "mtime": 1782103346.3400483,
+    "ast_hash": "23ee8e5d83e2754e4c740d08a42e6b69",
+    "semantic_hash": "23ee8e5d83e2754e4c740d08a42e6b69"
+  },
+  "wyrdcraeft/services/morphology/generation/adj_forms.py": {
+    "mtime": 1783137883.9160798,
+    "ast_hash": "6166d8d993cba682eb1079974cce336d",
+    "semantic_hash": "6166d8d993cba682eb1079974cce336d"
+  },
+  "wyrdcraeft/services/morphology/generation/adv_forms.py": {
+    "mtime": 1782065965.524457,
+    "ast_hash": "f7c12df7918a73dfe1e676dcae2f8104",
+    "semantic_hash": "f7c12df7918a73dfe1e676dcae2f8104"
+  },
+  "wyrdcraeft/services/morphology/generation/common.py": {
+    "mtime": 1782066186.6224637,
+    "ast_hash": "8cb16cd0b0f1363a9050ef77274f780b",
+    "semantic_hash": "8cb16cd0b0f1363a9050ef77274f780b"
+  },
+  "wyrdcraeft/services/morphology/generation/dispatch.py": {
+    "mtime": 1782065956.152911,
+    "ast_hash": "3bd81be4aab173e0cbb9c43f0e06b79f",
+    "semantic_hash": "3bd81be4aab173e0cbb9c43f0e06b79f"
+  },
+  "wyrdcraeft/services/morphology/generation/facade.py": {
+    "mtime": 1782066193.5506501,
+    "ast_hash": "19fe5983238f3833199609f78ce76c60",
+    "semantic_hash": "19fe5983238f3833199609f78ce76c60"
+  },
+  "wyrdcraeft/services/morphology/generation/form_assembly.py": {
+    "mtime": 1772922740.7462242,
+    "ast_hash": "454870353ecef214c61648e9f9bd7d82",
+    "semantic_hash": "454870353ecef214c61648e9f9bd7d82"
+  },
+  "wyrdcraeft/services/morphology/generation/form_fk_resolver.py": {
+    "mtime": 1785633695.6064346,
+    "ast_hash": "8acb760b2694837710c13a45ef0638a7",
+    "semantic_hash": "8acb760b2694837710c13a45ef0638a7"
+  },
+  "wyrdcraeft/services/morphology/generation/form_rows.py": {
+    "mtime": 1783536670.3103805,
+    "ast_hash": "a1668ed12b56aa138e744b9979b9fa28",
+    "semantic_hash": "a1668ed12b56aa138e744b9979b9fa28"
+  },
+  "wyrdcraeft/services/morphology/generation/noun_forms.py": {
+    "mtime": 1782065986.7812495,
+    "ast_hash": "eb13f00962e47938f97bd7e56e0516d1",
+    "semantic_hash": "eb13f00962e47938f97bd7e56e0516d1"
+  },
+  "wyrdcraeft/services/morphology/generation/num_forms.py": {
+    "mtime": 1782065980.0415788,
+    "ast_hash": "9550e6d43cede75b10b14aa8c1b94bb8",
+    "semantic_hash": "9550e6d43cede75b10b14aa8c1b94bb8"
+  },
+  "wyrdcraeft/services/morphology/generation/paradigm_flow.py": {
+    "mtime": 1773974357.9066322,
+    "ast_hash": "ba4b3db74ea6122d71b26db3b633ebf1",
+    "semantic_hash": "ba4b3db74ea6122d71b26db3b633ebf1"
+  },
+  "wyrdcraeft/services/morphology/generation/participles.py": {
+    "mtime": 1773948474.7519093,
+    "ast_hash": "a1749e5ec0581ee825b877b52b7a8c00",
+    "semantic_hash": "a1749e5ec0581ee825b877b52b7a8c00"
+  },
+  "wyrdcraeft/services/morphology/generation/probability.py": {
+    "mtime": 1772922740.7471628,
+    "ast_hash": "6dbd51fcc3264524f1bbc287152aee62",
+    "semantic_hash": "6dbd51fcc3264524f1bbc287152aee62"
+  },
+  "wyrdcraeft/services/morphology/generation/query.py": {
+    "mtime": 1783522753.759097,
+    "ast_hash": "d793cff0b90f4d300f605a79a11123e7",
+    "semantic_hash": "d793cff0b90f4d300f605a79a11123e7"
+  },
+  "wyrdcraeft/services/morphology/generation/scalar_utils.py": {
+    "mtime": 1772928558.6732337,
+    "ast_hash": "46b83e4b1a7d6c07ffc1cfb5d8a1acb5",
+    "semantic_hash": "46b83e4b1a7d6c07ffc1cfb5d8a1acb5"
+  },
+  "wyrdcraeft/services/morphology/generation/shared.py": {
+    "mtime": 1772560434.7904823,
+    "ast_hash": "7a34fad3851e74f4d546ad3b5cbd1113",
+    "semantic_hash": "7a34fad3851e74f4d546ad3b5cbd1113"
+  },
+  "wyrdcraeft/services/morphology/generation/sinks.py": {
+    "mtime": 1783522828.0636873,
+    "ast_hash": "cc018fcae130413ca17154a9d25a7511",
+    "semantic_hash": "cc018fcae130413ca17154a9d25a7511"
+  },
+  "wyrdcraeft/services/morphology/generation/sound_changes.py": {
+    "mtime": 1772922740.7478025,
+    "ast_hash": "c5789ac4f1ec384dfa8fdfd4aa6c5d49",
+    "semantic_hash": "c5789ac4f1ec384dfa8fdfd4aa6c5d49"
+  },
+  "wyrdcraeft/services/morphology/generation/sound_dispatch_flow.py": {
+    "mtime": 1773944299.2881587,
+    "ast_hash": "79918e8e6e077b5e5e6d7d8cfed6c187",
+    "semantic_hash": "79918e8e6e077b5e5e6d7d8cfed6c187"
+  },
+  "wyrdcraeft/services/morphology/generation/strong_derivation_flow.py": {
+    "mtime": 1773002995.407746,
+    "ast_hash": "6ef416091a19c99ce0cb18329a47d077",
+    "semantic_hash": "6ef416091a19c99ce0cb18329a47d077"
+  },
+  "wyrdcraeft/services/morphology/generation/strong_inflections.py": {
+    "mtime": 1772922740.7480094,
+    "ast_hash": "a5b29050216eb1c63ee9f108640ac628",
+    "semantic_hash": "a5b29050216eb1c63ee9f108640ac628"
+  },
+  "wyrdcraeft/services/morphology/generation/strong_principal_flow.py": {
+    "mtime": 1773971934.9315667,
+    "ast_hash": "da714233613d15965ef59a7a2eab5e5f",
+    "semantic_hash": "da714233613d15965ef59a7a2eab5e5f"
+  },
+  "wyrdcraeft/services/morphology/generation/verb_engine.py": {
+    "mtime": 1782066094.0828745,
+    "ast_hash": "e89d053bf929c690f2d9422c339995b8",
+    "semantic_hash": "e89d053bf929c690f2d9422c339995b8"
+  },
+  "wyrdcraeft/services/morphology/generation/weak_derivation_flow.py": {
+    "mtime": 1773970194.445232,
+    "ast_hash": "7966883759171a1f823271d3a4bbbc4c",
+    "semantic_hash": "7966883759171a1f823271d3a4bbbc4c"
+  },
+  "wyrdcraeft/services/morphology/generation/weak_inflections.py": {
+    "mtime": 1783532613.8735328,
+    "ast_hash": "1739601065abb0694d641d556b4b9839",
+    "semantic_hash": "1739601065abb0694d641d556b4b9839"
+  },
+  "wyrdcraeft/services/morphology/generation/weak_principal_flow.py": {
+    "mtime": 1783532553.8081632,
+    "ast_hash": "33ca1064becf9ee1275919c1417107a6",
+    "semantic_hash": "33ca1064becf9ee1275919c1417107a6"
+  },
+  "wyrdcraeft/services/morphology/generators/__init__.py": {
+    "mtime": 1772406454.2206964,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "wyrdcraeft/services/morphology/generators/num_forms.py": {
+    "mtime": 1772916150.1917157,
+    "ast_hash": "194f3de7cd52e6221e02206d01f026fb",
+    "semantic_hash": "194f3de7cd52e6221e02206d01f026fb"
+  },
+  "wyrdcraeft/services/morphology/loaders.py": {
+    "mtime": 1783536627.2880883,
+    "ast_hash": "87f08011ba95641a6c15332decd284d0",
+    "semantic_hash": "87f08011ba95641a6c15332decd284d0"
+  },
+  "wyrdcraeft/services/morphology/processors.py": {
+    "mtime": 1772560880.7862458,
+    "ast_hash": "21d4d418ca4cc975351a9932b615177a",
+    "semantic_hash": "21d4d418ca4cc975351a9932b615177a"
+  },
+  "wyrdcraeft/services/morphology/progress.py": {
+    "mtime": 1782069790.2054224,
+    "ast_hash": "7af7812ec7ef4b2673f7b5042380dc22",
+    "semantic_hash": "7af7812ec7ef4b2673f7b5042380dc22"
+  },
+  "wyrdcraeft/services/morphology/reference_snapshots.py": {
+    "mtime": 1772916134.278353,
+    "ast_hash": "f2e8de1ca9bf1fc90208eeec613a5904",
+    "semantic_hash": "f2e8de1ca9bf1fc90208eeec613a5904"
+  },
+  "wyrdcraeft/services/morphology/session.py": {
+    "mtime": 1772423647.780602,
+    "ast_hash": "c398a5955a750de21755d8f4b7fa47ea",
+    "semantic_hash": "c398a5955a750de21755d8f4b7fa47ea"
+  },
+  "wyrdcraeft/services/morphology/text_utils.py": {
+    "mtime": 1783536717.846806,
+    "ast_hash": "f85f3a9e0cb077ed7daa688850aee516",
+    "semantic_hash": "f85f3a9e0cb077ed7daa688850aee516"
+  },
+  "wyrdcraeft/services/ocr/__init__.py": {
+    "mtime": 1772651017.8156185,
+    "ast_hash": "76d2a8f4fe2b1ac5e72d952e63ae4c9c",
+    "semantic_hash": "76d2a8f4fe2b1ac5e72d952e63ae4c9c"
+  },
+  "wyrdcraeft/services/ocr/bt_tile_ocr.py": {
+    "mtime": 1785468049.2351935,
+    "ast_hash": "8145ccb2e9f2642c5f1027e28c6c5c34",
+    "semantic_hash": "8145ccb2e9f2642c5f1027e28c6c5c34"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_ocr.py": {
+    "mtime": 1785468049.235489,
+    "ast_hash": "59326cdac06a85f9610418b775c51a6a",
+    "semantic_hash": "59326cdac06a85f9610418b775c51a6a"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/__init__.py": {
+    "mtime": 1783963219.192441,
+    "ast_hash": "3402f175bfb073d73863340735dc5e1b",
+    "semantic_hash": "3402f175bfb073d73863340735dc5e1b"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/anchors.py": {
+    "mtime": 1783963219.192574,
+    "ast_hash": "1d13a4c1e8b679464ff15b1ca7fe4936",
+    "semantic_hash": "1d13a4c1e8b679464ff15b1ca7fe4936"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/manifest.py": {
+    "mtime": 1783963219.1926696,
+    "ast_hash": "4841306cede835ae1c94821dcca83b37",
+    "semantic_hash": "4841306cede835ae1c94821dcca83b37"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/models.py": {
+    "mtime": 1783963219.1929438,
+    "ast_hash": "bb248f12007546c7f13381ce85f8be3f",
+    "semantic_hash": "bb248f12007546c7f13381ce85f8be3f"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/pipeline.py": {
+    "mtime": 1783963219.1932917,
+    "ast_hash": "7147d8c81f3ca8e0bd5d76c46aa991f7",
+    "semantic_hash": "7147d8c81f3ca8e0bd5d76c46aa991f7"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/preprocess.py": {
+    "mtime": 1783963219.1935453,
+    "ast_hash": "c7e2e8fe8245a696070d3fc4ee22aeb7",
+    "semantic_hash": "c7e2e8fe8245a696070d3fc4ee22aeb7"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/quality.py": {
+    "mtime": 1783963219.1936514,
+    "ast_hash": "d23e06b76d840f011e7e236a3d5cd427",
+    "semantic_hash": "d23e06b76d840f011e7e236a3d5cd427"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/source.py": {
+    "mtime": 1783963219.1937773,
+    "ast_hash": "6193176d279b4ef7c4cf45102fb940ca",
+    "semantic_hash": "6193176d279b4ef7c4cf45102fb940ca"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/tiling.py": {
+    "mtime": 1783963219.193972,
+    "ast_hash": "490fe25fcb493767807146e8db36286f",
+    "semantic_hash": "490fe25fcb493767807146e8db36286f"
+  },
+  "wyrdcraeft/services/ocr/bt_witness_prep/validation.py": {
+    "mtime": 1783963219.1943216,
+    "ast_hash": "944306f658c0385b7efc640ba72f4014",
+    "semantic_hash": "944306f658c0385b7efc640ba72f4014"
+  },
+  "wyrdcraeft/services/ocr/old_english_pipeline.py": {
+    "mtime": 1785468049.2358823,
+    "ast_hash": "10e2b84fb9cd9ff2edea64dfb8c821a9",
+    "semantic_hash": "10e2b84fb9cd9ff2edea64dfb8c821a9"
+  },
+  "wyrdcraeft/services/ocr_proxy/__init__.py": {
+    "mtime": 1772665322.0252862,
+    "ast_hash": "ea884b94a74c32d462eb92277f22d68a",
+    "semantic_hash": "ea884b94a74c32d462eb92277f22d68a"
+  },
+  "wyrdcraeft/services/ocr_proxy/config.py": {
+    "mtime": 1772670327.5110908,
+    "ast_hash": "084bd8690311e80637a1e4ea60919f7d",
+    "semantic_hash": "084bd8690311e80637a1e4ea60919f7d"
+  },
+  "wyrdcraeft/services/ocr_proxy/proxy.py": {
+    "mtime": 1772665754.8416035,
+    "ast_hash": "962671137066bf58fe068e3f991ce015",
+    "semantic_hash": "962671137066bf58fe068e3f991ce015"
+  },
+  "wyrdcraeft/services/ocr_proxy/runtime.py": {
+    "mtime": 1772671879.2858326,
+    "ast_hash": "7ff853d020531626d07057ffc9df0f61",
+    "semantic_hash": "7ff853d020531626d07057ffc9df0f61"
+  },
+  "wyrdcraeft/services/ocr_proxy/server.py": {
+    "mtime": 1772731788.1280055,
+    "ast_hash": "661a9a40d39c22832cfa9bbdeeb164c4",
+    "semantic_hash": "661a9a40d39c22832cfa9bbdeeb164c4"
+  },
+  "wyrdcraeft/services/syllable.py": {
+    "mtime": 1772423683.91301,
+    "ast_hash": "af7525077c10356fac179b8c2b1d0677",
+    "semantic_hash": "af7525077c10356fac179b8c2b1d0677"
+  },
+  "wyrdcraeft/settings.py": {
+    "mtime": 1785633695.605456,
+    "ast_hash": "98e4e3cec8cc8c4d89ac52a7908504df",
+    "semantic_hash": "98e4e3cec8cc8c4d89ac52a7908504df"
+  },
+  "wyrdcraeft/types.py": {
+    "mtime": 1768699578.7682102,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "doc/plans/morphology-wright-catalog/00-design-decisions.md": {
+    "mtime": 1783456167.4722545,
+    "ast_hash": "5d062f97e365ea0c572026a0f2341e66",
+    "semantic_hash": "5d062f97e365ea0c572026a0f2341e66"
+  },
+  "doc/plans/morphology-wright-catalog/README.md": {
+    "mtime": 1783456167.4741528,
+    "ast_hash": "b52ad22419bc9f85d25acf0e0055b7ac",
+    "semantic_hash": "b52ad22419bc9f85d25acf0e0055b7ac"
+  },
+  "doc/plans/morphology-wright-catalog/phase-1-reference-catalog.md": {
+    "mtime": 1783456167.4740822,
+    "ast_hash": "1927a5f655256779329d82f6c5d0eabe",
+    "semantic_hash": "1927a5f655256779329d82f6c5d0eabe"
+  },
+  "doc/plans/morphology-wright-catalog/phase-2-lemma-assignment.md": {
+    "mtime": 1783456167.4724822,
+    "ast_hash": "320e7adbd3e683d7c50c1abb04a26f52",
+    "semantic_hash": "320e7adbd3e683d7c50c1abb04a26f52"
+  },
+  "doc/plans/morphology-wright-catalog/phase-3-forms-link-and-query.md": {
+    "mtime": 1783456167.474095,
+    "ast_hash": "3426d42f8e1bae2caadfec0253e5d93c",
+    "semantic_hash": "3426d42f8e1bae2caadfec0253e5d93c"
+  },
+  "doc/plans/morphology-wright-catalog/phase-4-wright-section-text-ingest.md": {
+    "mtime": 1783456167.5937138,
+    "ast_hash": "7d19e35997659eae57955c28813b2d4c",
+    "semantic_hash": "7d19e35997659eae57955c28813b2d4c"
+  },
+  "doc/plans/normalized-canonical-schema/README.md": {
+    "mtime": 1783456165.3858385,
+    "ast_hash": "9c2eda35909221990dda78405b5426ce",
+    "semantic_hash": "9c2eda35909221990dda78405b5426ce"
+  },
+  "doc/plans/normalized-canonical-schema/phase-a-reference-and-dictionary.md": {
+    "mtime": 1783456165.377056,
+    "ast_hash": "34a46a05b739e9964896961d3e1f8629",
+    "semantic_hash": "34a46a05b739e9964896961d3e1f8629"
+  },
+  "doc/plans/normalized-canonical-schema/phase-b-forms-foreign-keys.md": {
+    "mtime": 1783456165.376967,
+    "ast_hash": "98537e2a6a8508d92539fe27a3f2c1d0",
+    "semantic_hash": "98537e2a6a8508d92539fe27a3f2c1d0"
+  },
+  "doc/plans/normalized-canonical-schema/phase-c-lexicon-shrink.md": {
+    "mtime": 1783456165.3858232,
+    "ast_hash": "bdd5dfe58964f6ce6929747084ddfa22",
+    "semantic_hash": "bdd5dfe58964f6ce6929747084ddfa22"
+  },
+  "doc/plans/normalized-canonical-schema/phase-d-legacy-column-drop.md": {
+    "mtime": 1783456165.350356,
+    "ast_hash": "357a74022f2a808c1ed379933e30319e",
+    "semantic_hash": "357a74022f2a808c1ed379933e30319e"
+  },
+  "doc/plans/unified-dictionary-workflow/README.md": {
+    "mtime": 1783456167.474026,
+    "ast_hash": "8bfcab23ce5700fbbe978600b83d7f89",
+    "semantic_hash": "8bfcab23ce5700fbbe978600b83d7f89"
+  },
+  "doc/plans/unified-dictionary-workflow/phase-a-unified-dictionary-build.md": {
+    "mtime": 1783456167.4721909,
+    "ast_hash": "748b5de65ffa469425db20cfc3b55cc5",
+    "semantic_hash": "748b5de65ffa469425db20cfc3b55cc5"
+  },
+  "doc/plans/unified-dictionary-workflow/phase-b-dictionary-browse-and-cli.md": {
+    "mtime": 1783456167.4760885,
+    "ast_hash": "78d0c111b62686b73f72a7b2e8384986",
+    "semantic_hash": "78d0c111b62686b73f72a7b2e8384986"
+  },
+  "doc/quality/README.md": {
+    "mtime": 1772562663.9731834,
+    "ast_hash": "86de6abf3854747362a7bc27a67407ed",
+    "semantic_hash": "86de6abf3854747362a7bc27a67407ed"
+  },
+  "doc/sessions/2026-07-03-morphology-build-performance.md": {
+    "mtime": 1783125034.23984,
+    "ast_hash": "e53afda02e914c9ed7c851e290d951f3",
+    "semantic_hash": "e53afda02e914c9ed7c851e290d951f3"
+  },
+  "doc/sessions/2026-07-04-morphology-wright-catalog-phase1.md": {
+    "mtime": 1783456167.472212,
+    "ast_hash": "8bf247d5cd1085c86e76d82c4d2d25da",
+    "semantic_hash": "8bf247d5cd1085c86e76d82c4d2d25da"
+  },
+  "doc/sessions/2026-07-04-morphology-wright-catalog-phase2.md": {
+    "mtime": 1783456167.4722,
+    "ast_hash": "f9c8aba63524f94b43c13b5b046965d3",
+    "semantic_hash": "f9c8aba63524f94b43c13b5b046965d3"
+  },
+  "doc/sessions/task-phase1-morph-class-browse-report.md": {
+    "mtime": 1783204322.6471674,
+    "ast_hash": "baf8d59bff393db2f0544d7e1e1a79ff",
+    "semantic_hash": "baf8d59bff393db2f0544d7e1e1a79ff"
+  },
+  "doc/sessions/task-phase2-wright-text-ingest-report.md": {
+    "mtime": 1783205050.9814446,
+    "ast_hash": "7467e577efdc445c2fbc80f628bc7371",
+    "semantic_hash": "7467e577efdc445c2fbc80f628bc7371"
+  },
+  "doc/sessions/task-phase3-wright-text-pane-report.md": {
+    "mtime": 1783206043.083575,
+    "ast_hash": "e76fb6255db251961b3f011669926e4f",
+    "semantic_hash": "e76fb6255db251961b3f011669926e4f"
+  },
+  "doc/sessions/task-phase4-wright-audit-report.md": {
+    "mtime": 1783206713.318623,
+    "ast_hash": "19331d309d06667e8bc1c12671216105",
+    "semantic_hash": "19331d309d06667e8bc1c12671216105"
+  },
+  "doc/source/api/client.rst": {
+    "mtime": 1772475872.1921027,
+    "ast_hash": "6347340b3d845c1b64c27f90745cc180",
+    "semantic_hash": "6347340b3d845c1b64c27f90745cc180"
+  },
+  "doc/source/api/models.rst": {
+    "mtime": 1772475872.1923275,
+    "ast_hash": "ed82653d39295c9f2b018cb7478be4a9",
+    "semantic_hash": "ed82653d39295c9f2b018cb7478be4a9"
+  },
+  "doc/source/architecture/dictionary.rst": {
+    "mtime": 1783467708.8020146,
+    "ast_hash": "e85da7ea2a3c65ae782378d92b4f8db4",
+    "semantic_hash": "e85da7ea2a3c65ae782378d92b4f8db4"
+  },
+  "doc/source/architecture/index.rst": {
+    "mtime": 1783454980.3031175,
+    "ast_hash": "6a53f05bb9b4ecc875ef464c5eec62df",
+    "semantic_hash": "6a53f05bb9b4ecc875ef464c5eec62df"
+  },
+  "doc/source/architecture/lexicon.rst": {
+    "mtime": 1783454436.2687306,
+    "ast_hash": "a646ef82c786f5e05eb58b38ba76a3cf",
+    "semantic_hash": "a646ef82c786f5e05eb58b38ba76a3cf"
+  },
+  "doc/source/architecture/morphology.rst": {
+    "mtime": 1783454482.538438,
+    "ast_hash": "79302aea46e9cddab913c4e4f216967d",
+    "semantic_hash": "79302aea46e9cddab913c4e4f216967d"
+  },
+  "doc/source/changelog.rst": {
+    "mtime": 1772478728.5467765,
+    "ast_hash": "ae8f6f9885cedb59a00532fa538af153",
+    "semantic_hash": "ae8f6f9885cedb59a00532fa538af153"
+  },
+  "doc/source/index.rst": {
+    "mtime": 1784991763.2587137,
+    "ast_hash": "2e431420e9e6975447c7b092ee6a62ca",
+    "semantic_hash": "2e431420e9e6975447c7b092ee6a62ca"
+  },
+  "doc/source/overview/bt_ocr_witness_preparation.rst": {
+    "mtime": 1784991763.2429366,
+    "ast_hash": "a4bf7bea523ddeba2d5e324cf3fc03c1",
+    "semantic_hash": "a4bf7bea523ddeba2d5e324cf3fc03c1"
+  },
+  "doc/source/overview/bt_ocr_witness_preparation_method.rst": {
+    "mtime": 1783963219.16792,
+    "ast_hash": "4d8554c5e01a602d37655b006566a935",
+    "semantic_hash": "4d8554c5e01a602d37655b006566a935"
+  },
+  "doc/source/overview/command_convert_mark_diacritics.rst": {
+    "mtime": 1772475872.1931133,
+    "ast_hash": "95c115c19c2951d6bac0998b36cf0386",
+    "semantic_hash": "95c115c19c2951d6bac0998b36cf0386"
+  },
+  "doc/source/overview/command_diacritic_add.rst": {
+    "mtime": 1772475872.193251,
+    "ast_hash": "33d7f3b133e2ac58c36896ed55c36d94",
+    "semantic_hash": "33d7f3b133e2ac58c36896ed55c36d94"
+  },
+  "doc/source/overview/command_diacritic_delete.rst": {
+    "mtime": 1772475872.1934013,
+    "ast_hash": "3dad265912878a9ec79a1ba99061d7ef",
+    "semantic_hash": "3dad265912878a9ec79a1ba99061d7ef"
+  },
+  "doc/source/overview/command_diacritic_disambiguate.rst": {
+    "mtime": 1772476451.5112517,
+    "ast_hash": "308e22b89700661bc36065c6d75a5842",
+    "semantic_hash": "308e22b89700661bc36065c6d75a5842"
+  },
+  "doc/source/overview/command_dictionary_browse.rst": {
+    "mtime": 1783454435.1761734,
+    "ast_hash": "ca7727afe193a59e600f058756999f39",
+    "semantic_hash": "ca7727afe193a59e600f058756999f39"
+  },
+  "doc/source/overview/command_dictionary_index_bt.rst": {
+    "mtime": 1783467710.92464,
+    "ast_hash": "e28903e61ca830f73b3c3a4d0b986369",
+    "semantic_hash": "e28903e61ca830f73b3c3a4d0b986369"
+  },
+  "doc/source/overview/command_dictionary_lookup.rst": {
+    "mtime": 1783454978.4018092,
+    "ast_hash": "0f159661888ad874b800411fbb7535d9",
+    "semantic_hash": "0f159661888ad874b800411fbb7535d9"
+  },
+  "doc/source/overview/command_lexicon_build.rst": {
+    "mtime": 1783454974.2359374,
+    "ast_hash": "d71527b2733adcde5e384262cc009111",
+    "semantic_hash": "d71527b2733adcde5e384262cc009111"
+  },
+  "doc/source/overview/command_morphology_generate.rst": {
+    "mtime": 1783454975.0610273,
+    "ast_hash": "495bf139321053cc5ef84505c8ce60eb",
+    "semantic_hash": "495bf139321053cc5ef84505c8ce60eb"
+  },
+  "doc/source/overview/command_morphology_generate_reference_snapshots.rst": {
+    "mtime": 1783454982.7696764,
+    "ast_hash": "a28da30fcf91c79565bc4d115960cb95",
+    "semantic_hash": "a28da30fcf91c79565bc4d115960cb95"
+  },
+  "doc/source/overview/command_morphology_query.rst": {
+    "mtime": 1783103034.7442553,
+    "ast_hash": "913590a2418599a930572f200a18aa23",
+    "semantic_hash": "913590a2418599a930572f200a18aa23"
+  },
+  "doc/source/overview/command_ocr_bosworth_toller.rst": {
+    "mtime": 1785468049.2326725,
+    "ast_hash": "34420309dd00f5f5b282de17d6ee598e",
+    "semantic_hash": "34420309dd00f5f5b282de17d6ee598e"
+  },
+  "doc/source/overview/command_ocr_old_english.rst": {
+    "mtime": 1784991763.2424002,
+    "ast_hash": "08e895189e300a2ab7d4d795342a3b22",
+    "semantic_hash": "08e895189e300a2ab7d4d795342a3b22"
+  },
+  "doc/source/overview/command_settings.rst": {
+    "mtime": 1772475872.1939778,
+    "ast_hash": "e93ebf5f2c0f5f7c4f9cad2d738a4145",
+    "semantic_hash": "e93ebf5f2c0f5f7c4f9cad2d738a4145"
+  },
+  "doc/source/overview/command_source_convert.rst": {
+    "mtime": 1772475872.194131,
+    "ast_hash": "497cc09d2fa8d3ef914ef5a591f9ac2e",
+    "semantic_hash": "497cc09d2fa8d3ef914ef5a591f9ac2e"
+  },
+  "doc/source/overview/configuration_cli.rst": {
+    "mtime": 1772475872.194347,
+    "ast_hash": "c30aecaa8e0afe90d9f76049773d7150",
+    "semantic_hash": "c30aecaa8e0afe90d9f76049773d7150"
+  },
+  "doc/source/overview/faq.rst": {
+    "mtime": 1772475872.1945622,
+    "ast_hash": "796075d1460aecf6d26d2492da69678f",
+    "semantic_hash": "796075d1460aecf6d26d2492da69678f"
+  },
+  "doc/source/overview/format.rst": {
+    "mtime": 1772406454.201797,
+    "ast_hash": "6fddb4008950b2b803d39c57eaaff879",
+    "semantic_hash": "6fddb4008950b2b803d39c57eaaff879"
+  },
+  "doc/source/overview/installation.rst": {
+    "mtime": 1772406454.2021708,
+    "ast_hash": "458567b41582b2af5f5c429ebe75ca66",
+    "semantic_hash": "458567b41582b2af5f5c429ebe75ca66"
+  },
+  "doc/source/overview/morphology_perl_quirks_ledger.rst": {
+    "mtime": 1772406454.2025316,
+    "ast_hash": "c76723c5aa9c208a9876f76e1f0705e8",
+    "semantic_hash": "c76723c5aa9c208a9876f76e1f0705e8"
+  },
+  "doc/source/overview/quickstart.rst": {
+    "mtime": 1772406454.2028613,
+    "ast_hash": "6bdb37b612bd3195a0a43ee5c828ccc7",
+    "semantic_hash": "6bdb37b612bd3195a0a43ee5c828ccc7"
+  },
+  "doc/source/overview/using_cli.rst": {
+    "mtime": 1783963219.1686761,
+    "ast_hash": "6fea40d01bf54a0fc8e3ede81e9ba7c3",
+    "semantic_hash": "6fea40d01bf54a0fc8e3ede81e9ba7c3"
+  },
+  "doc/source/overview/using_client.rst": {
+    "mtime": 1772406454.2036781,
+    "ast_hash": "3e6f4bbec9828ae816ed3c955c7a0399",
+    "semantic_hash": "3e6f4bbec9828ae816ed3c955c7a0399"
+  },
+  "doc/source/overview/wright_paradigms.rst": {
+    "mtime": 1772406454.2039824,
+    "ast_hash": "ddafd61f38b9d4a404573ed9fe6855be",
+    "semantic_hash": "ddafd61f38b9d4a404573ed9fe6855be"
+  },
+  "doc/source/runbook/bt_dictionary_structuring_workflow.rst": {
+    "mtime": 1783963219.1700873,
+    "ast_hash": "1c7484338638b0d67955e01f8e592e06",
+    "semantic_hash": "1c7484338638b0d67955e01f8e592e06"
+  },
+  "doc/source/runbook/coding_standards.rst": {
+    "mtime": 1772562712.418605,
+    "ast_hash": "64ce145c3b96091833636a3a25054338",
+    "semantic_hash": "64ce145c3b96091833636a3a25054338"
+  },
+  "doc/source/runbook/contributing.rst": {
+    "mtime": 1769106824.139601,
+    "ast_hash": "13da209241c548a486923270d2ed2c89",
+    "semantic_hash": "13da209241c548a486923270d2ed2c89"
+  },
+  "doc/source/runbook/macron_list_generation.rst": {
+    "mtime": 1772475872.194882,
+    "ast_hash": "80a5f5b6c12d28fe4ebc6f33f203af62",
+    "semantic_hash": "80a5f5b6c12d28fe4ebc6f33f203af62"
+  },
+  "doc/source/runbook/old_english_ocr_pipeline.rst": {
+    "mtime": 1784991763.2423573,
+    "ast_hash": "b80301a15014b1282f38e53d5bdafbed",
+    "semantic_hash": "b80301a15014b1282f38e53d5bdafbed"
+  },
+  "tests/fixtures/alfred-gregory-pastoral-care.txt": {
+    "mtime": 1768797491.5534854,
+    "ast_hash": "cf9262f936872b897bf161d5835a27ed",
+    "semantic_hash": "cf9262f936872b897bf161d5835a27ed"
+  },
+  "tests/fixtures/beowulf.txt": {
+    "mtime": 1768798564.0474458,
+    "ast_hash": "4ee3bab1052ec5c5eb5ef0cab6012791",
+    "semantic_hash": "4ee3bab1052ec5c5eb5ef0cab6012791"
+  },
+  "tests/fixtures/caedmon.txt": {
+    "mtime": 1768793241.0514483,
+    "ast_hash": "592b6daca94c06e459814c056da56c19",
+    "semantic_hash": "592b6daca94c06e459814c056da56c19"
+  },
+  "tests/fixtures/dictionary/corpus_sample.txt": {
+    "mtime": 1782080848.3188322,
+    "ast_hash": "406c7592364d6bbbe9c344bc2a7fcd97",
+    "semantic_hash": "406c7592364d6bbbe9c344bc2a7fcd97"
+  },
+  "tests/fixtures/dictionary/sample_lines.txt": {
+    "mtime": 1782079894.0075204,
+    "ast_hash": "fc1c2763704f7991cbfcf2a716213735",
+    "semantic_hash": "fc1c2763704f7991cbfcf2a716213735"
+  },
+  "tests/fixtures/fixture_dialogue.txt": {
+    "mtime": 1768707401.8557355,
+    "ast_hash": "5ffa584fd949df182739733af4947663",
+    "semantic_hash": "5ffa584fd949df182739733af4947663"
+  },
+  "tests/fixtures/fixture_poetry.txt": {
+    "mtime": 1768707401.8570392,
+    "ast_hash": "91f89deb573a2ec5797b5281327e7dfe",
+    "semantic_hash": "91f89deb573a2ec5797b5281327e7dfe"
+  },
+  "tests/fixtures/fixture_prose.txt": {
+    "mtime": 1768707401.8547952,
+    "ast_hash": "df0d50e414a19a947b48c08c9de45f15",
+    "semantic_hash": "df0d50e414a19a947b48c08c9de45f15"
+  },
+  "tests/fixtures/morphology/test_dict.txt": {
+    "mtime": 1772420543.0665996,
+    "ast_hash": "3b41342babfc35f33ec633993cdf779b",
+    "semantic_hash": "3b41342babfc35f33ec633993cdf779b"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/notes.txt": {
+    "mtime": 1783963219.182144,
+    "ast_hash": "b33f00293349b6f9448b22d669e6a74f",
+    "semantic_hash": "b33f00293349b6f9448b22d669e6a74f"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/readme.md": {
+    "mtime": 1783963219.182414,
+    "ast_hash": "39b022f80b4f3ce35fba4456c0a685ae",
+    "semantic_hash": "39b022f80b4f3ce35fba4456c0a685ae"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/transcriptions/anglosaxondictio00bosw_0142-italics-abbreviations.txt": {
+    "mtime": 1783963219.182538,
+    "ast_hash": "801e08864e6fea9413bc8010cb2014ea",
+    "semantic_hash": "801e08864e6fea9413bc8010cb2014ea"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/transcriptions/bt-0002-standard-dense.txt": {
+    "mtime": 1783963219.1826181,
+    "ast_hash": "9ceee96343a7f221335a8dc3c9a26ce9",
+    "semantic_hash": "9ceee96343a7f221335a8dc3c9a26ce9"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/transcriptions/bt-0007-standard-dense.txt": {
+    "mtime": 1783963219.182685,
+    "ast_hash": "58f3e027354e2ebf4b9fc7837e0b12a0",
+    "semantic_hash": "58f3e027354e2ebf4b9fc7837e0b12a0"
+  },
+  "tests/fixtures/ocr/bt_witness_prep/transcriptions/bt-0010-standard-dense.txt": {
+    "mtime": 1783963219.182764,
+    "ast_hash": "388f62e654d4c87fe033100f02f26aec",
+    "semantic_hash": "388f62e654d4c87fe033100f02f26aec"
+  },
+  "tests/fixtures/ocr/wright1.md": {
+    "mtime": 1772668036.4536486,
+    "ast_hash": "3bbfe385f73ffaa36ca47846c80358fc",
+    "semantic_hash": "3bbfe385f73ffaa36ca47846c80358fc"
+  },
+  "tests/fixtures/ocr/wright2.md": {
+    "mtime": 1772668779.4889097,
+    "ast_hash": "28df43d19076ac2abf77e6eea5e91fdc",
+    "semantic_hash": "28df43d19076ac2abf77e6eea5e91fdc"
+  },
+  "tests/fixtures/ocr/wright3.md": {
+    "mtime": 1772668997.7077358,
+    "ast_hash": "4946a30a479b7ab80d9eb252d7110372",
+    "semantic_hash": "4946a30a479b7ab80d9eb252d7110372"
+  },
+  "tests/fixtures/ocr/wright4.md": {
+    "mtime": 1772668046.84463,
+    "ast_hash": "56460cafc8dd41101f6f7d13674ea37c",
+    "semantic_hash": "56460cafc8dd41101f6f7d13674ea37c"
+  },
+  "tests/fixtures/ocr/wright5.md": {
+    "mtime": 1772668344.8842952,
+    "ast_hash": "b80fb87e6cc11ecf7911a525dc57009b",
+    "semantic_hash": "b80fb87e6cc11ecf7911a525dc57009b"
+  },
+  "tests/fixtures/ocr/wright_germanic_vowels.md": {
+    "mtime": 1772854121.635791,
+    "ast_hash": "816cfe2a2fa987c64785a3c83260ccb5",
+    "semantic_hash": "816cfe2a2fa987c64785a3c83260ccb5"
+  },
+  "tests/fixtures/ocr/wright_introduction.md": {
+    "mtime": 1772909596.972789,
+    "ast_hash": "ef5f29ee45565ceee5e203d8275af6d4",
+    "semantic_hash": "ef5f29ee45565ceee5e203d8275af6d4"
+  },
+  "tests/fixtures/ocr/wright_markup.md": {
+    "mtime": 1783188777.806569,
+    "ast_hash": "301f534ed79d5ef35aa1c9ad96229f76",
+    "semantic_hash": "301f534ed79d5ef35aa1c9ad96229f76"
+  },
+  "tests/fixtures/ocr/wright_nouns.md": {
+    "mtime": 1774474022.6017785,
+    "ast_hash": "7efe1cf5097abce4beb7c7a364788939",
+    "semantic_hash": "7efe1cf5097abce4beb7c7a364788939"
+  },
+  "tests/fixtures/ocr/wright_nouns10.md": {
+    "mtime": 1774489652.8238676,
+    "ast_hash": "a7c77c7560a6762421de4e57dbd4fc45",
+    "semantic_hash": "a7c77c7560a6762421de4e57dbd4fc45"
+  },
+  "tests/fixtures/ocr/wright_nouns2.md": {
+    "mtime": 1774474229.0568197,
+    "ast_hash": "a3f3d916c16c1f143d6a1f311e73b7ab",
+    "semantic_hash": "a3f3d916c16c1f143d6a1f311e73b7ab"
+  },
+  "tests/fixtures/ocr/wright_nouns3.md": {
+    "mtime": 1773948283.835265,
+    "ast_hash": "a2698e9acae9db2afdd7fc8e7b18eddb",
+    "semantic_hash": "a2698e9acae9db2afdd7fc8e7b18eddb"
+  },
+  "tests/fixtures/ocr/wright_nouns4.md": {
+    "mtime": 1774477844.7028387,
+    "ast_hash": "b0fe180bdabdae309fa629f73cda5601",
+    "semantic_hash": "b0fe180bdabdae309fa629f73cda5601"
+  },
+  "tests/fixtures/ocr/wright_nouns5.md": {
+    "mtime": 1774482613.9585102,
+    "ast_hash": "b9c7febad6416e9752bf9ddb81a83e10",
+    "semantic_hash": "b9c7febad6416e9752bf9ddb81a83e10"
+  },
+  "tests/fixtures/ocr/wright_nouns6.md": {
+    "mtime": 1774484306.0811856,
+    "ast_hash": "43d02818393a0007f08e7cb1242084ef",
+    "semantic_hash": "43d02818393a0007f08e7cb1242084ef"
+  },
+  "tests/fixtures/ocr/wright_nouns7.md": {
+    "mtime": 1774484674.5682685,
+    "ast_hash": "8b6d93eb001256dea0c158579cd06b7f",
+    "semantic_hash": "8b6d93eb001256dea0c158579cd06b7f"
+  },
+  "tests/fixtures/ocr/wright_nouns8.md": {
+    "mtime": 1774152021.69659,
+    "ast_hash": "1952e7db327fa45c0e0926c284bd8113",
+    "semantic_hash": "1952e7db327fa45c0e0926c284bd8113"
+  },
+  "tests/fixtures/ocr/wright_nouns9.md": {
+    "mtime": 1783615677.2006674,
+    "ast_hash": "1c8cbe15fac48de51fc215396751d68f",
+    "semantic_hash": "1c8cbe15fac48de51fc215396751d68f"
+  },
+  "tests/fixtures/ocr/wright_phonology.md": {
+    "mtime": 1783185940.1994386,
+    "ast_hash": "5fb68f7bf2a77cbd381abd92c558a740",
+    "semantic_hash": "5fb68f7bf2a77cbd381abd92c558a740"
+  },
+  "tests/fixtures/ocr/wright_phonology2.md": {
+    "mtime": 1783186296.1389256,
+    "ast_hash": "2b953719bb46f32036c9ec2e6b8c66be",
+    "semantic_hash": "2b953719bb46f32036c9ec2e6b8c66be"
+  },
+  "tests/fixtures/ocr/wright_phonology3.md": {
+    "mtime": 1783286533.0766048,
+    "ast_hash": "8138589cedd5cd09b13633b41387b3c3",
+    "semantic_hash": "8138589cedd5cd09b13633b41387b3c3"
+  },
+  "tests/fixtures/ocr/wright_phonology4.md": {
+    "mtime": 1783298074.3280563,
+    "ast_hash": "b17c2c2a35482ae14860cfe459ab356c",
+    "semantic_hash": "b17c2c2a35482ae14860cfe459ab356c"
+  },
+  "tests/fixtures/ocr/wright_phonology5.md": {
+    "mtime": 1772906505.6359155,
+    "ast_hash": "d2a045060e6df153c28d9f6d8a18da94",
+    "semantic_hash": "d2a045060e6df153c28d9f6d8a18da94"
+  },
+  "tests/fixtures/ocr/wright_phonology6.md": {
+    "mtime": 1772906637.8491724,
+    "ast_hash": "b2ae515c3281bfc6209e9c29eb0e09f8",
+    "semantic_hash": "b2ae515c3281bfc6209e9c29eb0e09f8"
+  },
+  "tests/fixtures/ocr/wright_phonology7.md": {
+    "mtime": 1772906762.8401346,
+    "ast_hash": "725fc2f5d230534d5ed40b562b5819c5",
+    "semantic_hash": "725fc2f5d230534d5ed40b562b5819c5"
+  },
+  "tests/fixtures/ocr/wright_phonology8.md": {
+    "mtime": 1772906887.7834408,
+    "ast_hash": "82fb50fd1e81826156d6c98ee58a5a79",
+    "semantic_hash": "82fb50fd1e81826156d6c98ee58a5a79"
+  },
+  "tests/fixtures/ocr/wright_skew_table.md": {
+    "mtime": 1772855600.8787916,
+    "ast_hash": "3efcbb01702158b824934dd2d0f5c226",
+    "semantic_hash": "3efcbb01702158b824934dd2d0f5c226"
+  },
+  "tests/fixtures/ocr/wright_table.md": {
+    "mtime": 1772822312.6148033,
+    "ast_hash": "5053b76c95e83bd9e9ef8690de448e3f",
+    "semantic_hash": "5053b76c95e83bd9e9ef8690de448e3f"
+  },
+  "tests/fixtures/ocr/wright_toc.md": {
+    "mtime": 1783187845.9990616,
+    "ast_hash": "83cc11522344dde153408ec039acff04",
+    "semantic_hash": "83cc11522344dde153408ec039acff04"
+  },
+  "tests/fixtures/ocr/wright_umlaut.md": {
+    "mtime": 1772822664.212427,
+    "ast_hash": "4510922195c33c4ec21bedd926950dbc",
+    "semantic_hash": "4510922195c33c4ec21bedd926950dbc"
+  },
+  "tests/fixtures/ocr/wright_umlaut_skew.md": {
+    "mtime": 1772822374.1085892,
+    "ast_hash": "30ab0763c23954945d191feb920ee38c",
+    "semantic_hash": "30ab0763c23954945d191feb920ee38c"
+  },
+  "tests/fixtures/seafarer.txt": {
+    "mtime": 1768791281.5039127,
+    "ast_hash": "e8963655699d273888d734c21d7d1994",
+    "semantic_hash": "e8963655699d273888d734c21d7d1994"
+  },
+  "wyrdcraeft/etc/diacritic/c_palatalization_force_non_palatalize.txt": {
+    "mtime": 1772417277.3401582,
+    "ast_hash": "31a0cd24ebf802a2bb1a4b8131edb076",
+    "semantic_hash": "31a0cd24ebf802a2bb1a4b8131edb076"
+  },
+  "wyrdcraeft/etc/diacritic/c_palatalization_force_palatalize.txt": {
+    "mtime": 1772417390.041028,
+    "ast_hash": "570061a27dda8e149178028a5e2c231c",
+    "semantic_hash": "570061a27dda8e149178028a5e2c231c"
+  },
+  "wyrdcraeft/etc/diacritic/g/frontal.txt": {
+    "mtime": 1769110838.8357065,
+    "ast_hash": "83ca28e7c86e4d875f21e99009c2d878",
+    "semantic_hash": "83ca28e7c86e4d875f21e99009c2d878"
+  },
+  "wyrdcraeft/etc/dictionary/oe_bt.txt": {
+    "mtime": 1783530455.5463672,
+    "ast_hash": "0060a3e827a8e6ed0dd5f920ad2effbf",
+    "semantic_hash": "0060a3e827a8e6ed0dd5f920ad2effbf"
+  },
+  "wyrdcraeft/etc/dictionary/wright.md": {
+    "mtime": 1783615677.2025015,
+    "ast_hash": "477a29d95404a38ae6d4a9f0d094f66f",
+    "semantic_hash": "477a29d95404a38ae6d4a9f0d094f66f"
+  },
+  "wyrdcraeft/etc/morphology/dict_adj-vb-part-num-adv-noun.txt": {
+    "mtime": 1783615677.205388,
+    "ast_hash": "e0a332d50077f46fb33a50c23984f57c",
+    "semantic_hash": "e0a332d50077f46fb33a50c23984f57c"
+  },
+  "wyrdcraeft/etc/morphology/manual_forms.txt": {
+    "mtime": 1772420543.0795426,
+    "ast_hash": "20c3c2b1f090a82e5a3b57a28bedc50b",
+    "semantic_hash": "20c3c2b1f090a82e5a3b57a28bedc50b"
+  },
+  "wyrdcraeft/etc/morphology/para_vb.txt": {
+    "mtime": 1783532577.2261403,
+    "ast_hash": "84a44a60ebec8c0605f445e83c753bc3",
+    "semantic_hash": "84a44a60ebec8c0605f445e83c753bc3"
+  },
+  "wyrdcraeft/etc/morphology/prefixes.txt": {
+    "mtime": 1772420543.0818932,
+    "ast_hash": "16a2f75735e4bd92dd0e9ee7c9035046",
+    "semantic_hash": "16a2f75735e4bd92dd0e9ee7c9035046"
+  },
+  "wyrdcraeft/prompts/general.md": {
+    "mtime": 1772232152.0784142,
+    "ast_hash": "2f4189b40c6153e92f7ff51e9ee9f6a1",
+    "semantic_hash": "2f4189b40c6153e92f7ff51e9ee9f6a1"
+  },
+  "wyrdcraeft/prompts/models/gemini/prose.md": {
+    "mtime": 1772232152.078693,
+    "ast_hash": "b7ff00a52169fb22569ad2d88ef2fcc9",
+    "semantic_hash": "b7ff00a52169fb22569ad2d88ef2fcc9"
+  },
+  "wyrdcraeft/prompts/models/gemini/verse.md": {
+    "mtime": 1772232152.0788424,
+    "ast_hash": "b7ff00a52169fb22569ad2d88ef2fcc9",
+    "semantic_hash": "b7ff00a52169fb22569ad2d88ef2fcc9"
+  },
+  "wyrdcraeft/prompts/models/openai/prose.md": {
+    "mtime": 1772232152.0790331,
+    "ast_hash": "2a38d02ed2dc9c4d0b82fb4f06c1b2db",
+    "semantic_hash": "2a38d02ed2dc9c4d0b82fb4f06c1b2db"
+  },
+  "wyrdcraeft/prompts/models/openai/verse.md": {
+    "mtime": 1772232152.0791569,
+    "ast_hash": "2a38d02ed2dc9c4d0b82fb4f06c1b2db",
+    "semantic_hash": "2a38d02ed2dc9c4d0b82fb4f06c1b2db"
+  },
+  "wyrdcraeft/prompts/models/qwen/prose.md": {
+    "mtime": 1772232152.0793505,
+    "ast_hash": "f02ef8fabfc9748b162527711d02233d",
+    "semantic_hash": "f02ef8fabfc9748b162527711d02233d"
+  },
+  "wyrdcraeft/prompts/models/qwen/verse.md": {
+    "mtime": 1772232152.0794826,
+    "ast_hash": "a71e6f91d39269fdc4738d074da58b16",
+    "semantic_hash": "a71e6f91d39269fdc4738d074da58b16"
+  },
+  "wyrdcraeft/prompts/prose.md": {
+    "mtime": 1772232152.0796232,
+    "ast_hash": "6834f4f3e5938e97672a23e81596948f",
+    "semantic_hash": "6834f4f3e5938e97672a23e81596948f"
+  },
+  "wyrdcraeft/prompts/verse.md": {
+    "mtime": 1772232152.079752,
+    "ast_hash": "9522f91df31154955c527b3148fd3f24",
+    "semantic_hash": "9522f91df31154955c527b3148fd3f24"
+  },
+  "tests/fixtures/ocr/wright1.pdf": {
+    "mtime": 1772653421.6921654,
+    "ast_hash": "c38a5413b39ada0fd6dacd7ef6da3b27",
+    "semantic_hash": "c38a5413b39ada0fd6dacd7ef6da3b27"
+  },
+  "tests/fixtures/ocr/wright2.pdf": {
+    "mtime": 1772653401.6127262,
+    "ast_hash": "c6db56664f4d6db8f427b21cbf968d9d",
+    "semantic_hash": "c6db56664f4d6db8f427b21cbf968d9d"
+  },
+  "tests/fixtures/ocr/wright3.pdf": {
+    "mtime": 1772653365.271535,
+    "ast_hash": "e83b38912a149d64d7e436d36e5cc16f",
+    "semantic_hash": "e83b38912a149d64d7e436d36e5cc16f"
+  },
+  "tests/fixtures/ocr/wright4.pdf": {
+    "mtime": 1772653280.1591563,
+    "ast_hash": "f609d77e018a4efc970c08ce01073952",
+    "semantic_hash": "f609d77e018a4efc970c08ce01073952"
+  },
+  "tests/fixtures/ocr/wright5.pdf": {
+    "mtime": 1772653328.5888138,
+    "ast_hash": "eaf177470fbcad9b06b633b163f00702",
+    "semantic_hash": "eaf177470fbcad9b06b633b163f00702"
+  },
+  "tests/fixtures/ocr/wright_germanic_vowels.pdf": {
+    "mtime": 1772821815.5612633,
+    "ast_hash": "8631a3442b4c50ded7ac775cc35a7d6e",
+    "semantic_hash": "8631a3442b4c50ded7ac775cc35a7d6e"
+  },
+  "tests/fixtures/ocr/wright_introduction.pdf": {
+    "mtime": 1772904171.013722,
+    "ast_hash": "33295d6d650ec72113bb641e8f09a243",
+    "semantic_hash": "33295d6d650ec72113bb641e8f09a243"
+  },
+  "tests/fixtures/ocr/wright_markup.pdf": {
+    "mtime": 1772822721.3322263,
+    "ast_hash": "24dac41950f5d43cf5f2cce9eb29adf5",
+    "semantic_hash": "24dac41950f5d43cf5f2cce9eb29adf5"
+  },
+  "tests/fixtures/ocr/wright_nouns.pdf": {
+    "mtime": 1772821233.499425,
+    "ast_hash": "fa73e4545adcf8eca2029c5ad70bb1b2",
+    "semantic_hash": "fa73e4545adcf8eca2029c5ad70bb1b2"
+  },
+  "tests/fixtures/ocr/wright_nouns10.pdf": {
+    "mtime": 1772905853.337619,
+    "ast_hash": "b0c5f688cbeeb840d9bcbb9da1be86c4",
+    "semantic_hash": "b0c5f688cbeeb840d9bcbb9da1be86c4"
+  },
+  "tests/fixtures/ocr/wright_nouns2.pdf": {
+    "mtime": 1772820779.2071626,
+    "ast_hash": "00202cb1661ff99c9f525d5673f18ca6",
+    "semantic_hash": "00202cb1661ff99c9f525d5673f18ca6"
+  },
+  "tests/fixtures/ocr/wright_nouns3.pdf": {
+    "mtime": 1772904892.065342,
+    "ast_hash": "b840e2a9c136b66b17f317e025237144",
+    "semantic_hash": "b840e2a9c136b66b17f317e025237144"
+  },
+  "tests/fixtures/ocr/wright_nouns4.pdf": {
+    "mtime": 1772904974.6069038,
+    "ast_hash": "b353b46c77a99cbe45f28b229db9678a",
+    "semantic_hash": "b353b46c77a99cbe45f28b229db9678a"
+  },
+  "tests/fixtures/ocr/wright_nouns5.pdf": {
+    "mtime": 1772905410.3035955,
+    "ast_hash": "8be1c56199e4970df7891ea1f0250f7d",
+    "semantic_hash": "8be1c56199e4970df7891ea1f0250f7d"
+  },
+  "tests/fixtures/ocr/wright_nouns6.pdf": {
+    "mtime": 1772905476.4992063,
+    "ast_hash": "ff758cceffee676024fe3d7fbdab087c",
+    "semantic_hash": "ff758cceffee676024fe3d7fbdab087c"
+  },
+  "tests/fixtures/ocr/wright_nouns7.pdf": {
+    "mtime": 1772905713.07332,
+    "ast_hash": "69a1531706e5f1886771697894057f04",
+    "semantic_hash": "69a1531706e5f1886771697894057f04"
+  },
+  "tests/fixtures/ocr/wright_nouns8.pdf": {
+    "mtime": 1772905788.9819036,
+    "ast_hash": "0428e243fbba46d41748e813a3f075c1",
+    "semantic_hash": "0428e243fbba46d41748e813a3f075c1"
+  },
+  "tests/fixtures/ocr/wright_nouns9.pdf": {
+    "mtime": 1772905823.1886425,
+    "ast_hash": "cac057e0ab48747990979fa6765e4594",
+    "semantic_hash": "cac057e0ab48747990979fa6765e4594"
+  },
+  "tests/fixtures/ocr/wright_phonology.pdf": {
+    "mtime": 1772820663.476464,
+    "ast_hash": "f7049ca32e2b912b962d6f1cf9f76c09",
+    "semantic_hash": "f7049ca32e2b912b962d6f1cf9f76c09"
+  },
+  "tests/fixtures/ocr/wright_phonology2.pdf": {
+    "mtime": 1772904370.9641378,
+    "ast_hash": "aa8da8dc990ea7e175a16ee98e4342d6",
+    "semantic_hash": "aa8da8dc990ea7e175a16ee98e4342d6"
+  },
+  "tests/fixtures/ocr/wright_phonology3.pdf": {
+    "mtime": 1772904541.6391518,
+    "ast_hash": "537300056accf5558376ca6353f0d3ef",
+    "semantic_hash": "537300056accf5558376ca6353f0d3ef"
+  },
+  "tests/fixtures/ocr/wright_phonology4.pdf": {
+    "mtime": 1772906035.4380317,
+    "ast_hash": "8f5259f1f4f678ad0d41aa2b32b354d4",
+    "semantic_hash": "8f5259f1f4f678ad0d41aa2b32b354d4"
+  },
+  "tests/fixtures/ocr/wright_phonology5.pdf": {
+    "mtime": 1772906107.5926597,
+    "ast_hash": "5e3c486978ec90ba5fce56c22b167488",
+    "semantic_hash": "5e3c486978ec90ba5fce56c22b167488"
+  },
+  "tests/fixtures/ocr/wright_phonology6.pdf": {
+    "mtime": 1772906146.0683618,
+    "ast_hash": "121115c3725f8f9087f40b94b3b166e5",
+    "semantic_hash": "121115c3725f8f9087f40b94b3b166e5"
+  },
+  "tests/fixtures/ocr/wright_phonology7.pdf": {
+    "mtime": 1772906175.6204894,
+    "ast_hash": "aeab97875f6b7eef8f9024e4ea5a1282",
+    "semantic_hash": "aeab97875f6b7eef8f9024e4ea5a1282"
+  },
+  "tests/fixtures/ocr/wright_phonology8.pdf": {
+    "mtime": 1772906259.3781006,
+    "ast_hash": "90a15368bd42f442d702fd075965ecdf",
+    "semantic_hash": "90a15368bd42f442d702fd075965ecdf"
+  },
+  "tests/fixtures/ocr/wright_phonology9.pdf": {
+    "mtime": 1772906303.5626245,
+    "ast_hash": "55a5e0669768009ff750bfbe1e4d6da0",
+    "semantic_hash": "55a5e0669768009ff750bfbe1e4d6da0"
+  },
+  "tests/fixtures/ocr/wright_skew_table.pdf": {
+    "mtime": 1772821973.90371,
+    "ast_hash": "d830ab93b26d041176a136bf605fead3",
+    "semantic_hash": "d830ab93b26d041176a136bf605fead3"
+  },
+  "tests/fixtures/ocr/wright_table.pdf": {
+    "mtime": 1772821850.8622649,
+    "ast_hash": "af89be1d71cb79534b66f05c4dd1dab8",
+    "semantic_hash": "af89be1d71cb79534b66f05c4dd1dab8"
+  },
+  "tests/fixtures/ocr/wright_toc.pdf": {
+    "mtime": 1772821295.6361578,
+    "ast_hash": "946e06dae6b5a2cc50c8be14c1d32ee4",
+    "semantic_hash": "946e06dae6b5a2cc50c8be14c1d32ee4"
+  },
+  "tests/fixtures/ocr/wright_umlaut.pdf": {
+    "mtime": 1772820727.7329628,
+    "ast_hash": "ddc7ccf0a60dfca2bd6f585c40e94810",
+    "semantic_hash": "ddc7ccf0a60dfca2bd6f585c40e94810"
+  },
+  "tests/fixtures/ocr/wright_umlaut_skew.pdf": {
+    "mtime": 1772822038.890293,
+    "ast_hash": "d84b6bf3ee99185c29bda46fde354842",
+    "semantic_hash": "d84b6bf3ee99185c29bda46fde354842"
+  },
+  "doc/source/_images/lexicon-browse-macos-abc-extended-keys.jpg": {
+    "mtime": 1782854783.2587292,
+    "ast_hash": "634dcbd772ab8dac89450be534a677ec",
+    "semantic_hash": "634dcbd772ab8dac89450be534a677ec"
+  }
+}
