@@ -139,27 +139,14 @@ def pytest_addoption(parser):
         default=False,
         help="run tests that require LLM",
     )
-    parser.addoption(
-        "--run-ocr-integration",
-        action="store_true",
-        default=False,
-        help="run live OCR integration tests that need local llama-server",
-    )
-
 
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to skip expensive integration tests by default."""
     run_llm = bool(config.getoption("--run-llm"))
-    run_ocr_integration = bool(config.getoption("--run-ocr-integration"))
     skip_llm = pytest.mark.skip(reason="need --run-llm option to run")
-    skip_ocr_integration = pytest.mark.skip(
-        reason="need --run-ocr-integration option to run"
-    )
     for item in items:
         if "llm" in item.keywords and not run_llm:
             item.add_marker(skip_llm)
-        if "ocr_integration" in item.keywords and not run_ocr_integration:
-            item.add_marker(skip_ocr_integration)
 
 
 def _is_llama_server_healthy() -> bool:
