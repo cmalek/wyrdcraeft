@@ -3,16 +3,13 @@
 ## Knowledge
 
 - [AllenAI `olmocr` repository](https://github.com/allenai/olmocr)
-  Primary operational reference for the OCR engine used in this repo. Use for: real CLI behavior, workspace artifacts, server mode, and deployment patterns.
+  Primary operational reference for the `olmocr` engine. Note: this repo's OCR
+  pipeline has moved to the `bochord` repo (see ADR 0007); use for general
+  `olmocr` CLI behavior, workspace artifacts, server mode, and deployment
+  patterns.
 
 - [Poznanski et al., "olmOCR: Unlocking Trillions of Tokens in PDFs with Vision Language Models"](https://arxiv.org/abs/2502.18443)
   Primary paper for the model and pipeline philosophy behind `olmocr`. Use for: why it is strong on reading order, tables, equations, and hard PDF layouts.
-
-- [Wyrdcraeft OCR context](/Users/cmalek/src/workspace/wyrdcraeft/docs/context/ocr.md)
-  The local truth for how this repo divides literary OCR, BT witness preparation, proxy behavior, and sharp edges. Use for: understanding what commands and artifacts already exist here.
-
-- [Wyrdcraeft runbook: Old English OCR Pipeline](/Users/cmalek/src/workspace/wyrdcraeft/doc/source/runbook/old_english_ocr_pipeline.rst)
-  Concrete local workflow for `wyrdcraeft ocr old-english`, including quality metrics and benchmarking. Use for: the current literary-PDF path and its acceptance gates.
 
 - [Wyrdcraeft runbook: BT Dictionary Structuring Workflow](/Users/cmalek/src/workspace/wyrdcraeft/doc/source/runbook/bt_dictionary_structuring_workflow.rst)
   Concrete local workflow for witness-first structured data. Use for: how to preserve raw evidence, overlays, and normalized output separately.

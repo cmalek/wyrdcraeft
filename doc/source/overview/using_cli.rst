@@ -46,11 +46,6 @@ Basic Help
     wyrdcraeft dictionary ingest-wright-text --help
     wyrdcraeft dictionary audit-wright --help
 
-    # Old English OCR commands
-    wyrdcraeft ocr --help
-    wyrdcraeft ocr old-english --help
-    wyrdcraeft ocr proxy --help
-
 Command Structure
 -----------------
 
@@ -121,4 +116,3 @@ The following pages document the CLI commands in detail:
    command_dictionary_index_bt
    command_dictionary_lookup
    command_dictionary_browse
-   command_ocr_old_english

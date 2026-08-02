@@ -28,10 +28,6 @@ wyrdcraeft
    runbook/contributing
    runbook/coding_standards
    runbook/bt_dictionary_structuring_workflow
-   overview/bt_ocr_witness_preparation
-   overview/bt_ocr_witness_preparation_method
-   runbook/old_english_ocr_pipeline
-   overview/command_ocr_bosworth_toller
    architecture/index
 
 .. toctree::
