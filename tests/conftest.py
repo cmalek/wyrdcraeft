@@ -200,7 +200,7 @@ def _resolve_llama_path(env_name: str, fallback: Path) -> Path:
 @pytest.fixture(scope="session")
 def ensure_llama_server() -> Generator[None]:
     """
-    Ensure a local llama-server is running for live OCR integration tests.
+    Ensure a local llama-server is running for live ``llm``-marked tests.
 
     Side Effects:
         Starts and optionally stops a ``make llama-test`` subprocess when needed.
@@ -222,7 +222,7 @@ def ensure_llama_server() -> Generator[None]:
     ]
     if missing_paths:
         pytest.skip(
-            "llama-server artifacts are missing for live OCR integration tests: "
+            "llama-server artifacts are missing for live llm tests: "
             + ", ".join(missing_paths)
         )
 

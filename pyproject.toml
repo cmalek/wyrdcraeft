@@ -30,7 +30,6 @@ dependencies = [
   "unstructured[all-docs]>=0.15",
   "langextract>=0.0.0",
   "any-llm-sdk[gemini,ollama,openai]",
-  "fastapi>=0.110.0",
   "httpx>=0.28.1",
   "delb>=0.5.1",
   "acdh-tei-pyutils>=1.6",
@@ -141,22 +140,6 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "acdh_tei_pyutils.tei"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "fastapi"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "fastapi.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "uvicorn"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "uvicorn.*"
 ignore_missing_imports = true
 
 [tool.ruff]
