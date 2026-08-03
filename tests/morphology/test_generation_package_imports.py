@@ -6,9 +6,8 @@ Regression test for the generation-package import-cycle fix.
 MorphologyGenerationFacade``. That import pulled facade.py (and every
 module it imports) into scope any time a sibling submodule inside the
 package did ``from . import <sibling>`` -- the pattern
-``form_rows.py``, ``common.py``, ``strong_principal_flow.py``, and
-``weak_principal_flow.py`` use to reach ``sound_dispatch_flow``,
-``strong_derivation_flow``, and ``weak_derivation_flow`` /
+``form_rows.py``, ``common.py``, and ``weak_principal_flow.py`` use to
+reach ``sound_dispatch_flow`` and ``weak_derivation_flow`` /
 ``weak_principal_flow``. That created the 8 import cycles graphify
 reported, all rooted at ``generation/__init__.py``.
 

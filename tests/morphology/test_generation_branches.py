@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
@@ -14,22 +14,10 @@ from wyrdcraeft.services.morphology.generation.participles import (
     add_participle_to_adjectives,
     build_participle_adjective,
 )
-from wyrdcraeft.services.morphology.generation.strong_principal_flow import (
-    generate_strong_verb_parts_with_emitters,
-)
 from wyrdcraeft.services.morphology.generation.sound_changes import (
     derive_sound_changed_forms,
     emit_sound_changed_forms,
     emit_sound_changed_from_source,
-)
-from wyrdcraeft.services.morphology.generation.strong_inflections import (
-    dispatch_strong_derived_from_principal_part,
-    dispatch_strong_verb_part_branches,
-    emit_strong_derived_from_inf_non_umlaut,
-    emit_strong_derived_from_inf_sequence,
-    emit_strong_painpl_derived,
-    emit_strong_painsg1_derived,
-    emit_strong_umlaut_for_vowel,
 )
 from wyrdcraeft.services.morphology.generation.weak_inflections import (
     dispatch_weak_derived_forms,
@@ -56,18 +44,13 @@ from wyrdcraeft.services.morphology.generation.weak_derivation_flow import (
 from wyrdcraeft.services.morphology.generation.weak_principal_flow import (
     generate_weak_verb_parts_with_emitters,
 )
-from wyrdcraeft.services.morphology.generation.common import VerbFormGenerator
+from wyrdcraeft.services.morphology.generation.common import (
+    StrongVerbGenerator,
+    VerbFormGenerator,
+)
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .snapshot_io import parse_form_output
-
-if TYPE_CHECKING:
-    from wyrdcraeft.services.morphology.generation.strong_derivation_flow import (
-        StrongFormContextEmitter,
-    )
-    from wyrdcraeft.services.morphology.generation.strong_principal_flow import (
-        StrongParticipleAdder,
-    )
 
 
 def _make_word(**overrides: object) -> Word:
@@ -268,7 +251,7 @@ def test_process_part_routes_strong_generation_from_flow() -> None:
     output = io.StringIO()
     generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
-    generator._generate_strong_verb_parts = _generate_strong  # type: ignore[method-assign]
+    generator._strong_generator.generate_verb_parts = _generate_strong  # type: ignore[method-assign]
     generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
 
     generator._process_part(
@@ -317,7 +300,7 @@ def test_process_part_routes_weak_generation_from_flow() -> None:
     output = io.StringIO()
     generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
-    generator._generate_strong_verb_parts = _generate_strong  # type: ignore[method-assign]
+    generator._strong_generator.generate_verb_parts = _generate_strong  # type: ignore[method-assign]
     generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
 
     generator._process_part(
@@ -442,7 +425,9 @@ def test_emit_strong_derived_from_inf_non_umlaut_an_branch_order() -> None:
         observed.append((ending, function, probability))
         return "form", f"fp-{ending}-{function}"
 
-    fp = emit_strong_derived_from_inf_non_umlaut(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    fp = strong._emit_derived_from_inf_non_umlaut(
         ending="an",
         probability=0,
         probability_plus_one=1,
@@ -487,7 +472,9 @@ def test_emit_strong_umlaut_for_vowel_sequence() -> None:
     ) -> None:
         sounds.append((ending, function, probability))
 
-    emit_strong_umlaut_for_vowel(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    strong._emit_umlaut_for_vowel(
         probability=2,
         emit_form=_emit_form,
         emit_sound=_emit_sound,
@@ -533,7 +520,9 @@ def test_emit_strong_derived_from_inf_sequence_event_ordering() -> None:
     def _emit_imsg(probability: str | int | None) -> None:
         events.append(("imsg", probability))
 
-    emit_strong_derived_from_inf_sequence(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    strong._emit_derived_from_inf_sequence(
         ending="an",
         vowel="a",
         probability=1,
@@ -554,8 +543,10 @@ def test_emit_strong_derived_from_inf_sequence_event_ordering() -> None:
 
 def test_dispatch_strong_verb_part_branches_painpl() -> None:
     calls: list[str] = []
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
 
-    did_dispatch = dispatch_strong_verb_part_branches(
+    did_dispatch = strong._dispatch_verb_part_branches(
         para_id="PaInPl",
         on_papt=lambda: calls.append("papt"),
         on_inf=lambda: calls.append("if"),
@@ -569,8 +560,10 @@ def test_dispatch_strong_verb_part_branches_painpl() -> None:
 
 def test_dispatch_strong_verb_part_branches_papt_only() -> None:
     calls: list[str] = []
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
 
-    did_dispatch = dispatch_strong_verb_part_branches(
+    did_dispatch = strong._dispatch_verb_part_branches(
         para_id="PaPt",
         on_papt=lambda: calls.append("papt"),
         on_inf=lambda: calls.append("if"),
@@ -600,7 +593,9 @@ def test_dispatch_strong_derived_from_principal_part_routes_painsg1() -> None:
         observed.append(("form", active_vowel, ending, function, probability))
         return "form", "parts"
 
-    did_dispatch = dispatch_strong_derived_from_principal_part(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    did_dispatch = strong._dispatch_derived_from_principal_part(
         para_id="PaInSg1",
         form_parts="fp-main",
         active_vowel="a",
@@ -625,7 +620,9 @@ def test_emit_strong_painsg1_derived_sequence() -> None:
         observed.append((ending, function, probability))
         return "form", "parts"
 
-    emit_strong_painsg1_derived(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    strong._emit_painsg1_derived(
         probability=0,
         emit_form=_emit_form,
     )
@@ -644,7 +641,9 @@ def test_emit_strong_painpl_derived_sequence() -> None:
         observed.append((ending, function, probability))
         return "form", "parts"
 
-    emit_strong_painpl_derived(
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    strong._emit_painpl_derived(
         probability=1,
         emit_form=_emit_form,
     )
@@ -1158,8 +1157,7 @@ def test_generate_weak_derived_from_inf_routes_direct_context_emitter() -> None:
     assert participles == [("lam", "ge", "ge-l-a-m-t-ende", False)]
 
 
-def test_generate_strong_verb_parts_with_emitters_routes_direct_derivation_stack(
-) -> None:
+def test_generate_verb_parts_routes_direct_derivation_stack() -> None:
     observed_forms: list[tuple[object, ...]] = []
     observed_sounds: list[tuple[object, ...]] = []
     observed_imsg: list[tuple[object, ...]] = []
@@ -1266,21 +1264,21 @@ def test_generate_strong_verb_parts_with_emitters_routes_direct_derivation_stack
         participles.append((captured_word.stem, prefix, form_parts, is_past))
 
     formhash = _base_formhash()
-    generate_strong_verb_parts_with_emitters(
-        formhash=formhash,
-        word=word,
-        item=item,
-        prefix="ge",
-        pre_vowel="l",
-        post_vowel="m",
-        emit_form_for_context=cast(
-            "StrongFormContextEmitter", _emit_form_for_context
-        ),
-        emit_sound_for_context=_emit_sound_for_context,
-        emit_imsg_for_context=_emit_imsg_for_context,
-        add_participle_to_adjectives=cast(
-            "StrongParticipleAdder", _add_participle_to_adjectives
-        ),
+    session = GeneratorSession()
+    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    strong._emit_form_for_context = _emit_form_for_context  # type: ignore[method-assign]
+    strong._emit_sound_changed_form_for_context = _emit_sound_for_context  # type: ignore[method-assign]
+    strong._emit_imsg_for_context = _emit_imsg_for_context  # type: ignore[method-assign]
+    strong._add_participle_to_adjectives = _add_participle_to_adjectives  # type: ignore[method-assign]
+    strong.generate_verb_parts(
+        formhash,
+        word,
+        item,
+        "ge",
+        "l",
+        "a",
+        "m",
+        0,
     )
 
     assert observed_forms[0] == (

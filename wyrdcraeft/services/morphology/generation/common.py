@@ -1,5 +1,7 @@
 # ruff: noqa: I001,PLR0913,ARG002,D417,RUF100,PLC0415
 import re
+from collections.abc import Callable, Sequence
+from functools import partial
 from typing import Final
 
 from wyrdcraeft.models.morphology import (
@@ -41,18 +43,10 @@ from .form_rows import print_one_form as _print_one_form
 from .participles import (
     add_participle_to_adjectives as _add_participle_to_adjectives_session,
 )
+from .probability import probability_plus
 from .scalar_utils import nz as _nz_scalar
 from .scalar_utils import perl_numify as _perl_numify
 from .shared import FormOutput
-from . import strong_derivation_flow as _strong_derivation_flow
-from .strong_principal_flow import (
-    emit_strong_principal_form_for_vowel as _emit_strong_principal_form_for_vowel,
-    emit_strong_principal_inf_derivation_with_emitters
-    as _emit_strong_principal_inf_derivation_with_emitters,
-    emit_strong_principal_participle as _emit_strong_principal_participle,
-    generate_strong_verb_parts_with_emitters
-    as _generate_strong_verb_parts_with_emitters,
-)
 from . import weak_derivation_flow as _weak_derivation_flow
 from . import weak_principal_flow as _weak_principal_flow
 
@@ -110,6 +104,1222 @@ def print_one_form(
 
     """  # noqa: E501
     _print_one_form(run_state, form_data, output_file)
+
+
+class StrongVerbGenerator:
+    """
+    Generator for Old English strong-verb form derivation.
+
+    Handles the strong-paradigm branch of verb generation: principal-part
+    emission across ablaut vowel variants, past-participle projection, and
+    the infinitive-derived branch cascade (non-umlaut and umlaut forms, plus
+    the ``PaInSg1``/``PaInPl`` side branches). Consumed by
+    ``VerbFormGenerator``, which constructs one instance per run and calls
+    ``generate_verb_parts`` once per strong-paradigm word/variant/part.
+
+    Args:
+        word_pool: Categorized word pool receiving derived participle rows.
+        run_state: Cross-stage scalar run state for this run.
+        output_file: Output handle receiving generated form rows.
+
+    """
+
+    def __init__(
+        self,
+        word_pool: WordPool,
+        run_state: GenerationRunState,
+        output_file: FormOutput,
+    ) -> None:
+        """
+        Initialize the strong-verb generator context.
+
+        Args:
+            word_pool: Categorized word pool receiving derived participle rows.
+            run_state: Cross-stage scalar run state for this run.
+            output_file: Output handle receiving generated form rows.
+
+        """
+        #: Categorized word pool receiving derived participle rows.
+        self.word_pool = word_pool
+        #: Cross-stage scalar run state for this run.
+        self.run_state = run_state
+        #: Output handle receiving generated form rows.
+        self.output_file = output_file
+
+    # -- low-level row-emission primitives -----------------------------------
+
+    def _emit_form_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        *,
+        dental: str | None = "",
+        prob: str | int | None = None,
+    ) -> tuple[str, str]:
+        """
+        Emit one generated form for a fixed stem context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+
+        Keyword Args:
+            dental: Dental segment for weak forms.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return _emit_form_for_context_row(
+            self.run_state,
+            self.output_file,
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            ending,
+            function,
+            dental=dental,
+            prob=prob,
+        )
+
+    def _emit_sound_changed_form_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+        *,
+        dental: str | None = "",
+        sound_change_prob_delta: int = 1,
+    ) -> None:
+        """
+        Emit one source row and its sound-change derivatives for a stem context.
+
+        Side Effects:
+            Writes generated and derived rows to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation for the source row.
+
+        Keyword Args:
+            dental: Dental segment for weak-form contexts.
+            sound_change_prob_delta: Probability delta used on derived forms.
+
+        """
+        _emit_sound_changed_form_for_context_row(
+            self.run_state,
+            self.output_file,
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            ending,
+            function,
+            prob,
+            dental=dental,
+            sound_change_prob_delta=sound_change_prob_delta,
+        )
+
+    def _emit_imsg_for_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit the imperative-singular row for one fixed stem context.
+
+        Side Effects:
+            Writes one ``ImSg`` row to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            vowel: Active vowel segment.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            prob: Optional probability annotation.
+
+        """
+        _emit_imsg_for_context_row(
+            self.run_state,
+            self.output_file,
+            formhash,
+            prefix,
+            pre_vowel,
+            vowel,
+            post_vowel,
+            boundary,
+            prob,
+        )
+
+    def _add_participle_to_adjectives(
+        self, word: Word, prefix: str, form_parts: str, is_past: bool
+    ) -> None:
+        """
+        Add a participle to adjectives.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            word: The word.
+            prefix: The prefix.
+            form_parts: The form parts.
+            is_past: Whether the form is past.
+
+        """
+        _add_participle_to_adjectives_session(
+            self.word_pool,
+            word=word,
+            prefix=prefix,
+            form_parts=form_parts,
+            is_past=is_past,
+        )
+
+    # -- vowel/sound/inf-derivation context primitives -----------------------
+
+    def _emit_vowel_form_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        post_vowel: str,
+        boundary: str,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong-form row for a pre-bound stem context.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            active_vowel: Active ablaut/umlaut vowel.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_form_for_context(
+            formhash,
+            prefix,
+            pre_vowel,
+            active_vowel,
+            post_vowel,
+            boundary,
+            ending,
+            function,
+            prob=prob,
+        )
+
+    def _emit_vowel_sound_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        prefix: str,
+        pre_vowel: str,
+        post_vowel: str,
+        boundary: str,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit strong sound-changed rows for one pre-bound stem context.
+
+        Side Effects:
+            Writes generated and sound-changed rows to the output stream.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            active_vowel: Active ablaut/umlaut vowel.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_sound_changed_form_for_context(
+            formhash,
+            prefix,
+            pre_vowel,
+            active_vowel,
+            post_vowel,
+            boundary,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_inf_derivation_context(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        word: Word,
+        prefix: str,
+        pre_vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        active_vowel: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Route one strong principal-part branch into infinitive-derived generation.
+
+        Side Effects:
+            Writes generated rows and participle side effects via callback.
+
+        Note:
+            Currently unreachable from the live traversal (the production path
+            reaches ``_generate_derived_from_inf`` directly through
+            ``_emit_principal_inf_derivation_context``); kept for parity with
+            the pre-migration call surface. Flagged for Task 9 review.
+
+        Args:
+            formhash: The mutable form metadata hash.
+            word: Active lexeme record.
+            prefix: Prefix segment.
+            pre_vowel: Stem segment before the active vowel.
+            post_vowel: Stem segment after the active vowel.
+            boundary: Boundary consonant segment.
+            ending: Morphological ending.
+            active_vowel: Active ablaut/umlaut vowel.
+            prob: Optional probability annotation.
+
+        """
+        self._generate_derived_from_inf(
+            formhash,
+            word,
+            prefix,
+            pre_vowel,
+            active_vowel,
+            post_vowel,
+            boundary,
+            ending,
+            prob,
+        )
+
+    # -- infinitive-derived branch cascade -----------------------------------
+
+    def _emit_derived_inf_form_for_vowel(  # noqa: PLR0913
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong infinitive-derived row for a selected active vowel.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong infinitive-derivation context.
+            active_vowel: Active vowel used for the emitted row.
+            ending: Ending segment for the emitted row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_vowel_form_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_derived_inf_form_for_vowel_context(  # noqa: PLR0913
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong infinitive-derived row for a selected active vowel.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            active_vowel: Active vowel used for the emitted row.
+            ending: Ending segment for the emitted row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_derived_inf_form_for_vowel(
+            context,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_derived_inf_sound_for_vowel(  # noqa: PLR0913
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit sound-change rows for one strong infinitive-derived vowel branch.
+
+        Side Effects:
+            Writes one or more rows to the morphology output stream.
+
+        Args:
+            context: Shared strong infinitive-derivation context.
+            active_vowel: Active vowel used for source-row assembly.
+            ending: Ending segment for the source row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_vowel_sound_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_derived_inf_sound_for_vowel_context(  # noqa: PLR0913
+        self,
+        context: _StrongInfDerivationContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit sound-change rows for one strong infinitive-derived vowel branch.
+
+        Side Effects:
+            Writes one or more rows to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            active_vowel: Active vowel used for source-row assembly.
+            ending: Ending segment for the source row.
+            function: Morphology function code.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_derived_inf_sound_for_vowel(
+            context,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_derived_inf_participle(
+        self, context: _StrongInfDerivationContext, form_parts: str
+    ) -> None:
+        """
+        Attach a present participle emitted from infinitive-derived strong rows.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared strong infinitive-derivation context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=False,
+        )
+
+    def _emit_derived_inf_participle_context(
+        self, context: _StrongInfDerivationContext, form_parts: str
+    ) -> None:
+        """
+        Attach a present participle emitted from infinitive-derived strong rows.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._emit_derived_inf_participle(context, form_parts)
+
+    def _emit_derived_inf_imsg(
+        self, context: _StrongInfDerivationContext, prob: str | int | None
+    ) -> None:
+        """
+        Emit the strong imperative-singular derivative for infinitive branches.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong infinitive-derivation context.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_imsg_for_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.base_vowel,
+            context.post_vowel,
+            context.boundary,
+            prob,
+        )
+
+    def _emit_derived_inf_imsg_context(
+        self, context: _StrongInfDerivationContext, prob: str | int | None
+    ) -> None:
+        """
+        Emit the strong imperative-singular derivative for infinitive branches.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong-derivation emission context.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_derived_inf_imsg(context, prob)
+
+    def _generate_derived_from_inf(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        word: Word,
+        prefix: str,
+        pre_vowel: str,
+        vowel: str,
+        post_vowel: str,
+        boundary: str,
+        ending: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Generate strong verb forms derived from the infinitive principal part.
+
+        Side Effects:
+            Writes generated rows and participle side effects via callbacks.
+
+        Note:
+            Wright (``Old English Grammar``, §§474-475) describes strong verbs
+            as deriving preterite and participle stems by vowel alternation
+            (ablaut) across a fixed stem set. This routine emits those
+            infinitive-derived rows in that legacy order. Tichý (2017, p. 43)
+            keeps the same traditional strong/weak split for transparent
+            morphological analysis.
+
+        Args:
+            formhash: The form hash.
+            word: The word to process.
+            prefix: The prefix.
+            pre_vowel: The pre-vowel.
+            vowel: The vowel.
+            post_vowel: The post-vowel.
+            boundary: The boundary.
+            ending: The ending.
+            prob: The probability.
+
+        """
+        context = _StrongInfDerivationContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            base_vowel=vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+        )
+        self._emit_derived_from_inf_sequence(
+            ending=ending,
+            vowel=vowel,
+            probability=prob,
+            umlaut_vowels=OENormalizer.iumlaut([vowel]),
+            emit_form_for_vowel=partial(
+                self._emit_derived_inf_form_for_vowel_context, context
+            ),
+            emit_sound_for_vowel=partial(
+                self._emit_derived_inf_sound_for_vowel_context, context
+            ),
+            on_participle=partial(self._emit_derived_inf_participle_context, context),
+            emit_imsg=partial(self._emit_derived_inf_imsg_context, context),
+        )
+
+    def _emit_derived_from_inf_sequence(  # noqa: PLR0913
+        self,
+        *,
+        ending: str,
+        vowel: str,
+        probability: str | int | None,
+        umlaut_vowels: Sequence[str],
+        emit_form_for_vowel: Callable[
+            [str, str, str, str | int | None], tuple[str, str]
+        ],
+        emit_sound_for_vowel: Callable[[str, str, str, str | int | None], None],
+        on_participle: Callable[[str], None],
+        emit_imsg: Callable[[str | int | None], None],
+    ) -> None:
+        """
+        Emit the full strong-verb infinitive-derived sequence.
+
+        Side Effects:
+            Invokes emission callbacks for non-umlaut, imperative, and umlaut forms.
+
+        Args:
+            ending: Original paradigm ending from the infinitive principal part.
+            vowel: Base infinitive vowel.
+            probability: Base probability scalar for the branch.
+            umlaut_vowels: Ordered umlaut vowel variants for the base vowel.
+            emit_form_for_vowel: Callback that emits a form for one active vowel.
+            emit_sound_for_vowel: Callback that emits sound-change rows for one vowel.
+            on_participle: Callback that consumes the emitted participle form-parts.
+            emit_imsg: Callback that emits the ``ImSg`` derived row.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        """
+        probability_plus_one = probability_plus(probability, delta=1, empty_default=1)
+        form_parts = self._emit_derived_from_inf_non_umlaut(
+            ending=ending,
+            probability=probability,
+            probability_plus_one=probability_plus_one,
+            emit_form=lambda ending_value, function, prob_value: emit_form_for_vowel(
+                vowel,
+                ending_value,
+                function,
+                prob_value,
+            ),
+        )
+        on_participle(form_parts)
+        emit_imsg(probability)
+
+        for mv_idx, mvowel in enumerate(umlaut_vowels):
+            mv_prob = int(probability) + mv_idx if probability is not None else mv_idx
+
+            def emit_umlaut(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+                *,
+                _mvowel: str = mvowel,
+            ) -> tuple[str, str]:
+                return emit_form_for_vowel(
+                    _mvowel,
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+
+            def emit_umlaut_sound(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+                *,
+                _mvowel: str = mvowel,
+            ) -> None:
+                emit_sound_for_vowel(
+                    _mvowel,
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+
+            self._emit_umlaut_for_vowel(
+                probability=mv_prob,
+                emit_form=emit_umlaut,
+                emit_sound=emit_umlaut_sound,
+            )
+
+    def _emit_derived_from_inf_non_umlaut(
+        self,
+        *,
+        ending: str,
+        probability: str | int | None,
+        probability_plus_one: int,
+        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
+    ) -> str:
+        """
+        Emit non-umlaut strong-verb forms derived from the infinitive principal part.
+
+        Side Effects:
+            Writes generated rows through ``emit_form``.
+
+        Args:
+            ending: Original paradigm ending from the infinitive part.
+            probability: Base probability scalar.
+            probability_plus_one: Incremented probability scalar.
+            emit_form: Callback that emits one generated form.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        Returns:
+            Final participle ``formParts`` string used for adjective derivation.
+
+        """
+        if "an" in ending:
+            emit_form("anne", "IdIf", probability)
+            emit_form("enne", "IdIf", probability)
+            _, participle_form_parts = emit_form("ende", "PsPt", probability)
+
+            emit_form("e", "PsInSg1", probability)
+            emit_form("u", "PsInSg1", probability_plus_one)
+            emit_form("o", "PsInSg1", probability_plus_one)
+            emit_form("æ", "PsInSg1", probability_plus_one)
+
+            emit_form("aþ", "PsInPl", probability)
+            emit_form("eþ", "PsInPl", probability_plus_one)
+            emit_form("es", "PsInPl", probability_plus_one)
+            emit_form("as", "PsInPl", probability_plus_one)
+
+            emit_form("e", "PsSuSg", probability)
+            emit_form("en", "PsSuPl", probability)
+            emit_form("aþ", "ImPl", probability)
+            return participle_form_parts
+
+        emit_form("nne", "IdIf", probability)
+        _, participle_form_parts = emit_form("nde", "PsPt", probability)
+
+        emit_form("0", "PsInSg1", probability)
+        emit_form("þ", "PsInPl", probability)
+        emit_form("0", "PsSuSg", probability)
+        emit_form("n", "PsSuPl", probability)
+        emit_form("þ", "ImPl", probability)
+        return participle_form_parts
+
+    def _emit_umlaut_for_vowel(
+        self,
+        *,
+        probability: int,
+        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
+        emit_sound: Callable[[str, str, str | int | None], None],
+    ) -> None:
+        """
+        Emit umlaut-derived ``PsInSg2`` and ``PsInSg3`` strong-verb forms.
+
+        Side Effects:
+            Writes generated rows through ``emit_form`` and ``emit_sound``.
+
+        Args:
+            probability: Base umlaut probability for this vowel variant.
+            emit_form: Callback that emits one generated form.
+            emit_sound: Callback that emits one sound-change branch.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        """
+        emit_form("stu", "PsInSg2", probability + 1)
+        emit_form("est", "PsInSg2", probability + 1)
+        emit_form("ist", "PsInSg2", probability + 1)
+        emit_form("s", "PsInSg2", probability + 1)
+        emit_sound("st", "PsInSg2", probability)
+
+        emit_form("eþ", "PsInSg3", probability + 1)
+        emit_form("iþ", "PsInSg3", probability + 1)
+        emit_sound("þ", "PsInSg3", probability)
+
+    def _dispatch_verb_part_branches(
+        self,
+        *,
+        para_id: str,
+        on_papt: Callable[[], None],
+        on_inf: Callable[[], None],
+        on_painsg1: Callable[[], None],
+        on_painpl: Callable[[], None],
+    ) -> bool:
+        """
+        Dispatch strong-verb principal-part branch actions for one ``para_id``.
+
+        Side Effects:
+            Invokes at least one branch callback when a branch matches.
+
+        Args:
+            para_id: Principal function identifier from paradigm row.
+            on_papt: Callback for past-participle branch side effects.
+            on_inf: Callback for infinitive-derived branch.
+            on_painsg1: Callback for ``PaInSg1``-derived branch.
+            on_painpl: Callback for ``PaInPl``-derived branch.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        Returns:
+            ``True`` when any branch callback was invoked, else ``False``.
+
+        """
+        invoked = False
+        para_id_lower = para_id.lower()
+
+        if para_id_lower == "papt":
+            on_papt()
+            invoked = True
+
+        if para_id_lower == "if":
+            on_inf()
+            return True
+        if para_id_lower == "painsg1":
+            on_painsg1()
+            return True
+        if para_id_lower == "painpl":
+            on_painpl()
+            return True
+        return invoked
+
+    def _dispatch_derived_from_principal_part(  # noqa: PLR0913
+        self,
+        *,
+        para_id: str,
+        form_parts: str,
+        active_vowel: str,
+        probability: str | int | None,
+        on_papt_form_parts: Callable[[str], None],
+        on_inf: Callable[[str, str | int | None], None],
+        emit_form_for_vowel: Callable[
+            [str, str, str, str | int | None], tuple[str, str]
+        ],
+    ) -> bool:
+        """
+        Dispatch and emit strong derived branches for one principal-part emission.
+
+        Side Effects:
+            Invokes branch emitters and participle sinks according to ``para_id``.
+
+        Args:
+            para_id: Principal function identifier from the paradigm row.
+            form_parts: Emitted principal-form ``formParts`` string.
+            active_vowel: Active vowel for the current branch context.
+            probability: Probability scalar for derived branch emissions.
+            on_papt_form_parts: Sink for ``PaPt`` participle projection.
+            on_inf: Callback that emits infinitive-derived branches.
+            emit_form_for_vowel: Callback for one strong form on ``active_vowel``.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        Returns:
+            ``True`` when any branch callback was invoked, else ``False``.
+
+        """
+
+        def on_papt() -> None:
+            on_papt_form_parts(form_parts)
+
+        def on_inf_branch() -> None:
+            on_inf(active_vowel, probability)
+
+        def on_painsg1_branch() -> None:
+            def emit_form(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+            ) -> tuple[str, str]:
+                return emit_form_for_vowel(
+                    active_vowel,
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+
+            self._emit_painsg1_derived(
+                probability=probability,
+                emit_form=emit_form,
+            )
+
+        def on_painpl_branch() -> None:
+            def emit_form(
+                ending_value: str,
+                function: str,
+                prob_value: str | int | None,
+            ) -> tuple[str, str]:
+                return emit_form_for_vowel(
+                    active_vowel,
+                    ending_value,
+                    function,
+                    prob_value,
+                )
+
+            self._emit_painpl_derived(
+                probability=probability,
+                emit_form=emit_form,
+            )
+
+        return self._dispatch_verb_part_branches(
+            para_id=para_id,
+            on_papt=on_papt,
+            on_inf=on_inf_branch,
+            on_painsg1=on_painsg1_branch,
+            on_painpl=on_painpl_branch,
+        )
+
+    def _emit_principal_part_sequence(  # noqa: PLR0913
+        self,
+        *,
+        para_id: str,
+        ending: str,
+        vowels: Sequence[str],
+        emit_form_for_vowel: Callable[
+            [str, str, str, str | int | None], tuple[str, str]
+        ],
+        on_papt_form_parts: Callable[[str], None],
+        on_inf: Callable[[str, str | int | None], None],
+    ) -> None:
+        """
+        Emit one strong principal-part sequence and dispatch derived branches.
+
+        Note:
+            Wright's strong-verb chapter groups verbs by vowel alternation classes,
+            and Tichý's generation description likewise replaces the root vowel by
+            paradigm-specific ablaut/umlaut options. This helper keeps that
+            vowel-first branching order unchanged for parity.
+
+        Side Effects:
+            Emits forms and invokes derived-branch callbacks for each active vowel.
+
+        Args:
+            para_id: Principal function identifier from the paradigm row.
+            ending: Morphological ending from the active principal part.
+            vowels: Ordered vowel variants to emit for the principal part.
+            emit_form_for_vowel: Callback emitting one form for one active vowel.
+            on_papt_form_parts: Callback receiving ``PaPt`` participle form-parts.
+            on_inf: Callback emitting infinitive-derived branches.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        """
+        for vcount, active_vowel in enumerate(vowels):
+            prob: str | int | None = 1 if vcount == 1 else None
+            _, form_parts = emit_form_for_vowel(active_vowel, ending, para_id, prob)
+            self._dispatch_derived_from_principal_part(
+                para_id=para_id,
+                form_parts=form_parts,
+                active_vowel=active_vowel,
+                probability=prob,
+                on_papt_form_parts=on_papt_form_parts,
+                on_inf=on_inf,
+                emit_form_for_vowel=emit_form_for_vowel,
+            )
+
+    def _emit_painsg1_derived(
+        self,
+        *,
+        probability: str | int | None,
+        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
+    ) -> None:
+        """
+        Emit ``PaInSg1``-derived strong-verb side branch forms.
+
+        Side Effects:
+            Writes generated rows through ``emit_form``.
+
+        Args:
+            probability: Base probability scalar for branch emissions.
+            emit_form: Callback that emits one generated form.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        """
+        emit_form("0", "PaInSg3", probability)
+
+    def _emit_painpl_derived(
+        self,
+        *,
+        probability: str | int | None,
+        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
+    ) -> None:
+        """
+        Emit ``PaInPl``-derived strong-verb side branch forms.
+
+        Side Effects:
+            Writes generated rows through ``emit_form``.
+
+        Args:
+            probability: Base probability scalar for branch emissions.
+            emit_form: Callback that emits one generated form.
+
+        Keyword Args:
+            Uses keyword-only parameters for all inputs.
+
+        """
+        emit_form("e", "PaInSg2", probability)
+        emit_form("e", "PaSuSg", probability)
+        emit_form("en", "PaSuPl", probability)
+
+    # -- principal-part generation --------------------------------------------
+
+    def _emit_principal_form_for_vowel_context(
+        self,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
+        ending: str,
+        function: str,
+        prob: str | int | None,
+    ) -> tuple[str, str]:
+        """
+        Emit one strong principal-part row for a selected active vowel.
+
+        Side Effects:
+            Writes one row to the morphology output stream.
+
+        Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active stem vowel for this emitted row.
+            ending: Morphological ending.
+            function: Morphological function code.
+            prob: Optional probability annotation.
+
+        Returns:
+            Two-item tuple of emitted ``(form, form_parts)``.
+
+        """
+        return self._emit_vowel_form_context(
+            context.formhash,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            active_vowel,
+            ending,
+            function,
+            prob,
+        )
+
+    def _emit_principal_participle_context(
+        self, context: _StrongPrincipalPartContext, form_parts: str
+    ) -> None:
+        """
+        Attach a past participle emitted from a strong principal-part row.
+
+        Side Effects:
+            Adds one adjective-row candidate to session state.
+
+        Args:
+            context: Shared strong principal-part context.
+            form_parts: Form-parts payload for the derived participle.
+
+        """
+        self._add_participle_to_adjectives(
+            context.word,
+            context.prefix,
+            form_parts,
+            is_past=True,
+        )
+
+    def _emit_principal_inf_derivation(
+        self,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit strong infinitive-derived rows from a principal-part context.
+
+        Side Effects:
+            Writes generated rows and participle side effects to output/session.
+
+        Note:
+            Currently unreachable: no caller passes this method as the ``on_inf``
+            branch action (the live path uses
+            ``_emit_principal_inf_derivation_context`` instead). Kept for parity
+            with the pre-migration call surface. Flagged for Task 9 review.
+
+        Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active stem vowel for this derivation branch.
+            prob: Optional probability annotation.
+
+        """
+        self._emit_inf_derivation_context(
+            context.formhash,
+            context.word,
+            context.prefix,
+            context.pre_vowel,
+            context.post_vowel,
+            context.boundary,
+            context.ending,
+            active_vowel,
+            prob,
+        )
+
+    def _emit_principal_inf_derivation_context(
+        self,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
+        prob: str | int | None,
+    ) -> None:
+        """
+        Emit strong infinitive-derived rows from principal context.
+
+        Side Effects:
+            Writes generated rows and participle side effects to output/session.
+
+        Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active stem vowel for this derivation branch.
+            prob: Optional probability annotation.
+
+        Note:
+            Verb scope. Wright (``data/OldEnglishGrammar.pdf``) and Tichý
+            (``data/Ondej_Tich_40-54-1.pdf``) describe strong principal-part
+            branching into infinitive-derived rows; this helper keeps that
+            sequencing intact.
+
+        """
+        self._generate_derived_from_inf(
+            context.formhash,
+            context.word,
+            context.prefix,
+            context.pre_vowel,
+            active_vowel,
+            context.post_vowel,
+            context.boundary,
+            context.ending,
+            prob,
+        )
+
+    def generate_verb_parts(  # noqa: PLR0913
+        self,
+        formhash: dict[str, str],
+        word: Word,
+        item: ParadigmPart,
+        prefix: str,
+        pre_vowel: str,
+        root_vowel_actual: str,  # noqa: ARG002
+        post_vowel: str,
+        variant_id: int,  # noqa: ARG002
+    ) -> None:
+        """
+        Entry point: route one strong-paradigm part into principal-part generation.
+
+        Matches Perl's ``generate_strong_verb_parts``. Called once per
+        strong-paradigm word/variant/part by ``VerbFormGenerator._process_part``.
+
+        Side Effects:
+            Emits generated rows and participle side effects.
+
+        Args:
+            formhash: The form hash.
+            word: The word to process.
+            item: The part to process.
+            prefix: The prefix.
+            pre_vowel: The pre-vowel.
+            root_vowel_actual: Unused; retained for call-site compatibility with
+                the legacy signature (only ``item.vowel`` is used).
+            post_vowel: The post-vowel.
+            variant_id: Unused; retained for call-site compatibility with the
+                legacy signature.
+
+        """
+        para_id = item.para_id
+        ending = item.ending
+        boundary = item.boundary
+        context = _StrongPrincipalPartContext(
+            formhash=formhash,
+            word=word,
+            prefix=prefix,
+            pre_vowel=pre_vowel,
+            post_vowel=post_vowel,
+            boundary=boundary,
+            ending=ending,
+        )
+        self._emit_principal_part_sequence(
+            para_id=para_id,
+            ending=ending,
+            vowels=[item.vowel],
+            emit_form_for_vowel=partial(
+                self._emit_principal_form_for_vowel_context, context
+            ),
+            on_papt_form_parts=partial(
+                self._emit_principal_participle_context, context
+            ),
+            on_inf=partial(self._emit_principal_inf_derivation_context, context),
+        )
 
 
 class VerbFormGenerator:
@@ -172,6 +1382,8 @@ class VerbFormGenerator:
         self.output_file = output_file
         #: Optional live progress coordinator.
         self.progress = progress
+        #: Collaborator handling strong-paradigm verb form generation.
+        self._strong_generator = StrongVerbGenerator(word_pool, run_state, output_file)
 
     def generate(self) -> None:
         """Main entry point to generate all verb forms."""
@@ -413,7 +1625,7 @@ class VerbFormGenerator:
         )
 
         if vp.type == "s":
-            self._generate_strong_verb_parts(
+            self._strong_generator.generate_verb_parts(
                 formhash_var,
                 word,
                 item,
@@ -797,138 +2009,6 @@ class VerbFormGenerator:
             prefix=prefix,
             form_parts=form_parts,
             is_past=is_past,
-        )
-
-    def _emit_strong_vowel_form_context(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        prefix: str,
-        pre_vowel: str,
-        post_vowel: str,
-        boundary: str,
-        active_vowel: str,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> tuple[str, str]:
-        """
-        Emit one strong-form row for a pre-bound stem context.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            formhash: The mutable form metadata hash.
-            prefix: Prefix segment.
-            pre_vowel: Stem segment before the active vowel.
-            post_vowel: Stem segment after the active vowel.
-            boundary: Boundary consonant segment.
-            active_vowel: Active ablaut/umlaut vowel.
-            ending: Morphological ending.
-            function: Morphological function code.
-            prob: Optional probability annotation.
-
-        Returns:
-            Two-item tuple of emitted ``(form, form_parts)``.
-
-        """
-        return _strong_derivation_flow.emit_strong_vowel_form_context(
-            formhash,
-            prefix,
-            pre_vowel,
-            post_vowel,
-            boundary,
-            active_vowel,
-            ending,
-            function,
-            prob,
-            emit_form_for_context=self._emit_form_for_context,
-        )
-
-    def _emit_strong_vowel_sound_context(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        prefix: str,
-        pre_vowel: str,
-        post_vowel: str,
-        boundary: str,
-        active_vowel: str,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> None:
-        """
-        Emit strong sound-changed rows for one pre-bound stem context.
-
-        Side Effects:
-            Writes generated and sound-changed rows to the output stream.
-
-        Args:
-            formhash: The mutable form metadata hash.
-            prefix: Prefix segment.
-            pre_vowel: Stem segment before the active vowel.
-            post_vowel: Stem segment after the active vowel.
-            boundary: Boundary consonant segment.
-            active_vowel: Active ablaut/umlaut vowel.
-            ending: Morphological ending.
-            function: Morphological function code.
-            prob: Optional probability annotation.
-
-        """
-        _strong_derivation_flow.emit_strong_vowel_sound_context(
-            formhash,
-            prefix,
-            pre_vowel,
-            post_vowel,
-            boundary,
-            active_vowel,
-            ending,
-            function,
-            prob,
-            emit_sound_for_context=self._emit_sound_changed_form_for_context,
-        )
-
-    def _emit_strong_inf_derivation_context(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        word: Word,
-        prefix: str,
-        pre_vowel: str,
-        post_vowel: str,
-        boundary: str,
-        ending: str,
-        active_vowel: str,
-        prob: str | int | None,
-    ) -> None:
-        """
-        Emit strong infinitive-derived rows for one selected active vowel.
-
-        Side Effects:
-            Writes generated rows and participle side effects to output/session.
-
-        Args:
-            formhash: The mutable form metadata hash.
-            word: Active lexeme record.
-            prefix: Prefix segment.
-            pre_vowel: Stem segment before the active vowel.
-            post_vowel: Stem segment after the active vowel.
-            boundary: Boundary consonant segment.
-            ending: Morphological ending.
-            active_vowel: Active ablaut/umlaut vowel.
-            prob: Optional probability annotation.
-
-        """
-        _strong_derivation_flow.emit_strong_inf_derivation_for_context(
-            formhash,
-            word,
-            prefix,
-            pre_vowel,
-            post_vowel,
-            boundary,
-            ending,
-            active_vowel,
-            prob,
-            generate_strong_derived_from_inf=self._generate_strong_derived_from_inf,
         )
 
     def _emit_weak_principal_form_context(  # noqa: PLR0913
@@ -1318,289 +2398,6 @@ class VerbFormGenerator:
             consonant_change_prob,
             post_vowel_simple,
             emit_sound_with_post_context=self._emit_weak_psinsg2_sound_with_post_context,
-        )
-
-    def _emit_strong_principal_form_for_vowel_context(
-        self,
-        context: _StrongPrincipalPartContext,
-        active_vowel: str,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> tuple[str, str]:
-        """
-        Emit one strong principal-part row for a selected active vowel.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            context: Shared strong principal-part context.
-            active_vowel: Active stem vowel for this emitted row.
-            ending: Morphological ending.
-            function: Morphological function code.
-            prob: Optional probability annotation.
-
-        Returns:
-            Two-item tuple of emitted ``(form, form_parts)``.
-
-        """
-        return _emit_strong_principal_form_for_vowel(
-            context,
-            active_vowel,
-            ending,
-            function,
-            prob,
-            emit_strong_vowel_form=self._emit_strong_vowel_form_context,
-        )
-
-    def _emit_strong_principal_participle_context(
-        self, context: _StrongPrincipalPartContext, form_parts: str
-    ) -> None:
-        """
-        Attach a past participle emitted from a strong principal-part row.
-
-        Side Effects:
-            Adds one adjective-row candidate to session state.
-
-        Args:
-            context: Shared strong principal-part context.
-            form_parts: Form-parts payload for the derived participle.
-
-        """
-        _emit_strong_principal_participle(
-            context,
-            form_parts,
-            add_participle_to_adjectives=self._add_participle_to_adjectives,
-        )
-
-    def _emit_strong_principal_inf_derivation_context(
-        self,
-        context: _StrongPrincipalPartContext,
-        active_vowel: str,
-        prob: str | int | None,
-    ) -> None:
-        """
-        Emit strong infinitive-derived rows from a principal-part context.
-
-        Side Effects:
-            Writes generated rows and participle side effects to output/session.
-
-        Args:
-            context: Shared strong principal-part context.
-            active_vowel: Active stem vowel for this derivation branch.
-            prob: Optional probability annotation.
-
-        """
-        _emit_strong_principal_inf_derivation_with_emitters(
-            context,
-            active_vowel,
-            prob,
-            emit_form_for_context=self._emit_form_for_context,
-            emit_sound_for_context=self._emit_sound_changed_form_for_context,
-            emit_imsg_for_context=self._emit_imsg_for_context,
-            add_participle_to_adjectives=self._add_participle_to_adjectives,
-        )
-
-    def _generate_strong_verb_parts(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        word: Word,
-        item: ParadigmPart,
-        prefix: str,
-        pre_vowel: str,
-        root_vowel_actual: str,
-        post_vowel: str,
-        variant_id: int,
-    ) -> None:
-        """
-        Matches Perl's generate_strong_verb_parts.
-
-        Notes:
-            Matches Perl implementation of ``generate_strong_verb_parts`` function:
-
-        Args:
-            formhash: The form hash.
-            word: The word to process.
-            item: The part to process.
-            prefix: The prefix.
-            pre_vowel: The pre-vowel.
-            root_vowel_actual: The root vowel actual.
-            post_vowel: The post-vowel.
-            variant_id: The variant ID.
-
-        """
-        _generate_strong_verb_parts_with_emitters(
-            formhash=formhash,
-            word=word,
-            item=item,
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            post_vowel=post_vowel,
-            emit_form_for_context=self._emit_form_for_context,
-            emit_sound_for_context=self._emit_sound_changed_form_for_context,
-            emit_imsg_for_context=self._emit_imsg_for_context,
-            add_participle_to_adjectives=self._add_participle_to_adjectives,
-        )
-
-    def _generate_strong_derived_from_inf(  # noqa: PLR0913
-        self,
-        formhash: dict[str, str],
-        word: Word,
-        prefix: str,
-        pre_vowel: str,
-        vowel: str,
-        post_vowel: str,
-        boundary: str,
-        ending: str,
-        prob: str | int | None,
-    ) -> None:
-        """
-        Generate strong verbs derived from inf.
-
-        Notes:
-            Matches Perl implementation of ``generate_strong_derived_from_inf``
-            function.
-
-        Note:
-            Wright (``Old English Grammar``, §§474-475) describes strong verbs
-            as deriving preterite and participle stems by vowel alternation
-            (ablaut) across a fixed stem set. This routine emits those
-            infinitive-derived rows in that legacy order. Tichý (2017, p. 43)
-            keeps the same traditional strong/weak split for transparent
-            morphological analysis.
-
-        Args:
-            formhash: The form hash.
-            word: The word to process.
-            prefix: The prefix.
-            pre_vowel: The pre-vowel.
-            vowel: The vowel.
-            post_vowel: The post-vowel.
-            boundary: The boundary.
-            ending: The ending.
-            prob: The probability.
-
-        """
-        _strong_derivation_flow.generate_strong_derived_from_inf(
-            formhash=formhash,
-            word=word,
-            prefix=prefix,
-            pre_vowel=pre_vowel,
-            vowel=vowel,
-            post_vowel=post_vowel,
-            boundary=boundary,
-            ending=ending,
-            probability=prob,
-            emit_form_for_vowel=self._emit_strong_derived_inf_form_for_vowel_context,
-            emit_sound_for_vowel=self._emit_strong_derived_inf_sound_for_vowel_context,
-            on_participle=self._emit_strong_derived_inf_participle_context,
-            emit_imsg=self._emit_strong_derived_inf_imsg_context,
-        )
-
-    def _emit_strong_derived_inf_form_for_vowel_context(
-        self,
-        context: _StrongInfDerivationContext,
-        active_vowel: str,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> tuple[str, str]:
-        """
-        Emit one strong infinitive-derived row for a selected active vowel.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            context: Shared strong-derivation emission context.
-            active_vowel: Active vowel used for the emitted row.
-            ending: Ending segment for the emitted row.
-            function: Morphology function code.
-            prob: Optional probability annotation.
-
-        Returns:
-            Two-item tuple of emitted ``(form, form_parts)``.
-
-        """
-        return _strong_derivation_flow.emit_strong_derived_inf_form_for_vowel_context(
-            context,
-            active_vowel,
-            ending,
-            function,
-            prob,
-            emit_strong_vowel_form_context=self._emit_strong_vowel_form_context,
-        )
-
-    def _emit_strong_derived_inf_sound_for_vowel_context(
-        self,
-        context: _StrongInfDerivationContext,
-        active_vowel: str,
-        ending: str,
-        function: str,
-        prob: str | int | None,
-    ) -> None:
-        """
-        Emit sound-change rows for one strong infinitive-derived vowel branch.
-
-        Side Effects:
-            Writes one or more rows to the morphology output stream.
-
-        Args:
-            context: Shared strong-derivation emission context.
-            active_vowel: Active vowel used for source-row assembly.
-            ending: Ending segment for the source row.
-            function: Morphology function code.
-            prob: Optional probability annotation.
-
-        """
-        _strong_derivation_flow.emit_strong_derived_inf_sound_for_vowel_context(
-            context,
-            active_vowel,
-            ending,
-            function,
-            prob,
-            emit_strong_vowel_sound_context=self._emit_strong_vowel_sound_context,
-        )
-
-    def _emit_strong_derived_inf_participle_context(
-        self, context: _StrongInfDerivationContext, form_parts: str
-    ) -> None:
-        """
-        Attach a present participle emitted from infinitive-derived strong rows.
-
-        Side Effects:
-            Adds one adjective-row candidate to session state.
-
-        Args:
-            context: Shared strong-derivation emission context.
-            form_parts: Form-parts payload for the derived participle.
-
-        """
-        _strong_derivation_flow.emit_strong_derived_inf_participle_context(
-            context,
-            form_parts,
-            add_participle_to_adjectives=self._add_participle_to_adjectives,
-        )
-
-    def _emit_strong_derived_inf_imsg_context(
-        self, context: _StrongInfDerivationContext, prob: str | int | None
-    ) -> None:
-        """
-        Emit the strong imperative-singular derivative for infinitive branches.
-
-        Side Effects:
-            Writes one row to the morphology output stream.
-
-        Args:
-            context: Shared strong-derivation emission context.
-            prob: Optional probability annotation.
-
-        """
-        _strong_derivation_flow.emit_strong_derived_inf_imsg_context(
-            context,
-            prob,
-            emit_imsg_for_context=self._emit_imsg_for_context,
         )
 
     def _generate_and_print_form_with_sound_changes(  # noqa: PLR0912, PLR0913
