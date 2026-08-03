@@ -214,15 +214,7 @@ def _apply_limit(session: GeneratorSession, *, full: bool, limit: int | None) ->
         return
 
     session.words = session.words[:limit]
-    session.verbs = [
-        w for w in session.words if w.verb == 1 and (w.pspart + w.papart == 0)
-    ]
-    session.adjectives = [
-        w
-        for w in session.words
-        if w.adjective == 1 and (w.pspart + w.papart + w.numeral == 0)
-    ]
-    session.nouns = [w for w in session.words if w.noun == 1]
+    session.word_pool.categorize()
 
 
 def _default_morphology_data_dir() -> Path:
