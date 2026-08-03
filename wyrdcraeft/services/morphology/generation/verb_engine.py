@@ -14,7 +14,7 @@ from .common import VerbFormGenerator
 if TYPE_CHECKING:
     from ..contracts import FormOutput
     from ..progress import MorphologyGenerateProgressCoordinator
-    from ..session import GeneratorSession
+    from ..session import GenerationRunState, WordPool
 
 
 class VerbFormOrchestrator:
@@ -22,7 +22,8 @@ class VerbFormOrchestrator:
     Compatibility orchestrator for verb form generation.
 
     Args:
-        session: Active generation session.
+        word_pool: Categorized word pool for this run.
+        run_state: Cross-stage scalar run state for this run.
         output_file: Output sink receiving generated rows.
 
     Keyword Args:
@@ -32,24 +33,28 @@ class VerbFormOrchestrator:
 
     def __init__(
         self,
-        session: GeneratorSession,
+        word_pool: WordPool,
+        run_state: GenerationRunState,
         output_file: FormOutput,
         *,
         progress: MorphologyGenerateProgressCoordinator | None = None,
     ) -> None:
         """
-        Bind one session, output sink, and optional progress coordinator.
+        Bind one word pool, run state, output sink, and optional progress coordinator.
 
         Args:
-            session: Active generation session.
+            word_pool: Categorized word pool for this run.
+            run_state: Cross-stage scalar run state for this run.
             output_file: Output sink receiving generated rows.
 
         Keyword Args:
             progress: Optional live progress coordinator.
 
         """
-        #: Active generation session.
-        self._session = session
+        #: Categorized word pool for this run.
+        self._word_pool = word_pool
+        #: Cross-stage scalar run state for this run.
+        self._run_state = run_state
         #: Output sink receiving generated rows.
         self._output_file = output_file
         #: Optional live progress coordinator.
@@ -58,7 +63,8 @@ class VerbFormOrchestrator:
     def generate(self) -> None:
         """Generate all verb forms using the legacy parity engine."""
         generator = VerbFormGenerator(
-            self._session,
+            self._word_pool,
+            self._run_state,
             self._output_file,
             progress=self._progress,
         )

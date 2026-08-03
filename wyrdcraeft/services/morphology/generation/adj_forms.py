@@ -11,7 +11,7 @@ from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologyStage,
 )
-from wyrdcraeft.services.morphology.session import GeneratorSession
+from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import print_one_form
@@ -312,7 +312,7 @@ def _build_adjective_formhash(
 
 
 def _emit_weak_degree_forms(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     title_array: list[str],
@@ -330,7 +330,7 @@ def _emit_weak_degree_forms(  # noqa: PLR0913
         Part of Speech scope: adjective.
 
     Args:
-        session: Active generation session.
+        run_state: Mutable per-run generation state.
         output_file: Output sink receiving emitted rows.
         formhash: Shared mutable form payload for the current word.
         title_array: Ordered title variants for this degree block.
@@ -351,7 +351,7 @@ def _emit_weak_degree_forms(  # noqa: PLR0913
             if prob_mode == "variant"
             else abs(variant_index - 2)
         )
-        session.perl_probability = prob
+        run_state.perl_probability = prob
         for form_index, (case, ending) in enumerate(_WEAK_DEGREE_CASE_ENDINGS):
             formhash["function"] = f"{degree_prefix}{case}"
             formhash["probability"] = (
@@ -360,11 +360,11 @@ def _emit_weak_degree_forms(  # noqa: PLR0913
             form_parts = f"{base}-{affix}-{ending}"
             formhash["form"] = _form_from_parts(form_parts)
             formhash["formParts"] = form_parts
-            print_one_form(session, formhash, output_file)
+            print_one_form(run_state, formhash, output_file)
 
 
 def _emit_superlative_strong_forms(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     title_array: list[str],
@@ -380,7 +380,7 @@ def _emit_superlative_strong_forms(
         Part of Speech scope: adjective.
 
     Args:
-        session: Active generation session.
+        run_state: Mutable per-run generation state.
         output_file: Output sink receiving emitted rows.
         formhash: Shared mutable form payload for the current word.
         title_array: Ordered title variants for this degree block.
@@ -410,11 +410,11 @@ def _emit_superlative_strong_forms(
             form_parts = f"{base}-{affix}-{ending}"
             formhash["form"] = _form_from_parts(form_parts)
             formhash["formParts"] = form_parts
-            print_one_form(session, formhash, output_file)
+            print_one_form(run_state, formhash, output_file)
 
 
 def _adj_print(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
@@ -429,7 +429,7 @@ def _adj_print(  # noqa: PLR0913
         Matches Perl implementation of ``_adj_print`` function.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         formhash: The form hash.
         form_parts: The form parts.
@@ -442,7 +442,7 @@ def _adj_print(  # noqa: PLR0913
     fh["probability"] = prob
     fh["form"] = _form_from_parts(form_parts)
     fh["formParts"] = form_parts.replace("\n", "")
-    print_one_form(session, fh, output_file)
+    print_one_form(run_state, fh, output_file)
 
 
 def _build_weak_title_array(word: Word, paradigm: str) -> list[str]:
@@ -501,7 +501,7 @@ def _build_weak_title_array(word: Word, paradigm: str) -> list[str]:
 
 
 def _gen_strong_glaed_til(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -513,7 +513,7 @@ def _gen_strong_glaed_til(
         Matches Perl ``glæd``/``til`` block.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -528,56 +528,56 @@ def _gen_strong_glaed_til(
 
     base = f"{word.prefix}-{word.stem}"
     # Sg Ma
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgMaNo", "0")
-    _adj_print(session, output_file, formhash, f"{base}-ne", "PoSgMaAc", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgMaAc", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-es", "PoSgMaGe", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-um", "PoSgMaDa", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-0", "PoSgMaDa", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-e", "PoSgMaIs", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-ne", "PoSgMaAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaAc", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgMaGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgMaDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgMaDa", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgMaIs", "0")
     # Sg Ne
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgNeNo", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgNeAc", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-es", "PoSgNeGe", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-um", "PoSgNeDa", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-0", "PoSgNeDa", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-e", "PoSgNeIs", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgNeGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgNeDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgNeDa", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgNeIs", "0")
     # Sg Fe
-    _adj_print(session, output_file, formhash, f"{title_alt}-u", "PoSgFeNo", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-o", "PoSgFeNo", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-0", "PoSgFeAc", "0")
-    _adj_print(session, output_file, formhash, f"{base}-re", "PoSgFeGe", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgFeGe", "1")
-    _adj_print(session, output_file, formhash, f"{base}-re", "PoSgFeDa", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoSgFeDa", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoSgFeNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoSgFeNo", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgFeAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeGe", "1")
+    _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeDa", "1")
     # Pl Ma
-    _adj_print(session, output_file, formhash, f"{title_alt}-e", "PoPlMaNo", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-0", "PoPlMaNo", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-e", "PoPlMaAc", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-0", "PoPlMaAc", "1")
-    _adj_print(session, output_file, formhash, f"{base}-ra", "PoPlMaGe", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoPlMaGe", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-um", "PoPlMaDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaNo", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaAc", "1")
+    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlMaGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlMaGe", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlMaDa", "0")
     # Pl Ne
-    _adj_print(session, output_file, formhash, f"{title_alt}-u", "PoPlNeNo", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-o", "PoPlNeNo", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-u", "PoPlNeAc", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-o", "PoPlNeAc", "1")
-    _adj_print(session, output_file, formhash, f"{base}-ra", "PoPlNeGe", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoPlNeGe", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-um", "PoPlNeDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeNo", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeAc", "1")
+    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlNeGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlNeGe", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlNeDa", "0")
     # Pl Fe
-    _adj_print(session, output_file, formhash, f"{title_alt}-a", "PoPlFeNo", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-o", "PoPlFeNo", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-a", "PoPlFeAc", "0")
-    _adj_print(session, output_file, formhash, f"{title_alt}-o", "PoPlFeAc", "1")
-    _adj_print(session, output_file, formhash, f"{base}-ra", "PoPlFeGe", "0")
-    _adj_print(session, output_file, formhash, f"{base}-0", "PoPlFeGe", "1")
-    _adj_print(session, output_file, formhash, f"{title_alt}-um", "PoPlFeDa", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeNo", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeNo", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeAc", "0")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeAc", "1")
+    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlFeGe", "0")
+    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlFeGe", "1")
+    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlFeDa", "0")
 
 
 def _gen_strong_blind(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -589,7 +589,7 @@ def _gen_strong_blind(
         Matches Perl ``blind`` block.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -637,11 +637,11 @@ def _gen_strong_blind(
         ("PoPlFeDa", "um", "0"),
     ]
     for func, ending, prob in forms:
-        _adj_print(session, output_file, formhash, f"{base}-{ending}", func, prob)
+        _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
 
 
 def _gen_strong_heah_thweorh(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -650,7 +650,7 @@ def _gen_strong_heah_thweorh(
     Strong ``hēah``/``þweorh`` paradigm (h-stem).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -705,11 +705,11 @@ def _gen_strong_heah_thweorh(
         ("PoPlFeDa", f"{title_alt}-um", "1"),
     ]
     for func, form_parts, prob in forms:
-        _adj_print(session, output_file, formhash, form_parts, func, prob)
+        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
 
 
 def _gen_strong_manig(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -723,7 +723,7 @@ def _gen_strong_manig(
         PoPlFeGe.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -761,11 +761,11 @@ def _gen_strong_manig(
         ("PoPlFeDa", "um", "0"),
     ]
     for func, ending, prob in forms:
-        _adj_print(session, output_file, formhash, f"{base}-{ending}", func, prob)
+        _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
 
 
 def _gen_strong_halig(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -774,7 +774,7 @@ def _gen_strong_halig(
     Strong ``hāliġ`` paradigm (ja-stem with syncope).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -832,11 +832,11 @@ def _gen_strong_halig(
         ("PoPlFeDa", f"{base}-um", "1"),
     ]
     for func, form_parts, prob in forms:
-        _adj_print(session, output_file, formhash, form_parts, func, prob)
+        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
 
 
 def _gen_strong_wilde(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -845,7 +845,7 @@ def _gen_strong_wilde(
     Strong ``wilde`` paradigm (i-stem, stem drops final e).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -887,11 +887,11 @@ def _gen_strong_wilde(
         ("PoPlFeDa", f"{title_alt}-um", "0"),
     ]
     for func, form_parts, prob in forms:
-        _adj_print(session, output_file, formhash, form_parts, func, prob)
+        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
 
 
 def _gen_strong_gearu(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash: dict[str, str],
@@ -900,7 +900,7 @@ def _gen_strong_gearu(
     Strong ``gearu`` paradigm (u-stem).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         formhash: The form hash.
@@ -947,11 +947,11 @@ def _gen_strong_gearu(
         ("PoPlFeDa", f"{title_alt}-wum", "0"),
     ]
     for func, form_parts, prob in forms:
-        _adj_print(session, output_file, formhash, form_parts, func, prob)
+        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
 
 
 def _gen_weak(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     paradigm: str,
@@ -960,10 +960,13 @@ def _gen_weak(
     Weak (definite) adjective forms for all adjectives.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
         paradigm: The paradigm.
+
+    Side Effects:
+        Writes generated rows to the morphology output stream.
 
     """
     bt_id = f"{word.nid:06d}"
@@ -992,7 +995,7 @@ def _gen_weak(
         base_fh["wordclass"] = "pronoun"
     for y, base in enumerate(title_array):
         prob = str(y)
-        session.perl_probability = int(prob)
+        run_state.perl_probability = int(prob)
         forms = [
             ("PoSgMaNo", f"{base}-a"),
             ("PoSgMaAc", f"{base}-an"),
@@ -1030,7 +1033,7 @@ def _gen_weak(
             fh["probability"] = str(int(prob) + 1) if i >= 15 else ""  # noqa: PLR2004
             fh["form"] = _form_from_parts(form_parts)
             fh["formParts"] = form_parts.replace("\n", "")
-            print_one_form(session, fh, output_file)
+            print_one_form(run_state, fh, output_file)
 
 
 def _build_comparative_title_array(
@@ -1169,8 +1172,9 @@ def _shared_regular_degree_stems(
     return (shared, shared)
 
 
-def _gen_comparative(
-    session: GeneratorSession,
+def _gen_comparative(  # noqa: PLR0913
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     *,
@@ -1184,7 +1188,8 @@ def _gen_comparative(
         This is for the ``weak`` block in Perl.
 
     Args:
-        session: The generator session.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
 
@@ -1196,7 +1201,7 @@ def _gen_comparative(
     """
     paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
     resolved_use_perl_hash_order = (
-        len(session.adjectives) > len(session.words)
+        len(word_pool.adjectives) > len(word_pool.words)
         if use_perl_hash_order is None
         else use_perl_hash_order
     )
@@ -1208,7 +1213,7 @@ def _gen_comparative(
     )
     base_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
     _emit_weak_degree_forms(
-        session,
+        run_state,
         output_file,
         base_fh,
         title_array,
@@ -1300,8 +1305,9 @@ def _build_superlative_title_array(
     )
 
 
-def _gen_superlative(
-    session: GeneratorSession,
+def _gen_superlative(  # noqa: PLR0913
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     *,
@@ -1316,7 +1322,8 @@ def _gen_superlative(
         Matches Perl ``superlative`` block.
 
     Args:
-        session: The generator session.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word.
 
@@ -1328,7 +1335,7 @@ def _gen_superlative(
     """
     paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
     resolved_use_perl_hash_order = (
-        len(session.adjectives) > len(session.words)
+        len(word_pool.adjectives) > len(word_pool.words)
         if use_perl_hash_order is None
         else use_perl_hash_order
     )
@@ -1340,7 +1347,7 @@ def _gen_superlative(
     )
     weak_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
     _emit_weak_degree_forms(
-        session,
+        run_state,
         output_file,
         weak_fh,
         title_array,
@@ -1354,7 +1361,7 @@ def _gen_superlative(
         paradigm=paradigm,
     )
     _emit_superlative_strong_forms(
-        session,
+        run_state,
         output_file,
         strong_fh,
         title_array,
@@ -1363,7 +1370,8 @@ def _gen_superlative(
 
 
 def generate_adjforms(  # noqa: PLR0912
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -1375,28 +1383,34 @@ def generate_adjforms(  # noqa: PLR0912
         Port of Perl ``generate_adjforms``.
 
     Args:
-        session: The generator session.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
 
     Keyword Args:
         progress: Optional live progress coordinator.
+
+    Side Effects:
+        Writes generated rows to the morphology output stream. Sets
+        ``run_state.enable_num_probability_carry`` so a later
+        ``generate_numforms`` stage carries the shared probability forward.
 
     """
     # Perl main flow calls generate_adjforms on a mutable adjective pool that
     # starts as all words and then gets additional generated participles.
     words = [
         w
-        for w in session.adjectives
+        for w in word_pool.adjectives
         if (w.adjective == 1 or (w.pspart + w.papart) > 0) and w.numeral != 1
     ]
-    use_perl_hash_order = len(session.adjectives) > len(session.words)
+    use_perl_hash_order = len(word_pool.adjectives) > len(word_pool.words)
     for word in words:
         if progress is not None:
             progress.advance(
                 MorphologyStage.ADJECTIVES,
                 lemma=word.title,
                 wright=word.wright,
-                forms_written=session.output_counter,
+                forms_written=run_state.output_counter,
             )
         paradigm = (
             word.adj_paradigm[0]
@@ -1429,7 +1443,7 @@ def generate_adjforms(  # noqa: PLR0912
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "past"
                 formhash["paradigm"] = "manig"
-            _gen_strong_manig(session, output_file, word, formhash)
+            _gen_strong_manig(run_state, output_file, word, formhash)
         elif (
             "hālig" in paradigm
             or (word.papart == 1 and OENormalizer.stem_length(word.stem))
@@ -1439,37 +1453,39 @@ def generate_adjforms(  # noqa: PLR0912
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "past"
                 formhash["paradigm"] = "halig"
-            _gen_strong_halig(session, output_file, word, formhash)
+            _gen_strong_halig(run_state, output_file, word, formhash)
         elif "wilde" in paradigm or word.pspart == 1:
             if word.pspart == 1:
                 word.adj_paradigm = ["wilde"]
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "present"
                 formhash["paradigm"] = "wilde"
-            _gen_strong_wilde(session, output_file, word, formhash)
+            _gen_strong_wilde(run_state, output_file, word, formhash)
         elif re.search(r"gl\u00e6d|glæd|til", paradigm, re.IGNORECASE):
-            _gen_strong_glaed_til(session, output_file, word, formhash)
+            _gen_strong_glaed_til(run_state, output_file, word, formhash)
         elif "blind" in paradigm:
-            _gen_strong_blind(session, output_file, word, formhash)
+            _gen_strong_blind(run_state, output_file, word, formhash)
         elif re.search(r"hēah|weorh", paradigm):
-            _gen_strong_heah_thweorh(session, output_file, word, formhash)
+            _gen_strong_heah_thweorh(run_state, output_file, word, formhash)
         elif "gearu" in paradigm:
-            _gen_strong_gearu(session, output_file, word, formhash)
+            _gen_strong_gearu(run_state, output_file, word, formhash)
         # else: no strong paradigm match, but still generate weak forms
-        _gen_weak(session, output_file, word, paradigm)
+        _gen_weak(run_state, output_file, word, paradigm)
 
         # Comparative and Superlative (only for adjectives, not numerals or pronouns)
         if word.numeral == 0 and word.pronoun == 0:
             comp_stems, sup_stems = _shared_regular_degree_stems(word, paradigm)
             _gen_comparative(
-                session,
+                word_pool,
+                run_state,
                 output_file,
                 word,
                 use_perl_hash_order=use_perl_hash_order,
                 regular_stems=comp_stems,
             )
             _gen_superlative(
-                session,
+                word_pool,
+                run_state,
                 output_file,
                 word,
                 use_perl_hash_order=use_perl_hash_order,
@@ -1478,4 +1494,4 @@ def generate_adjforms(  # noqa: PLR0912
 
     # Full-flow create_dict31 behavior carries a shared $probability into
     # generate_numforms after adjective generation has run.
-    session.enable_num_probability_carry = True
+    run_state.enable_num_probability_carry = True

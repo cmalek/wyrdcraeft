@@ -8,7 +8,7 @@ from ..text_utils import OENormalizer
 if TYPE_CHECKING:
     from wyrdcraeft.models.morphology import VerbParadigm, Word
 
-    from ..session import GeneratorSession
+    from ..session import WordPool
 
 
 def _assign_verb_by_example(
@@ -226,14 +226,14 @@ def _assign_verb_by_advanced_diacritics(
 
 
 def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
-    words: list[Word], session: GeneratorSession
+    words: list[Word], word_pool: WordPool
 ) -> list[Word]:
     """
     Step 7: Assign verbs by heuristics (Mitchell).
 
     Args:
         words: The words to assign.
-        session: The generator session.
+        word_pool: The word pool.
 
     Returns:
         The newly assigned words.
@@ -294,7 +294,7 @@ def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
                     assigned_id = "48"
 
                 if assigned_id:
-                    vp = session.verb_paradigms.get(assigned_id)
+                    vp = word_pool.verb_paradigms.get(assigned_id)
                     if vp:
                         word.vb_paradigm.append(vp)
 
@@ -329,7 +329,7 @@ def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
                         assigned_id = "76"
 
                 if assigned_id:
-                    vp = session.verb_paradigms.get(assigned_id)
+                    vp = word_pool.verb_paradigms.get(assigned_id)
                     if vp:
                         word.vb_paradigm.append(vp)
 
@@ -338,27 +338,27 @@ def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
     return newly_assigned
 
 
-def _assign_verb_fallback(words: list[Word], session: GeneratorSession) -> None:
+def _assign_verb_fallback(words: list[Word], word_pool: WordPool) -> None:
     """
     Step 8: Final fallback for verbs.
 
     Args:
         words: The words to assign.
-        session: The generator session.
+        word_pool: The word pool.
 
     """
     for word in words:
         if word.vb_paradigm:
             continue
         if word.vb_strong == 1:
-            vp = session.verb_paradigms.get("13")
+            vp = word_pool.verb_paradigms.get("13")
         else:
-            vp = session.verb_paradigms.get("76")
+            vp = word_pool.verb_paradigms.get("76")
         if vp:
             word.vb_paradigm.append(vp)
 
 
-def set_verb_paradigm(session: GeneratorSession) -> None:
+def set_verb_paradigm(word_pool: WordPool) -> None:
     """
     Set the verb paradigm.
 
@@ -366,12 +366,12 @@ def set_verb_paradigm(session: GeneratorSession) -> None:
         This function matches Perl's set_verb_paradigm exactly.
 
     Args:
-        session: The generator session.
+        word_pool: The word pool.
 
     """
-    vparadigms = list(session.verb_paradigms.values())
-    verbs = session.verbs
-    prefix_re = session.prefix_regex
+    vparadigms = list(word_pool.verb_paradigms.values())
+    verbs = word_pool.verbs
+    prefix_re = word_pool.prefix_regex
 
     # Clear existing paradigms
     for word in verbs:
@@ -393,7 +393,7 @@ def set_verb_paradigm(session: GeneratorSession) -> None:
             "advanced_stem_relaxed",
             lambda: _assign_verb_by_advanced_stem(verbs, assigned, prefix_re),
         ),
-        ("heuristics_mitchell", lambda: _assign_verb_heuristics(verbs, session)),
+        ("heuristics_mitchell", lambda: _assign_verb_heuristics(verbs, word_pool)),
         # Quirk: match without class restriction for parity with Perl ordering.
         ("diacritics_relaxed", lambda: _assign_verb_by_diacritics(verbs, assigned)),
         (
@@ -405,4 +405,4 @@ def set_verb_paradigm(session: GeneratorSession) -> None:
         assigned.extend(phase())
 
     # Phase 9: Fallback
-    _assign_verb_fallback(verbs, session)
+    _assign_verb_fallback(verbs, word_pool)

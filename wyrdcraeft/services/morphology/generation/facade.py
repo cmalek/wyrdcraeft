@@ -65,7 +65,12 @@ class MorphologyGenerationFacade:
             irregular outcomes; this facade method preserves existing row order.
 
         """
-        _output_manual_forms(self._session, self._output_file, progress=self._progress)
+        _output_manual_forms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_verbs(self) -> None:
         """
@@ -80,7 +85,12 @@ class MorphologyGenerationFacade:
             behavior; this facade method preserves parity implementation flow.
 
         """
-        _generate_vbforms(self._session, self._output_file, progress=self._progress)
+        _generate_vbforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_adjectives(self) -> None:
         """
@@ -95,7 +105,12 @@ class MorphologyGenerationFacade:
             categories; this facade method preserves existing generation output.
 
         """
-        _generate_adjforms(self._session, self._output_file, progress=self._progress)
+        _generate_adjforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_adverbs(self) -> None:
         """
@@ -110,7 +125,12 @@ class MorphologyGenerationFacade:
             classes; this facade method preserves existing generation output.
 
         """
-        _generate_advforms(self._session, self._output_file, progress=self._progress)
+        _generate_advforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_numerals(self) -> None:
         """
@@ -125,7 +145,12 @@ class MorphologyGenerationFacade:
             patterns; this facade method preserves existing generation output.
 
         """
-        _generate_numforms(self._session, self._output_file, progress=self._progress)
+        _generate_numforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_nouns(self) -> None:
         """
@@ -140,7 +165,12 @@ class MorphologyGenerationFacade:
             this facade method preserves existing generation output.
 
         """
-        _generate_nounforms(self._session, self._output_file, progress=self._progress)
+        _generate_nounforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_all_forms(self) -> None:
         """

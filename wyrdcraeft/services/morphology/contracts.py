@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, TextIO, TypeVar
 
 if TYPE_CHECKING:
-    from .session import GeneratorSession
+    from .session import GenerationRunState, WordPool
 
 
 class FormWriter(Protocol):
@@ -19,7 +19,7 @@ class ParityFormOutput(Protocol):
     """Parity-aware output protocol accepting legacy form payloads."""
 
     def emit_form_data(
-        self, session: GeneratorSession, form_data: dict[str, str]
+        self, run_state: GenerationRunState, form_data: dict[str, str]
     ) -> Any:
         """
         Emit one legacy form payload using parity row semantics.
@@ -31,7 +31,7 @@ class ParityFormOutput(Protocol):
             Part of Speech.
 
         Args:
-            session: Active generator session tracking output state.
+            run_state: Active generation run state tracking the output counter.
             form_data: Legacy mutable row payload.
 
         """
@@ -76,7 +76,7 @@ RuleSet = list[Rule[TWord_contra, TContext_contra]]
 class ParadigmAssigner(Protocol):
     """Session-level assigner contract."""
 
-    def assign(self, session: GeneratorSession) -> None:
+    def assign(self, word_pool: WordPool) -> None:
         """
         Assign paradigms in-place for session words.
 
@@ -86,7 +86,7 @@ class ParadigmAssigner(Protocol):
             In plain terms, it labels each Part of Speech with the right paradigm.
 
         Args:
-            session: Active generation session with loaded words.
+            word_pool: Word pool with loaded words to assign paradigms for.
 
         """
 

@@ -1259,17 +1259,17 @@
       "message": "Missing required Napoleon section 'Keyword Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py:257:DOC203:form_rows_for_stage",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py:259:DOC203:form_rows_for_stage",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py",
-      "line": 257,
+      "line": 259,
       "code": "DOC203",
       "symbol": "form_rows_for_stage",
       "message": "Missing required Napoleon section 'Keyword Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py:354:DOC203:generate_reference_snapshots",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py:356:DOC203:generate_reference_snapshots",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/reference_snapshots.py",
-      "line": 354,
+      "line": 356,
       "code": "DOC203",
       "symbol": "generate_reference_snapshots",
       "message": "Missing required Napoleon section 'Keyword Args:'."

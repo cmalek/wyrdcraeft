@@ -92,7 +92,7 @@ def _seed_abbod_noun_form(tmp_path: Path) -> Path:
     sink = CompositeSink(TsvParitySink(output), sqlite_sink)
 
     print_one_form(
-        session,
+        session.run_state,
         {
             "BT": "000028",
             "title": "abbod",
@@ -171,7 +171,7 @@ def _seed_abbod_noun_form_with_catalog(tmp_path: Path) -> Path:
     sqlite_sink = SqliteIndexSink(db_path)
     sink = CompositeSink(TsvParitySink(output), sqlite_sink)
     print_one_form(
-        session,
+        session.run_state,
         {
             "BT": "000028",
             "title": "abbod",
@@ -295,7 +295,7 @@ def test_query_service_indexes_reduced_secondary_rows(tmp_path) -> None:
         "comment": "",
     }
 
-    print_one_form(session, form_data, sink)
+    print_one_form(session.run_state, form_data, sink)
     sqlite_sink.close()
 
     query_service = MorphologyQueryService(db_path)

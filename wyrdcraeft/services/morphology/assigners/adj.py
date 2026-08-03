@@ -8,7 +8,7 @@ from ..text_utils import OENormalizer
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from ..session import GeneratorSession
+    from ..session import WordPool
 
 
 def _wright_rule_425(stem: str) -> str:
@@ -40,13 +40,13 @@ def _assign_by_wright(word_stem: str, wright: str) -> str | None:
     return None
 
 
-def set_adj_paradigm(session: GeneratorSession) -> None:  # noqa: PLR0912
+def set_adj_paradigm(word_pool: WordPool) -> None:  # noqa: PLR0912
     """Set the adjective paradigm."""
     # Perl ``set_adj_paradigm`` iterates over the full word list and returns it.
     # Keep a dedicated mutable pool (separate list, same objects) for
     # ``generate_adjforms`` so verb-generated participles can be appended there.
-    adjectives = session.words
-    session.adjectives = list(adjectives)
+    adjectives = word_pool.words
+    word_pool.adjectives = list(adjectives)
 
     for word in adjectives:
         word.adj_paradigm = []

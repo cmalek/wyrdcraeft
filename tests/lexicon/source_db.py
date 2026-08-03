@@ -41,7 +41,7 @@ def seed_forms(db_path: Path) -> None:
     sink = CompositeSink(TsvParitySink(output), sqlite_sink)
     try:
         print_one_form(
-            session,
+            session.run_state,
             {
                 "BT": "abbad",
                 "title": "abbad",
@@ -63,7 +63,7 @@ def seed_forms(db_path: Path) -> None:
             sink,
         )
         print_one_form(
-            session,
+            session.run_state,
             {
                 "BT": "orphan-lemma",
                 "title": "orphan-lemma",

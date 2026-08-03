@@ -10,7 +10,7 @@ from wyrdcraeft.models.morphology import Word
 from .scalar_utils import perl_numify
 
 if TYPE_CHECKING:
-    from wyrdcraeft.services.morphology.session import GeneratorSession
+    from wyrdcraeft.services.morphology.session import WordPool
 
 
 def _sanitize_form_text(value: str) -> str:
@@ -105,7 +105,7 @@ def build_participle_adjective(
 
 
 def add_participle_to_adjectives(
-    session: GeneratorSession,
+    word_pool: WordPool,
     *,
     word: Word,
     prefix: str,
@@ -113,14 +113,14 @@ def add_participle_to_adjectives(
     is_past: bool,
 ) -> None:
     """
-    Append one generated participle to the session adjective sink.
+    Append one generated participle to the word pool's adjective sink.
 
     Side Effects:
-        Appends one adjective ``Word`` row to ``session.adjectives`` when the
-        Perl-style numeric prefix check matches.
+        Appends one adjective ``Word`` row via ``WordPool.append_participle``
+        when the Perl-style numeric prefix check matches.
 
     Args:
-        session: Active generation session that stores derived adjectives.
+        word_pool: Active word pool that stores derived adjectives.
 
     Keyword Args:
         word: Source lexical entry.
@@ -139,7 +139,7 @@ def add_participle_to_adjectives(
     if perl_numify(prefix) != perl_numify(word.prefix):
         return
 
-    session.adjectives.append(
+    word_pool.append_participle(
         build_participle_adjective(
             word=word,
             prefix=prefix,

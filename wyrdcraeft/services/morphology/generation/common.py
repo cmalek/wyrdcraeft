@@ -19,7 +19,10 @@ from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologyStage,
 )
-from wyrdcraeft.services.morphology.session import GeneratorSession
+from wyrdcraeft.services.morphology.session import (
+    GenerationRunState,
+    WordPool,
+)
 
 from .form_rows import generate_and_print_form as _generate_and_print_form
 from .form_rows import generate_and_print_manual as _generate_and_print_manual
@@ -32,7 +35,6 @@ from .form_rows import emit_imsg_for_context as _emit_imsg_for_context_row
 from .form_rows import (
     emit_sound_changed_form_for_context as _emit_sound_changed_form_for_context_row,
 )
-from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
     dispatch_paradigm_variant_context as _dispatch_paradigm_variant_context,
@@ -93,21 +95,8 @@ def perl_numify(val: str) -> float:
     return _perl_numify(val)
 
 
-def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
-    """
-    Output manual forms to the output file. Perl load_forms prints each form
-    to OUTPUT first; Python must match this behavior for parity.
-
-    Args:
-        session: The generator session (contains manual_forms).
-        output_file: The output file handle.
-
-    """
-    _output_manual_forms(session, output_file)
-
-
 def print_one_form(
-    session: GeneratorSession, form_data: dict[str, str], output_file: FormOutput
+    run_state: GenerationRunState, form_data: dict[str, str], output_file: FormOutput
 ) -> None:
     r"""
     Print one form to the output file.  A form in this context is a single form
@@ -124,12 +113,12 @@ def print_one_form(
         - In Perl, if ``$count`` is greater than 0, a second line is printed with the probability incremented by 1.
 
     Args:
-        session: The session.
+        run_state: Active generation run state tracking the output counter.
         form_data: The form data.
         output_file: The output file.
 
     """  # noqa: E501
-    _print_one_form(session, form_data, output_file)
+    _print_one_form(run_state, form_data, output_file)
 
 
 class VerbFormGenerator:
@@ -137,7 +126,8 @@ class VerbFormGenerator:
     Generator for Old English verb forms.
 
     Args:
-        session: The session.
+        word_pool: Categorized word pool containing loaded lexemes.
+        run_state: Cross-stage scalar run state for this run.
         output_file: The output file.
 
     """
@@ -165,7 +155,8 @@ class VerbFormGenerator:
 
     def __init__(
         self,
-        session: GeneratorSession,
+        word_pool: WordPool,
+        run_state: GenerationRunState,
         output_file: FormOutput,
         *,
         progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -174,15 +165,18 @@ class VerbFormGenerator:
         Initialize the verb-form generator context.
 
         Args:
-            session: Active generation session containing loaded lexemes.
+            word_pool: Categorized word pool containing loaded lexemes.
+            run_state: Cross-stage scalar run state for this run.
             output_file: Output handle receiving generated form rows.
 
         Keyword Args:
             progress: Optional live progress coordinator.
 
         """
-        #: The generator session.
-        self.session = session
+        #: Categorized word pool containing loaded lexemes.
+        self.word_pool = word_pool
+        #: Cross-stage scalar run state for this run.
+        self.run_state = run_state
         #: The output file.
         self.output_file = output_file
         #: Optional live progress coordinator.
@@ -190,14 +184,14 @@ class VerbFormGenerator:
 
     def generate(self) -> None:
         """Main entry point to generate all verb forms."""
-        for word in self.session.words:
+        for word in self.word_pool.words:
             if word.verb == 1 and (word.pspart + word.papart == 0):
                 if self.progress is not None:
                     self.progress.advance(
                         MorphologyStage.VERBS,
                         lemma=word.title,
                         wright=word.wright,
-                        forms_written=self.session.output_counter,
+                        forms_written=self.run_state.output_counter,
                     )
                 self._process_word(word)
 
@@ -509,7 +503,7 @@ class VerbFormGenerator:
 
         """  # noqa: E501
         return _generate_and_print_form(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             prefix,
@@ -562,7 +556,7 @@ class VerbFormGenerator:
 
         """
         return _emit_form_for_context_row(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             prefix,
@@ -614,7 +608,7 @@ class VerbFormGenerator:
 
         """
         _emit_sound_changed_form_for_context_row(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             prefix,
@@ -656,7 +650,7 @@ class VerbFormGenerator:
 
         """
         _emit_imsg_for_context_row(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             prefix,
@@ -691,7 +685,7 @@ class VerbFormGenerator:
 
         """
         _add_participle_to_adjectives_session(
-            self.session,
+            self.word_pool,
             word=word,
             prefix=prefix,
             form_parts=form_parts,
@@ -1538,7 +1532,7 @@ class VerbFormGenerator:
 
         """  # noqa: E501
         _generate_and_print_form_with_sound_changes_row(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             prefix,
@@ -1573,7 +1567,7 @@ class VerbFormGenerator:
 
         """
         _generate_and_print_manual(
-            self.session,
+            self.run_state,
             self.output_file,
             formhash,
             form,
@@ -1922,7 +1916,8 @@ class VerbFormGenerator:
 
 
 def generate_vbforms(
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -1931,7 +1926,8 @@ def generate_vbforms(
     Wrapper for VerbFormGenerator.
 
     Args:
-        session: The session.
+        word_pool: Categorized word pool containing loaded lexemes.
+        run_state: Cross-stage scalar run state for this run.
         output_file: The output file.
 
     Keyword Args:
@@ -1940,61 +1936,7 @@ def generate_vbforms(
     """
     from .verb_engine import VerbFormOrchestrator
 
-    orchestrator = VerbFormOrchestrator(session, output_file, progress=progress)
+    orchestrator = VerbFormOrchestrator(
+        word_pool, run_state, output_file, progress=progress
+    )
     orchestrator.generate()
-
-
-def generate_adjforms(session, output_file):
-    """
-    Delegate adjective form generation to the extracted module.
-
-    Args:
-        session: Active morphology generator session.
-        output_file: Output stream receiving generated rows.
-
-    """
-    from .adj_forms import generate_adjforms as _generate_adjforms
-
-    _generate_adjforms(session, output_file)
-
-
-def generate_advforms(session, output_file):
-    """
-    Delegate adverb form generation to the extracted module.
-
-    Args:
-        session: Active morphology generator session.
-        output_file: Output stream receiving generated rows.
-
-    """
-    from .adv_forms import generate_advforms as _generate_advforms
-
-    _generate_advforms(session, output_file)
-
-
-def generate_numforms(session, output_file):
-    """
-    Delegate numeral form generation to the extracted module.
-
-    Args:
-        session: Active morphology generator session.
-        output_file: Output stream receiving generated rows.
-
-    """
-    from .num_forms import generate_numforms as _generate_numforms
-
-    _generate_numforms(session, output_file)
-
-
-def generate_nounforms(session, output_file):
-    """
-    Delegate noun form generation to the extracted module.
-
-    Args:
-        session: Active morphology generator session.
-        output_file: Output stream receiving generated rows.
-
-    """
-    from .noun_forms import generate_nounforms as _generate_nounforms
-
-    _generate_nounforms(session, output_file)

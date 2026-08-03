@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import Connection, Engine
 
     from ..contracts import FormWriter
-    from ..session import GeneratorSession
+    from ..session import GenerationRunState
 
 from sqlalchemy import Table, insert, text
 
@@ -186,13 +186,13 @@ class TsvParitySink:
         self._output = output
 
     def emit_form_data(
-        self, session: GeneratorSession, form_data: dict[str, str]
+        self, run_state: GenerationRunState, form_data: dict[str, str]
     ) -> list[FormRow]:
         """
-        Emit parity rows from legacy ``form_data`` and update session counter.
+        Emit parity rows from legacy ``form_data`` and update the run's output counter.
 
         Args:
-            session: Active generation session tracking output counter.
+            run_state: Active generation run state tracking the output counter.
             form_data: Legacy mutable row payload.
 
         Returns:
@@ -200,11 +200,11 @@ class TsvParitySink:
 
         """
         rows = _build_form_rows_from_form_data(
-            counter=session.output_counter,
+            counter=run_state.output_counter,
             form_data=form_data,
         )
         self.emit_rows(rows)
-        session.output_counter += len(rows)
+        run_state.output_counter += len(rows)
         return rows
 
     def emit_rows(self, rows: list[FormRow]) -> None:
@@ -484,13 +484,13 @@ class SqliteIndexSink:
             self._sqlite_flush_observer(perf_counter() - started_at, len(rows))
 
     def emit_form_data(
-        self, session: GeneratorSession, form_data: dict[str, str]
+        self, run_state: GenerationRunState, form_data: dict[str, str]
     ) -> list[FormRow]:
         """
         Build parity rows from legacy ``form_data`` and persist them to SQLite.
 
         Args:
-            session: Active generation session tracking output counter.
+            run_state: Active generation run state tracking the output counter.
             form_data: Legacy mutable row payload.
 
         Returns:
@@ -498,11 +498,11 @@ class SqliteIndexSink:
 
         """
         rows = _build_form_rows_from_form_data(
-            counter=session.output_counter,
+            counter=run_state.output_counter,
             form_data=form_data,
         )
         self.emit_rows(rows)
-        session.output_counter += len(rows)
+        run_state.output_counter += len(rows)
         return rows
 
     def emit_rows(self, rows: list[FormRow]) -> None:
@@ -574,20 +574,20 @@ class CompositeSink:
         self._row_sinks = row_sinks
 
     def emit_form_data(
-        self, session: GeneratorSession, form_data: dict[str, str]
+        self, run_state: GenerationRunState, form_data: dict[str, str]
     ) -> list[FormRow]:
         """
         Emit parity rows and fan them out to all attached row sinks.
 
         Args:
-            session: Active generation session tracking output counter.
+            run_state: Active generation run state tracking the output counter.
             form_data: Legacy mutable row payload.
 
         Returns:
             Emitted rows in output order.
 
         """
-        rows = self._primary_sink.emit_form_data(session, form_data)
+        rows = self._primary_sink.emit_form_data(run_state, form_data)
         for sink in self._row_sinks:
             sink.emit_rows(rows)
         return rows

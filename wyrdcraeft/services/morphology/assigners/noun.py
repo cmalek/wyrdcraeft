@@ -8,7 +8,7 @@ from ..text_utils import OENormalizer
 if TYPE_CHECKING:
     from wyrdcraeft.models.morphology import Word
 
-    from ..session import GeneratorSession
+    from ..session import WordPool
 
 R_STEM_PARADIGM_BY_STEM = {
     "fæder": "fæder",
@@ -396,7 +396,7 @@ def _append_short_syllable_front_vowel_heuristic(
 
     Args:
         word: Noun candidate to assign.
-        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+        buggy_word: Companion word from ``word_pool.words`` preserving Perl indexing.
         vowel: Heuristic vowel capture for the stem.
 
     """
@@ -422,7 +422,7 @@ def _apply_noun_heuristics(
 
     Args:
         word: Noun candidate to assign.
-        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+        buggy_word: Companion word from ``word_pool.words`` preserving Perl indexing.
         vowel_re: Vowel regex fragment.
         lvowel_re: Long-vowel regex fragment.
 
@@ -448,7 +448,7 @@ def _apply_final_fallback(word: Word, buggy_word: Word) -> None:
 
     Args:
         word: Noun candidate to assign.
-        buggy_word: Companion word from ``session.words`` preserving Perl indexing.
+        buggy_word: Companion word from ``word_pool.words`` preserving Perl indexing.
 
     """
     if word.n_masc == 1 or word.n_uncert == 1:
@@ -549,12 +549,15 @@ def _run_final_fallback_pass(nouns: list[Word], words: list[Word]) -> None:
 
 
 
-def set_noun_paradigm(session: GeneratorSession) -> None:
+def set_noun_paradigm(word_pool: WordPool, *, enable_r_stem_nouns: bool) -> None:
     """
     Set the noun paradigm.
 
     Args:
-        session: The generator session.
+        word_pool: The word pool.
+
+    Keyword Args:
+        enable_r_stem_nouns: Whether opt-in r-stem assignment is enabled.
 
     Note:
         This preserves the staged assignment flow described by Tichý (2017):
@@ -563,8 +566,8 @@ def set_noun_paradigm(session: GeneratorSession) -> None:
         generator.
 
     """
-    nouns = session.nouns
-    prefix_re = session.prefix_regex
+    nouns = word_pool.nouns
+    prefix_re = word_pool.prefix_regex
     vowel_re = OENormalizer.VOWEL
     lvowel_re = OENormalizer.LVOWEL
 
@@ -572,15 +575,15 @@ def set_noun_paradigm(session: GeneratorSession) -> None:
     _run_initial_assignment_pass(
         nouns,
         assigned,
-        session.enable_r_stem_nouns,
+        enable_r_stem_nouns,
     )
     _run_stem_propagation_cycle(nouns, assigned, prefix_re)
     _run_heuristic_pass(
         nouns,
-        session.words,
+        word_pool.words,
         assigned,
         vowel_re,
         lvowel_re,
     )
     _run_stem_propagation_cycle(nouns, assigned, prefix_re)
-    _run_final_fallback_pass(nouns, session.words)
+    _run_final_fallback_pass(nouns, word_pool.words)
