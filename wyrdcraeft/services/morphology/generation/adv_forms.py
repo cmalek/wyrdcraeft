@@ -10,12 +10,13 @@ from .form_rows import print_one_form
 
 if TYPE_CHECKING:
     from ..progress import MorphologyGenerateProgressCoordinator
-    from ..session import GeneratorSession
+    from ..session import GenerationRunState, WordPool
     from .shared import FormOutput
 
 
 def generate_advforms(
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -24,21 +25,22 @@ def generate_advforms(
     Generate adverb forms and comparative/superlative derivatives.
 
     Args:
-        session: Active morphology generator session.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: Output stream receiving generated rows.
 
     Keyword Args:
         progress: Optional live progress coordinator.
 
     """
-    for word in session.words:
+    for word in word_pool.words:
         if word.adverb == 1:
             if progress is not None:
                 progress.advance(
                     MorphologyStage.ADVERBS,
                     lemma=word.title,
                     wright=word.wright,
-                    forms_written=session.output_counter,
+                    forms_written=run_state.output_counter,
                 )
             bt_id = f"{word.nid:06d}"
             formhash = {
@@ -60,7 +62,7 @@ def generate_advforms(
             form_parts = f"{word.prefix}-{word.stem}-0"
             formhash["form"] = re.sub(r"[0\-\n]", "", form_parts)
             formhash["formParts"] = form_parts.replace("\n", "")
-            print_one_form(session, formhash, output_file)
+            print_one_form(run_state, formhash, output_file)
             stem_co = word.stem
             if stem_co not in ["wel", "yfele", "micle", "lytel"]:
                 stem_co = re.sub(r"e$", "", stem_co, flags=re.IGNORECASE)
@@ -71,7 +73,7 @@ def generate_advforms(
                     fp = f"{word.prefix}-{stem_co}-{suff}"
                     fh["form"] = re.sub(r"[0\-\n]", "", fp)
                     fh["formParts"] = fp.replace("\n", "")
-                    print_one_form(session, fh, output_file)
+                    print_one_form(run_state, fh, output_file)
             stem_su = word.stem
             if stem_su not in ["wel", "yfele", "micle", "lytel"]:
                 stem_su = re.sub(r"e$", "", stem_su, flags=re.IGNORECASE)
@@ -87,4 +89,4 @@ def generate_advforms(
                     fp = f"{word.prefix}-{stem_su}-{suff}"
                     fh["form"] = re.sub(r"[0\-\n]", "", fp)
                     fh["formParts"] = fp.replace("\n", "")
-                    print_one_form(session, fh, output_file)
+                    print_one_form(run_state, fh, output_file)
