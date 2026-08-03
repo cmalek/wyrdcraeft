@@ -9,7 +9,7 @@ from .adv_forms import AdverbFormGenerator
 from .common import generate_vbforms as _generate_vbforms
 from .form_rows import output_manual_forms as _output_manual_forms
 from .noun_forms import generate_nounforms as _generate_nounforms
-from .num_forms import generate_numforms as _generate_numforms
+from .num_forms import NumeralFormGenerator
 
 if TYPE_CHECKING:
     from ..contracts import FormOutput
@@ -145,12 +145,12 @@ class MorphologyGenerationFacade:
             patterns; this facade method preserves existing generation output.
 
         """
-        _generate_numforms(
+        NumeralFormGenerator(
             self._session.word_pool,
             self._session.run_state,
             self._output_file,
             progress=self._progress,
-        )
+        ).generate()
 
     def generate_nouns(self) -> None:
         """
