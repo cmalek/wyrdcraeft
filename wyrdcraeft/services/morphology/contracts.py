@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, TextIO, TypeVar
 
 if TYPE_CHECKING:
-    from .session import GenerationRunState, GeneratorSession
+    from .session import GenerationRunState, WordPool
 
 
 class FormWriter(Protocol):
@@ -76,7 +76,7 @@ RuleSet = list[Rule[TWord_contra, TContext_contra]]
 class ParadigmAssigner(Protocol):
     """Session-level assigner contract."""
 
-    def assign(self, session: GeneratorSession) -> None:
+    def assign(self, word_pool: WordPool) -> None:
         """
         Assign paradigms in-place for session words.
 
@@ -86,7 +86,7 @@ class ParadigmAssigner(Protocol):
             In plain terms, it labels each Part of Speech with the right paradigm.
 
         Args:
-            session: Active generation session with loaded words.
+            word_pool: Word pool with loaded words to assign paradigms for.
 
         """
 

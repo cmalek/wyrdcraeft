@@ -567,7 +567,7 @@ def set_noun_paradigm(word_pool: WordPool, *, enable_r_stem_nouns: bool) -> None
 
     """
     nouns = word_pool.nouns
-    prefix_re = "|".join(word_pool.prefixes) if word_pool.prefixes else "0"
+    prefix_re = word_pool.prefix_regex
     vowel_re = OENormalizer.VOWEL
     lvowel_re = OENormalizer.LVOWEL
 

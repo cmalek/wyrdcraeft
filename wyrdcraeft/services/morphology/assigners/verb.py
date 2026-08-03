@@ -371,7 +371,7 @@ def set_verb_paradigm(word_pool: WordPool) -> None:
     """
     vparadigms = list(word_pool.verb_paradigms.values())
     verbs = word_pool.verbs
-    prefix_re = "|".join(word_pool.prefixes) if word_pool.prefixes else "0"
+    prefix_re = word_pool.prefix_regex
 
     # Clear existing paradigms
     for word in verbs:

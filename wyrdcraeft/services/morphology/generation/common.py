@@ -20,7 +20,6 @@ from wyrdcraeft.services.morphology.progress import (
     MorphologyStage,
 )
 from wyrdcraeft.services.morphology.session import (
-    GeneratorSession,
     GenerationRunState,
     WordPool,
 )
@@ -36,7 +35,6 @@ from .form_rows import emit_imsg_for_context as _emit_imsg_for_context_row
 from .form_rows import (
     emit_sound_changed_form_for_context as _emit_sound_changed_form_for_context_row,
 )
-from .form_rows import output_manual_forms as _output_manual_forms
 from .form_rows import print_one_form as _print_one_form
 from .paradigm_flow import (
     dispatch_paradigm_variant_context as _dispatch_paradigm_variant_context,
@@ -95,19 +93,6 @@ def perl_numify(val: str) -> float:
 
     """
     return _perl_numify(val)
-
-
-def output_manual_forms(session: GeneratorSession, output_file: FormOutput) -> None:
-    """
-    Output manual forms to the output file. Perl load_forms prints each form
-    to OUTPUT first; Python must match this behavior for parity.
-
-    Args:
-        session: The generator session (contains manual_forms).
-        output_file: The output file handle.
-
-    """
-    _output_manual_forms(session.word_pool, session.run_state, output_file)
 
 
 def print_one_form(

@@ -62,6 +62,22 @@ class WordPool:
         """
         self.adjectives.append(word)
 
+    @property
+    def prefix_regex(self) -> str:
+        """
+        Get the prefix regex, used to match the prefixes of the words.
+
+        Prefixes are loaded from the prefixes file
+
+        Returns:
+            The prefix regex.
+
+        """
+        if not self.prefixes:
+            return "0"
+        # Perl: foreach (@prefix_input) { $prefix_regex = "$prefix_regex|$_"; }
+        return "|".join(self.prefixes)
+
 
 class GenerationRunState:
     """
@@ -354,10 +370,7 @@ class GeneratorSession:
             The prefix regex.
 
         """
-        if not self.prefixes:
-            return "0"
-        # Perl: foreach (@prefix_input) { $prefix_regex = "$prefix_regex|$_"; }
-        return "|".join(self.prefixes)
+        return self.word_pool.prefix_regex
 
     def load_all(
         self, dict_path: str, forms_path: str, para_path: str, prefix_path: str

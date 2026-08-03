@@ -965,6 +965,9 @@ def _gen_weak(
         word: The word.
         paradigm: The paradigm.
 
+    Side Effects:
+        Writes generated rows to the morphology output stream.
+
     """
     bt_id = f"{word.nid:06d}"
     title_array = _build_weak_title_array(word, paradigm)
@@ -1386,6 +1389,11 @@ def generate_adjforms(  # noqa: PLR0912
 
     Keyword Args:
         progress: Optional live progress coordinator.
+
+    Side Effects:
+        Writes generated rows to the morphology output stream. Sets
+        ``run_state.enable_num_probability_carry`` so a later
+        ``generate_numforms`` stage carries the shared probability forward.
 
     """
     # Perl main flow calls generate_adjforms on a mutable adjective pool that
