@@ -65,7 +65,12 @@ class MorphologyGenerationFacade:
             irregular outcomes; this facade method preserves existing row order.
 
         """
-        _output_manual_forms(self._session, self._output_file, progress=self._progress)
+        _output_manual_forms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_verbs(self) -> None:
         """

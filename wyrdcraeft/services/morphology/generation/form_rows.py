@@ -16,13 +16,13 @@ if TYPE_CHECKING:
     from wyrdcraeft.services.morphology.progress import (
         MorphologyGenerateProgressCoordinator,
     )
-    from wyrdcraeft.services.morphology.session import GeneratorSession
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
 
     from .shared import FormOutput, FormWriter
 
 
 def print_one_form(
-    session: GeneratorSession, form_data: dict[str, str], output_file: FormOutput
+    run_state: GenerationRunState, form_data: dict[str, str], output_file: FormOutput
 ) -> None:
     r"""
     Print one form to the output sink using parity-preserving semantics.
@@ -45,20 +45,21 @@ def print_one_form(
           with the probability incremented by 1.
 
     Args:
-        session: Active generation session.
+        run_state: Active generation run state tracking the output counter.
         form_data: Row payload fields to emit.
         output_file: Output sink receiving emitted rows.
 
     """
     emit_form_data = getattr(output_file, "emit_form_data", None)
     if callable(emit_form_data):
-        emit_form_data(session, form_data)
+        emit_form_data(run_state, form_data)
         return
-    TsvParitySink(cast("FormWriter", output_file)).emit_form_data(session, form_data)
+    TsvParitySink(cast("FormWriter", output_file)).emit_form_data(run_state, form_data)
 
 
 def output_manual_forms(
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -67,20 +68,21 @@ def output_manual_forms(
     Emit manually curated forms before generated paradigmatic forms.
 
     Args:
-        session: Active generation session containing ``manual_forms`` rows.
+        word_pool: Active word pool containing ``manual_forms`` rows.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
 
     Keyword Args:
         progress: Optional live progress coordinator.
 
     """
-    for mf in session.manual_forms:
+    for mf in word_pool.manual_forms:
         if progress is not None:
             progress.advance(
                 MorphologyStage.MANUAL,
                 lemma=mf.title,
                 wright=mf.wright,
-                forms_written=session.output_counter,
+                forms_written=run_state.output_counter,
             )
         form_data = {
             "BT": mf.BT,
@@ -100,11 +102,11 @@ def output_manual_forms(
             "class3": mf.class3,
             "comment": mf.comment,
         }
-        print_one_form(session, form_data, output_file)
+        print_one_form(run_state, form_data, output_file)
 
 
 def generate_and_print_form(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     prefix: str,
@@ -125,7 +127,7 @@ def generate_and_print_form(  # noqa: PLR0913
         Writes one row to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         prefix: Prefix segment.
@@ -162,12 +164,12 @@ def generate_and_print_form(  # noqa: PLR0913
     fh["form"] = form
     fh["formParts"] = form_parts
     fh["probability"] = format_probability(prob)
-    print_one_form(session, fh, output_file)
+    print_one_form(run_state, fh, output_file)
     return form, form_parts
 
 
 def generate_and_print_manual(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     form: str,
@@ -182,7 +184,7 @@ def generate_and_print_manual(  # noqa: PLR0913
         Writes one row to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         form: Generated form text.
@@ -196,11 +198,11 @@ def generate_and_print_manual(  # noqa: PLR0913
     fh["formParts"] = form_parts
     fh["function"] = canonicalize_inflection_code(function)
     fh["probability"] = format_probability(prob)
-    print_one_form(session, fh, output_file)
+    print_one_form(run_state, fh, output_file)
 
 
 def emit_form_for_context(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     prefix: str,
@@ -221,7 +223,7 @@ def emit_form_for_context(  # noqa: PLR0913
         Writes one row to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         prefix: Prefix segment.
@@ -247,7 +249,7 @@ def emit_form_for_context(  # noqa: PLR0913
 
     """
     return generate_and_print_form(
-        session,
+        run_state,
         output_file,
         formhash,
         prefix,
@@ -263,7 +265,7 @@ def emit_form_for_context(  # noqa: PLR0913
 
 
 def emit_imsg_for_context(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     prefix: str,
@@ -280,7 +282,7 @@ def emit_imsg_for_context(  # noqa: PLR0913
         Writes one ``ImSg`` row to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         prefix: Prefix segment.
@@ -298,7 +300,7 @@ def emit_imsg_for_context(  # noqa: PLR0913
 
     """
     emit_form_for_context(
-        session,
+        run_state,
         output_file,
         formhash,
         prefix,
@@ -313,7 +315,7 @@ def emit_imsg_for_context(  # noqa: PLR0913
 
 
 def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     prefix: str,
@@ -335,7 +337,7 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         Writes generated and derived rows to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         prefix: Prefix segment.
@@ -372,7 +374,7 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         source_prob: str | int | None,
     ) -> tuple[str, str]:
         return generate_and_print_form(
-            session,
+            run_state,
             output_file,
             source_formhash,
             source_prefix,
@@ -399,12 +401,12 @@ def generate_and_print_form_with_sound_changes(  # noqa: PLR0913
         probability=prob,
         sound_change_prob_delta=sound_change_prob_delta,
         emit_source_form=_emit_source_form,
-        emit_manual=partial(generate_and_print_manual, session, output_file),
+        emit_manual=partial(generate_and_print_manual, run_state, output_file),
     )
 
 
 def emit_sound_changed_form_for_context(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     prefix: str,
@@ -426,7 +428,7 @@ def emit_sound_changed_form_for_context(  # noqa: PLR0913
         Writes generated and derived rows to the morphology output stream.
 
     Args:
-        session: Active generation session containing output counters.
+        run_state: Active generation run state tracking the output counter.
         output_file: Output sink receiving emitted rows.
         formhash: Mutable form metadata hash.
         prefix: Prefix segment.
@@ -464,7 +466,7 @@ def emit_sound_changed_form_for_context(  # noqa: PLR0913
         sound_change_prob_delta: int,
     ) -> None:
         generate_and_print_form_with_sound_changes(
-            session,
+            run_state,
             output_file,
             source_formhash,
             source_prefix,

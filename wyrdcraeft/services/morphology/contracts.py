@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, TextIO, TypeVar
 
 if TYPE_CHECKING:
-    from .session import GeneratorSession
+    from .session import GenerationRunState, GeneratorSession
 
 
 class FormWriter(Protocol):
@@ -19,7 +19,7 @@ class ParityFormOutput(Protocol):
     """Parity-aware output protocol accepting legacy form payloads."""
 
     def emit_form_data(
-        self, session: GeneratorSession, form_data: dict[str, str]
+        self, run_state: GenerationRunState, form_data: dict[str, str]
     ) -> Any:
         """
         Emit one legacy form payload using parity row semantics.
@@ -31,7 +31,7 @@ class ParityFormOutput(Protocol):
             Part of Speech.
 
         Args:
-            session: Active generator session tracking output state.
+            run_state: Active generation run state tracking the output counter.
             form_data: Legacy mutable row payload.
 
         """
