@@ -17,13 +17,8 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
     ensure_inflection_codes,
     ensure_parts_of_speech,
 )
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 from wyrdcraeft.services.morphology.generation.sinks import (
     CompositeSink,
@@ -94,13 +89,12 @@ def _current_stage_total(
     )[stage]
 
 
-def _run_generation_stage(  # noqa: PLR0913
+def _run_generation_stage(
     *,
     session: GeneratorSession,
-    output_sink: ParityFormOutput,
     progress: MorphologyGenerateProgressCoordinator,
     stage: MorphologyStage,
-    generator: Callable[..., None],
+    generator: Callable[[], None],
     profiler: MorphologyBuildProfiler,
 ) -> None:
     """
@@ -108,10 +102,9 @@ def _run_generation_stage(  # noqa: PLR0913
 
     Keyword Args:
         session: Active morphology generation session.
-        output_sink: Composite sink receiving generated rows.
         progress: Live progress coordinator.
         stage: Stage being executed.
-        generator: Callable that performs the stage work.
+        generator: Bound facade method that performs the stage work.
         profiler: Build profiler collecting stage wall times.
 
     Side Effects:
@@ -121,7 +114,7 @@ def _run_generation_stage(  # noqa: PLR0913
     profiler.begin_stage(stage, forms_written=session.output_counter)
     try:
         progress.start_stage(stage, total=_current_stage_total(session, stage))
-        generator(session, output_sink, progress=progress)
+        generator()
         progress.finish_stage(stage)
     finally:
         profiler.end_stage(stage, forms_written=session.output_counter)
@@ -147,52 +140,47 @@ def _run_build_stages(
         Writes generated rows to the configured output sink.
 
     """
+    facade = MorphologyGenerationFacade(session, output_sink, progress=progress)
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.MANUAL,
-        generator=output_manual_forms,
+        generator=facade.output_manual_forms,
         profiler=profiler,
     )
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.VERBS,
-        generator=generate_vbforms,
+        generator=facade.generate_verbs,
         profiler=profiler,
     )
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.ADJECTIVES,
-        generator=generate_adjforms,
+        generator=facade.generate_adjectives,
         profiler=profiler,
     )
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.ADVERBS,
-        generator=generate_advforms,
+        generator=facade.generate_adverbs,
         profiler=profiler,
     )
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.NUMERALS,
-        generator=generate_numforms,
+        generator=facade.generate_numerals,
         profiler=profiler,
     )
     _run_generation_stage(
         session=session,
-        output_sink=output_sink,
         progress=progress,
         stage=MorphologyStage.NOUNS,
-        generator=generate_nounforms,
+        generator=facade.generate_nouns,
         profiler=profiler,
     )
 

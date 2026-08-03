@@ -36,9 +36,9 @@ def test_facade_still_importable_directly():
 
 
 def test_dispatch_still_importable():
-    """dispatch.py is the actual production entrypoint into the facade."""
-    from wyrdcraeft.services.morphology.generation.dispatch import (
-        generate_vbforms,
+    """The facade is the actual production entrypoint into generation."""
+    from wyrdcraeft.services.morphology.generation.facade import (
+        MorphologyGenerationFacade,
     )
 
-    assert callable(generate_vbforms)
+    assert callable(MorphologyGenerationFacade.generate_verbs)

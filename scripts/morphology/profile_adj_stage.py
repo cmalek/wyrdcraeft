@@ -13,12 +13,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import wyrdcraeft.cli.cli as _bootstrap_cli  # noqa: F401
-
 from tests.morphology.conftest import FULL_DICTIONARY, SUBSET_DICTIONARY, build_session
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 from wyrdcraeft.services.morphology.generation.sinks import (
     CompositeSink,
@@ -74,8 +71,9 @@ def _run_prerequisite_stages(
         sink: Output sink receiving prerequisite stage rows.
 
     """
-    output_manual_forms(session, sink)
-    generate_vbforms(session, sink)
+    facade = MorphologyGenerationFacade(session, sink)
+    facade.output_manual_forms()
+    facade.generate_verbs()
 
 
 def _parse_args() -> argparse.Namespace:
@@ -118,7 +116,8 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """
-    Profile ``generate_adjforms`` and print cumulative-time hotspots.
+    Profile ``MorphologyGenerationFacade.generate_adjectives`` and print
+    cumulative-time hotspots.
 
     Side Effects:
         Writes a ``.prof`` file and prints pstats output to stdout.
@@ -141,7 +140,7 @@ def main() -> None:
     profiler = cProfile.Profile()
     profiler.enable()
     adj_started = time.perf_counter()
-    generate_adjforms(session, output_sink)
+    MorphologyGenerationFacade(session, output_sink).generate_adjectives()
     adj_elapsed = time.perf_counter() - adj_started
     profiler.disable()
 

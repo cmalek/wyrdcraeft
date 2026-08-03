@@ -8,13 +8,8 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 
 from .conftest import FULL_DICTIONARY, build_session
@@ -35,12 +30,7 @@ FULL_FLOW_FULL_SMOKE_PATH = DATA_DIR / "full_flow_full_smoke.jsonl.gz"
 
 def _full_flow_rows(session: GeneratorSession) -> list[dict[str, str]]:
     output = io.StringIO()
-    output_manual_forms(session, output)
-    generate_vbforms(session, output)
-    generate_adjforms(session, output)
-    generate_advforms(session, output)
-    generate_numforms(session, output)
-    generate_nounforms(session, output)
+    MorphologyGenerationFacade(session, output).generate_all_forms()
     return canonicalize_form_rows(parse_form_output(output.getvalue()))
 
 
@@ -51,12 +41,7 @@ def _full_flow_metadata(session: GeneratorSession) -> dict[str, str]:
 
     with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8") as handle:
         output = cast("io.StringIO", handle)
-        output_manual_forms(session, output)
-        generate_vbforms(session, output)
-        generate_adjforms(session, output)
-        generate_advforms(session, output)
-        generate_numforms(session, output)
-        generate_nounforms(session, output)
+        MorphologyGenerationFacade(session, output).generate_all_forms()
         handle.flush()
         handle.seek(0)
 

@@ -14,14 +14,9 @@ from tests.morphology.snapshot_io import (
     parse_form_output,
     stable_json_lines_digest,
 )
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
-from wyrdcraeft.services.morphology.generators.common import output_manual_forms
 
 
 def _sha256_rows(rows: list[dict[str, str]]) -> str:
@@ -32,25 +27,21 @@ def _sha256_rows(rows: list[dict[str, str]]) -> str:
 def _stage_rows(stage: str) -> list[dict[str, str]]:
     session = build_session(dictionary_path=SUBSET_DICTIONARY)
     output = io.StringIO()
+    facade = MorphologyGenerationFacade(session, output)
     if stage == "manual":
-        output_manual_forms(session, output)
+        facade.output_manual_forms()
     elif stage == "verb":
-        generate_vbforms(session, output)
+        facade.generate_verbs()
     elif stage == "adj":
-        generate_adjforms(session, output)
+        facade.generate_adjectives()
     elif stage == "adv":
-        generate_advforms(session, output)
+        facade.generate_adverbs()
     elif stage == "num":
-        generate_numforms(session, output)
+        facade.generate_numerals()
     elif stage == "noun":
-        generate_nounforms(session, output)
+        facade.generate_nouns()
     elif stage == "full_flow":
-        output_manual_forms(session, output)
-        generate_vbforms(session, output)
-        generate_adjforms(session, output)
-        generate_advforms(session, output)
-        generate_numforms(session, output)
-        generate_nounforms(session, output)
+        facade.generate_all_forms()
     else:
         msg = f"unknown stage: {stage}"
         raise ValueError(msg)
@@ -62,12 +53,7 @@ def _runtime_baseline_ms() -> float:
     session = build_session(dictionary_path=SUBSET_DICTIONARY)
     output = io.StringIO()
     start = time.perf_counter()
-    output_manual_forms(session, output)
-    generate_vbforms(session, output)
-    generate_adjforms(session, output)
-    generate_advforms(session, output)
-    generate_numforms(session, output)
-    generate_nounforms(session, output)
+    MorphologyGenerationFacade(session, output).generate_all_forms()
     elapsed = (time.perf_counter() - start) * 1000
     return round(elapsed, 3)
 
