@@ -62,7 +62,7 @@ def test_set_adj_paradigm_wright_rule_425() -> None:
     word = _make_word(adjective=1, wright="425", stem="glæd")
     session.words = [word]
 
-    set_adj_paradigm(session)
+    set_adj_paradigm(session.word_pool)
 
     assert word.adj_paradigm == ["glæd"]
 
@@ -73,7 +73,7 @@ def test_set_adj_paradigm_stem_propagation() -> None:
     derived = _make_word(adjective=1, wright="0", stem="same")
     session.words = [source, derived]
 
-    set_adj_paradigm(session)
+    set_adj_paradigm(session.word_pool)
 
     assert source.adj_paradigm == ["blind"]
     assert derived.adj_paradigm == ["blind"]
@@ -85,7 +85,7 @@ def test_set_noun_paradigm_r_stem_opt_in() -> None:
     word = _make_word(noun=1, n_masc=1, stem="fæder")
     session.nouns = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["fæder"]
 
@@ -97,7 +97,7 @@ def test_set_noun_paradigm_simple_stem_propagation() -> None:
     session.nouns = [source, derived]
     session.words = [source, derived]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert source.noun_paradigm == ["cynn"]
     assert derived.noun_paradigm == ["cynn"]
@@ -110,7 +110,7 @@ def test_set_noun_paradigm_advanced_stem_propagation() -> None:
     session.nouns = [source, derived]
     session.words = [source, derived]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert source.noun_paradigm == ["cynn"]
     assert derived.noun_paradigm == ["cynn"]
@@ -122,7 +122,7 @@ def test_set_noun_paradigm_heuristic_incel_suffix() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["hof"]
 
@@ -133,7 +133,7 @@ def test_set_noun_paradigm_heuristic_terminal_e_gender_order() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["tunge", "stán", "hof"]
 
@@ -144,7 +144,7 @@ def test_set_noun_paradigm_heuristic_short_syllable_front_vowel() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["dæg", "fæt"]
 
@@ -155,7 +155,7 @@ def test_set_noun_paradigm_heuristic_nd_stem_masculine() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["wígend"]
 
@@ -166,7 +166,7 @@ def test_set_noun_paradigm_final_fallback_neuter_long_stem() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["word"]
 
@@ -177,7 +177,7 @@ def test_set_noun_paradigm_final_fallback_neuter_short_stem() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
 
     assert word.noun_paradigm == ["hof"]
 
@@ -191,7 +191,7 @@ def test_set_verb_paradigm_strong_heuristic_assignment() -> None:
         "31": _make_verb_paradigm(paradigm_id="31", title="other", verb_type="s"),
     }
 
-    set_verb_paradigm(session)
+    set_verb_paradigm(session.word_pool)
 
     assert [vp.ID for vp in word.vb_paradigm] == ["31"]
 
@@ -205,6 +205,6 @@ def test_set_verb_paradigm_fallback_for_weak_verbs() -> None:
         "76": _make_verb_paradigm(paradigm_id="76", title="other", verb_type="w"),
     }
 
-    set_verb_paradigm(session)
+    set_verb_paradigm(session.word_pool)
 
     assert [vp.ID for vp in word.vb_paradigm] == ["76"]

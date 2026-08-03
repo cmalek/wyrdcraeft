@@ -35,9 +35,9 @@ def build_session(*, dictionary_path: Path) -> GeneratorSession:
     session.remove_prefixes()
     session.remove_hyphens()
     session.count_syllables()
-    set_verb_paradigm(session)
-    set_adj_paradigm(session)
-    set_noun_paradigm(session)
+    set_verb_paradigm(session.word_pool)
+    set_adj_paradigm(session.word_pool)
+    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
     return session
 
 

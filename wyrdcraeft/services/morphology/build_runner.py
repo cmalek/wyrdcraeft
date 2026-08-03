@@ -428,13 +428,15 @@ def run_morphology_generation(  # noqa: PLR0913, PLR0915
         progress.advance_setup(MorphologySetupStep.COUNT_SYLLABLES)
 
         with profiler.time_setup("assign verb paradigms"):
-            set_verb_paradigm(session)
+            set_verb_paradigm(session.word_pool)
         progress.advance_setup(MorphologySetupStep.ASSIGN_VERB_PARADIGMS)
         with profiler.time_setup("assign adjective paradigms"):
-            set_adj_paradigm(session)
+            set_adj_paradigm(session.word_pool)
         progress.advance_setup(MorphologySetupStep.ASSIGN_ADJ_PARADIGMS)
         with profiler.time_setup("assign noun paradigms"):
-            set_noun_paradigm(session)
+            set_noun_paradigm(
+                session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+            )
         progress.advance_setup(MorphologySetupStep.ASSIGN_NOUN_PARADIGMS)
 
         default_fixture_path = resolved_data_dir / "wright_paradigms.json"
