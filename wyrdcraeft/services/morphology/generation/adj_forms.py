@@ -500,542 +500,6 @@ def _build_weak_title_array(word: Word, paradigm: str) -> list[str]:
     return title_array
 
 
-def _gen_strong_glaed_til(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``glæd``/``til`` paradigm.
-
-    Note:
-        Matches Perl ``glæd``/``til`` block.
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    title_alt = f"{word.prefix}-{word.stem}"
-    if re.search(r"[\u00e6\u00c6]|ea", paradigm):
-        stem_alt = re.sub(r"[\u00e6]|ea", "a", word.stem, flags=re.IGNORECASE)
-        stem_alt = re.sub(r"[\u00c6]", "a", stem_alt)
-        title_alt = f"{word.prefix}-{stem_alt}"
-
-    base = f"{word.prefix}-{word.stem}"
-    # Sg Ma
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-ne", "PoSgMaAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaAc", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgMaGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgMaDa", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgMaDa", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgMaIs", "0")
-    # Sg Ne
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgNeGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgNeDa", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgNeDa", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgNeIs", "0")
-    # Sg Fe
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoSgFeNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoSgFeNo", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgFeAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeGe", "1")
-    _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeDa", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeDa", "1")
-    # Pl Ma
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaNo", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaAc", "1")
-    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlMaGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlMaGe", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlMaDa", "0")
-    # Pl Ne
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeNo", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeAc", "1")
-    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlNeGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlNeGe", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlNeDa", "0")
-    # Pl Fe
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeNo", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeNo", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeAc", "0")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeAc", "1")
-    _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlFeGe", "0")
-    _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlFeGe", "1")
-    _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlFeDa", "0")
-
-
-def _gen_strong_blind(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``blind`` paradigm.
-
-    Note:
-        Matches Perl ``blind`` block.
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    base = f"{word.prefix}-{word.stem}"
-    forms = [
-        ("PoSgMaNo", "0", "0"),
-        ("PoSgMaAc", "ne", "0"),
-        ("PoSgMaAc", "0", "1"),
-        ("PoSgMaGe", "es", "0"),
-        ("PoSgMaDa", "um", "0"),
-        ("PoSgMaDa", "0", "1"),
-        ("PoSgMaIs", "e", "0"),
-        ("PoSgNeNo", "0", "0"),
-        ("PoSgNeAc", "0", "0"),
-        ("PoSgNeGe", "es", "0"),
-        ("PoSgNeDa", "um", "0"),
-        ("PoSgNeDa", "0", "1"),
-        ("PoSgNeIs", "e", "0"),
-        ("PoSgFeNo", "0", "0"),
-        ("PoSgFeAc", "e", "0"),
-        ("PoSgFeGe", "re", "0"),
-        ("PoSgFeGe", "0", "1"),
-        ("PoSgFeDa", "re", "0"),
-        ("PoSgFeDa", "0", "1"),
-        ("PoPlMaNo", "e", "0"),
-        ("PoPlMaNo", "0", "1"),
-        ("PoPlMaAc", "e", "0"),
-        ("PoPlMaAc", "0", "1"),
-        ("PoPlMaGe", "ra", "0"),
-        ("PoPlMaGe", "0", "1"),
-        ("PoPlMaDa", "um", "0"),
-        ("PoPlNeNo", "0", "0"),
-        ("PoPlNeAc", "0", "0"),
-        ("PoPlNeGe", "ra", "0"),
-        ("PoPlNeGe", "0", "1"),
-        ("PoPlNeDa", "um", "0"),
-        ("PoPlFeNo", "a", "0"),
-        ("PoPlFeNo", "e", "1"),
-        ("PoPlFeAc", "a", "0"),
-        ("PoPlFeAc", "e", "1"),
-        ("PoPlFeGe", "ra", "0"),
-        ("PoPlFeGe", "0", "1"),
-        ("PoPlFeDa", "um", "0"),
-    ]
-    for func, ending, prob in forms:
-        _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
-
-
-def _gen_strong_heah_thweorh(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``hēah``/``þweorh`` paradigm (h-stem).
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    title_alt = f"{word.prefix}-{word.stem}"
-    if "weorh" in paradigm:  # þweorh
-        stem_alt = re.sub(r"e([ao])", "\u0113\\1", word.stem)  # e+ao -> ēa/ēo
-        stem_alt = re.sub(r"([^\u0113])o", lambda m: f"{m.group(1)}ō", stem_alt)
-        title_alt = f"{word.prefix}-{stem_alt}"
-    title_alt = re.sub(r"h$", "", title_alt)
-    forms = [
-        ("PoSgMaNo", f"{title_alt}h-0", "0"),
-        ("PoSgMaAc", f"{title_alt}-ne", "0"),
-        ("PoSgMaAc", f"{title_alt}n-ne", "1"),
-        ("PoSgMaGe", f"{title_alt}-s", "0"),
-        ("PoSgMaGe", f"{title_alt}-es", "0"),
-        ("PoSgMaDa", f"{title_alt}-m", "0"),
-        ("PoSgMaDa", f"{title_alt}-um", "1"),
-        ("PoSgMaIs", f"{title_alt}-0", "0"),
-        ("PoSgNeNo", f"{title_alt}h-0", "0"),
-        ("PoSgNeAc", f"{title_alt}h-0", "0"),
-        ("PoSgNeGe", f"{title_alt}-s", "0"),
-        ("PoSgNeGe", f"{title_alt}-es", "0"),
-        ("PoSgNeDa", f"{title_alt}-m", "0"),
-        ("PoSgNeDa", f"{title_alt}-um", "1"),
-        ("PoSgNeIs", f"{title_alt}-0", "0"),
-        ("PoSgFeNo", f"{title_alt}-0", "0"),
-        ("PoSgFeAc", f"{title_alt}-0", "0"),
-        ("PoSgFeGe", f"{title_alt}-re", "0"),
-        ("PoSgFeGe", f"{title_alt}r-re", "1"),
-        ("PoSgFeDa", f"{title_alt}-re", "0"),
-        ("PoSgFeDa", f"{title_alt}r-re", "1"),
-        ("PoPlMaNo", f"{title_alt}-0", "0"),
-        ("PoPlMaAc", f"{title_alt}-0", "0"),
-        ("PoPlMaGe", f"{title_alt}-ra", "0"),
-        ("PoPlMaGe", f"{title_alt}r-ra", "1"),
-        ("PoPlMaDa", f"{title_alt}-m", "0"),
-        ("PoPlMaDa", f"{title_alt}-um", "1"),
-        ("PoPlNeNo", f"{title_alt}-0", "0"),
-        ("PoPlNeAc", f"{title_alt}-0", "0"),
-        ("PoPlNeGe", f"{title_alt}-ra", "0"),
-        ("PoPlNeGe", f"{title_alt}r-ra", "1"),
-        ("PoPlNeDa", f"{title_alt}-m", "0"),
-        ("PoPlNeDa", f"{title_alt}-um", "1"),
-        ("PoPlFeNo", f"{title_alt}-0", "0"),
-        ("PoPlFeAc", f"{title_alt}-0", "0"),
-        ("PoPlFeGe", f"{title_alt}-ra", "0"),
-        ("PoPlFeGe", f"{title_alt}r-ra", "1"),
-        ("PoPlFeDa", f"{title_alt}-m", "0"),
-        ("PoPlFeDa", f"{title_alt}-um", "1"),
-    ]
-    for func, form_parts, prob in forms:
-        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
-
-
-def _gen_strong_manig(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``māniġ`` paradigm.
-
-    Note:
-        Matches Perl māniġ block: no base-0 variants for PoSgMaAc, PoSgMaDa,
-        PoSgNeDa, PoSgFeGe, PoSgFeDa, PoPlMaNo, PoPlMaAc, PoPlMaGe, PoPlNeGe,
-        PoPlFeGe.
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    base = f"{word.prefix}-{word.stem}"
-    forms = [
-        ("PoSgMaNo", "0", "0"),
-        ("PoSgMaAc", "ne", "0"),
-        ("PoSgMaGe", "es", "0"),
-        ("PoSgMaDa", "um", "0"),
-        ("PoSgMaIs", "e", "0"),
-        ("PoSgNeNo", "0", "0"),
-        ("PoSgNeAc", "0", "0"),
-        ("PoSgNeGe", "es", "0"),
-        ("PoSgNeDa", "um", "0"),
-        ("PoSgNeIs", "e", "0"),
-        ("PoSgFeNo", "0", "0"),
-        ("PoSgFeAc", "e", "0"),
-        ("PoSgFeGe", "re", "0"),
-        ("PoSgFeDa", "re", "0"),
-        ("PoPlMaNo", "e", "0"),
-        ("PoPlMaAc", "e", "0"),
-        ("PoPlMaGe", "ra", "0"),
-        ("PoPlMaDa", "um", "0"),
-        ("PoPlNeNo", "0", "0"),
-        ("PoPlNeAc", "0", "0"),
-        ("PoPlNeGe", "ra", "0"),
-        ("PoPlNeDa", "um", "0"),
-        ("PoPlFeNo", "a", "0"),
-        ("PoPlFeNo", "e", "1"),
-        ("PoPlFeAc", "a", "0"),
-        ("PoPlFeAc", "e", "1"),
-        ("PoPlFeGe", "ra", "0"),
-        ("PoPlFeDa", "um", "0"),
-    ]
-    for func, ending, prob in forms:
-        _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
-
-
-def _gen_strong_halig(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``hāliġ`` paradigm (ja-stem with syncope).
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    vowel_regex = OENormalizer.VOWEL
-    title_alt = word.stem
-    if word.papart != 1:
-        title_alt = re.sub(f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt)
-    title_alt = f"{word.prefix}-{title_alt}"
-    base = f"{word.prefix}-{word.stem}"
-    forms = [
-        ("PoSgMaNo", f"{base}-0", "0"),
-        ("PoSgMaAc", f"{base}-ne", "0"),
-        ("PoSgMaGe", f"{title_alt}-es", "0"),
-        ("PoSgMaGe", f"{base}-es", "1"),
-        ("PoSgMaDa", f"{title_alt}-um", "0"),
-        ("PoSgMaDa", f"{base}-um", "1"),
-        ("PoSgMaIs", f"{title_alt}-e", "0"),
-        ("PoSgMaIs", f"{base}-e", "1"),
-        ("PoSgNeNo", f"{base}-0", "0"),
-        ("PoSgNeAc", f"{base}-0", "0"),
-        ("PoSgNeGe", f"{title_alt}-es", "0"),
-        ("PoSgNeGe", f"{base}-es", "1"),
-        ("PoSgNeDa", f"{title_alt}-um", "0"),
-        ("PoSgNeDa", f"{base}-um", "1"),
-        ("PoSgNeIs", f"{title_alt}-e", "0"),
-        ("PoSgNeIs", f"{base}-e", "1"),
-        ("PoSgFeNo", f"{base}-u", "0"),
-        ("PoSgFeNo", f"{base}-o", "1"),
-        ("PoSgFeAc", f"{title_alt}-e", "0"),
-        ("PoSgFeAc", f"{base}-e", "1"),
-        ("PoSgFeGe", f"{base}-re", "0"),
-        ("PoSgFeDa", f"{base}-re", "0"),
-        ("PoPlMaNo", f"{title_alt}-e", "0"),
-        ("PoPlMaNo", f"{base}-e", "1"),
-        ("PoPlMaAc", f"{title_alt}-e", "0"),
-        ("PoPlMaAc", f"{base}-e", "1"),
-        ("PoPlMaGe", f"{base}-ra", "0"),
-        ("PoPlMaDa", f"{title_alt}-um", "0"),
-        ("PoPlMaDa", f"{base}-um", "1"),
-        ("PoPlNeNo", f"{base}-u", "0"),
-        ("PoPlNeNo", f"{base}-o", "1"),
-        ("PoPlNeAc", f"{base}-u", "0"),
-        ("PoPlNeAc", f"{base}-o", "1"),
-        ("PoPlNeGe", f"{base}-ra", "0"),
-        ("PoPlNeDa", f"{title_alt}-um", "0"),
-        ("PoPlNeDa", f"{base}-um", "1"),
-        ("PoPlFeNo", f"{base}-a", "0"),
-        ("PoPlFeNo", f"{base}-e", "1"),
-        ("PoPlFeAc", f"{base}-a", "0"),
-        ("PoPlFeAc", f"{base}-e", "1"),
-        ("PoPlFeGe", f"{base}-ra", "0"),
-        ("PoPlFeDa", f"{title_alt}-um", "0"),
-        ("PoPlFeDa", f"{base}-um", "1"),
-    ]
-    for func, form_parts, prob in forms:
-        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
-
-
-def _gen_strong_wilde(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``wilde`` paradigm (i-stem, stem drops final e).
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    title_alt = re.sub(r"e$", "", word.stem)
-    title_alt = f"{word.prefix}-{title_alt}"
-    forms = [
-        ("PoSgMaNo", f"{title_alt}-e", "0"),
-        ("PoSgMaAc", f"{title_alt}-ne", "0"),
-        ("PoSgMaGe", f"{title_alt}-es", "0"),
-        ("PoSgMaDa", f"{title_alt}-um", "0"),
-        ("PoSgMaIs", f"{title_alt}-e", "0"),
-        ("PoSgNeNo", f"{title_alt}-e", "0"),
-        ("PoSgNeAc", f"{title_alt}-e", "0"),
-        ("PoSgNeGe", f"{title_alt}-es", "0"),
-        ("PoSgNeDa", f"{title_alt}-um", "0"),
-        ("PoSgNeIs", f"{title_alt}-e", "0"),
-        ("PoSgFeNo", f"{title_alt}-u", "0"),
-        ("PoSgFeNo", f"{title_alt}-o", "1"),
-        ("PoSgFeAc", f"{title_alt}-e", "0"),
-        ("PoSgFeGe", f"{title_alt}-re", "0"),
-        ("PoSgFeDa", f"{title_alt}-re", "0"),
-        ("PoPlMaNo", f"{title_alt}-e", "0"),
-        ("PoPlMaAc", f"{title_alt}-e", "0"),
-        ("PoPlMaGe", f"{title_alt}-ra", "0"),
-        ("PoPlMaDa", f"{title_alt}-um", "0"),
-        ("PoPlNeNo", f"{title_alt}-u", "0"),
-        ("PoPlNeNo", f"{title_alt}-o", "1"),
-        ("PoPlNeAc", f"{title_alt}-u", "0"),
-        ("PoPlNeAc", f"{title_alt}-o", "1"),
-        ("PoPlNeGe", f"{title_alt}-ra", "0"),
-        ("PoPlNeDa", f"{title_alt}-um", "0"),
-        ("PoPlFeNo", f"{title_alt}-a", "0"),
-        ("PoPlFeNo", f"{title_alt}-e", "0"),
-        ("PoPlFeAc", f"{title_alt}-a", "0"),
-        ("PoPlFeAc", f"{title_alt}-e", "0"),
-        ("PoPlFeGe", f"{title_alt}-ra", "0"),
-        ("PoPlFeDa", f"{title_alt}-um", "0"),
-    ]
-    for func, form_parts, prob in forms:
-        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
-
-
-def _gen_strong_gearu(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    formhash: dict[str, str],
-) -> None:
-    """
-    Strong ``gearu`` paradigm (u-stem).
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        formhash: The form hash.
-
-    """
-    title_alt = re.sub(r".$", "", word.stem)
-    title_alt = f"{word.prefix}-{title_alt}"
-    forms = [
-        ("PoSgMaNo", f"{title_alt}-u", "0"),
-        ("PoSgMaNo", f"{title_alt}-o", "1"),
-        ("PoSgMaAc", f"{title_alt}-one", "0"),
-        ("PoSgMaGe", f"{title_alt}-wes", "0"),
-        ("PoSgMaGe", f"{title_alt}-uwes", "1"),
-        ("PoSgMaGe", f"{title_alt}-owes", "2"),
-        ("PoSgMaDa", f"{title_alt}-wum", "0"),
-        ("PoSgMaIs", f"{title_alt}-we", "0"),
-        ("PoSgNeNo", f"{title_alt}-u", "0"),
-        ("PoSgNeNo", f"{title_alt}-o", "1"),
-        ("PoSgNeAc", f"{title_alt}-u", "0"),
-        ("PoSgNeAc", f"{title_alt}-o", "1"),
-        ("PoSgNeGe", f"{title_alt}-wes", "0"),
-        ("PoSgNeDa", f"{title_alt}-wum", "0"),
-        ("PoSgNeIs", f"{title_alt}-we", "0"),
-        ("PoSgFeNo", f"{title_alt}-u", "0"),
-        ("PoSgFeNo", f"{title_alt}-o", "1"),
-        ("PoSgFeAc", f"{title_alt}-we", "0"),
-        ("PoSgFeGe", f"{title_alt}-ore", "0"),
-        ("PoSgFeDa", f"{title_alt}-ore", "0"),
-        ("PoPlMaNo", f"{title_alt}-e", "0"),
-        ("PoPlMaAc", f"{title_alt}-e", "0"),
-        ("PoPlMaGe", f"{title_alt}-ora", "0"),
-        ("PoPlMaDa", f"{title_alt}-wum", "0"),
-        ("PoPlNeNo", f"{title_alt}-u", "0"),
-        ("PoPlNeNo", f"{title_alt}-o", "1"),
-        ("PoPlNeAc", f"{title_alt}-u", "0"),
-        ("PoPlNeAc", f"{title_alt}-o", "1"),
-        ("PoPlNeGe", f"{title_alt}-ora", "0"),
-        ("PoPlNeDa", f"{title_alt}-wum", "0"),
-        ("PoPlFeNo", f"{title_alt}-wa", "0"),
-        ("PoPlFeNo", f"{title_alt}-we", "0"),
-        ("PoPlFeAc", f"{title_alt}-wa", "0"),
-        ("PoPlFeAc", f"{title_alt}-we", "0"),
-        ("PoPlFeGe", f"{title_alt}-ora", "0"),
-        ("PoPlFeDa", f"{title_alt}-wum", "0"),
-    ]
-    for func, form_parts, prob in forms:
-        _adj_print(run_state, output_file, formhash, form_parts, func, prob)
-
-
-def _gen_weak(
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    paradigm: str,
-) -> None:
-    """
-    Weak (definite) adjective forms for all adjectives.
-
-    Args:
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-        paradigm: The paradigm.
-
-    Side Effects:
-        Writes generated rows to the morphology output stream.
-
-    """
-    bt_id = f"{word.nid:06d}"
-    title_array = _build_weak_title_array(word, paradigm)
-    base_fh = {
-        "title": word.title,
-        "stem": word.stem,
-        "BT": bt_id,
-        "wordclass": "adjective",
-        "class1": "weak",
-        "paradigm": "blinda",
-        "wright": word.wright,
-        "var": "",
-        "paraID": "",
-        "class2": "",
-        "class3": "",
-        "comment": "",
-    }
-    if word.papart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "past"
-    if word.pspart == 1:
-        base_fh["wordclass"] = "participle"
-        base_fh["class2"] = "present"
-    if word.pronoun == 1:
-        base_fh["wordclass"] = "pronoun"
-    for y, base in enumerate(title_array):
-        prob = str(y)
-        run_state.perl_probability = int(prob)
-        forms = [
-            ("PoSgMaNo", f"{base}-a"),
-            ("PoSgMaAc", f"{base}-an"),
-            ("PoSgMaGe", f"{base}-an"),
-            ("PoSgMaDa", f"{base}-an"),
-            ("PoSgNeNo", f"{base}-e"),
-            ("PoSgNeAc", f"{base}-e"),
-            ("PoSgNeGe", f"{base}-an"),
-            ("PoSgNeDa", f"{base}-an"),
-            ("PoSgFeNo", f"{base}-e"),
-            ("PoSgFeAc", f"{base}-an"),
-            ("PoSgFeGe", f"{base}-an"),
-            ("PoSgFeDa", f"{base}-an"),
-            ("PoPlMaNo", f"{base}-an"),
-            ("PoPlMaAc", f"{base}-an"),
-            ("PoPlMaGe", f"{base}-ra"),
-            ("PoPlMaGe", f"{base}-ena"),
-            ("PoPlMaDa", f"{base}-um"),
-            ("PoPlNeNo", f"{base}-an"),
-            ("PoPlNeAc", f"{base}-an"),
-            ("PoPlNeGe", f"{base}-ra"),
-            ("PoPlNeGe", f"{base}-ena"),
-            ("PoPlNeDa", f"{base}-um"),
-            ("PoPlFeNo", f"{base}-an"),
-            ("PoPlFeAc", f"{base}-an"),
-            ("PoPlFeGe", f"{base}-ra"),
-            ("PoPlFeGe", f"{base}-ena"),
-            ("PoPlFeDa", f"{base}-um"),
-        ]
-        for i, (func, form_parts) in enumerate(forms):
-            fh = base_fh.copy()
-            fh["function"] = func
-            # Perl: no probability before first -ena (index 15); prob+1 from
-            # first -ena onwards
-            fh["probability"] = str(int(prob) + 1) if i >= 15 else ""  # noqa: PLR2004
-            fh["form"] = _form_from_parts(form_parts)
-            fh["formParts"] = form_parts.replace("\n", "")
-            print_one_form(run_state, fh, output_file)
-
-
 def _build_comparative_title_array(
     word: Word,
     paradigm: str,
@@ -1172,57 +636,6 @@ def _shared_regular_degree_stems(
     return (shared, shared)
 
 
-def _gen_comparative(  # noqa: PLR0913
-    word_pool: WordPool,
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    *,
-    use_perl_hash_order: bool | None = None,
-    regular_stems: list[str] | None = None,
-) -> None:
-    """
-    Comparative (Co) weak forms for all adjectives.
-
-    Note:
-        This is for the ``weak`` block in Perl.
-
-    Args:
-        word_pool: Word pool supplying the lemmas to generate forms for.
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-
-    Keyword Args:
-        use_perl_hash_order: Optional parity ordering override.
-        regular_stems: Pre-expanded regular stems when already computed for
-            the same word.
-
-    """
-    paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    resolved_use_perl_hash_order = (
-        len(word_pool.adjectives) > len(word_pool.words)
-        if use_perl_hash_order is None
-        else use_perl_hash_order
-    )
-    title_array, affix = _build_comparative_title_array(
-        word,
-        paradigm,
-        resolved_use_perl_hash_order,
-        regular_stems=regular_stems,
-    )
-    base_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
-    _emit_weak_degree_forms(
-        run_state,
-        output_file,
-        base_fh,
-        title_array,
-        degree_prefix="Co",
-        affix=affix,
-        prob_mode="abs_delta",
-    )
-
-
 def _build_superlative_title_array(
     word: Word,
     paradigm: str,
@@ -1305,82 +718,11 @@ def _build_superlative_title_array(
     )
 
 
-def _gen_superlative(  # noqa: PLR0913
-    word_pool: WordPool,
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    word: Word,
-    *,
-    use_perl_hash_order: bool | None = None,
-    regular_stems: list[str] | None = None,
-) -> None:
+class AdjectiveFormGenerator:
     """
-    Generate superlative adjective forms: weak (Sp) forms then strong (Sp)
-    forms.
-
-    Note:
-        Matches Perl ``superlative`` block.
-
-    Args:
-        word_pool: Word pool supplying the lemmas to generate forms for.
-        run_state: Mutable per-run generation state.
-        output_file: The output file handle.
-        word: The word.
-
-    Keyword Args:
-        use_perl_hash_order: Optional parity ordering override.
-        regular_stems: Pre-expanded regular stems when already computed for
-            the same word.
-
-    """
-    paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
-    resolved_use_perl_hash_order = (
-        len(word_pool.adjectives) > len(word_pool.words)
-        if use_perl_hash_order is None
-        else use_perl_hash_order
-    )
-    title_array, affix = _build_superlative_title_array(
-        word,
-        paradigm,
-        resolved_use_perl_hash_order,
-        regular_stems=regular_stems,
-    )
-    weak_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
-    _emit_weak_degree_forms(
-        run_state,
-        output_file,
-        weak_fh,
-        title_array,
-        degree_prefix="Sp",
-        affix=affix,
-        prob_mode="abs_delta",
-    )
-    strong_fh = _build_adjective_formhash(
-        word,
-        class1="strong",
-        paradigm=paradigm,
-    )
-    _emit_superlative_strong_forms(
-        run_state,
-        output_file,
-        strong_fh,
-        title_array,
-        affix=affix,
-    )
-
-
-def generate_adjforms(  # noqa: PLR0912
-    word_pool: WordPool,
-    run_state: GenerationRunState,
-    output_file: FormOutput,
-    *,
-    progress: MorphologyGenerateProgressCoordinator | None = None,
-) -> None:
-    """
-    Generate adjective forms.
-
-    Note:
-        Port of Perl ``generate_adjforms``.
+    Generates adjective surface forms — strong/weak positive-degree
+    paradigms plus comparative and superlative derivatives — for one
+    morphology generation run.
 
     Args:
         word_pool: Word pool supplying the lemmas to generate forms for.
@@ -1390,23 +732,87 @@ def generate_adjforms(  # noqa: PLR0912
     Keyword Args:
         progress: Optional live progress coordinator.
 
-    Side Effects:
-        Writes generated rows to the morphology output stream. Sets
-        ``run_state.enable_num_probability_carry`` so a later
-        ``generate_numforms`` stage carries the shared probability forward.
-
     """
-    # Perl main flow calls generate_adjforms on a mutable adjective pool that
-    # starts as all words and then gets additional generated participles.
-    words = [
-        w
-        for w in word_pool.adjectives
-        if (w.adjective == 1 or (w.pspart + w.papart) > 0) and w.numeral != 1
-    ]
-    use_perl_hash_order = len(word_pool.adjectives) > len(word_pool.words)
-    for word in words:
-        if progress is not None:
-            progress.advance(
+
+    def __init__(
+        self,
+        word_pool: WordPool,
+        run_state: GenerationRunState,
+        output_file: FormOutput,
+        *,
+        progress: MorphologyGenerateProgressCoordinator | None = None,
+    ) -> None:
+        """
+        Bind an adjective form generator to one word pool, run state, and
+        output sink.
+
+        Args:
+            word_pool: Word pool supplying the lemmas to generate forms for.
+            run_state: Mutable per-run generation state.
+            output_file: The output file handle.
+
+        Keyword Args:
+            progress: Optional live progress coordinator.
+
+        """
+        #: Word pool supplying the lemmas to generate forms for.
+        self._word_pool = word_pool
+        #: Mutable per-run generation state.
+        self._run_state = run_state
+        #: The output file handle.
+        self._output_file = output_file
+        #: Optional live progress coordinator.
+        self._progress = progress
+
+    def generate(self) -> None:
+        """
+        Generate adjective forms.
+
+        Side Effects:
+            Writes generated rows to the morphology output stream. Sets
+            ``run_state.enable_num_probability_carry`` so a later
+            ``NumeralFormGenerator`` stage carries the shared probability
+            forward.
+
+        """
+        # Perl main flow calls generate_adjforms on a mutable adjective pool
+        # that starts as all words and then gets additional generated
+        # participles.
+        words = [
+            w
+            for w in self._word_pool.adjectives
+            if (w.adjective == 1 or (w.pspart + w.papart) > 0) and w.numeral != 1
+        ]
+        use_perl_hash_order = len(self._word_pool.adjectives) > len(
+            self._word_pool.words
+        )
+        for word in words:
+            self._generate_word(word, use_perl_hash_order)
+
+        # Full-flow create_dict31 behavior carries a shared $probability into
+        # generate_numforms after adjective generation has run.
+        self._run_state.enable_num_probability_carry = True
+
+    def _generate_word(  # noqa: PLR0912
+        self,
+        word: Word,
+        use_perl_hash_order: bool,
+    ) -> None:
+        """
+        Generate adjective forms for a single word.
+
+        Args:
+            word: The word to generate forms for.
+            use_perl_hash_order: Whether to use Perl ``keys %hash`` ordering
+                semantics (full-flow parity mode).
+
+        Side Effects:
+            Writes generated rows to the morphology output stream.
+
+        """
+        run_state = self._run_state
+        if self._progress is not None:
+            self._progress.advance(
                 MorphologyStage.ADJECTIVES,
                 lemma=word.title,
                 wright=word.wright,
@@ -1443,7 +849,7 @@ def generate_adjforms(  # noqa: PLR0912
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "past"
                 formhash["paradigm"] = "manig"
-            _gen_strong_manig(run_state, output_file, word, formhash)
+            self._gen_strong_manig(word, formhash)
         elif (
             "hālig" in paradigm
             or (word.papart == 1 and OENormalizer.stem_length(word.stem))
@@ -1453,45 +859,661 @@ def generate_adjforms(  # noqa: PLR0912
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "past"
                 formhash["paradigm"] = "halig"
-            _gen_strong_halig(run_state, output_file, word, formhash)
+            self._gen_strong_halig(word, formhash)
         elif "wilde" in paradigm or word.pspart == 1:
             if word.pspart == 1:
                 word.adj_paradigm = ["wilde"]
                 formhash["wordclass"] = "participle"
                 formhash["class2"] = "present"
                 formhash["paradigm"] = "wilde"
-            _gen_strong_wilde(run_state, output_file, word, formhash)
+            self._gen_strong_wilde(word, formhash)
         elif re.search(r"gl\u00e6d|glæd|til", paradigm, re.IGNORECASE):
-            _gen_strong_glaed_til(run_state, output_file, word, formhash)
+            self._gen_strong_glaed_til(word, formhash)
         elif "blind" in paradigm:
-            _gen_strong_blind(run_state, output_file, word, formhash)
+            self._gen_strong_blind(word, formhash)
         elif re.search(r"hēah|weorh", paradigm):
-            _gen_strong_heah_thweorh(run_state, output_file, word, formhash)
+            self._gen_strong_heah_thweorh(word, formhash)
         elif "gearu" in paradigm:
-            _gen_strong_gearu(run_state, output_file, word, formhash)
+            self._gen_strong_gearu(word, formhash)
         # else: no strong paradigm match, but still generate weak forms
-        _gen_weak(run_state, output_file, word, paradigm)
+        self._gen_weak(word, paradigm)
 
-        # Comparative and Superlative (only for adjectives, not numerals or pronouns)
+        # Comparative and Superlative (only for adjectives, not numerals or
+        # pronouns)
         if word.numeral == 0 and word.pronoun == 0:
             comp_stems, sup_stems = _shared_regular_degree_stems(word, paradigm)
-            _gen_comparative(
-                word_pool,
-                run_state,
-                output_file,
+            self._gen_comparative(
                 word,
                 use_perl_hash_order=use_perl_hash_order,
                 regular_stems=comp_stems,
             )
-            _gen_superlative(
-                word_pool,
-                run_state,
-                output_file,
+            self._gen_superlative(
                 word,
                 use_perl_hash_order=use_perl_hash_order,
                 regular_stems=sup_stems,
             )
 
-    # Full-flow create_dict31 behavior carries a shared $probability into
-    # generate_numforms after adjective generation has run.
-    run_state.enable_num_probability_carry = True
+    def _gen_strong_glaed_til(  # noqa: PLR0915
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``glæd``/``til`` paradigm.
+
+        Note:
+            Matches Perl ``glæd``/``til`` block.
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
+        title_alt = f"{word.prefix}-{word.stem}"
+        if re.search(r"[\u00e6\u00c6]|ea", paradigm):
+            stem_alt = re.sub(r"[\u00e6]|ea", "a", word.stem, flags=re.IGNORECASE)
+            stem_alt = re.sub(r"[\u00c6]", "a", stem_alt)
+            title_alt = f"{word.prefix}-{stem_alt}"
+
+        base = f"{word.prefix}-{word.stem}"
+        # Sg Ma
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-ne", "PoSgMaAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgMaAc", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgMaGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgMaDa", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgMaDa", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgMaIs", "0")
+        # Sg Ne
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgNeAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-es", "PoSgNeGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoSgNeDa", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgNeDa", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoSgNeIs", "0")
+        # Sg Fe
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoSgFeNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoSgFeNo", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoSgFeAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeGe", "1")
+        _adj_print(run_state, output_file, formhash, f"{base}-re", "PoSgFeDa", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoSgFeDa", "1")
+        # Pl Ma
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaNo", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-e", "PoPlMaAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-0", "PoPlMaAc", "1")
+        _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlMaGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlMaGe", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlMaDa", "0")
+        # Pl Ne
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeNo", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-u", "PoPlNeAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlNeAc", "1")
+        _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlNeGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlNeGe", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlNeDa", "0")
+        # Pl Fe
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeNo", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeNo", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-a", "PoPlFeAc", "0")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-o", "PoPlFeAc", "1")
+        _adj_print(run_state, output_file, formhash, f"{base}-ra", "PoPlFeGe", "0")
+        _adj_print(run_state, output_file, formhash, f"{base}-0", "PoPlFeGe", "1")
+        _adj_print(run_state, output_file, formhash, f"{title_alt}-um", "PoPlFeDa", "0")
+
+    def _gen_strong_blind(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``blind`` paradigm.
+
+        Note:
+            Matches Perl ``blind`` block.
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        base = f"{word.prefix}-{word.stem}"
+        forms = [
+            ("PoSgMaNo", "0", "0"),
+            ("PoSgMaAc", "ne", "0"),
+            ("PoSgMaAc", "0", "1"),
+            ("PoSgMaGe", "es", "0"),
+            ("PoSgMaDa", "um", "0"),
+            ("PoSgMaDa", "0", "1"),
+            ("PoSgMaIs", "e", "0"),
+            ("PoSgNeNo", "0", "0"),
+            ("PoSgNeAc", "0", "0"),
+            ("PoSgNeGe", "es", "0"),
+            ("PoSgNeDa", "um", "0"),
+            ("PoSgNeDa", "0", "1"),
+            ("PoSgNeIs", "e", "0"),
+            ("PoSgFeNo", "0", "0"),
+            ("PoSgFeAc", "e", "0"),
+            ("PoSgFeGe", "re", "0"),
+            ("PoSgFeGe", "0", "1"),
+            ("PoSgFeDa", "re", "0"),
+            ("PoSgFeDa", "0", "1"),
+            ("PoPlMaNo", "e", "0"),
+            ("PoPlMaNo", "0", "1"),
+            ("PoPlMaAc", "e", "0"),
+            ("PoPlMaAc", "0", "1"),
+            ("PoPlMaGe", "ra", "0"),
+            ("PoPlMaGe", "0", "1"),
+            ("PoPlMaDa", "um", "0"),
+            ("PoPlNeNo", "0", "0"),
+            ("PoPlNeAc", "0", "0"),
+            ("PoPlNeGe", "ra", "0"),
+            ("PoPlNeGe", "0", "1"),
+            ("PoPlNeDa", "um", "0"),
+            ("PoPlFeNo", "a", "0"),
+            ("PoPlFeNo", "e", "1"),
+            ("PoPlFeAc", "a", "0"),
+            ("PoPlFeAc", "e", "1"),
+            ("PoPlFeGe", "ra", "0"),
+            ("PoPlFeGe", "0", "1"),
+            ("PoPlFeDa", "um", "0"),
+        ]
+        for func, ending, prob in forms:
+            _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
+
+    def _gen_strong_heah_thweorh(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``hēah``/``þweorh`` paradigm (h-stem).
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
+        title_alt = f"{word.prefix}-{word.stem}"
+        if "weorh" in paradigm:  # þweorh
+            stem_alt = re.sub(r"e([ao])", "\u0113\\1", word.stem)  # e+ao -> ēa/ēo
+            stem_alt = re.sub(r"([^\u0113])o", lambda m: f"{m.group(1)}ō", stem_alt)
+            title_alt = f"{word.prefix}-{stem_alt}"
+        title_alt = re.sub(r"h$", "", title_alt)
+        forms = [
+            ("PoSgMaNo", f"{title_alt}h-0", "0"),
+            ("PoSgMaAc", f"{title_alt}-ne", "0"),
+            ("PoSgMaAc", f"{title_alt}n-ne", "1"),
+            ("PoSgMaGe", f"{title_alt}-s", "0"),
+            ("PoSgMaGe", f"{title_alt}-es", "0"),
+            ("PoSgMaDa", f"{title_alt}-m", "0"),
+            ("PoSgMaDa", f"{title_alt}-um", "1"),
+            ("PoSgMaIs", f"{title_alt}-0", "0"),
+            ("PoSgNeNo", f"{title_alt}h-0", "0"),
+            ("PoSgNeAc", f"{title_alt}h-0", "0"),
+            ("PoSgNeGe", f"{title_alt}-s", "0"),
+            ("PoSgNeGe", f"{title_alt}-es", "0"),
+            ("PoSgNeDa", f"{title_alt}-m", "0"),
+            ("PoSgNeDa", f"{title_alt}-um", "1"),
+            ("PoSgNeIs", f"{title_alt}-0", "0"),
+            ("PoSgFeNo", f"{title_alt}-0", "0"),
+            ("PoSgFeAc", f"{title_alt}-0", "0"),
+            ("PoSgFeGe", f"{title_alt}-re", "0"),
+            ("PoSgFeGe", f"{title_alt}r-re", "1"),
+            ("PoSgFeDa", f"{title_alt}-re", "0"),
+            ("PoSgFeDa", f"{title_alt}r-re", "1"),
+            ("PoPlMaNo", f"{title_alt}-0", "0"),
+            ("PoPlMaAc", f"{title_alt}-0", "0"),
+            ("PoPlMaGe", f"{title_alt}-ra", "0"),
+            ("PoPlMaGe", f"{title_alt}r-ra", "1"),
+            ("PoPlMaDa", f"{title_alt}-m", "0"),
+            ("PoPlMaDa", f"{title_alt}-um", "1"),
+            ("PoPlNeNo", f"{title_alt}-0", "0"),
+            ("PoPlNeAc", f"{title_alt}-0", "0"),
+            ("PoPlNeGe", f"{title_alt}-ra", "0"),
+            ("PoPlNeGe", f"{title_alt}r-ra", "1"),
+            ("PoPlNeDa", f"{title_alt}-m", "0"),
+            ("PoPlNeDa", f"{title_alt}-um", "1"),
+            ("PoPlFeNo", f"{title_alt}-0", "0"),
+            ("PoPlFeAc", f"{title_alt}-0", "0"),
+            ("PoPlFeGe", f"{title_alt}-ra", "0"),
+            ("PoPlFeGe", f"{title_alt}r-ra", "1"),
+            ("PoPlFeDa", f"{title_alt}-m", "0"),
+            ("PoPlFeDa", f"{title_alt}-um", "1"),
+        ]
+        for func, form_parts, prob in forms:
+            _adj_print(run_state, output_file, formhash, form_parts, func, prob)
+
+    def _gen_strong_manig(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``māniġ`` paradigm.
+
+        Note:
+            Matches Perl māniġ block: no base-0 variants for PoSgMaAc, PoSgMaDa,
+            PoSgNeDa, PoSgFeGe, PoSgFeDa, PoPlMaNo, PoPlMaAc, PoPlMaGe, PoPlNeGe,
+            PoPlFeGe.
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        base = f"{word.prefix}-{word.stem}"
+        forms = [
+            ("PoSgMaNo", "0", "0"),
+            ("PoSgMaAc", "ne", "0"),
+            ("PoSgMaGe", "es", "0"),
+            ("PoSgMaDa", "um", "0"),
+            ("PoSgMaIs", "e", "0"),
+            ("PoSgNeNo", "0", "0"),
+            ("PoSgNeAc", "0", "0"),
+            ("PoSgNeGe", "es", "0"),
+            ("PoSgNeDa", "um", "0"),
+            ("PoSgNeIs", "e", "0"),
+            ("PoSgFeNo", "0", "0"),
+            ("PoSgFeAc", "e", "0"),
+            ("PoSgFeGe", "re", "0"),
+            ("PoSgFeDa", "re", "0"),
+            ("PoPlMaNo", "e", "0"),
+            ("PoPlMaAc", "e", "0"),
+            ("PoPlMaGe", "ra", "0"),
+            ("PoPlMaDa", "um", "0"),
+            ("PoPlNeNo", "0", "0"),
+            ("PoPlNeAc", "0", "0"),
+            ("PoPlNeGe", "ra", "0"),
+            ("PoPlNeDa", "um", "0"),
+            ("PoPlFeNo", "a", "0"),
+            ("PoPlFeNo", "e", "1"),
+            ("PoPlFeAc", "a", "0"),
+            ("PoPlFeAc", "e", "1"),
+            ("PoPlFeGe", "ra", "0"),
+            ("PoPlFeDa", "um", "0"),
+        ]
+        for func, ending, prob in forms:
+            _adj_print(run_state, output_file, formhash, f"{base}-{ending}", func, prob)
+
+    def _gen_strong_halig(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``hāliġ`` paradigm (ja-stem with syncope).
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        vowel_regex = OENormalizer.VOWEL
+        title_alt = word.stem
+        if word.papart != 1:
+            title_alt = re.sub(
+                f"({vowel_regex}.*){vowel_regex}(.*)$", r"\1\2", title_alt
+            )
+        title_alt = f"{word.prefix}-{title_alt}"
+        base = f"{word.prefix}-{word.stem}"
+        forms = [
+            ("PoSgMaNo", f"{base}-0", "0"),
+            ("PoSgMaAc", f"{base}-ne", "0"),
+            ("PoSgMaGe", f"{title_alt}-es", "0"),
+            ("PoSgMaGe", f"{base}-es", "1"),
+            ("PoSgMaDa", f"{title_alt}-um", "0"),
+            ("PoSgMaDa", f"{base}-um", "1"),
+            ("PoSgMaIs", f"{title_alt}-e", "0"),
+            ("PoSgMaIs", f"{base}-e", "1"),
+            ("PoSgNeNo", f"{base}-0", "0"),
+            ("PoSgNeAc", f"{base}-0", "0"),
+            ("PoSgNeGe", f"{title_alt}-es", "0"),
+            ("PoSgNeGe", f"{base}-es", "1"),
+            ("PoSgNeDa", f"{title_alt}-um", "0"),
+            ("PoSgNeDa", f"{base}-um", "1"),
+            ("PoSgNeIs", f"{title_alt}-e", "0"),
+            ("PoSgNeIs", f"{base}-e", "1"),
+            ("PoSgFeNo", f"{base}-u", "0"),
+            ("PoSgFeNo", f"{base}-o", "1"),
+            ("PoSgFeAc", f"{title_alt}-e", "0"),
+            ("PoSgFeAc", f"{base}-e", "1"),
+            ("PoSgFeGe", f"{base}-re", "0"),
+            ("PoSgFeDa", f"{base}-re", "0"),
+            ("PoPlMaNo", f"{title_alt}-e", "0"),
+            ("PoPlMaNo", f"{base}-e", "1"),
+            ("PoPlMaAc", f"{title_alt}-e", "0"),
+            ("PoPlMaAc", f"{base}-e", "1"),
+            ("PoPlMaGe", f"{base}-ra", "0"),
+            ("PoPlMaDa", f"{title_alt}-um", "0"),
+            ("PoPlMaDa", f"{base}-um", "1"),
+            ("PoPlNeNo", f"{base}-u", "0"),
+            ("PoPlNeNo", f"{base}-o", "1"),
+            ("PoPlNeAc", f"{base}-u", "0"),
+            ("PoPlNeAc", f"{base}-o", "1"),
+            ("PoPlNeGe", f"{base}-ra", "0"),
+            ("PoPlNeDa", f"{title_alt}-um", "0"),
+            ("PoPlNeDa", f"{base}-um", "1"),
+            ("PoPlFeNo", f"{base}-a", "0"),
+            ("PoPlFeNo", f"{base}-e", "1"),
+            ("PoPlFeAc", f"{base}-a", "0"),
+            ("PoPlFeAc", f"{base}-e", "1"),
+            ("PoPlFeGe", f"{base}-ra", "0"),
+            ("PoPlFeDa", f"{title_alt}-um", "0"),
+            ("PoPlFeDa", f"{base}-um", "1"),
+        ]
+        for func, form_parts, prob in forms:
+            _adj_print(run_state, output_file, formhash, form_parts, func, prob)
+
+    def _gen_strong_wilde(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``wilde`` paradigm (i-stem, stem drops final e).
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        title_alt = re.sub(r"e$", "", word.stem)
+        title_alt = f"{word.prefix}-{title_alt}"
+        forms = [
+            ("PoSgMaNo", f"{title_alt}-e", "0"),
+            ("PoSgMaAc", f"{title_alt}-ne", "0"),
+            ("PoSgMaGe", f"{title_alt}-es", "0"),
+            ("PoSgMaDa", f"{title_alt}-um", "0"),
+            ("PoSgMaIs", f"{title_alt}-e", "0"),
+            ("PoSgNeNo", f"{title_alt}-e", "0"),
+            ("PoSgNeAc", f"{title_alt}-e", "0"),
+            ("PoSgNeGe", f"{title_alt}-es", "0"),
+            ("PoSgNeDa", f"{title_alt}-um", "0"),
+            ("PoSgNeIs", f"{title_alt}-e", "0"),
+            ("PoSgFeNo", f"{title_alt}-u", "0"),
+            ("PoSgFeNo", f"{title_alt}-o", "1"),
+            ("PoSgFeAc", f"{title_alt}-e", "0"),
+            ("PoSgFeGe", f"{title_alt}-re", "0"),
+            ("PoSgFeDa", f"{title_alt}-re", "0"),
+            ("PoPlMaNo", f"{title_alt}-e", "0"),
+            ("PoPlMaAc", f"{title_alt}-e", "0"),
+            ("PoPlMaGe", f"{title_alt}-ra", "0"),
+            ("PoPlMaDa", f"{title_alt}-um", "0"),
+            ("PoPlNeNo", f"{title_alt}-u", "0"),
+            ("PoPlNeNo", f"{title_alt}-o", "1"),
+            ("PoPlNeAc", f"{title_alt}-u", "0"),
+            ("PoPlNeAc", f"{title_alt}-o", "1"),
+            ("PoPlNeGe", f"{title_alt}-ra", "0"),
+            ("PoPlNeDa", f"{title_alt}-um", "0"),
+            ("PoPlFeNo", f"{title_alt}-a", "0"),
+            ("PoPlFeNo", f"{title_alt}-e", "0"),
+            ("PoPlFeAc", f"{title_alt}-a", "0"),
+            ("PoPlFeAc", f"{title_alt}-e", "0"),
+            ("PoPlFeGe", f"{title_alt}-ra", "0"),
+            ("PoPlFeDa", f"{title_alt}-um", "0"),
+        ]
+        for func, form_parts, prob in forms:
+            _adj_print(run_state, output_file, formhash, form_parts, func, prob)
+
+    def _gen_strong_gearu(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+    ) -> None:
+        """
+        Strong ``gearu`` paradigm (u-stem).
+
+        Args:
+            word: The word.
+            formhash: The form hash.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        title_alt = re.sub(r".$", "", word.stem)
+        title_alt = f"{word.prefix}-{title_alt}"
+        forms = [
+            ("PoSgMaNo", f"{title_alt}-u", "0"),
+            ("PoSgMaNo", f"{title_alt}-o", "1"),
+            ("PoSgMaAc", f"{title_alt}-one", "0"),
+            ("PoSgMaGe", f"{title_alt}-wes", "0"),
+            ("PoSgMaGe", f"{title_alt}-uwes", "1"),
+            ("PoSgMaGe", f"{title_alt}-owes", "2"),
+            ("PoSgMaDa", f"{title_alt}-wum", "0"),
+            ("PoSgMaIs", f"{title_alt}-we", "0"),
+            ("PoSgNeNo", f"{title_alt}-u", "0"),
+            ("PoSgNeNo", f"{title_alt}-o", "1"),
+            ("PoSgNeAc", f"{title_alt}-u", "0"),
+            ("PoSgNeAc", f"{title_alt}-o", "1"),
+            ("PoSgNeGe", f"{title_alt}-wes", "0"),
+            ("PoSgNeDa", f"{title_alt}-wum", "0"),
+            ("PoSgNeIs", f"{title_alt}-we", "0"),
+            ("PoSgFeNo", f"{title_alt}-u", "0"),
+            ("PoSgFeNo", f"{title_alt}-o", "1"),
+            ("PoSgFeAc", f"{title_alt}-we", "0"),
+            ("PoSgFeGe", f"{title_alt}-ore", "0"),
+            ("PoSgFeDa", f"{title_alt}-ore", "0"),
+            ("PoPlMaNo", f"{title_alt}-e", "0"),
+            ("PoPlMaAc", f"{title_alt}-e", "0"),
+            ("PoPlMaGe", f"{title_alt}-ora", "0"),
+            ("PoPlMaDa", f"{title_alt}-wum", "0"),
+            ("PoPlNeNo", f"{title_alt}-u", "0"),
+            ("PoPlNeNo", f"{title_alt}-o", "1"),
+            ("PoPlNeAc", f"{title_alt}-u", "0"),
+            ("PoPlNeAc", f"{title_alt}-o", "1"),
+            ("PoPlNeGe", f"{title_alt}-ora", "0"),
+            ("PoPlNeDa", f"{title_alt}-wum", "0"),
+            ("PoPlFeNo", f"{title_alt}-wa", "0"),
+            ("PoPlFeNo", f"{title_alt}-we", "0"),
+            ("PoPlFeAc", f"{title_alt}-wa", "0"),
+            ("PoPlFeAc", f"{title_alt}-we", "0"),
+            ("PoPlFeGe", f"{title_alt}-ora", "0"),
+            ("PoPlFeDa", f"{title_alt}-wum", "0"),
+        ]
+        for func, form_parts, prob in forms:
+            _adj_print(run_state, output_file, formhash, form_parts, func, prob)
+
+    def _gen_weak(
+        self,
+        word: Word,
+        paradigm: str,
+    ) -> None:
+        """
+        Weak (definite) adjective forms for all adjectives.
+
+        Args:
+            word: The word.
+            paradigm: The paradigm.
+
+        Side Effects:
+            Writes generated rows to the morphology output stream.
+
+        """
+        run_state = self._run_state
+        output_file = self._output_file
+        bt_id = f"{word.nid:06d}"
+        title_array = _build_weak_title_array(word, paradigm)
+        base_fh = {
+            "title": word.title,
+            "stem": word.stem,
+            "BT": bt_id,
+            "wordclass": "adjective",
+            "class1": "weak",
+            "paradigm": "blinda",
+            "wright": word.wright,
+            "var": "",
+            "paraID": "",
+            "class2": "",
+            "class3": "",
+            "comment": "",
+        }
+        if word.papart == 1:
+            base_fh["wordclass"] = "participle"
+            base_fh["class2"] = "past"
+        if word.pspart == 1:
+            base_fh["wordclass"] = "participle"
+            base_fh["class2"] = "present"
+        if word.pronoun == 1:
+            base_fh["wordclass"] = "pronoun"
+        for y, base in enumerate(title_array):
+            prob = str(y)
+            run_state.perl_probability = int(prob)
+            forms = [
+                ("PoSgMaNo", f"{base}-a"),
+                ("PoSgMaAc", f"{base}-an"),
+                ("PoSgMaGe", f"{base}-an"),
+                ("PoSgMaDa", f"{base}-an"),
+                ("PoSgNeNo", f"{base}-e"),
+                ("PoSgNeAc", f"{base}-e"),
+                ("PoSgNeGe", f"{base}-an"),
+                ("PoSgNeDa", f"{base}-an"),
+                ("PoSgFeNo", f"{base}-e"),
+                ("PoSgFeAc", f"{base}-an"),
+                ("PoSgFeGe", f"{base}-an"),
+                ("PoSgFeDa", f"{base}-an"),
+                ("PoPlMaNo", f"{base}-an"),
+                ("PoPlMaAc", f"{base}-an"),
+                ("PoPlMaGe", f"{base}-ra"),
+                ("PoPlMaGe", f"{base}-ena"),
+                ("PoPlMaDa", f"{base}-um"),
+                ("PoPlNeNo", f"{base}-an"),
+                ("PoPlNeAc", f"{base}-an"),
+                ("PoPlNeGe", f"{base}-ra"),
+                ("PoPlNeGe", f"{base}-ena"),
+                ("PoPlNeDa", f"{base}-um"),
+                ("PoPlFeNo", f"{base}-an"),
+                ("PoPlFeAc", f"{base}-an"),
+                ("PoPlFeGe", f"{base}-ra"),
+                ("PoPlFeGe", f"{base}-ena"),
+                ("PoPlFeDa", f"{base}-um"),
+            ]
+            for i, (func, form_parts) in enumerate(forms):
+                fh = base_fh.copy()
+                fh["function"] = func
+                # Perl: no probability before first -ena (index 15); prob+1 from
+                # first -ena onwards
+                fh["probability"] = str(int(prob) + 1) if i >= 15 else ""  # noqa: PLR2004
+                fh["form"] = _form_from_parts(form_parts)
+                fh["formParts"] = form_parts.replace("\n", "")
+                print_one_form(run_state, fh, output_file)
+
+    def _gen_comparative(
+        self,
+        word: Word,
+        *,
+        use_perl_hash_order: bool | None = None,
+        regular_stems: list[str] | None = None,
+    ) -> None:
+        """
+        Comparative (Co) weak forms for all adjectives.
+
+        Note:
+            This is for the ``weak`` block in Perl.
+
+        Args:
+            word: The word.
+
+        Keyword Args:
+            use_perl_hash_order: Optional parity ordering override.
+            regular_stems: Pre-expanded regular stems when already computed for
+                the same word.
+
+        """
+        paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
+        resolved_use_perl_hash_order = (
+            len(self._word_pool.adjectives) > len(self._word_pool.words)
+            if use_perl_hash_order is None
+            else use_perl_hash_order
+        )
+        title_array, affix = _build_comparative_title_array(
+            word,
+            paradigm,
+            resolved_use_perl_hash_order,
+            regular_stems=regular_stems,
+        )
+        base_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
+        _emit_weak_degree_forms(
+            self._run_state,
+            self._output_file,
+            base_fh,
+            title_array,
+            degree_prefix="Co",
+            affix=affix,
+            prob_mode="abs_delta",
+        )
+
+    def _gen_superlative(
+        self,
+        word: Word,
+        *,
+        use_perl_hash_order: bool | None = None,
+        regular_stems: list[str] | None = None,
+    ) -> None:
+        """
+        Generate superlative adjective forms: weak (Sp) forms then strong (Sp)
+        forms.
+
+        Note:
+            Matches Perl ``superlative`` block.
+
+        Args:
+            word: The word.
+
+        Keyword Args:
+            use_perl_hash_order: Optional parity ordering override.
+            regular_stems: Pre-expanded regular stems when already computed for
+                the same word.
+
+        """
+        paradigm = word.adj_paradigm[0] if word.adj_paradigm else ""
+        resolved_use_perl_hash_order = (
+            len(self._word_pool.adjectives) > len(self._word_pool.words)
+            if use_perl_hash_order is None
+            else use_perl_hash_order
+        )
+        title_array, affix = _build_superlative_title_array(
+            word,
+            paradigm,
+            resolved_use_perl_hash_order,
+            regular_stems=regular_stems,
+        )
+        weak_fh = _build_adjective_formhash(word, class1="weak", paradigm="blinda")
+        _emit_weak_degree_forms(
+            self._run_state,
+            self._output_file,
+            weak_fh,
+            title_array,
+            degree_prefix="Sp",
+            affix=affix,
+            prob_mode="abs_delta",
+        )
+        strong_fh = _build_adjective_formhash(
+            word,
+            class1="strong",
+            paradigm=paradigm,
+        )
+        _emit_superlative_strong_forms(
+            self._run_state,
+            self._output_file,
+            strong_fh,
+            title_array,
+            affix=affix,
+        )

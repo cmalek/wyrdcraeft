@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .adj_forms import generate_adjforms as _generate_adjforms
+from .adj_forms import AdjectiveFormGenerator
 from .adv_forms import AdverbFormGenerator
 from .common import generate_vbforms as _generate_vbforms
 from .form_rows import output_manual_forms as _output_manual_forms
@@ -105,12 +105,12 @@ class MorphologyGenerationFacade:
             categories; this facade method preserves existing generation output.
 
         """
-        _generate_adjforms(
+        AdjectiveFormGenerator(
             self._session.word_pool,
             self._session.run_state,
             self._output_file,
             progress=self._progress,
-        )
+        ).generate()
 
     def generate_adverbs(self) -> None:
         """
