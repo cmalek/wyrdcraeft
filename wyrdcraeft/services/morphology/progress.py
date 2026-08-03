@@ -13,7 +13,7 @@ from wyrdcraeft.cli.utils import create_stderr_console
 if TYPE_CHECKING:
     from rich.console import Console
 
-    from .session import GeneratorSession
+    from .session import WordPool
 
 
 @dataclass(frozen=True)
@@ -237,10 +237,10 @@ class MorphologyGenerateProgressCoordinator:
     @classmethod
     def compute_stage_totals_for_session(
         cls,
-        session: GeneratorSession,
+        word_pool: WordPool,
     ) -> dict[MorphologyStage, int]:
         """
-        Compute stage totals from current session state.
+        Compute stage totals from current word-pool state.
 
         Note:
             Cross-PoS scope. The totals follow the real iteration criteria used
@@ -249,7 +249,7 @@ class MorphologyGenerateProgressCoordinator:
             lemmas that will be processed in each stage, not emitted output rows.
 
         Args:
-            session: Active generation session.
+            word_pool: Active generation run's word pool.
 
         Returns:
             Stage-total mapping matching actual generation loops as closely as
@@ -258,23 +258,23 @@ class MorphologyGenerateProgressCoordinator:
         """
         return cls.compute_stage_totals_from_counts(
             MorphologyStageCounts(
-                manual_forms=len(session.manual_forms),
+                manual_forms=len(word_pool.manual_forms),
                 verbs=sum(
                     1
-                    for word in session.words
+                    for word in word_pool.words
                     if word.verb == 1 and (word.pspart + word.papart == 0)
                 ),
                 adjectives=len(
                     [
                         word
-                        for word in session.adjectives
+                        for word in word_pool.adjectives
                         if (word.adjective == 1 or (word.pspart + word.papart) > 0)
                         and word.numeral != 1
                     ]
                 ),
-                adverbs=sum(1 for word in session.words if word.adverb == 1),
-                numerals=sum(1 for word in session.words if word.numeral == 1),
-                nouns=sum(1 for word in session.words if bool(word.noun_paradigm)),
+                adverbs=sum(1 for word in word_pool.words if word.adverb == 1),
+                numerals=sum(1 for word in word_pool.words if word.numeral == 1),
+                nouns=sum(1 for word in word_pool.words if bool(word.noun_paradigm)),
             )
         )
 

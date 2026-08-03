@@ -90,7 +90,7 @@ def _current_stage_total(
 
     """
     return MorphologyGenerateProgressCoordinator.compute_stage_totals_for_session(
-        session
+        session.word_pool
     )[stage]
 
 
