@@ -3,18 +3,24 @@
 Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 """
 
-import re
+from __future__ import annotations
 
-from wyrdcraeft.models.morphology import Word
-from wyrdcraeft.services.morphology.progress import (
-    MorphologyGenerateProgressCoordinator,
-    MorphologyStage,
-)
-from wyrdcraeft.services.morphology.session import GeneratorSession
+import re
+from typing import TYPE_CHECKING
+
+from wyrdcraeft.services.morphology.progress import MorphologyStage
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import print_one_form
-from .shared import FormOutput
+
+if TYPE_CHECKING:
+    from wyrdcraeft.models.morphology import Word
+    from wyrdcraeft.services.morphology.progress import (
+        MorphologyGenerateProgressCoordinator,
+    )
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
+
+    from .shared import FormOutput
 
 #: The vowel regex, saved here for convenience.
 VOWEL = OENormalizer.VOWEL
@@ -143,7 +149,7 @@ def _form_from_parts(form_parts: str) -> str:
 
 
 def _noun_print(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
@@ -153,7 +159,7 @@ def _noun_print(
     Helper to set ``form/formParts/function`` and call ``print_one_form``.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         formhash: The form hash.
         form_parts: The form parts.
@@ -170,7 +176,7 @@ def _noun_print(
     fh.setdefault("class2", "")
     fh.setdefault("class3", "")
     fh.setdefault("comment", "")
-    print_one_form(session, fh, output_file)
+    print_one_form(run_state, fh, output_file)
 
 
 def _build_stem_geminate(stem: str) -> list[str]:
@@ -439,7 +445,7 @@ def _build_stem_ar_pl(stem: str) -> list[str]:
 
 
 def _gen_word(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -448,7 +454,7 @@ def _gen_word(
     ``word`` paradigm (neuter a-stems). Uses ``noun_paradigm[0]`` for match.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -462,30 +468,30 @@ def _gen_word(
     # SgNo, SgAc: plain stem
     for s in [word.stem]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeAc")
 
     # SgGe, SgDa: stem + syllab syncope
     for s in _build_stem_word_syncope(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "es"), "SgNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgNeDa")
 
     # PlNo, PlAc: plain stem (no reset between)
     for s in [word.stem]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "PlNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "PlNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "PlNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "PlNeAc")
 
     # PlGe, PlDa: stem + syllab syncope
     for s in _build_stem_word_syncope(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "um"), "PlNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "um"), "PlNeDa")
 
 
 def _gen_hof(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -494,7 +500,7 @@ def _gen_hof(
     ``hof`` paradigm (neuter ja-stems).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -509,36 +515,36 @@ def _gen_hof(
     # SgNo, SgAc: stem + geminate
     for s in _build_stem_geminate(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeAc")
 
     # SgGe, SgDa: stem e$ removed + syllab syncope
     for s in _build_stem_hof_ge_da(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "es"), "SgNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgNeDa")
 
     # PlNo: stem e$ removed, endings -u and -o
     for s in [stem_base]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "u"), "PlNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "o"), "PlNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "u"), "PlNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "o"), "PlNeNo")
 
     # PlAc: stem e$ removed, endings -u and -o
     for s in [stem_base]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "u"), "PlNeAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "o"), "PlNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "u"), "PlNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "o"), "PlNeAc")
 
     # PlGe, PlDa: stem e$ removed + syllab syncope
     for s in _build_stem_hof_ge_da(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "um"), "PlNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "um"), "PlNeDa")
 
 
 def _gen_daeg(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -547,7 +553,7 @@ def _gen_daeg(
     ``dæg`` paradigm (masculine root nouns, i-mutation).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -561,22 +567,22 @@ def _gen_daeg(
     # SgNo, SgAc, SgGe, SgDa: plain stem
     for s in [word.stem]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgMaNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgMaAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgMaGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgMaDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgMaNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgMaAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "es"), "SgMaGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgMaDa")
 
     # PlNo, PlAc, PlGe, PlDa: stem + æ->a, ǣ->ā
     for s in _build_stem_daeg_pl(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "as"), "PlMaNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "as"), "PlMaAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlMaGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "um"), "PlMaDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "as"), "PlMaNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "as"), "PlMaAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlMaGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "um"), "PlMaDa")
 
 
 def _gen_faet(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -585,7 +591,7 @@ def _gen_faet(
     ``faet`` paradigm (neuter root nouns).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -599,32 +605,32 @@ def _gen_faet(
     # SgNo, SgAc, SgGe, SgDa: plain stem
     for s in [word.stem]:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgNeAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "es"), "SgNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "es"), "SgNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgNeDa")
 
     # PlNo: stem + æ->a, ǣ->ā, endings -u and -o
     for s in _build_stem_daeg_pl(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "u"), "PlNeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "o"), "PlNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "u"), "PlNeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "o"), "PlNeNo")
 
     # PlAc: same
     for s in _build_stem_daeg_pl(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "u"), "PlNeAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "o"), "PlNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "u"), "PlNeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "o"), "PlNeAc")
 
     # PlGe, PlDa
     for s in _build_stem_daeg_pl(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlNeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "um"), "PlNeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlNeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "um"), "PlNeDa")
 
 
 def _gen_ar(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -633,7 +639,7 @@ def _gen_ar(
     ``ār`` paradigm (feminine ō-stems).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -647,43 +653,43 @@ def _gen_ar(
     # SgNo, SgAc: stem + geminate
     for s in _build_stem_ar_sg_no_ac(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "0"), "SgFeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgFeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "0"), "SgFeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgFeAc")
 
     # SgGe, SgDa: stem u$ removed + syllab syncope
     for s in _build_stem_ar_sg_ge_da(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgFeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "SgFeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgFeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "SgFeDa")
 
     # PlNo & PlAc: Perl reuses @stem - PlNo does not zero, PlAc overwrites [0]
     # then pushes
     stems_pl = _build_stem_ar_pl(word.stem)
     for s in stems_pl:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlFeNo")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "PlFeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlFeNo")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "PlFeNo")
     stems_ac = stems_pl + [x for x in stems_pl[1:] if x]
     for s in stems_ac:
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlFeAc")
-            _noun_print(session, output_file, formhash_base, fp(s, "e"), "PlFeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlFeAc")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "e"), "PlFeAc")
 
     # PlGe: stem u$ removed + syllab syncope, endings -a and -na and -ena
     for s in _build_stem_ar_sg_ge_da(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "a"), "PlFeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "na"), "PlFeGe")
-            _noun_print(session, output_file, formhash_base, fp(s, "ena"), "PlFeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "a"), "PlFeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "na"), "PlFeGe")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "ena"), "PlFeGe")
 
     # PlDa: stem u$ removed + syllab syncope
     for s in _build_stem_ar_sg_ge_da(word.stem):
         if s:
-            _noun_print(session, output_file, formhash_base, fp(s, "um"), "PlFeDa")
+            _noun_print(run_state, output_file, formhash_base, fp(s, "um"), "PlFeDa")
 
 
 def _gen_strengu(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -692,7 +698,7 @@ def _gen_strengu(
     ``strengu`` paradigm (feminine u-stems).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -707,23 +713,23 @@ def _gen_strengu(
         return f"{prefix}-{s}-{ending}"
 
     for end, func in [("u", "SgFeNo"), ("o", "SgFeNo")]:
-        _noun_print(session, output_file, formhash_base, fp(end), func)
+        _noun_print(run_state, output_file, formhash_base, fp(end), func)
     for end, func in [("e", "SgFeAc"), ("u", "SgFeAc"), ("o", "SgFeAc")]:
-        _noun_print(session, output_file, formhash_base, fp(end), func)
+        _noun_print(run_state, output_file, formhash_base, fp(end), func)
     for end, func in [("e", "SgFeGe"), ("u", "SgFeGe"), ("o", "SgFeGe")]:
-        _noun_print(session, output_file, formhash_base, fp(end), func)
+        _noun_print(run_state, output_file, formhash_base, fp(end), func)
     for end, func in [("e", "SgFeDa"), ("u", "SgFeDa"), ("o", "SgFeDa")]:
-        _noun_print(session, output_file, formhash_base, fp(end), func)
+        _noun_print(run_state, output_file, formhash_base, fp(end), func)
     for end in ["e", "u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), "PlFeNo")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "PlFeNo")
     for end in ["e", "u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), "PlFeAc")
-    _noun_print(session, output_file, formhash_base, fp("a"), "PlFeGe")
-    _noun_print(session, output_file, formhash_base, fp("um"), "PlFeDa")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "PlFeAc")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), "PlFeGe")
+    _noun_print(run_state, output_file, formhash_base, fp("um"), "PlFeDa")
 
 
 def _gen_hand_feld(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -733,7 +739,7 @@ def _gen_hand_feld(
     ``hand``/``feld`` paradigm (feminine/masculine consonant stems).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -748,15 +754,15 @@ def _gen_hand_feld(
         return f"{prefix}-{word.stem}-{ending}"
 
     for func in [f"Sg{sfx}No", f"Sg{sfx}Ac"]:
-        _noun_print(session, output_file, formhash_base, fp("0"), func)
+        _noun_print(run_state, output_file, formhash_base, fp("0"), func)
     for func in [f"Sg{sfx}Ge", f"Sg{sfx}Da"]:
-        _noun_print(session, output_file, formhash_base, fp("a"), func)
+        _noun_print(run_state, output_file, formhash_base, fp("a"), func)
     for func in [f"Pl{sfx}No", f"Pl{sfx}Ac"]:
-        _noun_print(session, output_file, formhash_base, fp("a"), func)
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Pl{sfx}Ge")
+        _noun_print(run_state, output_file, formhash_base, fp("a"), func)
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Pl{sfx}Ge")
     # Perl: feld PlDa uses PlMaGe (likely typo for PlMaDa)
     _noun_print(
-        session,
+        run_state,
         output_file,
         formhash_base,
         fp("um"),
@@ -765,7 +771,7 @@ def _gen_hand_feld(
 
 
 def _gen_sunu_duru(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -780,7 +786,7 @@ def _gen_sunu_duru(
         of-Speech endings for ``sunu``/``duru``-like stems.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -798,16 +804,16 @@ def _gen_sunu_duru(
         return f"{prefix}-{s}-{ending}"
 
     for end in ["u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), f"Sg{sfx}No")
+        _noun_print(run_state, output_file, formhash_base, fp(end), f"Sg{sfx}No")
     for end in ["u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), f"Sg{sfx}Ac")
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Sg{sfx}Ge")
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Sg{sfx}Da")
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Pl{sfx}No")
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Pl{sfx}Ac")
-    _noun_print(session, output_file, formhash_base, fp("a"), f"Pl{sfx}Ge")
+        _noun_print(run_state, output_file, formhash_base, fp(end), f"Sg{sfx}Ac")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Sg{sfx}Ge")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Sg{sfx}Da")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Pl{sfx}No")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Pl{sfx}Ac")
+    _noun_print(run_state, output_file, formhash_base, fp("a"), f"Pl{sfx}Ge")
     _noun_print(
-        session,
+        run_state,
         output_file,
         formhash_base,
         fp("um"),
@@ -816,7 +822,7 @@ def _gen_sunu_duru(
 
 
 def _gen_bearu(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -830,7 +836,7 @@ def _gen_bearu(
         of-Speech forms for ``bearu``-like stems.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -845,18 +851,18 @@ def _gen_bearu(
         return f"{prefix}-{s}-{ending}"
 
     for end in ["u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), "SgMaNo")
-        _noun_print(session, output_file, formhash_base, fp(end), "SgMaAc")
-    _noun_print(session, output_file, formhash_base, fp("wes"), "SgMaGe")
-    _noun_print(session, output_file, formhash_base, fp("we"), "SgMaDa")
-    _noun_print(session, output_file, formhash_base, fp("was"), "PlMaNo")
-    _noun_print(session, output_file, formhash_base, fp("was"), "PlMaAc")
-    _noun_print(session, output_file, formhash_base, fp("wa"), "PlMaGe")
-    _noun_print(session, output_file, formhash_base, fp("wum"), "PlMaDa")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "SgMaNo")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "SgMaAc")
+    _noun_print(run_state, output_file, formhash_base, fp("wes"), "SgMaGe")
+    _noun_print(run_state, output_file, formhash_base, fp("we"), "SgMaDa")
+    _noun_print(run_state, output_file, formhash_base, fp("was"), "PlMaNo")
+    _noun_print(run_state, output_file, formhash_base, fp("was"), "PlMaAc")
+    _noun_print(run_state, output_file, formhash_base, fp("wa"), "PlMaGe")
+    _noun_print(run_state, output_file, formhash_base, fp("wum"), "PlMaDa")
 
 
 def _gen_bealu(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -870,7 +876,7 @@ def _gen_bealu(
         of-Speech forms for ``bealu``-like stems.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -885,19 +891,19 @@ def _gen_bealu(
         return f"{prefix}-{s}-{ending}"
 
     for end in ["u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), "SgNeNo")
-        _noun_print(session, output_file, formhash_base, fp(end), "SgNeAc")
-    _noun_print(session, output_file, formhash_base, fp("wes"), "SgNeGe")
-    _noun_print(session, output_file, formhash_base, fp("we"), "SgNeDa")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "SgNeNo")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "SgNeAc")
+    _noun_print(run_state, output_file, formhash_base, fp("wes"), "SgNeGe")
+    _noun_print(run_state, output_file, formhash_base, fp("we"), "SgNeDa")
     for end in ["u", "o"]:
-        _noun_print(session, output_file, formhash_base, fp(end), "PlNeNo")
-        _noun_print(session, output_file, formhash_base, fp(end), "PlNeAc")
-    _noun_print(session, output_file, formhash_base, fp("wa"), "PlNeGe")
-    _noun_print(session, output_file, formhash_base, fp("wum"), "PlNeDa")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "PlNeNo")
+        _noun_print(run_state, output_file, formhash_base, fp(end), "PlNeAc")
+    _noun_print(run_state, output_file, formhash_base, fp("wa"), "PlNeGe")
+    _noun_print(run_state, output_file, formhash_base, fp("wum"), "PlNeDa")
 
 
 def _gen_guma(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -906,7 +912,7 @@ def _gen_guma(
     ``guma`` paradigm (masculine n-stems, weak).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -922,18 +928,18 @@ def _gen_guma(
     def fp(ending: str) -> str:
         return f"{prefix}-{s}-{ending}"
 
-    _noun_print(session, output_file, fh, fp("a"), "SgMaNo")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaAc")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaGe")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaDa")
-    _noun_print(session, output_file, fh, fp("an"), "PlMaNo")
-    _noun_print(session, output_file, fh, fp("an"), "PlMaAc")
-    _noun_print(session, output_file, fh, fp("ena"), "PlMaGe")
-    _noun_print(session, output_file, fh, fp("um"), "PlMaDa")
+    _noun_print(run_state, output_file, fh, fp("a"), "SgMaNo")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaAc")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaGe")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaDa")
+    _noun_print(run_state, output_file, fh, fp("an"), "PlMaNo")
+    _noun_print(run_state, output_file, fh, fp("an"), "PlMaAc")
+    _noun_print(run_state, output_file, fh, fp("ena"), "PlMaGe")
+    _noun_print(run_state, output_file, fh, fp("um"), "PlMaDa")
 
 
 def _gen_frea(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -947,7 +953,7 @@ def _gen_frea(
         of-Speech forms for ``frēa``-like stems.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -963,19 +969,19 @@ def _gen_frea(
     def fp(ending: str) -> str:
         return f"{prefix}-{s}-{ending}"
 
-    _noun_print(session, output_file, fh, fp("a"), "SgMaNo")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaAc")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaGe")
-    _noun_print(session, output_file, fh, fp("an"), "SgMaDa")
-    _noun_print(session, output_file, fh, fp("an"), "PlMaNo")
-    _noun_print(session, output_file, fh, fp("an"), "PlMaAc")
-    _noun_print(session, output_file, fh, fp("ana"), "PlMaGe")
+    _noun_print(run_state, output_file, fh, fp("a"), "SgMaNo")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaAc")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaGe")
+    _noun_print(run_state, output_file, fh, fp("an"), "SgMaDa")
+    _noun_print(run_state, output_file, fh, fp("an"), "PlMaNo")
+    _noun_print(run_state, output_file, fh, fp("an"), "PlMaAc")
+    _noun_print(run_state, output_file, fh, fp("ana"), "PlMaGe")
     for end in ["um", "am", "aum"]:
-        _noun_print(session, output_file, fh, fp(end), "PlMaDa")
+        _noun_print(run_state, output_file, fh, fp(end), "PlMaDa")
 
 
 def _gen_tunge(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -984,7 +990,7 @@ def _gen_tunge(
     ``tunge`` paradigm (feminine ōn-stems, weak).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1000,21 +1006,21 @@ def _gen_tunge(
     def fp(ending: str) -> str:
         return f"{prefix}-{s}-{ending}"
 
-    _noun_print(session, output_file, fh, fp("e"), "SgFeNo")
+    _noun_print(run_state, output_file, fh, fp("e"), "SgFeNo")
     for end in ["an", "ean"]:
-        _noun_print(session, output_file, fh, fp(end), "SgFeAc")
-        _noun_print(session, output_file, fh, fp(end), "SgFeGe")
-        _noun_print(session, output_file, fh, fp(end), "SgFeDa")
+        _noun_print(run_state, output_file, fh, fp(end), "SgFeAc")
+        _noun_print(run_state, output_file, fh, fp(end), "SgFeGe")
+        _noun_print(run_state, output_file, fh, fp(end), "SgFeDa")
     for end in ["an", "ean"]:
-        _noun_print(session, output_file, fh, fp(end), "PlFeNo")
-        _noun_print(session, output_file, fh, fp(end), "PlFeAc")
-    _noun_print(session, output_file, fh, fp("ena"), "PlFeGe")
+        _noun_print(run_state, output_file, fh, fp(end), "PlFeNo")
+        _noun_print(run_state, output_file, fh, fp(end), "PlFeAc")
+    _noun_print(run_state, output_file, fh, fp("ena"), "PlFeGe")
     for end in ["um", "eum"]:
-        _noun_print(session, output_file, fh, fp(end), "PlFeDa")
+        _noun_print(run_state, output_file, fh, fp(end), "PlFeDa")
 
 
 def _gen_eage(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1023,7 +1029,7 @@ def _gen_eage(
     ``ēage`` paradigm (neuter n-stems, weak).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1039,21 +1045,21 @@ def _gen_eage(
     def fp(ending: str) -> str:
         return f"{prefix}-{s}-{ending}"
 
-    _noun_print(session, output_file, fh, fp("e"), "SgNeNo")
+    _noun_print(run_state, output_file, fh, fp("e"), "SgNeNo")
     for end in ["an", "ean"]:
-        _noun_print(session, output_file, fh, fp(end), "SgNeAc")
-        _noun_print(session, output_file, fh, fp(end), "SgNeGe")
-        _noun_print(session, output_file, fh, fp(end), "SgNeDa")
+        _noun_print(run_state, output_file, fh, fp(end), "SgNeAc")
+        _noun_print(run_state, output_file, fh, fp(end), "SgNeGe")
+        _noun_print(run_state, output_file, fh, fp(end), "SgNeDa")
     for end in ["an", "ean"]:
-        _noun_print(session, output_file, fh, fp(end), "PlNeNo")
-        _noun_print(session, output_file, fh, fp(end), "PlNeAc")
-    _noun_print(session, output_file, fh, fp("ena"), "PlNeGe")
+        _noun_print(run_state, output_file, fh, fp(end), "PlNeNo")
+        _noun_print(run_state, output_file, fh, fp(end), "PlNeAc")
+    _noun_print(run_state, output_file, fh, fp("ena"), "PlNeGe")
     for end in ["um", "eum"]:
-        _noun_print(session, output_file, fh, fp(end), "PlNeDa")
+        _noun_print(run_state, output_file, fh, fp(end), "PlNeDa")
 
 
 def _gen_wigend(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1065,7 +1071,7 @@ def _gen_wigend(
         This is part of the ``weak`` block in Perl.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1078,19 +1084,19 @@ def _gen_wigend(
     def fp(ending: str) -> str:
         return f"{prefix}-{word.stem}-{ending}"
 
-    _noun_print(session, output_file, fh, fp("0"), "SgMaNo")
-    _noun_print(session, output_file, fh, fp("0"), "SgMaAc")
-    _noun_print(session, output_file, fh, fp("es"), "SgMaGe")
-    _noun_print(session, output_file, fh, fp("e"), "SgMaDa")
+    _noun_print(run_state, output_file, fh, fp("0"), "SgMaNo")
+    _noun_print(run_state, output_file, fh, fp("0"), "SgMaAc")
+    _noun_print(run_state, output_file, fh, fp("es"), "SgMaGe")
+    _noun_print(run_state, output_file, fh, fp("e"), "SgMaDa")
     for end in ["0", "e", "as"]:
-        _noun_print(session, output_file, fh, fp(end), "PlMaNo")
-        _noun_print(session, output_file, fh, fp(end), "PlMaAc")
-    _noun_print(session, output_file, fh, fp("ra"), "PlMaGe")
-    _noun_print(session, output_file, fh, fp("um"), "PlMaDa")
+        _noun_print(run_state, output_file, fh, fp(end), "PlMaNo")
+        _noun_print(run_state, output_file, fh, fp(end), "PlMaAc")
+    _noun_print(run_state, output_file, fh, fp("ra"), "PlMaGe")
+    _noun_print(run_state, output_file, fh, fp("um"), "PlMaDa")
 
 
 def _emit_r_stem_forms(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1100,7 +1106,7 @@ def _emit_r_stem_forms(
     Emit r-stem forms from a function-to-surfaces mapping.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1111,7 +1117,7 @@ def _emit_r_stem_forms(
     for function, surfaces in forms_by_function.items():
         for surface in surfaces:
             _noun_print(
-                session,
+                run_state,
                 output_file,
                 formhash_base,
                 f"{prefix}-{surface}",
@@ -1120,7 +1126,7 @@ def _emit_r_stem_forms(
 
 
 def _gen_r_stem_faeder(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1129,17 +1135,17 @@ def _gen_r_stem_faeder(
     ``fæder`` opt-in r-stem forms.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
 
     """
-    _emit_r_stem_forms(session, output_file, word, formhash_base, R_STEM_FAEDER_FORMS)
+    _emit_r_stem_forms(run_state, output_file, word, formhash_base, R_STEM_FAEDER_FORMS)
 
 
 def _gen_r_stem_brothor(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1148,7 +1154,7 @@ def _gen_r_stem_brothor(
     ``brōþor`` opt-in r-stem forms.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1162,11 +1168,11 @@ def _gen_r_stem_brothor(
             "PlMaGe": forms["PlMaGe"],
             "PlMaDa": forms["PlMaDa"],
         }
-    _emit_r_stem_forms(session, output_file, word, formhash_base, forms)
+    _emit_r_stem_forms(run_state, output_file, word, formhash_base, forms)
 
 
 def _gen_r_stem_modor(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1175,17 +1181,17 @@ def _gen_r_stem_modor(
     ``mōdor`` opt-in r-stem forms.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
 
     """
-    _emit_r_stem_forms(session, output_file, word, formhash_base, R_STEM_MODOR_FORMS)
+    _emit_r_stem_forms(run_state, output_file, word, formhash_base, R_STEM_MODOR_FORMS)
 
 
 def _gen_r_stem_dohtor(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1194,17 +1200,17 @@ def _gen_r_stem_dohtor(
     ``dōhtor`` opt-in r-stem forms.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
 
     """
-    _emit_r_stem_forms(session, output_file, word, formhash_base, R_STEM_DOHTOR_FORMS)
+    _emit_r_stem_forms(run_state, output_file, word, formhash_base, R_STEM_DOHTOR_FORMS)
 
 
 def _gen_r_stem_sweostor(
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1213,7 +1219,7 @@ def _gen_r_stem_sweostor(
     ``sweostor`` opt-in r-stem forms.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1227,11 +1233,11 @@ def _gen_r_stem_sweostor(
             "PlFeGe": forms["PlFeGe"],
             "PlFeDa": forms["PlFeDa"],
         }
-    _emit_r_stem_forms(session, output_file, word, formhash_base, forms)
+    _emit_r_stem_forms(run_state, output_file, word, formhash_base, forms)
 
 
 def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     word: Word,
     formhash_base: dict[str, str],
@@ -1242,7 +1248,7 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
     ``stán``/``cynn`` paradigm (masculine/neuter a-stems).
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         word: The word to process.
         formhash_base: The base form hash.
@@ -1260,28 +1266,28 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
     for s in _build_stem_geminate(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "0"), f"Sg{func_suffix}No"
+                run_state, output_file, formhash_base, fp(s, "0"), f"Sg{func_suffix}No"
             )
 
     # SgAc
     for s in _build_stem_geminate(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "0"), f"Sg{func_suffix}Ac"
+                run_state, output_file, formhash_base, fp(s, "0"), f"Sg{func_suffix}Ac"
             )
 
     # SgGe
     for s in _build_stem_syncope(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "es"), f"Sg{func_suffix}Ge"
+                run_state, output_file, formhash_base, fp(s, "es"), f"Sg{func_suffix}Ge"
             )
 
     # SgDa
     for s in _build_stem_syncope(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "e"), f"Sg{func_suffix}Da"
+                run_state, output_file, formhash_base, fp(s, "e"), f"Sg{func_suffix}Da"
             )
 
     # PlNo & PlAc: Perl reuses @stem - PlNo does not zero, PlAc overwrites [0]
@@ -1290,7 +1296,7 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
     for s in stems_pl:
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "as"), f"Pl{func_suffix}No"
+                run_state, output_file, formhash_base, fp(s, "as"), f"Pl{func_suffix}No"
             )
     # PlAc: Perl overwrites $stem[0], pushes geminate/syncope/o alts ->
     # [s0,s1,s2,s3,s1,s2,s3]
@@ -1298,26 +1304,27 @@ def _gen_stan_cynn(  # noqa: PLR0912, PLR0913
     for s in stems_ac:
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "as"), f"Pl{func_suffix}Ac"
+                run_state, output_file, formhash_base, fp(s, "as"), f"Pl{func_suffix}Ac"
             )
 
     # PlGe
     for s in _build_stem_pl_ge_da(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "a"), f"Pl{func_suffix}Ge"
+                run_state, output_file, formhash_base, fp(s, "a"), f"Pl{func_suffix}Ge"
             )
 
     # PlDa
     for s in _build_stem_pl_ge_da(word.stem):
         if s:
             _noun_print(
-                session, output_file, formhash_base, fp(s, "um"), f"Pl{func_suffix}Da"
+                run_state, output_file, formhash_base, fp(s, "um"), f"Pl{func_suffix}Da"
             )
 
 
 def generate_nounforms(  # noqa: PLR0912, PLR0915
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -1329,14 +1336,15 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
         Port of Perl generate_nounforms.
 
     Args:
-        session: The generator session.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
 
     Keyword Args:
         progress: Optional live progress coordinator.
 
     """
-    for word in session.words:
+    for word in word_pool.words:
         if not word.noun_paradigm:
             continue
         if progress is not None:
@@ -1344,7 +1352,7 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
                 MorphologyStage.NOUNS,
                 lemma=word.title,
                 wright=word.wright,
-                forms_written=session.output_counter,
+                forms_written=run_state.output_counter,
             )
         bt_id = f"{word.nid:06d}"
         formhash_base = {
@@ -1365,20 +1373,20 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
             if paradigm is None:
                 continue
             formhash_base["paradigm"] = paradigm
-            if session.enable_r_stem_nouns and paradigm in R_STEM_PARADIGMS:
+            if run_state.enable_r_stem_nouns and paradigm in R_STEM_PARADIGMS:
                 if paradigm == "fæder":
-                    _gen_r_stem_faeder(session, output_file, word, formhash_base)
+                    _gen_r_stem_faeder(run_state, output_file, word, formhash_base)
                 elif paradigm == "brōþor":
-                    _gen_r_stem_brothor(session, output_file, word, formhash_base)
+                    _gen_r_stem_brothor(run_state, output_file, word, formhash_base)
                 elif paradigm == "mōdor":
-                    _gen_r_stem_modor(session, output_file, word, formhash_base)
+                    _gen_r_stem_modor(run_state, output_file, word, formhash_base)
                 elif paradigm == "dōhtor":
-                    _gen_r_stem_dohtor(session, output_file, word, formhash_base)
+                    _gen_r_stem_dohtor(run_state, output_file, word, formhash_base)
                 elif paradigm == "sweostor":
-                    _gen_r_stem_sweostor(session, output_file, word, formhash_base)
+                    _gen_r_stem_sweostor(run_state, output_file, word, formhash_base)
             elif re.search(r"st\u0101n|cynn", paradigm):
                 _gen_stan_cynn(
-                    session,
+                    run_state,
                     output_file,
                     word,
                     formhash_base,
@@ -1393,32 +1401,32 @@ def generate_nounforms(  # noqa: PLR0912, PLR0915
                         word.noun_paradigm[_i2] if _i2 < len(word.noun_paradigm) else ""
                     )
                     formhash_base = {**formhash_base, "paradigm": paradigm_val}
-                    _gen_word(session, output_file, word, formhash_base)
+                    _gen_word(run_state, output_file, word, formhash_base)
             elif re.search(r"hof", paradigm):
-                _gen_hof(session, output_file, word, formhash_base)
+                _gen_hof(run_state, output_file, word, formhash_base)
             elif re.search(r"d\u00e6g", paradigm):
-                _gen_daeg(session, output_file, word, formhash_base)
+                _gen_daeg(run_state, output_file, word, formhash_base)
             elif re.search(r"f\u00e6t", paradigm):
-                _gen_faet(session, output_file, word, formhash_base)
+                _gen_faet(run_state, output_file, word, formhash_base)
             elif re.search(r"\u00e1r", paradigm):
-                _gen_ar(session, output_file, word, formhash_base)
+                _gen_ar(run_state, output_file, word, formhash_base)
             elif re.search(r"strengu", paradigm):
-                _gen_strengu(session, output_file, word, formhash_base)
+                _gen_strengu(run_state, output_file, word, formhash_base)
             elif re.search(r"hand|feld", paradigm):
-                _gen_hand_feld(session, output_file, word, formhash_base, paradigm)
+                _gen_hand_feld(run_state, output_file, word, formhash_base, paradigm)
             elif re.search(r"sunu|duru", paradigm):
-                _gen_sunu_duru(session, output_file, word, formhash_base, paradigm)
+                _gen_sunu_duru(run_state, output_file, word, formhash_base, paradigm)
             elif re.search(r"bearu", paradigm):
-                _gen_bearu(session, output_file, word, formhash_base)
+                _gen_bearu(run_state, output_file, word, formhash_base)
             elif re.search(r"bealu", paradigm):
-                _gen_bealu(session, output_file, word, formhash_base)
+                _gen_bealu(run_state, output_file, word, formhash_base)
             elif re.search(r"guma", paradigm):
-                _gen_guma(session, output_file, word, formhash_base)
+                _gen_guma(run_state, output_file, word, formhash_base)
             elif re.search(r"fr\u00e9a", paradigm):
-                _gen_frea(session, output_file, word, formhash_base)
+                _gen_frea(run_state, output_file, word, formhash_base)
             elif re.search(r"tunge", paradigm):
-                _gen_tunge(session, output_file, word, formhash_base)
+                _gen_tunge(run_state, output_file, word, formhash_base)
             elif re.search(r"\u00e9age", paradigm):
-                _gen_eage(session, output_file, word, formhash_base)
+                _gen_eage(run_state, output_file, word, formhash_base)
             elif re.search(r"w\u00edgend", paradigm):
-                _gen_wigend(session, output_file, word, formhash_base)
+                _gen_wigend(run_state, output_file, word, formhash_base)
