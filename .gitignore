@@ -137,3 +137,4 @@ work_index_list.csv.zstd
 data/source/raw/bosworth_toller
 data/sources/raw
 data/sources/.exclude
+.worktrees/
