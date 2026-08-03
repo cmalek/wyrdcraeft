@@ -100,7 +100,12 @@ class MorphologyGenerationFacade:
             categories; this facade method preserves existing generation output.
 
         """
-        _generate_adjforms(self._session, self._output_file, progress=self._progress)
+        _generate_adjforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_adverbs(self) -> None:
         """
