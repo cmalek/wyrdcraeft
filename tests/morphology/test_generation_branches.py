@@ -669,7 +669,7 @@ def test_build_participle_adjective_sanitizes_fields() -> None:
 def test_add_participle_to_adjectives_respects_prefix_numeric_match() -> None:
     session = GeneratorSession()
     output = io.StringIO()
-    generator = VerbFormGenerator(session, output)
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     word = _make_word(prefix="1")
 
     generator._add_participle_to_adjectives(
@@ -687,7 +687,7 @@ def test_add_participle_to_adjectives_helper_appends_present_participle() -> Non
     word = _make_word(prefix="0", title="lemma", wright="W")
 
     add_participle_to_adjectives(
-        session,
+        session.word_pool,
         word=word,
         prefix="ge",
         form_parts="ge-l-a-m-0\n",
@@ -708,7 +708,7 @@ def test_add_participle_to_adjectives_helper_appends_past_participle() -> None:
     word = _make_word(prefix="0", title="lemma", wright="W")
 
     add_participle_to_adjectives(
-        session,
+        session.word_pool,
         word=word,
         prefix="0",
         form_parts="0-l-a-m-0\n",
@@ -728,7 +728,7 @@ def test_add_participle_to_adjectives_helper_skips_mismatched_prefix() -> None:
     word = _make_word(prefix="1")
 
     add_participle_to_adjectives(
-        session,
+        session.word_pool,
         word=word,
         prefix="ge",
         form_parts="ge-l-a-m",
@@ -1358,7 +1358,7 @@ def test_dispatch_weak_principal_part_derivations_emits_papt_only() -> None:
 def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:
     session = GeneratorSession()
     output = io.StringIO()
-    generator = VerbFormGenerator(session, output)
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     word = _make_word(prefix="ge", stem="lam")
 
     generator._generate_weak_derived_from_painsg1(
@@ -1619,7 +1619,7 @@ def test_generate_weak_verb_parts_with_emitters_routes_direct_painsg1_stack() ->
 def test_generate_weak_verb_parts_uses_item_shape_for_id_window() -> None:
     session = GeneratorSession()
     output = io.StringIO()
-    generator = VerbFormGenerator(session, output)
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     word = _make_word(prefix="0")
     item = ParadigmPart(
         para_id="PsPt",

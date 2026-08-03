@@ -85,7 +85,12 @@ class MorphologyGenerationFacade:
             behavior; this facade method preserves parity implementation flow.
 
         """
-        _generate_vbforms(self._session, self._output_file, progress=self._progress)
+        _generate_vbforms(
+            self._session.word_pool,
+            self._session.run_state,
+            self._output_file,
+            progress=self._progress,
+        )
 
     def generate_adjectives(self) -> None:
         """
