@@ -144,7 +144,7 @@ class NumeralFormGenerator:
                 continue
             self._generate_word(word)
 
-    def _generate_word(self, word: Word) -> None:
+    def _generate_word(self, word: Word) -> None:  # noqa: PLR0912, PLR0915
         """
         Generate numeral forms for a single word.
 
@@ -181,98 +181,138 @@ class NumeralFormGenerator:
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaNo"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaNo"
+                    )
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaAc"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaAc"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaGe")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaGe"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlMaDa")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlMaDa"
+                    )
 
             # Feminine (cwēne paradigm)
             formhash_base["paradigm"] = "cwēne"
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeNo"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeNo"
+                    )
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeAc"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeAc"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeGe")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeGe"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlFeDa")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlFeDa"
+                    )
 
             # Neuter (spere paradigm)
             formhash_base["paradigm"] = "spere"
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeNo"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-u"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeNo"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-o"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeNo"
+                    )
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeAc"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-u"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeAc"
+                    )
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-o"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeAc"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeGe")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeGe"
+                    )
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(self._run_state, self._output_file, formhash_base, fp, "PlNeDa")
+                    _num_print(
+                        self._run_state, self._output_file, formhash_base, fp, "PlNeDa"
+                    )
 
         # CARDINALS AND ORDINALS AS ADJECTIVES (all numerals)
         # alt_title = prefix + "-" + stem, then s/[eao]$//
@@ -300,33 +340,63 @@ class NumeralFormGenerator:
 
         # Pl Ma
         fp = f"{alt_title}-an"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlMaNo")
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlMaAc")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlMaNo"
+        )
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlMaAc"
+        )
         fp = f"{alt_title}-ra"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlMaGe")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlMaGe"
+        )
         fp = f"{alt_title}-ena"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlMaGe", prob_ena)
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlMaGe", prob_ena
+        )
         fp = f"{alt_title}-um"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlMaDa")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlMaDa"
+        )
 
         # Pl Ne
         fp = f"{alt_title}-an"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlNeNo")
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlNeAc")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlNeNo"
+        )
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlNeAc"
+        )
         fp = f"{alt_title}-ra"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlNeGe")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlNeGe"
+        )
         fp = f"{alt_title}-ena"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlNeGe", prob_ena)
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlNeGe", prob_ena
+        )
         fp = f"{alt_title}-um"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlNeDa")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlNeDa"
+        )
 
         # Pl Fe
         fp = f"{alt_title}-an"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlFeNo")
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlFeAc")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlFeNo"
+        )
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlFeAc"
+        )
         fp = f"{alt_title}-ra"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlFeGe")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlFeGe"
+        )
         fp = f"{alt_title}-ena"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlFeGe", prob_ena)
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlFeGe", prob_ena
+        )
         fp = f"{alt_title}-um"
-        _num_print(self._run_state, self._output_file, formhash_adj, fp, "PoPlFeDa")
+        _num_print(
+            self._run_state, self._output_file, formhash_adj, fp, "PoPlFeDa"
+        )
