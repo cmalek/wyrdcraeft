@@ -10,10 +10,6 @@ from wyrdcraeft.models.morphology import (
     VerbParadigm,
     Word,
 )
-from wyrdcraeft.services.morphology.generation.paradigm_flow import (
-    process_paradigm,
-    process_part,
-)
 from wyrdcraeft.services.morphology.generation.participles import (
     add_participle_to_adjectives,
     build_participle_adjective,
@@ -230,11 +226,12 @@ def test_process_paradigm_routes_variant_payload_from_flow() -> None:
             )
         )
 
-    process_paradigm(
-        word=word,
-        vp=vp,
-        on_variant=_on_variant,
-    )
+    session = GeneratorSession()
+    output = io.StringIO()
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
+    generator._process_variant = _on_variant  # type: ignore[method-assign]
+
+    generator._process_paradigm(word=word, vp=vp)
 
     assert observed == [
         ("test", 0, "0", "87", "n", "a/o"),
@@ -267,7 +264,14 @@ def test_process_part_routes_strong_generation_from_flow() -> None:
     def _generate_weak(*args: object) -> None:
         weak_calls.append(args)
 
-    process_part(
+    session = GeneratorSession()
+    output = io.StringIO()
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
+    generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
+    generator._generate_strong_verb_parts = _generate_strong  # type: ignore[method-assign]
+    generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
+
+    generator._process_part(
         word=word,
         vp=vp,
         variant=variant,
@@ -276,9 +280,6 @@ def test_process_part_routes_strong_generation_from_flow() -> None:
         boundary_inf="n",
         vowel_inf="a",
         vowel_pa="o",
-        derive_part_stem_segments=_derive_segments,
-        generate_strong_verb_parts=_generate_strong,
-        generate_weak_verb_parts=_generate_weak,
     )
 
     assert strong_calls == [
@@ -312,7 +313,14 @@ def test_process_part_routes_weak_generation_from_flow() -> None:
     def _generate_weak(*args: object) -> None:
         weak_calls.append(args)
 
-    process_part(
+    session = GeneratorSession()
+    output = io.StringIO()
+    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
+    generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
+    generator._generate_strong_verb_parts = _generate_strong  # type: ignore[method-assign]
+    generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
+
+    generator._process_part(
         word=word,
         vp=vp,
         variant=variant,
@@ -321,9 +329,6 @@ def test_process_part_routes_weak_generation_from_flow() -> None:
         boundary_inf="n",
         vowel_inf="a",
         vowel_pa="o",
-        derive_part_stem_segments=_derive_segments,
-        generate_strong_verb_parts=_generate_strong,
-        generate_weak_verb_parts=_generate_weak,
     )
 
     assert strong_calls == []

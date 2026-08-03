@@ -1,4 +1,5 @@
 # ruff: noqa: I001,PLR0913,ARG002,D417,RUF100,PLC0415
+import re
 from typing import Final
 
 from wyrdcraeft.models.morphology import (
@@ -23,6 +24,7 @@ from wyrdcraeft.services.morphology.session import (
     GenerationRunState,
     WordPool,
 )
+from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import generate_and_print_form as _generate_and_print_form
 from .form_rows import generate_and_print_manual as _generate_and_print_manual
@@ -36,17 +38,6 @@ from .form_rows import (
     emit_sound_changed_form_for_context as _emit_sound_changed_form_for_context_row,
 )
 from .form_rows import print_one_form as _print_one_form
-from .paradigm_flow import (
-    dispatch_paradigm_variant_context as _dispatch_paradigm_variant_context,
-    dispatch_variant_part_context as _dispatch_variant_part_context,
-    derive_part_post_vowel as _derive_part_post_vowel,
-    derive_part_pre_vowel as _derive_part_pre_vowel,
-    derive_part_prefix as _derive_part_prefix,
-    derive_part_stem_segments as _derive_part_stem_segments,
-    process_paradigm as _process_paradigm_flow,
-    process_part as _process_part_flow,
-    process_variant as _process_variant_flow,
-)
 from .participles import (
     add_participle_to_adjectives as _add_participle_to_adjectives_session,
 )
@@ -206,20 +197,78 @@ class VerbFormGenerator:
         for vp in word.vb_paradigm:
             self._process_paradigm(word, vp)
 
+    def _build_verb_formhash_base(self, word: Word, vp: VerbParadigm) -> dict[str, str]:
+        """
+        Build the base metadata hash used for all emitted verb forms.
+
+        Args:
+            word: Lexeme record currently being generated.
+            vp: Verb paradigm record currently being generated.
+
+        Returns:
+            Base form hash copied per variant and then extended per emitted row.
+
+        """
+        return {
+            "title": word.title,
+            "stem": word.stem,
+            "BT": f"{word.nid:06d}",
+            "wordclass": "verb",
+            "class1": vp.type,
+            "class2": vp.class_,
+            "class3": vp.subclass,
+            "paradigm": vp.title,
+            "paraID": vp.ID,
+            "wright": word.wright,
+            "comment": "",
+        }
+
+    def _derive_paradigm_seed_vowels(self, vp: VerbParadigm) -> tuple[str, str, str]:
+        """
+        Derive boundary and exemplar vowels from the first paradigm variant.
+
+        Args:
+            vp: Verb paradigm record currently being generated.
+
+        Returns:
+            Three-item tuple ``(boundary_inf, vowel_inf, vowel_pa)`` used by
+            branch orchestration to match legacy ordering/probability behavior.
+
+        """
+        variant0 = vp.variants[0]
+        inf_part = variant0.parts.get("if")
+        painsg1_part = variant0.parts.get("painsg1")
+        boundary_inf = nz(inf_part.boundary if inf_part else "")
+        vowel_inf = nz(inf_part.vowel if inf_part else "")
+        vowel_pa = nz(painsg1_part.vowel if painsg1_part else "")
+        return boundary_inf, vowel_inf, vowel_pa
+
     def _process_paradigm(self, word: Word, vp: VerbParadigm) -> None:
         """
-        Process a single paradigm through the shared traversal flow.
+        Process a single paradigm and expand each variant into full traversal context.
+
+        Side Effects:
+            Invokes ``_dispatch_variant_context`` once per variant in source order.
 
         Args:
             word: The word to process.
             vp: The paradigm to process.
 
         """
-        _process_paradigm_flow(
-            word=word,
-            vp=vp,
-            on_variant=self._process_variant,
-        )
+        formhash_base = self._build_verb_formhash_base(word, vp)
+        boundary_inf, vowel_inf, vowel_pa = self._derive_paradigm_seed_vowels(vp)
+        context = _ParadigmVariantDispatchContext(word=word, paradigm=vp)
+        for variant in vp.variants:
+            formhash_var = formhash_base.copy()
+            formhash_var["var"] = str(variant.variant_id)
+            self._dispatch_variant_context(
+                context,
+                variant,
+                formhash_var,
+                boundary_inf,
+                vowel_inf,
+                vowel_pa,
+            )
 
     def _dispatch_variant_context(
         self,
@@ -245,14 +294,14 @@ class VerbFormGenerator:
             vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
-        _dispatch_paradigm_variant_context(
+        self._process_variant(
+            context.word,
+            context.paradigm,
             variant,
             formhash_base,
             boundary_inf,
             vowel_inf,
             vowel_pa,
-            context=context,
-            on_variant=self._process_variant,
         )
 
     def _process_variant(
@@ -266,7 +315,10 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Process a single variant through the shared traversal flow.
+        Process a single variant and expand each part into full traversal context.
+
+        Side Effects:
+            Invokes ``_dispatch_part_context`` once per part in source order.
 
         Args:
             word: The word to process.
@@ -276,16 +328,20 @@ class VerbFormGenerator:
             boundary_inf: The boundary information.
 
         """
-        _process_variant_flow(
+        context = _VariantPartDispatchContext(
             word=word,
+            paradigm=vp,
             variant=variant,
-            vp=vp,
-            formhash_var=formhash_base,
-            boundary_inf=boundary_inf,
-            vowel_inf=vowel_inf,
-            vowel_pa=vowel_pa,
-            on_part=self._process_part,
         )
+        for item in variant.parts.values():
+            self._dispatch_part_context(
+                context,
+                item,
+                formhash_base,
+                boundary_inf,
+                vowel_inf,
+                vowel_pa,
+            )
 
     def _dispatch_part_context(
         self,
@@ -311,14 +367,15 @@ class VerbFormGenerator:
             vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
-        _dispatch_variant_part_context(
+        self._process_part(
+            context.word,
+            context.paradigm,
+            context.variant,
             item,
             formhash_var,
             boundary_inf,
             vowel_inf,
             vowel_pa,
-            context=context,
-            on_part=self._process_part,
         )
 
     def _process_part(  # noqa: PLR0913
@@ -333,7 +390,10 @@ class VerbFormGenerator:
         vowel_pa: str,
     ) -> None:
         """
-        Process a single part through the shared traversal flow.
+        Process one part and route it into strong or weak generation flow.
+
+        Side Effects:
+            Invokes the strong or weak generator exactly once.
 
         Args:
             word: The word to process.
@@ -346,18 +406,37 @@ class VerbFormGenerator:
             vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
-        _process_part_flow(
-            word=word,
-            vp=vp,
-            variant=variant,
-            item=item,
-            formhash_var=formhash_var,
-            boundary_inf=boundary_inf,
-            vowel_inf=vowel_inf,
-            vowel_pa=vowel_pa,
-            derive_part_stem_segments=self._derive_part_stem_segments,
-            generate_strong_verb_parts=self._generate_strong_verb_parts,
-            generate_weak_verb_parts=self._generate_weak_verb_parts,
+        prefix, pre_vowel, actual_vowel, post_vowel = self._derive_part_stem_segments(
+            word,
+            item,
+            boundary_inf,
+        )
+
+        if vp.type == "s":
+            self._generate_strong_verb_parts(
+                formhash_var,
+                word,
+                item,
+                prefix,
+                pre_vowel,
+                actual_vowel,
+                post_vowel,
+                variant.variant_id,
+            )
+            return
+
+        self._generate_weak_verb_parts(
+            formhash_var,
+            word,
+            item,
+            prefix,
+            pre_vowel,
+            actual_vowel,
+            post_vowel,
+            variant.variant_id,
+            vp.ID,
+            vowel_inf,
+            vowel_pa,
         )
 
     def _derive_part_stem_segments(
@@ -381,7 +460,10 @@ class VerbFormGenerator:
             Four-item tuple ``(prefix, pre_vowel, vowel, post_vowel)``.
 
         """
-        return _derive_part_stem_segments(word, item, boundary_inf)
+        prefix = self._get_prefix(word, item)
+        post_vowel = self._get_post_vowel(word, item, boundary_inf)
+        pre_vowel, actual_vowel = self._get_pre_vowel(word)
+        return prefix, pre_vowel, actual_vowel, post_vowel
 
     def _get_prefix(self, word: Word, item: ParadigmPart) -> str:
         """
@@ -404,7 +486,10 @@ class VerbFormGenerator:
             The prefix.
 
         """
-        return _derive_part_prefix(word, item)
+        prefix = word.prefix
+        if prefix != item.prefix:
+            prefix = f"{prefix}-{item.prefix}"
+        return prefix
 
     def _get_post_vowel(self, word: Word, item: ParadigmPart, boundary_inf: str) -> str:
         """
@@ -434,7 +519,22 @@ class VerbFormGenerator:
             The post-vowel.
 
         """
-        return _derive_part_post_vowel(word, item, boundary_inf)
+        if not nz(item.post_vowel):
+            return ""
+
+        if boundary_inf:
+            pattern = (
+                f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
+                f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){re.escape(boundary_inf)}"
+                f"{OENormalizer.VOWEL_REGEX.pattern}+n$"
+            )
+        else:
+            pattern = (
+                f"{OENormalizer.VOWEL_REGEX.pattern}{OENormalizer.VOWEL_REGEX.pattern}*?"
+                f"({OENormalizer.CONSONANT_REGEX.pattern}.*?){OENormalizer.VOWEL_REGEX.pattern}+n$"
+            )
+        match = re.search(pattern, word.stem)
+        return match.group(1) if match else ""
 
     def _get_pre_vowel(self, word: Word) -> tuple[str, str]:
         """
@@ -455,7 +555,14 @@ class VerbFormGenerator:
             The pre-vowel and actual vowel.
 
         """
-        return _derive_part_pre_vowel(word)
+        pattern = (
+            f"^({OENormalizer.VOWEL_REGEX.pattern}*?.*?)"
+            f"({OENormalizer.VOWEL_REGEX.pattern}{{1,2}})"
+        )
+        match = re.search(pattern, word.stem)
+        if match:
+            return match.group(1), match.group(2)
+        return "", ""
 
     def _generate_and_print_form(  # noqa: PLR0913
         self,
