@@ -1251,16 +1251,30 @@ class StrongVerbGenerator:
             sequencing intact.
 
         """
-        self._generate_derived_from_inf(
-            context.formhash,
-            context.word,
-            context.prefix,
-            context.pre_vowel,
-            active_vowel,
-            context.post_vowel,
-            context.boundary,
-            context.ending,
-            prob,
+        inf_context = _StrongInfDerivationContext(
+            formhash=context.formhash,
+            word=context.word,
+            prefix=context.prefix,
+            pre_vowel=context.pre_vowel,
+            base_vowel=active_vowel,
+            post_vowel=context.post_vowel,
+            boundary=context.boundary,
+        )
+        self._emit_derived_from_inf_sequence(
+            ending=context.ending,
+            vowel=active_vowel,
+            probability=prob,
+            umlaut_vowels=OENormalizer.iumlaut([active_vowel]),
+            emit_form_for_vowel=partial(
+                self._emit_derived_inf_form_for_vowel_context, inf_context
+            ),
+            emit_sound_for_vowel=partial(
+                self._emit_derived_inf_sound_for_vowel_context, inf_context
+            ),
+            on_participle=partial(
+                self._emit_derived_inf_participle_context, inf_context
+            ),
+            emit_imsg=partial(self._emit_derived_inf_imsg_context, inf_context),
         )
 
     def generate_verb_parts(  # noqa: PLR0913
