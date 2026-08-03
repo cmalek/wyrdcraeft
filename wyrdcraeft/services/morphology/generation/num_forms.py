@@ -3,16 +3,22 @@ Numeral form generation. Port of Perl generate_numforms from create_dict31.pl
 (lines 7927-8429).
 """
 
-import re
+from __future__ import annotations
 
-from wyrdcraeft.services.morphology.progress import (
-    MorphologyGenerateProgressCoordinator,
-    MorphologyStage,
-)
-from wyrdcraeft.services.morphology.session import GeneratorSession
+import re
+from typing import TYPE_CHECKING
+
+from wyrdcraeft.services.morphology.progress import MorphologyStage
 
 from .form_rows import print_one_form
-from .shared import FormOutput
+
+if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.progress import (
+        MorphologyGenerateProgressCoordinator,
+    )
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
+
+    from .shared import FormOutput
 
 
 def _form_from_parts(form_parts: str) -> str:
@@ -30,7 +36,7 @@ def _form_from_parts(form_parts: str) -> str:
 
 
 def _num_print(  # noqa: PLR0913
-    session: GeneratorSession,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     formhash: dict[str, str],
     form_parts: str,
@@ -41,7 +47,7 @@ def _num_print(  # noqa: PLR0913
     Helper to set form/formParts/function and call print_one_form.
 
     Args:
-        session: The generator session.
+        run_state: Mutable per-run generation state.
         output_file: The output file handle.
         formhash: The form hash.
         form_parts: The form parts.
@@ -52,7 +58,7 @@ def _num_print(  # noqa: PLR0913
     if prob is not None:
         # create_dict31 full-flow behavior can carry %formhash probability
         # across subsequent prints; differential oracle mode does not.
-        if session.enable_num_probability_carry:
+        if run_state.enable_num_probability_carry:
             formhash["probability"] = str(prob)
 
     fh = formhash.copy()
@@ -66,9 +72,9 @@ def _num_print(  # noqa: PLR0913
     fh.setdefault("comment", "")
     if prob is not None:
         fh["probability"] = str(prob)
-    elif not session.enable_num_probability_carry:
+    elif not run_state.enable_num_probability_carry:
         fh.pop("probability", None)
-    print_one_form(session, fh, output_file)
+    print_one_form(run_state, fh, output_file)
 
 
 def _stem_no_ea(stem: str) -> str:
@@ -89,7 +95,8 @@ def _stem_no_ea(stem: str) -> str:
 
 
 def generate_numforms(  # noqa: PLR0912, PLR0915
-    session: GeneratorSession,
+    word_pool: WordPool,
+    run_state: GenerationRunState,
     output_file: FormOutput,
     *,
     progress: MorphologyGenerateProgressCoordinator | None = None,
@@ -105,14 +112,15 @@ def generate_numforms(  # noqa: PLR0912, PLR0915
         In plain terms, this emits forms where the Part of Speech is numeral.
 
     Args:
-        session: Active generation session containing loaded words.
+        word_pool: Word pool supplying the lemmas to generate forms for.
+        run_state: Mutable per-run generation state.
         output_file: Form output sink.
 
     Keyword Args:
         progress: Optional live progress coordinator.
 
     """
-    for word in session.words:
+    for word in word_pool.words:
         if word.numeral != 1:
             continue
         if progress is not None:
@@ -120,7 +128,7 @@ def generate_numforms(  # noqa: PLR0912, PLR0915
                 MorphologyStage.NUMERALS,
                 lemma=word.title,
                 wright=word.wright,
-                forms_written=session.output_counter,
+                forms_written=run_state.output_counter,
             )
 
         bt_id = f"{word.nid:06d}"
@@ -144,98 +152,98 @@ def generate_numforms(  # noqa: PLR0912, PLR0915
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaNo")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaNo")
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaAc")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaAc")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaGe")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaGe")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(session, output_file, formhash_base, fp, "PlMaDa")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlMaDa")
 
             # Feminine (cwēne paradigm)
             formhash_base["paradigm"] = "cwēne"
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeNo")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeNo")
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeAc")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-e"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeAc")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeGe")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeGe")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(session, output_file, formhash_base, fp, "PlFeDa")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlFeDa")
 
             # Neuter (spere paradigm)
             formhash_base["paradigm"] = "spere"
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeNo")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-u"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeNo")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-o"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeNo")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeNo")
 
             for s in [stem, stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-0"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeAc")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-u"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeAc")
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-o"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeAc")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeAc")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-a"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeGe")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeGe")
 
             for s in [stem_no_ea]:
                 if s:
                     fp = f"{prefix}-{s}-um"
-                    _num_print(session, output_file, formhash_base, fp, "PlNeDa")
+                    _num_print(run_state, output_file, formhash_base, fp, "PlNeDa")
 
         # CARDINALS AND ORDINALS AS ADJECTIVES (all numerals)
         # alt_title = prefix + "-" + stem, then s/[eao]$//
@@ -252,10 +260,10 @@ def generate_numforms(  # noqa: PLR0912, PLR0915
             "wright": word.wright,
         }
 
-        if session.enable_num_probability_carry:
+        if run_state.enable_num_probability_carry:
             # Full-flow create_dict31 behavior: use shared $probability from
             # prior adjective generation.
-            prob_ena = int(getattr(session, "perl_probability", 0) or 0) + 1
+            prob_ena = int(getattr(run_state, "perl_probability", 0) or 0) + 1
         else:
             # Differential oracle behavior (tests/differential/perl_lib.pl):
             # -ena gets probability 1 and non--ena forms keep probability unset.
@@ -263,33 +271,33 @@ def generate_numforms(  # noqa: PLR0912, PLR0915
 
         # Pl Ma
         fp = f"{alt_title}-an"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlMaNo")
-        _num_print(session, output_file, formhash_adj, fp, "PoPlMaAc")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlMaNo")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlMaAc")
         fp = f"{alt_title}-ra"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlMaGe")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlMaGe")
         fp = f"{alt_title}-ena"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlMaGe", prob_ena)
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlMaGe", prob_ena)
         fp = f"{alt_title}-um"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlMaDa")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlMaDa")
 
         # Pl Ne
         fp = f"{alt_title}-an"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlNeNo")
-        _num_print(session, output_file, formhash_adj, fp, "PoPlNeAc")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlNeNo")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlNeAc")
         fp = f"{alt_title}-ra"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlNeGe")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlNeGe")
         fp = f"{alt_title}-ena"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlNeGe", prob_ena)
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlNeGe", prob_ena)
         fp = f"{alt_title}-um"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlNeDa")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlNeDa")
 
         # Pl Fe
         fp = f"{alt_title}-an"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlFeNo")
-        _num_print(session, output_file, formhash_adj, fp, "PoPlFeAc")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlFeNo")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlFeAc")
         fp = f"{alt_title}-ra"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlFeGe")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlFeGe")
         fp = f"{alt_title}-ena"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlFeGe", prob_ena)
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlFeGe", prob_ena)
         fp = f"{alt_title}-um"
-        _num_print(session, output_file, formhash_adj, fp, "PoPlFeDa")
+        _num_print(run_state, output_file, formhash_adj, fp, "PoPlFeDa")
