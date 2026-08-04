@@ -465,9 +465,11 @@ class NounFormGenerator:
     #: the original ``elif re.search(...)`` chain exactly (ADR 0009 Decision
     #: item 3). Confirmed mutually exclusive against real paradigm labels, so
     #: table order does not change matching outcomes, but the original order
-    #: is preserved regardless.
+    #: is preserved regardless. ``stan_cynn`` is intentionally NOT in this
+    #: table: it must be checked (on the per-iteration ``paradigm``) ahead of
+    #: the ``word`` block's loop-invariant ``noun_paradigm[0]`` check in
+    #: ``_generate_word``, which is not provably mutually exclusive with it.
     _PARADIGM_DISPATCH: ClassVar[list[tuple[str, str]]] = [
-        (r"stān|cynn", "_gen_stan_cynn"),
         (r"hof", "_gen_hof"),
         (r"dæg", "_gen_daeg"),
         (r"fæt", "_gen_faet"),
@@ -488,7 +490,7 @@ class NounFormGenerator:
     #: label passed as a positional argument in addition to ``word``/
     #: ``formhash_base``.
     _DISPATCH_NEEDS_PARADIGM_ARG: ClassVar[frozenset[str]] = frozenset(
-        {"_gen_stan_cynn", "_gen_hand_feld", "_gen_sunu_duru"}
+        {"_gen_hand_feld", "_gen_sunu_duru"}
     )
 
     def __init__(
@@ -572,16 +574,21 @@ class NounFormGenerator:
                 continue
             formhash_base["paradigm"] = paradigm
             if self._run_state.enable_r_stem_nouns and paradigm in R_STEM_PARADIGMS:
-                if paradigm == "fæder":
-                    self._gen_r_stem_faeder(word, formhash_base)
-                elif paradigm == "brōþor":
-                    self._gen_r_stem_brothor(word, formhash_base)
-                elif paradigm == "mōdor":
-                    self._gen_r_stem_modor(word, formhash_base)
-                elif paradigm == "dōhtor":
-                    self._gen_r_stem_dohtor(word, formhash_base)
-                elif paradigm == "sweostor":
-                    self._gen_r_stem_sweostor(word, formhash_base)
+                self._dispatch_r_stem(word, formhash_base, paradigm)
+            elif re.search(r"stān|cynn", paradigm):
+                # Checked here (per-iteration ``paradigm``) ahead of the
+                # ``word`` block below, which tests the loop-invariant
+                # ``noun_paradigm[0]`` instead. The two are not provably
+                # mutually exclusive across a multi-entry ``noun_paradigm``
+                # list, so the original elif-chain priority (stan_cynn before
+                # word) must be preserved exactly; see ADR 0009 Decision item
+                # 3.
+                self._gen_stan_cynn(
+                    word,
+                    formhash_base,
+                    paradigm,
+                    is_cynn=bool(re.search(r"cynn", paradigm)),
+                )
             elif word.noun_paradigm[0] and re.search(r"word", word.noun_paradigm[0]):
                 # Perl: for i2 in 0..scalar(@noun_paradigm) - word block checks
                 # [0], runs len+1 times
@@ -593,6 +600,30 @@ class NounFormGenerator:
                     self._gen_word(word, formhash_base)
             else:
                 self._dispatch_paradigm(word, formhash_base, paradigm)
+
+    def _dispatch_r_stem(
+        self, word: Word, formhash_base: dict[str, str], paradigm: str
+    ) -> None:
+        """
+        Call the r-stem generator matching ``paradigm``.
+
+        Args:
+            word: The word to generate forms for.
+            formhash_base: The base form hash.
+            paradigm: The current paradigm label; must be a member of
+                ``R_STEM_PARADIGMS``.
+
+        """
+        if paradigm == "fæder":
+            self._gen_r_stem_faeder(word, formhash_base)
+        elif paradigm == "brōþor":
+            self._gen_r_stem_brothor(word, formhash_base)
+        elif paradigm == "mōdor":
+            self._gen_r_stem_modor(word, formhash_base)
+        elif paradigm == "dōhtor":
+            self._gen_r_stem_dohtor(word, formhash_base)
+        elif paradigm == "sweostor":
+            self._gen_r_stem_sweostor(word, formhash_base)
 
     def _dispatch_paradigm(
         self, word: Word, formhash_base: dict[str, str], paradigm: str
@@ -613,14 +644,7 @@ class NounFormGenerator:
         for pattern, method_name in self._PARADIGM_DISPATCH:
             if re.search(pattern, paradigm):
                 method = getattr(self, method_name)
-                if method_name == "_gen_stan_cynn":
-                    method(
-                        word,
-                        formhash_base,
-                        paradigm,
-                        is_cynn=bool(re.search(r"cynn", paradigm)),
-                    )
-                elif method_name in self._DISPATCH_NEEDS_PARADIGM_ARG:
+                if method_name in self._DISPATCH_NEEDS_PARADIGM_ARG:
                     method(word, formhash_base, paradigm)
                 else:
                     method(word, formhash_base)
