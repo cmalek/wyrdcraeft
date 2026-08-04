@@ -6,7 +6,7 @@ Noun form generation. Port of Perl generate_nounforms from create_dict31.pl.
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from wyrdcraeft.services.morphology.progress import MorphologyStage
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
@@ -460,6 +460,37 @@ class NounFormGenerator:
 
     """
 
+    #: Ordered ``(regex pattern, method name)`` pairs tried in sequence
+    #: against the current paradigm label; first match wins. Order mirrors
+    #: the original ``elif re.search(...)`` chain exactly (ADR 0009 Decision
+    #: item 3). Confirmed mutually exclusive against real paradigm labels, so
+    #: table order does not change matching outcomes, but the original order
+    #: is preserved regardless.
+    _PARADIGM_DISPATCH: ClassVar[list[tuple[str, str]]] = [
+        (r"stān|cynn", "_gen_stan_cynn"),
+        (r"hof", "_gen_hof"),
+        (r"dæg", "_gen_daeg"),
+        (r"fæt", "_gen_faet"),
+        (r"ár", "_gen_ar"),
+        (r"strengu", "_gen_strengu"),
+        (r"hand|feld", "_gen_hand_feld"),
+        (r"sunu|duru", "_gen_sunu_duru"),
+        (r"bearu", "_gen_bearu"),
+        (r"bealu", "_gen_bealu"),
+        (r"guma", "_gen_guma"),
+        (r"fréa", "_gen_frea"),
+        (r"tunge", "_gen_tunge"),
+        (r"éage", "_gen_eage"),
+        (r"wígend", "_gen_wigend"),
+    ]
+
+    #: Method names in ``_PARADIGM_DISPATCH`` that need the current paradigm
+    #: label passed as a positional argument in addition to ``word``/
+    #: ``formhash_base``.
+    _DISPATCH_NEEDS_PARADIGM_ARG: ClassVar[frozenset[str]] = frozenset(
+        {"_gen_stan_cynn", "_gen_hand_feld", "_gen_sunu_duru"}
+    )
+
     def __init__(
         self,
         word_pool: WordPool,
@@ -503,7 +534,7 @@ class NounFormGenerator:
                 continue
             self._generate_word(word)
 
-    def _generate_word(self, word: Word) -> None:  # noqa: PLR0912, PLR0915
+    def _generate_word(self, word: Word) -> None:
         """
         Generate noun forms for a single word.
 
@@ -551,13 +582,6 @@ class NounFormGenerator:
                     self._gen_r_stem_dohtor(word, formhash_base)
                 elif paradigm == "sweostor":
                     self._gen_r_stem_sweostor(word, formhash_base)
-            elif re.search(r"stān|cynn", paradigm):
-                self._gen_stan_cynn(
-                    word,
-                    formhash_base,
-                    paradigm,
-                    is_cynn=bool(re.search(r"cynn", paradigm)),
-                )
             elif word.noun_paradigm[0] and re.search(r"word", word.noun_paradigm[0]):
                 # Perl: for i2 in 0..scalar(@noun_paradigm) - word block checks
                 # [0], runs len+1 times
@@ -567,34 +591,40 @@ class NounFormGenerator:
                     )
                     formhash_base = {**formhash_base, "paradigm": paradigm_val}
                     self._gen_word(word, formhash_base)
-            elif re.search(r"hof", paradigm):
-                self._gen_hof(word, formhash_base)
-            elif re.search(r"dæg", paradigm):
-                self._gen_daeg(word, formhash_base)
-            elif re.search(r"fæt", paradigm):
-                self._gen_faet(word, formhash_base)
-            elif re.search(r"ár", paradigm):
-                self._gen_ar(word, formhash_base)
-            elif re.search(r"strengu", paradigm):
-                self._gen_strengu(word, formhash_base)
-            elif re.search(r"hand|feld", paradigm):
-                self._gen_hand_feld(word, formhash_base, paradigm)
-            elif re.search(r"sunu|duru", paradigm):
-                self._gen_sunu_duru(word, formhash_base, paradigm)
-            elif re.search(r"bearu", paradigm):
-                self._gen_bearu(word, formhash_base)
-            elif re.search(r"bealu", paradigm):
-                self._gen_bealu(word, formhash_base)
-            elif re.search(r"guma", paradigm):
-                self._gen_guma(word, formhash_base)
-            elif re.search(r"fréa", paradigm):
-                self._gen_frea(word, formhash_base)
-            elif re.search(r"tunge", paradigm):
-                self._gen_tunge(word, formhash_base)
-            elif re.search(r"éage", paradigm):
-                self._gen_eage(word, formhash_base)
-            elif re.search(r"wígend", paradigm):
-                self._gen_wigend(word, formhash_base)
+            else:
+                self._dispatch_paradigm(word, formhash_base, paradigm)
+
+    def _dispatch_paradigm(
+        self, word: Word, formhash_base: dict[str, str], paradigm: str
+    ) -> None:
+        """
+        Call the first ``_PARADIGM_DISPATCH`` method whose pattern matches.
+
+        Note:
+            First-match-wins over the ordered table, mirroring the original
+            ``elif re.search(...)`` chain exactly (ADR 0009 Decision item 3).
+
+        Args:
+            word: The word to generate forms for.
+            formhash_base: The base form hash.
+            paradigm: The current paradigm label.
+
+        """
+        for pattern, method_name in self._PARADIGM_DISPATCH:
+            if re.search(pattern, paradigm):
+                method = getattr(self, method_name)
+                if method_name == "_gen_stan_cynn":
+                    method(
+                        word,
+                        formhash_base,
+                        paradigm,
+                        is_cynn=bool(re.search(r"cynn", paradigm)),
+                    )
+                elif method_name in self._DISPATCH_NEEDS_PARADIGM_ARG:
+                    method(word, formhash_base, paradigm)
+                else:
+                    method(word, formhash_base)
+                return
 
     def _gen_word(self, word: Word, formhash_base: dict[str, str]) -> None:
         """

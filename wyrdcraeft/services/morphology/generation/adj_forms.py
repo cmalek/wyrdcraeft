@@ -3,8 +3,8 @@ Adjective form generation. Port of Perl generate_adjforms from create_dict31.pl.
 """
 
 import re
-from collections.abc import Iterable
-from typing import Final, Literal
+from collections.abc import Callable, Iterable
+from typing import ClassVar, Final, Literal
 
 from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.progress import (
@@ -112,6 +112,79 @@ _SP_STRONG_CASE_ENDINGS: Final[tuple[tuple[str, str], ...]] = (
     ("PlFeGe", "0"),
     ("PlFeDa", "um"),
 )
+
+def _matches_manig(word: Word, paradigm: str) -> bool:
+    """
+    Check whether ``paradigm``/``word`` select the strong ``māniġ`` block.
+
+    Args:
+        word: Adjective entry being generated.
+        paradigm: Selected adjective paradigm label.
+
+    Returns:
+        ``True`` when the ``māniġ`` strong paradigm applies.
+
+    """
+    return "manig" in paradigm or (
+        word.papart == 1 and not OENormalizer.stem_length(word.stem)
+    )
+
+
+def _matches_halig(word: Word, paradigm: str) -> bool:
+    """
+    Check whether ``paradigm``/``word`` select the strong ``hāliġ`` block.
+
+    Args:
+        word: Adjective entry being generated.
+        paradigm: Selected adjective paradigm label.
+
+    Returns:
+        ``True`` when the ``hāliġ`` strong paradigm applies.
+
+    """
+    return "hālig" in paradigm or (
+        word.papart == 1 and bool(OENormalizer.stem_length(word.stem))
+    )
+
+
+def _matches_wilde(word: Word, paradigm: str) -> bool:
+    """
+    Check whether ``paradigm``/``word`` select the strong ``wilde`` block.
+
+    Args:
+        word: Adjective entry being generated.
+        paradigm: Selected adjective paradigm label.
+
+    Returns:
+        ``True`` when the ``wilde`` strong paradigm applies.
+
+    """
+    return "wilde" in paradigm or word.pspart == 1
+
+
+def _matches_regex(
+    pattern: str, *, ignorecase: bool = False
+) -> Callable[[Word, str], bool]:
+    """
+    Build a paradigm-label predicate from a regex pattern.
+
+    Args:
+        pattern: Regex pattern tried against the paradigm label.
+
+    Keyword Args:
+        ignorecase: Whether to apply ``re.IGNORECASE``.
+
+    Returns:
+        A predicate matching ``_STRONG_PARADIGM_DISPATCH``'s shape.
+
+    """
+    flags = re.IGNORECASE if ignorecase else 0
+
+    def _predicate(_word: Word, paradigm: str) -> bool:
+        return bool(re.search(pattern, paradigm, flags))
+
+    return _predicate
+
 
 def _dedupe_preserve_first(values: Iterable[str]) -> list[str]:
     """
@@ -734,6 +807,27 @@ class AdjectiveFormGenerator:
 
     """
 
+    #: Ordered ``(predicate, method name)`` pairs tried in sequence against
+    #: the current word/paradigm; first match wins. Order mirrors the
+    #: original ``if``/``elif`` strong-paradigm chain exactly (ADR 0009
+    #: Decision item 3). Confirmed mutually exclusive against real paradigm
+    #: labels, so table order does not change matching outcomes, but the
+    #: original order is preserved regardless.
+    _STRONG_PARADIGM_DISPATCH: ClassVar[
+        list[tuple[Callable[[Word, str], bool], str]]
+    ] = [
+        (_matches_manig, "_gen_strong_manig"),
+        (_matches_halig, "_gen_strong_halig"),
+        (_matches_wilde, "_gen_strong_wilde"),
+        (
+            _matches_regex(r"gl\u00e6d|glæd|til", ignorecase=True),
+            "_gen_strong_glaed_til",
+        ),
+        (_matches_regex(r"blind"), "_gen_strong_blind"),
+        (_matches_regex(r"hēah|weorh"), "_gen_strong_heah_thweorh"),
+        (_matches_regex(r"gearu"), "_gen_strong_gearu"),
+    ]
+
     def __init__(
         self,
         word_pool: WordPool,
@@ -793,7 +887,7 @@ class AdjectiveFormGenerator:
         # generate_numforms after adjective generation has run.
         self._run_state.enable_num_probability_carry = True
 
-    def _generate_word(  # noqa: PLR0912
+    def _generate_word(
         self,
         word: Word,
         use_perl_hash_order: bool,
@@ -840,41 +934,7 @@ class AdjectiveFormGenerator:
         }
         if word.pronoun == 1:
             formhash["wordclass"] = "pronoun"
-        # Manig: papart + short stem -> override paradigm
-        if "manig" in paradigm or (
-            word.papart == 1 and not OENormalizer.stem_length(word.stem)
-        ):
-            if word.papart == 1:
-                word.adj_paradigm = ["manig"]
-                formhash["wordclass"] = "participle"
-                formhash["class2"] = "past"
-                formhash["paradigm"] = "manig"
-            self._gen_strong_manig(word, formhash)
-        elif (
-            "hālig" in paradigm
-            or (word.papart == 1 and OENormalizer.stem_length(word.stem))
-        ):
-            if word.papart == 1:
-                word.adj_paradigm = ["hālig"]
-                formhash["wordclass"] = "participle"
-                formhash["class2"] = "past"
-                formhash["paradigm"] = "halig"
-            self._gen_strong_halig(word, formhash)
-        elif "wilde" in paradigm or word.pspart == 1:
-            if word.pspart == 1:
-                word.adj_paradigm = ["wilde"]
-                formhash["wordclass"] = "participle"
-                formhash["class2"] = "present"
-                formhash["paradigm"] = "wilde"
-            self._gen_strong_wilde(word, formhash)
-        elif re.search(r"gl\u00e6d|glæd|til", paradigm, re.IGNORECASE):
-            self._gen_strong_glaed_til(word, formhash)
-        elif "blind" in paradigm:
-            self._gen_strong_blind(word, formhash)
-        elif re.search(r"hēah|weorh", paradigm):
-            self._gen_strong_heah_thweorh(word, formhash)
-        elif "gearu" in paradigm:
-            self._gen_strong_gearu(word, formhash)
+        self._dispatch_strong_paradigm(word, formhash, paradigm)
         # else: no strong paradigm match, but still generate weak forms
         self._gen_weak(word, paradigm)
 
@@ -892,6 +952,50 @@ class AdjectiveFormGenerator:
                 use_perl_hash_order=use_perl_hash_order,
                 regular_stems=sup_stems,
             )
+
+    def _dispatch_strong_paradigm(
+        self,
+        word: Word,
+        formhash: dict[str, str],
+        paradigm: str,
+    ) -> None:
+        """
+        Call the first ``_STRONG_PARADIGM_DISPATCH`` method whose predicate
+        matches.
+
+        Note:
+            First-match-wins over the ordered table, mirroring the original
+            ``if``/``elif`` strong-paradigm chain exactly (ADR 0009 Decision
+            item 3). The ``manig``/``hālig``/``wilde`` entries carry a
+            paradigm/formhash override that only applies when the word is a
+            past/present participle, matching the original inline mutation.
+
+        Args:
+            word: The word to generate forms for.
+            formhash: The form hash, mutated in place for participle
+                paradigm overrides.
+            paradigm: The current paradigm label.
+
+        """
+        for predicate, method_name in self._STRONG_PARADIGM_DISPATCH:
+            if predicate(word, paradigm):
+                if method_name == "_gen_strong_manig" and word.papart == 1:
+                    word.adj_paradigm = ["manig"]
+                    formhash["wordclass"] = "participle"
+                    formhash["class2"] = "past"
+                    formhash["paradigm"] = "manig"
+                elif method_name == "_gen_strong_halig" and word.papart == 1:
+                    word.adj_paradigm = ["hālig"]
+                    formhash["wordclass"] = "participle"
+                    formhash["class2"] = "past"
+                    formhash["paradigm"] = "halig"
+                elif method_name == "_gen_strong_wilde" and word.pspart == 1:
+                    word.adj_paradigm = ["wilde"]
+                    formhash["wordclass"] = "participle"
+                    formhash["class2"] = "present"
+                    formhash["paradigm"] = "wilde"
+                getattr(self, method_name)(word, formhash)
+                return
 
     def _gen_strong_glaed_til(  # noqa: PLR0915
         self,
