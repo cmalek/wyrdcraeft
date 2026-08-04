@@ -4,7 +4,7 @@ Adjective form generation. Port of Perl generate_adjforms from create_dict31.pl.
 
 import re
 from collections.abc import Callable, Iterable
-from typing import ClassVar, Final, Literal
+from typing import ClassVar, Final, Literal, NamedTuple
 
 from wyrdcraeft.models.morphology import Word
 from wyrdcraeft.services.morphology.progress import (
@@ -791,6 +791,20 @@ def _build_superlative_title_array(
     )
 
 
+class _ParticipleOverride(NamedTuple):
+    """Participle override applied when a strong-paradigm dispatch matches."""
+
+    #: ``Word`` attribute name (``"papart"`` or ``"pspart"``) gating the
+    #: override.
+    participle_attr: Literal["papart", "pspart"]
+    #: Replacement ``word.adj_paradigm`` label.
+    adj_paradigm: str
+    #: Replacement ``formhash["class2"]`` value.
+    class2: str
+    #: Replacement ``formhash["paradigm"]`` value.
+    paradigm: str
+
+
 class AdjectiveFormGenerator:
     """
     Generates adjective surface forms — strong/weak positive-degree
@@ -807,25 +821,41 @@ class AdjectiveFormGenerator:
 
     """
 
-    #: Ordered ``(predicate, method name)`` pairs tried in sequence against
-    #: the current word/paradigm; first match wins. Order mirrors the
-    #: original ``if``/``elif`` strong-paradigm chain exactly (ADR 0009
-    #: Decision item 3). Confirmed mutually exclusive against real paradigm
-    #: labels, so table order does not change matching outcomes, but the
-    #: original order is preserved regardless.
+    #: Ordered ``(predicate, method name, participle override)`` triples
+    #: tried in sequence against the current word/paradigm; first match
+    #: wins. Order mirrors the original ``if``/``elif`` strong-paradigm
+    #: chain exactly (ADR 0009 Decision item 3). Confirmed mutually
+    #: exclusive against real paradigm labels, so table order does not
+    #: change matching outcomes, but the original order is preserved
+    #: regardless. The override element declares, per paradigm, whether and
+    #: how a participle override applies -- no method-name string
+    #: comparison is needed to decide.
     _STRONG_PARADIGM_DISPATCH: ClassVar[
-        list[tuple[Callable[[Word, str], bool], str]]
+        list[tuple[Callable[[Word, str], bool], str, _ParticipleOverride | None]]
     ] = [
-        (_matches_manig, "_gen_strong_manig"),
-        (_matches_halig, "_gen_strong_halig"),
-        (_matches_wilde, "_gen_strong_wilde"),
+        (
+            _matches_manig,
+            "_gen_strong_manig",
+            _ParticipleOverride("papart", "manig", "past", "manig"),
+        ),
+        (
+            _matches_halig,
+            "_gen_strong_halig",
+            _ParticipleOverride("papart", "hālig", "past", "halig"),
+        ),
+        (
+            _matches_wilde,
+            "_gen_strong_wilde",
+            _ParticipleOverride("pspart", "wilde", "present", "wilde"),
+        ),
         (
             _matches_regex(r"gl\u00e6d|glæd|til", ignorecase=True),
             "_gen_strong_glaed_til",
+            None,
         ),
-        (_matches_regex(r"blind"), "_gen_strong_blind"),
-        (_matches_regex(r"hēah|weorh"), "_gen_strong_heah_thweorh"),
-        (_matches_regex(r"gearu"), "_gen_strong_gearu"),
+        (_matches_regex(r"blind"), "_gen_strong_blind", None),
+        (_matches_regex(r"hēah|weorh"), "_gen_strong_heah_thweorh", None),
+        (_matches_regex(r"gearu"), "_gen_strong_gearu", None),
     ]
 
     def __init__(
@@ -967,8 +997,10 @@ class AdjectiveFormGenerator:
             First-match-wins over the ordered table, mirroring the original
             ``if``/``elif`` strong-paradigm chain exactly (ADR 0009 Decision
             item 3). The ``manig``/``hālig``/``wilde`` entries carry a
-            paradigm/formhash override that only applies when the word is a
-            past/present participle, matching the original inline mutation.
+            declared ``_ParticipleOverride`` that applies only when the
+            word is a past/present participle, matching the original
+            inline mutation -- decided by table data, not by comparing
+            ``method_name`` strings.
 
         Args:
             word: The word to generate forms for.
@@ -977,23 +1009,15 @@ class AdjectiveFormGenerator:
             paradigm: The current paradigm label.
 
         """
-        for predicate, method_name in self._STRONG_PARADIGM_DISPATCH:
+        for predicate, method_name, override in self._STRONG_PARADIGM_DISPATCH:
             if predicate(word, paradigm):
-                if method_name == "_gen_strong_manig" and word.papart == 1:
-                    word.adj_paradigm = ["manig"]
+                if override is not None and (
+                    getattr(word, override.participle_attr) == 1
+                ):
+                    word.adj_paradigm = [override.adj_paradigm]
                     formhash["wordclass"] = "participle"
-                    formhash["class2"] = "past"
-                    formhash["paradigm"] = "manig"
-                elif method_name == "_gen_strong_halig" and word.papart == 1:
-                    word.adj_paradigm = ["hālig"]
-                    formhash["wordclass"] = "participle"
-                    formhash["class2"] = "past"
-                    formhash["paradigm"] = "halig"
-                elif method_name == "_gen_strong_wilde" and word.pspart == 1:
-                    word.adj_paradigm = ["wilde"]
-                    formhash["wordclass"] = "participle"
-                    formhash["class2"] = "present"
-                    formhash["paradigm"] = "wilde"
+                    formhash["class2"] = override.class2
+                    formhash["paradigm"] = override.paradigm
                 getattr(self, method_name)(word, formhash)
                 return
 
