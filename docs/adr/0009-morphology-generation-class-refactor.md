@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -37,12 +37,41 @@ refactors accumulated redirection layers that the original Perl never had:
   makes the actual verb-paradigm generation order nearly impossible to read
   without a debugger. Four specifics matter for the decision below:
   - `common.py` (60KB, the single largest file in the package) contains a
-    class named `VerbFormGenerator` (lines 124-1918, ~1,800 lines) that owns
-    paradigm iteration and drives the callback chains described above. Any
-    plan to introduce a differently-scoped `VerbFormGenerator` must instead
-    be a plan to gut and rebuild *this* class, not to add a new one of the
-    same name — this ADR previously described the target as if it didn't
-    exist yet, which was wrong.
+    class named `VerbFormGenerator` (lines 124-1918, ~1,800 lines). Any plan
+    to introduce a differently-scoped `VerbFormGenerator` must instead be a
+    plan to gut and rebuild *this* class, not to add a new one of the same
+    name — this ADR previously described the target as if it didn't exist
+    yet, which was wrong.
+  - **Second correction (found during implementation, not during ADR review
+    or the first correction pass below): `VerbFormGenerator` holds almost no
+    logic, and the 7 "callback-driven" modules named above are not glue
+    around its logic — they hold essentially all of it.** An AST pass over
+    every one of the class's 52 methods (stripped of docstrings) found 49 are
+    pure single-statement forwards (`return self._x(...)` or `self._x(...)`,
+    nothing else); only `__init__`, `generate`, and `_process_word` contain
+    more than one statement, and even those are trivial (a handful of
+    attribute assignments, a single loop). The 1,800 lines are overwhelmingly
+    docstrings wrapped around delegation, not paradigm logic to "gut." The
+    real logic — **~5,000 lines across 87 free functions** — lives in the 7
+    modules this ADR calls "now-empty support modules": `strong_inflections.py`
+    (8 fns/439 lines), `strong_principal_flow.py` (6/390),
+    `strong_derivation_flow.py` (12/670), `weak_inflections.py` (17/949),
+    `weak_principal_flow.py` (16/828), `weak_derivation_flow.py` (15/1,119),
+    `paradigm_flow.py` (13/567) — coordinated through 68 `Callable`-typed
+    parameters accepting `self`-bound methods as injected callbacks. Two of
+    these 87 functions (`paradigm_flow.build_verb_formhash_base`,
+    `paradigm_flow.derive_paradigm_seed_vowels`) have no corresponding
+    `VerbFormGenerator` method at all — they're called from inside another
+    free function, not from the class. This means the verb-generation
+    collapse (Decision item 4) is not a same-file rename-and-split; it is a
+    migration of ~5,000 lines of real logic across 87 functions into two new
+    classes, converting `Callable`-injection into ordinary method dispatch,
+    under byte-exact parity — a materially larger and differently-shaped task
+    than "split `VerbFormGenerator` along its `_strong_*`/`_weak_*` naming
+    seam," and should be planned/executed as staged sub-steps (e.g.
+    `paradigm_flow.py`'s traversal logic into `VerbFormGenerator` first, then
+    the strong trio, then the weak trio), each gated by the parity harness
+    independently, rather than as one large change.
   - The actual call chain from `facade.generate_verbs()` to that class is
     five hops deep, and is the single clearest example of the redirection
     problem this whole ADR exists to fix:
@@ -196,11 +225,14 @@ structural refactor, not a behavior change.
    directly, collapsing the five-hop chain down to one, consistent with
    removing every other thin wrapper in this ADR.
 
-   Gut the callback-threading inside `common.py`'s existing
-   `VerbFormGenerator` and the modules it drives — `strong_inflections.py`,
+   Per the second correction in Context, this is not "gut the
+   callback-threading inside `VerbFormGenerator`" — `VerbFormGenerator`
+   itself holds almost none of it. The actual work is migrating the ~5,000
+   lines of real logic (87 functions) out of `strong_inflections.py`,
    `strong_principal_flow.py`, `strong_derivation_flow.py`,
    `weak_inflections.py`, `weak_principal_flow.py`, `weak_derivation_flow.py`,
-   and `paradigm_flow.py` — replacing them with:
+   and `paradigm_flow.py`, replacing the current
+   `Callable`-injection/free-function shape with:
    - `VerbFormGenerator` (kept as the top-level name callers already know,
      via `facade.generate_verbs()`; its current ~1,800-line body is rewritten,
      not renamed away) — the "dedicated execution/orchestrator class"
@@ -209,20 +241,30 @@ structural refactor, not a behavior change.
      separately dispatched callback chain) and constructs one
      `StrongVerbGenerator` or `WeakVerbGenerator` per word/paradigm to drive.
    - `StrongVerbGenerator` — holds the active `Word`, `VerbParadigm`,
-     `GenerationRunState`, `FormOutput`, and per-variant/per-part context as
-     instance state (replacing `_StrongPrincipalPartContext` and the
+     `GenerationRunState`, and `FormOutput` as instance state, replacing the
      `partial()`-bound emitter chain across `strong_inflections.py`,
-     `strong_principal_flow.py`, and `strong_derivation_flow.py`). Methods
-     correspond directly to Perl block names (`_emit_principal_part`,
+     `strong_principal_flow.py`, and `strong_derivation_flow.py` with direct
+     method calls on `self`. **As delivered, `_StrongPrincipalPartContext`
+     and `_StrongInfDerivationContext` were not folded into instance state**
+     — they remain explicit dataclasses in `models/morphology.py`,
+     constructed once per principal-part/infinitive-derivation pass and
+     passed as an ordinary method parameter across the class's private
+     `_emit_*`/`_dispatch_*` methods (never assigned to `self`). What changed
+     is only the calling convention: no more `functools.partial`-bound
+     callbacks threaded through free functions — the context object is now
+     one plain argument to a directly-called method. Methods correspond
+     directly to Perl block names (`_emit_principal_part`,
      `_emit_infinitive_derived`, `_emit_painsg1_derived`,
      `_emit_painpl_derived`, `_emit_umlaut_forms`) called in explicit,
      readable sequence from one `generate_word(word, paradigm)` entry method.
    - `WeakVerbGenerator` — same treatment for `_WeakPrincipalPartContext` /
      `_WeakInfDerivationContext` / `_WeakPainsg1DerivationContext` /
      `_WeakPsinsg2DerivationContext` across `weak_inflections.py`,
-     `weak_principal_flow.py`, and `weak_derivation_flow.py`, collapsing the
-     current context-then-emitter-then-context-again indirection into direct
-     method calls on `self`.
+     `weak_principal_flow.py`, and `weak_derivation_flow.py`: the
+     `partial()`-bound emitter chain collapses into direct method calls on
+     `self`, but — as with the strong side — all four context dataclasses
+     remain in `models/morphology.py` and are passed as explicit method
+     parameters, not stored as instance attributes.
    - No `SoundChangeApplier` class. `sound_changes.py`/`sound_dispatch_flow.py`
      are shared cross-PoS infrastructure (see the correction above), not part
      of this collapse. Several of `VerbFormGenerator`'s current methods
@@ -250,10 +292,42 @@ structural refactor, not a behavior change.
      verb-specific callers (the former thin-wrapper methods, now deleted)
      change shape.
 
-   **Before writing any of this**, read `common.py`'s `VerbFormGenerator` in
-   full — its current method boundaries were not reviewed as part of this
-   ADR and may already partially resemble the target shape, which would
-   change how much of the above is genuinely new work versus renaming.
+   `models/morphology.py` exports nine `_*Context` dataclasses in total; six
+   of them are the strong/weak-verb-collapse-relevant ones this section
+   discusses (`_StrongPrincipalPartContext`, `_StrongInfDerivationContext`,
+   `_WeakPrincipalPartContext`, `_WeakInfDerivationContext`,
+   `_WeakPainsg1DerivationContext`, `_WeakPsinsg2DerivationContext`) that
+   exist to carry state between the free functions above. The remaining
+   three are unrelated to this ADR's scope and are described below.
+
+   **Resolved (final task of this ADR's execution, re-verified independently
+   of the tasks that migrated strong/weak verb generation):** these
+   dataclasses were kept, not removed. They turned out not to be redundant
+   with instance state — `StrongVerbGenerator`/`WeakVerbGenerator` never
+   store a context object on `self`; every one of the six dataclasses is
+   still constructed once per generation pass and threaded as an explicit
+   parameter across the relevant class's private `_emit_*`/`_dispatch_*`
+   methods. A whole-repo grep confirms live construction and parameter-type
+   usage for all six inside `wyrdcraeft/services/morphology/generation/common.py`,
+   with matching fixture helpers in
+   `tests/morphology/test_generation_branches.py`. Only the *calling
+   convention* changed: `functools.partial`-bound callback chains collapsed
+   into direct method calls on `self`, with the context dataclass passed as
+   an ordinary argument — the dataclasses themselves were never part of the
+   callback-threading problem this ADR targets, only the free-function/
+   `partial()` indirection around them was. (Three further `_*Context`
+   dataclasses in the same file — `_ParadigmVariantDispatchContext`,
+   `_VariantPartDispatchContext`, `_SoundChangeDispatchContext` — are
+   unrelated to the strong/weak verb collapse and are also confirmed live.)
+
+   Given the corrected size of this migration (~5,000 lines / 87 functions,
+   not a same-file rename), it should be planned and executed as staged
+   sub-steps with independent parity-harness gates per stage (e.g.
+   `paradigm_flow.py`'s traversal logic into `VerbFormGenerator` first, then
+   the strong-side modules into `StrongVerbGenerator`, then the weak-side
+   modules into `WeakVerbGenerator`), not as one single change landing all
+   87 functions behind one gate — a single gate on a change this size
+   gives a parity failure nothing useful to bisect against.
 
 5. **Delete `generators/num_forms.py`.** Confirmed zero callers in the repo
    (production, tests, or scripts) — it is pure dead weight, safe to delete
@@ -298,6 +372,12 @@ structural refactor, not a behavior change.
 - Large mechanical diff across the entire `generation/` package; must be
   done incrementally per PoS/verb-class with differential tests run after
   each step to catch parity regressions early rather than at the end.
+- The verb-generation collapse (item 4) is substantially larger than a
+  same-file class split: ~5,000 lines across 87 functions must move out of
+  7 modules into two new classes, converting `Callable`-injection into
+  method dispatch. This should be staged into independently-gated sub-steps
+  (see item 4) rather than landed as one change — a single parity gate on a
+  change this size cannot localize a regression if one appears.
 - The many `Protocol`/`Callable` type aliases used for callback signatures
   (e.g. `StrongFormEmitter`, `WeakPsinsg2SoundWithPostEmitter`) go away;
   anything outside this package that imports them directly (unlikely, but

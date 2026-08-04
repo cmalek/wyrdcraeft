@@ -20,7 +20,7 @@ Wright inflection class.
 - `wyrdcraeft.cli.morphology`
 - `wyrdcraeft.services.morphology.session:GeneratorSession`
 - `wyrdcraeft.services.morphology.processors`
-- `wyrdcraeft.services.morphology.generation.dispatch`
+- `wyrdcraeft.services.morphology.generation.facade:MorphologyGenerationFacade`
 - `wyrdcraeft.services.morphology.generation.query:MorphologyQueryService`
 - `wyrdcraeft.services.morphology.build_profile:MorphologyBuildProfiler`
 - `wyrdcraeft.services.morphology.catalog` — Wright reference catalog (loader,
@@ -34,7 +34,7 @@ Wright inflection class.
 - `wyrdcraeft/models/morph_catalog.py`
 - `wyrdcraeft/services/morphology/processors.py`
 - `wyrdcraeft/services/morphology/session.py`
-- `wyrdcraeft/services/morphology/generation/dispatch.py`
+- `wyrdcraeft/services/morphology/generation/facade.py`
 - `wyrdcraeft/services/morphology/generation/query.py`
 - `wyrdcraeft/services/morphology/catalog/loader.py`
 - `wyrdcraeft/services/morphology/catalog/assigner.py`

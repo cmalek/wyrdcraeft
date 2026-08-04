@@ -25,13 +25,8 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
     ensure_parts_of_speech,
 )
 from wyrdcraeft.services.morphology.generation.common import print_one_form
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 from wyrdcraeft.services.morphology.generation.query import (
     MorphologyQueryService,
@@ -66,12 +61,7 @@ def _write_morphology_index(subset_session, tmp_path: Path) -> Path:
     sqlite_sink = SqliteIndexSink(db_path)
     sink = CompositeSink(TsvParitySink(output), sqlite_sink)
 
-    output_manual_forms(subset_session, sink)
-    generate_vbforms(subset_session, sink)
-    generate_adjforms(subset_session, sink)
-    generate_advforms(subset_session, sink)
-    generate_numforms(subset_session, sink)
-    generate_nounforms(subset_session, sink)
+    MorphologyGenerationFacade(subset_session, sink).generate_all_forms()
     sqlite_sink.close()
     return db_path
 
@@ -241,12 +231,7 @@ def test_query_service_lemma_and_form_lookup(subset_session, tmp_path) -> None:
     sqlite_sink = SqliteIndexSink(db_path)
     sink = CompositeSink(TsvParitySink(output), sqlite_sink)
 
-    output_manual_forms(subset_session, sink)
-    generate_vbforms(subset_session, sink)
-    generate_adjforms(subset_session, sink)
-    generate_advforms(subset_session, sink)
-    generate_numforms(subset_session, sink)
-    generate_nounforms(subset_session, sink)
+    MorphologyGenerationFacade(subset_session, sink).generate_all_forms()
     sqlite_sink.close()
 
     rows = parse_form_output(output.getvalue())

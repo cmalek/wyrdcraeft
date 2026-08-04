@@ -3,13 +3,8 @@ from __future__ import annotations
 import io
 from typing import TYPE_CHECKING
 
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 
 from .snapshot_io import (
@@ -37,12 +32,7 @@ def full_flow_rows(session: GeneratorSession) -> list[dict[str, str]]:
 
     """
     output = io.StringIO()
-    output_manual_forms(session, output)
-    generate_vbforms(session, output)
-    generate_adjforms(session, output)
-    generate_advforms(session, output)
-    generate_numforms(session, output)
-    generate_nounforms(session, output)
+    MorphologyGenerationFacade(session, output).generate_all_forms()
     return canonicalize_form_rows(parse_form_output(output.getvalue()))
 
 

@@ -6,13 +6,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from wyrdcraeft.services.morphology.generation.dispatch import (
-    generate_adjforms,
-    generate_advforms,
-    generate_nounforms,
-    generate_numforms,
-    generate_vbforms,
-    output_manual_forms,
+from wyrdcraeft.services.morphology.generation.facade import (
+    MorphologyGenerationFacade,
 )
 
 from .snapshot_io import (
@@ -41,18 +36,19 @@ STAGE_TO_PATH = {
 
 def _stage_rows(session: GeneratorSession, *, stage: str) -> list[dict[str, str]]:
     output = io.StringIO()
+    facade = MorphologyGenerationFacade(session, output)
     if stage == "manual":
-        output_manual_forms(session, output)
+        facade.output_manual_forms()
     elif stage == "verb":
-        generate_vbforms(session, output)
+        facade.generate_verbs()
     elif stage == "adj":
-        generate_adjforms(session, output)
+        facade.generate_adjectives()
     elif stage == "adv":
-        generate_advforms(session, output)
+        facade.generate_adverbs()
     elif stage == "num":
-        generate_numforms(session, output)
+        facade.generate_numerals()
     elif stage == "noun":
-        generate_nounforms(session, output)
+        facade.generate_nouns()
     else:
         msg = f"Unknown stage: {stage}"
         raise ValueError(msg)

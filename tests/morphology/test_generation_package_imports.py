@@ -6,16 +6,15 @@ Regression test for the generation-package import-cycle fix.
 MorphologyGenerationFacade``. That import pulled facade.py (and every
 module it imports) into scope any time a sibling submodule inside the
 package did ``from . import <sibling>`` -- the pattern
-``form_rows.py``, ``common.py``, ``strong_principal_flow.py``, and
-``weak_principal_flow.py`` use to reach ``sound_dispatch_flow``,
-``strong_derivation_flow``, and ``weak_derivation_flow`` /
-``weak_principal_flow``. That created the 8 import cycles graphify
-reported, all rooted at ``generation/__init__.py``.
+``form_rows.py`` and ``common.py`` use to reach ``sound_dispatch_flow``.
+That created the 8 import cycles graphify reported, all rooted at
+``generation/__init__.py``.
 
-No caller in this repo ever consumed the package-level re-export -- every
-real caller imports ``MorphologyGenerationFacade`` from ``.facade``
-directly, or uses ``.dispatch`` -- so removing it is a zero-behavior-change
-fix. These tests lock in both halves of that claim.
+No caller in this repo ever consumed the package-level re-export --
+every real caller imports ``MorphologyGenerationFacade`` from
+``.facade`` directly, the sole public entrypoint into generation --
+so removing it is a zero-behavior-change fix. These tests lock in
+both halves of that claim.
 """
 
 import wyrdcraeft.services.morphology.generation as generation_pkg
@@ -35,10 +34,10 @@ def test_facade_still_importable_directly():
     assert MorphologyGenerationFacade.__name__ == "MorphologyGenerationFacade"
 
 
-def test_dispatch_still_importable():
-    """dispatch.py is the actual production entrypoint into the facade."""
-    from wyrdcraeft.services.morphology.generation.dispatch import (
-        generate_vbforms,
+def test_facade_verb_method_still_importable():
+    """The facade's verb-generation method is the production entrypoint."""
+    from wyrdcraeft.services.morphology.generation.facade import (
+        MorphologyGenerationFacade,
     )
 
-    assert callable(generate_vbforms)
+    assert callable(MorphologyGenerationFacade.generate_verbs)
