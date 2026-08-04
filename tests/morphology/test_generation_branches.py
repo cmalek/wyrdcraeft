@@ -19,34 +19,13 @@ from wyrdcraeft.services.morphology.generation.sound_changes import (
     emit_sound_changed_forms,
     emit_sound_changed_from_source,
 )
-from wyrdcraeft.services.morphology.generation.weak_inflections import (
-    dispatch_weak_derived_forms,
-    dispatch_weak_principal_part_derivations,
-    emit_weak_derived_from_inf_by_class2,
-    emit_weak_derived_from_inf_sequence,
-    emit_weak_derived_from_painsg1_sequence,
-    emit_weak_derived_from_painsg1_variant,
-    emit_weak_derived_from_psinsg2,
-    emit_weak_derived_from_psinsg2_context,
-    emit_weak_principal_form,
-    is_weak_item_shape_window,
-    should_use_weak_item_shape,
-)
-from wyrdcraeft.services.morphology.generation.weak_derivation_flow import (
-    WeakFormContextEmitter,
-    WeakParticipleAdder,
-    WeakPsinsg2SoundWithPostEmitter,
-    emit_weak_principal_form_context,
-    generate_weak_derived_from_inf,
-    generate_weak_derived_from_painsg1,
-    generate_weak_derived_from_psinsg2,
-)
-from wyrdcraeft.services.morphology.generation.weak_principal_flow import (
-    generate_weak_verb_parts_with_emitters,
-)
 from wyrdcraeft.services.morphology.generation.common import (
     StrongVerbGenerator,
     VerbFormGenerator,
+    WeakFormContextEmitter,
+    WeakParticipleAdder,
+    WeakPsinsg2SoundWithPostEmitter,
+    WeakVerbGenerator,
 )
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
@@ -252,7 +231,7 @@ def test_process_part_routes_strong_generation_from_flow() -> None:
     generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
     generator._strong_generator.generate_verb_parts = _generate_strong  # type: ignore[method-assign]
-    generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
+    generator._weak_generator.generate_verb_parts = _generate_weak  # type: ignore[method-assign]
 
     generator._process_part(
         word=word,
@@ -301,7 +280,7 @@ def test_process_part_routes_weak_generation_from_flow() -> None:
     generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     generator._derive_part_stem_segments = _derive_segments  # type: ignore[method-assign]
     generator._strong_generator.generate_verb_parts = _generate_strong  # type: ignore[method-assign]
-    generator._generate_weak_verb_parts = _generate_weak  # type: ignore[method-assign]
+    generator._weak_generator.generate_verb_parts = _generate_weak  # type: ignore[method-assign]
 
     generator._process_part(
         word=word,
@@ -761,7 +740,9 @@ def test_emit_weak_derived_from_psinsg2_sequence() -> None:
     ) -> None:
         sounds.append((ending, function, probability, consonant_change_prob))
 
-    emit_weak_derived_from_psinsg2(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_psinsg2(
         probability=0,
         probability_plus_one=1,
         emit_form=_emit_form,
@@ -809,7 +790,9 @@ def test_emit_weak_derived_from_psinsg2_context_simplifies_post_vowel() -> None:
             (ending, function, probability, consonant_change_prob, post_vowel_simple)
         )
 
-    emit_weak_derived_from_psinsg2_context(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_psinsg2_context(
         probability=None,
         post_vowel="mm",
         emit_form_with_post=_emit_form_with_post,
@@ -841,7 +824,9 @@ def test_emit_weak_derived_from_painsg1_variant_sequence() -> None:
     ) -> None:
         manuals.append((form, form_parts, function, probability))
 
-    form_parts = emit_weak_derived_from_painsg1_variant(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    form_parts = weak._emit_weak_derived_from_painsg1_variant(
         prefix="ge",
         pre_vowel="l",
         vowel="o",
@@ -878,7 +863,9 @@ def test_emit_weak_derived_from_painsg1_sequence_uses_preterite_order() -> None:
         observed.append((vowel, probability))
         return f"fp-{vowel}-{probability}"
 
-    emit_weak_derived_from_painsg1_sequence(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_painsg1_sequence(
         vowel="a",
         vowel_inf="a",
         vowel_pa="o",
@@ -892,18 +879,22 @@ def test_emit_weak_derived_from_painsg1_sequence_uses_preterite_order() -> None:
 
 
 def test_is_weak_item_shape_window_bounds() -> None:
-    assert is_weak_item_shape_window("89")
-    assert is_weak_item_shape_window("92")
-    assert not is_weak_item_shape_window("88")
-    assert not is_weak_item_shape_window("93")
-    assert not is_weak_item_shape_window("abc")
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    assert weak._is_weak_item_shape_window("89")
+    assert weak._is_weak_item_shape_window("92")
+    assert not weak._is_weak_item_shape_window("88")
+    assert not weak._is_weak_item_shape_window("93")
+    assert not weak._is_weak_item_shape_window("abc")
 
 
 def test_should_use_weak_item_shape_for_irregular_paradigm_types() -> None:
-    assert should_use_weak_item_shape("127", paradigm_type="a")
-    assert should_use_weak_item_shape("114", paradigm_type="pp")
-    assert not should_use_weak_item_shape("127", paradigm_type="w")
-    assert should_use_weak_item_shape("90", paradigm_type="w")
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    assert weak._should_use_weak_item_shape("127", paradigm_type="a")
+    assert weak._should_use_weak_item_shape("114", paradigm_type="pp")
+    assert not weak._should_use_weak_item_shape("127", paradigm_type="w")
+    assert weak._should_use_weak_item_shape("90", paradigm_type="w")
 
 
 def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
@@ -930,7 +921,9 @@ def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
             ),
         )
 
-    form_parts = emit_weak_principal_form(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    form_parts = weak._emit_weak_principal_form(
         para_id="PaInSg1",
         prefix="ge",
         default_parts=("l", "a", "m", "t"),
@@ -981,7 +974,9 @@ def test_emit_weak_principal_form_context_forwards_dental_and_probability() -> N
         return "form", "fp"
 
     formhash = _base_formhash()
-    result = emit_weak_principal_form_context(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    result = weak._emit_weak_principal_form_context(
         formhash,
         "ge",
         "l",
@@ -1014,7 +1009,9 @@ def test_emit_weak_derived_from_inf_by_class2_general_branch() -> None:
         observed.append((dental, ending, function, probability))
         return "form", f"fp-{ending}-{function}"
 
-    emit_weak_derived_from_inf_by_class2(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_inf_by_class2(
         class2="1",
         original_ending="ian",
         probability=0,
@@ -1042,7 +1039,9 @@ def test_emit_weak_derived_from_inf_by_class2_two_uses_general_path() -> None:
         observed.append((dental, ending, function, probability))
         return "form", f"fp-{ending}-{function}"
 
-    emit_weak_derived_from_inf_by_class2(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_inf_by_class2(
         class2="2",
         original_ending="ian",
         probability=0,
@@ -1074,7 +1073,9 @@ def test_emit_weak_derived_from_inf_sequence_normalizes_none_probability() -> No
         observed.append((dental, ending, function, probability))
         return "form", f"fp-{ending}-{function}"
 
-    emit_weak_derived_from_inf_sequence(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._emit_weak_derived_from_inf_sequence(
         class2="1",
         prefix="ge",
         pre_vowel="l",
@@ -1136,7 +1137,9 @@ def test_generate_weak_derived_from_inf_routes_direct_context_emitter() -> None:
     ) -> None:
         participles.append((captured_word.stem, prefix, form_parts, is_past))
 
-    generate_weak_derived_from_inf(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._generate_weak_derived_from_inf(
         formhash=formhash,
         word=word,
         prefix="ge",
@@ -1312,8 +1315,10 @@ def test_generate_verb_parts_routes_direct_derivation_stack() -> None:
 
 def test_dispatch_weak_derived_forms_selects_psinsg2_branch() -> None:
     calls: list[str] = []
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
 
-    did_dispatch = dispatch_weak_derived_forms(
+    did_dispatch = weak._dispatch_weak_derived_forms(
         para_id="PsInSg2",
         use_item_shape=False,
         on_inf=lambda: calls.append("if"),
@@ -1327,8 +1332,10 @@ def test_dispatch_weak_derived_forms_selects_psinsg2_branch() -> None:
 
 def test_dispatch_weak_derived_forms_skips_item_shape_mode() -> None:
     calls: list[str] = []
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
 
-    did_dispatch = dispatch_weak_derived_forms(
+    did_dispatch = weak._dispatch_weak_derived_forms(
         para_id="if",
         use_item_shape=True,
         on_inf=lambda: calls.append("if"),
@@ -1342,8 +1349,10 @@ def test_dispatch_weak_derived_forms_skips_item_shape_mode() -> None:
 
 def test_dispatch_weak_principal_part_derivations_emits_papt_only() -> None:
     observed: list[str] = []
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
 
-    did_dispatch = dispatch_weak_principal_part_derivations(
+    did_dispatch = weak._dispatch_weak_principal_part_derivations(
         para_id="PaPt",
         use_item_shape=False,
         form_parts="fp-main",
@@ -1364,7 +1373,7 @@ def test_generate_weak_painsg1_uses_preterite_vowel_and_sound_changes() -> None:
     generator = VerbFormGenerator(session.word_pool, session.run_state, output)
     word = _make_word(prefix="ge", stem="lam")
 
-    generator._generate_weak_derived_from_painsg1(
+    generator._weak_generator._generate_derived_from_painsg1(
         _base_formhash(),
         word,
         "ge",
@@ -1444,7 +1453,9 @@ def test_generate_weak_derived_from_painsg1_routes_manuals_and_participles() -> 
     ) -> None:
         participles.append((captured_word.stem, prefix, form_parts, is_past))
 
-    generate_weak_derived_from_painsg1(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._generate_weak_derived_from_painsg1(
         formhash=_base_formhash(),
         word=word,
         prefix="ge",
@@ -1588,7 +1599,9 @@ def test_generate_weak_verb_parts_with_emitters_routes_direct_painsg1_stack() ->
     ) -> None:
         participles.append((captured_word.stem, prefix, form_parts, is_past))
 
-    generate_weak_verb_parts_with_emitters(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._generate_weak_verb_parts_with_emitters(
         formhash=_base_formhash(),
         word=word,
         item=item,
@@ -1635,7 +1648,7 @@ def test_generate_weak_verb_parts_uses_item_shape_for_id_window() -> None:
         ending="e",
     )
 
-    generator._generate_weak_verb_parts(
+    generator._weak_generator.generate_verb_parts(
         _base_formhash(),
         word,
         item,
@@ -1716,7 +1729,9 @@ def test_generate_weak_derived_from_psinsg2_routes_simplified_post_vowel() -> No
             )
         )
 
-    generate_weak_derived_from_psinsg2(
+    session = GeneratorSession()
+    weak = WeakVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    weak._generate_weak_derived_from_psinsg2(
         formhash=_base_formhash(),
         prefix="ge",
         pre_vowel="l",
