@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from .adj_forms import AdjectiveFormGenerator
 from .adv_forms import AdverbFormGenerator
-from .common import generate_vbforms as _generate_vbforms
+from .common import VerbFormGenerator
 from .form_rows import output_manual_forms as _output_manual_forms
 from .noun_forms import NounFormGenerator
 from .num_forms import NumeralFormGenerator
@@ -85,12 +85,12 @@ class MorphologyGenerationFacade:
             behavior; this facade method preserves parity implementation flow.
 
         """
-        _generate_vbforms(
+        VerbFormGenerator(
             self._session.word_pool,
             self._session.run_state,
             self._output_file,
             progress=self._progress,
-        )
+        ).generate()
 
     def generate_adjectives(self) -> None:
         """
