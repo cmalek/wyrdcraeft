@@ -1590,3 +1590,393 @@ graphify update .
 git add -A wyrdcraeft/services/morphology/generators/
 git commit -m "chore: delete dead generators/ compatibility shim directory"
 ```
+
+---
+
+## Addendum: Tasks 11-14 (added after final whole-branch review)
+
+The final whole-branch review of Tasks 1-10 found no Critical issues and zero
+dangling references, but flagged two ADR-vs-reality gaps: (1) the verb
+collapse (Tasks 6-9) eliminated the 5-hop redirection chain and 7-file spread
+but left the `functools.partial`/`Callable`-injection callback threading
+intact *inside* `StrongVerbGenerator`/`WeakVerbGenerator` (relocated into
+class scope, not collapsed into direct `self.` method calls, per ADR 0009
+Decision item 4's original goal); (2) the paradigm-dispatch table ADR 0009
+Decision item 3 describes was never built — `noun_forms.py`/`adj_forms.py`
+still dispatch via `elif re.search(...)` chains. The human decided to close
+both gaps rather than merge with the ADR overclaiming the outcome. Tasks
+11-14 close them, in dependency order: Task 11 (paradigm-dispatch tables,
+independent of verb work) → Task 12 (strong-side callback collapse) → Task
+13 (weak-side callback collapse, independent of Task 12) → Task 14 (final
+cleanup: remove now-dead `_*Context` dataclasses/`Callable` aliases/
+`Protocol` classes, verify ADR 0009 now accurately describes the delivered
+state).
+
+Same golden-path gate and Global Constraints as Tasks 1-10 apply to all four.
+
+---
+
+### Task 11: Build paradigm-dispatch tables for `NounFormGenerator` and `AdjectiveFormGenerator`
+
+`AdverbFormGenerator`/`NumeralFormGenerator` have no paradigm dispatch (single
+function body each) — nothing to do there. `NounFormGenerator._generate_word`
+and `AdjectiveFormGenerator._generate_word` currently select among
+`_gen_<paradigm>`/`_gen_strong_*` methods via `elif re.search(pattern,
+paradigm)` chains. Replace each with a paradigm-pattern → bound-method
+dispatch table, per ADR 0009 Decision item 3, **without changing which
+paradigm maps to which method or the regex patterns themselves** — this is a
+dispatch-mechanism change, not a paradigm-matching change, and must not
+affect output.
+
+**Files:**
+- Modify: `wyrdcraeft/services/morphology/generation/noun_forms.py`
+- Modify: `wyrdcraeft/services/morphology/generation/adj_forms.py`
+
+**Interfaces:**
+- Consumes: nothing new — same constructor/`generate()` shape both classes
+  already have.
+- Produces: no change to either class's public shape; `_generate_word`'s
+  internal dispatch mechanism changes from `elif` chain to table lookup.
+
+- [ ] **Step 1: Record baseline**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`, note pass count
+(run it yourself).
+
+- [ ] **Step 2: Read both classes' current dispatch chains in full**
+
+Read `NounFormGenerator._generate_word`'s `elif re.search(...)` chain (15
+branches per the final review) and `AdjectiveFormGenerator._generate_word`'s
+strong-paradigm chain (6 branches) in full. For each branch, note the exact
+regex pattern and the method it dispatches to, in order — order matters if
+any patterns could overlap (confirm via the read whether any do; if patterns
+are mutually exclusive, table order doesn't matter, but if the current
+`elif` chain relies on trying patterns in a specific order to break ties,
+preserve that ordering in the table, e.g. via an ordered list of
+`(pattern, method)` pairs tried in sequence rather than an unordered dict).
+
+- [ ] **Step 3: Build the dispatch table for each class**
+
+Add a class attribute (e.g. `_PARADIGM_DISPATCH: ClassVar[list[tuple[str,
+str]]]` mapping regex pattern to method name, resolved via `getattr(self,
+method_name)` at dispatch time — or a `dict[str, Callable[..., None]]` built
+in `__init__` binding `self`'s methods directly, whichever reads more clearly
+given what Step 2 found) declaring every `(pattern, method)` pair in the
+exact order the current `elif` chain checks them. Replace the `elif
+re.search(...)` chain in `_generate_word` with a loop over this table,
+calling the first method whose pattern matches, preserving the exact
+matching semantics (first-match-wins, same regex flags) the current chain
+has.
+
+- [ ] **Step 4: Run the golden-path parity gate**
+
+Run: `.venv/bin/pytest tests/morphology/test_parity_harness.py -v`
+
+Expected: PASS, zero diff. If it fails, the dispatch table's pattern order
+or match semantics diverged from the original chain — compare side-by-side
+against the original `elif` order restored from git history.
+
+- [ ] **Step 5: Run the full test suite**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`
+
+Expected: identical pass count to Step 1.
+
+- [ ] **Step 6: Quality gate**
+
+```bash
+ruff check wyrdcraeft/services/morphology/generation/noun_forms.py wyrdcraeft/services/morphology/generation/adj_forms.py
+.venv/bin/mypy wyrdcraeft/services/morphology/generation/noun_forms.py wyrdcraeft/services/morphology/generation/adj_forms.py
+make napoleon-gate
+```
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add wyrdcraeft/services/morphology/generation/noun_forms.py wyrdcraeft/services/morphology/generation/adj_forms.py
+git commit -m "refactor: replace elif paradigm-dispatch chains with declared dispatch tables in NounFormGenerator/AdjectiveFormGenerator"
+```
+
+---
+
+### Task 12: Collapse `StrongVerbGenerator`'s callback threading into direct method calls
+
+Per the final review: `StrongVerbGenerator` still has ~19 inline `Callable`-
+typed parameters and `partial(...)` construction sites (common.py L627-1188
+at time of review — re-locate by name/content, not line number, since Tasks
+11 and the cheap-fixes wave shift line numbers) forwarding bound methods as
+callback arguments between its own methods, a relocated-but-not-collapsed
+form of the pattern ADR 0009 Decision item 4 says gets eliminated. This task
+converts each such callback-parameter method into a method that calls the
+target method directly on `self`, removing the `partial`/`Callable`
+indirection entirely.
+
+**This carries real behavior risk** despite being "just" a calling-
+convention change: some of these callbacks are conditionally bound to
+different target methods depending on runtime state (that's the actual
+reason callback injection was used at each site — confirm via Step 2's read
+which sites are genuinely conditional-dispatch vs. which always bind the
+same method and can become a direct call trivially). Sites with genuine
+runtime-conditional dispatch need an equivalent `if`/`elif` inside the method
+body calling the appropriate `self._x(...)` directly, not a naive
+find-and-replace.
+
+**Files:**
+- Modify: `wyrdcraeft/services/morphology/generation/common.py`
+  (`StrongVerbGenerator` only)
+- Modify: `wyrdcraeft/models/morphology.py` — **only if** Step 2 confirms a
+  given `_Strong*Context` dataclass becomes fully unused once its
+  callback-carrying fields are no longer needed (don't touch this file
+  speculatively; confirm per-dataclass via grep before removing any)
+
+**Interfaces:**
+- Consumes: `StrongVerbGenerator`'s existing constructor shape (unchanged).
+- Produces: no change to `StrongVerbGenerator`'s public shape; internal
+  methods lose their `Callable`-typed parameters, gain direct calls to
+  `self`'s other methods (or an inline conditional calling one of several,
+  where Step 2 confirms genuine runtime dispatch).
+
+- [ ] **Step 1: Record baseline**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`, note pass count
+(run it yourself).
+
+- [ ] **Step 2: Read every `partial(...)` construction and `Callable`-typed
+  parameter in `StrongVerbGenerator`, in full**
+
+For each of the ~19 sites, identify: what method constructs the `partial`,
+what target method(s) it can bind to (one, always the same — or more than
+one, genuinely conditional on runtime state), and every method that receives
+the resulting callback as a parameter and calls it. Categorize each site as
+**always-same-target** (trivial direct-call conversion) or
+**genuinely-conditional** (needs an inline `if`/`elif` calling the right
+`self._x(...)` directly, preserving the exact condition the current dispatch
+logic uses to choose between targets).
+
+- [ ] **Step 3: Convert always-same-target sites**
+
+For each site Step 2 confirmed always binds the same target method, delete
+the `partial`/`Callable`-parameter plumbing and have the calling method call
+`self._x(...)` directly instead.
+
+- [ ] **Step 4: Convert genuinely-conditional sites**
+
+For each site Step 2 confirmed has genuine runtime-conditional dispatch,
+replace the callback parameter with an inline `if`/`elif` (matching the
+exact condition currently used to select between `partial`-bound targets)
+calling the appropriate `self._x(...)` directly. Do not lose any branch — if
+the current code has N possible targets, the replacement must have all N
+branches.
+
+- [ ] **Step 5: Remove now-unused `Callable` type aliases and `partial` import if fully unused**
+
+Grep `common.py` for remaining uses of each `Callable` type alias that was
+only used by the sites just converted, and remove any now-unused ones.
+Remove `from functools import partial` only if grep confirms zero remaining
+`partial(` calls anywhere in the file (both `StrongVerbGenerator` and
+`WeakVerbGenerator` — do not remove it here if Task 13 hasn't run yet and
+`WeakVerbGenerator` still uses it; check before removing).
+
+- [ ] **Step 6: Run the golden-path parity gate**
+
+Run: `.venv/bin/pytest tests/morphology/test_parity_harness.py -v`
+
+Expected: PASS, zero diff. This is a genuine behavior-risk task (unlike the
+earlier pure-relocation tasks) — if it fails, bisect by reverting one
+converted site at a time back to callback-parameter form, prioritizing the
+genuinely-conditional sites from Step 4 as the most likely source of a
+missed branch.
+
+- [ ] **Step 7: Run the full test suite**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`
+
+Expected: identical pass count to Step 1.
+
+- [ ] **Step 8: Quality gate**
+
+```bash
+ruff check wyrdcraeft/services/morphology/generation/common.py
+.venv/bin/mypy wyrdcraeft/services/morphology/generation/common.py
+make napoleon-gate
+```
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add wyrdcraeft/services/morphology/generation/common.py
+git commit -m "refactor: collapse StrongVerbGenerator's partial/Callable callback threading into direct method calls"
+```
+
+---
+
+### Task 13: Collapse `WeakVerbGenerator`'s callback threading into direct method calls
+
+Same approach as Task 12, applied to `WeakVerbGenerator` — the larger side:
+per the final review, ~17 more `Callable` type aliases and the bulk of the 36
+`partial(...)` sites (common.py L3081-4964 at time of review — re-locate by
+name/content) live here, plus the 3 callback `Protocol` classes
+(`WeakParticipleAdder`, `WeakFormContextEmitter`,
+`WeakPsinsg2SoundWithPostEmitter`) ADR 0009's Consequences section names as
+things that "go away." Independent of Task 12 (no shared state between the
+strong and weak sides), but do this task after Task 12 lands so Step 5's
+"is `partial` still used anywhere" check has one, not two, moving targets.
+
+**Files:**
+- Modify: `wyrdcraeft/services/morphology/generation/common.py`
+  (`WeakVerbGenerator` only)
+- Modify: `wyrdcraeft/models/morphology.py` — **only if** Step 2 confirms a
+  given `_Weak*Context` dataclass becomes fully unused (confirm per-dataclass
+  via grep, don't remove speculatively)
+
+**Interfaces:**
+- Consumes: `WeakVerbGenerator`'s existing constructor shape (unchanged).
+- Produces: no change to `WeakVerbGenerator`'s public shape; internal methods
+  lose `Callable`-typed parameters, gain direct/conditional `self.` calls.
+
+- [ ] **Step 1: Record baseline**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`, note pass count
+(run it yourself).
+
+- [ ] **Step 2: Read every `partial(...)` construction, `Callable`-typed
+  parameter, and the 3 `Protocol` classes' usage in `WeakVerbGenerator`, in
+  full**
+
+Same categorization as Task 12 Step 2 (always-same-target vs.
+genuinely-conditional), plus: for each of the 3 `Protocol` classes
+(`WeakParticipleAdder`, `WeakFormContextEmitter`,
+`WeakPsinsg2SoundWithPostEmitter`), confirm every call site that currently
+type-annotates a parameter with one of these Protocols, and whether that
+parameter disappears entirely once the corresponding callback site is
+converted to a direct call (it should, if the Protocol exists only to type
+the callback parameter this task removes).
+
+This is the largest read among Tasks 11-14, mirroring Task 8's scale —
+budget time accordingly and do not skim.
+
+- [ ] **Step 3: Convert always-same-target sites**
+
+Same as Task 12 Step 3, scoped to `WeakVerbGenerator`.
+
+- [ ] **Step 4: Convert genuinely-conditional sites**
+
+Same as Task 12 Step 4, scoped to `WeakVerbGenerator`. Prefer bisecting by
+principal-part group (painsg1/psinsg2/pspt/papt) if the parity gate fails,
+per this plan's established pattern for the largest verb sub-tasks.
+
+- [ ] **Step 5: Remove now-unused `Callable` type aliases, `Protocol` classes, and `partial` import**
+
+Delete each `Callable` alias and each of the 3 `Protocol` classes once Step 2
+confirms no remaining reference. Remove `from functools import partial` if
+grep confirms zero remaining `partial(` calls in the whole file (both
+verb classes, now that Task 12 has already converted the strong side).
+
+- [ ] **Step 6: Run the golden-path parity gate**
+
+Run: `.venv/bin/pytest tests/morphology/test_parity_harness.py -v`
+
+Expected: PASS, zero diff. Same stash-and-bisect protocol as Task 12 Step 6
+if it fails.
+
+- [ ] **Step 7: Run the full test suite**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`
+
+Expected: identical pass count to Step 1.
+
+- [ ] **Step 8: Quality gate**
+
+```bash
+ruff check wyrdcraeft/services/morphology/generation/common.py
+.venv/bin/mypy wyrdcraeft/services/morphology/generation/common.py
+make napoleon-gate
+```
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add wyrdcraeft/services/morphology/generation/common.py
+git commit -m "refactor: collapse WeakVerbGenerator's partial/Callable callback threading into direct method calls, delete callback Protocols"
+```
+
+---
+
+### Task 14: Final cleanup — dead `_*Context` dataclasses, `tests/morphology/test_generation_branches.py` update, ADR verification
+
+Closes out Tasks 11-13: removes any of the 8 `_*Context` dataclasses in
+`models/morphology.py` that Tasks 12-13 left fully unused, updates
+`test_generation_branches.py` for any call site that mocked/monkeypatched a
+now-removed `Callable`-parameter signature, and confirms ADR 0009 now
+accurately describes the delivered state (no further ADR correction should
+be needed if Tasks 11-13 landed as designed — this step is verification, not
+another rewrite).
+
+**Files:**
+- Modify: `wyrdcraeft/models/morphology.py` (remove confirmed-dead
+  `_*Context` dataclasses only)
+- Modify: `tests/morphology/test_generation_branches.py` (any remaining call
+  sites referencing removed callback parameters/Protocols)
+- Modify: `docs/adr/0009-morphology-generation-class-refactor.md` (only if
+  verification finds a remaining mismatch)
+
+**Interfaces:**
+- Consumes: the state Tasks 11-13 leave behind.
+- Produces: nothing new — pure cleanup and verification.
+
+- [ ] **Step 1: Record baseline**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`, note pass count.
+
+- [ ] **Step 2: Grep for each of the 8 `_*Context` dataclasses' usage**
+
+For each of `_StrongPrincipalPartContext`, `_StrongInfDerivationContext`,
+`_WeakPrincipalPartContext`, `_WeakInfDerivationContext`,
+`_WeakPainsg1DerivationContext`, `_WeakPsinsg2DerivationContext` (and any
+others Tasks 12-13's reports name), grep the whole repo for construction/
+import sites. Delete only the ones with zero remaining references; leave any
+still-constructed dataclass alone and note why in your report.
+
+- [ ] **Step 3: Update `test_generation_branches.py` for any remaining stale call site**
+
+Read the file for any test still monkeypatching/mocking a `Callable`
+parameter or `Protocol` type Tasks 12-13 removed; update to call the
+now-direct method instead, same pattern as Tasks 12-13's own test updates.
+
+- [ ] **Step 4: Run the golden-path parity gate**
+
+Run: `.venv/bin/pytest tests/morphology/test_parity_harness.py -v`
+
+Expected: PASS, zero diff.
+
+- [ ] **Step 5: Run the full test suite**
+
+Run: `.venv/bin/pytest tests/morphology/ tests/lexicon/ -q`
+
+Expected: identical pass count to Step 1.
+
+- [ ] **Step 6: Verify ADR 0009 accuracy**
+
+Re-read `docs/adr/0009-morphology-generation-class-refactor.md` Decision
+items 3-4 and Consequences against the code Tasks 11-13 produced. If
+everything now matches (dispatch tables exist, callback threading is gone,
+named Protocols are deleted), no edit is needed — say so in your report. If
+anything still doesn't match (e.g. a `_*Context` dataclass Step 2 correctly
+kept because it's still used, contradicting a Consequences claim that all
+context-passing goes away), edit the ADR to describe the actual final state
+accurately.
+
+- [ ] **Step 7: Quality gate**
+
+```bash
+ruff check wyrdcraeft/models/morphology.py wyrdcraeft/services/morphology/generation/common.py tests/morphology/test_generation_branches.py
+.venv/bin/mypy wyrdcraeft/models/morphology.py wyrdcraeft/services/morphology/generation/common.py
+make napoleon-gate
+```
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add wyrdcraeft/models/morphology.py tests/morphology/test_generation_branches.py docs/adr/0009-morphology-generation-class-refactor.md
+git commit -m "chore: remove dead verb-context dataclasses, verify ADR 0009 matches delivered state"
+```
