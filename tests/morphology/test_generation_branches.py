@@ -9,6 +9,8 @@ from wyrdcraeft.models.morphology import (
     ParadigmVariant,
     VerbParadigm,
     Word,
+    _StrongInfDerivationContext,
+    _StrongPrincipalPartContext,
 )
 from wyrdcraeft.services.morphology.generation.participles import (
     add_participle_to_adjectives,
@@ -393,244 +395,272 @@ def test_emit_sound_changed_from_source_keeps_source_ordering() -> None:
     ]
 
 
+def _strong_inf_context(**overrides: object) -> _StrongInfDerivationContext:
+    payload: dict[str, object] = {
+        "formhash": _base_formhash() | {"class1": "s"},
+        "word": _make_word(),
+        "prefix": "0",
+        "pre_vowel": "0",
+        "base_vowel": "a",
+        "post_vowel": "m",
+        "boundary": "n",
+    }
+    payload.update(overrides)
+    return _StrongInfDerivationContext(**payload)  # type: ignore[arg-type]
+
+
+def _strong_principal_context(**overrides: object) -> _StrongPrincipalPartContext:
+    payload: dict[str, object] = {
+        "formhash": _base_formhash() | {"class1": "s"},
+        "word": _make_word(),
+        "prefix": "0",
+        "pre_vowel": "0",
+        "post_vowel": "m",
+        "boundary": "n",
+        "ending": "an",
+    }
+    payload.update(overrides)
+    return _StrongPrincipalPartContext(**payload)  # type: ignore[arg-type]
+
+
+class _RecordingSink:
+    """Capture emitted ``form_data`` payloads without TSV geminate expansion."""
+
+    def __init__(self) -> None:
+        self.rows: list[tuple[str, str, str]] = []
+
+    def emit_form_data(
+        self, run_state: object, form_data: dict[str, str]
+    ) -> list[object]:
+        """Record one emitted row payload."""
+        del run_state
+        self.rows.append(
+            (form_data["form"], form_data["function"], form_data["probability"])
+        )
+        return []
+
+
+def _strong_generator(
+    session: GeneratorSession, sink: _RecordingSink
+) -> StrongVerbGenerator:
+    return StrongVerbGenerator(
+        session.word_pool,
+        session.run_state,
+        cast("io.StringIO", sink),
+    )
+
+
 def test_emit_strong_derived_from_inf_non_umlaut_an_branch_order() -> None:
-    observed: list[tuple[str, str, str | int | None]] = []
-
-    def _emit_form(
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        observed.append((ending, function, probability))
-        return "form", f"fp-{ending}-{function}"
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     fp = strong._emit_derived_from_inf_non_umlaut(
+        context=_strong_inf_context(),
+        vowel="a",
         ending="an",
         probability=0,
         probability_plus_one=1,
-        emit_form=_emit_form,
     )
 
-    assert fp == "fp-ende-PsPt"
-    assert observed == [
-        ("anne", "IdIf", 0),
-        ("enne", "IdIf", 0),
-        ("ende", "PsPt", 0),
-        ("e", "PsInSg1", 0),
-        ("u", "PsInSg1", 1),
-        ("o", "PsInSg1", 1),
-        ("æ", "PsInSg1", 1),
-        ("aþ", "PsInPl", 0),
-        ("eþ", "PsInPl", 1),
-        ("es", "PsInPl", 1),
-        ("as", "PsInPl", 1),
-        ("e", "PsSuSg", 0),
-        ("en", "PsSuPl", 0),
-        ("aþ", "ImPl", 0),
+    assert fp == "0-0-a-m-n-ende"
+    assert sink.rows == [
+        ("amnanne", "IdIf", "0"),
+        ("amnenne", "IdIf", "0"),
+        ("amnende", "PsPt", "0"),
+        ("amne", "PsInSg1", "0"),
+        ("amnu", "PsInSg1", "1"),
+        ("amno", "PsInSg1", "1"),
+        ("amnæ", "PsInSg1", "1"),
+        ("amnaþ", "PsInPl", "0"),
+        ("amneþ", "PsInPl", "1"),
+        ("amnes", "PsInPl", "1"),
+        ("amnas", "PsInPl", "1"),
+        ("amne", "PsSuSg", "0"),
+        ("amnen", "PsSuPl", "0"),
+        ("amnaþ", "ImPl", "0"),
+    ]
+
+
+def test_emit_strong_derived_from_inf_non_umlaut_n_branch_order() -> None:
+    session = GeneratorSession()
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
+    fp = strong._emit_derived_from_inf_non_umlaut(
+        context=_strong_inf_context(),
+        vowel="a",
+        ending="n",
+        probability=0,
+        probability_plus_one=1,
+    )
+
+    assert fp == "0-0-a-m-n-nde"
+    assert sink.rows == [
+        ("amnnne", "IdIf", "0"),
+        ("amnnde", "PsPt", "0"),
+        ("amn", "PsInSg1", "0"),
+        ("amnþ", "PsInPl", "0"),
+        ("amn", "PsSuSg", "0"),
+        ("amnn", "PsSuPl", "0"),
+        ("amnþ", "ImPl", "0"),
     ]
 
 
 def test_emit_strong_umlaut_for_vowel_sequence() -> None:
-    forms: list[tuple[str, str, str | int | None]] = []
-    sounds: list[tuple[str, str, str | int | None]] = []
-
-    def _emit_form(
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        forms.append((ending, function, probability))
-        return "form", "parts"
-
-    def _emit_sound(
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> None:
-        sounds.append((ending, function, probability))
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     strong._emit_umlaut_for_vowel(
+        context=_strong_inf_context(),
+        vowel="æ",
         probability=2,
-        emit_form=_emit_form,
-        emit_sound=_emit_sound,
     )
 
-    assert forms == [
-        ("stu", "PsInSg2", 3),
-        ("est", "PsInSg2", 3),
-        ("ist", "PsInSg2", 3),
-        ("s", "PsInSg2", 3),
-        ("eþ", "PsInSg3", 3),
-        ("iþ", "PsInSg3", 3),
+    rows = sink.rows
+    assert [(row[1], row[2]) for row in rows if row[1] == "PsInSg2"][:5] == [
+        ("PsInSg2", "3"),
+        ("PsInSg2", "3"),
+        ("PsInSg2", "3"),
+        ("PsInSg2", "3"),
+        ("PsInSg2", "2"),
     ]
-    assert sounds == [
-        ("st", "PsInSg2", 2),
-        ("þ", "PsInSg3", 2),
-    ]
+    assert rows[0] == ("æmnstu", "PsInSg2", "3")
+    assert rows[1] == ("æmnest", "PsInSg2", "3")
+    assert rows[2] == ("æmnist", "PsInSg2", "3")
+    assert rows[3] == ("æmns", "PsInSg2", "3")
+    assert rows[4] == ("æmnst", "PsInSg2", "2")
+    # The sound-change branch appends derived rows after its own source row.
+    assert ("æmneþ", "PsInSg3", "3") in rows
+    assert ("æmniþ", "PsInSg3", "3") in rows
+    assert ("æmnþ", "PsInSg3", "2") in rows
 
 
 def test_emit_strong_derived_from_inf_sequence_event_ordering() -> None:
-    events: list[tuple[object, ...]] = []
-
-    def _emit_form_for_vowel(
-        active_vowel: str,
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        events.append(("form", active_vowel, ending, function, probability))
-        return "form", f"fp-{active_vowel}-{ending}-{function}"
-
-    def _emit_sound_for_vowel(
-        active_vowel: str,
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> None:
-        events.append(("sound", active_vowel, ending, function, probability))
-
-    def _on_participle(form_parts: str) -> None:
-        events.append(("part", form_parts))
-
-    def _emit_imsg(probability: str | int | None) -> None:
-        events.append(("imsg", probability))
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     strong._emit_derived_from_inf_sequence(
+        context=_strong_inf_context(),
         ending="an",
         vowel="a",
         probability=1,
         umlaut_vowels=["æ", "e"],
-        emit_form_for_vowel=_emit_form_for_vowel,
-        emit_sound_for_vowel=_emit_sound_for_vowel,
-        on_participle=_on_participle,
-        emit_imsg=_emit_imsg,
     )
 
-    part_idx = events.index(("part", "fp-a-ende-PsPt"))
-    assert part_idx > 0
-    assert events[0] == ("form", "a", "anne", "IdIf", 1)
-    assert events[part_idx + 1] == ("imsg", 1)
-    assert ("sound", "æ", "st", "PsInSg2", 1) in events
-    assert ("sound", "e", "þ", "PsInSg3", 2) in events
+    rows = sink.rows
+    assert rows[0] == ("amnanne", "IdIf", "1")
+    pspt_idx = rows.index(("amnende", "PsPt", "1"))
+    imsg_idx = next(idx for idx, row in enumerate(rows) if row[1] == "ImSg")
+    # ``ImSg`` is emitted immediately after the non-umlaut block completes.
+    assert imsg_idx > pspt_idx
+    assert rows[imsg_idx][2] == "1"
+    # Umlaut branches follow, one per umlaut vowel, with incrementing probability.
+    assert ("æmnst", "PsInSg2", "1") in rows
+    assert ("emnþ", "PsInSg3", "2") in rows
+    # The present participle is projected into the adjective pool.
+    assert len(session.word_pool.adjectives) == 1
 
 
-def test_dispatch_strong_verb_part_branches_painpl() -> None:
-    calls: list[str] = []
+def test_dispatch_strong_derived_from_principal_part_routes_painpl() -> None:
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
 
-    did_dispatch = strong._dispatch_verb_part_branches(
+    did_dispatch = strong._dispatch_derived_from_principal_part(
+        context=_strong_principal_context(),
         para_id="PaInPl",
-        on_papt=lambda: calls.append("papt"),
-        on_inf=lambda: calls.append("if"),
-        on_painsg1=lambda: calls.append("painsg1"),
-        on_painpl=lambda: calls.append("painpl"),
+        form_parts="0-0-a-m-n-e",
+        active_vowel="a",
+        probability=1,
     )
 
     assert did_dispatch
-    assert calls == ["painpl"]
+    assert sink.rows == [
+        ("amne", "PaInSg2", "1"),
+        ("amne", "PaSuSg", "1"),
+        ("amnen", "PaSuPl", "1"),
+    ]
+    assert not session.word_pool.adjectives
 
 
-def test_dispatch_strong_verb_part_branches_papt_only() -> None:
-    calls: list[str] = []
+def test_dispatch_strong_derived_from_principal_part_papt_only() -> None:
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
 
-    did_dispatch = strong._dispatch_verb_part_branches(
+    did_dispatch = strong._dispatch_derived_from_principal_part(
+        context=_strong_principal_context(),
         para_id="PaPt",
-        on_papt=lambda: calls.append("papt"),
-        on_inf=lambda: calls.append("if"),
-        on_painsg1=lambda: calls.append("painsg1"),
-        on_painpl=lambda: calls.append("painpl"),
+        form_parts="0-0-a-m-n-en",
+        active_vowel="a",
+        probability=None,
     )
 
     assert did_dispatch
-    assert calls == ["papt"]
+    # ``PaPt`` only projects a past participle; it emits no further form rows.
+    assert sink.rows == []
+    assert len(session.word_pool.adjectives) == 1
+    assert session.word_pool.adjectives[0].papart == 1
 
 
 def test_dispatch_strong_derived_from_principal_part_routes_painsg1() -> None:
-    observed: list[tuple[object, ...]] = []
-
-    def _on_papt_form_parts(form_parts: str) -> None:
-        observed.append(("papt", form_parts))
-
-    def _on_inf(active_vowel: str, probability: str | int | None) -> None:
-        observed.append(("if", active_vowel, probability))
-
-    def _emit_form_for_vowel(
-        active_vowel: str,
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        observed.append(("form", active_vowel, ending, function, probability))
-        return "form", "parts"
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     did_dispatch = strong._dispatch_derived_from_principal_part(
+        context=_strong_principal_context(),
         para_id="PaInSg1",
         form_parts="fp-main",
         active_vowel="a",
         probability=2,
-        on_papt_form_parts=_on_papt_form_parts,
-        on_inf=_on_inf,
-        emit_form_for_vowel=_emit_form_for_vowel,
     )
 
     assert did_dispatch
-    assert observed == [("form", "a", "0", "PaInSg3", 2)]
+    assert sink.rows == [("amn", "PaInSg3", "2")]
+
+
+def test_dispatch_strong_derived_from_principal_part_unknown_para_id() -> None:
+    session = GeneratorSession()
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
+    did_dispatch = strong._dispatch_derived_from_principal_part(
+        context=_strong_principal_context(),
+        para_id="PsInSg1",
+        form_parts="fp-main",
+        active_vowel="a",
+        probability=2,
+    )
+
+    assert not did_dispatch
+    assert sink.rows == []
 
 
 def test_emit_strong_painsg1_derived_sequence() -> None:
-    observed: list[tuple[str, str, str | int | None]] = []
-
-    def _emit_form(
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        observed.append((ending, function, probability))
-        return "form", "parts"
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     strong._emit_painsg1_derived(
+        context=_strong_principal_context(),
+        active_vowel="a",
         probability=0,
-        emit_form=_emit_form,
     )
 
-    assert observed == [("0", "PaInSg3", 0)]
+    assert sink.rows == [("amn", "PaInSg3", "0")]
 
 
 def test_emit_strong_painpl_derived_sequence() -> None:
-    observed: list[tuple[str, str, str | int | None]] = []
-
-    def _emit_form(
-        ending: str,
-        function: str,
-        probability: str | int | None,
-    ) -> tuple[str, str]:
-        observed.append((ending, function, probability))
-        return "form", "parts"
-
     session = GeneratorSession()
-    strong = StrongVerbGenerator(session.word_pool, session.run_state, io.StringIO())
+    sink = _RecordingSink()
+    strong = _strong_generator(session, sink)
     strong._emit_painpl_derived(
+        context=_strong_principal_context(),
+        active_vowel="a",
         probability=1,
-        emit_form=_emit_form,
     )
 
-    assert observed == [
-        ("e", "PaInSg2", 1),
-        ("e", "PaSuSg", 1),
-        ("en", "PaSuPl", 1),
+    assert sink.rows == [
+        ("amne", "PaInSg2", "1"),
+        ("amne", "PaSuSg", "1"),
+        ("amnen", "PaSuPl", "1"),
     ]
 
 
@@ -915,10 +945,7 @@ def test_emit_weak_principal_form_probability_switch_for_painsg1() -> None:
         ) = args
         return (
             "form",
-            (
-                f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-"
-                f"{boundary}-{dental}-{ending}"
-            ),
+            (f"{prefix}-{pre_vowel}-{vowel}-{post_vowel}-{boundary}-{dental}-{ending}"),
         )
 
     session = GeneratorSession()
@@ -1054,8 +1081,7 @@ def test_emit_weak_derived_from_inf_by_class2_two_uses_general_path() -> None:
 
     assert observed[0] == (None, "ian", "if", 0)
     assert all(
-        not (ending == "an" and function == "if")
-        for _, ending, function, _ in observed
+        not (ending == "an" and function == "if") for _, ending, function, _ in observed
     )
     assert participles == ["fp-ende-PsPt"]
 

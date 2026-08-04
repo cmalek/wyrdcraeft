@@ -617,35 +617,27 @@ class StrongVerbGenerator:
         """
         self._emit_derived_inf_imsg(context, prob)
 
-    def _emit_derived_from_inf_sequence(  # noqa: PLR0913
+    def _emit_derived_from_inf_sequence(
         self,
         *,
+        context: _StrongInfDerivationContext,
         ending: str,
         vowel: str,
         probability: str | int | None,
         umlaut_vowels: Sequence[str],
-        emit_form_for_vowel: Callable[
-            [str, str, str, str | int | None], tuple[str, str]
-        ],
-        emit_sound_for_vowel: Callable[[str, str, str, str | int | None], None],
-        on_participle: Callable[[str], None],
-        emit_imsg: Callable[[str | int | None], None],
     ) -> None:
         """
         Emit the full strong-verb infinitive-derived sequence.
 
         Side Effects:
-            Invokes emission callbacks for non-umlaut, imperative, and umlaut forms.
+            Emits non-umlaut, imperative, participle, and umlaut rows.
 
         Args:
+            context: Shared strong infinitive-derivation context.
             ending: Original paradigm ending from the infinitive principal part.
             vowel: Base infinitive vowel.
             probability: Base probability scalar for the branch.
             umlaut_vowels: Ordered umlaut vowel variants for the base vowel.
-            emit_form_for_vowel: Callback that emits a form for one active vowel.
-            emit_sound_for_vowel: Callback that emits sound-change rows for one vowel.
-            on_participle: Callback that consumes the emitted participle form-parts.
-            emit_imsg: Callback that emits the ``ImSg`` derived row.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
@@ -653,75 +645,44 @@ class StrongVerbGenerator:
         """
         probability_plus_one = probability_plus(probability, delta=1, empty_default=1)
         form_parts = self._emit_derived_from_inf_non_umlaut(
+            context=context,
+            vowel=vowel,
             ending=ending,
             probability=probability,
             probability_plus_one=probability_plus_one,
-            emit_form=lambda ending_value, function, prob_value: emit_form_for_vowel(
-                vowel,
-                ending_value,
-                function,
-                prob_value,
-            ),
         )
-        on_participle(form_parts)
-        emit_imsg(probability)
+        self._emit_derived_inf_participle_context(context, form_parts)
+        self._emit_derived_inf_imsg_context(context, probability)
 
         for mv_idx, mvowel in enumerate(umlaut_vowels):
             mv_prob = int(probability) + mv_idx if probability is not None else mv_idx
-
-            def emit_umlaut(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-                *,
-                _mvowel: str = mvowel,
-            ) -> tuple[str, str]:
-                return emit_form_for_vowel(
-                    _mvowel,
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            def emit_umlaut_sound(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-                *,
-                _mvowel: str = mvowel,
-            ) -> None:
-                emit_sound_for_vowel(
-                    _mvowel,
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
             self._emit_umlaut_for_vowel(
+                context=context,
+                vowel=mvowel,
                 probability=mv_prob,
-                emit_form=emit_umlaut,
-                emit_sound=emit_umlaut_sound,
             )
 
     def _emit_derived_from_inf_non_umlaut(
         self,
         *,
+        context: _StrongInfDerivationContext,
+        vowel: str,
         ending: str,
         probability: str | int | None,
         probability_plus_one: int,
-        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
     ) -> str:
         """
         Emit non-umlaut strong-verb forms derived from the infinitive principal part.
 
         Side Effects:
-            Writes generated rows through ``emit_form``.
+            Writes generated rows to the morphology output stream.
 
         Args:
+            context: Shared strong infinitive-derivation context.
+            vowel: Base infinitive vowel used for every emitted row.
             ending: Original paradigm ending from the infinitive part.
             probability: Base probability scalar.
             probability_plus_one: Incremented probability scalar.
-            emit_form: Callback that emits one generated form.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
@@ -730,212 +691,138 @@ class StrongVerbGenerator:
             Final participle ``formParts`` string used for adjective derivation.
 
         """
+        # Local shorthand for this class's own bound emitter; the emission table
+        # below is flat and unconditional, so every row goes to the same method.
+        emit = self._emit_derived_inf_form_for_vowel_context
+
         if "an" in ending:
-            emit_form("anne", "IdIf", probability)
-            emit_form("enne", "IdIf", probability)
-            _, participle_form_parts = emit_form("ende", "PsPt", probability)
+            emit(context, vowel, "anne", "IdIf", probability)
+            emit(context, vowel, "enne", "IdIf", probability)
+            _, participle_form_parts = emit(context, vowel, "ende", "PsPt", probability)
 
-            emit_form("e", "PsInSg1", probability)
-            emit_form("u", "PsInSg1", probability_plus_one)
-            emit_form("o", "PsInSg1", probability_plus_one)
-            emit_form("æ", "PsInSg1", probability_plus_one)
+            emit(context, vowel, "e", "PsInSg1", probability)
+            emit(context, vowel, "u", "PsInSg1", probability_plus_one)
+            emit(context, vowel, "o", "PsInSg1", probability_plus_one)
+            emit(context, vowel, "æ", "PsInSg1", probability_plus_one)
 
-            emit_form("aþ", "PsInPl", probability)
-            emit_form("eþ", "PsInPl", probability_plus_one)
-            emit_form("es", "PsInPl", probability_plus_one)
-            emit_form("as", "PsInPl", probability_plus_one)
+            emit(context, vowel, "aþ", "PsInPl", probability)
+            emit(context, vowel, "eþ", "PsInPl", probability_plus_one)
+            emit(context, vowel, "es", "PsInPl", probability_plus_one)
+            emit(context, vowel, "as", "PsInPl", probability_plus_one)
 
-            emit_form("e", "PsSuSg", probability)
-            emit_form("en", "PsSuPl", probability)
-            emit_form("aþ", "ImPl", probability)
+            emit(context, vowel, "e", "PsSuSg", probability)
+            emit(context, vowel, "en", "PsSuPl", probability)
+            emit(context, vowel, "aþ", "ImPl", probability)
             return participle_form_parts
 
-        emit_form("nne", "IdIf", probability)
-        _, participle_form_parts = emit_form("nde", "PsPt", probability)
+        emit(context, vowel, "nne", "IdIf", probability)
+        _, participle_form_parts = emit(context, vowel, "nde", "PsPt", probability)
 
-        emit_form("0", "PsInSg1", probability)
-        emit_form("þ", "PsInPl", probability)
-        emit_form("0", "PsSuSg", probability)
-        emit_form("n", "PsSuPl", probability)
-        emit_form("þ", "ImPl", probability)
+        emit(context, vowel, "0", "PsInSg1", probability)
+        emit(context, vowel, "þ", "PsInPl", probability)
+        emit(context, vowel, "0", "PsSuSg", probability)
+        emit(context, vowel, "n", "PsSuPl", probability)
+        emit(context, vowel, "þ", "ImPl", probability)
         return participle_form_parts
 
     def _emit_umlaut_for_vowel(
         self,
         *,
+        context: _StrongInfDerivationContext,
+        vowel: str,
         probability: int,
-        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
-        emit_sound: Callable[[str, str, str | int | None], None],
     ) -> None:
         """
         Emit umlaut-derived ``PsInSg2`` and ``PsInSg3`` strong-verb forms.
 
         Side Effects:
-            Writes generated rows through ``emit_form`` and ``emit_sound``.
+            Writes generated and sound-changed rows to the output stream.
 
         Args:
+            context: Shared strong infinitive-derivation context.
+            vowel: Umlauted vowel variant for this branch.
             probability: Base umlaut probability for this vowel variant.
-            emit_form: Callback that emits one generated form.
-            emit_sound: Callback that emits one sound-change branch.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
 
         """
-        emit_form("stu", "PsInSg2", probability + 1)
-        emit_form("est", "PsInSg2", probability + 1)
-        emit_form("ist", "PsInSg2", probability + 1)
-        emit_form("s", "PsInSg2", probability + 1)
-        emit_sound("st", "PsInSg2", probability)
+        emit = self._emit_derived_inf_form_for_vowel_context
+        emit_sound = self._emit_derived_inf_sound_for_vowel_context
+        emit(context, vowel, "stu", "PsInSg2", probability + 1)
+        emit(context, vowel, "est", "PsInSg2", probability + 1)
+        emit(context, vowel, "ist", "PsInSg2", probability + 1)
+        emit(context, vowel, "s", "PsInSg2", probability + 1)
+        emit_sound(context, vowel, "st", "PsInSg2", probability)
 
-        emit_form("eþ", "PsInSg3", probability + 1)
-        emit_form("iþ", "PsInSg3", probability + 1)
-        emit_sound("þ", "PsInSg3", probability)
+        emit(context, vowel, "eþ", "PsInSg3", probability + 1)
+        emit(context, vowel, "iþ", "PsInSg3", probability + 1)
+        emit_sound(context, vowel, "þ", "PsInSg3", probability)
 
-    def _dispatch_verb_part_branches(
+    def _dispatch_derived_from_principal_part(
         self,
         *,
+        context: _StrongPrincipalPartContext,
         para_id: str,
-        on_papt: Callable[[], None],
-        on_inf: Callable[[], None],
-        on_painsg1: Callable[[], None],
-        on_painpl: Callable[[], None],
+        form_parts: str,
+        active_vowel: str,
+        probability: str | int | None,
     ) -> bool:
         """
-        Dispatch strong-verb principal-part branch actions for one ``para_id``.
+        Dispatch and emit strong derived branches for one principal-part emission.
 
         Side Effects:
-            Invokes at least one branch callback when a branch matches.
+            Emits derived branch rows and participle side effects per ``para_id``.
 
         Args:
-            para_id: Principal function identifier from paradigm row.
-            on_papt: Callback for past-participle branch side effects.
-            on_inf: Callback for infinitive-derived branch.
-            on_painsg1: Callback for ``PaInSg1``-derived branch.
-            on_painpl: Callback for ``PaInPl``-derived branch.
+            context: Shared strong principal-part context.
+            para_id: Principal function identifier from the paradigm row.
+            form_parts: Emitted principal-form ``formParts`` string.
+            active_vowel: Active vowel for the current branch context.
+            probability: Probability scalar for derived branch emissions.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
 
         Returns:
-            ``True`` when any branch callback was invoked, else ``False``.
+            ``True`` when any derived branch was emitted, else ``False``.
 
         """
         invoked = False
         para_id_lower = para_id.lower()
 
         if para_id_lower == "papt":
-            on_papt()
+            self._emit_principal_participle_context(context, form_parts)
             invoked = True
 
         if para_id_lower == "if":
-            on_inf()
+            self._emit_principal_inf_derivation_context(
+                context, active_vowel, probability
+            )
             return True
         if para_id_lower == "painsg1":
-            on_painsg1()
+            self._emit_painsg1_derived(
+                context=context,
+                active_vowel=active_vowel,
+                probability=probability,
+            )
             return True
         if para_id_lower == "painpl":
-            on_painpl()
+            self._emit_painpl_derived(
+                context=context,
+                active_vowel=active_vowel,
+                probability=probability,
+            )
             return True
         return invoked
 
-    def _dispatch_derived_from_principal_part(  # noqa: PLR0913
+    def _emit_principal_part_sequence(
         self,
         *,
-        para_id: str,
-        form_parts: str,
-        active_vowel: str,
-        probability: str | int | None,
-        on_papt_form_parts: Callable[[str], None],
-        on_inf: Callable[[str, str | int | None], None],
-        emit_form_for_vowel: Callable[
-            [str, str, str, str | int | None], tuple[str, str]
-        ],
-    ) -> bool:
-        """
-        Dispatch and emit strong derived branches for one principal-part emission.
-
-        Side Effects:
-            Invokes branch emitters and participle sinks according to ``para_id``.
-
-        Args:
-            para_id: Principal function identifier from the paradigm row.
-            form_parts: Emitted principal-form ``formParts`` string.
-            active_vowel: Active vowel for the current branch context.
-            probability: Probability scalar for derived branch emissions.
-            on_papt_form_parts: Sink for ``PaPt`` participle projection.
-            on_inf: Callback that emits infinitive-derived branches.
-            emit_form_for_vowel: Callback for one strong form on ``active_vowel``.
-
-        Keyword Args:
-            Uses keyword-only parameters for all inputs.
-
-        Returns:
-            ``True`` when any branch callback was invoked, else ``False``.
-
-        """
-
-        def on_papt() -> None:
-            on_papt_form_parts(form_parts)
-
-        def on_inf_branch() -> None:
-            on_inf(active_vowel, probability)
-
-        def on_painsg1_branch() -> None:
-            def emit_form(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-            ) -> tuple[str, str]:
-                return emit_form_for_vowel(
-                    active_vowel,
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            self._emit_painsg1_derived(
-                probability=probability,
-                emit_form=emit_form,
-            )
-
-        def on_painpl_branch() -> None:
-            def emit_form(
-                ending_value: str,
-                function: str,
-                prob_value: str | int | None,
-            ) -> tuple[str, str]:
-                return emit_form_for_vowel(
-                    active_vowel,
-                    ending_value,
-                    function,
-                    prob_value,
-                )
-
-            self._emit_painpl_derived(
-                probability=probability,
-                emit_form=emit_form,
-            )
-
-        return self._dispatch_verb_part_branches(
-            para_id=para_id,
-            on_papt=on_papt,
-            on_inf=on_inf_branch,
-            on_painsg1=on_painsg1_branch,
-            on_painpl=on_painpl_branch,
-        )
-
-    def _emit_principal_part_sequence(  # noqa: PLR0913
-        self,
-        *,
+        context: _StrongPrincipalPartContext,
         para_id: str,
         ending: str,
         vowels: Sequence[str],
-        emit_form_for_vowel: Callable[
-            [str, str, str, str | int | None], tuple[str, str]
-        ],
-        on_papt_form_parts: Callable[[str], None],
-        on_inf: Callable[[str, str | int | None], None],
     ) -> None:
         """
         Emit one strong principal-part sequence and dispatch derived branches.
@@ -947,15 +834,13 @@ class StrongVerbGenerator:
             vowel-first branching order unchanged for parity.
 
         Side Effects:
-            Emits forms and invokes derived-branch callbacks for each active vowel.
+            Emits forms and derived branch rows for each active vowel.
 
         Args:
+            context: Shared strong principal-part context.
             para_id: Principal function identifier from the paradigm row.
             ending: Morphological ending from the active principal part.
             vowels: Ordered vowel variants to emit for the principal part.
-            emit_form_for_vowel: Callback emitting one form for one active vowel.
-            on_papt_form_parts: Callback receiving ``PaPt`` participle form-parts.
-            on_inf: Callback emitting infinitive-derived branches.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
@@ -963,62 +848,69 @@ class StrongVerbGenerator:
         """
         for vcount, active_vowel in enumerate(vowels):
             prob: str | int | None = 1 if vcount == 1 else None
-            _, form_parts = emit_form_for_vowel(active_vowel, ending, para_id, prob)
+            _, form_parts = self._emit_principal_form_for_vowel_context(
+                context, active_vowel, ending, para_id, prob
+            )
             self._dispatch_derived_from_principal_part(
+                context=context,
                 para_id=para_id,
                 form_parts=form_parts,
                 active_vowel=active_vowel,
                 probability=prob,
-                on_papt_form_parts=on_papt_form_parts,
-                on_inf=on_inf,
-                emit_form_for_vowel=emit_form_for_vowel,
             )
 
     def _emit_painsg1_derived(
         self,
         *,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
         probability: str | int | None,
-        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
     ) -> None:
         """
         Emit ``PaInSg1``-derived strong-verb side branch forms.
 
         Side Effects:
-            Writes generated rows through ``emit_form``.
+            Writes generated rows to the morphology output stream.
 
         Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active vowel for the current branch context.
             probability: Base probability scalar for branch emissions.
-            emit_form: Callback that emits one generated form.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
 
         """
-        emit_form("0", "PaInSg3", probability)
+        self._emit_principal_form_for_vowel_context(
+            context, active_vowel, "0", "PaInSg3", probability
+        )
 
     def _emit_painpl_derived(
         self,
         *,
+        context: _StrongPrincipalPartContext,
+        active_vowel: str,
         probability: str | int | None,
-        emit_form: Callable[[str, str, str | int | None], tuple[str, str]],
     ) -> None:
         """
         Emit ``PaInPl``-derived strong-verb side branch forms.
 
         Side Effects:
-            Writes generated rows through ``emit_form``.
+            Writes generated rows to the morphology output stream.
 
         Args:
+            context: Shared strong principal-part context.
+            active_vowel: Active vowel for the current branch context.
             probability: Base probability scalar for branch emissions.
-            emit_form: Callback that emits one generated form.
 
         Keyword Args:
             Uses keyword-only parameters for all inputs.
 
         """
-        emit_form("e", "PaInSg2", probability)
-        emit_form("e", "PaSuSg", probability)
-        emit_form("en", "PaSuPl", probability)
+        emit = self._emit_principal_form_for_vowel_context
+        emit(context, active_vowel, "e", "PaInSg2", probability)
+        emit(context, active_vowel, "e", "PaSuSg", probability)
+        emit(context, active_vowel, "en", "PaSuPl", probability)
 
     # -- principal-part generation --------------------------------------------
 
@@ -1114,20 +1006,11 @@ class StrongVerbGenerator:
             boundary=context.boundary,
         )
         self._emit_derived_from_inf_sequence(
+            context=inf_context,
             ending=context.ending,
             vowel=active_vowel,
             probability=prob,
             umlaut_vowels=OENormalizer.iumlaut([active_vowel]),
-            emit_form_for_vowel=partial(
-                self._emit_derived_inf_form_for_vowel_context, inf_context
-            ),
-            emit_sound_for_vowel=partial(
-                self._emit_derived_inf_sound_for_vowel_context, inf_context
-            ),
-            on_participle=partial(
-                self._emit_derived_inf_participle_context, inf_context
-            ),
-            emit_imsg=partial(self._emit_derived_inf_imsg_context, inf_context),
         )
 
     def generate_verb_parts(  # noqa: PLR0913
@@ -1176,16 +1059,10 @@ class StrongVerbGenerator:
             ending=ending,
         )
         self._emit_principal_part_sequence(
+            context=context,
             para_id=para_id,
             ending=ending,
             vowels=[item.vowel],
-            emit_form_for_vowel=partial(
-                self._emit_principal_form_for_vowel_context, context
-            ),
-            on_papt_form_parts=partial(
-                self._emit_principal_participle_context, context
-            ),
-            on_inf=partial(self._emit_principal_inf_derivation_context, context),
         )
 
 
@@ -1342,6 +1219,8 @@ WeakPsinsg2SoundAction = Callable[
     [_WeakPsinsg2DerivationContext, str, str, str | int | None, int, str],
     None,
 ]
+
+
 class WeakParticipleAdder(Protocol):
     """
     Protocol for adding one participle to adjective storage.
@@ -2860,7 +2739,9 @@ class WeakVerbGenerator:
         )
 
     def _emit_weak_principal_pspt_participle_context(
-        self, context: _WeakPrincipalPartContext, form_parts: str,
+        self,
+        context: _WeakPrincipalPartContext,
+        form_parts: str,
         *,
         add_participle_to_adjectives: WeakParticipleAdder,
     ) -> None:
@@ -2890,7 +2771,9 @@ class WeakVerbGenerator:
         )
 
     def _emit_weak_principal_papt_participle_context(
-        self, context: _WeakPrincipalPartContext, form_parts: str,
+        self,
+        context: _WeakPrincipalPartContext,
+        form_parts: str,
         *,
         add_participle_to_adjectives: WeakParticipleAdder,
     ) -> None:
@@ -3561,7 +3444,9 @@ class WeakVerbGenerator:
         )
 
     def _emit_weak_painsg1_participle_context(
-        self, context: _WeakPainsg1DerivationContext, form_parts: str,
+        self,
+        context: _WeakPainsg1DerivationContext,
+        form_parts: str,
         *,
         add_participle_to_adjectives: WeakParticipleAdder,
     ) -> None:

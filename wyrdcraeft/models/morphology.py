@@ -419,7 +419,7 @@ class _SoundChangeDispatchContext:
 @dataclass(frozen=True)
 class _StrongPrincipalPartContext:
     """
-    Immutable context for strong principal-part callback bindings.
+    Immutable context shared by the strong principal-part emission methods.
 
     Args:
         formhash: Shared form metadata for emitted rows.
@@ -451,7 +451,7 @@ class _StrongPrincipalPartContext:
 @dataclass(frozen=True)
 class _StrongInfDerivationContext:
     """
-    Immutable context for strong infinitive-derived emitter callbacks.
+    Immutable context shared by the strong infinitive-derived emission methods.
 
     Args:
         formhash: Shared form metadata for emitted rows.
