@@ -1,6 +1,6 @@
 {
   "generated_at_utc": "2026-03-04T03:40:40.455377+00:00",
-  "violation_count": 191,
+  "violation_count": 182,
   "violations": [
     {
       "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/cli.py:49:DOC202:cli",
@@ -969,78 +969,6 @@
       "code": "DOC202",
       "symbol": "FormEmitter.emit",
       "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py:18:DOC202:generate_vbforms",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py",
-      "line": 18,
-      "code": "DOC202",
-      "symbol": "generate_vbforms",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py:23:DOC202:generate_adjforms",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py",
-      "line": 23,
-      "code": "DOC202",
-      "symbol": "generate_adjforms",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py:28:DOC202:generate_advforms",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py",
-      "line": 28,
-      "code": "DOC202",
-      "symbol": "generate_advforms",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py:33:DOC202:generate_numforms",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py",
-      "line": 33,
-      "code": "DOC202",
-      "symbol": "generate_numforms",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py:38:DOC202:generate_nounforms",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/dispatch.py",
-      "line": 38,
-      "code": "DOC202",
-      "symbol": "generate_nounforms",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py:18:DOC101:VerbFormOrchestrator",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py",
-      "line": 18,
-      "code": "DOC101",
-      "symbol": "VerbFormOrchestrator",
-      "message": "Class with constructor arguments must document Args: in class docstring."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py:21:DOC200:VerbFormOrchestrator.__init__",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py",
-      "line": 21,
-      "code": "DOC200",
-      "symbol": "VerbFormOrchestrator.__init__",
-      "message": "Missing docstring on function/method."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py:22:DOC301:VerbFormOrchestrator._session",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py",
-      "line": 22,
-      "code": "DOC301",
-      "symbol": "VerbFormOrchestrator._session",
-      "message": "Instance attribute assigned in __init__ is missing '#:' documentation."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py:23:DOC301:VerbFormOrchestrator._output_file",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generation/verb_engine.py",
-      "line": 23,
-      "code": "DOC301",
-      "symbol": "VerbFormOrchestrator._output_file",
-      "message": "Instance attribute assigned in __init__ is missing '#:' documentation."
     },
     {
       "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/morphology/generators/adj_forms.py:15:DOC202:_dedupe_preserve_first",

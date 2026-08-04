@@ -39,6 +39,19 @@ class AdverbFormGenerator:
         *,
         progress: MorphologyGenerateProgressCoordinator | None = None,
     ) -> None:
+        """
+        Bind an adverb form generator to one word pool, run state, and
+        output sink.
+
+        Args:
+            word_pool: Word pool supplying the lemmas to generate forms for.
+            run_state: Mutable per-run generation state.
+            output_file: Output stream receiving generated rows.
+
+        Keyword Args:
+            progress: Optional live progress coordinator.
+
+        """
         #: Word pool supplying the lemmas to generate forms for.
         self._word_pool = word_pool
         #: Mutable per-run generation state.
@@ -61,6 +74,17 @@ class AdverbFormGenerator:
                 self._generate_word(word)
 
     def _generate_word(self, word: Word) -> None:
+        """
+        Generate adverb forms and comparative/superlative derivatives for a
+        single word.
+
+        Side Effects:
+            Writes generated rows to the morphology output stream.
+
+        Args:
+            word: The word to generate forms for.
+
+        """
         if self._progress is not None:
             self._progress.advance(
                 MorphologyStage.ADVERBS,

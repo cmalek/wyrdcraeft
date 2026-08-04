@@ -1342,12 +1342,6 @@ WeakPsinsg2SoundAction = Callable[
     [_WeakPsinsg2DerivationContext, str, str, str | int | None, int, str],
     None,
 ]
-#: Lower bound (exclusive) for using raw item-shape weak forms.
-WEAK_ITEM_SHAPE_MIN_ID: Final[int] = 88
-#: Upper bound (exclusive) for using raw item-shape weak forms.
-WEAK_ITEM_SHAPE_MAX_ID: Final[int] = 93
-
-
 class WeakParticipleAdder(Protocol):
     """
     Protocol for adding one participle to adjective storage.
@@ -1488,9 +1482,9 @@ class WeakVerbGenerator:
     """
 
     #: Lower bound (exclusive) for using raw item-shape weak forms.
-    WEAK_ITEM_SHAPE_MIN_ID: Final[int] = WEAK_ITEM_SHAPE_MIN_ID
+    WEAK_ITEM_SHAPE_MIN_ID: Final[int] = 88
     #: Upper bound (exclusive) for using raw item-shape weak forms.
-    WEAK_ITEM_SHAPE_MAX_ID: Final[int] = WEAK_ITEM_SHAPE_MAX_ID
+    WEAK_ITEM_SHAPE_MAX_ID: Final[int] = 93
 
     def __init__(
         self,

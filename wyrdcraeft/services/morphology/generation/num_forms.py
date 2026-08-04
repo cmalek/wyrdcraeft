@@ -122,6 +122,19 @@ class NumeralFormGenerator:
         *,
         progress: MorphologyGenerateProgressCoordinator | None = None,
     ) -> None:
+        """
+        Bind a numeral form generator to one word pool, run state, and
+        output sink.
+
+        Args:
+            word_pool: Word pool supplying the lemmas to generate forms for.
+            run_state: Mutable per-run generation state.
+            output_file: Form output sink.
+
+        Keyword Args:
+            progress: Optional live progress coordinator.
+
+        """
         #: Word pool supplying the lemmas to generate forms for.
         self._word_pool = word_pool
         #: Mutable per-run generation state.
