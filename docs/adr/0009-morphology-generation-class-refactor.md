@@ -241,20 +241,30 @@ structural refactor, not a behavior change.
      separately dispatched callback chain) and constructs one
      `StrongVerbGenerator` or `WeakVerbGenerator` per word/paradigm to drive.
    - `StrongVerbGenerator` — holds the active `Word`, `VerbParadigm`,
-     `GenerationRunState`, `FormOutput`, and per-variant/per-part context as
-     instance state (replacing `_StrongPrincipalPartContext` and the
+     `GenerationRunState`, and `FormOutput` as instance state, replacing the
      `partial()`-bound emitter chain across `strong_inflections.py`,
-     `strong_principal_flow.py`, and `strong_derivation_flow.py`). Methods
-     correspond directly to Perl block names (`_emit_principal_part`,
+     `strong_principal_flow.py`, and `strong_derivation_flow.py` with direct
+     method calls on `self`. **As delivered, `_StrongPrincipalPartContext`
+     and `_StrongInfDerivationContext` were not folded into instance state**
+     — they remain explicit dataclasses in `models/morphology.py`,
+     constructed once per principal-part/infinitive-derivation pass and
+     passed as an ordinary method parameter across the class's private
+     `_emit_*`/`_dispatch_*` methods (never assigned to `self`). What changed
+     is only the calling convention: no more `functools.partial`-bound
+     callbacks threaded through free functions — the context object is now
+     one plain argument to a directly-called method. Methods correspond
+     directly to Perl block names (`_emit_principal_part`,
      `_emit_infinitive_derived`, `_emit_painsg1_derived`,
      `_emit_painpl_derived`, `_emit_umlaut_forms`) called in explicit,
      readable sequence from one `generate_word(word, paradigm)` entry method.
    - `WeakVerbGenerator` — same treatment for `_WeakPrincipalPartContext` /
      `_WeakInfDerivationContext` / `_WeakPainsg1DerivationContext` /
      `_WeakPsinsg2DerivationContext` across `weak_inflections.py`,
-     `weak_principal_flow.py`, and `weak_derivation_flow.py`, collapsing the
-     current context-then-emitter-then-context-again indirection into direct
-     method calls on `self`.
+     `weak_principal_flow.py`, and `weak_derivation_flow.py`: the
+     `partial()`-bound emitter chain collapses into direct method calls on
+     `self`, but — as with the strong side — all four context dataclasses
+     remain in `models/morphology.py` and are passed as explicit method
+     parameters, not stored as instance attributes.
    - No `SoundChangeApplier` class. `sound_changes.py`/`sound_dispatch_flow.py`
      are shared cross-PoS infrastructure (see the correction above), not part
      of this collapse. Several of `VerbFormGenerator`'s current methods
@@ -282,17 +292,31 @@ structural refactor, not a behavior change.
      verb-specific callers (the former thin-wrapper methods, now deleted)
      change shape.
 
-   `models/morphology.py` currently exports six `_*Context` dataclasses
+   `models/morphology.py` exports six `_*Context` dataclasses
    (`_StrongPrincipalPartContext`, `_StrongInfDerivationContext`,
    `_WeakPrincipalPartContext`, `_WeakInfDerivationContext`,
    `_WeakPainsg1DerivationContext`, `_WeakPsinsg2DerivationContext`) that
-   exist to carry state between the free functions above. Once that state
-   lives on `StrongVerbGenerator`/`WeakVerbGenerator` instances instead,
-   these dataclasses are largely redundant, but `models/morphology.py` is a
-   separate file from every one named in this task's scope and removing them
-   is a separate blast-radius decision — implementers should confirm at
-   execution time whether removal is in scope or deferred, rather than
-   assuming either way.
+   exist to carry state between the free functions above.
+
+   **Resolved (final task of this ADR's execution, re-verified independently
+   of the tasks that migrated strong/weak verb generation):** these
+   dataclasses were kept, not removed. They turned out not to be redundant
+   with instance state — `StrongVerbGenerator`/`WeakVerbGenerator` never
+   store a context object on `self`; every one of the six dataclasses is
+   still constructed once per generation pass and threaded as an explicit
+   parameter across the relevant class's private `_emit_*`/`_dispatch_*`
+   methods. A whole-repo grep confirms live construction and parameter-type
+   usage for all six inside `wyrdcraeft/services/morphology/generation/common.py`,
+   with matching fixture helpers in
+   `tests/morphology/test_generation_branches.py`. Only the *calling
+   convention* changed: `functools.partial`-bound callback chains collapsed
+   into direct method calls on `self`, with the context dataclass passed as
+   an ordinary argument — the dataclasses themselves were never part of the
+   callback-threading problem this ADR targets, only the free-function/
+   `partial()` indirection around them was. (Three further `_*Context`
+   dataclasses in the same file — `_ParadigmVariantDispatchContext`,
+   `_VariantPartDispatchContext`, `_SoundChangeDispatchContext` — are
+   unrelated to the strong/weak verb collapse and are also confirmed live.)
 
    Given the corrected size of this migration (~5,000 lines / 87 functions,
    not a same-file rename), it should be planned and executed as staged
