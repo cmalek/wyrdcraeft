@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -292,11 +292,13 @@ structural refactor, not a behavior change.
      verb-specific callers (the former thin-wrapper methods, now deleted)
      change shape.
 
-   `models/morphology.py` exports six `_*Context` dataclasses
-   (`_StrongPrincipalPartContext`, `_StrongInfDerivationContext`,
+   `models/morphology.py` exports nine `_*Context` dataclasses in total; six
+   of them are the strong/weak-verb-collapse-relevant ones this section
+   discusses (`_StrongPrincipalPartContext`, `_StrongInfDerivationContext`,
    `_WeakPrincipalPartContext`, `_WeakInfDerivationContext`,
    `_WeakPainsg1DerivationContext`, `_WeakPsinsg2DerivationContext`) that
-   exist to carry state between the free functions above.
+   exist to carry state between the free functions above. The remaining
+   three are unrelated to this ADR's scope and are described below.
 
    **Resolved (final task of this ADR's execution, re-verified independently
    of the tasks that migrated strong/weak verb generation):** these
