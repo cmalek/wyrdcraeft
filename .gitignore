@@ -130,11 +130,7 @@ Ondej_Tich_40-54-1.pdf
 index.db-shm
 index.db-wal
 backups/*
-data/bosworth_toller/anglosaxondictio00bosw_jp2
-data/bosworth_toller/anglosaxondictio00bosw.pdf
+data/
 anglosaxondictio00bosw_jp2.zip
 work_index_list.csv.zstd
-data/source/raw/bosworth_toller
-data/sources/raw
-data/sources/.exclude
 .worktrees/
