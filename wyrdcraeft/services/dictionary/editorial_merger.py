@@ -10,12 +10,12 @@ from ...models.dictionary import (
     BTConsolidatedEntry,
     BTEditorialOp,
     BTLineKind,
+    BTParseWarning,
     BTPos,
     BTSense,
 )
 from ..dictionary.attestation_stripper import _substantive_html_content
 from ..markup import normalize_morphology_title, normalize_old_english
-from .llm_fix_pass import BTParseWarning
 from .sense_metadata import promote_entry_gender_from_senses
 from .source_blocks import BTSourceBlock, BTSourceBlockBuilder
 from .target_resolver import BTTargetResolver

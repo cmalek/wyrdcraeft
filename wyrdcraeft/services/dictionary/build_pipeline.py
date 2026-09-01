@@ -38,8 +38,6 @@ if TYPE_CHECKING:
 
     from sqlalchemy.engine import Connection
 
-    from wyrdcraeft.services.dictionary.llm_fix_pass import BTLLMFixPass
-
 
 class DictionaryBuildProgress(Protocol):
     """Progress callback surface used during unified dictionary builds."""
@@ -239,14 +237,13 @@ class DictionaryBuildPipeline:
         #: Accumulated counters captured in terminal events.
         self._counters = DictionaryBuildCounters()
 
-    def run(  # noqa: PLR0913
+    def run(
         self,
         *,
         source: Path,
         with_morphology: bool,
         morph_options: MorphBuildOptions,
         warnings_path: Path | None = None,
-        llm_fix_pass: BTLLMFixPass | None = None,
         report_path: Path | None = None,
     ) -> DictionaryBuildReport:
         """
@@ -258,7 +255,6 @@ class DictionaryBuildPipeline:
             morph_options: Optional regeneration settings used when stage 4 runs.
             warnings_path: Optional parse warnings JSONL path for the dictionary
                 rebuild stage.
-            llm_fix_pass: Optional LLM repair pass collaborator for warning lines.
             report_path: Optional JSON report path for parse and merge statistics.
 
         Returns:
@@ -278,7 +274,6 @@ class DictionaryBuildPipeline:
         self._rebuild_dictionary(
             source,
             warnings_path=warnings_path,
-            llm_fix_pass=llm_fix_pass,
             report_path=report_path,
         )
 
@@ -334,7 +329,6 @@ class DictionaryBuildPipeline:
         source: Path,
         *,
         warnings_path: Path | None,
-        llm_fix_pass: BTLLMFixPass | None,
         report_path: Path | None,
     ) -> None:
         """
@@ -346,7 +340,6 @@ class DictionaryBuildPipeline:
         Keyword Args:
             warnings_path: Optional parse warnings JSONL path for the rebuild
                 stage.
-            llm_fix_pass: Optional LLM repair pass collaborator for warning lines.
             report_path: Optional JSON report path for parse and merge statistics.
 
         """
@@ -370,7 +363,6 @@ class DictionaryBuildPipeline:
                         source,
                         sink,
                         warnings_path=warnings_path,
-                        llm_fix_pass=llm_fix_pass,
                     )
                 finally:
                     sink.close()

@@ -148,3 +148,15 @@ def test_settings_has_no_ocr_fields():
     field_names = Settings.model_fields.keys()
     ocr_fields = [name for name in field_names if name.startswith("ocr_")]
     assert ocr_fields == []
+
+
+def test_dictionary_build_has_no_llm_flags():
+    from click.testing import CliRunner
+
+    from wyrdcraeft.cli.cli import cli
+
+    result = CliRunner().invoke(cli, ["dictionary", "build", "--help"])
+    assert result.exit_code == 0
+    assert "llm-fix-pass" not in result.output
+    assert "llm-model" not in result.output
+    assert "llm-endpoint" not in result.output

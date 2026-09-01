@@ -294,9 +294,8 @@ def test_dictionary_build_pipeline_infers_pos_when_forms_exist(
         sink: object,
         *,
         warnings_path: Path | None = None,
-        llm_fix_pass: object | None = None,
     ) -> IndexReport:
-        _ = (self, warnings_path, llm_fix_pass)
+        _ = (self, warnings_path)
         entry = BTConsolidatedEntry(
             norm_key="lemma",
             headword_raw="lemma",

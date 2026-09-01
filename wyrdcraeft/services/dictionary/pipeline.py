@@ -8,7 +8,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from wyrdcraeft.models.dictionary import BTLineKind, BTPos
+from wyrdcraeft.models.dictionary import BTLineKind, BTParseWarning, BTPos
 from wyrdcraeft.services.dictionary.attestation_stripper import (
     _substantive_html_content,
 )
@@ -17,9 +17,7 @@ from wyrdcraeft.services.dictionary.etymology_display import (
     relocate_misplaced_etymology_attestations,
 )
 from wyrdcraeft.services.dictionary.line_parser import BTLineParser, ParsedBTLine
-from wyrdcraeft.services.dictionary.llm_fix_pass import (
-    BTLLMFixPass,
-    BTParseWarning,
+from wyrdcraeft.services.dictionary.parse_warnings import (
     append_parse_warnings,
     write_parse_warnings,
 )
@@ -165,13 +163,12 @@ class BTIndexPipeline:
         #: Editorial merge collaborator.
         self.editorial_merger = editorial_merger or BTEditorialMerger()
 
-    def run(  # noqa: PLR0912
+    def run(
         self,
         source: Path,
         sink: BTSqliteSink,
         *,
         warnings_path: Path | None = None,
-        llm_fix_pass: BTLLMFixPass | None = None,
     ) -> IndexReport:
         """
         Index one Bosworth-Toller source file into SQLite.
@@ -186,7 +183,6 @@ class BTIndexPipeline:
 
         Keyword Args:
             warnings_path: Optional path for ``parse_warnings.jsonl`` output.
-            llm_fix_pass: Optional LLM repair pass applied to warning lines only.
 
         Returns:
             Summary report with parse, merge, and write statistics.
@@ -216,9 +212,6 @@ class BTIndexPipeline:
 
         if warnings_path is not None:
             write_parse_warnings(warnings_path, parse_warnings)
-
-        if llm_fix_pass is not None and warnings_path is not None:
-            llm_fix_pass.apply_fixes(warnings_path, parsed_lines)
 
         entries, edit_records = self.editorial_merger.merge(parsed_lines)
         editorial_warnings = self.editorial_merger.collect_editorial_warnings(

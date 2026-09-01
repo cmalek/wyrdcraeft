@@ -21,10 +21,6 @@ from wyrdcraeft.services.dictionary.build_pipeline import (
     DictionaryBuildPipeline,
     MorphBuildOptions,
 )
-from wyrdcraeft.services.dictionary.llm_fix_pass import (
-    DEFAULT_OLLAMA_ENDPOINT,
-    BTLLMFixPass,
-)
 from wyrdcraeft.services.dictionary.query import BTQueryService, entry_to_dict
 from wyrdcraeft.services.dictionary.resources import (
     default_bt_source_path,
@@ -232,24 +228,6 @@ def dictionary_group() -> None:
     help="Optional JSON report path with parse/merge statistics.",
 )
 @click.option(
-    "--llm-fix-pass",
-    is_flag=True,
-    default=False,
-    help="Re-parse warning lines with a local LLM before merge.",
-)
-@click.option(
-    "--llm-model",
-    default="qwen2.5:14b-instruct",
-    show_default=True,
-    help="Ollama model for --llm-fix-pass.",
-)
-@click.option(
-    "--llm-endpoint",
-    default=DEFAULT_OLLAMA_ENDPOINT,
-    show_default=True,
-    help="Ollama /api/generate endpoint for --llm-fix-pass.",
-)
-@click.option(
     "--warnings-file",
     type=click.Path(path_type=Path),
     default=None,
@@ -345,9 +323,6 @@ def build(  # noqa: PLR0913
     ctx: click.Context,
     source: Path,
     report: Path | None,
-    llm_fix_pass: bool,
-    llm_model: str,
-    llm_endpoint: str,
     warnings_file: Path | None,
     with_morphology: bool,
     data_dir: Path | None,
@@ -370,9 +345,6 @@ def build(  # noqa: PLR0913
         ctx: Click context carrying loaded settings and global flags.
         source: Bosworth-Toller source file to index.
         report: Optional JSON statistics report path.
-        llm_fix_pass: When true, repair warning lines with a local LLM.
-        llm_model: Ollama model identifier for the repair pass.
-        llm_endpoint: Ollama generate endpoint URL.
         warnings_file: Optional parse warnings JSONL output path.
         with_morphology: Forces morphology regeneration after dictionary rebuild.
         data_dir: Optional base directory for default morphology files.
@@ -406,11 +378,6 @@ def build(  # noqa: PLR0913
         if warnings_file is not None
         else resolved_index_db.parent / "parse_warnings.jsonl"
     )
-    llm_repair = (
-        BTLLMFixPass(model=llm_model, endpoint=llm_endpoint)
-        if llm_fix_pass
-        else None
-    )
     morph_options = MorphBuildOptions(
         limit=limit,
         full=full,
@@ -432,7 +399,6 @@ def build(  # noqa: PLR0913
             with_morphology=with_morphology,
             morph_options=morph_options,
             warnings_path=resolved_warnings_file,
-            llm_fix_pass=llm_repair,
             report_path=report.resolve() if report is not None else None,
         )
     except (OSError, RuntimeError) as exc:
@@ -453,7 +419,6 @@ def build(  # noqa: PLR0913
                 f"entry_ids_cleared={build_report.entry_ids_cleared}",
                 f"pos_inferred={build_report.pos_inferred}",
                 f"warnings_file={resolved_warnings_file}",
-                f"llm_fix_pass={'yes' if llm_fix_pass else 'no'}",
             ]
         )
     )

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import StrEnum
+from typing import Any
 
 
 class BTPos(StrEnum):
@@ -318,3 +319,70 @@ class BTConsolidatedEntry:
     source_line_nos: list[int] = field(default_factory=list)
     #: Stable source-block ordering within the dictionary build.
     entry_order: int = 0
+
+
+@dataclass(frozen=True)
+class BTParseWarning:
+    """
+    One parse warning emitted during dictionary indexing.
+
+    Attributes:
+        line_no: One-based source line number in ``oe_bt.txt``.
+        body: Raw HTML body field from the source line.
+        headword: Display headword for the warning record.
+        pos_hint: Normalized POS label or ``unknown``.
+        failure_reason: Diagnostic code describing the parse failure.
+        detail: Optional human-readable diagnostic context.
+
+    """
+
+    #: One-based source line number.
+    line_no: int
+    #: Raw HTML body from the source line.
+    body: str
+    #: Display headword for the warning record.
+    headword: str
+    #: Normalized POS hint for the warning record.
+    pos_hint: str
+    #: Machine-readable warning reason.
+    failure_reason: str
+    #: Optional human-readable diagnostic context.
+    detail: str = ""
+
+    def to_json(self) -> dict[str, object]:
+        """
+        Serialize the warning to a JSON-friendly mapping.
+
+        Returns:
+            Mapping suitable for one ``parse_warnings.jsonl`` record.
+
+        """
+        return {
+            "line_no": self.line_no,
+            "body": self.body,
+            "headword": self.headword,
+            "pos_hint": self.pos_hint,
+            "failure_reason": self.failure_reason,
+            **({"detail": self.detail} if self.detail else {}),
+        }
+
+    @classmethod
+    def from_json(cls, payload: dict[str, Any]) -> BTParseWarning:
+        """
+        Parse one warning record from JSONL.
+
+        Args:
+            payload: Decoded JSON object from ``parse_warnings.jsonl``.
+
+        Returns:
+            Parsed warning record.
+
+        """
+        return cls(
+            line_no=int(payload["line_no"]),
+            body=str(payload["body"]),
+            headword=str(payload["headword"]),
+            pos_hint=str(payload["pos_hint"]),
+            failure_reason=str(payload["failure_reason"]),
+            detail=str(payload.get("detail", "")),
+        )

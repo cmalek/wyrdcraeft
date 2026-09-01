@@ -1,5 +1,7 @@
 """Bosworth-Toller dictionary parsing and indexing services."""
 
+from wyrdcraeft.models.dictionary import BTParseWarning
+
 from .attestation_stripper import BTAttestationStripper
 from .browse_query import BrowseSearchHit, DictionaryBrowseQueryService
 from .bt_spelling import BTSpellingNormalizer
@@ -12,12 +14,7 @@ from .editorial_merger import BTEditorialMerger, BTEditRecord
 from .forms_entry_relinker import FormsEntryRelinker
 from .line_parser import BTLineParser, ParsedBTLine
 from .line_splitter import BTLineSplitter, BTSplitLine
-from .llm_fix_pass import (
-    DEFAULT_OLLAMA_ENDPOINT,
-    BTLLMFixPass,
-    BTParseWarning,
-    LLMFixStats,
-)
+from .parse_warnings import append_parse_warnings, write_parse_warnings
 from .pipeline import BTIndexPipeline, IndexReport
 from .pos_gender import BTPosGenderExtractor, PosGenderResult
 from .query import BTQueryService
@@ -26,12 +23,10 @@ from .sinks import BTSqliteSink
 from .target_resolver import BTTargetResolver
 
 __all__ = [
-    "DEFAULT_OLLAMA_ENDPOINT",
     "BTAttestationStripper",
     "BTEditRecord",
     "BTEditorialMerger",
     "BTIndexPipeline",
-    "BTLLMFixPass",
     "BTLineParser",
     "BTLineSplitter",
     "BTParseWarning",
@@ -48,8 +43,9 @@ __all__ = [
     "DictionaryBuildReport",
     "FormsEntryRelinker",
     "IndexReport",
-    "LLMFixStats",
     "MorphBuildOptions",
     "ParsedBTLine",
     "PosGenderResult",
+    "append_parse_warnings",
+    "write_parse_warnings",
 ]
