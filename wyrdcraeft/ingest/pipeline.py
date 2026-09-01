@@ -5,7 +5,6 @@ End-to-end ingestion pipeline with:
 - Old English filtering
 - mixed prose/verse splitting
 - speaker-aware splitting heuristics
-- optional langextract semantic structuring
 - TEI override mode (direct canonical import)
 """
 
@@ -25,16 +24,12 @@ from ..models import (
     TextMetadata,
 )
 from ..models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
-from ..settings import Settings
-from .extractors import (
-    AnyLLMConfig,
-    LLMExtractor,
-)
 from .loaders import SourceLoader
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+#: Optional ingest progress hook ``(current, total, message)``.
 ProgressCallback = Callable[[int, int, str | None], None]
 
 
@@ -149,6 +144,13 @@ def roman_to_arabic(source: str) -> int:
 def is_roman_numeral(source: str) -> bool:
     """
     Check if a string is a roman numeral.
+
+    Args:
+        source: Candidate numeral text.
+
+    Returns:
+        True when ``source`` is a roman numeral.
+
     """
     return bool(re.fullmatch(r"[IVXLCDMivxlcdm]+", source))
 
@@ -173,8 +175,11 @@ class OEFilter:
     Logic for filtering Old English text from raw blocks.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize Old English detection state."""
+        #: Whether recent lines scored as Old English.
         self.oe_mode = False
+        #: Heading detector used while filtering blocks.
         self._parser = StructureParser()
 
     def looks_like_old_english(self, text: str) -> bool:  # noqa: PLR0912
@@ -258,6 +263,13 @@ class OEFilter:
         looks like Old English OR is a heading. This avoids rejecting
         long verse blocks that contain a small amount of editorial or
         Modern English text (e.g. titles in <pre> blocks).
+
+        Args:
+            blocks: Raw text blocks from the source loader.
+
+        Returns:
+            Blocks that look like Old English or headings.
+
         """
         kept: list[RawBlock] = []
 
@@ -713,6 +725,15 @@ class BaseDocumentIngestor:
     ) -> OldEnglishText:
         """
         Abstract ingest method to be overridden by subclasses.
+
+        Args:
+            source_path: Path to the source document.
+            metadata: Optional document metadata.
+
+        Keyword Args:
+            progress_callback: Optional callback for progress reporting.
+            kwargs: Additional keyword arguments (ignored by the base class).
+
         """
         msg = "Subclasses must implement ingest()"
         raise NotImplementedError(msg)
@@ -833,257 +854,6 @@ class TEIDocumentIngestor(BaseDocumentIngestor):
         return result
 
 
-class LLMDocumentIngestor(BaseDocumentIngestor):
-    """
-    Ingestor that uses LLM-based extraction (langextract).
-    """
-
-    #: The directory containing the prompts.
-    PROMPT_DIR: Final[Path] = Path(__file__).resolve().parents[1] / "prompts"
-    #: The non-model and non-mode specific prompt that details the output
-    #: schema and general instructions.
-    BASE_PROMPT: Final[Path] = PROMPT_DIR / "general.md"
-
-    def model_prompt(
-        self, config: AnyLLMConfig, mode: Literal["verse", "prose"]
-    ) -> str:
-        """
-        Get the model specific prompt for the model.
-
-        Args:
-            config: The configuration for the model.
-            mode: The mode of the prompt: "verse" or "prose".
-
-        Raises:
-            ValueError: If the model is unknown.
-
-        Returns:
-            The model specific prompt.
-
-        """
-        if config.model == "qwen":
-            prompt_file = self.PROMPT_DIR / "models" / "qwen" / f"{mode}.md"
-        if config.model == "gemini":
-            prompt_file = self.PROMPT_DIR / "models" / "gemini" / f"{mode}.md"
-        if config.model == "openai":
-            prompt_file = self.PROMPT_DIR / "models" / "openai" / f"{mode}.md"
-        return prompt_file.read_text(encoding="utf-8").strip()
-
-    def general_prompt(self) -> str:
-        """
-        Get the general prompt.
-        """
-        return self.BASE_PROMPT.read_text(encoding="utf-8").strip()
-
-    def mode_prompt(self, mode: Literal["verse", "prose"]) -> str:
-        """
-        Get the mode specific prompt for the mode.
-
-        Args:
-            mode: The mode of the prompt: "verse" or "prose".
-
-        Returns:
-            The mode specific prompt.
-
-        """
-        prompt_file = self.PROMPT_DIR / f"{mode}.md"
-        return prompt_file.read_text(encoding="utf-8").strip()
-
-    def _build_prompt(
-        self, config: AnyLLMConfig, mode: Literal["verse", "prose"]
-    ) -> str:
-        """
-        Build a prompt for LLM extraction.
-
-        There are three parts to the prompt:
-
-        1. The model specific prompt for the mode: "verse" or "prose"
-        2. The general prompt which defines the output schema
-        3. The mode specific prompt: "verse" or "prose"
-
-        Args:
-            config: The configuration for the model.
-            mode: The mode of the prompt: "verse" or "prose".
-
-        Returns:
-            The full prompt as a string.
-
-        """
-        general = self.general_prompt()
-        if mode == "verse":
-            # Remove Paragraph and Sentence schemas to prevent the LLM from using them
-            general = re.sub(
-                r"---.*PARAGRAPH SCHEMA.*?---", "---", general, flags=re.DOTALL
-            )
-            general = re.sub(
-                r"---.*SENTENCE SCHEMA.*?---", "---", general, flags=re.DOTALL
-            )
-            # Remove prose rules from Section schema
-            general = general.replace("- paragraphs (prose)\n", "")
-            general = general.replace(
-                "- Never populate more than one of: sections, paragraphs, lines.",
-                "- NEVER populate paragraphs or sentences; ONLY use lines.",
-            )
-
-        return (
-            self.model_prompt(config, mode)
-            + "\n\n"
-            + general
-            + "\n\n"
-            + self.mode_prompt(mode)
-        )
-
-    def ingest(  # noqa: PLR0912
-        self,
-        source_path: Path,
-        metadata: TextMetadata | None,
-        progress_callback: ProgressCallback | None = None,
-        llm_config: AnyLLMConfig | None = None,
-        **kwargs,  # noqa: ARG002
-    ) -> OldEnglishText:
-        """
-        Ingest using LLM extraction.
-
-        Args:
-            source_path: The path to the source document.
-            metadata: The metadata for the document.
-            progress_callback: Optional callback for progress reporting.
-            llm_config: Optional LLM configuration to use.
-
-        Keyword Args:
-            kwargs: Additional keyword arguments (ignored).
-
-        Returns:
-            A :class:`~wyrdcraeft.models.OldEnglishText` model.
-
-        """
-        if metadata is None:
-            msg = "LLM ingestion requires metadata"
-            raise ValueError(msg)
-        if llm_config is None:
-            settings = Settings()
-            llm_config = settings.llm_config
-
-        pre = self._get_preparsed_doc(source_path, progress_callback=progress_callback)
-
-        extractor = LLMExtractor(config=llm_config)
-        section_nodes: list[Section] = []
-
-        total_sections = len(pre.sections)
-        if progress_callback:
-            progress_callback(
-                0, total_sections, f"Found {total_sections} chunks. Starting extraction"
-            )
-
-        for i, psec in enumerate(pre.sections):
-            if progress_callback:
-                progress_callback(
-                    i, total_sections, f"Extracting chunk {i + 1}/{total_sections}"
-                )
-
-            if psec.kind == "verse":
-                chunk_text = "\n".join(b.text for b in psec.blocks if b.text.strip())
-            else:
-                chunk_text = "\n\n".join(b.text for b in psec.blocks if b.text.strip())
-
-            if not chunk_text.strip():
-                continue
-            prompt = self._build_prompt(llm_config, psec.kind)
-            meta = metadata
-            if psec.speaker_hint:
-                meta = TextMetadata(
-                    title=metadata.title if metadata else None,
-                    author=metadata.author if metadata else None,
-                    source=(
-                        f"{metadata.source} | speaker_hint={psec.speaker_hint}"
-                        if metadata and metadata.source
-                        else f"speaker_hint={psec.speaker_hint}"
-                    ),
-                    year=metadata.year if metadata else None,
-                    language=metadata.language if metadata else None,
-                    editor=metadata.editor if metadata else None,
-                    license=metadata.license if metadata else None,
-                )
-
-            preamble = None
-            if psec.speaker_hint:
-                preamble = (
-                    "DIALOGUE CONTEXT:\n"
-                    f"The following passage is spoken primarily by "
-                    f"{psec.speaker_hint}. Use this as a strong hint "
-                    "when assigning speakers.\n"
-                )
-
-            if psec.kind == "verse":
-                verse_preamble = (
-                    "VERSE EXTRACTION MODE (EXTREMELY STRICT):\n"
-                    "- Input text is line-broken Old English poetry.\n"
-                    "- Each physical line MUST become EXACTLY one 'Line' object.\n"
-                    "- DO NOT split lines at periods, semicolons, or gaps.\n"
-                    "- DO NOT merge lines into paragraphs or sentences.\n"
-                    "- PRESERVE all internal spaces (the caesura). If a line has 6 spaces, keep 6 spaces.\n"  # noqa: E501
-                    "- PRESERVE all leading spaces/indentation.\n"
-                    "- IGNORE all grammatical rules; follow physical line breaks ONLY.\n"  # noqa: E501
-                    "- The number of 'Line' objects in your JSON MUST match the number of lines in the input.\n"  # noqa: E501
-                )
-                preamble = (preamble or "") + verse_preamble
-
-            partial = extractor.extract(
-                text=chunk_text,
-                metadata=meta,
-                prompt=prompt,
-                prompt_preamble=preamble,
-            )
-
-            # SAFETY NET: If we are in verse mode but the LLM returned
-            # paragraphs/sentences, force-convert them back to lines using the
-            # original physical line breaks.
-            if psec.kind == "verse" and partial.content.paragraphs:
-                # Re-extract lines from chunk_text directly
-                lines: list[Line] = []
-                for j, ln in enumerate(chunk_text.splitlines(), 1):
-                    _ln = ln.rstrip()
-                    if not _ln:
-                        continue
-                    # Try to see if the LLM found a speaker for this chunk
-                    speaker = (
-                        partial.content.paragraphs[0].speaker
-                        if partial.content.paragraphs
-                        else None
-                    )
-                    lines.append(
-                        Line(
-                            text=_ln,
-                            number=j,
-                            speaker=speaker,
-                            source_page=psec.page,
-                        )
-                    )
-                partial.content.paragraphs = None
-                partial.content.lines = lines
-
-            # If the LLM returned a section with content, use it.
-            # If it returned a section with subsections, use those.
-            if partial.content.sections:
-                section_nodes.extend(partial.content.sections)
-            elif partial.content.paragraphs or partial.content.lines:
-                section_nodes.append(partial.content)
-
-        if progress_callback:
-            progress_callback(total_sections, total_sections, "Extraction complete")
-
-        root_section = Section(
-            title=None,
-            number=None,
-            sections=section_nodes or None,
-            paragraphs=None,
-            lines=None,
-            source_page=None,
-        )
-        doc = OldEnglishText(metadata=metadata, content=root_section)
-        return CanonicalConverter().propagate_confidence(doc)
-
-
 class DocumentIngestor:
     """
     High-level orchestrator for document ingestion.
@@ -1159,22 +929,15 @@ def ingest_auto(
     )
 
 
-def ingest_without_llm(
-    source_path: Path, metadata: TextMetadata | None
-) -> OldEnglishText:
-    """Legacy wrapper for HeuristicDocumentIngestor().ingest."""
-    return HeuristicDocumentIngestor().ingest(source_path, metadata)
-
-
 def ingest_from_tei(source_path: Path) -> OldEnglishText:
-    """Legacy wrapper for TEIDocumentIngestor().ingest."""
+    """
+    Legacy wrapper for TEIDocumentIngestor().ingest.
+
+    Args:
+        source_path: Path to a TEI XML document.
+
+    Returns:
+        Canonical Old English text parsed from TEI.
+
+    """
     return TEIDocumentIngestor().ingest(source_path, None)
-
-
-def ingest_with_langextract(
-    source_path: Path,
-    metadata: TextMetadata | None,
-    **kwargs,
-) -> OldEnglishText:
-    """Legacy wrapper for LLMDocumentIngestor().ingest."""
-    return LLMDocumentIngestor().ingest(source_path, metadata, **kwargs)

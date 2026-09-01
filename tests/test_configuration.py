@@ -5,13 +5,18 @@ Tests the new OpenAI and summary generation configuration fields,
 validation logic, and TOML file loading.
 """
 
-from pathlib import Path
 from types import NoneType
 from unittest.mock import patch
 
 import pytest
 
 from wyrdcraeft.settings import Settings
+
+
+def test_settings_has_no_llm_fields():
+    s = Settings()
+    assert not hasattr(s, "llm_model_id")
+    assert not hasattr(s, "llm_config")
 
 
 class TestConfiguration:
@@ -154,7 +159,7 @@ class TestConfiguration:
                 {"extra": "ignore", "env_prefix": "wyrdcraeft_"},
             ),
         ):
-            settings = Settings()
+            Settings()
 
             # Test any settings here that MUST be provided
 
@@ -212,7 +217,7 @@ class TestConfiguration:
 
         # Test that setting extra attributes doesn't affect the model
         # (this tests the extra="ignore" behavior)
-        settings._extra_data = {"unknown_field": "should be ignored"}  # noqa: SLF001
+        settings._extra_data = {"unknown_field": "should be ignored"}
         assert not hasattr(settings, "unknown_field")
 
     def test_settings_field_types(self):
@@ -227,7 +232,6 @@ class TestConfiguration:
 
     def test_settings_field_defaults(self):
         """Test that settings fields have correct defaults."""
-
         with patch(
             "wyrdcraeft.settings.Settings.model_config",
             {"extra": "ignore", "env_prefix": "wyrdcraeft_"},

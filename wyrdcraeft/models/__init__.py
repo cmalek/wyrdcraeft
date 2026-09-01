@@ -31,7 +31,6 @@ from .dictionary_build import (
     DictionaryBuildStageProgress,
     DictionaryBuildStageStarted,
 )
-from .llm import AnyLLMConfig
 from .macron_index import MacronIndex
 from .morphology import (
     GeneratedForm,
@@ -59,7 +58,6 @@ __all__ = [
     "POS_CODE_LABELS",
     "AmbiguityOption",
     "AnyDictionaryBuildEvent",
-    "AnyLLMConfig",
     "BTConsolidatedEntry",
     "BTEditorialOp",
     "BTGender",

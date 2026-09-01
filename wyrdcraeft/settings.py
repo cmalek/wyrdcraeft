@@ -17,7 +17,6 @@ from pydantic_settings import (
 )
 
 from .exc import ConfigurationError
-from .models import AnyLLMConfig
 from .paths import get_canonical_db_path
 
 
@@ -49,26 +48,6 @@ class Settings(BaseSettings):
     app_version: str = Field(
         default="0.1.0", description="Application version", frozen=True
     )
-
-    # LLM settings
-    #: LLM model identifier.
-    llm_model_id: str = Field(
-        default="qwen2.5:14b-instruct", description="LLM model ID"
-    )
-    #: LLM provider name.
-    llm_provider: Literal["ollama", "gemini", "openai"] = Field(
-        default="ollama", description="LLM provider"
-    )
-    #: LLM generation temperature.
-    llm_temperature: float = Field(default=0.0, description="LLM temperature")
-    #: LLM max output tokens.
-    llm_max_tokens: int = Field(default=4096, description="LLM max tokens")
-    #: LLM request timeout in seconds.
-    llm_timeout_s: int = Field(default=120, description="LLM timeout in seconds")
-    #: OpenAI API key.
-    openai_api_key: str | None = Field(default=None, description="OpenAI API key")
-    #: Gemini API key.
-    gemini_api_key: str | None = Field(default=None, description="Gemini API key")
 
     # Write-able settings
 
@@ -248,7 +227,7 @@ class Settings(BaseSettings):
         """
         return get_canonical_db_path(app_data_dir=self.app_data_dir)
 
-    def validate_settings(self) -> None:  # noqa: PLR0912, PLR0915
+    def validate_settings(self) -> None:
         """
         Validate settings and ensure required directories exist.
 
@@ -256,72 +235,6 @@ class Settings(BaseSettings):
             ConfigurationError: If settings are invalid
 
         """
-        # Validate output format
         if self.default_output_format not in ["table", "json", "text"]:
             msg = f"Invalid output format: {self.default_output_format}"
             raise ConfigurationError(msg)
-
-        if self.llm_provider not in {"ollama", "gemini", "openai"}:
-            msg = f"Invalid LLM provider: {self.llm_provider}"
-            raise ConfigurationError(msg)
-
-        try:
-            self.llm_provider = self.get_model_provider(self.llm_model_id)
-        except ValueError as e:
-            raise ConfigurationError(str(e)) from e
-
-        if self.llm_temperature < 0 or self.llm_temperature > 1:
-            msg = "LLM temperature must be between 0 and 1"
-            raise ConfigurationError(msg)
-
-        if self.llm_max_tokens <= 0:
-            msg = "LLM max tokens must be greater than 0"
-            raise ConfigurationError(msg)
-
-        # Validate LLM timeout
-        if self.llm_timeout_s <= 0:
-            msg = "LLM timeout must be greater than 0"
-            raise ConfigurationError(msg)
-
-    def get_model_provider(
-        self, model_id: str
-    ) -> Literal["ollama", "gemini", "openai"]:
-        """
-        Get the provider for a model ID.
-
-        Args:
-            model_id: Model identifier string.
-
-        Raises:
-            ValueError: If the model ID is not supported.
-
-        Returns:
-            The provider for the model ID.
-
-        """
-        if model_id.startswith("qwen"):
-            return "ollama"
-        if model_id.startswith("gemini"):
-            return "gemini"
-        if model_id.startswith(("gpt-", "o1", "o3")):
-            return "openai"
-        msg = f"Unsupported model: {model_id}: Supported models are: "
-        "qwen*, gemini*, gpt-*, o1*, o3*"
-        raise ValueError(msg)
-
-    @property
-    def llm_config(self) -> AnyLLMConfig:
-        """
-        Get LLM configuration.
-
-        Returns:
-            LLM configuration
-
-        """
-        return AnyLLMConfig(
-            provider=self.llm_provider,
-            model_id=self.llm_model_id,
-            temperature=self.llm_temperature,
-            max_tokens=self.llm_max_tokens,
-            timeout_s=self.llm_timeout_s,
-        )

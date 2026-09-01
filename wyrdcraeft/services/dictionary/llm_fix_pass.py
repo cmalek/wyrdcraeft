@@ -13,7 +13,6 @@ import httpx
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from wyrdcraeft.models.dictionary import legacy_bt_sense
-from wyrdcraeft.models.llm import AnyLLMConfig
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -175,9 +174,8 @@ class BTLLMFixPass:
             client: Optional injected HTTP client for tests.
 
         """
-        defaults = AnyLLMConfig()
         #: Ollama model identifier.
-        self.model: str = model or defaults.model_id
+        self.model: str = model or "qwen2.5:14b-instruct"
         #: Ollama generate endpoint URL.
         self.endpoint: str = endpoint
         #: HTTP timeout in seconds.

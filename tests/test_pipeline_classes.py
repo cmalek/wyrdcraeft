@@ -119,3 +119,9 @@ def test_document_ingestor_dispatch(mock_load):
 
     assert result.metadata.title == "Deterministic Title"
     assert result.content.sections is not None
+
+
+def test_any_llm_config_not_exported():
+    import wyrdcraeft
+
+    assert not hasattr(wyrdcraeft, "AnyLLMConfig")

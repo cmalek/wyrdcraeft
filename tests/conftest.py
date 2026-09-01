@@ -105,18 +105,7 @@ def mock_settings():
         "quiet_mode": False,
         "log_level": "INFO",
         "log_file": None,
-        "llm_model_id": "qwen2.5:14b-instruct",
-        "llm_provider": "ollama",
-        "llm_temperature": 0.0,
-        "llm_max_tokens": 4096,
-        "llm_timeout_s": 120,
     }
-    mock.llm_config = Mock()
-    mock.llm_config.model_id = "qwen2.5:14b-instruct"
-    mock.llm_config.provider = "ollama"
-    mock.llm_config.temperature = 0.0
-    mock.llm_config.max_tokens = 4096
-    mock.llm_config.timeout_s = 120
     return mock
 
 
