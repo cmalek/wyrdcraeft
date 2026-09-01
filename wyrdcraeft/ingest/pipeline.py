@@ -1094,9 +1094,7 @@ class DocumentIngestor:
         source_path: Path,
         metadata: TextMetadata | None,
         *,
-        use_llm: bool = False,
         progress_callback: ProgressCallback | None = None,
-        llm_config: AnyLLMConfig | None = None,
         **kwargs,
     ) -> OldEnglishText:
         """
@@ -1107,10 +1105,11 @@ class DocumentIngestor:
             metadata: The metadata for the document.
 
         Keyword Args:
-            use_llm: Whether to use LLM extraction.
             progress_callback: Optional callback for progress reporting.
-            llm_config: Optional LLM configuration to use.
             kwargs: Additional keyword arguments (ignored).
+
+        Returns:
+            A :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         if isinstance(source_path, Path):
@@ -1119,15 +1118,6 @@ class DocumentIngestor:
                 return TEIDocumentIngestor().ingest(
                     source_path, metadata, progress_callback=progress_callback, **kwargs
                 )
-
-        if use_llm:
-            return LLMDocumentIngestor().ingest(
-                source_path,
-                metadata,
-                progress_callback=progress_callback,
-                llm_config=llm_config,
-                **kwargs,
-            )
 
         return HeuristicDocumentIngestor().ingest(
             source_path, metadata, progress_callback=progress_callback, **kwargs
@@ -1143,9 +1133,7 @@ def ingest_auto(
     source_path: Path,
     metadata: TextMetadata | None,
     *,
-    use_llm: bool = False,
     progress_callback: ProgressCallback | None = None,
-    llm_config: AnyLLMConfig | None = None,
     **kwargs,
 ) -> OldEnglishText:
     """
@@ -1154,9 +1142,9 @@ def ingest_auto(
     Args:
         source_path: The path to the source document.
         metadata: The metadata for the document.
-        use_llm: Whether to use LLM extraction.
+
+    Keyword Args:
         progress_callback: Optional callback for progress reporting.
-        llm_config: Optional LLM configuration to use.
         kwargs: Additional keyword arguments (ignored).
 
     Returns:
@@ -1166,9 +1154,7 @@ def ingest_auto(
     return DocumentIngestor().ingest(
         source_path,
         metadata,
-        use_llm=use_llm,
         progress_callback=progress_callback,
-        llm_config=llm_config,
         **kwargs,
     )
 

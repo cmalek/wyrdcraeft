@@ -38,8 +38,7 @@ def test_deterministic_ingestion_regression(
 
     metadata = TextMetadata(title=title, source=relative_source)
 
-    # Ingest using the deterministic path (use_llm=False)
-    doc = ingest_auto(source_path, metadata, use_llm=False)
+    doc = ingest_auto(source_path, metadata)
 
     # Convert to dict for comparison
     # Use indent=2 to match the format saved by the CLI/fixtures

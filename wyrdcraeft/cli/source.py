@@ -16,7 +16,6 @@ from rich.progress import (
 from ..ingest.pipeline import DocumentIngestor
 from ..models import TextMetadata
 from ..services.markup import DiacriticRestorer
-from ..settings import Settings  # noqa: TC001
 from .utils import console, print_error, print_info
 
 
@@ -29,61 +28,31 @@ def reading_group(ctx: click.Context) -> None:
 
 
 @reading_group.command(name="convert", help="Convert a source document to JSON.")
-@click.argument("source", type=str)
+@click.argument(
+    "source", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
 @click.argument("output", type=click.Path(path_type=Path))
-@click.option(
-    "--use-llm/--no-use-llm",
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help="Use LLM for extraction",
-)
-@click.option(
-    "--llm-model",
-    type=click.Choice(["qwen2.5:14b-instruct", "gpt-4o", "gemini-3-flash-preview"]),
-    help="LLM model ID",
-)
-@click.option("--llm-temperature", type=float, help="LLM temperature")
-@click.option("--llm-max-tokens", type=int, help="LLM max tokens")
-@click.option("--llm-timeout", type=int, help="LLM timeout in seconds")
 @click.option("--title", type=str, help="Title of the text")
 @click.pass_context
-def reading_convert(  # noqa: PLR0913
+def reading_convert(
     ctx: click.Context,
-    source: str,
+    source: Path,
     output: Path,
-    use_llm: bool,
-    llm_model: str | None,
-    llm_temperature: float | None,
-    llm_max_tokens: int | None,
-    llm_timeout: int | None,
     title: str | None,
 ) -> None:
     """
     Convert a source document to JSON.
+
+    Args:
+        ctx: Click context with CLI runtime options.
+        source: Existing local source file path.
+        output: Destination path for the JSON document.
+        title: Optional title override for the text metadata.
+
     """
-    settings: Settings = ctx.obj["settings"]
-    source_ref: str | Path = source
-    if not source.startswith(("http://", "https://")):
-        source_ref = Path(source)
-        if not source_ref.exists():
-            msg = f"Source file not found: {source_ref}"
-            raise click.ClickException(msg)
-
-    # Override settings with flags
-    if llm_model:
-        settings.llm_model_id = llm_model
-    if llm_temperature is not None:
-        settings.llm_temperature = llm_temperature
-    if llm_max_tokens is not None:
-        settings.llm_max_tokens = llm_max_tokens
-    if llm_timeout is not None:
-        settings.llm_timeout_s = llm_timeout
-
     metadata = TextMetadata(
-        title=title
-        or (source_ref.stem if isinstance(source_ref, Path) else source_ref),
-        source=str(source_ref),
+        title=title or source.stem,
+        source=str(source),
     )
 
     with Progress(
@@ -132,21 +101,15 @@ def reading_convert(  # noqa: PLR0913
 
         try:
             doc = DocumentIngestor().ingest(
-                source_path=(
-                    source_ref
-                    if isinstance(source_ref, Path)
-                    else Path(source_ref)
-                ),
+                source_path=source,
                 metadata=metadata,
-                use_llm=use_llm,
                 progress_callback=progress_callback,
-                llm_config=settings.llm_config,
             )
 
             output.write_text(doc.model_dump_json(indent=2), encoding="utf-8")
 
             if not ctx.obj.get("quiet"):
-                print_info(f"Successfully converted {source_ref} to {output}")
+                print_info(f"Successfully converted {source} to {output}")
         except Exception as e:
             if ctx.obj.get("verbose"):
                 raise

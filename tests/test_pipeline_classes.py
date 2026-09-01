@@ -115,7 +115,7 @@ def test_document_ingestor_dispatch(mock_load):
     ingestor = DocumentIngestor()
     meta = TextMetadata(title="Deterministic Title", source="Source")
     # Should use HeuristicDocumentIngestor
-    result = ingestor.ingest(Path("dummy.txt"), meta, use_llm=False)
+    result = ingestor.ingest(Path("dummy.txt"), meta)
 
     assert result.metadata.title == "Deterministic Title"
     assert result.content.sections is not None
