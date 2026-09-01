@@ -11,8 +11,8 @@ What is wyrdcraeft?
 
 wyrdcraeft is a Python command-line tool designed to convert Old English (Anglo-Saxon) texts into a standard JSON format. It provides capabilities for:
 
-- Ingesting Old English texts from a variety of sources: text files, PDF files, and TEI XML files.
-- Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
+- Ingesting Old English texts from local text files and TEI XML files.
+- Converting the text into a standard JSON format using deterministic heuristics or TEI XML parsing.
 - Properly handling both prose and verse.
 
 Installation Issues
@@ -49,33 +49,8 @@ How do I convert a document to JSON?
     # Convert a text file to JSON
     wyrdcraeft source convert --title="My Title" input.txt output.json
 
-    # Convert a PDF file to JSON
-    wyrdcraeft source convert --title="My Title" input.pdf output.json
-
     # Convert a TEI XML file to JSON
     wyrdcraeft source convert --title="My Title" input.xml output.json
-
-How do I convert a document to JSON using the LLM method?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: bash
-
-    # Convert a text file to JSON using the gpt-4o model
-    $ export OPENAI_API_KEY=your-openai-api-key
-    $ wyrdcraeft source convert --title="My Title" input.txt output.json --use-llm --llm-model="gpt-4o"
-
-    # Convert a PDF file to JSON using the gemini-3-flash-preview model
-    $ export GEMINI_API_KEY=your-gemini-api-key
-    $ wyrdcraeft source convert --title="My Title" input.pdf output.json --use-llm --llm-model="gemini-3-flash-preview"
-
-    # Convert a TEI XML file to JSON using the qwen2.5:14b-instruct model
-    $ export OLLAMA_API_KEY=your-ollama-api-key
-    $ wyrdcraeft source convert --title="My Title" input.xml output.json --use-llm --llm-model="qwen2.5:14b-instruct"
-
-    # Convert a text file to JSON using the qwen2.5:14b-instruct model
-    # First run ollama, and pull the model like this:
-    $ ollama pull qwen2.5:14b-instruct
-    $ wyrdcraeft source convert --title="My Title" input.txt output.json --use-llm
 
 How do I suppress output except errors?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -107,16 +82,8 @@ The configuration file should be in TOML format. See the :doc:`configuration_cli
 What configuration options are available?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``wyrdcraeft`` supports configuration for:
-
-- LLM model ID
-- LLM temperature
-- LLM max tokens
-- LLM timeout
-- OpenAI API key
-- Gemini API key
-
-See the :doc:`configuration_cli` guide for a complete list of options.
+``wyrdcraeft`` supports configuration for log level, output format, quiet mode,
+and the application data directory. See the :doc:`configuration_cli` guide.
 
 Performance and Limitations
 ---------------------------
@@ -124,8 +91,7 @@ Performance and Limitations
 What are the performance characteristics?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **LLM conversion**: This can be very slow, especially when using a local model.  It also is not very accurate, especially for verse.
-- **Deterministic conversion**: This is the fastest and most accurate method, but may make mistakes, especially for complex documents.
+- **Deterministic conversion**: Fast. May still mis-parse complex documents.
 
 Where can I get more help?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

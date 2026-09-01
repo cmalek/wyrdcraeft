@@ -186,72 +186,16 @@ document into these structures) and then easily emit JSON via Pydantic's
 ``.model_dump()`` (or ``.json()``) methods. This ensures the output adheres to
 the schema and is properly typed.
 
-Parsing and Conversion Workflow with unstructured and any-llm
--------------------------------------------------------------
+Parsing and Conversion Workflow
+-------------------------------
 
-Deterministic Parsing Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``wyrdcraeft source convert`` reads a local ``.txt`` or TEI/XML file and
+builds this JSON via deterministic heuristics or the TEI loader.
 
-To efficiently convert raw Old English texts into this JSON format, we mainly
-use the deterministic approach of this package, which works like so:
-
-- We start with a text file or PDF file.
-- If it is PDF, we extract the text from the PDF using the ``unstructured`` library or the ``pdfplumber`` library.
-- Now that we have text, we use a variety of heuristics to parse the text into sections, paragraphs, sentences, and lines.
-- We identify which parts are prose and which are verse.
-- We then build the JSON structure from the parsed text by assigning the appropriate fields to the JSON structure.
-
-AI Assisted Parsing Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. important::
-  LLM based partitioning and extraction is implemented in this package, but it is experimental and does not work as well as the deterministic approach.
-
-  Specfically, it has a very hard time with verse; Old English verse is very particular about how it is structured, and so far I can't get the ``unstructured`` + ``any-llm`` analyze and parse it correctly.
-
-To convert raw Old English texts into this JSON format, we can also leverage two
-powerful Python libraries: ``unstructured`` and ``any-llm``.
-
-- ```unstructured`` <https://unstructured.io>`__: This library provides
-  robust tools to ingest various document formats (PDF, DOCX, HTML,
-  etc.) and break them into structured elements . We can feed an OE text
-  file or PDF to partition functions of ``unstructured``, and it will
-  return a list of elements like “Title”, “NarrativeText” (for
-  paragraphs), “ListItem”, “PageBreak”, etc., each with associated
-  metadata . Notably, ``unstructured`` preserves page numbers in the
-  element metadata when parsing PDFs , which we can use to fill the
-  source_page in our JSON. It also identifies headings versus body text,
-  which helps in detecting section titles. Using ``unstructured`` as a
-  first pass, we get a raw structured text: e.g., we might get back a
-  sequence of paragraphs (with their text content) and headings (with
-  text like “Chapter I”) that we can interpret. This significantly
-  simplifies extracting paragraphs and basic hierarchy from sources that
-  are PDF scans or HTML pages. In short, ``unstructured`` will handle
-  the heavy lifting of text extraction from diverse formats while
-  maintaining structure and metadata.
-- ```any-llm`` <https://github.com/google/langextract>`_ Allows us to use any
-  LLM to extract the structured data from the text, especially locally hosted
-  LLMs like ``ollama``.  After we have the text partitioned by
-  ``unstructured``, we might still need to interpret and fine-tune the
-  structure - for example, identifying that “II” is a chapter number, or
-  splitting a paragraph by sentences correctly if not already done.
-  ``any-llm`` is ideal for this next step, because it allows us to use any LLM,
-  not just the ones that are supported by ``langextract``. We define our
-  user instructions and examples for extracting structured data from
-  text with the help of an LLM (like Google's Gemini) . We can prompt
-  ``any-llm`` to, say, “Extract a JSON with chapters, verses,
-  speakers, etc. from this text,” providing a few-shot example of the
-  desired JSON format. LLMs are quite good at enforcing the output schena,
-  though they are not great at preserving structure like poetry stanzas.
-
-AI Workflow summary
-~~~~~~~~~~~~~~~~~~~
-
-- We run ``unstructured`` to get elemental chunks of text with metadata.
-- We preprocess the text to identify all the text which is most likely to be Old English.
-- We then use ``any-llm`` to extract the structured data from the text chunks, using tailored prompts for prose and verse and model.
-- We then validate the output against our Pydantic models.
-- We then emit the JSON.
+- Start with a local text file or TEI XML file.
+- Heuristics parse the text into sections, paragraphs, sentences, and lines.
+- Identify prose versus verse.
+- Populate the Pydantic models and emit JSON.
 
 Survey of Old English Text Sources and Formats
 ----------------------------------------------
@@ -352,13 +296,8 @@ each contains:
   internally. No verse-line structure since it's not poetry. Dialogue:
   Generally narrative or expository; no formatted dialogue, though
   direct speech may occur (quotations from saints, etc.). Notes: Because
-  the edition prints OE and modern English side by side, using
-  ``unstructured`` on the PDF will likely yield alternating paragraphs
-  of OE and translation. We must filter/extract only the OE text.
-  Possibly we'll identify the language of each chunk (maybe by detecting
-  characters with macrons or known OE words) - this is where an AI
-  extraction approach could help (tell ``any-llm`` to separate Old
-  English text from the modern translation). Source metadata: We have
+  the edition prints OE and modern English side by side, a converted
+  text must already be filtered to Old English only. Source metadata: We have
   page numbers from the printed edition which we can use as source_page.
   E.g., each homily starts on a new page with a heading. Capturing those
   could be useful if we want to sync with the print source.
@@ -378,28 +317,9 @@ each contains:
   section with just lines).
 
 Each of the above sources was analyzed to ensure our JSON model can accommodate
-it. We found that a flexible nested structure with optional fields (as
-presented) is capable of representing all these cases. The use of tools like
-unstructured and ``any-llm`` will streamline converting each source:
-
-- E.g., for the *Chronicle*, ``unstructured`` can separate each year entry
-  (perhaps as paragraphs starting with a year), and we'll add logic to mark the
-  year as a section number.
-
-- For *Beowulf*, ``unstructured`` theoretically could get us the lines (likely
-  each line as a separate “NarrativeText” element since each line ends with hard
-  line break in the PDF), and we can then easily number them and drop footnote
-  texts.
-
-- For parallel-text homilies, ``unstructured`` will get both languages; we might
-  use ``any-llm`` or even a simpler script to split OE vs modern, then proceed
-  with OE paragraphs.
+it. A flexible nested structure with optional fields can represent these cases
+once the source is local ``.txt`` or TEI.
 
 In conclusion, the standard JSON representation defined here, backed by Pydantic
 models, can uniformly capture the diverse structural features of Old English
-texts. It provides a clear separation of content, metadata, and structure, which
-will greatly facilitate loading texts into the translation software and aligning
-them with translations or other annotations. By leveraging the strengths of
-contemporary parsing libraries, we can automate much of the conversion, ensuring
-the resulting JSON is comprehensive and faithful to the source material's
-format.
+texts. It provides a clear separation of content, metadata, and structure.

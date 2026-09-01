@@ -1,8 +1,10 @@
 # OCR pipeline moves to bochord
 
-All OCR work (image acquisition, tiling, witness OCR, olmocr/ocrmypdf integration, OCR proxy server) moves out of wyrdcraeft into a dedicated sibling repo, `bochord` (`/Users/cmalek/src/workspace/bochord`). wyrdcraeft stays focused on Old English grammar, dictionaries, morphology, and diacritics — OCR is an upstream data-acquisition concern, not core domain logic, and its noisy, image-heavy artifacts and heavyweight deps (olmocr, ocrmypdf, appleocr) don't belong in a grammar/dictionary library.
+The sibling repo this ADR named `bochord` is now `wordwending` (`/Users/cmalek/src/workspace/wordwending`). GitHub already had `bochord`. Same split; new name. This filename stays so existing links keep working.
 
-Downstream consumers (dictionary/case-bundle assembly, e.g. `data/bt_cases/wesan/`) keep consuming OCR *output* (witness yaml, manifests, tiles) as plain data/artifacts produced by bochord and dropped into wyrdcraeft's `data/` tree or fetched at build time — not as in-process Python calls into an OCR package living in this repo.
+All OCR work (image acquisition, tiling, witness OCR, olmocr/ocrmypdf integration, OCR proxy server) moves out of wyrdcraeft into that sibling. wyrdcraeft stays focused on Old English grammar, dictionaries, morphology, and diacritics — OCR is an upstream data-acquisition concern, not core domain logic, and its noisy, image-heavy artifacts and heavyweight deps (olmocr, ocrmypdf, appleocr) don't belong in a grammar/dictionary library.
+
+Downstream consumers (dictionary/case-bundle assembly, e.g. `data/bt_cases/wesan/`) keep consuming OCR *output* (witness yaml, manifests, tiles) as plain data/artifacts produced by `wordwending` and dropped into wyrdcraeft's `data/` tree or fetched at build time — not as in-process Python calls into an OCR package living in this repo.
 
 ## Removed from wyrdcraeft
 
@@ -23,7 +25,7 @@ Data (already removed from working tree per current `git status`):
 - `data/bt_cases/`, `data/ocr/`
 - `data/bosworth_toller/` raw scans, PDF, hOCR/OCR text, abbreviations JSON — **but not** the plain-text BT dictionary source itself: `data/bosworth_toller/oe_bosworthtoller.txt.bz2` and `oe_bt.txt.bz2` are being kept (re-added as compressed text) since dictionary/morphology parsing consumes them directly and they aren't OCR-pipeline output.
 
-Docs: ADR 0004/0005/0006 stay as historical record (they document *why* the OCR/witness-prep design looked the way it did) but are marked superseded/relocated; `docs/context/ocr.md` and OCR-specific superpowers plans/specs/handoffs move to bochord.
+Docs: ADR 0004/0005/0006 stay as historical record (they document *why* the OCR/witness-prep design looked the way it did) but are marked superseded/relocated; `docs/context/ocr.md` and OCR-specific superpowers plans/specs/handoffs move to `wordwending`.
 
 ## Not removed
 
@@ -31,4 +33,4 @@ Docs: ADR 0004/0005/0006 stay as historical record (they document *why* the OCR/
 
 ## Consequence
 
-wyrdcraeft loses the ability to *produce* OCR text/tiles itself; any new witness needs bochord run first, output copied/synced into wyrdcraeft's `data/`. This is acceptable — the split already reflects current practice (OCR data files already deleted from this repo's working tree).
+wyrdcraeft loses the ability to *produce* OCR text/tiles itself; any new witness needs `wordwending` run first, output copied/synced into wyrdcraeft's `data/`. This is acceptable — the split already reflects current practice (OCR data files already deleted from this repo's working tree).

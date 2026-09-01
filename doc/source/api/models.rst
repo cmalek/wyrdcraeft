@@ -25,16 +25,6 @@ The parsing related models are defined in the `parsing.py` file.
     :undoc-members:
     :show-inheritance:
 
-LLM related models
--------------------
-
-The LLM related models are defined in the `llm.py` file.
-
-.. automodule:: wyrdcraeft.models.llm
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 Morphology related models
 -------------------------
 

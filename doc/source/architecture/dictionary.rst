@@ -54,7 +54,6 @@ Repository evidence supports these current-behavior claims:
 - the build path writes into the canonical ``wyrdcraeft.sqlite3`` database
 - the unified build can regenerate morphology when ``forms`` is empty or when
   ``--with-morphology`` is requested
-- the optional LLM repair pass is warning-scoped, not the primary parsing path
 - browse search requires populated ``bt_*`` tables only; there is no separate
   search-index rebuild step
 
@@ -71,11 +70,9 @@ Build:
 5. Parse warnings are written to ``parse_warnings.jsonl`` on each CLI build
    run, using either the explicit ``--warnings-file`` path or the default file
    beside the canonical database.
-6. ``BTLLMFixPass`` may re-parse warning lines only when ``--llm-fix-pass`` is
-   enabled.
-7. ``BTEditorialMerger`` consolidates parsed lines into entry-level records.
-8. ``BTSqliteSink.write_entries()`` reloads the ``bt_*`` tables.
-9. ``FormsEntryRelinker`` repopulates ``forms.entry_id`` foreign keys after the
+6. ``BTEditorialMerger`` consolidates parsed lines into entry-level records.
+7. ``BTSqliteSink.write_entries()`` reloads the ``bt_*`` tables.
+8. ``FormsEntryRelinker`` repopulates ``forms.entry_id`` foreign keys after the
    dictionary rebuild.
 
 Browse:
@@ -184,8 +181,6 @@ Sharp Edges and Non-Goals
 - Dictionary build depends on an existing canonical database path; morphology
   may need to run first when ``forms`` is empty and ``--with-morphology`` is not
   used.
-- The optional LLM repair pass does not replace deterministic parsing; it only
-  retries warning lines.
 - Browse search returns dictionary entries only; morphology-only matches
   without a dictionary entry are not shown.
 - The flow documents current Bosworth-Toller indexing behavior. It does not

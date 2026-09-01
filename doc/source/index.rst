@@ -60,8 +60,8 @@ Core Features
 
 wyrdcraeft provides the following key features:
 
-- Ingesting Old English texts from text files and TEI XML files; extraction from other formats is a work in progress.
-- Converting the text into a standard JSON format using a variety of methods: deterministic heuristics, TEI XML parsing, and LLM-based parsing.
+- Ingesting Old English texts from local text files and TEI XML files.
+- Converting the text into a standard JSON format using deterministic heuristics or TEI XML parsing.
 - Properly handling both prose and verse.
 - Generating Old English morphology forms using the migrated Python implementation from Ondřej Tichý's original Perl-based generator workflow.
 

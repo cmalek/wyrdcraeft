@@ -1,6 +1,6 @@
 # BT source acquisition uses a multi-witness download set
 
-> **Superseded:** The OCR/witness-prep pipeline this ADR describes has moved to the `bochord` repo (see [ADR 0007](0007-ocr-pipeline-moves-to-bochord.md)). Kept here as historical record of the original design rationale.
+> **Superseded:** The OCR/witness-prep pipeline this ADR describes has moved to the `wordwending` repo (formerly `bochord`; see [ADR 0007](0007-ocr-pipeline-moves-to-bochord.md)). Kept here as historical record of the original design rationale.
 
 Bosworth-Toller source acquisition will use a small fixed witness set instead of treating `data/oe_bt.txt` as the only input. The default acquisition set is: GLP full corrected text (`https://www.germanic-lexicon-project.org/txt/oe_bosworthtoller.txt`) as a corrected-text witness, GLP abbreviations XML (`https://www.germanic-lexicon-project.org/xml/oe_bosworthtoller/oebt_abbreviations.xml`) as the abbreviation/reference witness, Internet Archive main-volume JP2 images (`https://archive.org/download/anglosaxondictio00bosw/anglosaxondictio00bosw_orig_jp2.tar`) and supplement JP2 images (`https://archive.org/download/anglosaxondictio00tolluoft/anglosaxondictio00tolluoft_raw_jp2.zip`) as the primary scan witnesses for our own OCR, IA `hocr.html` and `abbyy.gz` artifacts as secondary OCR/layout witnesses for disagreement checks and anchor recovery, and IA `djvu.txt` only as a fallback-only rough-recall witness.
 

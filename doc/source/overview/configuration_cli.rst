@@ -49,104 +49,14 @@ Configuration files use INI format:
 .. code-block:: toml
 
     [wyrdcraeft]
-    llm_model_id = "qwen2.5:14b-instruct"
-    llm_temperature = 0.0
-    llm_max_tokens = 4096
-    llm_timeout_s = 120
-    openai_api_key = "sk-proj-1234567890"
-    gemini_api_key = "gcp-api-key-1234567890"
     log_level = "INFO"
     log_file = "/var/log/wyrdcraeft.log"
     default_output_format = "json"
     enable_colors = true
     quiet_mode = false
 
-.. note::
-    The configuration file is a TOML file.  In all honesty, the LLM settings are unimportant since the LLM extraction is a work in progress and is generally not a good choice for converting documents, because it still gets a lot of things wrong, especially verse.
-
 Configuration Options
 ~~~~~~~~~~~~~~~~~~~~~
-
-**llm_model_id**
-    The ID of the LLM model to use when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`.  We support the following
-    models:
-
-    - qwen2.5:14b-instruct
-    - gemini-3-flash-preview
-    - gpt-4o
-    - o1-mini
-    - o3-preview
-
-    Default: ``qwen2.5:14b-instruct``
-
-    Example:
-    .. code-block:: toml
-
-        llm_model_id = "qwen2.5:14b-instruct"
-
-**llm_temperature**
-    The temperature to use for the LLM when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is a value between 0
-    and 1 that controls the randomness of the LLM's output.   We recommend setting
-    this to 0.0 for deterministic output.
-
-    Default: ``0.0``
-
-    Example:
-
-    .. code-block:: toml
-
-        llm_temperature = 0.0
-
-**llm_max_tokens**
-    The maximum number of tokens to use for the LLM when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is the maximum number
-    of tokens that we will allow the LLM to return.  Note that the maximum for this is
-    is dependent on the model you are using.
-
-    Default: ``4096``
-
-    Example:
-
-    .. code-block:: toml
-
-        llm_max_tokens = 8192
-
-**llm_timeout_s**
-    The timeout in seconds to use for the LLM when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`.  This is the maximum amount
-    of time we will wait for the LLM to return a response.
-
-    Default: ``120``
-
-    Example:
-
-    .. code-block:: toml
-
-        llm_timeout_s = 60
-
-**openai_api_key**
-    If you want to use an OpenAI model when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`, you need to set the API key
-    here.
-
-    Example:
-
-    .. code-block:: ini
-
-        openai_api_key = "sk-proj-1234567890"
-
-**gemini_api_key**
-    If you want to use a Gemini model when using
-    :class:`~wyrdcraeft.LLMDocumentIngestor`, you need to set the API key
-    here.
-
-    Example:
-
-    .. code-block:: toml
-
-        gemini_api_key = "gcp-api-key-1234567890"
 
 **log_level**
     The log level to use for the application.  This is the level of logging to use.
@@ -229,12 +139,6 @@ You can set configuration using environment variables:
 Environment Variable Mapping
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``WYRDCRAEFT_LLM_MODEL_ID`` → ``llm_model_id``
-- ``WYRDCRAEFT_LLM_TEMPERATURE`` → ``llm_temperature``
-- ``WYRDCRAEFT_LLM_MAX_TOKENS`` → ``llm_max_tokens``
-- ``WYRDCRAEFT_LLM_TIMEOUT_S`` → ``llm_timeout_s``
-- ``WYRDCRAEFT_OPENAI_API_KEY`` → ``openai_api_key``
-- ``WYRDCRAEFT_GEMINI_API_KEY`` → ``gemini_api_key``
 - ``WYRDCRAEFT_LOG_LEVEL`` → ``log_level``
 - ``WYRDCRAEFT_LOG_FILE`` → ``log_file``
 - ``WYRDCRAEFT_ENABLE_COLORS`` → ``enable_colors``
@@ -313,12 +217,6 @@ Basic Setup
 
     # ~/.wyrdcraeft.conf
     [wyrdcraeft]
-    llm_model_id = "qwen2.5:14b-instruct"
-    llm_temperature = 0.0
-    llm_max_tokens = 4096
-    llm_timeout_s = 120
-    openai_api_key = "sk-proj-1234567890"
-    gemini_api_key = "gcp-api-key-1234567890"
     log_level = "INFO"
     log_file = "/var/log/wyrdcraeft.log"
     default_output_format = "json"
@@ -329,12 +227,6 @@ Or use command-line options:
 
 .. code-block:: bash
 
-    $ export WYRDCRAEFT_LLM_MODEL_ID="qwen2.5:14b-instruct"
-    $ export WYRDCRAEFT_LLM_TEMPERATURE=0.0
-    $ export WYRDCRAEFT_LLM_MAX_TOKENS=4096
-    $ export WYRDCRAEFT_LLM_TIMEOUT_S=120
-    $ export WYRDCRAEFT_OPENAI_API_KEY="sk-proj-1234567890"
-    $ export WYRDCRAEFT_GEMINI_API_KEY="gcp-api-key-1234567890"
     $ export WYRDCRAEFT_LOG_LEVEL="INFO"
     $ export WYRDCRAEFT_LOG_FILE="/var/log/wyrdcraeft.log"
     $ wyrdcraeft source convert /path/to/source.txt /path/to/output.json
@@ -366,12 +258,10 @@ Secure environment variable usage:
 .. code-block:: bash
 
     # Set variables for current session only
-    export WYRDCRAEFT_OPENAI_API_KEY="sk-proj-1234567890"
-    export WYRDCRAEFT_GEMINI_API_KEY="gcp-api-key-1234567890"
+    export WYRDCRAEFT_APP_DATA_DIR="$HOME/.config/wyrdcraeft"
 
-    # Clear sensitive variables when done
-    unset WYRDCRAEFT_OPENAI_API_KEY
-    unset WYRDCRAEFT_GEMINI_API_KEY
+    # Clear overrides when done
+    unset WYRDCRAEFT_APP_DATA_DIR
 
 Troubleshooting Configuration
 -----------------------------
@@ -424,12 +314,6 @@ Validation Rules
 
 The library validates configuration:
 
-- **llm_model_id**: Must be a valid model ID: one of ``qwen*``, ``gemini*``, ``gpt-*``, ``o1-*``, ``o3-*``
-- **llm_temperature**: Must be a float between 0 and 1
-- **llm_max_tokens**: Must be a positive integer and less than the maximum number of tokens for the model
-- **llm_timeout_s**: Must be a positive integer
-- **openai_api_key**: Must be a valid OpenAI API key
-- **gemini_api_key**: Must be a valid Gemini API key
 - **log_level**: Must be one of ``DEBUG``, ``INFO``, ``WARNING``, ``ERROR``
 - **log_file**: Must be a valid, writable file path
 - **enable_colors**: Must be a boolean
@@ -442,18 +326,6 @@ Error Messages
 Common validation errors:
 
 .. code-block:: bash
-
-    # Invalid model ID
-    Error: Invalid model ID: foobar2.5
-
-    # Invalid temperature
-    Error: Temperature must be between 0 and 1
-
-    # Invalid max tokens
-    Error: Max tokens must be greater than 0
-
-    # Invalid timeout
-    Error: Timeout must be greater than 0
 
     # Invalid output format
     Error: Invalid output format: foobar

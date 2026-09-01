@@ -55,7 +55,7 @@ extensions = [
 ]
 
 # Mock optional dependencies so autodoc can import the package without them.
-autodoc_mock_imports = ["any_llm", "acdh_tei_pyutils"]
+autodoc_mock_imports = ["acdh_tei_pyutils"]
 
 source_suffix: str = ".rst"
 

@@ -16,7 +16,7 @@ Converting documents to JSON
 Heuristic Ingestor
 ^^^^^^^^^^^^^^^^^^
 
-:class:`wyrdcraeft.ingest.pipeline.HeuristicDocumentIngestor` is a converter that uses deterministic heuristics to convert documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.HeuristicDocumentIngestor.ingest` method.  This is a good choice for documents that are not well-structured or that are not well-suited for LLM-based ingestion.
+:class:`wyrdcraeft.ingest.pipeline.HeuristicDocumentIngestor` is a converter that uses deterministic heuristics to convert local ``.txt`` documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.HeuristicDocumentIngestor.ingest` method.
 
 .. autoclass:: wyrdcraeft.ingest.pipeline.HeuristicDocumentIngestor
     :members:
@@ -29,16 +29,6 @@ TEI Ingestor
 :class:`wyrdcraeft.ingest.pipeline.TEIDocumentIngestor` is an ingestor that will use the `TEI <https://tei-c.org/>`_ XML format to ingest documents.   It will load the document from the source path and then use the TEI XML parser to parse the document, with minimal or no additional processing.
 
 .. autoclass:: wyrdcraeft.ingest.pipeline.TEIDocumentIngestor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-LLM Ingestor
-^^^^^^^^^^^^
-
-:class:`wyrdcraeft.ingest.pipeline.LLMDocumentIngestor` is an ingestor that will use an LLM to ingest documents.  This is a a work in progress and is generally not a good choice for ingesting documents, because it still gets a lot of things wrong, especially verse.  This is why it is not the default ingestor.
-
-.. autoclass:: wyrdcraeft.ingest.pipeline.LLMDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:

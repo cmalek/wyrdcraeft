@@ -83,11 +83,8 @@ Dependencies
 - **pydantic-settings**: Settings management for Python applications
 - **click**: Command line interface creation kit
 - **rich**: Rich text and beautiful formatting in the terminal
-- **unstructured**: Unstructured data extraction
-- **any-llm-sdk**: Any LLM SDK, enabling both cloud and local models
-- **delb**: Delimiter-based tokenization for TEI XML parsing
+- **delb**: TEI XML parsing
 - **acdh-tei-pyutils**: ACDH TEI Python utilities for TEI XML parsing
-- **pdfminer-six**: PDFMiner for PDF parsing
 
 These dependencies are automatically installed when you install ``wyrdcraeft``.
 

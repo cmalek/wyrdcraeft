@@ -75,8 +75,8 @@ Common options available for all commands:
     wyrdcraeft --output table settings show
 
     # Use environment variables to change configuration
-    export WYRDCRAEFT_LLM_MODEL_ID="gpt-4o"
-    $ wyrdcraeft source convert input.txt output.json
+    export WYRDCRAEFT_QUIET_MODE=1
+    wyrdcraeft source convert input.txt output.json
 
 Configuration
 -------------
@@ -89,12 +89,10 @@ Best Practices
 Configuration Management
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use configuration files when necessary.  The default configuration shipped with
-``wyrdcraeft`` is is typically fine (though you still must supply the LLM
-API keys as environment variables or in the configuration file if you are using
-a cloud model) for development, testing, and troubleshooting, but you can
-override it with a configuration file.  See :doc:`/overview/configuration_cli`
-for more details.
+Use configuration files when necessary. The default configuration shipped with
+``wyrdcraeft`` is typically fine for development and troubleshooting. Override
+it with a configuration file when needed. See
+:doc:`/overview/configuration_cli` for more details.
 
 Command Guides
 --------------

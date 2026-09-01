@@ -23,12 +23,6 @@ Options
 - ``--warnings-file PATH``: optional ``parse_warnings.jsonl`` output path. When
   omitted, the file is written alongside the resolved index database as
   ``parse_warnings.jsonl``.
-- ``--llm-fix-pass``: optional second pass that sends warning lines to a local
-  Ollama-compatible LLM for strict JSON repair before editorial merge.
-- ``--llm-model MODEL``: Ollama model for ``--llm-fix-pass`` (default:
-  ``qwen2.5:14b-instruct``).
-- ``--llm-endpoint URL``: Ollama ``/api/generate`` endpoint (default:
-  ``http://localhost:11434/api/generate``).
 
 Parse warnings
 --------------
@@ -39,12 +33,7 @@ attestation stripping, unknown POS on a main headword line, and empty sense
 segmentation on a non-empty body. After editorial merge, unapplied edits and
 editorial debris are appended to the same file; cross-check ``bt_edit_log`` for
 ``applied=0`` rows whose ``note`` begins with ``target_missing`` or
-``target_ambiguous``. Without ``--llm-fix-pass``, the SQLite index matches the
-deterministic-only path; the warnings file is diagnostic only.
-
-When ``--llm-fix-pass`` is enabled, only warning records are sent to the LLM.
-Invalid JSON or schema validation failures are logged and the deterministic
-partial result is preserved for that line.
+``target_ambiguous``. The warnings file is diagnostic only.
 
 SQLite index database
 ---------------------
@@ -108,11 +97,6 @@ Examples
 
     # Custom Bosworth-Toller corpus override
     wyrdcraeft dictionary build --source /path/to/oe_bt.txt --report /tmp/bt_report.json
-
-    # Optional local LLM repair pass for parse warnings only
-    wyrdcraeft dictionary build --llm-fix-pass \
-        --llm-model qwen2.5:14b-instruct \
-        --warnings-file /tmp/parse_warnings.jsonl
 
 See also
 --------
