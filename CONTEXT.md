@@ -30,7 +30,7 @@ In scope:
 Out of scope:
 
 - general-purpose NLP platform work
-- OCR pipeline work (moved to bochord; see ADR 0007)
+- OCR pipeline work and LLM/messy-document ingest (moved to `wordwending`, formerly `bochord`; see ADR 0007 and ADR 0010)
 - broad lexicography tooling beyond Bosworth-Toller integration
 - arbitrary document-conversion support with no Old English focus
 
@@ -46,7 +46,7 @@ Out of scope:
 
 ## Canonical Terms
 
-- source text: raw input text, local file or supported remote source
+- source text: raw input text as a local TEI/XML or `.txt` file
 - lossless source-grounded AST: first-pass Bosworth-Toller parse output that
   preserves source order, source text, and fragment boundaries before any
   normalization or cleanup; later views may derive normalized dictionary data
@@ -96,11 +96,11 @@ Out of scope:
   scan pages into conservative preprocessed pages, overlapping four-tile OCR
   witnesses, quality-scored manifests, and page-region anchor seeds; stopped
   before OCR text became canonical truth; this OCR pipeline has moved to the
-  `bochord` repo (see ADR 0007) and is no longer implemented here
+  `wordwending` repo (formerly `bochord`; see ADR 0007) and is no longer
+  implemented here
 - document JSON: normalized structured output produced by ingestion
-- deterministic ingest: heuristic extraction path that does not call an LLM
+- deterministic ingest: heuristic extraction path for local `.txt`
 - TEI ingest: direct TEI/XML parsing path
-- LLM ingest: extraction path using configured LLM settings
 - macron index: JSON payload used by diacritic tools for normalized-to-display mappings
 - morphology generation: SQLite lookup index production workflow for inflected
   forms (optional TSV via `--output`); typically triggered by
@@ -235,7 +235,19 @@ Out of scope:
   rather than guessing across ambiguous homographs
 - startup database readiness: mandatory startup step that ensures canonical
   `wyrdcraeft.sqlite3` exists at expected schema before any DB-using command
-  reads or writes it
+  reads or writes it; schema-ready is not the same as populated
+- index population gate: dictionary-query precondition that required `bt_*`
+  lookup tables exist and contain rows; distinct from startup database
+  readiness, which only guarantees schema. Empty tables after migrate are
+  valid for `dictionary build` and invalid for `dictionary query`.
+  _Avoid_: DictionaryTableStatsService, generic table-stats service, folding
+  emptiness into the startup migration gate
+- macron-index curation: mutation of the macron index JSON (unique commit,
+  ambiguous annotate/add/delete, completion). Restoration only reads the
+  index. Completion means every attested form on an ambiguous key has at
+  least one POS/meaning sense.
+  _Avoid_: treating completion as a CLI-only rule, mixing curation with
+  dictionary SQLite access
 - pre-migration backup: one retained full-copy backup of the canonical
   `wyrdcraeft.sqlite3` created immediately before Alembic upgrades or
   destructive legacy resets
@@ -452,12 +464,14 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
   — **historical**; superseded by the canonical `wyrdcraeft.sqlite3` migration
   (Phases 1–8) and the unified dictionary workflow (Phase B).
 - [0004: BT OCR parsing starts with lossless source-grounded AST](docs/adr/0004-bt-ocr-parsing-starts-with-lossless-source-grounded-ast.md)
-  — **superseded**; OCR pipeline moved to `bochord` (see ADR 0007).
+  — **superseded**; OCR pipeline moved to `wordwending` (formerly `bochord`; see ADR 0007).
 - [0005: BT source acquisition uses multi-witness download set](docs/adr/0005-bt-source-acquisition-uses-multi-witness-download-set.md)
-  — **superseded**; OCR pipeline moved to `bochord` (see ADR 0007).
+  — **superseded**; OCR pipeline moved to `wordwending` (formerly `bochord`; see ADR 0007).
 - [0006: BT JP2 witness preparation is library-first](docs/adr/0006-bt-jp2-witness-preparation-is-library-first.md)
-  — **superseded**; OCR pipeline moved to `bochord` (see ADR 0007).
+  — **superseded**; OCR pipeline moved to `wordwending` (formerly `bochord`; see ADR 0007).
 - [0007: OCR pipeline moves to bochord](docs/adr/0007-ocr-pipeline-moves-to-bochord.md)
+  — sibling is now `wordwending` (GitHub already had `bochord`).
+- [0010: LLM and unstructured leave source convert](docs/adr/0010-llm-and-unstructured-leave-source-convert.md)
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

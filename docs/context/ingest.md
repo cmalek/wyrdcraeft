@@ -5,9 +5,11 @@
 Ingest converts Old English source material into structured document JSON.
 Current paths are:
 
-- deterministic heuristic ingest
+- deterministic heuristic ingest (local `.txt`)
 - TEI/XML ingest
-- optional LLM-assisted ingest
+
+LLM-assisted ingest, HTML/PDF/`unstructured`, and HTTP fetch are out of this
+repo (ADR 0010). ML and messy-document work live in `wordwending`.
 
 ## Main CLI Entrypoints
 
@@ -18,7 +20,6 @@ Current paths are:
 - `wyrdcraeft.cli.source:reading_convert`
 - `wyrdcraeft.ingest.pipeline:DocumentIngestor`
 - `wyrdcraeft.ingest.loaders`
-- `wyrdcraeft.ingest.extractors`
 - `wyrdcraeft.ingest.normalizers`
 - `wyrdcraeft.ingest.exporters`
 
@@ -34,10 +35,8 @@ Current paths are:
 
 Inputs:
 
-- local source files
-- `http://` and `https://` source references
+- local TEI/XML or `.txt` files
 - optional title override
-- optional LLM settings overrides
 
 Outputs:
 
@@ -47,9 +46,7 @@ Outputs:
 
 - `source convert` is CLI-first; output path is always explicit.
 - Local file inputs must exist before conversion starts.
-- Remote source handling is wired through `source` string detection, not a
-  separate command.
-- LLM extraction remains optional and is not default path.
+- Convert does not fetch URLs or call an LLM.
 - Root pipeline decision point lives in `DocumentIngestor.ingest`; shared ingest
   behavior should usually be fixed there, not in one caller.
 

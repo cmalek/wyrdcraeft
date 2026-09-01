@@ -57,6 +57,9 @@ Outputs:
   exits session immediately.
 - Restoration and curation are related but not same thing: restoration consumes
   index data, curation mutates it.
+- Macron-index curation is a separate extract from dictionary SQLite access.
+  Completion of an ambiguous key requires every attested form to have at least
+  one POS/meaning sense; that rule belongs with the payload, not the CLI.
 
 ## Related Docs
 

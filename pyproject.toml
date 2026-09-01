@@ -154,6 +154,7 @@ ignore = [
     "TID", # flake8-tidy-imports
 
     #### specific rules
+    "CPY001", # ignore missing per-file copyright notice
     "D100",   # ignore missing docs
     "D101",
     "D102",

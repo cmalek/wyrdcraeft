@@ -41,7 +41,6 @@ Inputs:
   `wyrdcraeft/etc/dictionary/oe_bt.txt` (override with `--source PATH`)
 - optional report output
 - optional warning log path (`parse_warnings.jsonl`, default beside the index DB)
-- optional LLM fix pass for warning lines
 - Wright markdown for `ingest-wright-text` (bundled corpus at
   `wyrdcraeft/etc/dictionary/wright.md`; always passed via `--source`)
 
@@ -69,7 +68,9 @@ Outputs:
 - Dictionary build writes into the canonical app-data database; use
   `dictionary build --with-morphology` when `forms` is empty or morphology must
   be regenerated.
-- Optional LLM repair path is warning-only, not the primary parser path.
+- Index population gate: `dictionary query` requires populated `bt_entries`,
+  `bt_senses`, and `bt_variants`. Startup database readiness only guarantees
+  schema; empty `bt_*` after migrate is expected until build runs.
 - Wright section paragraph text requires explicit `dictionary ingest-wright-text`;
   dictionary build does not ingest Wright prose automatically.
 

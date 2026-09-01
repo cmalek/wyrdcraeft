@@ -1,3 +1,26 @@
+# SDD Progress — ADR 0010 LLM/unstructured leave source convert
+
+Branch: feat/adr-0010-llm-unstructured-leave
+Plan: docs/superpowers/plans/2026-08-31-llm-unstructured-leave-source-convert.md
+Spec: docs/adr/0010-llm-and-unstructured-leave-source-convert.md
+Models: implementer=cursor-grok-4.6-medium-fast, reviewer=composer-2.5-fast
+Workspace: /Users/cmalek/src/workspace/wyrdcraeft (in-place branch; dirty ADR/docs stay uncommitted)
+
+Task 1: complete (commits 373ac7c..4f8b032, review clean)
+Task 2: complete (commits 4f8b032..8a49d05, review clean)
+Task 3: complete (commits 8a49d05..7f69d34, review clean; Task 5 folded into this commit)
+Task 4: complete (commits 7f69d34..0b16f1b, review clean)
+Task 5: complete (no new commit; work in 7f69d34, review clean)
+Task 6: complete (commits 0b16f1b..1e1d611, review clean)
+Task 7: complete (commits 1e1d611..2987772, review clean)
+Task 8: complete (commits 2987772..81a07cd, review clean)
+
+Whole-branch review: ready to merge (373ac7c..81a07cd, 9 commits; no Critical/Important)
+
+---
+
+# Prior ledger (Phase A — do not treat as ADR 0010)
+
 # Phase A SDD Progress
 
 Base: 8f0a2bf663c95f52bbb469251c000bcb0aad263d (master)

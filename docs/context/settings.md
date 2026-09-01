@@ -2,8 +2,8 @@
 
 ## What This Capability Does
 
-Settings control CLI defaults, LLM options, OCR defaults, output rendering, and
-application data path overrides.
+Settings control CLI defaults, output rendering, and application data path
+overrides. LLM and OCR settings are not part of this repo (ADR 0007, ADR 0010).
 
 ## Main CLI Entrypoints
 

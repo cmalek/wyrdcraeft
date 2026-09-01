@@ -16,7 +16,7 @@ Use it from the command line or from Python, and avoid ad-hoc scripts and format
 ## Features
 
 - **Ingest** Old English texts from **text files** and **TEI XML**.
-- **Convert** to a standard JSON format via deterministic heuristics, TEI parsing, or LLM-based extraction.
+- **Convert** to a standard JSON format via deterministic heuristics or TEI parsing.
 - **Handle** both prose and verse (paragraphs, verse lines, dialogue, sections).
 - **Generate** Old English morphology forms using the migrated Python implementation from Ondřej Tichý's Perl-based generator (based on the Bosworth & Toller, *An Anglo-Saxon Dictionary*, 1898,  and Wright & Wright,  *Old English Grammar*, 1908).
 - **Diacritic workflows**: macron restoration and disambiguation tooling for normalized forms.
