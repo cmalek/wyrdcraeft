@@ -1,6 +1,6 @@
 {
-  "generated_at_utc": "2026-09-01T05:34:04.250761+00:00",
-  "violation_count": 117,
+  "generated_at_utc": "2026-09-01T05:40:02.029634+00:00",
+  "violation_count": 114,
   "violations": [
     {
       "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/diacritic_disambiguate.py:85:DOC203:_render_disambiguation_layout",
@@ -43,33 +43,25 @@
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:25:DOC202:reading_group",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:24:DOC202:reading_group",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py",
-      "line": 25,
+      "line": 24,
       "code": "DOC202",
       "symbol": "reading_group",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:51:DOC202:reading_convert",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:120:DOC202:_mark_diacritics_derived_path",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py",
-      "line": 51,
-      "code": "DOC202",
-      "symbol": "reading_convert",
-      "message": "Missing required Napoleon section 'Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:157:DOC202:_mark_diacritics_derived_path",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py",
-      "line": 157,
+      "line": 120,
       "code": "DOC202",
       "symbol": "_mark_diacritics_derived_path",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:157:DOC205:_mark_diacritics_derived_path",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py:120:DOC205:_mark_diacritics_derived_path",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/cli/source.py",
-      "line": 157,
+      "line": 120,
       "code": "DOC205",
       "symbol": "_mark_diacritics_derived_path",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
@@ -235,73 +227,57 @@
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1092:DOC205:DocumentIngestor.ingest",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1162:DOC202:ingest_without_llm",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1092,
-      "code": "DOC205",
-      "symbol": "DocumentIngestor.ingest",
-      "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1142:DOC203:ingest_auto",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1142,
-      "code": "DOC203",
-      "symbol": "ingest_auto",
-      "message": "Missing required Napoleon section 'Keyword Args:'."
-    },
-    {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1176:DOC202:ingest_without_llm",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1176,
+      "line": 1162,
       "code": "DOC202",
       "symbol": "ingest_without_llm",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1176:DOC205:ingest_without_llm",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1162:DOC205:ingest_without_llm",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1176,
+      "line": 1162,
       "code": "DOC205",
       "symbol": "ingest_without_llm",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1183:DOC202:ingest_from_tei",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1169:DOC202:ingest_from_tei",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1183,
+      "line": 1169,
       "code": "DOC202",
       "symbol": "ingest_from_tei",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1183:DOC205:ingest_from_tei",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1169:DOC205:ingest_from_tei",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1183,
+      "line": 1169,
       "code": "DOC205",
       "symbol": "ingest_from_tei",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1188:DOC202:ingest_with_langextract",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1174:DOC202:ingest_with_langextract",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1188,
+      "line": 1174,
       "code": "DOC202",
       "symbol": "ingest_with_langextract",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1188:DOC203:ingest_with_langextract",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1174:DOC203:ingest_with_langextract",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1188,
+      "line": 1174,
       "code": "DOC203",
       "symbol": "ingest_with_langextract",
       "message": "Missing required Napoleon section 'Keyword Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1188:DOC205:ingest_with_langextract",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py:1174:DOC205:ingest_with_langextract",
       "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/pipeline.py",
-      "line": 1188,
+      "line": 1174,
       "code": "DOC205",
       "symbol": "ingest_with_langextract",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."

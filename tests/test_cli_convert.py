@@ -31,7 +31,10 @@ def test_convert_rejects_use_llm_flag(runner, temp_dir):
         cli,
         ["source", "convert", str(source_file), str(output_file), "--use-llm"],
     )
-    assert result.exit_code != 0
+    assert result.exit_code == 2
+    combined = f"{result.output}{result.stderr}"
+    assert "no such option" in combined.lower()
+    assert "--use-llm" in combined
 
 
 def test_convert_rejects_http_source(runner, temp_dir):
@@ -40,7 +43,16 @@ def test_convert_rejects_http_source(runner, temp_dir):
         cli,
         ["source", "convert", "https://example.com/a.txt", str(output_file)],
     )
-    assert result.exit_code != 0
+    assert result.exit_code == 2
+    combined = f"{result.output}{result.stderr}"
+    lowered = combined.lower()
+    assert "https://example.com/a.txt" in combined
+    assert (
+        "does not exist" in lowered
+        or "invalid value" in lowered
+        or "path" in lowered
+    )
+    assert "converted" not in lowered
 
 
 def test_convert_command_missing_source(runner, temp_dir):
