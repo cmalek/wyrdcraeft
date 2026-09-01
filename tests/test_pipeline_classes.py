@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from wyrdcraeft.ingest.pipeline import (
     CanonicalConverter,
     DocumentIngestor,
-    LLMDocumentIngestor,
     OEFilter,
     StructureParser,
 )
-from wyrdcraeft.models import OldEnglishText, Section, TextMetadata
+from wyrdcraeft.models import TextMetadata
 from wyrdcraeft.models.parsing import RawBlock
 
 FIX = Path(__file__).parent / "fixtures"
@@ -107,55 +106,9 @@ def test_canonical_converter_verse_number_fallback():
     assert [lines[0].number, lines[1].number, lines[2].number] == [1, 2, 3]
 
 
-@patch("wyrdcraeft.ingest.pipeline.LLMExtractor")
 @patch("wyrdcraeft.ingest.pipeline.SourceLoader.load")
-@patch("wyrdcraeft.ingest.pipeline.normalize_elements_to_blocks")
-def test_llm_document_ingestor(mock_normalize, mock_load, mock_extractor_class):
-    # Setup mocks
-    mock_load.return_value = []
-    mock_normalize.return_value = [
-        RawBlock(
-            text="Hwæt! We Gardena\nin geardagum", category="NarrativeText", page=1
-        )
-    ]
-
-    mock_extractor = MagicMock()
-    mock_extractor_class.return_value = mock_extractor
-
-    # Mock return of extractor.extract
-    meta = TextMetadata(title="Mocked Title", source="Mocked Source")
-    root_section = Section(
-        title=None,
-        number=None,
-        sections=[Section(title="Mocked Section", paragraphs=[])],
-        paragraphs=None,
-        lines=None,
-    )
-    mock_extractor.extract.return_value = OldEnglishText(
-        metadata=meta, content=root_section
-    )
-
-    # Run ingest
-    with (
-        patch("wyrdcraeft.ingest.pipeline.Path.exists", return_value=True),
-        patch(
-            "wyrdcraeft.ingest.pipeline.Path.read_text", return_value="Prompt content"
-        ),
-    ):
-        ingestor = LLMDocumentIngestor()
-        result = ingestor.ingest(Path("dummy.txt"), meta)
-
-    assert result.metadata.title == "Mocked Title"
-    assert len(result.content.sections) == 1
-    assert result.content.sections[0].title == "Mocked Section"
-    mock_extractor.extract.assert_called_once()
-
-
-@patch("wyrdcraeft.ingest.pipeline.SourceLoader.load")
-@patch("wyrdcraeft.ingest.pipeline.normalize_elements_to_blocks")
-def test_document_ingestor_dispatch(mock_normalize, mock_load):
-    mock_load.return_value = []
-    mock_normalize.return_value = [
+def test_document_ingestor_dispatch(mock_load):
+    mock_load.return_value = [
         RawBlock(text="Hwæt! We Gardena", category="NarrativeText", page=1)
     ]
 

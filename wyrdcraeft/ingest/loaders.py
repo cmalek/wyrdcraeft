@@ -1,19 +1,10 @@
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
-import httpx
 from acdh_tei_pyutils.tei import TeiReader  # type: ignore[import-untyped]
-
-# Additional imports for preformatted HTML handling
-from bs4 import BeautifulSoup
 from delb import Document
-from unstructured.documents.elements import ElementMetadata, Text
-from unstructured.partition.html import partition_html
-from unstructured.partition.pdf import partition_pdf
-from unstructured.partition.text import partition_text
 
 from ..models import (
     Line,
@@ -23,9 +14,10 @@ from ..models import (
     Sentence,
     TextMetadata,
 )
+from .normalizers import split_prose_and_verse_runs
 
 if TYPE_CHECKING:
-    from unstructured.documents.elements import Element
+    from ..models.parsing import RawBlock
 
 #: The TEI namespace.
 TEI_NS: Final[str] = "http://www.tei-c.org/ns/1.0"
@@ -34,141 +26,45 @@ TEI_NS: Final[str] = "http://www.tei-c.org/ns/1.0"
 class BaseSourceLoader:
     """Base class for source loaders."""
 
-    def load(self, source: str | Path) -> list[Element] | OldEnglishText:
+    def load(self, source: str | Path) -> list[RawBlock] | OldEnglishText:
         """
-        Load elements or canonical text from a source.
+        Load raw blocks or canonical text from a source.
 
         Args:
             source: The source to load the document from.
 
         Returns:
-            A list of :class:`~unstructured.documents.elements.Element`
+            A list of :class:`~wyrdcraeft.models.parsing.RawBlock`
             or an :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """
         raise NotImplementedError
 
-    def load_from_file(self, source_path: Path) -> list[Element]:
-        """
-        Load elements from a source path using unstructured.
-
-        Args:
-            source_path: The path to the source file.
-
-        Returns:
-            A list of elements.
-
-        """
-        suffix = source_path.suffix.lower()
-
-        if suffix in {".html", ".htm", ".php"}:
-            return partition_html(filename=str(source_path), include_metadata=True)
-        if suffix == ".pdf":
-            return partition_pdf(
-                filename=str(source_path),
-                extract_images_in_pdf=False,
-                infer_table_structure=False,
-                include_metadata=True,
-            )
-        if suffix in {".txt", ".text"}:
-            # Keep raw-text fidelity for deterministic parsing while preserving
-            # the historical partition_text invocation used in tests/mocks.
-            partition_text(filename=str(source_path))
-            try:
-                content = source_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError):
-                return partition_text(filename=str(source_path))
-            return [
-                Text(
-                    text=content,
-                    metadata=ElementMetadata(filename=str(source_path), page_number=1),
-                )
-            ]
-        msg = f"Unsupported source format: {suffix}"
-        raise ValueError(msg)
-
 
 class FileSourceLoader(BaseSourceLoader):
-    """Loader for local files."""
+    """Loader for local UTF-8 ``.txt`` files."""
 
-    def load(self, source: str | Path) -> list[Element]:
+    def load(self, source: str | Path) -> list[RawBlock]:
         """
-        Load elements from a local file.
+        Load a local ``.txt`` file as prose/verse :class:`RawBlock` runs.
 
         Args:
-            source: The source path load the document from.
+            source: The source path to load the document from.
 
         Returns:
-            A list of :class:`~unstructured.documents.elements.Element`.
+            A list of :class:`~wyrdcraeft.models.parsing.RawBlock`.
+
+        Raises:
+            ValueError: If the source suffix is not ``.txt`` or ``.text``.
 
         """
-        return self.load_from_file(Path(source))
-
-
-class HTTPSourceLoader(BaseSourceLoader):
-    """Loader for HTTP/HTTPS URLs."""
-
-    def load(self, source: str | Path) -> list[Element]:
-        """
-        Load elements from a HTTP/HTTPS URL.
-
-        Args:
-            source: The URL to load the document from.
-
-        Returns:
-            A list of :class:`~unstructured.documents.elements.Element`.
-
-        """
-        url = str(source)
-        with httpx.Client(follow_redirects=True) as client:
-            response = client.get(url)
-            response.raise_for_status()
-
-            html = response.text
-            if "<pre" in html.lower():
-                return self._load_html_preformatted(html)
-
-            suffix = Path(url).suffix.lower()
-            if not suffix:
-                content_type = response.headers.get("Content-Type", "")
-                if "html" in content_type:
-                    suffix = ".html"
-                elif "pdf" in content_type:
-                    suffix = ".pdf"
-                else:
-                    suffix = ".txt"
-
-            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-                tmp.write(response.content)
-                tmp_path = Path(tmp.name)
-
-            try:
-                return self.load_from_file(tmp_path)
-            finally:
-                if tmp_path.exists():
-                    tmp_path.unlink()
-
-    def _load_html_preformatted(self, html: str) -> list[Element]:
-        """
-        Load preformatted HTML (<pre>) blocks as text elements.
-
-        This bypasses unstructured for sources (e.g. Sacred Texts)
-        that encode the primary content inside <pre> tags.
-        """
-        soup = BeautifulSoup(html, "html.parser")
-        pres = soup.find_all("pre")
-
-        elements: list[Element] = []
-        for pre in pres:
-            text = pre.get_text("\n")
-            if text and text.strip():
-                elements.append(
-                    Text(
-                        text=text,
-                        metadata=ElementMetadata(filename="html-pre"),
-                    )
-                )
-        return elements
+        source_path = Path(source)
+        suffix = source_path.suffix.lower()
+        if suffix not in {".txt", ".text"}:
+            msg = f"Unsupported source format: {suffix}"
+            raise ValueError(msg)
+        text = source_path.read_text(encoding="utf-8")
+        return split_prose_and_verse_runs(text, category=None, page=None)
 
 
 class TEISourceLoader(BaseSourceLoader):
@@ -432,8 +328,7 @@ class SourceLoader:
         Factory method to choose the right loader from what type of source is
         provided.
 
-        - If the source is a URL, return an instance of
-          :class:`~wyrdcraeft.ingest.loaders.HTTPSourceLoader`.
+        - HTTP/HTTPS URLs are rejected; ``source convert`` is local-only.
         - If the source is a local file, return an instance of
           :class:`~wyrdcraeft.ingest.loaders.FileSourceLoader`.
         - If the source is a TEI XML string, return an instance of
@@ -446,10 +341,14 @@ class SourceLoader:
             A subclass of
             :class:`~wyrdcraeft.ingest.loaders.BaseSourceLoader`.
 
+        Raises:
+            ValueError: If the source is an HTTP or HTTPS URL.
+
         """
         source_str = str(source)
         if source_str.startswith(("http://", "https://")):
-            return HTTPSourceLoader()
+            msg = "source convert accepts a local .txt or TEI/XML path only"
+            raise ValueError(msg)
 
         source_path = Path(source)
         if source_path.suffix.lower() in {".xml", ".tei"} or (
@@ -459,7 +358,7 @@ class SourceLoader:
 
         return FileSourceLoader()
 
-    def load(self, source: str | Path) -> list[Element] | OldEnglishText:
+    def load(self, source: str | Path) -> list[RawBlock] | OldEnglishText:
         """
         Load from the appropriate source loader.
 
@@ -467,7 +366,7 @@ class SourceLoader:
             source: The source to load the document from.
 
         Returns:
-            A list of :class:`~unstructured.documents.elements.Element`
+            A list of :class:`~wyrdcraeft.models.parsing.RawBlock`
             or an :class:`~wyrdcraeft.models.OldEnglishText` model.
 
         """

@@ -31,7 +31,6 @@ from .extractors import (
     LLMExtractor,
 )
 from .loaders import SourceLoader
-from .normalizers import normalize_elements_to_blocks
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -722,18 +721,29 @@ class BaseDocumentIngestor:
         self, source_path: Path, progress_callback: ProgressCallback | None = None
     ) -> PreParsedDocument:
         """
-        Common helper to load, normalize, filter, and pre-parse a document.
+        Load, filter, and pre-parse a local text document.
+
+        Args:
+            source_path: Path to the source document.
+            progress_callback: Optional callback for progress reporting.
+
+        Raises:
+            TypeError: If the loader returns TEI canonical text.
+
+        Returns:
+            A :class:`~wyrdcraeft.models.parsing.PreParsedDocument`.
+
         """
         if progress_callback:
             progress_callback(0, 100, "Loading source document")
         elements = SourceLoader().load(source_path)
-        raw_text = (
-            source_path.read_text(encoding="utf-8") if source_path.exists() else ""
-        )
+        if isinstance(elements, OldEnglishText):
+            msg = "TEI must be handled by TEIDocumentIngestor, not heuristic pre-parse"
+            raise TypeError(msg)
+        blocks = elements  # list[RawBlock]
 
         if progress_callback:
-            progress_callback(25, 100, "Normalizing text blocks")
-        blocks = normalize_elements_to_blocks(elements, raw_text=raw_text)
+            progress_callback(25, 100, "Building text blocks")
 
         if progress_callback:
             progress_callback(50, 100, "Filtering Old English content")

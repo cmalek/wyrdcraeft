@@ -1,22 +1,14 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Final, Literal
+from typing import Final, Literal
 
 from ..models.parsing import RawBlock
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
 
 # -----------------------------------------------------------------------------
 # Constants
 # -----------------------------------------------------------------------------
 
-#: A regular expression to match footnote markers or page numbers.
-FOOTNOTE_RE = re.compile(r"""^\s*\(?\d+\)?\s*$""")
-#: A regular expression to match running headers (relaxed, line-based).
-# Match short ALL-CAPS running headers or titles (but not full OE lines)
-HEADER_RE = re.compile(r"""^[A-Z][A-Z\s]{3,}$""")
 #: Test for lines that consist only of a numbering marker (e.g. "[12]") and
 #: nothing else.
 NUMBER_ONLY_LINE_RE = re.compile(r"^\s*[\[(]?\d+[\])\.]?\s*")
@@ -25,8 +17,6 @@ NUM_VERSE_LINES: Final[int] = 2
 #: The minimum average length of a line in a verse block to
 #: be considered verse.
 MIN_AVG_VERSE_LINE_LENGTH: Final[int] = 60
-#: Max number of words in a header line.
-MAX_HEADER_WORDS: Final[int] = 6
 
 
 def _is_heading_line(line: str) -> bool:
@@ -78,37 +68,6 @@ def _is_verse_line(line: str, *, max_len: int = 80) -> bool:
         return True
 
     return not (stripped.endswith(".") and "  " not in stripped)
-
-
-def match_normalized_to_original(normalized_text: str, raw_text: str) -> str:
-    """
-    Find the original text in raw_text that matches normalized_text
-    ignoring differences in whitespace.
-    """
-    if not raw_text or not normalized_text:
-        return normalized_text
-
-    # Escape special regex characters in the normalized text
-    # then replace any whitespace run with a flexible whitespace regex
-    # We include \s* at the very beginning and end to capture surrounding whitespace
-    # of the block in the original source.
-    flexible_pattern = r"\s*"
-    for char in normalized_text:
-        if char.isspace():
-            if not flexible_pattern.endswith(r"\s*"):
-                flexible_pattern += r"\s*"
-        else:
-            flexible_pattern += re.escape(char)
-    flexible_pattern += r"\s*"
-
-    try:
-        match = re.search(flexible_pattern, raw_text, re.DOTALL)
-        if match:
-            return match.group(0)
-    except re.error:
-        pass
-
-    return normalized_text
 
 
 def _is_number_line(line: str) -> bool:
@@ -228,69 +187,4 @@ def split_prose_and_verse_runs(
         i += 1
 
     flush()
-    return blocks
-
-
-def normalize_elements_to_blocks(
-    elements: Iterable[object], raw_text: str = ""
-) -> list[RawBlock]:
-    """
-    Normalize elements to blocks.
-
-    Args:
-        elements: The elements to normalize.
-        raw_text: The original raw text of the source document.
-
-    Returns:
-        A list of blocks.
-
-    """
-    blocks: list[RawBlock] = []
-
-    for el in elements:
-        text = getattr(el, "text", None)
-
-        if not text:
-            continue
-
-        # Re-align with raw text to preserve whitespaces (multiple spaces, tabs, etc.)
-        # We do this BEFORE stripping so we can capture the original context.
-        if raw_text:
-            text = match_normalized_to_original(text, raw_text)
-
-        text = text.strip()
-        if not text:
-            continue
-
-        # Drop footnote markers or page numbers
-        if FOOTNOTE_RE.match(text):
-            continue
-
-        # Instead of dropping blocks with headers, filter lines within the block
-        lines = text.splitlines(keepends=True)
-        filtered_lines: list[str] = []
-
-        for ln in lines:
-            stripped = ln.strip()
-            if not stripped:
-                filtered_lines.append(ln)
-                continue
-            # Drop pure headers, but only if they are short
-            if (
-                HEADER_RE.fullmatch(stripped)
-                and len(stripped.split()) <= MAX_HEADER_WORDS
-            ):
-                continue
-            filtered_lines.append(ln)
-
-        text = "".join(filtered_lines).rstrip()
-        if not text:
-            continue
-
-        meta = getattr(el, "metadata", None)
-        page = getattr(meta, "page_number", None) if meta else None
-        category = getattr(el, "category", None)
-
-        blocks.extend(split_prose_and_verse_runs(text, category=category, page=page))
-
     return blocks
