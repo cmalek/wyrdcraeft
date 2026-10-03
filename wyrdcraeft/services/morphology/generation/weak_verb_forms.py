@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
@@ -13,7 +13,6 @@ from wyrdcraeft.models.morphology import (
     _WeakPrincipalPartContext,
     _WeakPsinsg2DerivationContext,
 )
-from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import emit_form_for_context as _emit_form_for_context_row
@@ -26,8 +25,12 @@ from .participles import (
     add_participle_to_adjectives as _add_participle_to_adjectives_session,
 )
 from .probability import probability_or_zero, probability_plus
-from .shared import FormOutput
 from .sound_changes import derive_papt_sound_changed_forms
+
+if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
+
+    from .shared import FormOutput
 
 #: Stem-part tuple ``(pre_vowel, vowel, post_vowel, boundary)``.
 WeakStemParts = tuple[str, str, str, str]
@@ -1377,7 +1380,7 @@ class WeakVerbGenerator:
             prob,
         )
 
-    def _emit_weak_painsg1_manual_context(  # noqa: PLR0913
+    def _emit_weak_painsg1_manual_context(
         self,
         context: _WeakPainsg1DerivationContext,
         form: str,

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
@@ -10,7 +10,6 @@ from wyrdcraeft.models.morphology import (
     _StrongInfDerivationContext,
     _StrongPrincipalPartContext,
 )
-from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .form_rows import emit_form_for_context as _emit_form_for_context_row
@@ -22,7 +21,13 @@ from .participles import (
     add_participle_to_adjectives as _add_participle_to_adjectives_session,
 )
 from .probability import probability_plus
-from .shared import FormOutput
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
+
+    from .shared import FormOutput
 
 
 class StrongVerbGenerator:
@@ -326,7 +331,7 @@ class StrongVerbGenerator:
 
     # -- infinitive-derived branch cascade -----------------------------------
 
-    def _emit_derived_inf_form_for_vowel(  # noqa: PLR0913
+    def _emit_derived_inf_form_for_vowel(
         self,
         context: _StrongInfDerivationContext,
         active_vowel: str,
@@ -363,7 +368,7 @@ class StrongVerbGenerator:
             prob,
         )
 
-    def _emit_derived_inf_form_for_vowel_context(  # noqa: PLR0913
+    def _emit_derived_inf_form_for_vowel_context(
         self,
         context: _StrongInfDerivationContext,
         active_vowel: str,
@@ -396,7 +401,7 @@ class StrongVerbGenerator:
             prob,
         )
 
-    def _emit_derived_inf_sound_for_vowel(  # noqa: PLR0913
+    def _emit_derived_inf_sound_for_vowel(
         self,
         context: _StrongInfDerivationContext,
         active_vowel: str,
@@ -430,7 +435,7 @@ class StrongVerbGenerator:
             prob,
         )
 
-    def _emit_derived_inf_sound_for_vowel_context(  # noqa: PLR0913
+    def _emit_derived_inf_sound_for_vowel_context(
         self,
         context: _StrongInfDerivationContext,
         active_vowel: str,

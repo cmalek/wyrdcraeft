@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from wyrdcraeft.models.morphology import (
     ParadigmPart,
@@ -16,13 +17,16 @@ from wyrdcraeft.services.morphology.progress import (
     MorphologyGenerateProgressCoordinator,
     MorphologyStage,
 )
-from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
 from wyrdcraeft.services.morphology.text_utils import OENormalizer
 
 from .scalar_utils import nz
-from .shared import FormOutput
 from .strong_verb_forms import StrongVerbGenerator
 from .weak_verb_forms import WeakVerbGenerator
+
+if TYPE_CHECKING:
+    from wyrdcraeft.services.morphology.session import GenerationRunState, WordPool
+
+    from .shared import FormOutput
 
 
 class VerbFormGenerator:
@@ -166,7 +170,7 @@ class VerbFormGenerator:
                 vowel_pa,
             )
 
-    def _dispatch_variant_context(
+    def _dispatch_variant_context(  # noqa: PLR0913
         self,
         context: _ParadigmVariantDispatchContext,
         variant: ParadigmVariant,
@@ -200,7 +204,7 @@ class VerbFormGenerator:
             vowel_pa,
         )
 
-    def _process_variant(
+    def _process_variant(  # noqa: PLR0913
         self,
         word: Word,
         vp: VerbParadigm,
@@ -222,6 +226,8 @@ class VerbFormGenerator:
             variant: The variant to process.
             formhash_base: The base form hash.
             boundary_inf: The boundary information.
+            vowel_inf: Infinitive vowel from variant ``0``.
+            vowel_pa: Preterite singular vowel from variant ``0``.
 
         """
         context = _VariantPartDispatchContext(
@@ -239,7 +245,7 @@ class VerbFormGenerator:
                 vowel_pa,
             )
 
-    def _dispatch_part_context(
+    def _dispatch_part_context(  # noqa: PLR0913
         self,
         context: _VariantPartDispatchContext,
         item: ParadigmPart,
