@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from wyrdcraeft.ingest.exporters import TEIExporter
 from wyrdcraeft.models import (
     Line,
     OldEnglishText,
@@ -11,6 +10,7 @@ from wyrdcraeft.models import (
     Sentence,
     TextMetadata,
 )
+from wyrdcraeft.services.ingest.exporters import TEIExporter
 
 
 @pytest.fixture

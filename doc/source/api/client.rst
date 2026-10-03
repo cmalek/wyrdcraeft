@@ -16,9 +16,9 @@ Converting documents to JSON
 Heuristic Ingestor
 ^^^^^^^^^^^^^^^^^^
 
-:class:`wyrdcraeft.ingest.pipeline.HeuristicDocumentIngestor` is a converter that uses deterministic heuristics to convert local ``.txt`` documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.HeuristicDocumentIngestor.ingest` method.
+:class:`wyrdcraeft.services.ingest.pipeline.HeuristicDocumentIngestor` is a converter that uses deterministic heuristics to convert local ``.txt`` documents into the :class:`~wyrdcraeft.models.OldEnglishText` model, specifically in its :meth:`~wyrdcraeft.HeuristicDocumentIngestor.ingest` method.
 
-.. autoclass:: wyrdcraeft.ingest.pipeline.HeuristicDocumentIngestor
+.. autoclass:: wyrdcraeft.services.ingest.pipeline.HeuristicDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:
@@ -26,9 +26,9 @@ Heuristic Ingestor
 TEI Ingestor
 ^^^^^^^^^^^^
 
-:class:`wyrdcraeft.ingest.pipeline.TEIDocumentIngestor` is an ingestor that will use the `TEI <https://tei-c.org/>`_ XML format to ingest documents.   It will load the document from the source path and then use the TEI XML parser to parse the document, with minimal or no additional processing.
+:class:`wyrdcraeft.services.ingest.pipeline.TEIDocumentIngestor` is an ingestor that will use the `TEI <https://tei-c.org/>`_ XML format to ingest documents.   It will load the document from the source path and then use the TEI XML parser to parse the document, with minimal or no additional processing.
 
-.. autoclass:: wyrdcraeft.ingest.pipeline.TEIDocumentIngestor
+.. autoclass:: wyrdcraeft.services.ingest.pipeline.TEIDocumentIngestor
     :members:
     :undoc-members:
     :show-inheritance:

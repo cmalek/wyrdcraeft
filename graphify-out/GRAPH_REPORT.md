@@ -1,35 +1,35 @@
-# Graph Report - wyrdcraeft  (2026-10-02)
+# Graph Report - wyrdcraeft  (2026-10-03)
 
 ## Corpus Check
-- 354 files · ~5,284,179 words
+- 354 files · ~5,284,241 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 5514 nodes · 11037 edges · 295 communities (251 shown, 35 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 707 edges (avg confidence: 0.92)
+- 5512 nodes · 11035 edges · 318 communities (272 shown, 37 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 709 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4140c0b8`
+- Built from commit: `6bc9a39c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - BTSenseSegmenter
-- test_sense_segmenter.py
-- cli/settings.py
-- test_morph_class_browse.py
+- SenseTreeNormalizer
+- cli.py
+- create_engine
 - build_morphology_table
-- ParadigmClassMapper
-- BTConsolidatedEntry
-- MorphologyGenerateProgressCoordinator
-- _build_pronoun_sidebar
-- OENormalizer
-- DictionaryBuildPipeline
-- test_generation_branches.py
 - normalize_morphology_title
+- normalize_old_english
+- MorphologyGenerateProgressCoordinator
+- form_decode.py
+- OENormalizer
+- .run
+- test_generation_branches.py
+- QueryFormRow
 - test_line_parser.py
-- TestHelpers
+- attestation_stripper.py
 - _WeakInfDerivationContext
 - cli/dictionary.py
 - Settings
@@ -37,65 +37,65 @@
 - GeneratorSession
 - test_browse_tui.py
 - DictionaryBrowseQueryService
-- test_morph_catalog_pos.py
+- ensure_parts_of_speech
 - AdjectiveFormGenerator
 - markup.py
 - tests/conftest.py
 - diacritic_disambiguate.py
 - dictionary_group
 - VerbFormGenerator
-- morphology/test_query_service.py
+- WordPool
 - File Structure
-- OldEnglishText
-- test_pipeline_classes.py
-- Word
+- models/__init__.py
+- RawBlock
+- NounFormGenerator
 - MorphologyCatalogLoader
 - models/dictionary.py
-- emit_sound_changed_forms
+- derive_sound_changed_forms
 - etymology_display.py
 - BTSqliteSink
-- SenseMetadataClassifier
-- ensure_parts_of_speech
-- .ensure_ready
+- .classify
+- pos_seed.py
+- LegacyDatabaseResetRequired
 - ingest/pipeline.py
 - TEIExporter
 - NormalizedTitleJoinIndex
 - BTAttestationStripper
-- load_normalized_title_join_index
+- FormRow
 - BTSearchEntry
-- wright-morphology-fixture.schema.json
-- test_cli_diacritic_disambiguate.py
+- properties
+- cli
 - wyrdcraeft/settings.py
 - diacritics.py
 - browse_tui.py
-- generate_reference_snapshots_command
+- run_morphology_generation
 - Session: Morphology Wright Catalog — Phase 2 complete
-- BTTargetResolver
+- .resolve_sense_path
 - properties
 - properties
 - test_forms_entry_relinker.py
 - TestBTSenseSegmenterUnit
-- cli
-- RawBlock
+- test_cli_morphology.py
+- test_loaders.py
 - test_cli_dictionary.py
 - check_napoleon_gate.py
 - Slice 1: Lexicon Rebuild → SQLAlchemy Core ✅
 - write_backup_state
 - test_index_pipeline.py
 - upgrade_canonical_db
-- wright_audit.py
-- .get_details
-- OEFilter
-- dictionary/test_query_service.py
+- WrightAuditService
+- _row_to_morphology
+- morphology/test_query_service.py
+- BTPos
 - setter
 - 20260706_01_parts_of_speech_and_dictionary_pos.py
-- test_build_pipeline.py
+- DictionaryBuildPipeline
 - _WeakPainsg1DerivationContext
 - enum
 - MorphologyDictionaryCleaner
-- create_engine
+- test_form_fk_resolver.py
 - test_corpus_sample.py
-- cli.py
+- print_info
 - BT V2 Parser And Schema Migration
 - properties
 - BTSourceHeadwordCleaner
@@ -106,14 +106,14 @@
 - type
 - Orchestration Guide
 - Lexicon Architecture Docs Design
-- WordPool
-- runtime.py
+- Word
+- test_wright_section_text.py
 - .parse
-- diacritic_add
+- diacritic.py
 - required
-- features
+- recognitionHints
 - format_wright_audit_text
-- run_dictionary_browse
+- DictionaryBrowseStartupStage
 - Configuration: Command Line Tool guide
 - DatabaseStartupRuntime
 - test_form_decode.py
@@ -126,19 +126,19 @@
 - ADR 0009: Collapse morphology generation callback-soup into PoS generator classes
 - Lexicon shrink: drop lexicon_entries/lexicon_forms, keep search_keys
 - _WeakPsinsg2DerivationContext
-- ._load_entry
+- generation/query.py
 - decode_function_dimensions
-- MorphologyGenerationFacade
+- read_jsonl_gz
 - _format_entry_header_text
 - Implementation Slices
 - fixture_prose.txt (Mark gospel OE prose fixture)
 - GeneratorSession.load_all
 - wyrdcraeft 1.1.0 release (2026-03-02)
-- TEISourceLoader
+- Section
 - TestSenseDisplayLabels
 - Batched SQLite sink (25K rows) + bulk PRAGMAs fix for morphology build perf
 - Phase 2 — Lemma Morph Class Assignment
-- participles.py
+- test_text_utils_reference.py
 - Morphology Wright catalog — Phase 1 session (2026-07-04)
 - .apply
 - File map
@@ -177,34 +177,34 @@
 - wright_sections
 - 20260706_03_lexicon_shrink_search_keys.py
 - Session State: Lexicon SQLAlchemy Slice 1 Complete
-- .__init__
+- profile_adj_stage.py
 - enum
 - default_bt_source_path
 - 20260706_04_drop_forms_legacy_strings.py
 - wyrdcraeft Context
 - 20260630_01_initial_canonical_schema.py
 - test_schema.py
-- test_attestation_stripper.py
+- reference_snapshots.py
 - 20260707_01_drop_search_keys.py
-- .__init__
+- run_dictionary_browse
 - TestCLISettings
 - test_lemma_morph_assignment.py
 - File Structure
 - 20260707_02_bt_senses_entry_order_index.py
-- .run
-- test_cli_utils.py
+- services/dictionary/__init__.py
+- utils.py
 - lexicon/conftest.py
-- PreParsedDocument
+- BTSense
 - Phase A — Reference Tables and Dictionary POS FKs
 - MorphologyCatalogQueryService
 - Morphology Dictionary: Adjectives, Verbs, Participles, Numerals, Adverbs, Nouns
 - create_dict31.pl (legacy Perl morphology generator)
 - BTQueryService
 - Python coding standards
-- models/__init__.py
+- build_pipeline.py
 - BT Structural Visibility Review
 - wyrdcraeft
-- ._extract_gloss
+- BrowseSearchHit
 - Phase D — Drop Legacy Form String Columns
 - LemmaMorphClassAssigner
 - Phase A — Unified Dictionary Build
@@ -223,7 +223,7 @@
 - wyrdcraeft.models.llm
 - wyrdcraeft.models.parsing
 - SqliteIndexSink
-- create_progress
+- SenseMetadataClassifier
 - Dictionary CLI index gate and morph paths Implementation Plan
 - BT Usage-vs-Sense Cleanup Handoff
 - Global Constraints
@@ -246,7 +246,7 @@
 - Morph Class Browse Surfacing + Wright Audit — Implementation Plan
 - test_dict.txt (BT morphology dictionary test fixture)
 - test_attach_morphology_db.py
-- .write_entries
+- _RecordingSink
 - PHONOLOGY
 - CONTEXT.md
 - Diacritic Context
@@ -257,18 +257,19 @@
 - Phase 1 — Browse morph-class detail block
 - Phase 2 — Wright § text ingest
 - Phase 4 — Legacy Wright audit command
-- create_stderr_console
+- split_prose_and_verse_runs
 - Orchestrator Checkpoint
 - DictionaryBuildStage
-- ._generate_word
-- test_generation_package_imports.py
+- test_browse_prep_entry_leaves_morphology_table_empty
+- MorphologyGenerationFacade
 - .__init__
 - Domain Docs
 - normalized_title + lexicon browse — checkpoint 2026-07-03T12:15
 - Mission: Machine Assistance For Old English Work
 - Mission: Historical Linguistics for Old English Study
-- MacronIndex
-- _run_database_readiness_gate
+- test_sense_segmenter.py
+- .segment_with_warnings
+- resolve_dictionary_db_path
 - Lemma-level morph class assignment (normalized_title, pos) -> morph_classes
 - Issue tracker: Trello
 - Subagent task breakdown
@@ -277,30 +278,52 @@
 - normalized_title — checkpoint 2026-07-03T12:10
 - BT Dictionary Structuring Workflow runbook
 - Historical Linguistics for Old English Study Resources
+- ._parse_italic_prefix
+- sense_segmenter.py
 - Old English c/g Palatalization Rule System
+- test_normalized_title_join.py
+- BTLineSplitter
 - morphology_row_matches_pos
+- wright-morphology-fixture.schema.json
 - IndexReport
 - release.sh
 - 0002-canonical-morphology-db-uses-startup-alembic-migrations.md
+- test_pos_seed.py
 - triage-labels.md
 - scripts/__init__.py
 - quality/__init__.py
-- ._no_mixed_prose_and_verse
+- source_db.py
 - machine-assistance/NOTES.md
 - 0001-starting-point.md
 - oe-grammar/NOTES.md
 - teaching/README.md
 - ipa-play.js
 - THIRD_PARTY_NOTICES.md
-- BTSpellingNormalizer
+- source_key
 - wyrdcraeft
-- form_decode.py
+- .collect_editorial_warnings
+- test_cli_convert.py
 - Verb generators leave `common.py`
+- ._append_senses
 - filter_display_variants
 - DictionaryBrowseDataError
+- ParadigmAssigner
 - progress.md
+- .__init__
+- language
+- TestCorpusWeirdSenses
+- TestConsoleQuietMode
+- source_set
+- lexicon_source_db
 - sound_dispatch_flow.py
 - Task 8 Report
+- features
+- .emit_form_data
+- morphClass
+- _collect_widget_ids
+- .__init__
+- .__init__
+- _mock_bt_lookup
 
 ## God Nodes (most connected - your core abstractions)
 1. `Word` - 150 edges
@@ -338,67 +361,67 @@
 - **c/g Palatalization Exception Lists** — wyrdcraeft_etc_diacritic_c_palatalization_force_non_palatalize, wyrdcraeft_etc_diacritic_c_palatalization_force_palatalize, wyrdcraeft_etc_diacritic_g_frontal [INFERRED 0.85]
 - **Subagent task reports implementing Wright catalog browse/ingest/audit phases** — doc_sessions_task_phase1_morph_class_browse_report, doc_sessions_task_phase2_wright_text_ingest_report, doc_sessions_task_phase3_wright_text_pane_report, doc_sessions_task_phase4_wright_audit_report [INFERRED 0.85]
 
-## Communities (295 total, 35 thin omitted)
+## Communities (318 total, 37 thin omitted)
 
 ### Community 0 - "BTSenseSegmenter"
-Cohesion: 0.06
-Nodes (48): _entry_to_dict(), main(), _parse_and_segment(), Parse and segment one raw BT line., Convert a BTConsolidatedEntry to a serialisable dict., _entry_to_comparable(), _load_golden(), merger() (+40 more)
+Cohesion: 0.07
+Nodes (45): _entry_to_dict(), main(), _parse_and_segment(), Parse and segment one raw BT line., Convert a BTConsolidatedEntry to a serialisable dict., _entry_to_comparable(), _load_golden(), merger() (+37 more)
 
-### Community 1 - "test_sense_segmenter.py"
-Cohesion: 0.04
-Nodes (54): _golden_sense_matches(), _load_golden(), BTSense, fixture, Tests for Phase 03 BTSenseSegmenter., Unit tests for sense-level gender promotion (Task 5 deferral hook)., Unit tests for canonical sense-path normalization., Golden-file acceptance tests: ≥95% exact gloss match required. (+46 more)
+### Community 1 - "SenseTreeNormalizer"
+Cohesion: 0.13
+Nodes (13): Unit tests for canonical sense-path normalization., TestSenseTreeNormalizer, Infer nesting depth from a normalized source label form. Args: label: Source…, Resolve the parent path for a nested label. Args: label: Normalized nested…, Derive the expected top-level parent label for a nested marker. Args: label:…, Choose the child index for a nested sense path segment. Letter-suffixed labels…, Extract a lowercase sub-sense letter suffix when present. Args: label:…, One raw sense fragment split from a Bosworth-Toller body field. Attributes:… (+5 more)
 
-### Community 2 - "cli/settings.py"
-Cohesion: 0.29
-Nodes (10): create_settings(), command, Context, group, pass_context, Settings-related commands., Settings-related commands., Create a new settings file. (+2 more)
+### Community 2 - "cli.py"
+Cohesion: 0.11
+Nodes (21): _prompt_backup_cleanup(), command, Context, Run the canonical DB startup gate once for DB-using command trees. Args: ctx:…, Print the some version info of this package,, Click group that preserves the raw argv for help-aware gate decisions. Side…, Persist the raw argv before delegating to Click's normal parser. Args: ctx:…, Read one backup-cleanup confirmation without forcing a re-prompt. Args: text:… (+13 more)
 
-### Community 3 - "test_morph_class_browse.py"
-Cohesion: 0.16
-Nodes (20): _bt_entry_id(), _insert_bt_entry(), Path, Tests for catalog-backed morph-class metadata in lexicon browse details., Resolve one ``bt_entries.id`` by ``norm_key`` for test assertions., Seed one catalog assignment row into a temporary lexicon test database., Insert one minimal ``bt_entries`` row into a temporary lexicon test database.…, _seed_catalog_assignment() (+12 more)
+### Community 3 - "create_engine"
+Cohesion: 0.05
+Nodes (66): Config, _bt_entry_id(), _insert_bt_entry(), Path, Tests for catalog-backed morph-class metadata in lexicon browse details., Resolve one ``bt_entries.id`` by ``norm_key`` for test assertions., Seed one catalog assignment row into a temporary lexicon test database., Insert one minimal ``bt_entries`` row into a temporary lexicon test database.… (+58 more)
 
 ### Community 4 - "build_morphology_table"
 Cohesion: 0.18
 Nodes (12): MorphologyTableInputRow, test_build_morphology_table_fills_inflection_from_morph_class_label(), test_build_morphology_table_includes_surface_form_column(), test_build_morphology_table_sorts_adjectives_by_degree_inflection_and_case(), _adjective_row_sort_key(), build_morphology_table(), morphology_table_columns(), MorphologyTableSpec (+4 more)
 
-### Community 5 - "ParadigmClassMapper"
-Cohesion: 0.08
-Nodes (28): mapper(), fixture, Tests for Wright catalog paradigm exemplar mapping., test_adj_paradigm_blind_maps_to_strong_a_o_stem(), test_noun_paradigm_guma_maps_to_weak_n_stem(), test_noun_paradigm_stan_maps_to_masculine_a_stem(), test_past_participle_title_maps_to_past_participle_class(), test_present_participle_title_maps_to_present_participle_class() (+20 more)
+### Community 5 - "normalize_morphology_title"
+Cohesion: 0.05
+Nodes (45): mapper(), fixture, Tests for Wright catalog paradigm exemplar mapping., test_adj_paradigm_blind_maps_to_strong_a_o_stem(), test_noun_paradigm_guma_maps_to_weak_n_stem(), test_noun_paradigm_stan_maps_to_masculine_a_stem(), test_past_participle_title_maps_to_past_participle_class(), test_present_participle_title_maps_to_present_participle_class() (+37 more)
 
-### Community 6 - "BTConsolidatedEntry"
-Cohesion: 0.10
-Nodes (21): BTConsolidatedEntry, Canonical dictionary record after editorial merge for one ``(norm_key, pos)``.…, BTEditRecord, _plain(), BTSense, Strip HTML tags and collapse whitespace from *text*. Args: text: Input HTML…, Format one standardized edit-log note with human context. Args: reason:…, Produce one consolidated entry per dictionary source block. Skipped parsed… (+13 more)
+### Community 6 - "normalize_old_english"
+Cohesion: 0.05
+Nodes (47): Unit tests for BTTargetResolver., TestBTTargetResolver, BTLineKind, Classification of one raw ``oe_bt.txt`` line before editorial merge., BTEditRecord, _plain(), Phase 04 editorial merger for Bosworth-Toller dictionary entries., Strip HTML tags and collapse whitespace from *text*. Args: text: Input HTML… (+39 more)
 
 ### Community 7 - "MorphologyGenerateProgressCoordinator"
-Cohesion: 0.04
-Nodes (67): test_build_profiler_disabled_emits_nothing(), test_build_profiler_emits_stage_and_sqlite_sections(), test_progress_coordinator_omits_empty_wright_and_throttles_lemma(), test_progress_coordinator_setup_descriptions(), test_progress_coordinator_stage_totals(), _ParadigmVariantDispatchContext, Immutable context for paradigm-level variant callback dispatch. Args: word:…, MorphologyBuildProfiler (+59 more)
+Cohesion: 0.05
+Nodes (52): test_build_profiler_disabled_emits_nothing(), test_build_profiler_emits_stage_and_sqlite_sections(), test_progress_coordinator_omits_empty_wright_and_throttles_lemma(), test_progress_coordinator_setup_descriptions(), test_progress_coordinator_stage_totals(), MorphologyBuildProfiler, TextIO, Wall-clock profiling helpers for morphology build runs. (+44 more)
 
-### Community 8 - "_build_pronoun_sidebar"
-Cohesion: 0.16
-Nodes (20): _append_surface(), _build_adjective_degree_section(), _build_adverb_sidebar(), _build_pronoun_sidebar(), _build_verb_sidebar(), _collect_noun_sidebar_cells(), _join_surfaces(), _paradigm_grid_case_label() (+12 more)
+### Community 8 - "form_decode.py"
+Cohesion: 0.12
+Nodes (29): _append_surface(), _build_adjective_degree_section(), _build_adverb_sidebar(), _build_noun_sidebar(), _build_pronoun_sidebar(), _build_verb_sidebar(), _collect_noun_sidebar_cells(), format_noun_declension() (+21 more)
 
 ### Community 9 - "OENormalizer"
-Cohesion: 0.03
-Nodes (89): Match, NamedTuple, parametrize, test_canonicalize_inflection_code_reference(), test_eth2thorn_reference(), test_iumlaut_reference(), test_move_accents_reference(), test_normalize_bt_display_spelling_is_idempotent() (+81 more)
+Cohesion: 0.04
+Nodes (64): NamedTuple, test_syllable_count_reference(), Morphology-related Pydantic models for the Old English morphology generator., Immutable context for variant-level part callback dispatch. Args: word: Source…, _VariantPartDispatchContext, Resolve the Wright 425 adjective paradigm using vowel-sensitive matching., _wright_rule_425(), FormWriter (+56 more)
 
-### Community 10 - "DictionaryBuildPipeline"
-Cohesion: 0.14
-Nodes (16): AnyDictionaryBuildEvent, DictionaryBuildLogLevel, DictionaryBuildPipeline, Orchestrate canonical dictionary rebuild, form relink, and follow-on refreshes.…, Clear stale form links and rebuild the canonical dictionary slice. Args:…, Infer missing dictionary POS values from stored morphology forms. Args:…, Return the number of dictionary rows currently carrying unknown POS. Args:…, Run one single-step stage with begin and finish hooks. Args: stage: Top-level… (+8 more)
+### Community 10 - ".run"
+Cohesion: 0.09
+Nodes (23): AnyDictionaryBuildEvent, DictionaryBuildLogLevel, Connection, Path, Forward pipeline morphology options to the shared build runner. Keyword Args:…, Run the unified dictionary build pipeline against one source file. Keyword…, Clear stale form links and rebuild the canonical dictionary slice. Args:…, Relink every stored form row against the rebuilt dictionary tables. Args:… (+15 more)
 
 ### Community 11 - "test_generation_branches.py"
-Cohesion: 0.08
-Nodes (52): _base_formhash(), _make_word(), MonkeyPatch, Capture emitted ``form_data`` payloads without TSV geminate expansion., Record one emitted row payload., _RecordingSink, _strong_generator(), _strong_inf_context() (+44 more)
+Cohesion: 0.11
+Nodes (41): _base_formhash(), _make_part(), _make_variant(), _make_verb_paradigm(), _make_word(), MonkeyPatch, test_add_participle_to_adjectives_helper_appends_past_participle(), test_add_participle_to_adjectives_helper_appends_present_participle() (+33 more)
 
-### Community 12 - "normalize_morphology_title"
-Cohesion: 0.05
-Nodes (49): test_infer_bt_pos_filter_maps_unambiguous_noun(), test_infer_bt_pos_filter_returns_none_for_mixed_wordclasses(), test_resolve_dictionary_db_path_prefers_explicit_override(), test_resolve_dictionary_db_path_uses_sibling_dictionary(), test_normalize_morphology_title_preserves_macrons_and_dots(), QueryFormRow, Indexed morphology row enriched with normalized query keys., Shared loader for normalized-title dictionary join indexes. (+41 more)
+### Community 12 - "QueryFormRow"
+Cohesion: 0.11
+Nodes (20): test_infer_bt_pos_filter_maps_unambiguous_noun(), test_infer_bt_pos_filter_returns_none_for_mixed_wordclasses(), QueryFormRow, Indexed morphology row enriched with normalized query keys., _form_lookup_sql(), _infer_bt_pos_filter(), _lemma_lookup_sql(), _lookup_normalized_title() (+12 more)
 
 ### Community 13 - "test_line_parser.py"
 Cohesion: 0.08
 Nodes (26): parametrize, Tests for Phase 02 Bosworth-Toller line parser., Skipped lines return explicit reasons needed by downstream reporting., Substitute target extraction captures ``for X in Dict`` phrases., Variant and noun-gender extraction uses pre-POS prefix conventions., Parser emits display headwords with Wright-style diphthong long marks., Trailing bracket blocks are preserved for later etymology handling., Deletion references are parsed from text after the ``Dele`` marker. (+18 more)
 
-### Community 14 - "TestHelpers"
-Cohesion: 0.18
-Nodes (9): parametrize, ``_is_citation_span`` returns True for grammar/editorial markers and citations., ``_strip_leading_gram_prefix`` removes leading gender/POS prefixes., ``_strip_editorial_directive`` removes leading supplement editorial verbs., Unit tests for module-level helper functions., ``_is_grammatical_abbrev`` distinguishes grammar markers from glosses., ``_is_editorial_marker`` detects supplement editorial directives., ``_contains_oe_chars`` detects OE-specific Unicode codepoints. (+1 more)
+### Community 14 - "attestation_stripper.py"
+Cohesion: 0.09
+Nodes (27): fixture, parametrize, Tests for Phase 03 BTAttestationStripper., ``_is_citation_span`` returns True for grammar/editorial markers and citations., ``_strip_leading_gram_prefix`` removes leading gender/POS prefixes., ``_strip_editorial_directive`` removes leading supplement editorial verbs., Unit tests for module-level helper functions., ``_is_grammatical_abbrev`` distinguishes grammar markers from glosses. (+19 more)
 
 ### Community 15 - "_WeakInfDerivationContext"
 Cohesion: 0.14
@@ -410,39 +433,39 @@ Nodes (31): audit_wright(), browse(), build(), clean_headwords(), _default_morph
 
 ### Community 17 - "Settings"
 Cohesion: 0.06
-Nodes (30): BaseSettings, Exception, PydanticBaseSettingsSource, patch, Unit tests for configuration settings. Tests the new OpenAI and summary…, Test that settings fields have proper descriptions., Test that model_config is properly configured., Test output format validation. (+22 more)
+Nodes (32): BaseSettings, Exception, PydanticBaseSettingsSource, patch, Unit tests for configuration settings. Tests the new OpenAI and summary…, Test that settings fields have proper descriptions., Test that model_config is properly configured., Test output format validation. (+24 more)
 
 ### Community 18 - "WeakVerbGenerator"
 Cohesion: 0.07
 Nodes (34): Replace the three weak derived-branch entry points with recorders., _record_weak_branches(), test_dispatch_weak_derived_forms_selects_inf_branch(), test_dispatch_weak_derived_forms_selects_painsg1_branch(), test_dispatch_weak_derived_forms_selects_psinsg2_branch(), test_dispatch_weak_derived_forms_skips_item_shape_mode(), test_dispatch_weak_derived_forms_unknown_para_id(), test_dispatch_weak_principal_part_derivations_emits_papt_only() (+26 more)
 
 ### Community 19 - "GeneratorSession"
-Cohesion: 0.06
-Nodes (61): _make_verb_paradigm(), _make_word(), test_set_adj_paradigm_stem_propagation(), test_set_adj_paradigm_wright_rule_425(), test_set_noun_paradigm_advanced_stem_propagation(), test_set_noun_paradigm_final_fallback_neuter_long_stem(), test_set_noun_paradigm_final_fallback_neuter_short_stem(), test_set_noun_paradigm_heuristic_incel_suffix() (+53 more)
+Cohesion: 0.12
+Nodes (30): _make_verb_paradigm(), _make_word(), test_set_adj_paradigm_stem_propagation(), test_set_adj_paradigm_wright_rule_425(), test_set_noun_paradigm_advanced_stem_propagation(), test_set_noun_paradigm_final_fallback_neuter_long_stem(), test_set_noun_paradigm_final_fallback_neuter_short_stem(), test_set_noun_paradigm_heuristic_incel_suffix() (+22 more)
 
 ### Community 20 - "test_browse_tui.py"
-Cohesion: 0.10
-Nodes (59): anyio, _bt_entry_id(), _collect_widget_ids(), _details_text(), empty_browse_db(), _insert_entry(), _insert_inflection_code(), lexicon_source_db() (+51 more)
+Cohesion: 0.18
+Nodes (36): anyio, _details_text(), Path, Shell-level tests for the dictionary Textual browse scaffold., Select the first ``abbad`` noun hit from the results list., Render a Static widget to plain text for assertions. Args: widget: Static…, Read both details widgets as one plain-text assertion target. Args: app:…, Enter a query and submit the browse search box with Enter. Args: app: Running… (+28 more)
 
 ### Community 21 - "DictionaryBrowseQueryService"
-Cohesion: 0.15
-Nodes (27): _bt_entry_id(), _insert_bt_sense(), _insert_entry(), _insert_inflection_code(), _next_entry_order(), _pos_id(), Connection, Path (+19 more)
+Cohesion: 0.07
+Nodes (46): _bt_entry_id(), _insert_bt_sense(), _insert_entry(), _insert_inflection_code(), lexicon_source_db(), _next_entry_order(), _pos_id(), Connection (+38 more)
 
-### Community 22 - "test_morph_catalog_pos.py"
-Cohesion: 0.12
-Nodes (30): parametrize, Tests for morphology catalog POS normalization helpers., test_catalog_pos_from_bt_pos_cli_aliases(), test_catalog_pos_from_bt_pos_join_values(), test_catalog_pos_from_bt_pos_raises_for_unmapped(), test_catalog_pos_from_wordclass(), test_catalog_pos_from_wordclass_unknown_returns_none(), test_pos_id_from_bt_pos() (+22 more)
+### Community 22 - "ensure_parts_of_speech"
+Cohesion: 0.11
+Nodes (31): parametrize, Tests for morphology catalog POS normalization helpers., test_catalog_pos_from_bt_pos_cli_aliases(), test_catalog_pos_from_bt_pos_join_values(), test_catalog_pos_from_bt_pos_raises_for_unmapped(), test_catalog_pos_from_wordclass(), test_catalog_pos_from_wordclass_unknown_returns_none(), test_pos_id_from_bt_pos() (+23 more)
 
 ### Community 23 - "AdjectiveFormGenerator"
-Cohesion: 0.07
-Nodes (27): _adj_print(), AdjectiveFormGenerator, _build_adjective_formhash(), _emit_superlative_strong_forms(), _emit_weak_degree_forms(), _form_from_parts(), FormOutput, Strong ``glæd``/``til`` paradigm. Note: Matches Perl ``glæd``/``til`` block.… (+19 more)
+Cohesion: 0.05
+Nodes (41): _adj_print(), AdjectiveFormGenerator, _build_adjective_formhash(), _build_comparative_title_array(), _build_superlative_title_array(), _build_weak_title_array(), _dedupe_preserve_first(), _emit_weak_degree_forms() (+33 more)
 
 ### Community 24 - "markup.py"
 Cohesion: 0.05
-Nodes (49): Path, test_build_index_from_bt_extracts_and_dedupes(), Path, C before i/ī in any position palatalizes (Rule C)., Blocklist keeps c velar for i-mutation exceptions (cyning, cemban, cynn)., gēs ('geese') is a g-exception (ē from i-mutation of ō); g stays velar., Force-palatalize list gives final ċ for hwelc/hwilc, swelc, ǣlc, þylc., Cyning (c + y from u) remains non-palatalized; blocklist and only-back. (+41 more)
+Nodes (56): Path, test_build_index_from_bt_extracts_and_dedupes(), Path, C before i/ī in any position palatalizes (Rule C)., Blocklist keeps c velar for i-mutation exceptions (cyning, cemban, cynn)., gēs ('geese') is a g-exception (ē from i-mutation of ō); g stays velar., Force-palatalize list gives final ċ for hwelc/hwilc, swelc, ǣlc, þylc., Cyning (c + y from u) remains non-palatalized; blocklist and only-back. (+48 more)
 
 ### Community 25 - "tests/conftest.py"
-Cohesion: 0.12
-Nodes (24): cli_context(), isolated_morphology_app_data(), isolated_morphology_index_db(), lexicon_source_db(), mock_console(), mock_settings(), fixture, Path (+16 more)
+Cohesion: 0.15
+Nodes (19): cli_context(), isolated_morphology_app_data(), isolated_morphology_index_db(), lexicon_source_db(), mock_console(), mock_settings(), fixture, Path (+11 more)
 
 ### Community 26 - "diacritic_disambiguate.py"
 Cohesion: 0.08
@@ -453,116 +476,116 @@ Cohesion: 0.67
 Nodes (3): dictionary_group(), group, Dictionary command group.
 
 ### Community 28 - "VerbFormGenerator"
-Cohesion: 0.08
-Nodes (34): _make_part(), _make_variant(), _make_verb_paradigm(), test_process_paradigm_routes_variant_payload_from_flow(), test_process_part_routes_strong_generation_from_flow(), test_process_part_routes_weak_generation_from_flow(), GeneratedForm, MorphClassQueryMetadata (+26 more)
+Cohesion: 0.06
+Nodes (39): GeneratedForm, ManualForm, MorphClassQueryMetadata, ParadigmPart, ParadigmVariant, _ParadigmVariantDispatchContext, BaseModel, Manual form model for ``manual_forms.txt`` ingest rows. Legacy string fields… (+31 more)
 
-### Community 29 - "morphology/test_query_service.py"
-Cohesion: 0.03
-Nodes (109): _build_output_sink(), Build the output sink used while profiling adjective generation. Keyword Args:…, TemporaryDirectory, Helpers for building morphology SQLite databases used in lexicon tests., Write minimal ``forms`` rows into a morphology SQLite database. Args: db_path:…, seed_forms(), _form_row(), _index_dictionary() (+101 more)
+### Community 29 - "WordPool"
+Cohesion: 0.04
+Nodes (71): _make_word(), Regression tests for the GeneratorSession -> WordPool/GenerationRunState split.…, test_session_composes_word_pool_and_run_state(), test_word_pool_append_participle(), test_word_pool_categorize_matches_load_all_categorization(), _emit_superlative_strong_forms(), Emit superlative strong forms for each title variant. Note: Probability carry-…, AdverbFormGenerator (+63 more)
 
 ### Community 30 - "File Structure"
 Cohesion: 0.11
 Nodes (18): Addendum: Tasks 11-14 (added after final whole-branch review), File Structure, Global Constraints, Morphology Generation Class Refactor Implementation Plan, Task 10: Delete the now-empty `generators/` directory, Task 11: Build paradigm-dispatch tables for `NounFormGenerator` and `AdjectiveFormGenerator`, Task 12: Collapse `StrongVerbGenerator`'s callback threading into direct method calls, Task 13: Collapse `WeakVerbGenerator`'s callback threading into direct method calls (+10 more)
 
-### Community 31 - "OldEnglishText"
+### Community 31 - "models/__init__.py"
 Cohesion: 0.17
-Nodes (21): fixture, sample_doc(), test_tei_export_attributes(), test_tei_export_basic(), test_tei_export_structure(), test_tei_roundtrip_minimal_prose(), test_tei_roundtrip_minimal_verse_dialogue(), Build a canonical document from a pre-parsed document. Args: meta: The metadata… (+13 more)
+Nodes (19): fixture, sample_doc(), test_tei_export_attributes(), test_tei_export_basic(), test_tei_export_structure(), Line, OldEnglishText, Paragraph (+11 more)
 
-### Community 32 - "test_pipeline_classes.py"
-Cohesion: 0.10
-Nodes (22): dialogue_text(), prose_text(), fixture, Unmarked verse gets 1-based line numbers within the section., _t(), test_canonical_converter_prose(), test_canonical_converter_verse(), test_canonical_converter_verse_number_fallback() (+14 more)
+### Community 32 - "RawBlock"
+Cohesion: 0.07
+Nodes (36): dialogue_text(), prose_text(), fixture, patch, Unmarked verse gets 1-based line numbers within the section., _t(), test_canonical_converter_prose(), test_canonical_converter_verse() (+28 more)
 
-### Community 33 - "Word"
-Cohesion: 0.03
-Nodes (79): Lexical entry schema carrying POS flags and paradigm state for one lemma., Word, _append_short_syllable_front_vowel_heuristic(), _append_suffix_heuristics(), _append_terminal_a_heuristic(), _append_terminal_e_heuristic(), _apply_final_fallback(), _apply_noun_heuristics() (+71 more)
+### Community 33 - "NounFormGenerator"
+Cohesion: 0.05
+Nodes (35): _build_stem_daeg_pl(), _form_from_parts(), _is_ge_collective(), _noun_print(), NounFormGenerator, FormOutput, ``strengu`` paradigm (feminine u-stems). Args: word: The word to process.…, ``hand``/``feld`` paradigm (feminine/masculine consonant stems). Args: word:… (+27 more)
 
 ### Community 34 - "MorphologyCatalogLoader"
-Cohesion: 0.05
-Nodes (55): Seed one catalog assignment row into a temporary lexicon test database., _seed_catalog_assignment(), catalog_db(), fixture, Path, Build a small morphology slice and verify normalized FK columns on forms., test_catalog_loader_ensure_seeded_refresh(), test_catalog_loader_ensure_seeded_skips_when_populated() (+47 more)
+Cohesion: 0.04
+Nodes (80): DeclarativeBase, Seed one catalog assignment row into a temporary lexicon test database., _seed_catalog_assignment(), Path, Build a small morphology slice and verify normalized FK columns on forms., test_catalog_loader_ensure_seeded_refresh(), test_catalog_loader_ensure_seeded_skips_when_populated(), test_catalog_loader_is_idempotent() (+72 more)
 
 ### Community 35 - "models/dictionary.py"
-Cohesion: 0.03
-Nodes (87): test_relocate_moves_attestation_tail_to_last_sense(), Path, Tests for Bosworth-Toller parse warning JSONL I/O., test_parse_warning_jsonl_round_trip(), extractor(), fixture, parametrize, Tests for BTPosGenderExtractor using real oe_bt.txt prefix fragments. (+79 more)
+Cohesion: 0.09
+Nodes (28): extractor(), fixture, parametrize, Tests for BTPosGenderExtractor using real oe_bt.txt prefix fragments., Shared extractor instance., Real BT prefix fragments resolve to expected POS and genders., Verb paradigm detection wins when both verb endings and adj appear., Abbad line with m: and m. returns masculine noun once. (+20 more)
 
-### Community 36 - "emit_sound_changed_forms"
-Cohesion: 0.25
-Nodes (9): SoundManualEmitter, SoundSourceFormEmitter, test_emit_sound_changed_forms_psinsg2_probability_delta(), test_emit_sound_changed_forms_psinsg3_zero_delta(), test_emit_sound_changed_from_source_keeps_source_ordering(), emit_sound_changed_forms(), emit_sound_changed_from_source(), Emit manual rows for all derived sound-change forms of one base form. Side… (+1 more)
+### Community 36 - "derive_sound_changed_forms"
+Cohesion: 0.12
+Nodes (18): SoundManualEmitter, SoundSourceFormEmitter, test_derive_sound_changed_forms_psinsg2_gst_chain(), test_derive_sound_changed_forms_psinsg2_ngst_chain(), test_derive_sound_changed_forms_psinsg3_td_th_chain(), test_emit_sound_changed_forms_psinsg2_probability_delta(), test_emit_sound_changed_forms_psinsg3_zero_delta(), test_emit_sound_changed_from_source_keeps_source_ordering() (+10 more)
 
 ### Community 37 - "etymology_display.py"
-Cohesion: 0.07
-Nodes (48): Tests for etymology parsing and browse table formatting., test_format_etymology_display_renders_table_headers(), test_misplaced_attestation_is_flagged(), test_mixed_attestation_and_cognates_split(), test_parse_cognate_chain_with_citation(), test_parse_colon_separated_lang_chain(), test_parse_multiple_german_cognates(), test_parse_norse_words_with_latin_tail() (+40 more)
+Cohesion: 0.06
+Nodes (54): Tests for etymology parsing and browse table formatting., test_format_etymology_display_renders_table_headers(), test_misplaced_attestation_is_flagged(), test_mixed_attestation_and_cognates_split(), test_parse_cognate_chain_with_citation(), test_parse_colon_separated_lang_chain(), test_parse_multiple_german_cognates(), test_parse_norse_words_with_latin_tail() (+46 more)
 
 ### Community 38 - "BTSqliteSink"
-Cohesion: 0.11
-Nodes (21): lexicon_source_db(), fixture, Dictionary-only canonical DB fixture for browse-query tests., Path, Focused tests for the normalized Bosworth-Toller SQLite sink., _run_index(), _seed_forms_table(), test_bt_entries_allow_duplicate_norm_key_pos() (+13 more)
-
-### Community 39 - "SenseMetadataClassifier"
-Cohesion: 0.06
-Nodes (27): Unit tests for sense-prefix metadata classification., TestSenseMetadataClassifier, _has_substantive_gloss(), _looks_like_gloss_start(), _normalize_case(), _normalize_gender(), _normalize_modifier(), Normalize one modifier abbreviation token. Args: token: Raw modifier token… (+19 more)
-
-### Community 40 - "ensure_parts_of_speech"
-Cohesion: 0.10
-Nodes (32): _load_fixture_rows(), Connection, Path, Tests for normalized POS and inflection-code seed fixtures., Read one JSON fixture file used by the POS seed tests., Return the current row count for one reference table., _row_count(), test_inflection_seed_covers_observed_snapshot_function_codes() (+24 more)
-
-### Community 41 - ".ensure_ready"
 Cohesion: 0.09
-Nodes (19): Config, build_alembic_config(), _format_backup_prompt_text(), Path, Store the backup path and explicit rebuild recipe for CLI reporting. Keyword…, Build the Alembic configuration for one canonical SQLite database. Args:…, Delete one file when it exists. Args: path: Filesystem path that may need…, Run the startup database decision tree once. Raises: DatabaseMigrationError:… (+11 more)
+Nodes (24): Path, Focused tests for the normalized Bosworth-Toller SQLite sink., _run_index(), _seed_forms_table(), test_bt_entries_allow_duplicate_norm_key_pos(), test_sink_persists_headword_with_normalized_pos_fk(), test_sink_rerun_reuses_seeded_parts_of_speech_rows(), BTIndexPipeline (+16 more)
+
+### Community 39 - ".classify"
+Cohesion: 0.10
+Nodes (13): _has_substantive_gloss(), _looks_like_gloss_start(), Prefix metadata extracted from one sense-body fragment. Attributes: modifiers:…, Classify prefix metadata for one sense-body fragment. Args: text: Raw HTML…, Remove leading hyphenated variant spellings before sense prefix spans. Args:…, Remove leading paradigm inflection markers such as ``an;`` or ``es;``. Args:…, Remove leading weak-noun paradigm fragments such as ``-færes;``. Args: text:…, Remove phrase-example tails that follow an ``in the phrase`` usage note. Args:… (+5 more)
+
+### Community 40 - "pos_seed.py"
+Cohesion: 0.16
+Nodes (16): _ensure_reference_tables(), _fetch_code_id_map(), Any, Connection, Path, Seed normalized POS and inflection-code reference tables., Create reference lookup tables and indexes when missing. Args: connection: Open…, Read one packaged seed fixture into a list of dictionaries. Args: path:… (+8 more)
+
+### Community 41 - "LegacyDatabaseResetRequired"
+Cohesion: 0.08
+Nodes (20): Path, test_legacy_bootstrap_failure_restores_cleanly_and_raises_typed_error(), test_legacy_morphology_db_is_backed_up_then_requires_rebuild(), DatabaseMigrationError, _format_backup_prompt_text(), LegacyDatabaseResetRequired, RuntimeError, Legacy database reset stop signal with rebuild guidance. Args: backup_path:… (+12 more)
 
 ### Community 42 - "ingest/pipeline.py"
 Cohesion: 0.10
-Nodes (27): ProgressCallback, parametrize, Test that deterministic ingestion of text files matches the golden JSON…, test_deterministic_ingestion_regression(), patch, test_document_ingestor_dispatch(), BaseDocumentIngestor, DocumentIngestor (+19 more)
+Nodes (29): ProgressCallback, parametrize, Test that deterministic ingestion of text files matches the golden JSON…, test_deterministic_ingestion_regression(), PreParsedDocument, ProvisionalSection, A provisional section is a section that has been parsed from the raw blocks,…, A pre-parsed document is a document that has been parsed from the raw blocks,… (+21 more)
 
 ### Community 43 - "TEIExporter"
 Cohesion: 0.19
 Nodes (13): test_tei_exporter_interface(), Any, Create the publication statement. Args: doc: The document to export. parent:…, Create the source description. Args: doc: The document to export. parent: The…, Emit a section and its content recursively. Args: sec: The section to export.…, Apply common metadata attributes to a node. Args: node: The node to apply the…, Emit prose paragraphs, handling speakers. Args: paragraphs: The paragraphs to…, Exporter for TEI XML format using delb for XML manipulation. (+5 more)
 
 ### Community 44 - "NormalizedTitleJoinIndex"
-Cohesion: 0.11
-Nodes (21): _index(), Unit tests for NormalizedTitleJoinIndex., test_resolve_all_exactly_one_title_across_pos(), test_resolve_all_no_match(), test_resolve_all_pos_direct_multiple_matches(), test_resolve_all_pos_direct_single_match(), test_resolve_all_variant_with_pos_filter(), test_resolve_all_variant_without_pos_filter() (+13 more)
+Cohesion: 0.09
+Nodes (24): _fetch_rows(), load_normalized_title_join_index(), Connection, Shared loader for normalized-title dictionary join indexes., Fetch three-column join rows from SQLAlchemy or SQLite connections. Args:…, Build a dictionary join index from canonical ``bt_entries`` and variants. Args:…, NormalizedTitleJoinIndex, Shared morphology-to-dictionary join index keyed by normalized title. (+16 more)
 
 ### Community 45 - "BTAttestationStripper"
-Cohesion: 0.09
-Nodes (18): Unit tests for BTAttestationStripper.strip., ``:--`` is the canonical attestation separator., Combined gender-gloss italic spans like ``<I>f. An oak:</I>`` yield clean…, ``</I>--`` (colon inside italic) is handled as the attestation separator., Grammar markers like ``<I>p.</I>`` and ``<I>pp.</I>`` are removed from the…, ``[…]`` bracket blocks are stripped before gloss extraction., An ``<I>Add:</I>`` span with no following gloss produces an empty string., ``Substitute:`` editorial prefix is removed from the kept gloss span. (+10 more)
+Cohesion: 0.08
+Nodes (20): Unit tests for BTAttestationStripper.strip., ``:--`` is the canonical attestation separator., Combined gender-gloss italic spans like ``<I>f. An oak:</I>`` yield clean…, ``</I>--`` (colon inside italic) is handled as the attestation separator., Grammar markers like ``<I>p.</I>`` and ``<I>pp.</I>`` are removed from the…, ``[…]`` bracket blocks are stripped before gloss extraction., An ``<I>Add:</I>`` span with no following gloss produces an empty string., ``Substitute:`` editorial prefix is removed from the kept gloss span. (+12 more)
 
-### Community 46 - "load_normalized_title_join_index"
-Cohesion: 0.15
-Nodes (14): _fetch_rows(), load_normalized_title_join_index(), Connection, Fetch three-column join rows from SQLAlchemy or SQLite connections. Args:…, Build a dictionary join index from canonical ``bt_entries`` and variants. Args:…, _load_morph_class_ids(), _load_morph_class_ids_by_key(), Connection (+6 more)
+### Community 46 - "FormRow"
+Cohesion: 0.07
+Nodes (22): FormRow, Canonical emitted morphology row used by sinks and query services. Legacy…, _build_form_rows_from_form_data(), FormSink, Connection, Protocol, Materialize one finalized output row from legacy ``form_data`` fields. Note:…, Emit parity rows from legacy ``form_data`` and update the run's output counter.… (+14 more)
 
 ### Community 47 - "BTSearchEntry"
 Cohesion: 0.15
 Nodes (24): test_fetch_bt_search_entries_uses_search_endpoint(), test_filter_bt_entries_by_normalized_form_empty_list_returns_empty(), test_filter_bt_entries_by_normalized_form_keeps_matching_drops_others(), test_filter_bt_entries_by_normalized_form_no_matches_returns_empty(), test_filter_bt_entries_by_normalized_form_preserves_order(), test_merge_bt_entries_deduplicates_and_reindexes(), test_normalize_bt_spelling_converts_acute_to_macron(), test_parse_bt_search_entries_extracts_fields() (+16 more)
 
-### Community 48 - "wright-morphology-fixture.schema.json"
-Cohesion: 0.05
-Nodes (39): 1.0, morph_classes, Old English, schema_version, sources, wright-modern-morphology, additionalProperties, description (+31 more)
+### Community 48 - "properties"
+Cohesion: 0.12
+Nodes (18): 1.0, $ref, description, items, minItems, type, properties, morph_classes (+10 more)
 
-### Community 49 - "test_cli_diacritic_disambiguate.py"
-Cohesion: 0.10
-Nodes (39): _minimal_index_payload(), _mock_bt_lookup(), fixture, Path, Minimal macron index payload for diacritic add/delete tests., test_diacritic_add_fails_when_exists_without_force(), test_diacritic_add_fails_when_key_in_ambiguous_even_with_force(), test_diacritic_add_force_overwrites() (+31 more)
+### Community 49 - "cli"
+Cohesion: 0.13
+Nodes (42): _minimal_index_payload(), Path, Minimal macron index payload for diacritic add/delete tests., test_diacritic_add_fails_when_exists_without_force(), test_diacritic_add_fails_when_key_in_ambiguous_even_with_force(), test_diacritic_add_force_overwrites(), test_diacritic_add_inserts_pair(), test_diacritic_add_normalizes_key() (+34 more)
 
 ### Community 50 - "wyrdcraeft/settings.py"
 Cohesion: 0.24
 Nodes (8): ConfigurationError, FileError, OejsonextractorError, Raised when file I/O operations fail., Base exception for all wyrdcraeft errors., Raised when settings or configuration fails., Settings management for wyrdcraeft., Validate settings and ensure required directories exist. Raises:…
 
 ### Community 51 - "diacritics.py"
-Cohesion: 0.16
-Nodes (19): patch, With only input given, paths default to stem + infix + extension., test_source_mark_diacritics_default_paths(), test_source_mark_diacritics_writes_text_and_ambiguities(), test_source_mark_diacritics_writes_unknowns_file(), AmbiguityOption, DiacriticRestorationResult, MacronAmbiguity (+11 more)
+Cohesion: 0.18
+Nodes (18): patch, With only input given, paths default to stem + infix + extension., test_source_mark_diacritics_default_paths(), test_source_mark_diacritics_writes_text_and_ambiguities(), test_source_mark_diacritics_writes_unknowns_file(), AmbiguityOption, DiacriticRestorationResult, MacronAmbiguity (+10 more)
 
 ### Community 52 - "browse_tui.py"
-Cohesion: 0.06
-Nodes (55): _best_hit(), _browse_hit_sort_key(), BrowseSearchHit, _dominant_paradigm(), _group_morphology_rows(), _hit_lexical_distance(), lexical_distance(), MorphologyGroup (+47 more)
+Cohesion: 0.10
+Nodes (29): _group_morphology_rows(), MorphologyGroup, MorphologyRow, Sidebar grouping of morphology rows by wordclass and function. Attributes:…, Group raw morphology rows by ``wordclass`` and ``function``. Args: rows:…, One raw projected morphology row for sidebar rendering. Note: ``wordclass`` and…, _dedupe_morphology_rows(), _filter_morphology_rows() (+21 more)
 
-### Community 53 - "generate_reference_snapshots_command"
-Cohesion: 0.16
-Nodes (20): Path, Morphology input path defaults live on the generation runner., test_packaged_default_morphology_data_dir_exists(), test_resolve_morphology_input_paths_keeps_overrides(), test_resolve_morphology_input_paths_uses_data_dir_defaults(), test_validate_morphology_input_paths_raises_for_missing_file(), generate_reference_snapshots_command(), Generate Python-reference snapshot fixtures via CLI. Note: Snapshot baselines… (+12 more)
+### Community 53 - "run_morphology_generation"
+Cohesion: 0.11
+Nodes (29): Path, Morphology input path defaults live on the generation runner., test_packaged_default_morphology_data_dir_exists(), test_resolve_morphology_input_paths_keeps_overrides(), test_resolve_morphology_input_paths_uses_data_dir_defaults(), test_validate_morphology_input_paths_raises_for_missing_file(), generate_reference_snapshots_command(), Generate Python-reference snapshot fixtures via CLI. Note: Snapshot baselines… (+21 more)
 
 ### Community 54 - "Session: Morphology Wright Catalog — Phase 2 complete"
 Cohesion: 0.15
 Nodes (7): Architecture, Deliverables, Known limitations (deferred), Next, Session: Morphology Wright Catalog — Phase 2 complete, Summary, Validation
 
-### Community 55 - "BTTargetResolver"
-Cohesion: 0.10
-Nodes (13): Unit tests for BTTargetResolver., TestBTTargetResolver, Initialise the merger with optional collaborators. Args: resolver: Optional…, Initialise the builder with an optional target resolver. Args: resolver:…, BTTargetResolver, BTSense, Resolve the dictionary source block for one editorial line. Resolution order:…, Map one Roman sense label to a canonical ``sense_path``. When the label matches… (+5 more)
+### Community 55 - ".resolve_sense_path"
+Cohesion: 0.50
+Nodes (3): BTSense, Map one Roman sense label to a canonical ``sense_path``. When the label matches…, Resolve deletion/substitution references to canonical sense paths. Args: refs:…
 
 ### Community 56 - "properties"
 Cohesion: 0.06
@@ -573,20 +596,20 @@ Cohesion: 0.06
 Nodes (34): description, minLength, type, $ref, default, description, enum, type (+26 more)
 
 ### Community 58 - "test_forms_entry_relinker.py"
-Cohesion: 0.16
-Nodes (24): _fetch_form_entry_id(), _insert_bt_entry(), _insert_bt_variant(), _insert_form(), _pos_id(), Connection, fixture, Path (+16 more)
+Cohesion: 0.15
+Nodes (25): _fetch_form_entry_id(), _insert_bt_entry(), _insert_bt_variant(), _insert_form(), _pos_id(), Connection, fixture, Path (+17 more)
 
 ### Community 59 - "TestBTSenseSegmenterUnit"
 Cohesion: 0.08
 Nodes (14): Unit tests for specific segmenter behaviours., Body with no sense labels produces a single unlabelled sense., Bold <B>I.</B>/<B>II.</B> labels produce two ordered senses., <B>I</B>. (period outside bold tag) is recognised as a sense label., Plain (unbolded) Roman-numeral labels followed by an italic span are split…, Three bold sense labels I., II., III. all produce senses in order., <B>II a.</B> sub-letter label is captured and stripped of period., <B>A.</B> / <B>B.</B> capital-letter labels are supported. (+6 more)
 
-### Community 60 - "cli"
-Cohesion: 0.12
-Nodes (23): Test the convert command with a missing source file., Test the convert command without LLM (heuristic mode)., test_convert_command_missing_source(), test_convert_command_no_llm(), test_convert_rejects_http_source(), test_convert_rejects_use_llm_flag(), CLI tests for remaining morphology commands after build moved to dictionary., test_morphology_build_command_moved_to_dictionary() (+15 more)
+### Community 60 - "test_cli_morphology.py"
+Cohesion: 0.22
+Nodes (8): CLI tests for remaining morphology commands after build moved to dictionary., test_morphology_build_command_moved_to_dictionary(), test_morphology_clean_dictionary_help(), test_morphology_generate_command_is_gone(), test_morphology_group_help(), test_morphology_query_help(), test_morphology_query_requires_exactly_one_lookup_mode(), test_morphology_wright_commands_moved_to_dictionary()
 
-### Community 61 - "RawBlock"
-Cohesion: 0.09
-Nodes (31): fixture, source_loader(), test_load_from_file_rejects_pdf(), test_load_from_file_text(), test_load_from_file_unsupported(), test_source_loader_load_file(), test_source_loader_rejects_http_url(), BaseSourceLoader (+23 more)
+### Community 61 - "test_loaders.py"
+Cohesion: 0.23
+Nodes (12): fixture, source_loader(), test_load_from_file_rejects_pdf(), test_load_from_file_text(), test_load_from_file_unsupported(), test_source_loader_load_file(), test_source_loader_rejects_http_url(), test_tei_source_loader_load_tei() (+4 more)
 
 ### Community 62 - "test_cli_dictionary.py"
 Cohesion: 0.12
@@ -609,24 +632,24 @@ Cohesion: 0.19
 Nodes (27): Row, slow, _fetch_entry(), _index_fixture(), _load_warnings(), Connection, Path, Integration tests for the Bosworth-Toller dictionary index pipeline. (+19 more)
 
 ### Community 67 - "upgrade_canonical_db"
-Cohesion: 0.15
-Nodes (26): _dictionary_line(), _make_audit_source_dir(), _manual_form_line(), _para_vb_line(), Path, Tests for legacy Wright source auditing. Phase D source contract: The audit…, Build one ``manual_forms.txt`` fixture line with the expected 16 columns., Build one ``para_vb.txt`` fixture line for malformed-token scanning. (+18 more)
-
-### Community 68 - "wright_audit.py"
-Cohesion: 0.05
-Nodes (48): _AssignedMorphClass, BlankLegacyButClassifiedIssue, _catalog_pos_from_word(), ContradictionIssue, _display_legacy_wright(), _format_blank_but_classified_issue(), _format_contradiction_issue(), _format_malformed_issue() (+40 more)
-
-### Community 69 - ".get_details"
-Cohesion: 0.10
-Nodes (20): _append_unique(), EntrySense, _extract_gender_person_number(), filter_display_variants(), _json_string_list(), _ordered_distinct(), Any, RowMapping (+12 more)
-
-### Community 70 - "OEFilter"
-Cohesion: 0.25
-Nodes (6): test_oe_filter(), OEFilter, Logic for filtering Old English text from raw blocks., Initialize Old English detection state., Test if a block of text looks like Old English. Args: text: The text to test.…, Filter out blocks that do not look like Old English. A block is kept if at…
-
-### Community 71 - "dictionary/test_query_service.py"
 Cohesion: 0.14
-Nodes (32): corpus_index_db(), _index_fixture(), fixture, Path, Unit and integration tests for BTQueryService., sample_index_db(), _seed_forms_table(), test_bt_query_service_constructs_on_empty_migrated_db() (+24 more)
+Nodes (28): catalog_db(), fixture, _dictionary_line(), _make_audit_source_dir(), _manual_form_line(), _para_vb_line(), Path, Tests for legacy Wright source auditing. Phase D source contract: The audit… (+20 more)
+
+### Community 68 - "WrightAuditService"
+Cohesion: 0.05
+Nodes (43): _AssignedMorphClass, BlankLegacyButClassifiedIssue, _catalog_pos_from_word(), ContradictionIssue, _display_legacy_wright(), _format_blank_but_classified_issue(), _format_contradiction_issue(), _format_malformed_issue() (+35 more)
+
+### Community 69 - "_row_to_morphology"
+Cohesion: 0.33
+Nodes (6): Any, RowMapping, Project one SQLite row into a ``MorphologyRow`` dataclass. Args: row: Mapping…, _row_to_morphology(), inflection_strength_from_morph_class(), Derive strong/weak inflection labels from catalog morph-class metadata. Keyword…
+
+### Community 70 - "morphology/test_query_service.py"
+Cohesion: 0.13
+Nodes (35): _form_row(), _index_dictionary(), _insert_bt_entry(), _insert_bt_variant(), Connection, Path, Ambiguous dictionary joins must persist NULL ``entry_id`` on inserted forms., _seed_abbod_noun_form() (+27 more)
+
+### Community 71 - "BTPos"
+Cohesion: 0.13
+Nodes (35): corpus_index_db(), _index_fixture(), fixture, Path, Unit and integration tests for BTQueryService., sample_index_db(), _seed_forms_table(), test_bt_query_service_constructs_on_empty_migrated_db() (+27 more)
 
 ### Community 72 - "setter"
 Cohesion: 0.06
@@ -636,9 +659,9 @@ Nodes (23): setter, The words: the words to be processed. Returns: The current w
 Cohesion: 0.16
 Nodes (23): _assert_no_null_pos_ids(), _assert_no_null_text_pos(), downgrade(), _downgrade_bt_entries(), _downgrade_lemma_morph_classes(), _downgrade_morph_classes(), Connection, Replace legacy BT text POS and headword columns with normalized fields. Args:… (+15 more)
 
-### Community 74 - "test_build_pipeline.py"
-Cohesion: 0.21
-Nodes (22): build_pipeline_db(), _fetch_entry_id(), _fetch_entry_pos(), _fetch_form_entry_id(), _insert_form(), _pos_id(), Connection, fixture (+14 more)
+### Community 74 - "DictionaryBuildPipeline"
+Cohesion: 0.18
+Nodes (25): build_pipeline_db(), _fetch_entry_id(), _fetch_entry_pos(), _fetch_form_entry_id(), _insert_form(), _pos_id(), Connection, fixture (+17 more)
 
 ### Community 75 - "_WeakPainsg1DerivationContext"
 Cohesion: 0.19
@@ -652,25 +675,25 @@ Nodes (26): common, comparative, dual, feminine, first, masculine, neuter, plura
 Cohesion: 0.06
 Nodes (38): parametrize, Tests for morphology dictionary TSV cleanup., test_clean_dictionary_fixes_bt_diphthongs_in_col2(), test_clean_dictionary_lowercases_col2_dedupes_and_backups(), test_clean_dictionary_raises_when_source_missing(), test_should_lowercase_col2_only_all_upper_letters(), patch, Tests for the main module. (+30 more)
 
-### Community 78 - "create_engine"
-Cohesion: 0.13
-Nodes (32): _insert_bt_entry(), _insert_bt_variant(), _insert_lemma_assignment(), Connection, fixture, Path, Tests for morphology form foreign-key resolution., resolver_db() (+24 more)
+### Community 78 - "test_form_fk_resolver.py"
+Cohesion: 0.18
+Nodes (24): _insert_bt_entry(), _insert_bt_variant(), _insert_lemma_assignment(), Connection, fixture, Path, Tests for morphology form foreign-key resolution., resolver_db() (+16 more)
 
 ### Community 79 - "test_corpus_sample.py"
 Cohesion: 0.33
 Nodes (6): _load_manifest(), Smoke tests for the stratified Bosworth-Toller corpus sample fixture., Ensure corpus fixture is present and within phase-02b size constraints., Parse every corpus line and require deterministic parse or explicit skip., test_corpus_sample_lines_parse_without_raising(), test_corpus_sample_manifest_and_line_count_bounds()
 
-### Community 80 - "cli.py"
-Cohesion: 0.11
-Nodes (23): command, Print the some version info of this package,, version(), diacritic_group(), group, Diacritic index maintenance commands., _mark_diacritics_derived_path(), argument (+15 more)
+### Community 80 - "print_info"
+Cohesion: 0.12
+Nodes (21): Test info printing functions., Test basic info printing., Test info panel has correct styling., TestPrintInfo, _mark_diacritics_derived_path(), argument, command, Context (+13 more)
 
 ### Community 81 - "BT V2 Parser And Schema Migration"
 Cohesion: 0.17
 Nodes (12): Acceptance Criteria, BT V2 Parser And Schema Migration, CLI Output Contract, Context, Dependencies, Follow-on Work, Locked Decisions, Problem Classes BT V2 Must Fix (+4 more)
 
 ### Community 82 - "properties"
-Cohesion: 0.08
-Nodes (25): oldenglish_info, stella, wright_1914, description, minLength, type, default, description (+17 more)
+Cohesion: 0.12
+Nodes (17): description, minLength, type, default, description, type, citation_apa, notes (+9 more)
 
 ### Community 83 - "BTSourceHeadwordCleaner"
 Cohesion: 0.12
@@ -704,61 +727,61 @@ Nodes (25): 10. Failure handling, 11. Phase briefs, 12. Definition of done, 1. A
 Cohesion: 0.08
 Nodes (25): 1. As built in `wyrdcraeft`, 1. Orient the reader, 2. Show shared system flow, 2. Upstream provenance, 3. Optional or non-critical behavior, 3. Show provenance matrix, 4. Show sink matrix, Acceptance Criteria (+17 more)
 
-### Community 91 - "WordPool"
-Cohesion: 0.04
-Nodes (56): _make_word(), Regression tests for the GeneratorSession -> WordPool/GenerationRunState split.…, test_run_state_attrs_forward_through_session(), test_session_composes_word_pool_and_run_state(), test_word_pool_append_participle(), test_word_pool_attrs_forward_through_session(), test_word_pool_categorize_matches_load_all_categorization(), _assign_by_wright() (+48 more)
+### Community 91 - "Word"
+Cohesion: 0.05
+Nodes (69): Lexical entry schema carrying POS flags and paradigm state for one lemma., Word, Morphology paradigm assigners., _append_short_syllable_front_vowel_heuristic(), _append_suffix_heuristics(), _append_terminal_a_heuristic(), _append_terminal_e_heuristic(), _apply_final_fallback() (+61 more)
 
-### Community 92 - "runtime.py"
-Cohesion: 0.04
-Nodes (66): DeclarativeBase, catalog_db(), fixture, Path, Tests for Wright section markdown parsing and catalog text ingest., test_ingest_result_counts_and_warnings(), test_ingester_force_overwrites_existing_text(), test_ingester_is_idempotent_without_force() (+58 more)
+### Community 92 - "test_wright_section_text.py"
+Cohesion: 0.09
+Nodes (32): catalog_db(), fixture, Path, Tests for Wright section markdown parsing and catalog text ingest., test_ingest_result_counts_and_warnings(), test_ingester_force_overwrites_existing_text(), test_ingester_is_idempotent_without_force(), test_ingester_updates_null_sections() (+24 more)
 
 ### Community 93 - ".parse"
 Cohesion: 0.09
-Nodes (14): Parse one source line into ``RawBTLine`` plus phase-02 metadata. Args:…, Classify one line into ``BTLineKind``. Args: body: Main ``@`` field body…, Detect whether a line is primarily a cross-reference. Args: body: Main ``@``…, Extract the POS prefix fragment immediately after the first headword. Args:…, Extract alternate headword spellings from the pre-POS plain-text prefix. Args:…, Apply display spelling normalization to variants with de-duplication. Args:…, Extract substitute target text from ``for X in Dict`` patterns. Args: body:…, Extract reference fragments listed after ``Dele`` markers. Args: body: Main… (+6 more)
+Nodes (13): Parsed representation of one ``oe_bt.txt`` line before sense segmentation.…, RawBTLine, Parse one source line into ``RawBTLine`` plus phase-02 metadata. Args:…, Classify one line into ``BTLineKind``. Args: body: Main ``@`` field body…, Detect whether a line is primarily a cross-reference. Args: body: Main ``@``…, Extract alternate headword spellings from the pre-POS plain-text prefix. Args:…, Apply display spelling normalization to variants with de-duplication. Args:…, Extract substitute target text from ``for X in Dict`` patterns. Args: body:… (+5 more)
 
-### Community 94 - "diacritic_add"
-Cohesion: 0.27
-Nodes (12): diacritic_add(), diacritic_delete(), _load_macron_index_payload(), argument, command, option, Path, Add a normalized/macron-ed pair to the unique list of the macron index. The… (+4 more)
+### Community 94 - "diacritic.py"
+Cohesion: 0.21
+Nodes (15): diacritic_add(), diacritic_delete(), diacritic_group(), _load_macron_index_payload(), argument, command, group, option (+7 more)
 
 ### Community 95 - "required"
-Cohesion: 0.11
-Nodes (19): aliases, canonical_name, features, id, is_assignable, mapping_rationale, modern_class, paradigmatic_words (+11 more)
+Cohesion: 0.13
+Nodes (15): aliases, canonical_name, features, id, is_assignable, mapping_rationale, modern_class, paradigmatic_words (+7 more)
 
-### Community 96 - "features"
-Cohesion: 0.11
-Nodes (19): citation_apa, retrieved_date, source_key, url, $defs, features, recognitionHints, source (+11 more)
+### Community 96 - "recognitionHints"
+Cohesion: 0.14
+Nodes (14): citation_apa, retrieved_date, source_key, url, $defs, recognitionHints, source, additionalProperties (+6 more)
 
 ### Community 97 - "format_wright_audit_text"
-Cohesion: 0.50
-Nodes (4): _append_sample_block(), format_wright_audit_text(), Render a human-readable summary of one Wright audit run. Note: The report stays…, Append one capped sample block to the human-readable audit report. Keyword…
+Cohesion: 0.20
+Nodes (8): _append_sample_block(), format_wright_audit_text(), Structured Phase 4 audit output for human and JSON reporting. Note: The audit…, Return the total number of scanned source rows. Returns: Sum of all per-source…, Convert the full audit result into a JSON-friendly payload. Returns: Nested…, Render a human-readable summary of one Wright audit run. Note: The report stays…, Append one capped sample block to the human-readable audit report. Keyword…, WrightAuditResult
 
-### Community 98 - "run_dictionary_browse"
-Cohesion: 0.22
-Nodes (10): Progress, test_shell_run_entrypoint_uses_textual_app(), DictionaryBrowseStartupStage, StrEnum, Browse startup progress helpers for dictionary browse workflow., Stable stage labels for dictionary browse startup progress., Run browse startup work while showing stable stderr progress stages. Args:…, run_browse_startup_progress() (+2 more)
+### Community 98 - "DictionaryBrowseStartupStage"
+Cohesion: 0.15
+Nodes (12): Progress, create_stderr_console(), Console, Create one Rich console bound to current stderr stream. Returns: Console…, DictionaryBrowseStartupStage, StrEnum, Browse startup progress helpers for dictionary browse workflow., Stable stage labels for dictionary browse startup progress. (+4 more)
 
 ### Community 99 - "Configuration: Command Line Tool guide"
 Cohesion: 0.15
 Nodes (18): wyrdcraeft settings CLI command doc, wyrdcraeft source convert CLI command doc, Configuration: Command Line Tool guide, wyrdcraeft FAQ, Standard JSON Representation for Old English Texts (schema spec), Installation guide, Quickstart guide, Using the Command Line Interface guide (+10 more)
 
 ### Community 100 - "DatabaseStartupRuntime"
-Cohesion: 0.17
-Nodes (29): Path, test_legacy_bootstrap_failure_restores_cleanly_and_raises_typed_error(), test_legacy_morphology_db_is_backed_up_then_requires_rebuild(), _create_pre_alembic_forms_db(), _make_settings(), parametrize, Path, test_fresh_bootstrap_failure_raises_typed_error_and_cleans_partial_db() (+21 more)
+Cohesion: 0.21
+Nodes (23): _create_pre_alembic_forms_db(), _make_settings(), MonkeyPatch, parametrize, Path, test_child_help_skips_database_gate(), test_fresh_bootstrap_failure_raises_typed_error_and_cleans_partial_db(), test_fresh_missing_db_bootstraps_with_alembic_path() (+15 more)
 
 ### Community 101 - "test_form_decode.py"
-Cohesion: 0.17
-Nodes (22): Tests for morphology function-code decoding., test_build_adjective_sidebar_uses_payload_inflection(), test_build_adverb_sidebar_decodes_superlative_su_code(), test_build_noun_paradigm_grid_falls_back_when_entry_gender_mismatches_forms(), test_build_noun_paradigm_grid_groups_case_and_number(), test_build_noun_paradigm_grid_includes_instrumental_case(), test_build_noun_paradigm_grid_uses_fk_joined_codes_without_legacy_classes(), test_build_verb_sidebar_accepts_lowercase_function_codes() (+14 more)
+Cohesion: 0.15
+Nodes (24): Tests for morphology function-code decoding., test_build_adjective_sidebar_uses_payload_inflection(), test_build_adverb_sidebar_decodes_superlative_su_code(), test_build_noun_paradigm_grid_falls_back_when_entry_gender_mismatches_forms(), test_build_noun_paradigm_grid_groups_case_and_number(), test_build_noun_paradigm_grid_includes_instrumental_case(), test_build_noun_paradigm_grid_uses_fk_joined_codes_without_legacy_classes(), test_build_verb_sidebar_accepts_lowercase_function_codes() (+16 more)
 
 ### Community 102 - "test_cli_commands.py"
 Cohesion: 0.10
 Nodes (15): Tests for CLI commands with low coverage., Test CLI error handling., Test CLI without arguments shows help., Test invalid command shows error., Test that the OCR command group has been removed from the CLI., Test the version command., Test that Settings has no ocr_ fields., Test the version command displays version information. (+7 more)
 
 ### Community 103 - "OESyllableBreaker"
-Cohesion: 0.25
-Nodes (6): OESyllableBreaker, Split consonant cluster between syllables using a conservative max-onset…, Insert dots before known suffixes to guide syllabification., Syllabify an Old English word conservatively., Break an Old English word into syllables., Return list of (start, end, nucleus) for vowel nuclei.
+Cohesion: 0.16
+Nodes (9): Syllable model for Old English syllable breaking., A syllable is a unit of speech that consists of an onset, nucleus, and coda., Syllable, OESyllableBreaker, Split consonant cluster between syllables using a conservative max-onset…, Insert dots before known suffixes to guide syllabification., Syllabify an Old English word conservatively., Break an Old English word into syllables. (+1 more)
 
 ### Community 104 - "DictionaryBrowseApp"
-Cohesion: 0.07
-Nodes (26): Changed, ListItem, Selected, Submitted, EntryDetails, Full details payload for one dictionary-backed browse entry. Note:…, DictionaryBrowseApp, _format_entry_body_text() (+18 more)
+Cohesion: 0.08
+Nodes (20): Changed, ListItem, Selected, Submitted, DictionaryBrowseApp, Normalize search input text so dead-key combining marks become OE glyphs. Args:…, Run browse search when the user submits the search box. Args: event: Textual…, Show details for a selected search result or Wright section. Args: event:… (+12 more)
 
 ### Community 105 - "wyrdcraeft dictionary browse"
 Cohesion: 0.23
@@ -780,21 +803,21 @@ Nodes (9): ADR 0009: Collapse morphology generation callback-soup into PoS gener
 Cohesion: 0.14
 Nodes (9): Immutable context for weak ``PsInSg2``-derived emitter callbacks. Args:…, _WeakPsinsg2DerivationContext, Emit one weak ``PaInSg1`` row for a selected vowel variant. Side Effects:…, Emit one weak ``PsInSg2`` form row from a pre-bound derivation context. Side…, Emit one weak ``PsInSg2`` sound-change row from a pre-bound context. Side…, Emit weak ``PsInSg2``-derived branches for one principal-part context. Side…, Generate and print a form. Note: Kept as a method (not a bare call into…, Emit weak-verb forms derived from the ``PsInSg2`` principal part. Side Effects:… (+1 more)
 
-### Community 111 - "._load_entry"
-Cohesion: 0.11
-Nodes (16): _genders_from_json(), _json_tuple(), _normalize_lookup_key(), _normalize_pos_filter(), BTSense, Normalize a lookup token for deterministic dictionary queries. Args: value: Raw…, Normalize an optional CLI POS filter to canonical POS codes. Args: pos:…, Deserialize stored gender markers into enum values. Args: payload: JSON array… (+8 more)
+### Community 111 - "generation/query.py"
+Cohesion: 0.07
+Nodes (27): BTConsolidatedEntry, Build a sort key that orders senses by hierarchical path. ``4`` sorts before…, Canonical dictionary record after editorial merge for one ``(norm_key, pos)``.…, sense_path_sort_key(), _bt_pos_from_code(), _entry_to_dict(), _genders_from_json(), _normalize_lookup_key() (+19 more)
 
 ### Community 112 - "decode_function_dimensions"
-Cohesion: 0.16
-Nodes (16): test_decode_noun_plural_neuter_accusative(), test_decode_verb_imperative_plural(), test_decode_verb_inflected_infinitive(), test_decode_verb_pa_in_sg2(), _decode_adjective(), decode_function_dimensions(), _decode_noun_like(), _decode_verb() (+8 more)
+Cohesion: 0.19
+Nodes (14): test_decode_noun_plural_neuter_accusative(), test_decode_verb_imperative_plural(), test_decode_verb_inflected_infinitive(), test_decode_verb_pa_in_sg2(), _decode_adjective(), decode_function_dimensions(), _decode_noun_like(), _decode_verb() (+6 more)
 
-### Community 113 - "MorphologyGenerationFacade"
-Cohesion: 0.04
-Nodes (78): FixtureRequest, morphology, morphology_full, Namespace, main(), _mypy_baseline(), _runtime_baseline_ms(), _sha256_rows() (+70 more)
+### Community 113 - "read_jsonl_gz"
+Cohesion: 0.11
+Nodes (35): morphology, morphology_full, assert_snapshot_parity(), full_flow_rows(), Path, Generate canonicalized full-flow rows for parity assertions. Args: session:…, Assert full-flow parity against a canonical snapshot file. Args: session:…, canonical_sort_rows() (+27 more)
 
 ### Community 114 - "_format_entry_header_text"
-Cohesion: 0.14
-Nodes (15): _EntryDetailsLike, _format_class_lines(), _format_entry_header_text(), _format_pos_label(), _join_labels(), _MorphClassLike, Protocol, Join non-empty labels for compact metadata display. Args: labels: Candidate… (+7 more)
+Cohesion: 0.11
+Nodes (18): _EntryDetailsLike, _format_class_lines(), _format_entry_header_text(), _format_pos_label(), _join_labels(), _MorphClassLike, Protocol, Build the non-scroll-breaking header block for one entry's details pane. Args:… (+10 more)
 
 ### Community 115 - "Implementation Slices"
 Cohesion: 0.33
@@ -808,21 +831,21 @@ Nodes (12): GeneratorSession (services.morphology), wyrdcraeft.models.morphology
 Cohesion: 0.22
 Nodes (13): GPalatalizer, MacronApplicator, wyrdcraeft.models.macron_index, wyrdcraeft 1.0.0 initial release (2026-03-01), wyrdcraeft 1.1.0 release (2026-03-02), wyrdcraeft source mark-diacritics, Diacritic restoration runtime processing flow, wyrdcraeft diacritic add (+5 more)
 
-### Community 119 - "TEISourceLoader"
-Cohesion: 0.12
-Nodes (16): Document, TeiReader, test_tei_source_loader_load_tei(), Test importing Beowulf from TEI XML., test_tei_import_beowulf(), Extract metadata from TEI header. Args: tei_reader: The TEI reader to extract…, Parse the TEI body. Args: doc: The document to parse the body from. ns: The…, Parse a <div> into a Section model. Args: section_node: The node to parse the… (+8 more)
+### Community 119 - "Section"
+Cohesion: 0.08
+Nodes (25): Document, TeiReader, Test importing Beowulf from TEI XML., test_tei_import_beowulf(), test_tei_roundtrip_minimal_prose(), test_tei_roundtrip_minimal_verse_dialogue(), model_validator, A recursive container for structural divisions: book/chapter/section/year-… (+17 more)
 
 ### Community 120 - "TestSenseDisplayLabels"
-Cohesion: 0.17
-Nodes (7): Arabic display labels for canonical sense paths., TestSenseDisplayLabels, format_sense_display_label(), Build a sort key that orders senses by hierarchical path. ``4`` sorts before…, User-facing sense label derived from ``sense_path``. Roman source labels are…, Convert canonical ``sense_path`` to Arabic display text. Top-level paths stay…, sense_path_sort_key()
+Cohesion: 0.20
+Nodes (5): Arabic display labels for canonical sense paths., TestSenseDisplayLabels, format_sense_display_label(), User-facing sense label derived from ``sense_path``. Roman source labels are…, Convert canonical ``sense_path`` to Arabic display text. Top-level paths stay…
 
 ### Community 122 - "Phase 2 — Lemma Morph Class Assignment"
 Cohesion: 0.20
 Nodes (10): Cleanup (optional same PR or follow-up), Phase 2 — Gate A: Spec review, Phase 2 — Gate B: Code review, Phase 2 — Lemma Morph Class Assignment, Phase 2 validation, Task 1: Schema + migration, Task 2: POS normalization helper, Task 3: Paradigm exemplar registry (+2 more)
 
-### Community 123 - "participles.py"
-Cohesion: 0.21
-Nodes (12): add_participle_to_adjectives(), build_participle_adjective(), derive_participle_stem(), Participle-to-adjective projection helpers for morphology generation., Append one generated participle to the word pool's adjective sink. Side…, Normalize form fragments by removing legacy separators and null markers. Args:…, Derive participle stem text from ``form_parts`` using legacy prefix logic.…, Build one adjective-form ``Word`` record from a generated participle form.… (+4 more)
+### Community 123 - "test_text_utils_reference.py"
+Cohesion: 0.09
+Nodes (23): Match, parametrize, test_canonicalize_inflection_code_reference(), test_eth2thorn_reference(), test_iumlaut_reference(), test_move_accents_reference(), test_normalize_bt_display_spelling_is_idempotent(), test_normalize_bt_display_spelling_reference() (+15 more)
 
 ### Community 124 - "Morphology Wright catalog — Phase 1 session (2026-07-04)"
 Cohesion: 0.12
@@ -845,8 +868,8 @@ Cohesion: 0.18
 Nodes (11): Execution order, Task 10: Full validation and handoff, Task 1: Move dictionary assets into packaged resources, Task 2: Add schema support for source-block entry identity and rich senses, Task 3: Build deterministic sense-tree normalization, Task 4: Add sense prefix classifier for modifiers, grammatical context, and usage notes, Task 5: Refactor editorial merge around source blocks and canonical sense paths, Task 6: Expand warning and audit plumbing (+3 more)
 
 ### Community 129 - "DictionaryPosInferer"
-Cohesion: 0.20
-Nodes (12): PosInferenceCancelCheck, PosInferenceProgress, PosInferenceWarningSink, DictionaryPosInferer, Connection, Attempt one inferred POS update, skipping duplicate and homograph rows. Args:…, Unwrap one SQLAlchemy connection to the underlying SQLite driver. Args:…, Resolve the seeded ``unknown`` part-of-speech identifier. Args: connection:… (+4 more)
+Cohesion: 0.23
+Nodes (10): PosInferenceCancelCheck, PosInferenceProgress, PosInferenceWarningSink, DictionaryPosInferer, Connection, Attempt one inferred POS update, skipping duplicate and homograph rows. Args:…, Unwrap one SQLAlchemy connection to the underlying SQLite driver. Args:…, Fill missing dictionary POS values from unambiguous morphology wordclasses.… (+2 more)
 
 ### Community 130 - "DocumentIngestor"
 Cohesion: 0.22
@@ -929,8 +952,8 @@ Cohesion: 0.40
 Nodes (4): downgrade(), Restore homograph uniqueness and remove rich sense metadata columns. Side…, Drop homograph uniqueness and add source-block sense metadata columns. Side…, upgrade()
 
 ### Community 150 - ".__init__"
-Cohesion: 0.40
-Nodes (3): datetime, Capture one startup runtime configuration and its collaborators. Keyword Args:…, Store the startup migration failure details for CLI reporting. Args: message:…
+Cohesion: 0.29
+Nodes (4): datetime, Store the backup path and explicit rebuild recipe for CLI reporting. Keyword…, Capture one startup runtime configuration and its collaborators. Keyword Args:…, Store the startup migration failure details for CLI reporting. Args: message:…
 
 ### Community 151 - "source_keys"
 Cohesion: 0.29
@@ -958,7 +981,7 @@ Nodes (6): null, string, description, pattern, type, parent_id
 
 ### Community 157 - "StrongVerbGenerator"
 Cohesion: 0.05
-Nodes (37): ADR 0011: verb engines live in per-class modules; ``common.py`` is gone., test_strong_verb_generator_imports_from_strong_verb_forms(), test_verb_form_generator_imports_from_verb_forms(), test_weak_verb_generator_imports_from_weak_verb_forms(), Immutable context shared by the strong principal-part emission methods. Args:…, Immutable context shared by the strong infinitive-derived emission methods.…, _StrongInfDerivationContext, _StrongPrincipalPartContext (+29 more)
+Nodes (36): ADR 0011: verb engines live in per-class modules; ``common.py`` is gone., test_strong_verb_generator_imports_from_strong_verb_forms(), test_verb_form_generator_imports_from_verb_forms(), test_weak_verb_generator_imports_from_weak_verb_forms(), Immutable context shared by the strong principal-part emission methods. Args:…, Immutable context shared by the strong infinitive-derived emission methods.…, _StrongInfDerivationContext, _StrongPrincipalPartContext (+28 more)
 
 ### Community 158 - "Task 1: Define Build Event Models"
 Cohesion: 0.13
@@ -976,9 +999,9 @@ Nodes (4): downgrade(), Restore lexicon projection tables and legacy search tabl
 Cohesion: 0.14
 Nodes (13): Alembic owns lexicon DDL, Code review notes (Slice 1, not blocking commit), Files changed in Slice 1 commit, Locked decisions (human, this session), Rebuild semantics, References, Session State: Lexicon SQLAlchemy Slice 1 Complete, Slice 1 deliverables (shipped) (+5 more)
 
-### Community 162 - ".__init__"
-Cohesion: 0.22
-Nodes (7): DictionaryBuildEventSink, Event, Path, Forward pipeline morphology options to the shared build runner. Keyword Args:…, Initialize the build pipeline for one canonical database. Args: db_path: Path…, Run the optional morphology regeneration stage. Args: options: Morphology…, run_morphology_generation()
+### Community 162 - "profile_adj_stage.py"
+Cohesion: 0.10
+Nodes (25): FixtureRequest, Namespace, _build_output_sink(), main(), _parse_args(), Run cProfile against the morphology adjective generation stage., Profile ``MorphologyGenerationFacade.generate_adjectives`` and print…, Build the output sink used while profiling adjective generation. Keyword Args:… (+17 more)
 
 ### Community 163 - "enum"
 Cohesion: 0.40
@@ -986,7 +1009,7 @@ Nodes (5): past, present, enum, type, participle
 
 ### Community 164 - "default_bt_source_path"
 Cohesion: 0.09
-Nodes (26): CorpusSampleResult, DictionaryCorpusSampler, main(), Path, Index source lines by lookup key while preserving source line order. Returns:…, Sample keys by deterministic every-Nth stratification. Args: ordered_keys: Keys…, Result of one corpus-sample build run. Attributes: keys: Selected lookup keys…, Collect all editorial siblings for sampled keys in corpus order. Args:… (+18 more)
+Nodes (27): CorpusSampleResult, DictionaryCorpusSampler, main(), Path, Index source lines by lookup key while preserving source line order. Returns:…, Sample keys by deterministic every-Nth stratification. Args: ordered_keys: Keys…, Result of one corpus-sample build run. Attributes: keys: Selected lookup keys…, Collect all editorial siblings for sampled keys in corpus order. Args:… (+19 more)
 
 ### Community 165 - "20260706_04_drop_forms_legacy_strings.py"
 Cohesion: 0.40
@@ -1004,17 +1027,17 @@ Nodes (4): downgrade(), Drop the initial canonical schema. Side Effects: Removes
 Cohesion: 0.22
 Nodes (18): _forms_column_names(), _fresh_canonical_db(), _index_names(), Connection, parametrize, Path, Tests for lexicon read-model schema helpers., Return the seeded ``unknown`` part-of-speech row id. (+10 more)
 
-### Community 169 - "test_attestation_stripper.py"
-Cohesion: 0.21
-Nodes (11): fixture, Tests for Phase 03 BTAttestationStripper., stripper(), _contains_oe_chars(), _is_citation_span(), _is_editorial_marker(), _is_grammatical_abbrev(), Return ``True`` when *text* is a grammatical abbreviation, not an English… (+3 more)
+### Community 169 - "reference_snapshots.py"
+Cohesion: 0.14
+Nodes (24): build_session(), canonical_sort_rows(), canonicalize_form_rows(), form_rows_for_stage(), full_flow_metadata(), full_flow_rows(), generate_reference_snapshots(), paradigm_snapshot_rows() (+16 more)
 
 ### Community 170 - "20260707_01_drop_search_keys.py"
 Cohesion: 0.40
 Nodes (4): downgrade(), Drop legacy lexicon search-index tables from the canonical schema. Side…, Recreate empty legacy lexicon search-index tables. Side Effects: Restores empty…, upgrade()
 
-### Community 171 - ".__init__"
+### Community 171 - "run_dictionary_browse"
 Cohesion: 0.09
-Nodes (18): ComposeResult, Pressed, Static, _format_browse_connect_message(), _MainResultItem, Path, Build the initial browse details placeholder. Args: db_path: Path to the…, List row for one dictionary-backed search hit. Args: hit: Search hit rendered… (+10 more)
+Nodes (18): ComposeResult, Pressed, Static, test_shell_run_entrypoint_uses_textual_app(), _format_browse_connect_message(), Path, Build the initial browse details placeholder. Args: db_path: Path to the…, Launch the dictionary browse Textual shell for one canonical database. Args:… (+10 more)
 
 ### Community 172 - "TestCLISettings"
 Cohesion: 0.17
@@ -1032,21 +1055,21 @@ Nodes (12): File Structure, GeneratorSession → WordPool + GenerationRunState S
 Cohesion: 0.40
 Nodes (4): downgrade(), Add index supporting ordered sense lookup by dictionary entry. Side Effects:…, Remove ordered lookup index for dictionary sense reads. Side Effects: Drops the…, upgrade()
 
-### Community 176 - ".run"
-Cohesion: 0.17
-Nodes (10): DictionaryBuildStatus, DictionaryBuildReport, Connection, Summary of one unified dictionary build run., Run the unified dictionary build pipeline against one source file. Keyword…, Relink every stored form row against the rebuilt dictionary tables. Args:…, Return the current ``forms`` row count. Args: connection: Open SQLAlchemy…, Return the number of forms carrying a linked dictionary entry. Args:… (+2 more)
+### Community 176 - "services/dictionary/__init__.py"
+Cohesion: 0.14
+Nodes (18): Path, Tests for Bosworth-Toller parse warning JSONL I/O., test_parse_warning_jsonl_round_trip(), BTParseWarning, Any, One parse warning emitted during dictionary indexing. Attributes: line_no: One-…, Serialize the warning to a JSON-friendly mapping. Returns: Mapping suitable for…, Parse one warning record from JSONL. Args: payload: Decoded JSON object from… (+10 more)
 
-### Community 177 - "test_cli_utils.py"
-Cohesion: 0.08
-Nodes (18): Tests for CLI utilities., Test success panel has correct styling., Test info printing functions., Test basic info printing., Test info panel has correct styling., Test console quiet mode functionality., Test that console can be set to quiet mode., Test that stderr console can be set to quiet mode. (+10 more)
+### Community 177 - "utils.py"
+Cohesion: 0.10
+Nodes (17): Tests for CLI utilities., Test success panel has correct styling., Test console objects., Test that console objects are properly initialized., Test progress creation., Test progress creation returns a Progress object., Test progress has spinner column., Test progress has text column. (+9 more)
 
 ### Community 178 - "lexicon/conftest.py"
 Cohesion: 0.21
 Nodes (14): _inflection_code_id(), lexicon_db_connection(), lexicon_db_path(), _noun_pos_id(), Connection, fixture, Path, Shared fixtures for lexicon schema and service tests. (+6 more)
 
-### Community 179 - "PreParsedDocument"
-Cohesion: 0.17
-Nodes (9): is_roman_numeral(), Convert a roman numeral string to an arabic integer. Args: source: The roman…, Check if a string is a roman numeral. Args: source: Candidate numeral text.…, Test if a block of text is a heading. Args: text: The text to test. Returns:…, Parse a heading from a block of text. Args: text: The text to parse the heading…, Build provisional sections from raw blocks and return as…, roman_to_arabic(), PreParsedDocument (+1 more)
+### Community 179 - "BTSense"
+Cohesion: 0.13
+Nodes (15): BTSense, Unit tests for sense-level gender promotion (Task 5 deferral hook)., TestEntryGenderPromotion, BTSense, One English gloss sense for a consolidated dictionary entry. Attributes:…, Backward-compatible sense label derived from ``source_label_raw``. Returns:…, _json_tuple(), BTSense (+7 more)
 
 ### Community 180 - "Phase A — Reference Tables and Dictionary POS FKs"
 Cohesion: 0.15
@@ -1072,9 +1095,9 @@ Nodes (3): wyrdcraeft.models.bosworth_toller, BTQueryService, MorphologyQuerySer
 Cohesion: 0.67
 Nodes (3): Python coding standards, Contributing guide, Napoleon docstring quality gate (make napoleon-gate)
 
-### Community 187 - "models/__init__.py"
+### Community 187 - "build_pipeline.py"
 Cohesion: 0.14
-Nodes (19): DictionaryBuildCounters, DictionaryBuildEvent, DictionaryBuildFinished, DictionaryBuildLog, DictionaryBuildSnapshot, DictionaryBuildStageProgress, DictionaryBuildStageStarted, Typed stage and event models for unified dictionary builds. (+11 more)
+Nodes (18): DictionaryBuildStatus, DictionaryBuildCounters, DictionaryBuildEvent, DictionaryBuildFinished, DictionaryBuildLog, DictionaryBuildSnapshot, DictionaryBuildStageProgress, DictionaryBuildStageStarted (+10 more)
 
 ### Community 188 - "BT Structural Visibility Review"
 Cohesion: 0.17
@@ -1084,17 +1107,17 @@ Nodes (12): Acceptance Criteria, BT Structural Visibility Review, Candidate Type
 Cohesion: 0.15
 Nodes (12): All other code, Bosworth-Toller Old English Dictionary, Canonical database, Contributing, Contributing, Licensing and Provenance, Documentation, Features, Installation (+4 more)
 
-### Community 190 - "._extract_gloss"
-Cohesion: 0.17
-Nodes (8): Remove a leading grammatical marker from a combined gender-gloss italic span.…, Remove a leading editorial directive from an italic span that contains a gloss.…, Return an English-only gloss from one sense-block body string. Args:…, r""" Truncate *text* at the first attestation separator. The primary separator…, Extract English gloss text from the pre-attestation portion of a sense body.…, Clean plain-text fallback by removing source abbreviations and OE tokens. Used…, _strip_editorial_directive(), _strip_leading_gram_prefix()
+### Community 190 - "BrowseSearchHit"
+Cohesion: 0.13
+Nodes (18): _best_hit(), _browse_hit_sort_key(), BrowseSearchHit, _hit_lexical_distance(), lexical_distance(), _normalize_query(), One deduplicated dictionary-entry search result row. Attributes: entry_id:…, Return the Levenshtein distance between one query and candidate text. Args:… (+10 more)
 
 ### Community 191 - "Phase D — Drop Legacy Form String Columns"
 Cohesion: 0.15
 Nodes (12): Phase D — Commit, Phase D — Drop Legacy Form String Columns, Phase D — Gate A: Spec review checklist, Phase D — Gate B: Code review checklist, Phase D validation, Post-phase checklist (coordinator), Task 1: Alembic migration `20260706_04`, Task 2: Sink + query path cleanup (+4 more)
 
 ### Community 192 - "LemmaMorphClassAssigner"
-Cohesion: 0.04
-Nodes (57): catalog_db(), _make_word(), fixture, Path, query_service(), Tests for read-only Wright catalog lemma class lookup., test_format_morph_class_display_label_falls_back_to_canonical_name(), test_format_morph_class_display_label_prefers_compact_modern_label() (+49 more)
+Cohesion: 0.05
+Nodes (40): catalog_db(), _make_word(), fixture, Path, query_service(), Tests for read-only Wright catalog lemma class lookup., test_format_morph_class_display_label_falls_back_to_canonical_name(), test_format_morph_class_display_label_prefers_compact_modern_label() (+32 more)
 
 ### Community 193 - "Phase A — Unified Dictionary Build"
 Cohesion: 0.15
@@ -1112,9 +1135,9 @@ Nodes (12): Acceptance criteria, Exact files likely touched, Gate A — Spec rev
 Cohesion: 0.67
 Nodes (3): Entry-level model, Sense-tree model, Target Data Model
 
-### Community 211 - "create_progress"
-Cohesion: 0.24
-Nodes (7): Test progress creation., Test progress creation returns a Progress object., Test progress has spinner column., Test progress has text column., TestCreateProgress, create_progress(), Create a rich progress indicator for long-running operations. Returns:…
+### Community 211 - "SenseMetadataClassifier"
+Cohesion: 0.18
+Nodes (5): Unit tests for sense-prefix metadata classification., TestSenseMetadataClassifier, Classify sense-level prefix debris into structured metadata. Extracts…, SenseMetadataClassifier, Initialise with optional attestation-stripper and normalizer collaborators.…
 
 ### Community 213 - "Dictionary CLI index gate and morph paths Implementation Plan"
 Cohesion: 0.17
@@ -1180,9 +1203,9 @@ Nodes (9): Coordinator quick reference — phase order summary, Explicitly defer
 Cohesion: 0.47
 Nodes (8): _index_with_attach(), Path, Tests for attaching Bosworth-Toller dictionary tables to morphology SQLite., Seed the canonical ``forms`` table via the real SQLAlchemy sink., _seed_forms_table(), test_attach_missing_db_fails_for_canonical_only_mode(), test_attach_preserves_forms_and_writes_bt_entries(), test_attach_rerun_is_idempotent_and_preserves_forms()
 
-### Community 236 - ".write_entries"
-Cohesion: 0.25
-Nodes (5): Connection, Session, Serialize noun gender markers to JSON. Args: genders: Parsed gender markers for…, Unwrap SQLAlchemy's DB-API connection to the underlying SQLite driver. Args:…, Persist consolidated entries, senses, variants, and edit audit rows. Args:…
+### Community 236 - "_RecordingSink"
+Cohesion: 0.23
+Nodes (16): Capture emitted ``form_data`` payloads without TSV geminate expansion., Record one emitted row payload., _RecordingSink, _strong_generator(), _strong_inf_context(), _strong_principal_context(), test_dispatch_strong_derived_from_principal_part_papt_only(), test_dispatch_strong_derived_from_principal_part_routes_painpl() (+8 more)
 
 ### Community 237 - "PHONOLOGY"
 Cohesion: 0.04
@@ -1224,25 +1247,25 @@ Nodes (8): Acceptance criteria, Exact files likely touched, Gate A — Spec revi
 Cohesion: 0.25
 Nodes (8): Acceptance criteria, Exact files likely touched, Gate A — Spec review checklist, Gate B — Code review checklist, Objective, Phase 4 — Legacy Wright audit command, Subagent dispatch packet — Phase 4, Validation commands
 
-### Community 247 - "create_stderr_console"
-Cohesion: 0.33
-Nodes (5): create_stderr_console(), Console, Create one Rich console bound to current stderr stream. Returns: Console…, Console, Initialize one coordinator instance for one generation run. Keyword Args:…
+### Community 247 - "split_prose_and_verse_runs"
+Cohesion: 0.16
+Nodes (12): Path, Load raw blocks or canonical text from a source. Args: source: The source to…, Load from the appropriate source loader. Args: source: The source to load the…, Load a local ``.txt`` file as prose/verse :class:`RawBlock` runs. Args: source:…, _is_heading_line(), _is_number_line(), _is_verse_line(), Test if a line looks like a heading. (+4 more)
 
 ### Community 248 - "Orchestrator Checkpoint"
 Cohesion: 0.29
 Nodes (6): Active blockers, Last 3 log events, Locked decisions, Orchestrator Checkpoint, Phase status, Resume here
 
 ### Community 249 - "DictionaryBuildStage"
-Cohesion: 0.21
-Nodes (9): DictionaryBuildStage, StrEnum, Stable stage labels emitted during one unified dictionary build., DictionaryBuildProgress, Protocol, Progress callback surface used during unified dictionary builds., Mark one build stage active. Args: stage: Stage being entered. Keyword Args:…, Advance one build stage. Args: stage: Stage being advanced. Keyword Args:… (+1 more)
+Cohesion: 0.15
+Nodes (12): DictionaryBuildEventSink, Event, DictionaryBuildStage, StrEnum, Stable stage labels emitted during one unified dictionary build., DictionaryBuildProgress, Protocol, Initialize the build pipeline for one canonical database. Args: db_path: Path… (+4 more)
 
-### Community 250 - "._generate_word"
-Cohesion: 0.33
-Nodes (4): Generate numeral forms for every word where ``numeral == 1``. Side Effects:…, Generate numeral forms for a single word. Args: word: The word to generate…, Remove trailing [ea] from stem. Note: This is the same as Perl s/[ea]$//. Args:…, _stem_no_ea()
+### Community 250 - "test_browse_prep_entry_leaves_morphology_table_empty"
+Cohesion: 0.16
+Nodes (15): _bt_entry_id(), _insert_entry(), _insert_inflection_code(), _pos_id(), Connection, DataTable, Insert linked morphology rows for the ``abbad`` noun entry., Insert one minimal browseable dictionary entry for TUI auto-select tests. (+7 more)
 
-### Community 251 - "test_generation_package_imports.py"
-Cohesion: 0.25
-Nodes (7): Regression test for the generation-package import-cycle fix.…, The package must not carry a facade re-export that recreates the cycle., The only import path any real caller uses must keep working., The facade's verb-generation method is the production entrypoint., test_facade_still_importable_directly(), test_facade_verb_method_still_importable(), test_generation_package_does_not_reexport_facade()
+### Community 251 - "MorphologyGenerationFacade"
+Cohesion: 0.09
+Nodes (23): main(), _mypy_baseline(), _runtime_baseline_ms(), _sha256_rows(), _stage_rows(), Regression test for the generation-package import-cycle fix.…, The package must not carry a facade re-export that recreates the cycle., The only import path any real caller uses must keep working. (+15 more)
 
 ### Community 252 - ".__init__"
 Cohesion: 0.50
@@ -1264,13 +1287,17 @@ Nodes (6): New applied learning goal: difficult Old English OCR to structured da
 Cohesion: 0.33
 Nodes (5): Constraints, Mission: Historical Linguistics for Old English Study, Out of scope, Success looks like, Why
 
-### Community 257 - "MacronIndex"
-Cohesion: 0.50
-Nodes (3): MacronIndex, In-memory macron index model for diacritic restoration., In-memory lookup maps for macron restoration.
+### Community 257 - "test_sense_segmenter.py"
+Cohesion: 0.18
+Nodes (10): _golden_sense_matches(), _load_golden(), fixture, Tests for Phase 03 BTSenseSegmenter., Golden-file acceptance tests: ≥95% exact gloss match required., At least 95 % of golden entries must match exactly on sense count and gloss…, Attestation-heavy entries must not leave OE text in the gloss., segmenter() (+2 more)
 
-### Community 259 - "_run_database_readiness_gate"
-Cohesion: 0.22
-Nodes (8): _prompt_backup_cleanup(), Context, Run the canonical DB startup gate once for DB-using command trees. Args: ctx:…, Click group that preserves the raw argv for help-aware gate decisions. Side…, Persist the raw argv before delegating to Click's normal parser. Args: ctx:…, Read one backup-cleanup confirmation without forcing a re-prompt. Args: text:…, _RootCLIGroup, _run_database_readiness_gate()
+### Community 258 - ".segment_with_warnings"
+Cohesion: 0.18
+Nodes (9): BTSegmentResult, BTSense, Return an ordered list of :class:`~wyrdcraeft.models.dictionary.BTSense` for…, Segment one body and return senses plus segmentation diagnostics. Args: body:…, Segment a body with no explicit sense labels into zero or one senses. Args:…, Build one :class:`~wyrdcraeft.models.dictionary.BTSense` from a fragment. Args:…, Classify prefix metadata and extract one sense gloss from *segment_body*. Args:…, Segment one body for ``ParsedBTLine`` construction. Args: body: Raw HTML body… (+1 more)
+
+### Community 259 - "resolve_dictionary_db_path"
+Cohesion: 0.16
+Nodes (13): test_resolve_dictionary_db_path_prefers_explicit_override(), test_resolve_dictionary_db_path_uses_sibling_dictionary(), _db_has_table(), _forms_has_morph_class_id(), _morphology_db_has_bt_entries(), Connection, Path, Return whether one SQLite table exists in the active database. Args:… (+5 more)
 
 ### Community 260 - "Lemma-level morph class assignment (normalized_title, pos) -> morph_classes"
 Cohesion: 0.18
@@ -1304,29 +1331,65 @@ Nodes (8): data/oe_bt.txt Bosworth-Toller OCR source file, BT Dictionary Structu
 Cohesion: 0.40
 Nodes (4): Gaps, Historical Linguistics for Old English Study Resources, Knowledge, Wisdom (Communities)
 
+### Community 268 - "._parse_italic_prefix"
+Cohesion: 0.20
+Nodes (10): _normalize_case(), _normalize_gender(), _normalize_modifier(), Normalize one modifier abbreviation token. Args: token: Raw modifier token…, Normalize one case abbreviation token. Args: token: Raw case token text.…, Map a gender letter to a grammatical-context label. Args: letter: Single gender…, Parse one italic span for leading prefix tokens. Args: inner: Inner text of one…, Parse space-delimited prefix tokens from one italic span. Args: plain: Tag-… (+2 more)
+
+### Community 269 - "sense_segmenter.py"
+Cohesion: 0.19
+Nodes (12): _normalise_label(), Phase 03 sense segmenter for Bosworth-Toller line bodies., Find all sense-boundary positions in *body*, returning ``(label, pos)`` pairs.…, Split a body field into ordered raw sense fragments. Args: body: Raw HTML body…, Strip markup from a raw sense-label capture and normalise spacing. Args: raw:…, Format a normalized label for ``source_label_raw`` storage. Args: label:…, _source_label_raw(), _split_body() (+4 more)
+
 ### Community 270 - "Old English c/g Palatalization Rule System"
 Cohesion: 0.83
 Nodes (4): Old English c/g Palatalization Rule System, c-Palatalization Force-Non-Palatalize Exception List, c-Palatalization Force-Palatalize Exception List, g Frontal-Vowel Palatalization Exception List
+
+### Community 271 - "test_normalized_title_join.py"
+Cohesion: 0.28
+Nodes (12): _index(), Unit tests for NormalizedTitleJoinIndex., test_resolve_all_exactly_one_title_across_pos(), test_resolve_all_no_match(), test_resolve_all_pos_direct_multiple_matches(), test_resolve_all_pos_direct_single_match(), test_resolve_all_variant_with_pos_filter(), test_resolve_all_variant_without_pos_filter() (+4 more)
+
+### Community 272 - "BTLineSplitter"
+Cohesion: 0.18
+Nodes (8): Initialize parser collaborators for split and POS extraction. Args: splitter:…, Extract the POS prefix fragment immediately after the first headword. Args:…, BTLineSplitter, BTSplitLine, Bosworth-Toller ``@``-field line splitting utilities., One Bosworth-Toller source line split into its three ``@`` fields. Attributes:…, Split Bosworth-Toller source lines into canonical ``@`` fields., Split one source line into three fields and parse lookup keys. Args: line: Raw…
 
 ### Community 273 - "morphology_row_matches_pos"
 Cohesion: 0.40
 Nodes (5): test_morphology_row_matches_entry_pos_filters_participle_for_noun(), morphology_row_matches_pos(), Return morphology wordclass labels that match one dictionary POS label. Args:…, Return whether one morphology row belongs to the dictionary entry POS. Keyword…, wordclasses_for_entry_pos()
 
+### Community 274 - "wright-morphology-fixture.schema.json"
+Cohesion: 0.18
+Nodes (10): morph_classes, schema_version, sources, additionalProperties, description, $id, required, $schema (+2 more)
+
 ### Community 275 - "IndexReport"
 Cohesion: 0.25
 Nodes (6): IndexReport, Path, Write the report as formatted JSON to disk. Args: report_path: Destination JSON…, Summary statistics produced by one dictionary index run. Attributes: source:…, Return consolidated entry count for report consumers. Returns: Number of…, Serialize the report to a JSON-friendly mapping. Returns: Dictionary suitable…
 
-### Community 289 - "BTSpellingNormalizer"
-Cohesion: 0.16
-Nodes (13): parametrize, Tests for BT display spelling normalization., Normalize representative real BT headword spellings from ``oe_bt.txt``., Normalizing an already-normalized spelling is a no-op., test_bt_spelling_normalizer_matches_oe_normalizer(), test_normalize_is_idempotent(), test_normalize_real_bt_diphthong_cases(), Path (+5 more)
+### Community 278 - "test_pos_seed.py"
+Cohesion: 0.24
+Nodes (10): _load_fixture_rows(), Connection, Path, Tests for normalized POS and inflection-code seed fixtures., Read one JSON fixture file used by the POS seed tests., Return the current row count for one reference table., _row_count(), test_inflection_seed_covers_observed_snapshot_function_codes() (+2 more)
 
-### Community 296 - "form_decode.py"
-Cohesion: 0.17
-Nodes (15): _build_adjective_sidebar(), _build_noun_sidebar(), format_bt_gender_label(), format_noun_declension(), _gender_code_from_label(), ParadigmSidebarSpec, Decode morphology ``function`` codes into browse table dimensions., Build the case-by-number noun declension grid. Args: rows: Noun morphology… (+7 more)
+### Community 282 - "source_db.py"
+Cohesion: 0.33
+Nodes (8): make_lexicon_source_db(), Path, Helpers for building morphology SQLite databases used in lexicon tests., Build a morphology database seeded with ``forms`` and ``bt_*`` tables. Args:…, Write minimal ``forms`` rows into a morphology SQLite database. Args: db_path:…, Attach minimal Bosworth-Toller ``bt_*`` tables to a morphology database. Args:…, seed_bt_tables(), seed_forms()
+
+### Community 289 - "source_key"
+Cohesion: 0.25
+Nodes (8): oldenglish_info, stella, wright_1914, source_key, description, examples, pattern, type
+
+### Community 295 - ".collect_editorial_warnings"
+Cohesion: 0.25
+Nodes (7): Return ``True`` when *sense_body* still contains meaningful text after cleanup.…, _substantive_html_content(), _edit_note_detail(), _edit_note_reason(), Extract a standardized warning reason from one edit-log note. Args: note:…, Return human context from one standardized edit-log note. Args: note: Stored…, Collect editorial-stage warnings for ``parse_warnings.jsonl``. Editorial debris…
+
+### Community 296 - "test_cli_convert.py"
+Cohesion: 0.29
+Nodes (6): Test the convert command with a missing source file., Test the convert command without LLM (heuristic mode)., test_convert_command_missing_source(), test_convert_command_no_llm(), test_convert_rejects_http_source(), test_convert_rejects_use_llm_flag()
 
 ### Community 297 - "Verb generators leave `common.py`"
 Cohesion: 0.14
 Nodes (12): Consequences, Considered options, Engines, not OE conjugation classes, Module map, Verb generators leave `common.py`, File map, Global Constraints, Out of scope (+4 more)
+
+### Community 298 - "._append_senses"
+Cohesion: 0.29
+Nodes (4): BTSense, Append follow-on MAIN senses, reassigning colliding ``sense_path`` values.…, Append supplemental senses using label-aware deduplication. Unlabelled senses…, Return the next unused top-level ``sense_path`` integer. Args: existing_paths:…
 
 ### Community 299 - "filter_display_variants"
 Cohesion: 0.40
@@ -1336,13 +1399,57 @@ Nodes (5): test_filter_display_variants_drops_genitive_endings(), filter_display
 Cohesion: 0.40
 Nodes (5): DictionaryBrowseDataError, _ensure_browse_ready(), RuntimeError, Validate that browse tables exist and contain searchable rows. Args:…, Raised when dictionary browse data is unavailable for the TUI shell.
 
+### Community 301 - "ParadigmAssigner"
+Cohesion: 0.29
+Nodes (6): FormEmitter, ParadigmAssigner, Protocol, Session-level assigner contract., Assign paradigms in-place for session words. Note: Paradigm assignment reflects…, Form emission contract.
+
 ### Community 302 - "progress.md"
 Cohesion: 0.50
 Nodes (3): Phase A SDD Progress, Prior ledger (Phase A — do not treat as ADR 0010), SDD Progress — ADR 0010 LLM/unstructured leave source convert
 
+### Community 303 - ".__init__"
+Cohesion: 0.29
+Nodes (4): Path, Initialize a SQLAlchemy sink for emitted morphology rows. Note: Index schema…, Ensure the canonical ``forms`` table and its indexes exist., Tune SQLite for bulk morphology index writes. Side Effects: Sets WAL mode and…
+
+### Community 304 - "language"
+Cohesion: 0.33
+Nodes (6): Old English, default, description, examples, type, language
+
+### Community 305 - "TestCorpusWeirdSenses"
+Cohesion: 0.33
+Nodes (3): Corpus-driven regression tests for odd Bosworth-Toller sense prefixes., Attestation gloss after ``:--`` bleeds into ``gloss_en`` when tagged italic.…, TestCorpusWeirdSenses
+
+### Community 306 - "TestConsoleQuietMode"
+Cohesion: 0.33
+Nodes (4): Test console quiet mode functionality., Test that console can be set to quiet mode., Test that stderr console can be set to quiet mode., TestConsoleQuietMode
+
+### Community 307 - "source_set"
+Cohesion: 0.40
+Nodes (5): wright-modern-morphology, source_set, description, examples, type
+
+### Community 308 - "lexicon_source_db"
+Cohesion: 0.40
+Nodes (5): empty_browse_db(), lexicon_source_db(), fixture, Dictionary-backed canonical DB fixture for browse TUI tests., Canonical schema with no dictionary rows for browse readiness tests.
+
 ### Community 309 - "sound_dispatch_flow.py"
 Cohesion: 0.20
 Nodes (14): SoundChangeSequenceEmitter, SoundManualContextEmitter, SoundSourceContextEmitter, Immutable context for sound-change callback dispatch. Args: formhash: Shared…, _SoundChangeDispatchContext, emit_manual_sound_changed_context(), emit_sound_changed_form_for_context(), emit_source_form_with_sound_context() (+6 more)
+
+### Community 311 - "features"
+Cohesion: 0.40
+Nodes (5): features, additionalProperties, default, description, type
+
+### Community 312 - ".emit_form_data"
+Cohesion: 0.40
+Nodes (3): Any, Write text to the underlying output stream., Emit one legacy form payload using parity row semantics. Note: Linguistic…
+
+### Community 313 - "morphClass"
+Cohesion: 0.50
+Nodes (4): morphClass, additionalProperties, allOf, type
+
+### Community 314 - "_collect_widget_ids"
+Cohesion: 0.67
+Nodes (3): _collect_widget_ids(), Collect all widget ids reachable from one widget tree root. Args: widget: Root…, Widget
 
 ## Ambiguous Edges - Review These
 - `task-phase1-morph-class-browse-report.md` → `task-phase2-wright-text-ingest-report.md`  [AMBIGUOUS]
@@ -1352,8 +1459,8 @@ Nodes (14): SoundChangeSequenceEmitter, SoundManualContextEmitter, SoundSourceCo
 
 ## Knowledge Gaps
 - **921 isolated node(s):** `release.sh script`, `wyrdcraeft`, `IPA_AUDIO`, `$schema`, `$id` (+916 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2724 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2723 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **37 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -1362,12 +1469,12 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **What is the exact relationship between `The Seafarer (Old English poem, test fixture)` and `Old English Bosworth-Toller Dictionary Text`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `GeneratorSession` connect `GeneratorSession` to `MorphologyGenerateProgressCoordinator`, `setter`, `OENormalizer`, `test_generation_branches.py`, `MorphologyGenerationFacade`, `WeakVerbGenerator`, `WordPool`, `VerbFormGenerator`, `morphology/test_query_service.py`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `Word` connect `Word` to `MorphologyGenerateProgressCoordinator`, `OENormalizer`, `test_generation_branches.py`, `_WeakInfDerivationContext`, `WeakVerbGenerator`, `GeneratorSession`, `AdjectiveFormGenerator`, `VerbFormGenerator`, `StrongVerbGenerator`, `morphology/test_query_service.py`, `test_lemma_morph_assignment.py`, `models/__init__.py`, `LemmaMorphClassAssigner`, `wright_audit.py`, `_WeakPainsg1DerivationContext`, `WordPool`, `MorphologyGenerationFacade`, `._generate_word`, `participles.py`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `OENormalizer` connect `OENormalizer` to `LemmaMorphClassAssigner`, `BTSpellingNormalizer`, `Word`, `wright_audit.py`, `ParadigmClassMapper`, `MorphologyGenerateProgressCoordinator`, `normalize_morphology_title`, `MorphologyDictionaryCleaner`, `WeakVerbGenerator`, `GeneratorSession`, `StrongVerbGenerator`, `AdjectiveFormGenerator`, `markup.py`, `WordPool`, `VerbFormGenerator`, `morphology/test_query_service.py`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+- **Why does `GeneratorSession` connect `GeneratorSession` to `profile_adj_stage.py`, `morphology/test_query_service.py`, `MorphologyGenerateProgressCoordinator`, `setter`, `OENormalizer`, `reference_snapshots.py`, `test_generation_branches.py`, `_RecordingSink`, `read_jsonl_gz`, `WeakVerbGenerator`, `run_morphology_generation`, `source_db.py`, `MorphologyGenerationFacade`, `VerbFormGenerator`, `WordPool`?**
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `Word` connect `Word` to `LemmaMorphClassAssigner`, `NounFormGenerator`, `MorphologyCatalogLoader`, `WrightAuditService`, `normalize_morphology_title`, `OENormalizer`, `test_generation_branches.py`, `_WeakPainsg1DerivationContext`, `test_lemma_morph_assignment.py`, `_WeakInfDerivationContext`, `WeakVerbGenerator`, `GeneratorSession`, `StrongVerbGenerator`, `AdjectiveFormGenerator`, `test_text_utils_reference.py`, `VerbFormGenerator`, `WordPool`, `models/__init__.py`?**
+  _High betweenness centrality (0.036) - this node is a cross-community bridge._
+- **Why does `OENormalizer` connect `OENormalizer` to `MorphologyCatalogLoader`, `WrightAuditService`, `normalize_morphology_title`, `test_text_utils_reference.py`, `MorphologyDictionaryCleaner`, `FormRow`, `generation/query.py`, `WeakVerbGenerator`, `GeneratorSession`, `DictionaryBrowseQueryService`, `AdjectiveFormGenerator`, `markup.py`, `Word`, `VerbFormGenerator`, `StrongVerbGenerator`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Are the 53 inferred relationships involving `Word` (e.g. with `test_generate_verb_parts_routes_direct_derivation_stack()` and `test_generate_verb_parts_routes_direct_weak_painsg1_stack()`) actually correct?**
   _`Word` has 53 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 25 inferred relationships involving `GeneratorSession` (e.g. with `_run_prerequisite_stages()` and `full_session()`) actually correct?**

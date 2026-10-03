@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Final, Literal
 
-from ..models.parsing import RawBlock
+from ...models.parsing import RawBlock
 
 # -----------------------------------------------------------------------------
 # Constants

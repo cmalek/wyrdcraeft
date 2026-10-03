@@ -7,7 +7,7 @@ from delb import Document, tag
 from .loaders import TEI_NS
 
 if TYPE_CHECKING:
-    from ..models import (
+    from ...models import (
         Line,
         OldEnglishText,
         Paragraph,
@@ -65,9 +65,7 @@ class TEIExporter:
 
         """
         definition = (
-            tag(name, cast("Any", attributes))
-            if attributes is not None
-            else tag(name)
+            tag(name, cast("Any", attributes)) if attributes is not None else tag(name)
         )
         (node,) = parent.append_children(definition)
         return node

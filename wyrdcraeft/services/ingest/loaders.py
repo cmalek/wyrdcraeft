@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Final
 from acdh_tei_pyutils.tei import TeiReader  # type: ignore[import-untyped]
 from delb import Document
 
-from ..models import (
+from ...models import (
     Line,
     OldEnglishText,
     Paragraph,
@@ -17,7 +17,7 @@ from ..models import (
 from .normalizers import split_prose_and_verse_runs
 
 if TYPE_CHECKING:
-    from ..models.parsing import RawBlock
+    from ...models.parsing import RawBlock
 
 #: The TEI namespace.
 TEI_NS: Final[str] = "http://www.tei-c.org/ns/1.0"
@@ -330,16 +330,16 @@ class SourceLoader:
 
         - HTTP/HTTPS URLs are rejected; ``source convert`` is local-only.
         - If the source is a local file, return an instance of
-          :class:`~wyrdcraeft.ingest.loaders.FileSourceLoader`.
+          :class:`~wyrdcraeft.services.ingest.loaders.FileSourceLoader`.
         - If the source is a TEI XML string, return an instance of
-          :class:`~wyrdcraeft.ingest.loaders.TEISourceLoader`.
+          :class:`~wyrdcraeft.services.ingest.loaders.TEISourceLoader`.
 
         Args:
             source: The source to load the document from.
 
         Returns:
             A subclass of
-            :class:`~wyrdcraeft.ingest.loaders.BaseSourceLoader`.
+            :class:`~wyrdcraeft.services.ingest.loaders.BaseSourceLoader`.
 
         Raises:
             ValueError: If the source is an HTTP or HTTPS URL.

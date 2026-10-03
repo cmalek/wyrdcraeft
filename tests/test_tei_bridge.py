@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from wyrdcraeft.ingest.exporters import TEIExporter
-from wyrdcraeft.ingest.loaders import TEISourceLoader
 from wyrdcraeft.models import (
     Line,
     OldEnglishText,
@@ -12,6 +10,8 @@ from wyrdcraeft.models import (
     Sentence,
     TextMetadata,
 )
+from wyrdcraeft.services.ingest.exporters import TEIExporter
+from wyrdcraeft.services.ingest.loaders import TEISourceLoader
 
 
 def test_tei_import_beowulf() -> None:

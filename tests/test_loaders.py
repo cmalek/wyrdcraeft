@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from wyrdcraeft.ingest.loaders import (
+from wyrdcraeft.models.parsing import RawBlock
+from wyrdcraeft.services.ingest.loaders import (
     FileSourceLoader,
     SourceLoader,
     TEISourceLoader,
 )
-from wyrdcraeft.models.parsing import RawBlock
 
 
 @pytest.fixture

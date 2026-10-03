@@ -38,7 +38,7 @@ Out of scope:
 
 | Capability | Main CLI surface | Primary Python entrypoints |
 |-------|----------|----------|
-| ingest | `wyrdcraeft source convert` | `wyrdcraeft.ingest.pipeline.DocumentIngestor` |
+| ingest | `wyrdcraeft source convert` | `wyrdcraeft.services.ingest.pipeline.DocumentIngestor` |
 | diacritic | `wyrdcraeft source mark-diacritics`, `wyrdcraeft diacritic`, `wyrdcraeft diacritic-disambiguate` | `wyrdcraeft.services.markup.DiacriticRestorer` |
 | morphology | `wyrdcraeft morphology query` | `MorphologyQueryService`, `MorphologyCatalogQueryService` |
 | dictionary | `wyrdcraeft dictionary build` (unified), `wyrdcraeft dictionary query`, `wyrdcraeft dictionary browse`, `wyrdcraeft dictionary ingest-wright-text`, `wyrdcraeft dictionary audit-wright` | `wyrdcraeft.services.dictionary.pipeline.BTIndexPipeline`, `BTQueryService`, `DictionaryBuildPipeline`, `DictionaryBrowseQueryService`, `DictionaryBrowseApp`, `WrightSectionTextScreen`, `WrightSectionTextIngester`, `WrightAuditService`, `form_decode`, `OldEnglishSearchInput` |

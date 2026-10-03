@@ -10,7 +10,7 @@ Purpose
 The command converts a source document (plain text or TEI XML) into the
 project's standard JSON format. See :doc:`/overview/format` for the format
 specification. Conversion is performed by
-:class:`~wyrdcraeft.ingest.pipeline.DocumentIngestor`, which selects:
+:class:`~wyrdcraeft.services.ingest.pipeline.DocumentIngestor`, which selects:
 
 - **Heuristic path** (default): deterministic parsing and chunking for local
   ``.txt``.

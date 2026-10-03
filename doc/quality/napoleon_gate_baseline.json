@@ -83,56 +83,56 @@
       "message": "Module-level global variable missing '#:' documentation."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:22:DOC202:_is_heading_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:22:DOC202:_is_heading_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 22,
       "code": "DOC202",
       "symbol": "_is_heading_line",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:22:DOC205:_is_heading_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:22:DOC205:_is_heading_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 22,
       "code": "DOC205",
       "symbol": "_is_heading_line",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:42:DOC202:_is_verse_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:42:DOC202:_is_verse_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 42,
       "code": "DOC202",
       "symbol": "_is_verse_line",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:42:DOC203:_is_verse_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:42:DOC203:_is_verse_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 42,
       "code": "DOC203",
       "symbol": "_is_verse_line",
       "message": "Missing required Napoleon section 'Keyword Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:42:DOC205:_is_verse_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:42:DOC205:_is_verse_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 42,
       "code": "DOC205",
       "symbol": "_is_verse_line",
       "message": "Missing required Napoleon section 'Returns:' or 'Yields:' for function with yielded/returned value."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:73:DOC202:_is_number_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:73:DOC202:_is_number_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 73,
       "code": "DOC202",
       "symbol": "_is_number_line",
       "message": "Missing required Napoleon section 'Args:'."
     },
     {
-      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py:73:DOC205:_is_number_line",
-      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/ingest/normalizers.py",
+      "key": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py:73:DOC205:_is_number_line",
+      "path": "/Users/cmalek/src/workspace/wyrdcraeft/wyrdcraeft/services/ingest/normalizers.py",
       "line": 73,
       "code": "DOC205",
       "symbol": "_is_number_line",

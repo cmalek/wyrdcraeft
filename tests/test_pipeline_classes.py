@@ -5,14 +5,14 @@ from unittest.mock import patch
 
 import pytest
 
-from wyrdcraeft.ingest.pipeline import (
+from wyrdcraeft.models import TextMetadata
+from wyrdcraeft.models.parsing import RawBlock
+from wyrdcraeft.services.ingest.pipeline import (
     CanonicalConverter,
     DocumentIngestor,
     OEFilter,
     StructureParser,
 )
-from wyrdcraeft.models import TextMetadata
-from wyrdcraeft.models.parsing import RawBlock
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -38,8 +38,26 @@ def dialogue_text():
 
 def test_oe_filter():
     oe_filter = OEFilter()
-    assert oe_filter.looks_like_old_english("Hwæt! We Gardena in geardagum") is True
-    assert oe_filter.looks_like_old_english("This is modern English") is False
+    is_oe, oe_mode = oe_filter.looks_like_old_english(
+        "Hwæt! We Gardena in geardagum", oe_mode=False
+    )
+    assert is_oe is True
+    assert oe_mode is True
+    is_mod, _ = oe_filter.looks_like_old_english(
+        "This is modern English", oe_mode=False
+    )
+    assert is_mod is False
+    kept = oe_filter.filter(
+        [
+            RawBlock(
+                text="Hwæt! We Gardena in geardagum",
+                category="NarrativeText",
+                page=1,
+            ),
+            RawBlock(text="ond", category="NarrativeText", page=1),
+        ]
+    )
+    assert [b.text for b in kept] == ["Hwæt! We Gardena in geardagum", "ond"]
 
 
 def test_structure_parser_prose(prose_text):
@@ -106,7 +124,7 @@ def test_canonical_converter_verse_number_fallback():
     assert [lines[0].number, lines[1].number, lines[2].number] == [1, 2, 3]
 
 
-@patch("wyrdcraeft.ingest.pipeline.SourceLoader.load")
+@patch("wyrdcraeft.services.ingest.pipeline.SourceLoader.load")
 def test_document_ingestor_dispatch(mock_load):
     mock_load.return_value = [
         RawBlock(text="Hwæt! We Gardena", category="NarrativeText", page=1)

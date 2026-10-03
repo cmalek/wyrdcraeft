@@ -13,8 +13,8 @@ from rich.progress import (
     TextColumn,
 )
 
-from ..ingest.pipeline import DocumentIngestor
 from ..models import TextMetadata
+from ..services.ingest.pipeline import DocumentIngestor
 from ..services.markup import DiacriticRestorer
 from .utils import console, print_error, print_info
 
@@ -28,9 +28,7 @@ def reading_group(ctx: click.Context) -> None:
 
 
 @reading_group.command(name="convert", help="Convert a source document to JSON.")
-@click.argument(
-    "source", type=click.Path(exists=True, dir_okay=False, path_type=Path)
-)
+@click.argument("source", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.argument("output", type=click.Path(path_type=Path))
 @click.option("--title", type=str, help="Title of the text")
 @click.pass_context
@@ -118,7 +116,17 @@ def reading_convert(
 
 
 def _mark_diacritics_derived_path(source: Path, infix: str) -> Path:
-    """Derive output path from source: stem + infix + suffix (e.g. poem.fixed.txt)."""
+    """
+    Derive output path from source: stem + infix + suffix (e.g. poem.fixed.txt).
+
+    Args:
+        source: Input text path.
+        infix: Filename infix inserted before the suffix.
+
+    Returns:
+        Derived output path in the same directory as ``source``.
+
+    """
     return source.parent / (source.stem + infix + source.suffix)
 
 
@@ -165,8 +173,10 @@ def reading_mark_diacritics(
         unknown_output: Output path for unrecognized-words report JSON.
 
     """
-    resolved_output = output if output is not None else _mark_diacritics_derived_path(
-        source, ".fixed"
+    resolved_output = (
+        output
+        if output is not None
+        else _mark_diacritics_derived_path(source, ".fixed")
     )
     resolved_ambiguities = (
         ambiguities_output

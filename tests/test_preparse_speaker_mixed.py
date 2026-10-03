@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from wyrdcraeft.ingest.pipeline import StructureParser, ingest_auto
 from wyrdcraeft.models.parsing import RawBlock
-from wyrdcraeft.models import TextMetadata
-from pathlib import Path
+from wyrdcraeft.services.ingest.pipeline import StructureParser
 
 
 def test_speaker_aware_splitting_same_kind() -> None:

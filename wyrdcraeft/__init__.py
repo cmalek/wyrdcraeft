@@ -1,6 +1,6 @@
 from .db.base import Base
-from .ingest import DocumentIngestor
 from .models import TextMetadata
+from .services.ingest import DocumentIngestor
 from .settings import Settings
 
 __version__ = "1.2.0"

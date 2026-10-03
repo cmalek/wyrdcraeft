@@ -18,15 +18,15 @@ repo (ADR 0010). ML and messy-document work live in `wordwending`.
 ## Primary Python Entrypoints
 
 - `wyrdcraeft.cli.source:reading_convert`
-- `wyrdcraeft.ingest.pipeline:DocumentIngestor`
-- `wyrdcraeft.ingest.loaders`
-- `wyrdcraeft.ingest.normalizers`
-- `wyrdcraeft.ingest.exporters`
+- `wyrdcraeft.services.ingest.pipeline:DocumentIngestor`
+- `wyrdcraeft.services.ingest.loaders`
+- `wyrdcraeft.services.ingest.normalizers`
+- `wyrdcraeft.services.ingest.exporters`
 
 ## Key Files
 
 - `wyrdcraeft/cli/source.py`
-- `wyrdcraeft/ingest/pipeline.py`
+- `wyrdcraeft/services/ingest/pipeline.py`
 - `wyrdcraeft/models.py`
 - `doc/source/overview/using_cli.rst`
 - `doc/source/overview/format.rst`

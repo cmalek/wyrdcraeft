@@ -1,11 +1,11 @@
 """
 End-to-end ingestion pipeline with:
 
-- unstructured loading (HTML/PDF/TXT)
+- local ``.txt`` loading
 - Old English filtering
 - mixed prose/verse splitting
 - speaker-aware splitting heuristics
-- TEI override mode (direct canonical import)
+- TEI/XML ingest (direct canonical import)
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Final, Literal
 
-from ..models import (
+from ...models import (
     Line,
     OldEnglishText,
     Paragraph,
@@ -23,7 +23,7 @@ from ..models import (
     Sentence,
     TextMetadata,
 )
-from ..models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
+from ...models.parsing import PreParsedDocument, ProvisionalSection, RawBlock
 from .loaders import SourceLoader
 
 if TYPE_CHECKING:
@@ -172,25 +172,20 @@ MARKER_RE: Final[re.Pattern[str]] = re.compile(
 
 class OEFilter:
     """
-    Logic for filtering Old English text from raw blocks.
+    Stateless Old English block filter. Sticky detection mode is local to
+    each :meth:`filter` call.
     """
 
-    def __init__(self) -> None:
-        """Initialize Old English detection state."""
-        #: Whether recent lines scored as Old English.
-        self.oe_mode = False
-        #: Heading detector used while filtering blocks.
-        self._parser = StructureParser()
-
-    def looks_like_old_english(self, text: str) -> bool:  # noqa: PLR0912
+    def looks_like_old_english(self, text: str, oe_mode: bool) -> tuple[bool, bool]:  # noqa: PLR0912
         """
         Test if a block of text looks like Old English.
 
         Args:
             text: The text to test.
+            oe_mode: Whether recent lines scored as Old English.
 
         Returns:
-            True if the text looks like Old English, False otherwise.
+            Whether ``text`` looks like Old English, and the updated mode.
 
         """
         lowered = text.lower()
@@ -206,8 +201,8 @@ class OEFilter:
             .replace("ċ", "c")
         )
 
-        if len(lowered) < MIN_LENGTH_FOR_OE_DETECTION and not self.oe_mode:
-            return False
+        if len(lowered) < MIN_LENGTH_FOR_OE_DETECTION and not oe_mode:
+            return False, oe_mode
 
         score = 0
         # Heavily weight special characters
@@ -240,20 +235,17 @@ class OEFilter:
         exit_oe_threshold = -2
 
         if score >= strong_oe_threshold:
-            self.oe_mode = True
-            return True
+            return True, True
 
-        if self.oe_mode:
+        if oe_mode:
             if score <= exit_oe_threshold:
-                self.oe_mode = False
-                return False
+                return False, False
             # Exit OE mode when we see no positive evidence in a line.
             if score <= 0:
-                self.oe_mode = False
-                return False
-            return True
+                return False, False
+            return True, True
 
-        return score >= MIN_SCORE_FOR_OE_DETECTION
+        return score >= MIN_SCORE_FOR_OE_DETECTION, oe_mode
 
     def filter(self, blocks: Iterable[RawBlock]) -> list[RawBlock]:
         """
@@ -272,16 +264,21 @@ class OEFilter:
 
         """
         kept: list[RawBlock] = []
+        oe_mode = False
+        parser = StructureParser()
 
         for b in blocks:
             lines = [ln for ln in b.text.splitlines() if ln.strip()]
             if not lines:
                 continue
 
-            if any(
-                self.looks_like_old_english(ln) or self._parser.is_heading(ln)
-                for ln in lines
-            ):
+            keep = False
+            for ln in lines:
+                is_oe, oe_mode = self.looks_like_old_english(ln, oe_mode)
+                if is_oe or parser.is_heading(ln):
+                    keep = True
+                    break
+            if keep:
                 kept.append(b)
 
         return kept
