@@ -8,7 +8,7 @@ from pathlib import Path
 from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
-from wyrdcraeft.services.morphology.generation.common import print_one_form
+from wyrdcraeft.services.morphology.generation.form_rows import print_one_form
 from wyrdcraeft.services.morphology.generation.sinks import (
     CompositeSink,
     SqliteIndexSink,

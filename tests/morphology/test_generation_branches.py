@@ -28,12 +28,12 @@ from wyrdcraeft.services.morphology.generation.sound_changes import (
     emit_sound_changed_forms,
     emit_sound_changed_from_source,
 )
-from wyrdcraeft.services.morphology.generation import common as generation_common
-from wyrdcraeft.services.morphology.generation.common import (
+from wyrdcraeft.services.morphology.generation import weak_verb_forms as generation_weak
+from wyrdcraeft.services.morphology.generation.strong_verb_forms import (
     StrongVerbGenerator,
-    VerbFormGenerator,
-    WeakVerbGenerator,
 )
+from wyrdcraeft.services.morphology.generation.verb_forms import VerbFormGenerator
+from wyrdcraeft.services.morphology.generation.weak_verb_forms import WeakVerbGenerator
 from wyrdcraeft.services.morphology.session import GeneratorSession
 
 from .snapshot_io import parse_form_output
@@ -687,7 +687,7 @@ def test_build_participle_adjective_sanitizes_fields() -> None:
 def test_add_participle_to_adjectives_respects_prefix_numeric_match() -> None:
     session = GeneratorSession()
     output = io.StringIO()
-    generator = VerbFormGenerator(session.word_pool, session.run_state, output)
+    generator = StrongVerbGenerator(session.word_pool, session.run_state, output)
     word = _make_word(prefix="1")
 
     generator._add_participle_to_adjectives(
@@ -1939,7 +1939,7 @@ def test_generate_weak_derived_from_psinsg2_routes_simplified_post_vowel(
         )
 
     monkeypatch.setattr(
-        generation_common,
+        generation_weak,
         "_generate_and_print_form_with_sound_changes_row",
         _emit_sound,
     )

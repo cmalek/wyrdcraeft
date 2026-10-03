@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 from .adj_forms import AdjectiveFormGenerator
 from .adv_forms import AdverbFormGenerator
-from .common import VerbFormGenerator
 from .form_rows import output_manual_forms as _output_manual_forms
 from .noun_forms import NounFormGenerator
 from .num_forms import NumeralFormGenerator
+from .verb_forms import VerbFormGenerator
 
 if TYPE_CHECKING:
     from ..contracts import FormOutput

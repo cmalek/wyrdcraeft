@@ -24,10 +24,10 @@ from wyrdcraeft.services.morphology.catalog.pos_seed import (
     ensure_inflection_codes,
     ensure_parts_of_speech,
 )
-from wyrdcraeft.services.morphology.generation.common import print_one_form
 from wyrdcraeft.services.morphology.generation.facade import (
     MorphologyGenerationFacade,
 )
+from wyrdcraeft.services.morphology.generation.form_rows import print_one_form
 from wyrdcraeft.services.morphology.generation.query import (
     MorphologyQueryService,
     _infer_bt_pos_filter,
