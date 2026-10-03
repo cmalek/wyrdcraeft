@@ -52,7 +52,10 @@ Prefer botocraft models and managers. If botocraft lacks support, tell the user 
 Prefer cohesive, human-comprehensible classes over loose function collections, even when mostly stateless.
 
 - Model real workflow boundaries and stable domain concepts, not arbitrary namespaces
-- Use constructor injection and explicit collaborators
+- Name collaborators explicitly. Inject public boundaries (session, output,
+  progress) into the facade/orchestrator. The orchestrator may construct
+  private collaborators in `__init__` from those inputs; do not pass every
+  internal helper through the public constructor.
 - Keep methods and function bodies ≤ 60 lines
 - **Single responsibility:** one clear job per service class; no god classes mixing many different concerns
 - Split multi-concern workflows into named collaborators that map to human-understandable concepts

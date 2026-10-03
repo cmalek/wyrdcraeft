@@ -137,7 +137,13 @@ Plan: `docs/superpowers/plans/2026-07-04-morph-class-browse-audit-implementation
   `lemma_morph_classes`. Use `morphology audit-wright` for quality reports.
 - `forms.morph_class_id` FK propagation remains deferred (see
   `doc/plans/morphology-wright-catalog/phase-3-forms-link-and-query.md`).
-- Current generation code is parity-sensitive with historical Perl behavior.
+- Generation correctness follows ADR 0012: tests and historical grammar, not
+  Perl/`create_dict31.pl` as oracle. Snapshots may be updated with intentional
+  behavior changes.
+- Verb generators are engines, not Wright conjugation classes (ADR 0011):
+  Strong is ablaut (`s`); Weak is Weak I/II derivation plus item-shape for
+  Weak III, preterite-present (`pp`), and anomalous (`a`); manual forms run
+  first as a separate stage.
 - Query behavior can optionally attach dictionary data; morphology and
   dictionary share the canonical DB but remain separate capabilities.
 

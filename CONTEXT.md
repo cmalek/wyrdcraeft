@@ -105,6 +105,19 @@ Out of scope:
 - morphology generation: SQLite lookup index production workflow for inflected
   forms (optional TSV via `--output`); typically triggered by
   `dictionary build --with-morphology` or automatically when `forms` is empty
+- morphology generation correctness: inflected output is judged by product
+  tests and Old English grammar (Wright 1925 and related sources), not by
+  matching Tichý `create_dict31.pl`. Python snapshots are regression locks
+  that may be updated when a change is intentional (see ADR 0012)
+  _Avoid_: Perl parity as oracle, byte-exact Tichy, forbidding generator
+  bugfixes because a snapshot moved
+- verb generation engines: `VerbFormGenerator` walks and routes;
+  `StrongVerbGenerator` is the ablaut engine (`type == "s"`);
+  `WeakVerbGenerator` emits Weak I/II derivation plus item-shape tables for
+  Weak III, preterite-present (`pp`), and anomalous (`a`). These names are
+  not Wright conjugation classes (see ADR 0011)
+  _Avoid_: one Python generator per linguistic verb class; treating
+  preterite-presents as weak verbs because they live in `weak_verb_forms.py`
 - build command: standard subcommand name for long-running database-producing
   workflows; `dictionary build` is the primary entrypoint for unified indexing
 - canonical database: the one app-data `wyrdcraeft.sqlite3` file that holds
@@ -472,6 +485,9 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 - [0007: OCR pipeline moves to bochord](docs/adr/0007-ocr-pipeline-moves-to-bochord.md)
   — sibling is now `wordwending` (GitHub already had `bochord`).
 - [0010: LLM and unstructured leave source convert](docs/adr/0010-llm-and-unstructured-leave-source-convert.md)
+- [0011: Verb generators leave common.py](docs/adr/0011-verb-generators-leave-common-py.md)
+  — file split; Strong/Weak/orchestrator are engines, not OE conjugation classes.
+- [0012: Morphology generation is not Perl-parity-bound](docs/adr/0012-morphology-generation-not-perl-parity-bound.md)
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.
