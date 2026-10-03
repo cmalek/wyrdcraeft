@@ -66,9 +66,9 @@ test = [
 ]
 
 [project.urls]
-Respository = "https://github.com/cmalek/oe_json_extractor"
-Documentation = "https://oe_json_extractor.readthedocs.io"
-Issues = "https://github.com/cmalek/oe_json_extractor/issues"
+Respository = "https://github.com/cmalek/wyrdcraeft"
+Documentation = "https://wyrdcraeft.readthedocs.io"
+Issues = "https://github.com/cmalek/wyrdcraeft/issues"
 
 [project.scripts]
 wyrdcraeft = "wyrdcraeft.main:main"

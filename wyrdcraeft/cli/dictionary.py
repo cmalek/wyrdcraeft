@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 from importlib import resources
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -21,7 +20,12 @@ from wyrdcraeft.services.dictionary.build_pipeline import (
     DictionaryBuildPipeline,
     MorphBuildOptions,
 )
-from wyrdcraeft.services.dictionary.query import BTQueryService, entry_to_dict
+from wyrdcraeft.services.dictionary.query import (
+    BTQueryService,
+    DictionaryIndexNotPopulated,
+    entry_to_dict,
+    require_populated_dictionary_index,
+)
 from wyrdcraeft.services.dictionary.resources import (
     default_bt_source_path,
     default_wright_source_path,
@@ -67,88 +71,6 @@ def _default_morphology_data_dir() -> Path:
     return Path(str(resources.files("wyrdcraeft").joinpath("etc/morphology")))
 
 
-def _resolve_morphology_input_paths(
-    *,
-    data_dir: Path,
-    dictionary: Path | None,
-    manual_forms: Path | None,
-    verbal_paradigms: Path | None,
-    prefixes: Path | None,
-) -> tuple[Path, Path, Path, Path]:
-    """
-    Resolve morphology input file paths using CLI overrides or data-dir defaults.
-
-    Note:
-        This command wiring follows the morphology data model aligned with
-        ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
-        In plain terms, it chooses the input files for all Parts of Speech.
-
-    Keyword Args:
-        data_dir: Base directory containing bundled morphology source files.
-        dictionary: Optional explicit dictionary file path.
-        manual_forms: Optional explicit manual forms file path.
-        verbal_paradigms: Optional explicit verbal paradigms file path.
-        prefixes: Optional explicit prefixes file path.
-
-    Returns:
-        Tuple of resolved paths in dictionary/manual/paradigms/prefixes order.
-
-    """
-    resolved_dictionary = dictionary or (data_dir / "dict_adj-vb-part-num-adv-noun.txt")
-    resolved_manual = manual_forms or (data_dir / "manual_forms.txt")
-    resolved_para = verbal_paradigms or (data_dir / "para_vb.txt")
-    resolved_prefixes = prefixes or (data_dir / "prefixes.txt")
-    return resolved_dictionary, resolved_manual, resolved_para, resolved_prefixes
-
-
-def _validate_morphology_inputs(paths: tuple[Path, Path, Path, Path]) -> None:
-    """
-    Ensure required morphology input files exist.
-
-    Note:
-        The required files contain paradigm data aligned with
-        ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
-        In plain terms, this ensures every Part of Speech has required source data.
-
-    Args:
-        paths: Resolved dictionary/manual/paradigms/prefixes paths.
-
-    Raises:
-        click.ClickException: A required file path is missing.
-
-    """
-    labels = ("dictionary", "manual forms", "verbal paradigms", "prefixes")
-    for label, path in zip(labels, paths, strict=True):
-        if not path.exists():
-            msg = (
-                f"Missing {label} file: {path}. "
-                "Provide an explicit path via command flags or --data-dir."
-            )
-            raise click.ClickException(msg)
-
-
-def _count_table_rows(db_path: Path, table_name: str) -> int:
-    """
-    Count rows in one SQLite table when it exists.
-
-    Args:
-        db_path: SQLite database path to inspect.
-        table_name: Table whose rows should be counted.
-
-    Returns:
-        Row count, or ``0`` when the table is missing.
-
-    """
-    with sqlite3.connect(str(db_path)) as connection:
-        try:
-            row = connection.execute(
-                f"SELECT COUNT(*) FROM {table_name}"  # noqa: S608
-            ).fetchone()
-        except sqlite3.OperationalError:
-            return 0
-    return int(row[0]) if row is not None else 0
-
-
 def _missing_canonical_index_message(db_path: Path) -> str:
     """
     Build the CLI error shown when the canonical database is absent.
@@ -165,41 +87,6 @@ def _missing_canonical_index_message(db_path: Path) -> str:
         "Run a DB-using command to trigger startup readiness, then "
         "`wyrdcraeft dictionary build` to populate it."
     )
-
-
-def _require_non_empty_tables(
-    db_path: Path,
-    table_names: tuple[str, ...],
-    *,
-    recovery_hint: str,
-) -> None:
-    """
-    Fail when any required canonical source table is missing or empty.
-
-    Args:
-        db_path: Canonical SQLite database path to inspect.
-        table_names: Required table names.
-
-    Keyword Args:
-        recovery_hint: User-facing command hint for rebuilding the source tables.
-
-    Raises:
-        click.ClickException: The required table is absent or has no rows.
-
-    """
-    missing = [
-        table_name
-        for table_name in table_names
-        if _count_table_rows(db_path, table_name) == 0
-    ]
-    if not missing:
-        return
-    missing_text = ", ".join(missing)
-    message = (
-        f"Canonical database {db_path} is missing required source tables: "
-        f"{missing_text}. {recovery_hint}"
-    )
-    raise click.ClickException(message)
 
 
 @click.group(
@@ -593,11 +480,15 @@ def query(
     )
     if not resolved_index_db.is_file():
         raise click.ClickException(_missing_canonical_index_message(resolved_index_db))
-    _require_non_empty_tables(
-        resolved_index_db,
-        ("bt_entries", "bt_senses", "bt_variants"),
-        recovery_hint="Run `wyrdcraeft dictionary build`.",
-    )
+    try:
+        require_populated_dictionary_index(resolved_index_db)
+    except DictionaryIndexNotPopulated as exc:
+        missing_text = ", ".join(exc.empty_tables)
+        msg = (
+            f"Canonical database {exc.db_path} is missing required source tables: "
+            f"{missing_text}. Run `wyrdcraeft dictionary build`."
+        )
+        raise click.ClickException(msg) from exc
 
     lookup_key = normalize_old_english(lemma) or ""
     query_service = BTQueryService(resolved_index_db)
@@ -953,22 +844,26 @@ def generate_reference_snapshots_command(
         click.ClickException: Required inputs are missing or snapshot generation fails.
 
     """
-    resolved_data_dir = data_dir or _default_morphology_data_dir()
-    (
-        full_dictionary,
-        manual_forms,
-        verbal_paradigms,
-        prefixes,
-    ) = _resolve_morphology_input_paths(
+    from wyrdcraeft.services.morphology.build_runner import (  # noqa: PLC0415
+        MorphologyBuildRunnerError,
+        default_morphology_data_dir,
+        resolve_morphology_input_paths,
+        validate_morphology_input_paths,
+    )
+
+    resolved_data_dir = data_dir or default_morphology_data_dir()
+    resolved_paths = resolve_morphology_input_paths(
         data_dir=resolved_data_dir,
         dictionary=None,
         manual_forms=None,
         verbal_paradigms=None,
         prefixes=None,
     )
-    _validate_morphology_inputs(
-        (full_dictionary, manual_forms, verbal_paradigms, prefixes)
-    )
+    try:
+        validate_morphology_input_paths(resolved_paths)
+    except MorphologyBuildRunnerError as exc:
+        raise click.ClickException(str(exc)) from exc
+    full_dictionary, manual_forms, verbal_paradigms, prefixes = resolved_paths
 
     if not subset_dictionary.exists():
         msg = f"Missing subset dictionary: {subset_dictionary}"
@@ -990,7 +885,7 @@ def generate_reference_snapshots_command(
             verbal_paradigms=verbal_paradigms,
             prefixes=prefixes,
         )
-    except (OSError, ValueError, FileExistsError) as e:
+    except (OSError, ValueError, FileExistsError, MorphologyBuildRunnerError) as e:
         raise click.ClickException(str(e)) from e
 
     click.echo(format_reference_snapshot_result(result))

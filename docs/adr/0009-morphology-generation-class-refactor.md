@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted
+Accepted. **Byte-exact Perl output (Decision 7) is superseded by
+[ADR 0012](0012-morphology-generation-not-perl-parity-bound.md).** The
+class-collapse decision in this ADR still stands.
 
 ## Context
 

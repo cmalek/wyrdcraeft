@@ -141,7 +141,7 @@ def _run_database_readiness_gate(ctx: click.Context) -> None:
         ensure_database_ready(
             settings=settings,
             interactive=sys.stdin.isatty() and sys.stdout.isatty(),
-            echo=click.echo,
+            echo=lambda message: click.echo(message, err=True),
             prompt=_prompt_backup_cleanup,
         )
     except LegacyDatabaseResetRequired as exc:

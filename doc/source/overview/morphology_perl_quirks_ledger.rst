@@ -1,16 +1,18 @@
 Morphology Perl Compatibility Quirks Ledger
 ===========================================
 
-This document tracks known ``create_dict31.pl`` behaviors that are preserved
-intentionally in Python for compatibility.
+This document catalogs known ``create_dict31.pl`` (Tichý) behaviors that the
+Python generator still exhibits or used to preserve.
 
 Policy
 ------
 
-- Default behavior remains Perl-compatible.
-- Do not "fix" these quirks in the default path.
-- Any normalized behavior must be opt-in and documented as intentionally
-  non-parity.
+- Tichý/Perl is a historical port source, not an oracle (ADR 0012).
+- Do not refuse a historically correct or bugfix change solely to keep these
+  quirks. Update tests and snapshots in the same change, and note here
+  whether the quirk is still present or has been removed.
+- Opt-in flags remain available for experimental extras, not as the only
+  path to fix known errors.
 
 Q1: Hash-order-driven comparative/superlative probability
 ----------------------------------------------------------
@@ -97,8 +99,8 @@ Regression lock
 
 - ``tests/test_perl_quirks.py::test_print_one_form_probability_empty_vs_zero``
 
-Q4: Opt-in r-stem noun extension (non-parity)
-----------------------------------------------
+Q4: Opt-in r-stem noun extension
+---------------------------------
 
 Flag
 ~~~~
@@ -111,11 +113,5 @@ Behavior
 
 - When enabled, noun assignment and generation add support for r-stem noun
   paradigms (``fæder``, ``bróþor``, ``módor``, ``dóhtor``, ``sweostor``).
-- This extension is intentionally outside Perl parity.
-
-Parity implications
-~~~~~~~~~~~~~~~~~~~
-
-- Default behavior keeps ``enable_r_stem_nouns=False``, preserving
-  ``create_dict31.pl`` compatibility.
-- Differential parity protocol and assertions are unchanged in default mode.
+- Still off by default (experimental extra, not a Perl-compatibility flag).
+  Default-on is allowed later under ADR 0012 if tests are updated.

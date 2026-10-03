@@ -1,0 +1,12 @@
+# Index population gate is a query-module check, not startup runtime
+
+Startup Alembic readiness (ADR 0002) only guarantees canonical schema. Whether Bosworth-Toller lookup tables have rows is a separate **index population gate**. That gate is a module-level function in the dictionary query module: it opens a short-lived SQLAlchemy connection, counts mapped `BTEntry` / `BTSense` / `BTVariant` rows, and treats a missing table (SQLite `no such table`) the same as count zero. Other SQLAlchemy operational failures propagate. If the path is not an existing file, the function raises `FileNotFoundError` and must not create a SQLite file. It is not a `BTQueryService` method and not constructor policy — `__init__` already preloads the normalized-title index, and generation already constructs `BTQueryService` when dictionary rows may be empty. The CLI keeps the missing-file path check, calls the gate, formats `ClickException` from the error’s path and table names plus `wyrdcraeft dictionary build` (the domain type does not own that sentence), then constructs `BTQueryService` as today (a second engine after the inspect connection; that replaces the current sqlite3 probe plus engine, not a third connection). Empty tables after migrate remain valid for `dictionary build` and invalid for `dictionary query`. Browse keeps `_ensure_browse_ready` (`bt_entries` only); sharing one populated-index API with the TUI is out of this card. Default morphology input paths stay the generation-runner resolver, exported so `generate-reference-snapshots` stops duplicating it; `dictionary build` still passes path overrides into that runner.
+
+## Considered Options
+
+- **Module-level SQLAlchemy inspect, then existing query service (accepted).** Avoids coupling the gate to title-index preload and to non-CLI `BTQueryService` callers.
+- **`BTQueryService.require_populated_index()` after construct.** Missing tables fail in `__init__` as `SQLAlchemyError`; CLI today only maps `OSError` on lookup.
+- **Gate inside `BTQueryService.__init__`.** Would change morphology generation callers that construct the service without a populated dictionary.
+- **`db.runtime` emptiness check.** Folds population into schema readiness and blocks empty-DB builds.
+- **New table-stats service class.** Glossary already rejects `DictionaryTableStatsService`.
+- **One shared helper with browse.** Browse’s invariant is non-empty `bt_entries` only; query currently requires all three `bt_*` tables. Unifying those definitions is a later product decision.

@@ -300,3 +300,107 @@ def test_lookup_reads_dictionary_rows_from_canonical_db(
     assert len(entries) == 1
     assert entries[0].norm_key == "abbad"
     assert entries[0].pos == BTPos.NOUN
+
+
+def test_require_populated_dictionary_index_rejects_empty_migrated_db(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.query import (
+        DictionaryIndexNotPopulated,
+        require_populated_dictionary_index,
+    )
+
+    db_path = tmp_path / "wyrdcraeft.sqlite3"
+    upgrade_canonical_db(db_path)
+
+    with pytest.raises(DictionaryIndexNotPopulated) as exc_info:
+        require_populated_dictionary_index(db_path)
+
+    assert exc_info.value.db_path == db_path.expanduser().resolve()
+    assert exc_info.value.empty_tables == ("bt_entries", "bt_senses", "bt_variants")
+    assert "wyrdcraeft dictionary build" not in str(exc_info.value)
+    assert "missing required source tables" not in str(exc_info.value)
+
+
+def test_require_populated_dictionary_index_rejects_missing_bt_tables(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.query import (
+        DictionaryIndexNotPopulated,
+        require_populated_dictionary_index,
+    )
+
+    db_path = tmp_path / "empty.sqlite3"
+    sqlite3.connect(db_path).close()
+
+    with pytest.raises(DictionaryIndexNotPopulated) as exc_info:
+        require_populated_dictionary_index(db_path)
+
+    assert exc_info.value.empty_tables == ("bt_entries", "bt_senses", "bt_variants")
+
+
+def test_require_populated_dictionary_index_does_not_create_missing_file(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.query import (
+        require_populated_dictionary_index,
+    )
+
+    db_path = tmp_path / "missing.sqlite3"
+    with pytest.raises(FileNotFoundError):
+        require_populated_dictionary_index(db_path)
+    assert not db_path.exists()
+
+
+def test_require_populated_dictionary_index_accepts_indexed_fixture(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.query import (
+        require_populated_dictionary_index,
+    )
+
+    db_path = _index_fixture(_CORPUS_SAMPLE, tmp_path)
+    require_populated_dictionary_index(db_path)
+
+
+def test_require_populated_dictionary_index_reports_only_empty_tables(
+    tmp_path: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.query import (
+        DictionaryIndexNotPopulated,
+        require_populated_dictionary_index,
+    )
+
+    db_path = tmp_path / "wyrdcraeft.sqlite3"
+    upgrade_canonical_db(db_path)
+    with sqlite3.connect(db_path) as connection:
+        pos_id = connection.execute(
+            "SELECT id FROM parts_of_speech ORDER BY id LIMIT 1"
+        ).fetchone()[0]
+        connection.execute(
+            """
+            INSERT INTO bt_entries (
+                norm_key, headword, normalized_title, pos_id, genders_json,
+                etymology, see_also_json, source_line_nos_json, entry_order
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("a", "a", "a", pos_id, "[]", "", "[]", "[]", 1),
+        )
+        connection.commit()
+
+    with pytest.raises(DictionaryIndexNotPopulated) as exc_info:
+        require_populated_dictionary_index(db_path)
+    assert exc_info.value.empty_tables == ("bt_senses", "bt_variants")
+
+
+def test_bt_query_service_constructs_on_empty_migrated_db(tmp_path: Path) -> None:
+    from wyrdcraeft.services.dictionary.query import BTQueryService
+
+    db_path = tmp_path / "wyrdcraeft.sqlite3"
+    upgrade_canonical_db(db_path)
+    service = BTQueryService(db_path)
+    try:
+        assert service.lookup_lemma("abbod") == []
+    finally:
+        service.close()
+

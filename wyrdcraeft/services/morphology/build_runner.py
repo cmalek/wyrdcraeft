@@ -205,7 +205,7 @@ def _apply_limit(session: GeneratorSession, *, full: bool, limit: int | None) ->
     session.word_pool.categorize()
 
 
-def _default_morphology_data_dir() -> Path:
+def default_morphology_data_dir() -> Path:
     """
     Resolve the packaged default morphology data directory.
 
@@ -222,7 +222,7 @@ def _default_morphology_data_dir() -> Path:
     return Path(str(resources.files("wyrdcraeft").joinpath("etc/morphology")))
 
 
-def _resolve_input_paths(
+def resolve_morphology_input_paths(
     *,
     data_dir: Path,
     dictionary: Path | None,
@@ -256,7 +256,7 @@ def _resolve_input_paths(
     return resolved_dictionary, resolved_manual, resolved_para, resolved_prefixes
 
 
-def _validate_inputs(paths: tuple[Path, Path, Path, Path]) -> None:
+def validate_morphology_input_paths(paths: tuple[Path, Path, Path, Path]) -> None:
     """
     Ensure required morphology input files exist.
 
@@ -371,15 +371,15 @@ def run_morphology_generation(  # noqa: PLR0913, PLR0915
 
     """
     resolved_db_path = db_path.expanduser().resolve()
-    resolved_data_dir = data_dir or _default_morphology_data_dir()
-    resolved_paths = _resolve_input_paths(
+    resolved_data_dir = data_dir or default_morphology_data_dir()
+    resolved_paths = resolve_morphology_input_paths(
         data_dir=resolved_data_dir,
         dictionary=dictionary,
         manual_forms=manual_forms,
         verbal_paradigms=verbal_paradigms,
         prefixes=prefixes,
     )
-    _validate_inputs(resolved_paths)
+    validate_morphology_input_paths(resolved_paths)
 
     resolved_progress_every = _resolve_progress_every(
         settings=settings,

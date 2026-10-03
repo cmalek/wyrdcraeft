@@ -255,6 +255,7 @@ Out of scope:
   valid for `dictionary build` and invalid for `dictionary query`.
   _Avoid_: DictionaryTableStatsService, generic table-stats service, folding
   emptiness into the startup migration gate
+  _See_: ADR 0013
 - macron-index curation: mutation of the macron index JSON (unique commit,
   ambiguous annotate/add/delete, completion). Restoration only reads the
   index. Completion means every attested form on an ambiguous key has at

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
+import subprocess
+import sys
 from pathlib import Path
 
 from wyrdcraeft.cli.cli import cli
@@ -516,3 +519,49 @@ def test_dictionary_query_missing_morphology_db_fails(
     assert "missing required source tables: bt_entries, bt_senses, bt_variants" in result.output
     assert "wyrdcraeft dictionary build" in result.output
     assert "wyrdcraeft morphology build" not in result.output
+
+
+def test_dictionary_query_prints_migration_complete_before_click_error(
+    isolated_morphology_app_data: Path,
+) -> None:
+    env = os.environ.copy()
+    env["WYRDCRAEFT_APP_DATA_DIR"] = str(isolated_morphology_app_data)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "wyrdcraeft.main",
+            "dictionary",
+            "query",
+            "abbod",
+        ],
+        check=False,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode != 0
+    assert "migration complete" not in completed.stdout
+    stderr = completed.stderr
+    complete_at = stderr.find("migration complete")
+    error_at = stderr.find("Error:")
+    assert complete_at != -1
+    assert error_at != -1
+    assert complete_at < error_at
+
+
+def test_dictionary_query_empty_canonical_db_fails(
+    runner,
+    isolated_morphology_index_db: Path,
+) -> None:
+    from wyrdcraeft.db.runtime import upgrade_canonical_db
+
+    upgrade_canonical_db(isolated_morphology_index_db)
+    result = runner.invoke(cli, ["dictionary", "query", "abbod"])
+    assert result.exit_code != 0
+    assert (
+        "missing required source tables: bt_entries, bt_senses, bt_variants"
+        in result.output
+    )
+    assert "wyrdcraeft dictionary build" in result.output

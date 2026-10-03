@@ -6,6 +6,7 @@ import json
 from typing import TYPE_CHECKING
 
 from sqlalchemy import func, select, text
+from sqlalchemy.exc import OperationalError
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import (
@@ -17,6 +18,7 @@ from wyrdcraeft.models.dictionary import (
 )
 from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import BTEntry, BTVariant
+from wyrdcraeft.models.sqlalchemy import BTSense as MappedBTSense
 from wyrdcraeft.services.dictionary.normalized_title_join import (
     NormalizedTitleJoinIndex,
 )
@@ -64,6 +66,86 @@ _CODE_TO_BT_POS: dict[str, BTPos] = {
     "indeclinable": BTPos.INDECL,
     "unknown": BTPos.UNKNOWN,
 }
+
+#: Lookup tables that must contain rows before ``dictionary query``.
+_DICTIONARY_INDEX_TABLES: tuple[tuple[str, type], ...] = (
+    ("bt_entries", BTEntry),
+    ("bt_senses", MappedBTSense),
+    ("bt_variants", BTVariant),
+)
+
+
+class DictionaryIndexNotPopulated(RuntimeError):
+    """
+    Raised when required Bosworth-Toller lookup tables are missing or empty.
+
+    Args:
+        db_path: Canonical SQLite path that was inspected.
+        empty_tables: Table names that were missing or had zero rows.
+
+    """
+
+    #: Canonical SQLite path that was inspected.
+    db_path: Path
+    #: Table names that were missing or had zero rows, in check order.
+    empty_tables: tuple[str, ...]
+
+    def __init__(self, db_path: Path, empty_tables: tuple[str, ...]) -> None:
+        """
+        Record which required lookup tables were empty or absent.
+
+        Args:
+            db_path: Canonical SQLite path that was inspected.
+            empty_tables: Table names that were missing or had zero rows.
+
+        """
+        #: Canonical SQLite path that was inspected.
+        self.db_path = db_path
+        #: Table names that were missing or had zero rows, in check order.
+        self.empty_tables = empty_tables
+        super().__init__(
+            f"{db_path}: empty or missing tables: {', '.join(empty_tables)}"
+        )
+
+
+def require_populated_dictionary_index(db_path: Path) -> None:
+    """
+    Fail when required ``bt_*`` lookup tables are missing or empty.
+
+    Args:
+        db_path: Existing canonical SQLite file to inspect.
+
+    Raises:
+        FileNotFoundError: ``db_path`` is not an existing file.
+        DictionaryIndexNotPopulated: A required table is absent or has no rows.
+
+    """
+    resolved = db_path.expanduser().resolve()
+    if not resolved.is_file():
+        msg = f"Canonical database not found: {resolved}"
+        raise FileNotFoundError(msg)
+
+    engine = create_sqlalchemy_engine(resolved)
+    empty: list[str] = []
+    try:
+        with engine.connect() as connection:
+            for table_name, model in _DICTIONARY_INDEX_TABLES:
+                try:
+                    count = connection.execute(
+                        select(func.count()).select_from(model)
+                    ).scalar_one()
+                except OperationalError as exc:
+                    if "no such table" not in str(exc).casefold():
+                        raise
+                    empty.append(table_name)
+                    continue
+                if int(count) == 0:
+                    empty.append(table_name)
+    finally:
+        engine.dispose()
+
+    if empty:
+        raise DictionaryIndexNotPopulated(resolved, tuple(empty))
 
 
 def _normalize_title_key(value: str) -> str:
@@ -592,7 +674,12 @@ class BTQueryService:
         self._engine.dispose()
 
 
-__all__ = ["BTQueryService", "entry_to_dict"]
+__all__ = [
+    "BTQueryService",
+    "DictionaryIndexNotPopulated",
+    "entry_to_dict",
+    "require_populated_dictionary_index",
+]
 
 
 def entry_to_dict(entry: BTConsolidatedEntry) -> dict[str, object]:
