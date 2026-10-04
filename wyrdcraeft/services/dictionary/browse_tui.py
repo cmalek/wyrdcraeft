@@ -11,8 +11,6 @@ if TYPE_CHECKING:
     from textual import events
     from textual.binding import BindingType
 
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
@@ -24,10 +22,12 @@ from wyrdcraeft.services.dictionary.browse_progress import (
 )
 from wyrdcraeft.services.dictionary.browse_query import (
     BrowseSearchHit,
+    DictionaryBrowseDataError,
     DictionaryBrowseQueryService,
     EntryDetails,
     MorphologyGroup,
     MorphologyRow,
+    filter_display_variants,
 )
 from wyrdcraeft.services.dictionary.etymology_display import (
     format_etymology_display,
@@ -37,7 +37,6 @@ from wyrdcraeft.services.dictionary.form_decode import (
     MorphologyRowPayload,
     ParadigmSidebarSpec,
     build_paradigm_sidebar,
-    filter_display_variants,
     format_bt_gender_label,
     morphology_row_matches_pos,
 )
@@ -155,10 +154,6 @@ _OE_KEY_ALIASES = {
     "combining_macron": "\u0304",
     "combining_dot_above": "\u0307",
 }
-
-
-class DictionaryBrowseDataError(RuntimeError):
-    """Raised when dictionary browse data is unavailable for the TUI shell."""
 
 
 class OldEnglishSearchInput(Input):
@@ -1272,38 +1267,6 @@ class DictionaryBrowseApp(App[None]):
         )
 
 
-def _ensure_browse_ready(query_service: DictionaryBrowseQueryService) -> None:
-    """
-    Validate that browse tables exist and contain searchable rows.
-
-    Args:
-        query_service: Query service bound to a morphology SQLite database.
-
-    Raises:
-        DictionaryBrowseDataError: Browse tables are missing or have no dictionary rows.
-
-    """
-    try:
-        counts = query_service._connection.execute(  # noqa: SLF001
-            text("SELECT COUNT(*) AS entry_count FROM bt_entries")
-        ).mappings().first()
-    except SQLAlchemyOperationalError as exc:
-        msg = (
-            "Dictionary browse tables are missing. "
-            "Run `wyrdcraeft dictionary build` for this database first."
-        )
-        raise DictionaryBrowseDataError(msg) from exc
-
-    if counts is not None and int(counts["entry_count"]) > 0:
-        return
-
-    msg = (
-        "Dictionary browse tables are empty. "
-        "Run `wyrdcraeft dictionary build` for this database first."
-    )
-    raise DictionaryBrowseDataError(msg)
-
-
 def _format_browse_connect_message(db_path: Path) -> str:
     """
     Build the initial browse details placeholder.
@@ -1337,7 +1300,7 @@ def create_dictionary_browse_app(db_path: Path) -> DictionaryBrowseApp:
     """
     query_service = DictionaryBrowseQueryService(db_path)
     try:
-        _ensure_browse_ready(query_service)
+        query_service.ensure_ready()
     except DictionaryBrowseDataError:
         query_service.close()
         raise

@@ -9,7 +9,10 @@ from pathlib import Path
 import pytest
 
 from wyrdcraeft.db.runtime import upgrade_canonical_db
-from wyrdcraeft.services.dictionary.browse_query import DictionaryBrowseQueryService
+from wyrdcraeft.services.dictionary.browse_query import (
+    DictionaryBrowseDataError,
+    DictionaryBrowseQueryService,
+)
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
@@ -66,7 +69,7 @@ def _next_entry_order(db_path: Path) -> int:
     return int(row[0])
 
 
-def _insert_bt_sense(
+def _insert_bt_sense(  # noqa: PLR0913
     connection: sqlite3.Connection,
     *,
     entry_id: int,
@@ -508,3 +511,55 @@ def test_get_details_sorts_senses_by_hierarchical_path_not_order_index(
     assert sense_labels[four_index + 1] == "4a"
     assert sense_labels[four_index + 2] == "5"
     assert sense_labels.index("8") > sense_labels.index("4a")
+
+
+def test_ensure_ready_rejects_missing_bt_entries_table(tmp_path: Path) -> None:
+    db_path = tmp_path / "no-tables.sqlite3"
+    db_path.touch()
+    service = DictionaryBrowseQueryService(db_path)
+    try:
+        with pytest.raises(DictionaryBrowseDataError, match="tables are missing"):
+            service.ensure_ready()
+    finally:
+        service.close()
+
+
+def test_ensure_ready_rejects_empty_bt_entries(tmp_path: Path) -> None:
+    db_path = tmp_path / "empty-entries.sqlite3"
+    upgrade_canonical_db(db_path)
+    service = DictionaryBrowseQueryService(db_path)
+    try:
+        with pytest.raises(DictionaryBrowseDataError, match="tables are empty"):
+            service.ensure_ready()
+    finally:
+        service.close()
+
+
+def test_ensure_ready_accepts_populated_fixture(lexicon_source_db: Path) -> None:
+    service = DictionaryBrowseQueryService(lexicon_source_db)
+    try:
+        service.ensure_ready()
+    finally:
+        service.close()
+
+
+def test_ensure_ready_accepts_entries_without_senses(tmp_path: Path) -> None:
+    db_path = tmp_path / "entries-only.sqlite3"
+    upgrade_canonical_db(db_path)
+    pos_id = _pos_id(db_path, code="noun")
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            """
+            INSERT INTO bt_entries (
+                norm_key, headword, normalized_title, pos_id,
+                genders_json, etymology, see_also_json,
+                source_line_nos_json, entry_order
+            ) VALUES ('abbad', 'abbad', 'abbad', ?, '[]', '', '[]', '[]', 1)
+            """,
+            (pos_id,),
+        )
+    service = DictionaryBrowseQueryService(db_path)
+    try:
+        service.ensure_ready()
+    finally:
+        service.close()

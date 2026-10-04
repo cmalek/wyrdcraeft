@@ -1,8 +1,8 @@
 {
   "doc/quality/napoleon_gate_baseline.json": {
-    "mtime": 1788281378.443393,
-    "seen": 1790979583.982004,
-    "ast_hash": "cfac72cf8e60b17ceab5d519f43cd616",
+    "mtime": 1791047911.856971,
+    "seen": 1791047988.714164,
+    "ast_hash": "05ff24b9fc161755c84b28974d58b615",
     "semantic_hash": ""
   },
   "doc/source/__init__.py": {
@@ -48,16 +48,16 @@
     "semantic_hash": "b82d0c9592cc668ec0190ee32622fd8b"
   },
   "tests/dictionary/test_browse_query.py": {
-    "mtime": 1783471585.628623,
-    "seen": 1788240582.327749,
-    "ast_hash": "98ece6f16b42cc8110c871d480084156",
-    "semantic_hash": "98ece6f16b42cc8110c871d480084156"
+    "mtime": 1791086885.2606275,
+    "seen": 1791086893.6693602,
+    "ast_hash": "472eab07da6fbd7c030b5b313decf25a",
+    "semantic_hash": ""
   },
   "tests/dictionary/test_browse_tui.py": {
-    "mtime": 1785971175.5367882,
-    "seen": 1788240582.32775,
-    "ast_hash": "e0dfab25989bb506b5eae99a34624480",
-    "semantic_hash": "e0dfab25989bb506b5eae99a34624480"
+    "mtime": 1791086761.5902402,
+    "seen": 1791086880.3516722,
+    "ast_hash": "b89bb854d65f0337d45f23422eed256d",
+    "semantic_hash": ""
   },
   "tests/dictionary/test_bt_spelling.py": {
     "mtime": 1783533428.1558878,
@@ -276,10 +276,10 @@
     "semantic_hash": ""
   },
   "tests/lexicon/test_form_decode.py": {
-    "mtime": 1785971175.514693,
-    "seen": 1788240582.327775,
-    "ast_hash": "09f0f8ab2ba30d6860479bbe8f7601fe",
-    "semantic_hash": "09f0f8ab2ba30d6860479bbe8f7601fe"
+    "mtime": 1791087389.261637,
+    "seen": 1791087397.313958,
+    "ast_hash": "f0e68ca1c45838a5445b3e9edd9d162c",
+    "semantic_hash": ""
   },
   "tests/lexicon/test_morph_class_browse.py": {
     "mtime": 1783534136.3596575,
@@ -516,21 +516,21 @@
     "semantic_hash": ""
   },
   "tests/test_deterministic_regression.py": {
-    "mtime": 1788281378.5529265,
-    "seen": 1790979583.9834828,
-    "ast_hash": "88c89ee1bba8676fe5740464fc8e96aa",
+    "mtime": 1791047941.7428923,
+    "seen": 1791047988.7160509,
+    "ast_hash": "708008f263fe8fcdc4541b1775890a3a",
     "semantic_hash": ""
   },
   "tests/test_exporters.py": {
-    "mtime": 1769106645.8214288,
-    "seen": 1788240582.3278,
-    "ast_hash": "96be6660b30037795bd7a2b60473ff2d",
-    "semantic_hash": "96be6660b30037795bd7a2b60473ff2d"
+    "mtime": 1791047941.7427268,
+    "seen": 1791047988.716052,
+    "ast_hash": "819e0d529603bf9d9e5afa1047669df9",
+    "semantic_hash": ""
   },
   "tests/test_loaders.py": {
-    "mtime": 1788281378.553258,
-    "seen": 1790979583.983498,
-    "ast_hash": "92ca1ac115eb0da7f75f1a43ad57464b",
+    "mtime": 1791047941.7429059,
+    "seen": 1791047988.716053,
+    "ast_hash": "6f50e9d238b2a08d2728bcc42767a0b6",
     "semantic_hash": ""
   },
   "tests/test_macron_index_builder.py": {
@@ -558,16 +558,16 @@
     "semantic_hash": "d62fb7211f453d71f039dc9f3e0f2a3d"
   },
   "tests/test_pipeline_classes.py": {
-    "mtime": 1788281378.5535808,
-    "seen": 1790979583.983556,
-    "ast_hash": "2ff4abc50f4dc00d39d1c8f82c3c9e84",
+    "mtime": 1791047941.7430167,
+    "seen": 1791047988.716115,
+    "ast_hash": "121c550a8406d5566b44d2e34ddfe770",
     "semantic_hash": ""
   },
   "tests/test_preparse_speaker_mixed.py": {
-    "mtime": 1769106645.8214138,
-    "seen": 1788240582.327806,
-    "ast_hash": "3c54cf49c261cc2edd15331a2656e0b5",
-    "semantic_hash": "3c54cf49c261cc2edd15331a2656e0b5"
+    "mtime": 1791047941.7431777,
+    "seen": 1791047988.716116,
+    "ast_hash": "9d50125765af8bb081f2ad90e337dc5e",
+    "semantic_hash": ""
   },
   "tests/test_prompt_regression.py": {
     "mtime": 1788281378.5539172,
@@ -576,15 +576,15 @@
     "semantic_hash": ""
   },
   "tests/test_tei_bridge.py": {
-    "mtime": 1769106645.8214157,
-    "seen": 1788240582.327808,
-    "ast_hash": "aac730b7b141a7d541e4599555b89cef",
-    "semantic_hash": "aac730b7b141a7d541e4599555b89cef"
+    "mtime": 1791047941.7429128,
+    "seen": 1791047988.7161322,
+    "ast_hash": "9ed8f5ac82f627ab801ee21c66363028",
+    "semantic_hash": ""
   },
   "wyrdcraeft/__init__.py": {
-    "mtime": 1788281382.9515948,
-    "seen": 1790979583.983586,
-    "ast_hash": "e6e0007059dc1503f6eb2bdbaae192c1",
+    "mtime": 1791047941.7428584,
+    "seen": 1791047988.716133,
+    "ast_hash": "3614d6b094fa65ea2394ca6702f9abd6",
     "semantic_hash": ""
   },
   "wyrdcraeft/cli/__init__.py": {
@@ -630,9 +630,9 @@
     "semantic_hash": "b7e057b72dfe24efcd648cd8c6296cb2"
   },
   "wyrdcraeft/cli/source.py": {
-    "mtime": 1788281378.5566869,
-    "seen": 1790979583.9836822,
-    "ast_hash": "993508856d6d2dce89622640e850e600",
+    "mtime": 1791047971.7581198,
+    "seen": 1791047988.7162611,
+    "ast_hash": "fbc095bf2dc47e190f884da8a077b3f8",
     "semantic_hash": ""
   },
   "wyrdcraeft/cli/utils.py": {
@@ -826,36 +826,6 @@
     "ast_hash": "5426189995171ef9868d7cd9d7270f4e",
     "semantic_hash": "5426189995171ef9868d7cd9d7270f4e"
   },
-  "wyrdcraeft/ingest/__init__.py": {
-    "mtime": 1768883593.8797987,
-    "seen": 1788240582.327829,
-    "ast_hash": "467286426978901a886cbc2f9e90d56f",
-    "semantic_hash": "467286426978901a886cbc2f9e90d56f"
-  },
-  "wyrdcraeft/ingest/exporters.py": {
-    "mtime": 1785645896.4115944,
-    "seen": 1788240582.327829,
-    "ast_hash": "ec21f308813616f7cc17b454e1ef18cb",
-    "semantic_hash": ""
-  },
-  "wyrdcraeft/ingest/loaders.py": {
-    "mtime": 1788281378.557016,
-    "seen": 1790979583.9842591,
-    "ast_hash": "a1a1a8bb55aa78944d6fb307247881b5",
-    "semantic_hash": ""
-  },
-  "wyrdcraeft/ingest/normalizers.py": {
-    "mtime": 1788281378.557364,
-    "seen": 1790979583.98426,
-    "ast_hash": "c400ee92e5ac14aaba00c0d21f0c9650",
-    "semantic_hash": ""
-  },
-  "wyrdcraeft/ingest/pipeline.py": {
-    "mtime": 1788281378.5577195,
-    "seen": 1790979583.98426,
-    "ast_hash": "0b8fa697e1fefd6018123cc499c23aad",
-    "semantic_hash": ""
-  },
   "wyrdcraeft/main.py": {
     "mtime": 1769106645.821321,
     "seen": 1788240582.327832,
@@ -977,16 +947,16 @@
     "semantic_hash": "3a9435548b7b7b8a6f775f2fd52f54c2"
   },
   "wyrdcraeft/services/dictionary/browse_query.py": {
-    "mtime": 1783522828.0421548,
-    "seen": 1788240582.327842,
-    "ast_hash": "d819026ca37b3385cd25563a096fd7c9",
-    "semantic_hash": "d819026ca37b3385cd25563a096fd7c9"
+    "mtime": 1791086821.075276,
+    "seen": 1791086880.354335,
+    "ast_hash": "e72d1a0ef46be0b1caa0daa94fa3562c",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/browse_tui.py": {
-    "mtime": 1785971175.5325296,
-    "seen": 1788240582.3278432,
-    "ast_hash": "8a2a88c4529079108c10ef3d698d8ab0",
-    "semantic_hash": "8a2a88c4529079108c10ef3d698d8ab0"
+    "mtime": 1791087362.2304368,
+    "seen": 1791087397.316137,
+    "ast_hash": "6613bd9ba2c82b7457f61556728f192f",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/bt_spelling.py": {
     "mtime": 1783533352.3632476,
@@ -1013,10 +983,10 @@
     "semantic_hash": "6be0037dbdc9375174f9711ec7b24d9d"
   },
   "wyrdcraeft/services/dictionary/form_decode.py": {
-    "mtime": 1785971175.4856179,
-    "seen": 1788240582.327845,
-    "ast_hash": "e5cd33b818350e845adf94ddb216e485",
-    "semantic_hash": "e5cd33b818350e845adf94ddb216e485"
+    "mtime": 1791087360.335299,
+    "seen": 1791087397.316213,
+    "ast_hash": "c630ba8a9ea6c643d50f20fde02f39be",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/forms_entry_relinker.py": {
     "mtime": 1783452099.979091,
@@ -1529,9 +1499,9 @@
     "semantic_hash": "19331d309d06667e8bc1c12671216105"
   },
   "doc/source/api/client.rst": {
-    "mtime": 1788281378.4437835,
-    "seen": 1790979583.986327,
-    "ast_hash": "ea24dab87ced7166ecce446cf4440758",
+    "mtime": 1791047838.0574665,
+    "seen": 1791047988.71938,
+    "ast_hash": "c97a8cccd1620b84f676955cb09509b1",
     "semantic_hash": ""
   },
   "doc/source/api/models.rst": {
@@ -1649,9 +1619,9 @@
     "semantic_hash": "e93ebf5f2c0f5f7c4f9cad2d738a4145"
   },
   "doc/source/overview/command_source_convert.rst": {
-    "mtime": 1788281378.4455004,
-    "seen": 1790979583.986603,
-    "ast_hash": "20c3207162f3f1c85a76d3173bb268fe",
+    "mtime": 1791047835.0230844,
+    "seen": 1791047988.719744,
+    "ast_hash": "9f7a9bfe954faabb4b0e6300f83f9365",
     "semantic_hash": ""
   },
   "doc/source/overview/configuration_cli.rst": {
@@ -2015,9 +1985,9 @@
     "semantic_hash": ""
   },
   "CONTEXT.md": {
-    "mtime": 1791002075.2616894,
-    "seen": 1791003464.3814368,
-    "ast_hash": "e615d6e5473094219020ece8e1cdbaa5",
+    "mtime": 1791055586.2227356,
+    "seen": 1791086880.3559449,
+    "ast_hash": "24d44952976cc4685d5a47a1fb5bd35d",
     "semantic_hash": ""
   },
   "LICENSE.txt": {
@@ -2117,9 +2087,9 @@
     "semantic_hash": ""
   },
   "docs/context/ingest.md": {
-    "mtime": 1788281378.4490104,
-    "seen": 1790979583.98685,
-    "ast_hash": "42c52cc658a20b4052e35dc320d6ca53",
+    "mtime": 1791047834.4422536,
+    "seen": 1791047988.720327,
+    "ast_hash": "625efc06613e5cebdb4b58c51d1408a5",
     "semantic_hash": ""
   },
   "docs/context/morphology.md": {
@@ -2525,9 +2495,9 @@
     "semantic_hash": ""
   },
   "docs/adr/0013-index-population-gate-stays-on-dictionary-query.md": {
-    "mtime": 1791002962.9356735,
-    "seen": 1791003464.382695,
-    "ast_hash": "9fbf528ff7829c443b0e87348a9b81f0",
+    "mtime": 1791055560.5321856,
+    "seen": 1791086880.357244,
+    "ast_hash": "cadba652750ddc4c3230d005e737a3a6",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-10-02-dictionary-cli-index-gate-and-morph-paths.md": {
@@ -2540,6 +2510,48 @@
     "mtime": 1791001536.4029925,
     "seen": 1791003464.3831658,
     "ast_hash": "6c95eece8d979dbf3f338b9dfa5a7ef1",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/services/ingest/__init__.py": {
+    "mtime": 1768883593.8797987,
+    "seen": 1791047988.7177038,
+    "ast_hash": "467286426978901a886cbc2f9e90d56f",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/services/ingest/exporters.py": {
+    "mtime": 1791047955.7582953,
+    "seen": 1791047988.717705,
+    "ast_hash": "b65d4d68b1b84c1bc3f451a3858f8aa6",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/services/ingest/loaders.py": {
+    "mtime": 1791047810.651579,
+    "seen": 1791047988.717706,
+    "ast_hash": "556059f26dc6be6d656d6e33a76ce5bb",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/services/ingest/normalizers.py": {
+    "mtime": 1791047802.1860557,
+    "seen": 1791047988.717707,
+    "ast_hash": "0a62df542402b9a48cab29cdd05a4318",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/services/ingest/pipeline.py": {
+    "mtime": 1791048302.8350568,
+    "seen": 1791048316.642307,
+    "ast_hash": "f3d95c83be89b673559091c93f149c54",
+    "semantic_hash": ""
+  },
+  "docs/adr/0014-dictionary-browse-tui-is-a-shell.md": {
+    "mtime": 1791055557.0716417,
+    "seen": 1791086880.357245,
+    "ast_hash": "afdb361025b3140e8f1cfa3fde6a3ce6",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-10-03-dictionary-browse-tui-no-sqlalchemy.md": {
+    "mtime": 1791085714.8717594,
+    "seen": 1791086880.357669,
+    "ast_hash": "56d2a1afeb7ef1a34573d850040579a0",
     "semantic_hash": ""
   }
 }

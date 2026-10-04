@@ -131,8 +131,9 @@ Out of scope:
 - morphology SQLAlchemy slice: Phase 7 migration that moved `forms` writes and
   reads from direct `sqlite3` code to SQLAlchemy Core bulk insert plus
   SQLAlchemy query paths while preserving emitted ordering semantics
-- dictionary browse: Textual shell for query-time dictionary search plus
+- dictionary browse: Textual UI for query-time dictionary search plus
   morphology sidebar details for the selected entry
+  _Avoid_: dictionary browse TUI as the SQL or ranking owner
 - dictionary browse search: 12-tier headword-and-variant ranking ladder
   implemented by `DictionaryBrowseQueryService` querying `bt_entries` and
   `bt_variants` directly; no derived search-index tables
@@ -489,6 +490,10 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 - [0011: Verb generators leave common.py](docs/adr/0011-verb-generators-leave-common-py.md)
   — file split; Strong/Weak/orchestrator are engines, not OE conjugation classes.
 - [0012: Morphology generation is not Perl-parity-bound](docs/adr/0012-morphology-generation-not-perl-parity-bound.md)
+- [0013: Index population gate stays on dictionary query](docs/adr/0013-index-population-gate-stays-on-dictionary-query.md)
+- [0014: Dictionary browse TUI must not touch SQLAlchemy](docs/adr/0014-dictionary-browse-tui-is-a-shell.md)
+  — query owns SQL, ranking helpers, and `bt_entries` `ensure_ready`;
+  decode and grids stay in `form_decode` until Trello OW5yM68o.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

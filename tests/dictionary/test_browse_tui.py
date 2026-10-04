@@ -17,6 +17,7 @@ from textual.widgets import Button, DataTable, Input, ListView, Static
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.reference import PartOfSpeech
+from wyrdcraeft.services.dictionary import browse_tui as browse_tui_module
 from wyrdcraeft.services.dictionary.browse_query import DictionaryBrowseQueryService
 from wyrdcraeft.services.dictionary.browse_tui import (
     DictionaryBrowseApp,
@@ -900,3 +901,28 @@ async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> N
             assert "POS: noun" in details_text
     finally:
         app.query_service.close()
+
+
+def test_browse_tui_source_does_not_import_sqlalchemy() -> None:
+    source = Path(browse_tui_module.__file__).read_text(encoding="utf-8")
+    assert "from sqlalchemy" not in source
+    assert "import sqlalchemy" not in source
+    assert "query_service._connection" not in source
+    assert "._connection" not in source
+
+
+def test_create_app_closes_service_when_unready(
+    empty_browse_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    closed: list[object] = []
+    real_close = DictionaryBrowseQueryService.close
+
+    def tracking_close(self: DictionaryBrowseQueryService) -> None:
+        closed.append(self)
+        real_close(self)
+
+    monkeypatch.setattr(DictionaryBrowseQueryService, "close", tracking_close)
+    with pytest.raises(DictionaryBrowseDataError):
+        create_dictionary_browse_app(empty_browse_db)
+    assert closed

@@ -2,18 +2,33 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from wyrdcraeft.services.dictionary import form_decode as form_decode_module
+from wyrdcraeft.services.dictionary.browse_query import (
+    filter_display_variants,
+    lexical_distance,
+    normalized_query_at_affix,
+)
 from wyrdcraeft.services.dictionary.form_decode import (
     MorphologyRowPayload,
     build_morphology_table,
     build_paradigm_sidebar,
     decode_function_dimensions,
-    filter_display_variants,
     format_verb_class,
     infer_bt_pos_from_wordclasses,
-    lexical_distance,
     morphology_row_matches_pos,
-    normalized_query_at_affix,
 )
+
+
+def test_form_decode_does_not_define_ranking_helpers() -> None:
+    source = Path(form_decode_module.__file__).read_text(encoding="utf-8")
+    assert "def lexical_distance(" not in source
+    assert "def normalized_query_at_affix(" not in source
+    assert "def filter_display_variants(" not in source
+    assert not hasattr(form_decode_module, "lexical_distance")
+    assert not hasattr(form_decode_module, "normalized_query_at_affix")
+    assert not hasattr(form_decode_module, "filter_display_variants")
 
 
 def test_decode_verb_pa_in_sg2() -> None:

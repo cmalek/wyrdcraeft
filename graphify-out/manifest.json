@@ -48,16 +48,16 @@
     "semantic_hash": "b82d0c9592cc668ec0190ee32622fd8b"
   },
   "tests/dictionary/test_browse_query.py": {
-    "mtime": 1783471585.628623,
-    "seen": 1788240582.327749,
-    "ast_hash": "98ece6f16b42cc8110c871d480084156",
-    "semantic_hash": "98ece6f16b42cc8110c871d480084156"
+    "mtime": 1791086885.2606275,
+    "seen": 1791086893.6693602,
+    "ast_hash": "472eab07da6fbd7c030b5b313decf25a",
+    "semantic_hash": ""
   },
   "tests/dictionary/test_browse_tui.py": {
-    "mtime": 1785971175.5367882,
-    "seen": 1788240582.32775,
-    "ast_hash": "e0dfab25989bb506b5eae99a34624480",
-    "semantic_hash": "e0dfab25989bb506b5eae99a34624480"
+    "mtime": 1791086761.5902402,
+    "seen": 1791086880.3516722,
+    "ast_hash": "b89bb854d65f0337d45f23422eed256d",
+    "semantic_hash": ""
   },
   "tests/dictionary/test_bt_spelling.py": {
     "mtime": 1783533428.1558878,
@@ -276,10 +276,10 @@
     "semantic_hash": ""
   },
   "tests/lexicon/test_form_decode.py": {
-    "mtime": 1785971175.514693,
-    "seen": 1788240582.327775,
-    "ast_hash": "09f0f8ab2ba30d6860479bbe8f7601fe",
-    "semantic_hash": "09f0f8ab2ba30d6860479bbe8f7601fe"
+    "mtime": 1791087799.4133964,
+    "seen": 1791087824.5504682,
+    "ast_hash": "1131ce5fd666573b6575e0da3e5697fb",
+    "semantic_hash": ""
   },
   "tests/lexicon/test_morph_class_browse.py": {
     "mtime": 1783534136.3596575,
@@ -947,16 +947,16 @@
     "semantic_hash": "3a9435548b7b7b8a6f775f2fd52f54c2"
   },
   "wyrdcraeft/services/dictionary/browse_query.py": {
-    "mtime": 1783522828.0421548,
-    "seen": 1788240582.327842,
-    "ast_hash": "d819026ca37b3385cd25563a096fd7c9",
-    "semantic_hash": "d819026ca37b3385cd25563a096fd7c9"
+    "mtime": 1791087805.3397932,
+    "seen": 1791087824.552583,
+    "ast_hash": "00d7dca08d5ab85caffad523973afa37",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/browse_tui.py": {
-    "mtime": 1785971175.5325296,
-    "seen": 1788240582.3278432,
-    "ast_hash": "8a2a88c4529079108c10ef3d698d8ab0",
-    "semantic_hash": "8a2a88c4529079108c10ef3d698d8ab0"
+    "mtime": 1791087362.2304368,
+    "seen": 1791087397.316137,
+    "ast_hash": "6613bd9ba2c82b7457f61556728f192f",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/bt_spelling.py": {
     "mtime": 1783533352.3632476,
@@ -983,10 +983,10 @@
     "semantic_hash": "6be0037dbdc9375174f9711ec7b24d9d"
   },
   "wyrdcraeft/services/dictionary/form_decode.py": {
-    "mtime": 1785971175.4856179,
-    "seen": 1788240582.327845,
-    "ast_hash": "e5cd33b818350e845adf94ddb216e485",
-    "semantic_hash": "e5cd33b818350e845adf94ddb216e485"
+    "mtime": 1791087360.335299,
+    "seen": 1791087397.316213,
+    "ast_hash": "c630ba8a9ea6c643d50f20fde02f39be",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/forms_entry_relinker.py": {
     "mtime": 1783452099.979091,
@@ -1985,9 +1985,9 @@
     "semantic_hash": ""
   },
   "CONTEXT.md": {
-    "mtime": 1791047832.4858987,
-    "seen": 1791047988.718884,
-    "ast_hash": "6de952f498ed22aee0186adfc79eb939",
+    "mtime": 1791055586.2227356,
+    "seen": 1791086880.3559449,
+    "ast_hash": "24d44952976cc4685d5a47a1fb5bd35d",
     "semantic_hash": ""
   },
   "LICENSE.txt": {
@@ -2495,9 +2495,9 @@
     "semantic_hash": ""
   },
   "docs/adr/0013-index-population-gate-stays-on-dictionary-query.md": {
-    "mtime": 1791002962.9356735,
-    "seen": 1791003464.382695,
-    "ast_hash": "9fbf528ff7829c443b0e87348a9b81f0",
+    "mtime": 1791055560.5321856,
+    "seen": 1791086880.357244,
+    "ast_hash": "cadba652750ddc4c3230d005e737a3a6",
     "semantic_hash": ""
   },
   "docs/superpowers/plans/2026-10-02-dictionary-cli-index-gate-and-morph-paths.md": {
@@ -2540,6 +2540,18 @@
     "mtime": 1791048302.8350568,
     "seen": 1791048316.642307,
     "ast_hash": "f3d95c83be89b673559091c93f149c54",
+    "semantic_hash": ""
+  },
+  "docs/adr/0014-dictionary-browse-tui-is-a-shell.md": {
+    "mtime": 1791055557.0716417,
+    "seen": 1791086880.357245,
+    "ast_hash": "afdb361025b3140e8f1cfa3fde6a3ce6",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-10-03-dictionary-browse-tui-no-sqlalchemy.md": {
+    "mtime": 1791085714.8717594,
+    "seen": 1791086880.357669,
+    "ast_hash": "56d2a1afeb7ef1a34573d850040579a0",
     "semantic_hash": ""
   }
 }

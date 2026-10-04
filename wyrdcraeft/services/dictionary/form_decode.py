@@ -11,7 +11,6 @@ from wyrdcraeft.services.dictionary.wordclass_pos import (
     WORDCLASS_TO_BT_POS,
     infer_bt_pos_from_wordclasses,
 )
-from wyrdcraeft.services.markup import normalize_old_english
 from wyrdcraeft.services.morphology.text_utils import canonicalize_inflection_code
 
 __all__ = ["WORDCLASS_TO_BT_POS", "infer_bt_pos_from_wordclasses"]
@@ -584,11 +583,6 @@ def build_morphology_table(
     return MorphologyTableSpec(columns=columns, rows=tuple(table_rows))
 
 
-#: Weak noun genitive endings that must not appear as spelling variants.
-GENITIVE_VARIANT_ENDINGS: Final[frozenset[str]] = frozenset(
-    {"es", "as", "an", "a", "e", "um"}
-)
-
 #: Single-letter BT gender codes mapped to browse labels.
 BT_GENDER_LABELS: Final[dict[str, str]] = {
     "m": "masculine",
@@ -689,20 +683,6 @@ class MorphologyRowPayload:
     inflection: str = ""
 
 
-def is_genitive_variant_token(token: str) -> bool:
-    """
-    Return whether one variant token is a weak-noun genitive ending.
-
-    Args:
-        token: Candidate variant spelling.
-
-    Returns:
-        ``True`` when the token is a genitive ending, not a true variant.
-
-    """
-    return token.strip().casefold() in GENITIVE_VARIANT_ENDINGS
-
-
 def format_bt_gender_label(code: str) -> str:
     """
     Map one BT gender code to a full browse label.
@@ -764,83 +744,6 @@ def format_noun_declension(paradigm: str) -> str | None:
         if key.casefold() == normalized:
             return label
     return paradigm.strip()
-
-
-def filter_display_variants(variants: list[str]) -> list[str]:
-    """
-    Drop genitive-ending tokens from dictionary variant spellings.
-
-    Args:
-        variants: Variant spellings from dictionary entry metadata.
-
-    Returns:
-        Variants with genitive endings removed.
-
-    """
-    return [
-        variant
-        for variant in variants
-        if variant.strip() and not is_genitive_variant_token(variant)
-    ]
-
-
-def normalized_query_at_affix(text: str, query: str) -> bool:
-    """
-    Return whether a normalized query matches the start, end, or whole text.
-
-    Args:
-        text: Candidate display or headword text.
-        query: Raw user query.
-
-    Returns:
-        ``True`` when the normalized query is an exact or affix match.
-
-    """
-    norm_query = normalize_old_english(query) or ""
-    norm_text = normalize_old_english(text) or ""
-    if not norm_query or not norm_text:
-        return False
-    return (
-        norm_text == norm_query
-        or norm_text.startswith(norm_query)
-        or norm_text.endswith(norm_query)
-    )
-
-
-def lexical_distance(left: str, query: str) -> int:
-    """
-    Return the Levenshtein distance between one query and candidate text.
-
-    Args:
-        left: Candidate display or headword text.
-        query: Raw user query.
-
-    Returns:
-        Edit distance between normalized strings, or a large sentinel when empty.
-
-    """
-    norm_left = normalize_old_english(left) or left.casefold()
-    norm_query = normalize_old_english(query) or query.casefold()
-    if not norm_left and not norm_query:
-        return 0
-    if not norm_left or not norm_query:
-        return max(len(norm_left), len(norm_query))
-
-    if len(norm_left) < len(norm_query):
-        norm_left, norm_query = norm_query, norm_left
-
-    previous = list(range(len(norm_query) + 1))
-    for left_index, left_char in enumerate(norm_left, start=1):
-        current = [left_index]
-        for query_index, query_char in enumerate(norm_query, start=1):
-            insert_cost = current[query_index - 1] + 1
-            delete_cost = previous[query_index] + 1
-            replace_cost = previous[query_index - 1] + (
-                0 if left_char == query_char else 1
-            )
-            current.append(min(insert_cost, delete_cost, replace_cost))
-        previous = current
-    return previous[-1]
 
 
 def _surface_form(form: str, formi: str) -> str:

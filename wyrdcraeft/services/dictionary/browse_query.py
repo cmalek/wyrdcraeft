@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import format_sense_display_label, sense_path_sort_key
@@ -668,6 +669,10 @@ def _best_hit(
     return left
 
 
+class DictionaryBrowseDataError(RuntimeError):
+    """Raised when dictionary browse data is unavailable for the TUI shell."""
+
+
 class DictionaryBrowseQueryService:
     """
     Query-time dictionary browse service over canonical ``bt_*`` and ``forms`` tables.
@@ -1057,6 +1062,34 @@ class DictionaryBrowseQueryService:
         """
         return self._catalog_query_service.lookup_wright_section_text(section_no)
 
+    def ensure_ready(self) -> None:
+        """
+        Validate that ``bt_entries`` exists and contains searchable rows.
+
+        Raises:
+            DictionaryBrowseDataError: The table is missing or has no rows.
+
+        """
+        try:
+            counts = self._connection.execute(
+                text("SELECT COUNT(*) AS entry_count FROM bt_entries")
+            ).mappings().first()
+        except SQLAlchemyOperationalError as exc:
+            msg = (
+                "Dictionary browse tables are missing. "
+                "Run `wyrdcraeft dictionary build` for this database first."
+            )
+            raise DictionaryBrowseDataError(msg) from exc
+
+        if counts is not None and int(counts["entry_count"]) > 0:
+            return
+
+        msg = (
+            "Dictionary browse tables are empty. "
+            "Run `wyrdcraeft dictionary build` for this database first."
+        )
+        raise DictionaryBrowseDataError(msg)
+
     def close(self) -> None:
         """
         Close the SQLAlchemy query connection.
@@ -1069,4 +1102,11 @@ class DictionaryBrowseQueryService:
         self._engine.dispose()
 
 
-__all__ = ["BrowseSearchHit", "DictionaryBrowseQueryService"]
+__all__ = [
+    "BrowseSearchHit",
+    "DictionaryBrowseDataError",
+    "DictionaryBrowseQueryService",
+    "filter_display_variants",
+    "lexical_distance",
+    "normalized_query_at_affix",
+]
