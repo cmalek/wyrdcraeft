@@ -60,8 +60,13 @@ def create_settings(ctx: click.Context) -> None:
 
     # Write all the non-frozen settings to the file with the default TOML format
     # and our Settings default values
-    with settings_path.open("w", encoding="utf-8") as f:
-        f.write(Settings().model_dump_json(indent=2))
+    # ponytail: json.dumps of str/int/bool is valid TOML; None has no TOML form
+    lines = [
+        f"{name} = {json.dumps(value)}"
+        for name, value in Settings().model_dump(exclude_none=True).items()
+        if name not in ("app_name", "app_version")
+    ]
+    settings_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print_info(f"Settings file created at {settings_path}")
     if ctx.obj.get("verbose"):

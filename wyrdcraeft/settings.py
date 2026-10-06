@@ -133,7 +133,7 @@ class Settings(BaseSettings):
                 / "wyrdcraeft.toml"
             )
         else:  # Unix-like
-            global_config = Path("/etc/cookiecutter.project_python_name}}.toml")
+            global_config = Path("/etc/wyrdcraeft.toml")
 
         if global_config.exists():
             config_paths.append(global_config)

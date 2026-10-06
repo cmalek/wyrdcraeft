@@ -160,3 +160,28 @@ def test_dictionary_build_has_no_llm_flags():
     assert "llm-fix-pass" not in result.output
     assert "llm-model" not in result.output
     assert "llm-endpoint" not in result.output
+
+
+class TestCLISettingsCreate:
+    """Test the settings create command."""
+
+    def test_create_writes_valid_toml(self, runner, tmp_path, monkeypatch):
+        """Created file is TOML, loads back, and omits frozen fields."""
+        import tomllib
+
+        monkeypatch.chdir(tmp_path)
+        result = runner.invoke(cli, ["settings", "create"])
+        assert result.exit_code == 0
+        data = tomllib.loads((tmp_path / ".wyrdcraeft.toml").read_text())
+        assert data["log_level"] == "INFO"
+        assert data["enable_colors"] is True
+        assert "app_name" not in data
+
+
+def test_global_config_path_has_no_template_residue():
+    """The /etc path must not contain unrendered cookiecutter text."""
+    import inspect
+
+    from wyrdcraeft.settings import Settings
+
+    assert "cookiecutter" not in inspect.getsource(Settings)
