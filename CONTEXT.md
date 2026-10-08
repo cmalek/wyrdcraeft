@@ -511,6 +511,14 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 - [0015: `source mark-diacritics` is additive transfer, not replacement](docs/adr/0015-mark-diacritics-is-additive-transfer.md)
 - [0016: Macron index variants are their own entries; index is repaired, not regenerated](docs/adr/0016-macron-index-variants-are-own-entries-and-index-is-repaired-not-regenerated.md)
   — amends 0015; do not regenerate the packaged macron index.
+- [0017: `diacritic` CLI imports BT variants as their own index entries](docs/adr/0017-diacritic-cli-imports-bt-variants.md)
+  — proposed; not implemented.
+- [0018: `diacritic` write commands warn on forms that do not match their key](docs/adr/0018-diacritic-write-commands-warn-on-non-normalizing-forms.md)
+  — proposed; not implemented.
+- [0019: Ambiguity is judged on marks and resolved by a policy](docs/adr/0019-ambiguity-is-judged-on-marks-and-resolved-by-policy.md)
+  — proposed; not implemented.
+- [0020: `DiacriticTransfer` treats a diphthong as one unit](docs/adr/0020-diacritic-transfer-treats-a-diphthong-as-one-unit.md)
+  — proposed; not implemented; split out of 0015.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

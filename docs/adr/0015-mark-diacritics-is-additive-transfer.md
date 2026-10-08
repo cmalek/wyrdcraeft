@@ -103,3 +103,42 @@ command and are deliberate; do not revert them as scope creep.
   (93 reported vs 95 baseline keys); `mypy` has one pre-existing error at
   `wyrdcraeft/cli/cli.py:107`. Neither was caused by this work except one new
   `model_config` `#:` comment gap on `UnalignedToken`, matching the other models.
+- `wyrdcraeft/etc/diacritic/g/frontal.txt` is not read by any code (see the
+  proposed follow-up below).
+
+## Proposed follow-up (not implemented): `GPalatalizer` reads `g/frontal.txt`
+
+`g/frontal.txt` is a hand-maintained list of `g` exceptions, like the two `c`
+lists, but nothing reads it: `GPalatalizer` uses the hardcoded
+`FRONTAL_G_EXCEPTIONS`, so the user's edits to the file have no effect.
+
+Decision: `GPalatalizer` loads its frontal exceptions from this file instead of
+the hardcoded list, the way `CPalatalizer` loads its lists, and the hardcoded
+list is removed. The file stays the single hand-edited source of truth.
+
+Facts to respect when implementing:
+
+- The two lists barely overlap. The file has 22 entries and the hardcoded list
+  44; only `gēs` is in both. Switching without migrating would drop protection
+  for 43 words (for example `gēar`, `gēat`, `gǣt`, `gēn`, `gǣl`), so `g` would
+  start getting a dot in them; an existing test expects `gēar` to stay velar. The
+  file also has 21 entries the code does not (`gigant`, `genesis`, `gylden`,
+  `girwan`, `Gildas`, `gegnum`, …) that would start to apply.
+- So the migration should first add the 43 missing entries to the file (a union),
+  so no existing protection is lost, and the user can then prune it. Some of the
+  43 are redundant because `g` before a back vowel is never dotted (`gaf`,
+  `gār`, `gangan`).
+- The file has no comment lines today; the loader should skip blank and `#`
+  lines like the `c` loader, fold entries with `_fold` (NFC, lowercase, ð≡þ, so
+  `Gildas` matches), and drop a trailing hyphen (`gǣst-` becomes `gǣst`), because
+  the palatalizer compares one dash-free segment at a time.
+- `ENDING_G_EXCEPTIONS` (`plǣg`, `sweg`, `tǣghrēg`) has no file and is out of
+  scope of this change.
+
+## Refined by
+
+[ADR 0020](0020-diacritic-transfer-treats-a-diphthong-as-one-unit.md)
+(proposed) makes the transfer treat a diphthong as one unit and fixes source
+capitalization. As implemented today, alignment ignores only case, ð≡þ and
+hyphens, so a source already marked in BT's diphthong style is double-marked
+(`leāst` → `lēāst`).
