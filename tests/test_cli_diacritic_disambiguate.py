@@ -416,7 +416,7 @@ def test_diacritic_disambiguate_add_stays_on_same_key_after_save(runner, temp_di
             "--index-path",
             str(index_path),
         ],
-        input="a\nax\ny\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nc\n3\ny\nq\n",
+        input="a\nax\ny\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nc\n3\ny\ny\nq\n",
     )
 
     assert result.exit_code == 0
@@ -1170,3 +1170,47 @@ def test_diacritic_disambiguate_add_matching_form_does_not_warn(runner, temp_dir
     assert "does not match its key" not in result.output
     payload = json.loads(index_path.read_text(encoding="utf-8"))
     assert payload["ambiguous"]["ac"] == ["ac", "\u0101c", "\u0101\u010b"]
+
+
+def _blac_index(path):
+    _write_index(
+        path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 1},
+            "unique": {},
+            "ambiguous": {"blac": ["blac", "blæc"]},
+            "ambiguous_metadata": {},
+        },
+    )
+
+
+def _disambiguate_blac(runner, index_path, text):
+    return runner.invoke(
+        cli,
+        ["diacritic", "disambiguate", "blac", "--index-path", str(index_path)],
+        input=text,
+    )
+
+
+def test_diacritic_disambiguate_choose_mismatch_declined_keeps_state(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _blac_index(index_path)
+    before = index_path.read_text(encoding="utf-8")
+
+    result = _disambiguate_blac(runner, index_path, "c\n2\nn\nq\n")
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    assert index_path.read_text(encoding="utf-8") == before
+
+
+def test_diacritic_disambiguate_choose_mismatch_confirmed_commits(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _blac_index(index_path)
+
+    result = _disambiguate_blac(runner, index_path, "c\n2\ny\ny\n")
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["blac"] == "blæc"

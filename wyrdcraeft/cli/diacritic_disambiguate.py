@@ -535,6 +535,8 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 if selection == "q":
                     continue
                 chosen_form = options[int(selection) - 1]
+                if not _confirm_form_matches_key(key, chosen_form):
+                    continue
                 confirm_commit = Prompt.ask(
                     f"Commit unique[{key}] = {chosen_form} and remove ambiguous entry? "
                     "(y/n/q)",

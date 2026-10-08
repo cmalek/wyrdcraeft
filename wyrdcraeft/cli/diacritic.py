@@ -5,6 +5,7 @@ from pathlib import Path
 
 import click
 from pydantic import ValidationError
+from rich.markup import escape
 from rich.prompt import Prompt
 
 from ..models import MacronIndexPayload
@@ -109,9 +110,10 @@ def _confirm_form_matches_key(key: str, form: str, *, yes: bool = False) -> bool
     if normalized == key:
         return True
     message = (
-        f"Form {form!r} does not match its key {key!r}: it normalizes to "
-        f"{normalized!r}. Text matching {key!r} cannot be aligned to it, so it "
-        "will only appear in the .unaligned report."
+        f"Form {escape(repr(form))} does not match its key {escape(repr(key))}: "
+        f"it normalizes to {escape(repr(normalized))}. Text matching "
+        f"{escape(repr(key))} cannot be aligned to it, so it will only appear "
+        "in the .unaligned report."
     )
     if yes:
         print_info(message)
@@ -199,7 +201,7 @@ def diacritic_add(
         return
     payload.unique[key] = macron_form
     _write_macron_index_payload(index_path, payload)
-    print_info(f"Added pair: normalized={key!r} macron={macron_form!r}.")
+    print_info(escape(f"Added pair: normalized={key!r} macron={macron_form!r}."))
 
 
 @diacritic_group.command(
@@ -251,7 +253,9 @@ def diacritic_delete(
     macron_form = payload.unique[key]
     if not yes:
         confirm_choice = Prompt.ask(
-            f"Remove pair: normalized={key!r} macron={macron_form!r}. Continue? [y/N]",
+            escape(
+                f"Remove pair: normalized={key!r} macron={macron_form!r}. Continue?"
+            ),
             choices=["y", "n"],
             default="n",
         )
@@ -260,4 +264,4 @@ def diacritic_delete(
             return
     del payload.unique[key]
     _write_macron_index_payload(index_path, payload)
-    print_info(f"Deleted pair: normalized={key!r} macron={macron_form!r}.")
+    print_info(escape(f"Deleted pair: normalized={key!r} macron={macron_form!r}."))

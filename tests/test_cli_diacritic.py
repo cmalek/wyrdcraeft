@@ -211,3 +211,23 @@ def test_add_form_that_normalizes_to_its_key_does_not_prompt(
 
     assert result.exit_code == 0, result.output
     assert "does not match its key" not in result.output
+
+
+def test_add_mismatch_notice_survives_rich_markup_in_the_form(runner, index_path):
+    result = _run(
+        runner, "add", "blac", "[/b]", "--yes", "--index-path", str(index_path)
+    )
+
+    assert result.exit_code == 0, result.output
+    assert _read(index_path)["unique"]["blac"] == "[/b]"
+
+
+def test_add_mismatch_prompt_shows_the_form_literally(runner, index_path):
+    result = runner.invoke(
+        cli,
+        ["diacritic", "add", "blac", "[bold]x", "--index-path", str(index_path)],
+        input="n\n",
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "[bold]x" in result.output
