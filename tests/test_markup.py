@@ -719,3 +719,27 @@ def test_restorer_marks_collapsed_token_and_reports_nothing(tmp_path: Path):
     assert [a.word for a in result.ambiguities] == ["ac"]
     assert result.unknowns == []
     assert result.unaligned == []
+
+
+def test_apply_collapse_does_not_double_mark_a_diphthong(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    # "stē-ap" sorts before "stēap"; only the second treats ēa as one unit.
+    _write_index(index_path, unique={}, ambiguous={"steap": ["stē-ap", "stēap"]})
+
+    transformed, ambiguity, _, _ = MacronApplicator(index_path).apply("steāp", 1, 1)
+
+    assert ambiguity is None
+    assert transformed == "steāp"
+
+
+def test_apply_keeps_ambiguity_when_key_is_in_unique_and_ambiguous(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={"ac": "ac"}, ambiguous={"ac": ["ac", "āc"]})
+
+    transformed, ambiguity, is_unknown, _ = MacronApplicator(index_path).apply(
+        "ac", 1, 1
+    )
+
+    assert transformed == "ac"
+    assert ambiguity is not None
+    assert not is_unknown

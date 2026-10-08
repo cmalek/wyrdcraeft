@@ -379,6 +379,20 @@ class DiacriticTransfer:
         )
 
     @classmethod
+    def diphthong_count(cls, form: str) -> int:
+        """
+        Count the diphthongs of a form.
+
+        Args:
+            form: An index display form.
+
+        Returns:
+            The number of diphthong units (see :meth:`_diphthong_starts`).
+
+        """
+        return len(cls._diphthong_starts(cls._parse(form)))
+
+    @classmethod
     def same_marks(cls, forms: Iterable[str]) -> bool:
         """
         Tell whether every form has the same letters and marks.
@@ -730,7 +744,8 @@ class MacronApplicator:
             normalized: Normalized key, present in ``index.ambiguous``.
 
         Returns:
-            The first option when the options agree on marks, else ``None``.
+            The option with the most diphthongs (first on ties) when the options
+            agree on marks, else ``None``.
 
         """
         options = self.index.ambiguous[normalized]
@@ -738,7 +753,9 @@ class MacronApplicator:
             return None
         if not DiacriticTransfer.same_marks(options):
             return None
-        return options[0]
+        # A form that already reads ea/eo/ie/io as one unit cannot double-mark a
+        # source that put the macron on the second vowel; ties go to the first.
+        return max(options, key=DiacriticTransfer.diphthong_count)
 
     def apply(
         self, word: str, line_number: int, word_number: int

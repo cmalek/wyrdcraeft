@@ -1280,3 +1280,26 @@ def test_diacritic_disambiguate_explicit_collapsing_key_still_opens(
 
     assert result.exit_code == 0, result.output
     assert "cū-slyppe" in result.output
+
+
+def test_diacritic_disambiguate_queue_says_nothing_is_left_when_all_collapse(
+    runner, temp_dir, monkeypatch
+):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 1},
+            "unique": {},
+            "ambiguous": {"cuslyppe": ["cū-slyppe", "cūslyppe"]},
+            "ambiguous_completed": [],
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result, messages = _run_queue(runner, index_path, monkeypatch)
+
+    assert result.exit_code == 0, result.output
+    assert any(m.startswith("Skipped 1 entries") for m in messages)
+    assert any(m.startswith("No ambiguous entries need a decision") for m in messages)
+    assert not any(m.startswith("No unresolved") for m in messages)

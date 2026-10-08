@@ -5,7 +5,8 @@ status: proposed
 # `DiacriticTransfer` treats a diphthong as one unit; `BTSpellingNormalizer` is not used
 
 Split out of [ADR 0015](0015-mark-diacritics-is-additive-transfer.md), which it
-refines. Nothing here is implemented yet.
+refines. Implemented in `DiacriticTransfer` (`mark_pattern`, diphthong-aware
+`transfer`); see ADR 0019 for how the applicator uses it.
 
 ## Context
 

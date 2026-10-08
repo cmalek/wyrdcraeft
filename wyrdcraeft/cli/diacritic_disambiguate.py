@@ -483,9 +483,14 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 "differ only in hyphens, case, eth/thorn or diphthong marking."
             )
         if not target_keys:
+            what = (
+                "No ambiguous entries need a decision"
+                if pending
+                else "No unresolved ambiguous entries found"
+            )
             print_info(
-                "No unresolved ambiguous entries found "
-                f"in {index_path} (completed={len(payload.ambiguous_completed)})."
+                f"{what} in {index_path} "
+                f"(completed={len(payload.ambiguous_completed)})."
             )
             return
 
