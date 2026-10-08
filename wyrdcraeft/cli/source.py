@@ -132,7 +132,10 @@ def _mark_diacritics_derived_path(source: Path, infix: str) -> Path:
 
 @reading_group.command(
     name="mark-diacritics",
-    help="Restore macrons and dot diacritics in an Old English text file.",
+    help=(
+        "Add macrons and dot diacritics to an Old English text file, "
+        "never altering existing characters."
+    ),
 )
 @click.argument("source", type=click.Path(exists=True, path_type=Path))
 @click.argument(
@@ -153,11 +156,21 @@ def _mark_diacritics_derived_path(source: Path, infix: str) -> Path:
     default=None,
     help="Unrecognized-words JSON path. Default: stem.unknown + input extension.",
 )
+@click.option(
+    "--unaligned-output",
+    type=click.Path(path_type=Path),
+    default=None,
+    help=(
+        "Unaligned-words JSON path (index form could not be matched to the "
+        "source; token left unchanged). Default: stem.unaligned + input extension."
+    ),
+)
 def reading_mark_diacritics(
     source: Path,
     output: Path | None,
     ambiguities_output: Path | None,
     unknown_output: Path | None,
+    unaligned_output: Path | None,
 ) -> None:
     """
     Restore diacritics in a source text and emit ambiguity and unknown-word reports.
@@ -171,6 +184,7 @@ def reading_mark_diacritics(
         output: Marked output text file path. Default: stem + '.fixed' + extension.
         ambiguities_output: Output path for ambiguity report JSON.
         unknown_output: Output path for unrecognized-words report JSON.
+        unaligned_output: Output path for unaligned-words report JSON.
 
     """
     resolved_output = (
@@ -187,6 +201,12 @@ def reading_mark_diacritics(
         unknown_output
         if unknown_output is not None
         else _mark_diacritics_derived_path(source, ".unknown")
+    )
+
+    resolved_unaligned = (
+        unaligned_output
+        if unaligned_output is not None
+        else _mark_diacritics_derived_path(source, ".unaligned")
     )
 
     try:
@@ -221,7 +241,18 @@ def reading_mark_diacritics(
         encoding="utf-8",
     )
 
+    resolved_unaligned.parent.mkdir(parents=True, exist_ok=True)
+    resolved_unaligned.write_text(
+        json.dumps(
+            [item.model_dump() for item in result.unaligned],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
     print_info(
-        f"Successfully restored diacritics for {source} -> {resolved_output}. "
-        f"Ambiguities: {len(result.ambiguities)}, Unknowns: {len(result.unknowns)}"
+        f"Successfully marked diacritics for {source} -> {resolved_output}. "
+        f"Ambiguities: {len(result.ambiguities)}, Unknowns: {len(result.unknowns)}, "
+        f"Unaligned: {len(result.unaligned)}"
     )

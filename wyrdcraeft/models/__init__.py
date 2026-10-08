@@ -9,6 +9,7 @@ from .diacritics import (
     MacronFormAnnotation,
     MacronFormSense,
     MacronIndexPayload,
+    UnalignedToken,
     UnknownToken,
 )
 from .dictionary import (
@@ -98,6 +99,7 @@ __all__ = [
     "Sentence",
     "Syllable",
     "TextMetadata",
+    "UnalignedToken",
     "UnknownToken",
     "VerbParadigm",
     "Word",

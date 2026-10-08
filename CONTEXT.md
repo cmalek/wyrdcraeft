@@ -102,6 +102,20 @@ Out of scope:
 - deterministic ingest: heuristic extraction path for local `.txt`
 - TEI ingest: direct TEI/XML parsing path
 - macron index: JSON payload used by diacritic tools for normalized-to-display mappings
+- diacritic marking: adding diacritics (macrons, ġ/ċ dots) to source text
+  while preserving the source otherwise; strictly additive, so it never
+  removes, replaces, or alters an existing character. Source ð/þ, source
+  casing, and source hyphenation (present or absent) are kept as written
+  _Avoid_: normalizing, restoring spelling to the index form
+- diacritic transfer: copying marks from a macron index display form onto the
+  matching letters of the source token; the index form never replaces the
+  source token
+- unaligned token: source token found in the macron index whose display form
+  cannot be matched to the source letters (ð≡þ and hyphens ignored); left
+  unchanged and reported separately from ambiguous and unknown tokens
+- sc exception: a `c` immediately preceded by `s` never receives a palatal
+  dot; absolute, overriding the forced-palatalize list, but a `ċ` already in
+  the source is kept
 - morphology generation: SQLite lookup index production workflow for inflected
   forms (optional TSV via `--output`); typically triggered by
   `dictionary build --with-morphology` or automatically when `forms` is empty
@@ -494,6 +508,9 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
 - [0014: Dictionary browse TUI must not touch SQLAlchemy](docs/adr/0014-dictionary-browse-tui-is-a-shell.md)
   — query owns SQL, ranking helpers, and `bt_entries` `ensure_ready`;
   decode and grids stay in `form_decode` until Trello OW5yM68o.
+- [0015: `source mark-diacritics` is additive transfer, not replacement](docs/adr/0015-mark-diacritics-is-additive-transfer.md)
+- [0016: Macron index variants are their own entries; index is repaired, not regenerated](docs/adr/0016-macron-index-variants-are-own-entries-and-index-is-repaired-not-regenerated.md)
+  — amends 0015; do not regenerate the packaged macron index.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

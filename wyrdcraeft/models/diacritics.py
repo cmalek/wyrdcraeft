@@ -87,6 +87,23 @@ class UnknownToken(BaseModel):
     word: str = Field(..., min_length=1)
 
 
+class UnalignedToken(BaseModel):
+    """
+    Token found in the macron index whose index form could not be aligned.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    #: 1-based line number in the source text.
+    line_number: int = Field(..., ge=1)
+    #: 1-based lexical word index within the source line.
+    word_number: int = Field(..., ge=1)
+    #: Verbatim source token.
+    word: str = Field(..., min_length=1)
+    #: Macron index display form that could not be aligned to ``word``.
+    index_form: str = Field(..., min_length=1)
+
+
 class DiacriticRestorationResult(BaseModel):
     """
     Full diacritic restoration result payload.
@@ -100,6 +117,8 @@ class DiacriticRestorationResult(BaseModel):
     ambiguities: list[MacronAmbiguity] = Field(default_factory=list)
     #: Tokens not found in the macron index (unrecognized words).
     unknowns: list[UnknownToken] = Field(default_factory=list)
+    #: Tokens in the index whose display form could not be aligned to the source.
+    unaligned: list[UnalignedToken] = Field(default_factory=list)
 
 
 class MacronFormAnnotation(BaseModel):

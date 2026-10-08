@@ -41,7 +41,8 @@ Inputs:
 
 Outputs:
 
-- restored text file
+- restored text file (additive only; see ADR 0015)
+- unaligned-token report JSON
 - ambiguity report JSON
 - unknown-word report JSON
 - updated macron index JSON

@@ -3,8 +3,8 @@
     "source_path": "/Users/cmalek/src/workspace/wyrdcraeft/data/oe_bt.txt",
     "line_count": 58162,
     "parsed_entry_count": 54462,
-    "unique_count": 39207,
-    "ambiguous_count": 1049
+    "unique_count": 39670,
+    "ambiguous_count": 967
   },
   "unique": {
     "a": "ā",
@@ -66,7 +66,6 @@
     "aberendlic": "ā-berendlīc",
     "aberstan": "ā-berstan",
     "abeþecian": "ā-beþecian",
-    "beþecian": "a-bet",
     "abet": "a-bet",
     "abicgan": "a-bicgan",
     "abidan": "ā-bīdan",
@@ -261,7 +260,6 @@
     "acucian": "a-cucian",
     "acul": "acul",
     "acuma": "ā-cuma",
-    "acmuman": "ā-cuman",
     "acumba": "ā-cumba",
     "acumendlic": "ā-cumendlīc",
     "acumendlicuess": "ā-cumendlĪcuess",
@@ -806,7 +804,6 @@
     "ængum": "ængum",
     "ænig": "ǣnig",
     "ænige": "ǣn-īge",
-    "ænigwiht": "ǣn-īge",
     "æniht": "ǣniht",
     "æninga": "ǣninga",
     "ænlepnes": "ǣn-lēpnes",
@@ -937,9 +934,7 @@
     "ærs": "ærs",
     "ærsceaft": "ǣr-sceaft",
     "aerschen": "aersc-hen",
-    "ærþling": "ǣrst",
     "ærst": "ǣrst",
-    "ærþeland": "ǣrst",
     "ærþam": "ǣr-ðam",
     "ærþamþe": "ǣr-ðām-ðe",
     "ærur": "ǣrur",
@@ -1495,7 +1490,6 @@
     "ahriran": "ā-hrīran",
     "ahrisian": "ā-hrisian",
     "ahruron": "a-hruron",
-    "ahtian": "a-hrydred",
     "ahrydred": "a-hrydred",
     "ahrynan": "a-hrȳnan",
     "ahrysian": "a-hrysian",
@@ -2632,7 +2626,6 @@
     "athenisc": "athēnisc",
     "aþeotan": "a-þēotan",
     "aþer": "āðer",
-    "aþewan": "āðer",
     "aþestrian": "a-þēstrian",
     "aþexe": "āðexe",
     "aþfultum": "āþ-fultum",
@@ -3964,7 +3957,6 @@
     "beormteag": "beorm-tēag",
     "beorn": "beorn",
     "beornan": "beornan",
-    "beorning": "beornan",
     "beorncyning": "beorn-cyning",
     "beorne": "beorne",
     "beornice": "beornice",
@@ -4298,7 +4290,6 @@
     "betast": "betast",
     "betboren": "bet-boren",
     "bete": "bēte",
-    "betel": "bēte",
     "beteah": "be-tēah",
     "beteldan": "be-teldan",
     "betellan": "be-tellan",
@@ -4310,8 +4301,6 @@
     "betest": "betest",
     "betesta": "betesta",
     "beþ": "beþ",
-    "beþancen": "beþ",
-    "beþan": "beþ",
     "beþæht": "be-þæht",
     "beþærfeþ": "be-þærfeþ",
     "beþeaht": "be-þeaht",
@@ -4496,7 +4485,6 @@
     "bibaþian": "bi-baðian",
     "bibeodan": "bi-bēodan",
     "biblioþece": "biblio-þēce",
-    "bibliþeca": "biblio-þēce",
     "bibod": "bi-bod",
     "bibread": "bī-brēad",
     "bibugan": "bī-būgan",
@@ -4925,7 +4913,6 @@
     "blæstbelg": "blǣst-belg",
     "blæt": "blǣt",
     "blætan": "blǣtan",
-    "blagettan": "blǣtesung",
     "blætesung": "blǣtesung",
     "blæwen": "blǣwen",
     "blæweþ": "blǣweþ",
@@ -4938,7 +4925,6 @@
     "blann": "blann",
     "blase": "blase",
     "blasere": "blasere",
-    "blaster": "blāst-belg",
     "blastbelg": "blāst-belg",
     "blat": "blāt",
     "blatan": "blātan",
@@ -6025,7 +6011,6 @@
     "byrigman": "byrig-man",
     "byrine": "byrīne",
     "byris": "byris",
-    "byrla": "byris",
     "byriweard": "byri-weard",
     "byrlian": "byrlian",
     "byrman": "byrman",
@@ -6534,10 +6519,7 @@
     "certes": "certes",
     "ceruille": "ceruille",
     "ces": "cēs",
-    "cesena": "cēse",
-    "cheahchetung": "cēse",
     "cese": "cēse",
-    "cestian": "cēse",
     "cesol": "cesol",
     "cester": "cester",
     "cetelhrum": "cetel-hrūm",
@@ -6595,7 +6577,6 @@
     "cilian": "cīlian",
     "cilic": "cilic",
     "cille": "cille",
-    "cimstanas": "cim",
     "cim": "cim",
     "cimbal": "cimbal",
     "cimbalgliwere": "cimbal-glīwere",
@@ -6807,7 +6788,6 @@
     "clepian": "clepian",
     "clepung": "clepung",
     "clerc": "clerc",
-    "cleric": "clerc",
     "clerchad": "clerc-hād",
     "clericmann": "cleric-mann",
     "cleweþa": "cleweða",
@@ -6822,7 +6802,6 @@
     "cliferfete": "clifer-fēte",
     "clifhlep": "clif-hlēp",
     "clifian": "clifian",
-    "clifiht": "clifig",
     "clifig": "clifig",
     "clifihtig": "clifihtig",
     "cliflan": "cliflan",
@@ -7071,7 +7050,6 @@
     "copenere": "copenere",
     "copest": "copest",
     "copian": "copian",
-    "lice": "cop-līc",
     "coplic": "cop-līc",
     "copor": "copor",
     "copp": "copp",
@@ -7183,7 +7161,6 @@
     "crætwæn": "cræt-wǣn",
     "crætwisa": "cræt-wīsa",
     "cræwst": "crǣwst",
-    "cræfian": "crafian",
     "crafian": "crafian",
     "crafing": "crafing",
     "crammian": "crammian",
@@ -7252,7 +7229,6 @@
     "cristlic": "cristlīc",
     "cristnere": "crīstnere",
     "cristnung": "crīstnung",
-    "crocc": "croc",
     "croc": "croc",
     "crocca": "crocca",
     "crochwær": "croc-hwær",
@@ -7280,7 +7256,6 @@
     "cruft": "cruft",
     "cruland": "crūland",
     "cruma": "cruma",
-    "crump": "crumb",
     "crumb": "crumb",
     "cruncon": "cruncon",
     "crundel": "crundel",
@@ -7573,7 +7548,6 @@
     "cwisedness": "cwīsed-ness",
     "cwist": "cwīst",
     "cwiþ": "cwiþ",
-    "cwiþa": "cwiþ",
     "cwiþendlic": "cwīðend-līc",
     "cwiþendlie": "cwīðend-līe",
     "cwiþnes": "cwīð-nes",
@@ -7738,7 +7712,6 @@
     "cynn": "cynn",
     "cynnan": "cynnan",
     "cynnestre": "cynnestre",
-    "cynning": "cynnestre",
     "cynnig": "cynnig",
     "cynningstan": "cynning-stān",
     "cynnrecceniss": "cynn-recceniss",
@@ -8288,7 +8261,6 @@
     "digelnes": "dīgelnes",
     "digle": "dīgle",
     "diglian": "dīglian",
-    "diglan": "dīglian",
     "diglod": "dīglod",
     "digneras": "digneras",
     "digollice": "dīgol-līce",
@@ -8505,7 +8477,6 @@
     "dreahnian": "dreahnian",
     "dreahte": "dreahte",
     "dream": "drēam",
-    "drem": "drēam",
     "dreamcræft": "drēam-cræft",
     "dreamere": "drēamere",
     "dreamhæbbende": "drēam-hæbbende",
@@ -8556,7 +8527,6 @@
     "dreord": "drēord",
     "dreorfah": "drēor-fāh",
     "dreorgian": "drēorgian",
-    "dreorigian": "drēorgian",
     "dreorig": "drēorig",
     "dreorighleor": "drēorig-hlēor",
     "dreoriglic": "drēorig-lic",
@@ -8931,7 +8901,6 @@
     "dyþhomar": "dyþhomar",
     "dyttan": "dyttan",
     "dyxsas": "dyxsas",
-    "e": "a",
     "ea": "ēa",
     "eac": "ēac",
     "eaca": "ēaca",
@@ -9802,7 +9771,6 @@
     "eferfearn": "efer-fearn",
     "eferwic": "efer-wīc",
     "efes": "efes",
-    "efesc": "efes",
     "efesdrypa": "efes-drypa",
     "efesian": "efesian",
     "efest": "ēfest",
@@ -11920,7 +11888,6 @@
     "flitgeorn": "flīt-georn",
     "flitlice": "flītlīce",
     "flitmælum": "flīt-mǣlum",
-    "flytme": "flitme",
     "flitme": "flitme",
     "flld": "flld",
     "flntst": "flntst",
@@ -13997,7 +13964,6 @@
     "fyligean": "fyligean",
     "fylignes": "fylignes",
     "fyll": "fyll",
-    "fylluo": "fyll",
     "fyllan": "fyllan",
     "fyllend": "fyllend",
     "fylleseoc": "fylle-sēoc",
@@ -14212,13 +14178,11 @@
     "gaderacype": "gaderacype",
     "gaderian": "gaderian",
     "gaderscype": "gader-scype",
-    "gæderteng": "gader-tang",
     "gadertang": "gader-tang",
     "gadertangnes": "gadertangnes",
     "gadertangnys": "gader-tangnys",
     "gadertengan": "gader-tengan",
     "gaderung": "gaderung",
-    "gæderung": "gaderung",
     "gaderwist": "gader-wist",
     "gadinca": "gadinca",
     "gadiren": "gād-īren",
@@ -14343,7 +14307,6 @@
     "gagol": "gagol",
     "gagolbære": "gagol-bǣre",
     "gagolisc": "gagolisc",
-    "geglesc": "gagolisc",
     "gagulsuillan": "gagul-suillan",
     "gal": "gāl",
     "galan": "galan",
@@ -15422,7 +15385,6 @@
     "gedwolmist": "gedwol-mist",
     "gedwolspræc": "gedwol-sprǣc",
     "gedwolsum": "ge-dwolsum",
-    "gedyfan": "ge-dwomer",
     "gedwomer": "ge-dwomer",
     "gedwyld": "ge-dwyld",
     "gedwyldlic": "ge-dwyldlic",
@@ -15585,7 +15547,6 @@
     "gefagen": "ge-fagen",
     "gefagnian": "ge-fagnian",
     "gefagod": "ge-fāgod",
-    "gefahmon": "ge-fāh",
     "gefah": "ge-fāh",
     "gefana": "ge-fana",
     "gefandod": "ge-fandod",
@@ -16711,7 +16672,6 @@
     "gemercian": "ge-mercian",
     "gemercung": "ge-mercung",
     "gemere": "ge-mēre",
-    "gemerung": "ge-merian",
     "gemerian": "ge-merian",
     "gemerran": "ge-merran",
     "gemersian": "ge-mērsian",
@@ -18013,7 +17973,6 @@
     "getelged": "ge-telged",
     "getellan": "ge-tellan",
     "geteman": "ge-tēman",
-    "geteme": "ge-tēman",
     "getemesed": "ge-temesed",
     "getemian": "ge-temian",
     "getemprian": "ge-temprian",
@@ -19300,7 +19259,6 @@
     "grennian": "grennian",
     "grennung": "grennung",
     "greofa": "greofa",
-    "greaua": "greofa",
     "greop": "grēop",
     "greosan": "grēosan",
     "greosn": "grēosn",
@@ -19710,9 +19668,7 @@
     "hæftlic": "hæft-lic",
     "hæftling": "hæftling",
     "hæftmece": "hæft-mēce",
-    "hæftnedan": "hæft-nēd",
     "hæftned": "hæft-nēd",
-    "hæftnednes": "hæft-nēd",
     "hæftnian": "hæftnian",
     "hæftnid": "hæft-nīd",
     "hæftnidling": "hæft-nīdling",
@@ -20373,7 +20329,6 @@
     "healtian": "healtian",
     "healwudu": "heal-wudu",
     "heamol": "heamol",
-    "hamal": "heamol",
     "heamolscipe": "hēamol-scipe",
     "hean": "hēan",
     "heane": "hēane",
@@ -20534,7 +20489,6 @@
     "hegsiþe": "hēg-sīþe",
     "heh": "hēh",
     "hehsunn": "hēh-sunn",
-    "helle": "hel",
     "hel": "hel",
     "hela": "hēla",
     "helabr": "helabr",
@@ -20922,9 +20876,7 @@
     "herung": "herung",
     "herutbeg": "herut-beg",
     "herwan": "herwan",
-    "hoese": "hese",
     "hese": "hese",
-    "haese": "hese",
     "hete": "hete",
     "hetegrim": "hete-grim",
     "hetend": "hetend",
@@ -20969,7 +20921,6 @@
     "hiewestan": "hīewe-stān",
     "hif": "hīf",
     "higan": "hīgan",
-    "hegan": "hīgan",
     "higdi": "higdi",
     "hige": "hige",
     "higedryht": "hī-gedryht",
@@ -20982,7 +20933,6 @@
     "higþ": "hīgþ",
     "higung": "hīgung",
     "hiht": "hiht",
-    "hii": "ii",
     "hilc": "hilc",
     "hild": "hild",
     "hildan": "hildan",
@@ -21387,7 +21337,6 @@
     "hlystere": "hlystere",
     "hlyt": "hlyt",
     "hlyta": "hlyta",
-    "hlytta": "hlyta",
     "hlyte": "hlyte",
     "hlytere": "hlytere",
     "hlyþran": "hlyþran",
@@ -21400,7 +21349,6 @@
     "hnæcan": "hnǣcan",
     "hnægan": "hnǣgan",
     "hnægung": "hnǣgung",
-    "hnæpp": "hnæpf",
     "hnæpf": "hnæpf",
     "hnæppan": "hnæppan",
     "hnæppian": "hnæppian",
@@ -21683,7 +21631,6 @@
     "hrægnloca": "hrægn-loca",
     "hræm": "hræm",
     "hræron": "hrǣron",
-    "hrætelwyrt": "hrætele",
     "hrætele": "hrætele",
     "hræþ": "hræð",
     "hræþa": "hrǣða",
@@ -22149,7 +22096,6 @@
     "hwanne": "hwanne",
     "hwanonhwega": "hwanon-hwega",
     "hwar": "hwar",
-    "hwergene": "hwarne",
     "hwarne": "hwarne",
     "hwarum": "hwarum",
     "hwast": "hwast",
@@ -22298,7 +22244,6 @@
     "hwosta": "hwōsta",
     "hwostan": "hwōstan",
     "hwoþerian": "hwoðerian",
-    "hwoþrung": "hwoðerian",
     "hwu": "hwu",
     "hwugu": "hwugu",
     "hwurf": "hwurf",
@@ -23791,7 +23736,6 @@
     "linden": "linden",
     "lindesfarnealanding": "lindesfarnea-landing",
     "lindesse": "lindesse",
-    "lindesige": "lindesse",
     "lindgeborga": "lind-geborga",
     "lindgecrod": "lind-gecrod",
     "lindgelac": "lind-gelāc",
@@ -24494,9 +24438,6 @@
     "maþumsweord": "māðum-sweord",
     "maþumwela": "māðum-wela",
     "matt": "matt",
-    "mettoc": "mattuc",
-    "mattoc": "mattuc",
-    "meottic": "mattuc",
     "mattuc": "mattuc",
     "mawan": "māwan",
     "me": "mē",
@@ -24505,16 +24446,10 @@
     "meagolmod": "meagol-mōd",
     "meagolmodness": "meagolmōd-ness",
     "meagolness": "meagol-ness",
-    "meht": "meaht",
     "meaht": "meaht",
-    "maht": "meaht",
-    "mieht": "meaht",
     "meahtelice": "meahte-līce",
     "meahtfull": "meaht-full",
-    "mæhtig": "meahtig",
-    "mehtig": "meahtig",
     "meahtig": "meahtig",
-    "mihtig": "meahtig",
     "meahtiglic": "meahtig-līc",
     "meahtiglicness": "meahtiglic-ness",
     "meahtigness": "meahtig-ness",
@@ -24568,10 +24503,7 @@
     "mearhlic": "mearh-lic",
     "mearrian": "mearrian",
     "mearþ": "mearþ",
-    "meru": "mearu",
     "mearu": "mearu",
-    "myru": "mearu",
-    "mæru": "mearu",
     "mearulic": "mearu-lic",
     "mearulice": "mearulīce",
     "mearuwness": "mearuw-ness",
@@ -24668,7 +24600,6 @@
     "menian": "menian",
     "menigdu": "menigdu",
     "menigu": "menigu",
-    "mengu": "menigu",
     "menisc": "menisc",
     "mennisc": "mennisc",
     "mennisclice": "mennisc-līce",
@@ -26633,7 +26564,6 @@
     "ohwær": "ō-hwǣr",
     "olæcung": "ōlǣcung",
     "ole": "ole",
-    "olæcan": "ō-leccan",
     "oleccan": "ō-leccan",
     "oleccend": "ōleccend",
     "oleccere": "ōleccere",
@@ -27582,7 +27512,6 @@
     "plihtlic": "pliht-līc",
     "plog": "plōg",
     "plot": "plot",
-    "ploccan": "pluccian",
     "pluccian": "pluccian",
     "plumblæd": "plūm-blǣd",
     "plume": "plūme",
@@ -28354,7 +28283,6 @@
     "rygen": "rygen",
     "ryhe": "rȳhe",
     "ryht": "ryht",
-    "ryt": "ryht",
     "ryman": "rȳman",
     "rymetleast": "rȳmetlēast",
     "rymett": "rȳmett",
@@ -28935,7 +28863,6 @@
     "scering": "scering",
     "scern": "scern",
     "scerwen": "scerwen",
-    "scerpen": "scerwen",
     "scete": "scēte",
     "scethas": "scethas",
     "sceþness": "sceþness",
@@ -36372,7 +36299,6 @@
     "weorþfullice": "weorþfullīce",
     "weorþgeorn": "weorþ-georn",
     "weorþian": "weorþian",
-    "wurþian": "weorþian",
     "weorþiend": "weorþiend",
     "weorþig": "weorþig",
     "weorþing": "weorþing",
@@ -37223,7 +37149,6 @@
     "witword": "wit-word",
     "wixan": "wixan",
     "wixen": "wixen",
-    "wexen": "wixen",
     "wlacian": "wlacian",
     "wlacu": "wlacu",
     "wlæclice": "wlæclīce",
@@ -38944,13 +38869,9 @@
     "uphefness": "ūp-hefness",
     "uprihte": "ūp-rihte",
     "upweardes": "ūp-weardes",
-    "maessehacele": "mæsse-hacele",
-    "mearcwaed": "mearc-wæd",
     "mearcwæd": "mearc-wæd",
     "mæssehacele": "mæsse-hacele",
-    "unfaederlice": "un-fæderlīce",
     "unfæderlice": "un-fæderlīce",
-    "waefersin": "wæfer-sīn",
     "wæfersin": "wæfer-sīn",
     "agrafenlice": "a-grafenlīce",
     "andweardlice": "and-weardlīce",
@@ -39081,7 +39002,6 @@
     "æwyrp": "ǣ-wyrp",
     "adelseaþ": "adel-sēaþ",
     "adlig": "ādlig",
-    "aetfeng": "ǣt-feng",
     "aflian": "ā-flian",
     "afor": "ā-for",
     "ageat": "ā-gēat",
@@ -39107,7 +39027,6 @@
     "angsumlice": "angsumlīce",
     "anlic": "ānlīc",
     "anlice": "anlīce",
-    "anlician": "anlīce",
     "anmod": "ānmōd",
     "anmodlice": "ānmōdlīce",
     "anmodnes": "ānmōdnes",
@@ -39213,7 +39132,551 @@
     "þære": "þǣre",
     "þy": "þȳ",
     "cnif": "cnīf",
-    "cofa": "cōfa"
+    "cofa": "cōfa",
+    "ælcra": "ælcra",
+    "ælmysse": "ælmysse",
+    "æmtig": "æmtig",
+    "ætfeng": "ǣt-feng",
+    "cæd": "cæd",
+    "cyrr": "cyrr",
+    "cyrpsian": "cyrpsian",
+    "cyrran": "cyrran",
+    "dærstan": "dærstan",
+    "dræf": "drǣf",
+    "drim": "drīm",
+    "eacen": "ēacen",
+    "eatolware": "eatol-ware",
+    "egsung": "egsung",
+    "elcra": "elcra",
+    "eowian": "ēowian",
+    "eowde": "ēowde",
+    "eowre": "ēowre",
+    "fæmig": "fǣmig",
+    "fedesl": "fēdesl",
+    "floege": "floege",
+    "flyte": "flȳte",
+    "fliete": "flīete",
+    "flian": "flīan",
+    "foraþ": "fōr-āþ",
+    "forbregdan": "for-bregdan",
+    "forbryttan": "for-bryttan",
+    "frohtian": "frohtian",
+    "forhyrdan": "for-hyrdan",
+    "fotsiþsticcel": "fōt-sīþ-sticcel",
+    "frofernis": "frōfernis",
+    "gabbung": "gabbung",
+    "gabere": "gabere",
+    "geaglisc": "geaglisc",
+    "geapes": "gēapes",
+    "gearfoþe": "ge-arfoðe",
+    "gebegdnes": "ge-bēgdnes",
+    "gebeldan": "gebēldan",
+    "gebegendlic": "ge-bēgendlīc",
+    "gefremman": "ge-fremman",
+    "gegafelod": "ge-gafelod",
+    "gen": "gēn",
+    "gehathyrtan": "ge-hāthyrtan",
+    "gehornian": "ge-hornian",
+    "gemodsumnes": "ge-mōdsumnes",
+    "geonetan": "ge-ōnētan",
+    "gesetenes": "ge-setenes",
+    "gyrman": "gyrman",
+    "gryn": "gryn",
+    "hadswape": "hād-swāpe",
+    "hæl": "hǣl",
+    "healsian": "hēalsian",
+    "horian": "horian",
+    "hell": "hell",
+    "himming": "himming",
+    "hyse": "hyse",
+    "higid": "hīgid",
+    "hræn": "hrǣn",
+    "hraen": "hraen",
+    "hringsete": "hring-sete",
+    "mægeþ": "mægeþ",
+    "maran": "māran",
+    "mærian": "mǣrian",
+    "mærh": "mærh",
+    "meatt": "meatt",
+    "miht": "miht",
+    "midlian": "midlian",
+    "myrt": "myrt",
+    "neodian": "nēodian",
+    "neahþeod": "nēah-þēod",
+    "reccan": "reccan",
+    "saeflod": "sāe-flōd",
+    "sæflod": "sǣ-flōd",
+    "scyn": "scȳn",
+    "sled": "slēd",
+    "wyrþian": "wyrþian",
+    "wirgung": "wirgung",
+    "wirgende": "wirgende",
+    "wirgness": "wirgness",
+    "wirnan": "wirnan",
+    "wohdaed": "wōh-dāed",
+    "wohdæd": "wōh-dǣd",
+    "abbodleast": "abbod-lēast",
+    "beþecian": "beþecian",
+    "abrecendlic": "ā-brecendlic",
+    "acwencedlic": "ā-cwencedlic",
+    "acweorna": "ācweorna",
+    "adrifenness": "ā-drifenness",
+    "adsa": "adsa",
+    "adrysnendlic": "ā-drysnendlic",
+    "adwæscedlic": "ā-dwǣscedlic",
+    "es": "es",
+    "æfgælþ": "æf-gælþ",
+    "æfse": "æfse",
+    "æfric": "ǣfric",
+    "æfþunca": "æf-þunca",
+    "æftresta": "æftresta",
+    "aelbitu": "aelbitu",
+    "ælaþ": "ælaþ",
+    "æned": "æned",
+    "ænege": "ǣn-ēge",
+    "ænigwiht": "ǣnig-wiht",
+    "ænlipe": "ǣn-līpe",
+    "ærþling": "ærþling",
+    "ærþeland": "ærþe-land",
+    "æschere": "æsc-here",
+    "æscwert": "æsc-wert",
+    "ætere": "ǣtere",
+    "æteawan": "æt-ēawan",
+    "aetfeng": "aet-feng",
+    "ættrig": "ǣttrig",
+    "afeohtendlic": "ā-feohtendlic",
+    "afeonge": "ā-fēonge",
+    "ahtian": "ahtian",
+    "aleonian": "ā-leonian",
+    "alhstede": "alh-stede",
+    "anbrucol": "an-brucol",
+    "anbringelle": "an-bringelle",
+    "anburge": "an-burge",
+    "andbida": "and-bida",
+    "andhladan": "and-hladan",
+    "andhefe": "and-hēfe",
+    "andustrian": "andustrian",
+    "andustrung": "andustrung",
+    "aneaga": "ān-ēaga",
+    "anhefedness": "an-hefedness",
+    "anlician": "an-līcian",
+    "anwunung": "ān-wunung",
+    "apinsung": "ā-pinsung",
+    "aræfned": "ā-ræfned",
+    "arærend": "a-rǣrend",
+    "arimedlic": "ā-rīmedlic",
+    "ascegeswap": "asce-geswāp",
+    "ascelede": "ā-scelede",
+    "atellendlic": "ā-tellendlic",
+    "aþewan": "ā-þēwan",
+    "aþiedan": "ā-þīedan",
+    "atih": "ātih",
+    "atiht": "ā-tiht",
+    "awritting": "ā-writting",
+    "bælca": "bælca",
+    "becnend": "bēcnend",
+    "becnung": "bēcnung",
+    "belgness": "belgness",
+    "belltid": "bell-tīd",
+    "benorþaneastan": "bē-norþan-ēastan",
+    "beorning": "beorning",
+    "berland": "ber-land",
+    "bernhus": "bern-hūs",
+    "betel": "bētel",
+    "beþancen": "be-þancen",
+    "beþan": "beþan",
+    "bewestannorþan": "be-westan-norþan",
+    "bibliþeca": "bibliþēca",
+    "biderip": "bide-rīp",
+    "bidenfæt": "biden-fæt",
+    "blæce": "blǣce",
+    "blagettan": "blagettan",
+    "blaster": "blaster",
+    "blec": "blec",
+    "blindian": "blindian",
+    "blindfellian": "blind-fellian",
+    "breting": "breting",
+    "bretmælum": "bret-mǣlum",
+    "briden": "briden",
+    "broþorscipe": "brōþor-scipe",
+    "bycera": "bycera",
+    "byed": "bȳed",
+    "byencg": "bȳencg",
+    "byend": "bȳend",
+    "byrla": "byrla",
+    "caerte": "caerte",
+    "cæsternisc": "cæsternisc",
+    "ceastersætan": "ceaster-sǣtan",
+    "cesena": "cesena",
+    "cheahchetung": "cheahchetung",
+    "cestian": "cestian",
+    "chroa": "chroa",
+    "chyae": "chȳae",
+    "chuelc": "chuelc",
+    "chuæt": "chuæt",
+    "chyun": "chȳun",
+    "cigedness": "cīged-ness",
+    "cigendlic": "cīgend-lic",
+    "cigness": "cīg-ness",
+    "cimstanas": "cim-stānas",
+    "cirlic": "cirlic",
+    "cirin": "cirin",
+    "cirn": "cirn",
+    "citelian": "citelian",
+    "citere": "citere",
+    "citre": "citre",
+    "clægweg": "clǣg-weg",
+    "cleric": "cleric",
+    "clifiht": "clifiht",
+    "lice": "līce",
+    "cræfian": "cræfian",
+    "crocc": "crocc",
+    "crump": "crump",
+    "crymman": "crymman",
+    "crymian": "crymian",
+    "cwidol": "cwidol",
+    "cwedol": "cwedol",
+    "cwiþa": "cwiþa",
+    "cynning": "cynning",
+    "diglan": "dīglan",
+    "dihtung": "dihtung",
+    "drem": "drēm",
+    "driefan": "drīefan",
+    "dryhtwemend": "dryht-wēmend",
+    "eadmund": "ēadmund",
+    "ealllic": "eall-lic",
+    "eallmeaht": "eall-meaht",
+    "earngeap": "earn-gēap",
+    "earwela": "ēar-wela",
+    "eawedness": "ēawed-ness",
+    "ecglinga": "ecglinga",
+    "eclinga": "eclinga",
+    "edbyrdan": "ed-byrdan",
+    "edwirpan": "ed-wirpan",
+    "efendire": "efen-dīre",
+    "efesc": "efesc",
+    "eftacennedness": "eftācennedness",
+    "egeful": "ege-ful",
+    "egesful": "eges-ful",
+    "ellenstybb": "ellen-stybb",
+    "elþeodgian": "el-þēodgian",
+    "elþeodgung": "el-þēodgung",
+    "endeþræst": "ende-þrǣst",
+    "endigendlic": "endigend-lic",
+    "endodlic": "endod-lic",
+    "eotol": "eotol",
+    "eþring": "ēþring",
+    "færpingas": "færpingas",
+    "faldweorþ": "fald-weorþ",
+    "feferig": "feferig",
+    "feorht": "feorht",
+    "feorland": "feor-land",
+    "fil": "fīl",
+    "fiil": "fiil",
+    "firdesne": "fird-esne",
+    "firdfor": "fird-fōr",
+    "firdgeatwe": "fird-geatwe",
+    "firdleas": "fird-lēas",
+    "firdtruma": "fird-truma",
+    "firdwisa": "fird-wīsa",
+    "flytme": "flȳtme",
+    "forane": "forane",
+    "forbugendlic": "for-būgendlic",
+    "forebyrd": "fore-byrd",
+    "foredruncen": "fore-druncen",
+    "foredruncnian": "fore-druncnian",
+    "foregeteohhian": "fore-geteohhian",
+    "foregidd": "fore-gidd",
+    "forescunian": "fore-scunian",
+    "forewitig": "fore-witig",
+    "forhrepian": "for-hrepian",
+    "forrotigendlic": "for-rotigendlic",
+    "forswigung": "for-swigung",
+    "fortyhtend": "for-tyhtend",
+    "forwandigendlice": "for-wandigendlīce",
+    "fracoþword": "fracoþ-word",
+    "framung": "framung",
+    "fregenseldlic": "fregen-seldlic",
+    "frigend": "frīgend",
+    "freogend": "frēogend",
+    "fretmase": "fret-māse",
+    "friht": "friht",
+    "frosc": "frosc",
+    "frumcirr": "frum-cirr",
+    "fugelung": "fugelung",
+    "fullwere": "fullwere",
+    "fyllendlic": "fyllend-lic",
+    "fylledlic": "fylled-lic",
+    "gæderteng": "gæder-teng",
+    "gæderung": "gæderung",
+    "geglesc": "geglesc",
+    "geagn": "geagn",
+    "geagnes": "geagnes",
+    "geambehtan": "ge-ambehtan",
+    "geandspornan": "ge-andspornan",
+    "gebeogol": "ge-bēogol",
+    "gebicnan": "ge-bīcnan",
+    "gebicnend": "ge-bīcnend",
+    "gebicnendlic": "ge-bīcnendlic",
+    "gebiwan": "ge-bīwan",
+    "gecrymian": "ge-crymian",
+    "gedafenigendlic": "ge-dafenigendlic",
+    "gediglan": "ge-dīglan",
+    "gediþan": "ge-dīþan",
+    "gedyfan": "ge-dȳfan",
+    "gefahmon": "gefāhmon",
+    "geforewyrdan": "ge-forewyrdan",
+    "gefrægelic": "ge-frǣgelic",
+    "gefreogend": "ge-frēogend",
+    "gegymian": "ge-gymian",
+    "gehathirtan": "ge-hāthirtan",
+    "gehealdend": "ge-healdend",
+    "gehean": "ge-hēan",
+    "gehirdness": "ge-hirdness",
+    "gehlinian": "ge-hlinian",
+    "gehliwan": "ge-hlīwan",
+    "gehorwian": "ge-horwian",
+    "gehringan": "ge-hringan",
+    "gehwætness": "ge-hwætness",
+    "gehwerfness": "ge-hwerfness",
+    "gehwerf": "ge-hwerf",
+    "gehwirfan": "ge-hwirfan",
+    "geled": "ge-lēd",
+    "gelibban": "ge-libban",
+    "gemanigfildan": "ge-manigfildan",
+    "gemerung": "gēmerung",
+    "gemiscan": "ge-miscan",
+    "geocled": "geoc-led",
+    "geocsticca": "geoc-sticca",
+    "geohhol": "geohhol",
+    "gehol": "gehol",
+    "geolean": "gēo-lēan",
+    "geolstor": "geolstor",
+    "geolwe": "geolwe",
+    "geomore": "gēomore",
+    "georrettan": "ge-orrettan",
+    "geortriwan": "ge-ortrīwan",
+    "gihsa": "gihsa",
+    "gesca": "gesca",
+    "gescæning": "ge-scǣning",
+    "gescænness": "ge-scǣnness",
+    "gescogan": "ge-scōgan",
+    "gesen": "gesen",
+    "eosen": "eosen",
+    "geseowan": "ge-sēowan",
+    "gesliht": "ge-sliht",
+    "geslifed": "ge-slīfed",
+    "gestician": "ge-stician",
+    "gestregdan": "ge-stregdan",
+    "geswigra": "ge-swigra",
+    "geteme": "ge-tēme",
+    "geþegnsum": "ge-þegnsum",
+    "geþeostrian": "ge-þēostrian",
+    "geþreagean": "ge-þrēagean",
+    "geþroren": "ge-þroren",
+    "geþrofen": "ge-þrofen",
+    "geþuxian": "ge-þuxian",
+    "getirgan": "ge-tirgan",
+    "getrymming": "ge-trymming",
+    "gewendedlic": "ge-wendedlic",
+    "gewyrdelicness": "ge-wyrdelicness",
+    "gewyrmsed": "ge-wyrmsed",
+    "gicer": "gicer",
+    "gycer": "gycer",
+    "gifend": "gifend",
+    "giminglic": "gīming-lic",
+    "gimingian": "gīmingian",
+    "gierela": "gierela",
+    "girela": "girela",
+    "girelian": "girelian",
+    "girelic": "girelic",
+    "gyrrettan": "gyrrettan",
+    "girrettan": "girrettan",
+    "giscung": "giscung",
+    "geoxung": "geoxung",
+    "gistærn": "gist-ærn",
+    "gliwmægden": "glīw-mægden",
+    "godelic": "gōde-lic",
+    "godewebb": "gode-webb",
+    "godgesprecen": "god-gesprecen",
+    "godwræc": "god-wræc",
+    "gorgraf": "gor-grāf",
+    "gramatic": "gramatic",
+    "gremung": "gremung",
+    "gremming": "gremming",
+    "greaua": "greaua",
+    "grunnung": "grunnung",
+    "grunnian": "grunnian",
+    "gryremeaht": "gryre-meaht",
+    "hæftnedan": "hæftnēdan",
+    "hæftnednes": "hæftnēd-nes",
+    "hagustaldesea": "hagustaldes-ēa",
+    "halm": "halm",
+    "heallærn": "heall-ærn",
+    "heallreced": "heall-reced",
+    "healstan": "heal-stān",
+    "hamal": "hamal",
+    "heardhara": "heard-hara",
+    "heardhewe": "heard-hēwe",
+    "hecg": "hecg",
+    "hegg": "hegg",
+    "hegian": "hegian",
+    "helle": "helle",
+    "heofonbigenged": "heofon-bīgenged",
+    "holrian": "holrian",
+    "heolrian": "heolrian",
+    "heolorian": "heolorian",
+    "heon": "heon",
+    "hergend": "hergend",
+    "hergiend": "hergiend",
+    "hernuma": "her-numa",
+    "hoese": "hoese",
+    "haese": "haese",
+    "hi": "hī",
+    "hegan": "hēgan",
+    "hihþ": "hīhþ",
+    "hlafofen": "hlāf-ofen",
+    "hleowsian": "hlēowsian",
+    "hlytta": "hlytta",
+    "hnæpp": "hnæpp",
+    "hogg": "hogg",
+    "horsclic": "horsc-lic",
+    "horxlic": "horx-lic",
+    "hrætelwyrt": "hrætel-wyrt",
+    "hryxlan": "hrȳxlan",
+    "hrystlan": "hrȳstlan",
+    "hundwille": "hund-wille",
+    "hwaþerian": "hwaþerian",
+    "hwaþerung": "hwaþerung",
+    "hwoþrung": "hwoþrung",
+    "hweall": "hweall",
+    "hwelca": "hwelca",
+    "hwicce": "hwicce",
+    "hwidere": "hwidere",
+    "hydele": "hydele",
+    "hnydele": "hnydele",
+    "inngeþanc": "inn-geþanc",
+    "lædenlar": "lǣden-lār",
+    "lædlic": "lǣd-lic",
+    "lew": "lēw",
+    "læw": "lǣw",
+    "læwsa": "lǣwsa",
+    "leasferhþ": "lēas-ferhþ",
+    "mægenian": "mægenian",
+    "mægnian": "mægnian",
+    "menig": "mēnig",
+    "mægepblæd": "mægep-blæd",
+    "mægeþhad": "mægeþ-hād",
+    "mæslere": "mæslere",
+    "mæslingsmiþ": "mæsling-smiþ",
+    "maessehacele": "maesse-hacele",
+    "monian": "monian",
+    "mettoc": "mettoc",
+    "mattoc": "mattoc",
+    "meottic": "meottic",
+    "max": "max",
+    "maxwyrt": "māx-wyrt",
+    "meht": "meht",
+    "maht": "maht",
+    "mieht": "mieht",
+    "mæhtig": "mæhtig",
+    "mehtig": "mehtig",
+    "mihtig": "mihtig",
+    "meahtlic": "meaht-līc",
+    "meahtlice": "meaht-līce",
+    "mealtwyrt": "mealt-wyrt",
+    "mearcwaed": "mearc-waed",
+    "mearglic": "mearg-līc",
+    "meru": "meru",
+    "myru": "myru",
+    "mæru": "mæru",
+    "medisc": "mēdisc",
+    "medas": "mēdas",
+    "meddern": "mēddern",
+    "medder": "mēdder",
+    "medren": "mēdren",
+    "medern": "mēdern",
+    "megende": "megende",
+    "meg": "mēg",
+    "megen": "megen",
+    "megwlite": "mēg-wlite",
+    "meh": "meh",
+    "mei": "mēi",
+    "meig": "meig",
+    "mengu": "mengu",
+    "mettrum": "met-trum",
+    "middansumor": "middan-sumor",
+    "middelseaxe": "middel-seaxe",
+    "monlic": "mōn-līc",
+    "mynetisen": "mynet-īsen",
+    "myrhþ": "myrhþ",
+    "myrigþ": "myrigþ",
+    "na": "nā",
+    "nidhæmdere": "nīd-hǣmdere",
+    "ofdunrihte": "ofdūn-rihte",
+    "ofdunweard": "ofdūn-weard",
+    "oferprut": "ofer-prūt",
+    "ofersælþ": "ofer-sǣlþ",
+    "oferweorþ": "ofer-weorþ",
+    "oferwinnende": "ofer-winnende",
+    "ofestan": "ofestan",
+    "olæcan": "ōlæcan",
+    "olehtan": "ōlehtan",
+    "olectan": "ōlectan",
+    "onælet": "on-ǣlet",
+    "onal": "on-āl",
+    "onascunung": "on-āscunung",
+    "ongelice": "ongelīce",
+    "onligian": "on-līgian",
+    "ontrymian": "on-trymian",
+    "pæcung": "pǣcung",
+    "pandher": "pandher",
+    "panþer": "panþer",
+    "ploccan": "ploccan",
+    "rihtþeow": "riht-þēow",
+    "rihtymbren": "riht-ymbren",
+    "rumwealh": "rūm-wealh",
+    "ryt": "rȳt",
+    "sceaftrihte": "sceaft-rihte",
+    "sceamleast": "sceamlēast",
+    "scendung": "scendung",
+    "scerpen": "scerpen",
+    "scildweall": "scild-weall",
+    "scinnhiw": "scinn-hiw",
+    "scrudfeoh": "scrūd-feoh",
+    "sceoccen": "sceoccen",
+    "scuccen": "scuccen",
+    "siblufu": "sib-lufu",
+    "sweordtyge": "sweord-tyge",
+    "swicn": "swicn",
+    "teolen": "teolen",
+    "th": "th",
+    "þ": "þ",
+    "þurhsmirwan": "þurh-smirwan",
+    "tolynian": "tō-lynian",
+    "trepettan": "trepettan",
+    "uncuþness": "un-cūþness",
+    "unfaederlice": "un-faederlīce",
+    "unforwirded": "un-forwirded",
+    "unlifedlic": "un-līfedlic",
+    "waefersin": "waefer-sīn",
+    "walte": "walte",
+    "waltae": "waltae",
+    "wænle": "wænle",
+    "wandale": "wandale",
+    "wendle": "wendle",
+    "weorcweorþ": "weorc-weorþ",
+    "weorþfulness": "weorþfulness",
+    "wurþian": "wurþian",
+    "weregild": "were-gild",
+    "wilnung": "wilnung",
+    "wissigotan": "wissigotan",
+    "wissi": "wissi",
+    "wexen": "wexen",
+    "yflung": "yflung",
+    "yfelung": "yfelung",
+    "ymbfangenlic": "ymbfangenlic",
+    "ymbfangen": "ymb-fangen"
   },
   "ambiguous": {
     "ac": [
@@ -39280,10 +39743,6 @@
       "ælan",
       "ǣlan"
     ],
-    "ælcra": [
-      "ælcor",
-      "ælcra"
-    ],
     "ælfred": [
       "ælfred",
       "ælfrēd"
@@ -39295,10 +39754,6 @@
     "æling": [
       "æling",
       "ǣling"
-    ],
-    "ælmysse": [
-      "ælmesse",
-      "ælmysse"
     ],
     "æltæwlice": [
       "æl-tæwlīce",
@@ -39319,10 +39774,6 @@
     "æmettig": [
       "æmettig",
       "ǣmettig"
-    ],
-    "æmtig": [
-      "æmta",
-      "æmtig"
     ],
     "ænga": [
       "ænga",
@@ -39372,10 +39823,6 @@
       "æt",
       "ǣt"
     ],
-    "ætfeng": [
-      "aet-feng",
-      "ǣt-feng"
-    ],
     "ætfeolan": [
       "æt-feolan",
       "æt-fēolan"
@@ -39403,10 +39850,6 @@
     "ætren": [
       "ætren",
       "ǣtren"
-    ],
-    "ættran": [
-      "ætrian",
-      "ǣtrian"
     ],
     "ætrian": [
       "ætrian",
@@ -39677,10 +40120,6 @@
       "bytt",
       "bȳtt"
     ],
-    "cæd": [
-      "cac",
-      "cæd"
-    ],
     "cægloca": [
       "cæg-loca",
       "cǣg-loca"
@@ -39781,18 +40220,6 @@
       "cyp",
       "cȳp"
     ],
-    "cyrr": [
-      "cyrps",
-      "cyrr"
-    ],
-    "cyrpsian": [
-      "cyrps",
-      "cyrpsian"
-    ],
-    "cyrran": [
-      "cyrps",
-      "cyrran"
-    ],
     "cyrtenlæcan": [
       "cyrten-lǣcan",
       "cyrtenlǣcan"
@@ -39828,10 +40255,6 @@
     "dæl": [
       "dæl",
       "dǣl"
-    ],
-    "dærstan": [
-      "dærst",
-      "dærstan"
     ],
     "deadlicnys": [
       "dēad-licnys",
@@ -39871,7 +40294,6 @@
     ],
     "digol": [
       "digol",
-      "dīgle",
       "dīgol"
     ],
     "diglice": [
@@ -39898,23 +40320,11 @@
       "dor",
       "dōr"
     ],
-    "dræf": [
-      "drāf",
-      "drǣf"
-    ],
-    "drim": [
-      "drēam",
-      "drīm"
-    ],
     "dreas": [
       "drēas",
       "drēas"
     ],
     "drifan": [
-      "drifan",
-      "drīfan"
-    ],
-    "driefan": [
       "drifan",
       "drīfan"
     ],
@@ -39941,10 +40351,6 @@
     "dwinan": [
       "dwinan",
       "dwīnan"
-    ],
-    "eacen": [
-      "ēacan",
-      "ēacen"
     ],
     "eagseoung": [
       "ēag-seoung",
@@ -40023,10 +40429,6 @@
       "ēaþ-nes",
       "ēaþnes"
     ],
-    "eatolware": [
-      "eatol-ware",
-      "eatole"
-    ],
     "ebreisc": [
       "ebreisc",
       "ebrēisc"
@@ -40091,13 +40493,8 @@
       "egsa",
       "ēgsa"
     ],
-    "egsung": [
-      "egsian",
-      "egsung"
-    ],
     "ehtian": [
       "ehtian",
-      "ēhtan",
       "ēhtian"
     ],
     "ehtnes": [
@@ -40107,10 +40504,6 @@
     "el": [
       "el",
       "ēl"
-    ],
-    "elcra": [
-      "elcora",
-      "elcra"
     ],
     "ele": [
       "ele",
@@ -40147,18 +40540,6 @@
     "eow": [
       "eow",
       "ēow"
-    ],
-    "eowian": [
-      "ēowan",
-      "ēowian"
-    ],
-    "eowde": [
-      "ēowd",
-      "ēowde"
-    ],
-    "eowre": [
-      "ēower",
-      "ēowre"
     ],
     "epegitsung": [
       "epegitsung",
@@ -40200,10 +40581,6 @@
     "fæle": [
       "fæle",
       "fǣle"
-    ],
-    "fæmig": [
-      "fāmig",
-      "fǣmig"
     ],
     "fær": [
       "fær",
@@ -40260,10 +40637,6 @@
     "feaxeacas": [
       "feax-eacas",
       "feax-ēacas"
-    ],
-    "fedesl": [
-      "fēdels",
-      "fēdesl"
     ],
     "fela": [
       "fela",
@@ -40369,25 +40742,9 @@
       "fled",
       "flēd"
     ],
-    "floege": [
-      "floege",
-      "flēge"
-    ],
-    "flyte": [
-      "flēote",
-      "flȳte"
-    ],
-    "fliete": [
-      "flēote",
-      "flīete"
-    ],
     "flet": [
       "flet",
       "flēt"
-    ],
-    "flian": [
-      "fligan",
-      "flīan"
     ],
     "flit": [
       "flit",
@@ -40421,10 +40778,6 @@
       "foran-niht",
       "fōran-niht"
     ],
-    "foraþ": [
-      "fōr-āþ",
-      "fōre-āþ"
-    ],
     "forberan": [
       "for-beran",
       "fōr-beran"
@@ -40432,14 +40785,6 @@
     "forboda": [
       "for-boda",
       "fōr-boda"
-    ],
-    "forbregdan": [
-      "for-bredan",
-      "for-bregdan"
-    ],
-    "forbryttan": [
-      "for-brittan",
-      "for-bryttan"
     ],
     "forcnidan": [
       "for-cnidan",
@@ -40702,14 +41047,6 @@
       "for-hraþe",
       "fōr-hraðe"
     ],
-    "frohtian": [
-      "forhtian",
-      "frohtian"
-    ],
-    "forhyrdan": [
-      "for-hyrdan",
-      "for-hȳnan"
-    ],
     "forliggang": [
       "for-liggang",
       "forlig-gang"
@@ -40826,10 +41163,6 @@
       "fōst-raþ",
       "fōstraþ"
     ],
-    "fotsiþsticcel": [
-      "fōt-sīþ-gerif",
-      "fōt-sīþ-sticcel"
-    ],
     "fræfelnes": [
       "fræfel-nes",
       "fræfelnes"
@@ -40864,7 +41197,6 @@
     ],
     "frecnes": [
       "frecnes",
-      "frēcennes",
       "frēcnes"
     ],
     "fremdian": [
@@ -40898,10 +41230,6 @@
     "friþsum": [
       "friþ-sum",
       "friþsum"
-    ],
-    "frofernis": [
-      "frōferian",
-      "frōfernis"
     ],
     "from": [
       "from",
@@ -40961,9 +41289,7 @@
       "fȳr"
     ],
     "fyrian": [
-      "fyran",
       "fyrian",
-      "fȳran",
       "fȳrian"
     ],
     "fyran": [
@@ -40990,14 +41316,6 @@
     "fyrstan": [
       "fyrstan",
       "fȳr-stān"
-    ],
-    "gabbung": [
-      "gabban",
-      "gabbung"
-    ],
-    "gabere": [
-      "gabban",
-      "gabere"
     ],
     "gaderigendlic": [
       "gaderigend-lic",
@@ -41030,10 +41348,6 @@
     "gagolbærnes": [
       "gagol-bǣrnes",
       "gagolbǣr-nes"
-    ],
-    "geaglisc": [
-      "gagolisc",
-      "geaglisc"
     ],
     "galfull": [
       "gāl-full",
@@ -41092,11 +41406,6 @@
       "gēan-nis",
       "gēannis"
     ],
-    "geapes": [
-      "geap",
-      "gēap",
-      "gēapes"
-    ],
     "geap": [
       "geap",
       "gēap"
@@ -41120,10 +41429,6 @@
     "geare": [
       "geare",
       "gēare"
-    ],
-    "gearfoþe": [
-      "ge-arfoðe",
-      "ge-arfoþ"
     ],
     "gearo": [
       "gearo",
@@ -41152,18 +41457,6 @@
     "gebedstow": [
       "ge-bēd-stōw",
       "gebed-stōw"
-    ],
-    "gebegdnes": [
-      "ge-bēgan",
-      "ge-bēgdnes"
-    ],
-    "gebeldan": [
-      "ge-bēgan",
-      "gebēldan"
-    ],
-    "gebegendlic": [
-      "ge-bēgan",
-      "ge-bēgendlīc"
     ],
     "gebeotian": [
       "ge-beotian",
@@ -41303,29 +41596,13 @@
       "ge-flītmǣlum",
       "geflit-mǣlum"
     ],
-    "gefremman": [
-      "ge-fremian",
-      "ge-fremman"
-    ],
     "gefrett": [
       "ge-frett",
       "gefrett"
     ],
-    "gegafelod": [
-      "ge-gafelian",
-      "ge-gafelod"
-    ],
-    "gen": [
-      "gegn",
-      "gēn"
-    ],
     "gehat": [
       "ge-hāt",
       "gehāt"
-    ],
-    "gehathyrtan": [
-      "ge-hāthyrt",
-      "ge-hāthyrtan"
     ],
     "gehatian": [
       "ge-hatian",
@@ -41351,17 +41628,9 @@
       "ge-hleow",
       "ge-hlēow"
     ],
-    "es": [
-      "ge-hlyst",
-      "sceam-lim"
-    ],
     "gehlywan": [
       "ge-hlywan",
       "ge-hlȳwan"
-    ],
-    "gehornian": [
-      "ge-horian",
-      "ge-hornian"
     ],
     "gehrine": [
       "ge-hrine",
@@ -41471,10 +41740,6 @@
       "ge-met-līcung",
       "ge-metlicung"
     ],
-    "gemodsumnes": [
-      "ge-mōdsumian",
-      "ge-mōdsumnes"
-    ],
     "genehlice": [
       "ge-nehlīce",
       "ge-nēhlīce"
@@ -41514,10 +41779,6 @@
     "geoguþmyru": [
       "geoguþ-myru",
       "gēoguþ-myru"
-    ],
-    "geonetan": [
-      "ge-onet",
-      "ge-ōnētan"
     ],
     "geong": [
       "geong",
@@ -41587,10 +41848,6 @@
       "ge-scynian",
       "ge-scȳnian"
     ],
-    "gesetenes": [
-      "ge-setednes",
-      "ge-setenes"
-    ],
     "gesine": [
       "ge-sīne",
       "gēsine"
@@ -41649,7 +41906,6 @@
     ],
     "getan": [
       "getan",
-      "gitan",
       "gētan"
     ],
     "geteorian": [
@@ -41755,10 +42011,6 @@
     "gimbære": [
       "gim-bǣre",
       "gimbǣre"
-    ],
-    "gyrman": [
-      "gyrman",
-      "gīmran"
     ],
     "gioc": [
       "gioc",
@@ -41881,10 +42133,6 @@
       "grantabrycg-scīr",
       "grantabrycgscir"
     ],
-    "gryn": [
-      "grin",
-      "gryn"
-    ],
     "gripe": [
       "gripe",
       "grīpe"
@@ -41901,10 +42149,6 @@
       "gynan",
       "gȳnan"
     ],
-    "hadswape": [
-      "hād-swāpe",
-      "hād-swǣpa"
-    ],
     "hæbbendlic": [
       "hæbbend-lic",
       "hæbbendlīc"
@@ -41920,10 +42164,6 @@
     "hæghal": [
       "hæg-hāl",
       "hæghāl"
-    ],
-    "hæl": [
-      "hel",
-      "hǣl"
     ],
     "hæle": [
       "hæle",
@@ -41958,10 +42198,6 @@
       "hal",
       "hāl"
     ],
-    "healsian": [
-      "hēalsian",
-      "hālsian"
-    ],
     "halwenda": [
       "hāl-wenda",
       "hālwenda"
@@ -41993,11 +42229,6 @@
     "hamscir": [
       "hām-scir",
       "hām-scīr"
-    ],
-    "horian": [
-      "harian",
-      "horian",
-      "hārian"
     ],
     "harian": [
       "harian",
@@ -42068,17 +42299,9 @@
       "heaþu-sigel",
       "hēaðu-sigel"
     ],
-    "hell": [
-      "hel",
-      "hell"
-    ],
     "hellheoþo": [
       "hell-heoþo",
       "hell-hēoþo"
-    ],
-    "himming": [
-      "hemming",
-      "himming"
     ],
     "here": [
       "here",
@@ -42092,17 +42315,9 @@
       "here-nes",
       "hēre-nes"
     ],
-    "hyse": [
-      "hese",
-      "hyse"
-    ],
     "hicemase": [
       "hice-māse",
       "hīce-māse"
-    ],
-    "higid": [
-      "hid",
-      "hīgid"
     ],
     "hig": [
       "hig",
@@ -42213,14 +42428,6 @@
       "hræd-līcness",
       "hrædlicness"
     ],
-    "hræn": [
-      "hraen",
-      "hrǣn"
-    ],
-    "hraen": [
-      "hraen",
-      "hrǣn"
-    ],
     "hran": [
       "hran",
       "hrān"
@@ -42236,10 +42443,6 @@
     "hrim": [
       "hrim",
       "hrīm"
-    ],
-    "hringsete": [
-      "hring-seta",
-      "hring-sete"
     ],
     "hriþ": [
       "hrið",
@@ -42526,10 +42729,6 @@
       "mæg",
       "mǣg"
     ],
-    "mægeþ": [
-      "mægeþ",
-      "mǣgþ"
-    ],
     "mægþhad": [
       "mægþ-hād",
       "mǣgþ-hād"
@@ -42538,14 +42737,6 @@
       "mælan",
       "mǣlan"
     ],
-    "maran": [
-      "māran",
-      "mǣran"
-    ],
-    "mærian": [
-      "mǣran",
-      "mǣrian"
-    ],
     "mærdic": [
       "mǣr-dic",
       "mǣr-dīc"
@@ -42553,10 +42744,6 @@
     "mære": [
       "mære",
       "mǣre"
-    ],
-    "mærh": [
-      "mearh",
-      "mærh"
     ],
     "mæst": [
       "mæst",
@@ -42577,14 +42764,6 @@
     "man": [
       "man",
       "mān"
-    ],
-    "meatt": [
-      "matt",
-      "meatt"
-    ],
-    "miht": [
-      "meaht",
-      "miht"
     ],
     "medumlicness": [
       "medumlic-ness",
@@ -42610,10 +42789,6 @@
       "midde-weard",
       "middeweard"
     ],
-    "midlian": [
-      "midl-hring",
-      "midlian"
-    ],
     "min": [
       "min",
       "mīn"
@@ -42621,10 +42796,6 @@
     "mire": [
       "mire",
       "mīre"
-    ],
-    "myrt": [
-      "mirt",
-      "myrt"
     ],
     "missenlicness": [
       "missenlic-ness",
@@ -42649,14 +42820,6 @@
     "mot": [
       "mot",
       "mōt"
-    ],
-    "neodian": [
-      "nēadian",
-      "nēodian"
-    ],
-    "neahþeod": [
-      "nēah-tīd",
-      "nēah-þēod"
     ],
     "nebwlatung": [
       "neb-wlatung",
@@ -42832,11 +42995,6 @@
       "recan",
       "rēcan"
     ],
-    "reccan": [
-      "recan",
-      "reccan",
-      "rēcan"
-    ],
     "reodian": [
       "reodian",
       "rēodian"
@@ -42922,14 +43080,6 @@
       "sæd",
       "sǣd"
     ],
-    "saeflod": [
-      "sāe-flōd",
-      "sǣ-flōd"
-    ],
-    "sæflod": [
-      "sāe-flōd",
-      "sǣ-flōd"
-    ],
     "sæl": [
       "sæl",
       "sǣl"
@@ -42986,10 +43136,6 @@
       "scimian",
       "scīmian"
     ],
-    "scyn": [
-      "scīn",
-      "scȳn"
-    ],
     "scinefrian": [
       "scinefrian",
       "scīnefrian"
@@ -43017,10 +43163,6 @@
     "siþfæt": [
       "siþ-fæt",
       "sīþ-fæt"
-    ],
-    "sled": [
-      "slēd",
-      "slǣd"
     ],
     "slæpærn": [
       "slæp-ærn",
@@ -43318,10 +43460,6 @@
       "wel",
       "wēl"
     ],
-    "wyrþian": [
-      "weorþian",
-      "wyrþian"
-    ],
     "werig": [
       "werig",
       "wērig"
@@ -43370,22 +43508,6 @@
       "win",
       "wīn"
     ],
-    "wirgung": [
-      "wirgedness",
-      "wirgung"
-    ],
-    "wirgende": [
-      "wirgedness",
-      "wirgende"
-    ],
-    "wirgness": [
-      "wirgedness",
-      "wirgness"
-    ],
-    "wirnan": [
-      "wirnan",
-      "wyrn"
-    ],
     "wis": [
       "wis",
       "wīs"
@@ -43410,14 +43532,6 @@
     "wiþigslæd": [
       "wiþig-slæd",
       "wīþig-slǣd"
-    ],
-    "wohdaed": [
-      "wōh-dāed",
-      "wōh-dǣd"
-    ],
-    "wohdæd": [
-      "wōh-dāed",
-      "wōh-dǣd"
     ],
     "woma": [
       "woma",
@@ -43446,6 +43560,18 @@
     "yþ": [
       "yþ",
       "ȳþ"
+    ],
+    "abregan": [
+      "a-brēgan",
+      "ā-brēgan"
+    ],
+    "acuman": [
+      "a-cuman",
+      "ā-cuman"
+    ],
+    "blece": [
+      "blece",
+      "blēce"
     ]
   },
   "ambiguous_completed": [

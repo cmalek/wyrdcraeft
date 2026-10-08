@@ -15,6 +15,7 @@ from ..models.diacritics import (
     DiacriticRestorationResult,
     MacronAmbiguity,
     MacronIndexPayload,
+    UnalignedToken,
     UnknownToken,
 )
 from ..models.macron_index import MacronIndex
@@ -41,8 +42,20 @@ DEFAULT_C_FORCE_NON_PALATALIZE_PATH: Final[Path] = (
 
 #: Regex used to split lexical tokens while preserving separators.
 LEXICAL_TOKEN_RE: Final[re.Pattern[str]] = re.compile(
-    r"[^\W\d_]+(?:[-\u2013\u2014][^\W\d_]+)*", re.UNICODE
+    r"(?:[^\W\d_][\u0300-\u036f]*)+"
+    r"(?:[-\u2013\u2014](?:[^\W\d_][\u0300-\u036f]*)+)*",
+    re.UNICODE,
 )
+#: Regex splitting text into letter+combining-mark clusters and single others.
+CLUSTER_RE: Final[re.Pattern[str]] = re.compile(
+    r"[^\W\d_][\u0300-\u036f]*|.", re.UNICODE | re.DOTALL
+)
+#: Hyphen and dash characters treated as word-internal joiners.
+DASH_CHARS: Final[str] = "-\u2013\u2014"
+#: Regex splitting a token on joiners while keeping them.
+DASH_SPLIT_RE: Final[re.Pattern[str]] = re.compile(r"([-\u2013\u2014])")
+#: Combining dot above, used for ``ġ``/``ċ``.
+DOT_ABOVE: Final[str] = "\u0307"
 #: Regex for extracting first bold headword from Bosworth-Toller lines.
 BOLD_HEADWORD_RE: Final[re.Pattern[str]] = re.compile(r"<B>(.*?)</B>")
 #: Trailing punctuation to trim from extracted headwords.
@@ -145,6 +158,120 @@ def _is_oe_wordlike(form: str) -> bool:
     return bool(LEXICAL_TOKEN_RE.fullmatch(form))
 
 
+def _fold(text: str) -> str:
+    """
+    Fold text for exception-list comparison: NFC, lowercase, ``ð`` as ``þ``.
+
+    Args:
+        text: Text to fold.
+
+    Returns:
+        Folded text; macrons are kept.
+
+    """
+    return unicodedata.normalize("NFC", text).lower().replace("ð", "þ")
+
+
+def _graft_dots(clusters: list[str], lows: list[str], after: str) -> str:
+    """
+    Add a dot above to source clusters whose lowered letter became ``ġ``/``ċ``.
+
+    Only ``g``→``ġ`` and ``c``→``ċ`` changes are applied, and only by appending
+    a combining dot to the original cluster, so case and every other character
+    of the source token are preserved.
+
+    Args:
+        clusters: Source token split into letter+mark clusters.
+        lows: NFC-lowercased form of each cluster (parallel to ``clusters``).
+        after: Palatalized lowercase token (``"".join(lows)`` with dots added).
+
+    Returns:
+        Source token with dots added.
+
+    """
+    out: list[str] = []
+    offset = 0
+    for cluster, low in zip(clusters, lows, strict=True):
+        segment = after[offset : offset + len(low)]
+        offset += len(low)
+        if (low, segment) in (("g", "ġ"), ("c", "ċ")):
+            out.append(unicodedata.normalize("NFC", cluster + DOT_ABOVE))
+        else:
+            out.append(cluster)
+    return "".join(out)
+
+
+class DiacriticTransfer:
+    """
+    Copy combining marks from a macron-index form onto a source token.
+
+    The index form never replaces the source token: its letters are aligned
+    one-to-one with the source letters (case, ``ð``≡``þ`` and hyphens/dashes
+    ignored) and only marks missing from the source are added.
+    """
+
+    @staticmethod
+    def _letters(text: str) -> list[str]:
+        """
+        Split text into letter clusters, dropping hyphens and dashes.
+
+        Args:
+            text: Token text.
+
+        Returns:
+            Letter+combining-mark clusters in order.
+
+        """
+        return [c for c in CLUSTER_RE.findall(text) if c not in DASH_CHARS]
+
+    @staticmethod
+    def _base(cluster: str) -> str:
+        """
+        Return the case-folded base letter of a cluster, with ``ð`` as ``þ``.
+
+        Args:
+            cluster: Letter plus optional combining marks.
+
+        Returns:
+            Single folded base letter.
+
+        """
+        return unicodedata.normalize("NFD", cluster)[0].lower().replace("ð", "þ")
+
+    @classmethod
+    def transfer(cls, source: str, marked: str) -> str | None:
+        """
+        Add the index form's marks to the matching letters of ``source``.
+
+        Args:
+            source: Verbatim source token.
+            marked: Macron-index display form for the same word.
+
+        Returns:
+            The source token with missing marks added, or ``None`` when the
+            letters of the two forms cannot be aligned.
+
+        """
+        index_letters = cls._letters(marked)
+        if len(index_letters) != len(cls._letters(source)):
+            return None
+        pending = iter(index_letters)
+        out: list[str] = []
+        for cluster in CLUSTER_RE.findall(source):
+            if cluster in DASH_CHARS:
+                out.append(cluster)
+                continue
+            index_cluster = next(pending)
+            if cls._base(cluster) != cls._base(index_cluster):
+                return None
+            has_marks = len(unicodedata.normalize("NFD", cluster)) > 1
+            index_marks = unicodedata.normalize("NFD", index_cluster)[1:]
+            if index_marks and not has_marks:
+                cluster = unicodedata.normalize("NFC", cluster + index_marks)  # noqa: PLW2901
+            out.append(cluster)
+        return "".join(out)
+
+
 class MacronApplicator:
     """
     Apply dictionary-backed macrons to lexical tokens.
@@ -214,6 +341,53 @@ class MacronApplicator:
             ambiguous_metadata=payload.ambiguous_metadata,
         )
 
+    @staticmethod
+    def _headword_forms(bold_text: str) -> dict[str, set[str]]:
+        """
+        Extract the lexical forms spelled out in a bold heading.
+
+        Args:
+            bold_text: Text of the first ``<B>`` heading of an entry.
+
+        Returns:
+            Mapping of normalized key to the lowercase marked forms.
+
+        """
+        forms: dict[str, set[str]] = {}
+        for raw in bold_text.split(","):
+            form = TRAILING_HEADWORD_PUNCT_RE.sub("", raw.strip())
+            key = normalize_old_english(form)
+            if key and _is_oe_wordlike(form):
+                forms.setdefault(key, set()).add(form.lower())
+        return forms
+
+    @staticmethod
+    def _variant_keys(normalized_part: str) -> list[str]:
+        """
+        Normalize the comma-separated variant list of an entry.
+
+        Args:
+            normalized_part: Third ``@`` field of a Bosworth-Toller line.
+
+        Returns:
+            Normalized keys of the usable (non-affix, lexical) variants.
+
+        """
+        keys: list[str] = []
+        for raw in normalized_part.split(","):
+            form = raw.strip()
+            if (
+                not form
+                or not _is_oe_wordlike(form)
+                or form.startswith("-")
+                or form.endswith("-")
+            ):
+                continue
+            key = normalize_old_english(form)
+            if key is not None:
+                keys.append(key)
+        return keys
+
     @classmethod
     def build_index_from_bt(
         cls, source_path: Path, output_path: Path | None = None
@@ -252,27 +426,16 @@ class MacronApplicator:
                 headword_match = BOLD_HEADWORD_RE.search(parts[1])
                 if headword_match is None:
                     continue
-                marked_form_raw = TRAILING_HEADWORD_PUNCT_RE.sub(
-                    "", headword_match.group(1).strip()
-                )
-                if not _is_oe_wordlike(marked_form_raw):
+                headword_forms = cls._headword_forms(headword_match.group(1))
+                if not headword_forms:
                     continue
 
                 parsed_count += 1
-                for raw_normalized_form in normalized_part.split(","):
-                    normalized_form = raw_normalized_form.strip()
-                    if (
-                        not normalized_form
-                        or not _is_oe_wordlike(normalized_form)
-                        or normalized_form.startswith("-")
-                        or normalized_form.endswith("-")
-                    ):
-                        continue
-                    key = normalize_old_english(normalized_form)
-                    marked = marked_form_raw.lower()
-                    if key is None:
-                        continue
-                    candidates.setdefault(key, set()).add(marked)
+                for key in cls._variant_keys(normalized_part):
+                    # A variant gets its own entry only when the heading
+                    # spells it out; otherwise there are no marks to record.
+                    if key in headword_forms:
+                        candidates.setdefault(key, set()).update(headword_forms[key])
 
         unique: dict[str, str] = {}
         ambiguous: dict[str, list[str]] = {}
@@ -327,9 +490,9 @@ class MacronApplicator:
 
     def apply(
         self, word: str, line_number: int, word_number: int
-    ) -> tuple[str, MacronAmbiguity | None, bool]:
+    ) -> tuple[str, MacronAmbiguity | None, bool, str | None]:
         """
-        Apply macrons to a single lexical token.
+        Add index diacritics to a single lexical token, preserving its letters.
 
         Args:
             word: Verbatim lexical token.
@@ -337,8 +500,11 @@ class MacronApplicator:
             word_number: 1-based lexical token number within line.
 
         Returns:
-            Tuple of (transformed token, optional ambiguity row, is_unknown).
-            is_unknown is True when the token normalized but was not in the index.
+            Tuple of (transformed token, optional ambiguity row, is_unknown,
+            unaligned index form). is_unknown is True when the token normalized
+            but was not in the index. The last item is the index display form
+            when it could not be aligned to the source (token returned
+            unchanged), else ``None``.
 
         """
         normalized = normalize_old_english(word)
@@ -350,7 +516,7 @@ class MacronApplicator:
             word_number,
         )
         if not normalized:
-            return word, None, False
+            return word, None, False, None
 
         if normalized in self.index.ambiguous:
             raw_options = self.index.ambiguous[normalized]
@@ -398,7 +564,7 @@ class MacronApplicator:
                 word_number,
                 [o.form for o in options_list],
             )
-            return word, ambiguity, False
+            return word, ambiguity, False, None
 
         marked = self.index.unique.get(normalized)
         if marked is None:
@@ -408,9 +574,18 @@ class MacronApplicator:
                 line_number,
                 word_number,
             )
-            return word, None, True
+            return word, None, True, None
 
-        transformed = _apply_case_pattern(word, marked)
+        transformed = DiacriticTransfer.transfer(word, marked)
+        if transformed is None:
+            LOGGER.debug(
+                "Macron unaligned token='%s' index_form='%s' line=%d word=%d",
+                word,
+                marked,
+                line_number,
+                word_number,
+            )
+            return word, None, False, marked
         LOGGER.debug(
             "Macron applied token='%s' -> '%s' line=%d word=%d",
             word,
@@ -418,7 +593,7 @@ class MacronApplicator:
             line_number,
             word_number,
         )
-        return transformed, None, False
+        return transformed, None, False, None
 
 
 class GPalatalizer:
@@ -500,62 +675,97 @@ class GPalatalizer:
     #: Minimum token length for internal ``g`` checks.
     MIN_INTERNAL_G_LENGTH: Final[int] = 3
 
+    #: Back vowels; a ``g`` before one stays velar.
+    BACK_VOWELS: Final[frozenset[str]] = frozenset({"a", "ā", "o", "ō", "u", "ū"})
+
     def palatalize(self, word: str) -> str:
         """
-        Palatalize ``g`` in a lexical token.
+        Add a dot above to palatal ``g`` in a lexical token.
+
+        Only the dot is added; the rest of the token is left as written.
 
         Args:
             word: Token to palatalize.
 
         Returns:
-            Palatalized token.
+            Token with ``ġ`` dots added.
 
         """
-        original = word
-        lower = word.lower()
-
-        if "-" in lower:
-            parts = lower.split("-")
-            palatalized_parts = [self.palatalize(part) for part in parts]
-            palatalized = "-".join(palatalized_parts)
-            return _apply_case_pattern(original, palatalized)
-
-        if (
-            lower.startswith("g")
-            and len(lower) > 1
-            and lower[1] in self.FRONT_VOWELS
-            and lower not in self.FRONTAL_G_EXCEPTIONS
-        ):
-            lower = "ġ" + lower[1:]
-
-        if (
-            lower.endswith("g")
-            and len(lower) > 1
-            and lower[-2] in self.FRONT_VOWELS
-            and lower not in self.ENDING_G_EXCEPTIONS
-        ):
-            lower = lower[:-1] + "ġ"
-
-        if len(lower) >= self.MIN_INTERNAL_G_LENGTH:
-            chars = list(lower)
-            for i, char in enumerate(chars):
-                if char != "g" or i == 0 or i == len(chars) - 1:
-                    continue
-                if (
-                    chars[i - 1] in self.FRONT_VOWELS
-                    and chars[i + 1] in self.FRONT_VOWELS
-                ):
-                    chars[i] = "ġ"
-            lower = "".join(chars)
-
-        first_g = lower.find("g")
-        if first_g > 0 and lower[first_g - 1] in self.FRONT_VOWELS:
-            lower = lower[:first_g] + "ġ" + lower[first_g + 1 :]
-
-        transformed = _apply_case_pattern(original, lower)
+        clusters = CLUSTER_RE.findall(word)
+        lows = [unicodedata.normalize("NFC", c).lower() for c in clusters]
+        parts = DASH_SPLIT_RE.split("".join(lows))
+        after = "".join(
+            part if part in DASH_CHARS else self._palatalize_segment(part)
+            for part in parts
+        )
+        transformed = _graft_dots(clusters, lows, after)
         if transformed != word:
             LOGGER.debug("G palatalized '%s' -> '%s'", word, transformed)
         return transformed
+
+    def _palatalize_segment(self, lower: str) -> str:
+        """
+        Palatalize ``g`` in one lowercase, dash-free segment.
+
+        Args:
+            lower: NFC-lowercased segment.
+
+        Returns:
+            Segment with ``ġ`` substituted where appropriate.
+
+        """
+        folded = _fold(lower)
+        chars = list(lower)
+        for i, char in enumerate(chars):
+            if char == "g" and self._is_palatal(chars, i, folded):
+                chars[i] = "ġ"
+        return "".join(chars)
+
+    def _is_palatal(self, chars: list[str], i: int, folded: str) -> bool:
+        """
+        Decide whether the ``g`` at ``chars[i]`` is palatal.
+
+        Args:
+            chars: Segment characters.
+            i: Index of the ``g``.
+            folded: Folded whole segment, for exception lookup.
+
+        Returns:
+            ``True`` when the ``g`` should get a dot.
+
+        """
+        last = len(chars) - 1
+        following = chars[i + 1] if i < last else ""
+        if i == 0:
+            return (
+                following in self.FRONT_VOWELS
+                and folded not in self._frontal_exceptions
+            )
+        if chars[i - 1] not in self.FRONT_VOWELS or following in self.BACK_VOWELS:
+            return False
+        return not (i == last and folded in self._ending_exceptions)
+
+    @property
+    def _frontal_exceptions(self) -> frozenset[str]:
+        """
+        Fold :attr:`FRONTAL_G_EXCEPTIONS` for comparison.
+
+        Returns:
+            Folded exception words.
+
+        """
+        return frozenset(_fold(w) for w in self.FRONTAL_G_EXCEPTIONS)
+
+    @property
+    def _ending_exceptions(self) -> frozenset[str]:
+        """
+        Fold :attr:`ENDING_G_EXCEPTIONS` for comparison.
+
+        Returns:
+            Folded exception words.
+
+        """
+        return frozenset(_fold(w) for w in self.ENDING_G_EXCEPTIONS)
 
 
 def _possible_pre_iumlaut_sources(vowel: str) -> frozenset[str]:
@@ -721,80 +931,92 @@ class CPalatalizer:
 
     def palatalize(self, word: str) -> str:
         """
-        Palatalize ``c`` in a lexical token per rules A-D and i-mutation caveat.
+        Add a dot above to palatal ``c`` in a token per rules A-D and the caveat.
 
         Rule A: word-initial c before front vowel (unless only-back trigger).
         Rule B: medial c before e/æ/y does not palatalize (no branch).
         Rule C: c before i/ī in any position → ċ.
         Rule D: c after i/ī (possibly +n) unless back vowel follows → ċ.
+        Exception: the ``c`` of ``sc`` is never dotted.
+
+        Only the dot is added; the rest of the token is left as written.
 
         Args:
             word: Token to palatalize.
 
         Returns:
-            Palatalized token.
+            Token with ``ċ`` dots added.
 
         """
-        original = word
-        lower = word.lower()
-
-        if "-" in lower:
-            parts = lower.split("-")
-            palatalized_parts = [self.palatalize(part) for part in parts]
-            palatalized = "-".join(palatalized_parts)
-            return _apply_case_pattern(original, palatalized)
-
-        normalized = normalize_old_english(lower)
-        if normalized in self.force_non_palatalize:
-            LOGGER.debug("C palatalization blocked by exception for '%s'", word)
-            return word
-
-        chars = list(lower)
-        for i, char in enumerate(chars):
-            if char != "c":
-                continue
-
-            should_palatalize = False
-
-            # Rule C: c before i/ī in any position
-            if i + 1 < len(chars) and chars[i + 1] in {"i", "ī"}:
-                should_palatalize = True
-
-            # Rule A: word-initial c before front vowel (not when only-back, e.g. y/ȳ)
-            if (
-                not should_palatalize
-                and i == 0
-                and self._is_front_context(lower, i + 1)
-                and i + 1 < len(chars)
-                and not self._vowel_has_only_back_pre_sources(chars[i + 1])
-            ):
-                should_palatalize = True
-
-            # Rule D: c after i/ī (possibly +n) unless back vowel follows
-            if not should_palatalize and self._preceding_is_i_or_i_with_optional_n(
-                chars, i
-            ):
-                should_palatalize = (
-                    i == len(chars) - 1 or chars[i + 1] not in self.BACK_VOWELS
-                )
-
-            if should_palatalize:
-                chars[i] = "ċ"
-
-        transformed_lower = "".join(chars)
-
-        if normalized in self.force_palatalize and transformed_lower.endswith("c"):
-            transformed_lower = transformed_lower[:-1] + "ċ"
-            LOGGER.debug(
-                "C palatalization forced final-ċ exception for '%s' -> '%s'",
-                word,
-                transformed_lower,
-            )
-
-        transformed = _apply_case_pattern(original, transformed_lower)
+        clusters = CLUSTER_RE.findall(word)
+        lows = [unicodedata.normalize("NFC", c).lower() for c in clusters]
+        parts = DASH_SPLIT_RE.split("".join(lows))
+        after = "".join(
+            part if part in DASH_CHARS else self._palatalize_segment(part)
+            for part in parts
+        )
+        transformed = _graft_dots(clusters, lows, after)
         if transformed != word:
             LOGGER.debug("C palatalized '%s' -> '%s'", word, transformed)
         return transformed
+
+    def _palatalize_segment(self, lower: str) -> str:
+        """
+        Palatalize ``c`` in one lowercase, dash-free segment.
+
+        Args:
+            lower: NFC-lowercased segment.
+
+        Returns:
+            Segment with ``ċ`` substituted where appropriate.
+
+        """
+        normalized = normalize_old_english(lower)
+        if normalized in self.force_non_palatalize:
+            LOGGER.debug("C palatalization blocked by exception for '%s'", lower)
+            return lower
+
+        chars = list(lower)
+        for i, char in enumerate(chars):
+            if char == "c" and self._is_palatal(chars, i):
+                chars[i] = "ċ"
+
+        transformed = "".join(chars)
+        if (
+            normalized in self.force_palatalize
+            and transformed.endswith("c")
+            and not transformed.endswith("sc")
+        ):
+            transformed = transformed[:-1] + "ċ"
+            LOGGER.debug("C palatalization forced final-ċ for '%s'", lower)
+        return transformed
+
+    def _is_palatal(self, chars: list[str], i: int) -> bool:
+        """
+        Decide whether the ``c`` at ``chars[i]`` is palatal by rules A, C, D.
+
+        Args:
+            chars: Lowercase segment characters.
+            i: Index of the ``c``.
+
+        Returns:
+            ``True`` when the ``c`` should get a dot.
+
+        """
+        if i > 0 and chars[i - 1] == "s":
+            return False
+        following = chars[i + 1] if i + 1 < len(chars) else ""
+        if following in {"i", "ī"}:
+            return True
+        if (
+            i == 0
+            and self._is_front_context("".join(chars), 1)
+            and not self._vowel_has_only_back_pre_sources(following)
+        ):
+            return True
+        if self._preceding_is_i_or_i_with_optional_n(chars, i):
+            return following not in self.BACK_VOWELS
+        return False
 
 
 class DiacriticRestorer:
@@ -837,62 +1059,72 @@ class DiacriticRestorer:
 
     def restore_text(self, text: str) -> DiacriticRestorationResult:
         """
-        Restore diacritics across a full input text.
+        Add diacritics across a full input text without altering its letters.
 
         Args:
             text: Input text without (or with partial) diacritics.
 
         Returns:
-            Restoration result containing transformed text and ambiguities.
+            Restoration result containing transformed text and reports.
 
         """
-        ambiguities: list[MacronAmbiguity] = []
-        unknowns: list[UnknownToken] = []
-        output_lines: list[str] = []
-
-        for line_idx, line in enumerate(text.splitlines(keepends=True), start=1):
-            segments: list[str] = []
-            last_end = 0
-            for word_counter, match in enumerate(
-                LEXICAL_TOKEN_RE.finditer(line), start=1
-            ):
-                start, end = match.span()
-                token = match.group(0)
-                segments.append(line[last_end:start])
-
-                macroned, ambiguity, is_unknown = self.macron_applicator.apply(
-                    token,
-                    line_number=line_idx,
-                    word_number=word_counter,
-                )
-                if ambiguity is not None:
-                    ambiguities.append(ambiguity)
-                if is_unknown:
-                    unknowns.append(
-                        UnknownToken(
-                            line_number=line_idx,
-                            word_number=word_counter,
-                            word=token,
-                        )
-                    )
-
-                palatalized_g = self.g_palatalizer.palatalize(macroned)
-                palatalized_c = self.c_palatalizer.palatalize(palatalized_g)
-                segments.append(palatalized_c)
-                last_end = end
-
-            segments.append(line[last_end:])
-            output_lines.append("".join(segments))
-
-        restored_text = "".join(output_lines)
+        result = DiacriticRestorationResult(marked_text="")
+        output_lines = [
+            self._restore_line(line, line_idx, result)
+            for line_idx, line in enumerate(text.splitlines(keepends=True), start=1)
+        ]
+        result.marked_text = "".join(output_lines)
         LOGGER.debug(
-            "Diacritic restoration complete (lines=%d, ambiguities=%d, unknowns=%d)",
+            "Diacritic restoration complete "
+            "(lines=%d, ambiguities=%d, unknowns=%d, unaligned=%d)",
             len(output_lines),
-            len(ambiguities),
-            len(unknowns),
+            len(result.ambiguities),
+            len(result.unknowns),
+            len(result.unaligned),
         )
-        return DiacriticRestorationResult(
-            marked_text=restored_text,
-            ambiguities=ambiguities,
-            unknowns=unknowns,
-        )
+        return result
+
+    def _restore_line(
+        self, line: str, line_idx: int, result: DiacriticRestorationResult
+    ) -> str:
+        """
+        Restore diacritics on one line, keeping separators verbatim.
+
+        Side Effects:
+            Appends ambiguity, unknown and unaligned rows to ``result``.
+
+        Args:
+            line: Line of text including its line ending.
+            line_idx: 1-based line number.
+            result: Result accumulating report rows.
+
+        Returns:
+            The marked line.
+
+        """
+        segments: list[str] = []
+        last_end = 0
+        for word_counter, match in enumerate(LEXICAL_TOKEN_RE.finditer(line), start=1):
+            start, end = match.span()
+            token = match.group(0)
+            segments.append(line[last_end:start])
+
+            macroned, ambiguity, is_unknown, index_form = self.macron_applicator.apply(
+                token, line_number=line_idx, word_number=word_counter
+            )
+            position = {"line_number": line_idx, "word_number": word_counter}
+            if ambiguity is not None:
+                result.ambiguities.append(ambiguity)
+            if is_unknown:
+                result.unknowns.append(UnknownToken(word=token, **position))
+            if index_form is not None:
+                result.unaligned.append(
+                    UnalignedToken(word=token, index_form=index_form, **position)
+                )
+
+            segments.append(
+                self.c_palatalizer.palatalize(self.g_palatalizer.palatalize(macroned))
+            )
+            last_end = end
+        segments.append(line[last_end:])
+        return "".join(segments)

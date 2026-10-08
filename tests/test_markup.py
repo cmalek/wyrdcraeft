@@ -145,14 +145,15 @@ def test_macron_applicator_single_and_ambiguous(tmp_path: Path):
     )
     applicator = MacronApplicator(index_path)
 
-    marked, ambiguity, is_unknown = applicator.apply(
+    marked, ambiguity, is_unknown, unaligned = applicator.apply(
         "Cild", line_number=1, word_number=1
     )
     assert marked == "Cīld"
+    assert unaligned is None
     assert ambiguity is None
     assert is_unknown is False
 
-    unchanged, ambiguity, is_unknown = applicator.apply(
+    unchanged, ambiguity, is_unknown, _ = applicator.apply(
         "wegas", line_number=3, word_number=5
     )
     assert unchanged == "wegas"
@@ -164,7 +165,7 @@ def test_macron_applicator_single_and_ambiguous(tmp_path: Path):
     assert [o.form for o in ambiguity.options] == ["wegas", "wēgas"]
 
     # Token not in index is returned unchanged with is_unknown=True
-    unknown_word, no_ambiguity, is_unknown = applicator.apply(
+    unknown_word, no_ambiguity, is_unknown, _ = applicator.apply(
         "xyzword", line_number=2, word_number=1
     )
     assert unknown_word == "xyzword"
@@ -184,7 +185,7 @@ def test_diacritic_restorer_preserves_layout_and_reports_ambiguity(tmp_path: Pat
     source = "Cild   and wegas.\nrice\n"
     result = restorer.restore_text(source)
 
-    assert result.marked_text == "Ċīld   and weġas.\nrīċe\n"
+    assert result.marked_text == "Ċīld   and wegas.\nrīċe\n"
     assert len(result.ambiguities) == 1
     ambiguity = result.ambiguities[0]
     assert ambiguity.line_number == 1
@@ -226,11 +227,9 @@ def test_macron_applicator_loads_ambiguous_metadata(tmp_path: Path):
     applicator = MacronApplicator(index_path)
 
     assert "ac" in applicator.index.ambiguous_metadata
-    assert (
-        applicator.index.ambiguous_metadata["ac"]["ac"].part_of_speech_code == "CONJ"
-    )
+    assert applicator.index.ambiguous_metadata["ac"]["ac"].part_of_speech_code == "CONJ"
 
-    _, ambiguity, is_unknown = applicator.apply("ac", line_number=1, word_number=1)
+    _, ambiguity, is_unknown, _ = applicator.apply("ac", line_number=1, word_number=1)
     assert is_unknown is False
     assert ambiguity is not None
     expected_option_count = 2
@@ -261,3 +260,108 @@ def test_macron_applicator_rejects_invalid_pos_code_metadata(tmp_path: Path):
 
     with pytest.raises(TypeError):
         MacronApplicator(index_path)
+
+
+def test_diacritic_transfer_preserves_source_letters_hyphens_and_case():
+    from wyrdcraeft.services.markup import DiacriticTransfer
+
+    t = DiacriticTransfer.transfer
+    # eth/thorn stay as written, in both directions
+    assert t("ðā", "þā") == "ðā"
+    assert t("Þa", "ðā") == "Þā"
+    # no hyphen added; hyphen kept where the source has one and index has none
+    assert t("aælan", "ā-ǣlan") == "āǣlan"
+    assert t("a-ælan", "āǣlan") == "ā-ǣlan"
+    # en/em dashes are kept and treated as hyphens
+    assert t("a—ælan", "ā-ǣlan") == "ā—ǣlan"
+    # mixed case preserved
+    assert t("GeCynde", "ge-cynde") == "GeCynde"
+    assert t("HLaford", "hlāford") == "HLāford"
+    # existing marks are never removed or replaced
+    assert t("ǣ", "æ") == "ǣ"
+    assert t("ā", "ǣ") is None  # different letters
+    assert t("hlāford", "hlaford") == "hlāford"
+
+
+def test_diacritic_transfer_unalignable_returns_none():
+    from wyrdcraeft.services.markup import DiacriticTransfer
+
+    assert DiacriticTransfer.transfer("ærþling", "ǣrst") is None
+    assert DiacriticTransfer.transfer("barr", "bār") is None
+    assert DiacriticTransfer.transfer("aet", "æt") is None
+
+
+def test_macron_applicator_reports_unaligned_and_leaves_token(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={"ærþling": "ǣrst", "ðā": "þā"}, ambiguous={})
+    applicator = MacronApplicator(index_path)
+
+    token, ambiguity, is_unknown, unaligned = applicator.apply(
+        "ærþling", line_number=1, word_number=1
+    )
+    assert (token, ambiguity, is_unknown, unaligned) == ("ærþling", None, False, "ǣrst")
+
+    marked, *_ = applicator.apply("ðā", line_number=1, word_number=2)
+    assert marked == "ðā"
+
+
+def test_restorer_unaligned_report_and_no_source_changes(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={"ærþling": "ǣrst", "aælan": "ā-ǣlan", "hlaford": "hlāford"},
+        ambiguous={},
+    )
+    restorer = DiacriticRestorer(macron_index_path=index_path)
+
+    result = restorer.restore_text("ærþling aælan HLaford\n")
+
+    assert result.marked_text == "ærþling āǣlan HLāford\n"
+    assert [(u.word, u.index_form) for u in result.unaligned] == [("ærþling", "ǣrst")]
+
+
+def test_restorer_handles_decomposed_input_without_shredding(tmp_path: Path):
+    import unicodedata
+
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={"hlaford": "hlāford"}, ambiguous={})
+    restorer = DiacriticRestorer(macron_index_path=index_path)
+
+    source = unicodedata.normalize("NFD", "hlāford")
+    result = restorer.restore_text(source)
+
+    assert result.marked_text == source
+    assert result.unknowns == []
+    assert result.unaligned == []
+
+
+def test_c_palatalizer_never_dots_sc():
+    palatalizer = CPalatalizer()
+    assert palatalizer.palatalize("scip") == "scip"
+    assert palatalizer.palatalize("scīr") == "scīr"
+    assert palatalizer.palatalize("Scip") == "Scip"
+    assert palatalizer.palatalize("fisc") == "fisc"
+    # c after a hyphen is not preceded by s
+    assert palatalizer.palatalize("is-cild") == "is-ċild"
+    # existing dot is kept
+    assert palatalizer.palatalize("sċip") == "sċip"
+
+
+def test_palatalizers_only_add_dots_and_keep_case():
+    assert GPalatalizer().palatalize("ǢGhwā") == "ǢĠhwā"
+    assert GPalatalizer().palatalize("GECYNDE") == "ĠECYNDE"
+    assert GPalatalizer().palatalize("Giefan") == "Ġiefan"
+    assert CPalatalizer().palatalize("CILD") == "ĊILD"
+    assert CPalatalizer().palatalize("Cild") == "Ċild"
+    assert CPalatalizer().palatalize("cild—cild") == "ċild—ċild"
+
+
+def test_g_palatalizer_velar_before_back_vowel_and_folded_exceptions():
+    palatalizer = GPalatalizer()
+    assert palatalizer.palatalize("stīgan") == "stīgan"
+    assert palatalizer.palatalize("wiga") == "wiga"
+    assert palatalizer.palatalize("hige") == "hiġe"
+    assert palatalizer.palatalize("þegn") == "þeġn"
+    # exception list compares with ð≡þ folded
+    assert palatalizer.palatalize("gēoguð") == "gēoguð"
+    assert palatalizer.palatalize("gēoguþ") == "gēoguþ"

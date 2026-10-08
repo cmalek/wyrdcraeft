@@ -119,21 +119,44 @@ def test_source_mark_diacritics_writes_unknowns_file(
     mock_restorer_cls.return_value = mock_restorer
 
     result = runner.invoke(
-            cli,
-            [
-                "source",
-                "mark-diacritics",
-                str(source_file),
-                str(temp_dir / "out.txt"),
-                "--ambiguities-output",
-                str(temp_dir / "anom.json"),
-                "--unknown-output",
-                str(temp_dir / "unk.json"),
-            ],
+        cli,
+        [
+            "source",
+            "mark-diacritics",
+            str(source_file),
+            str(temp_dir / "out.txt"),
+            "--ambiguities-output",
+            str(temp_dir / "anom.json"),
+            "--unknown-output",
+            str(temp_dir / "unk.json"),
+        ],
     )
 
     assert result.exit_code == 0
     unk_payload = json.loads((temp_dir / "unk.json").read_text())
-    assert unk_payload == [
-        {"line_number": 1, "word_number": 1, "word": "foo"}
-    ]
+    assert unk_payload == [{"line_number": 1, "word_number": 1, "word": "foo"}]
+
+
+def test_source_mark_diacritics_writes_unaligned_report(runner, temp_dir):
+    from wyrdcraeft.services.markup import DiacriticRestorer
+
+    index_path = temp_dir / "index.json"
+    index_path.write_text(
+        json.dumps({"unique": {"ærþling": "ǣrst"}, "ambiguous": {}}), encoding="utf-8"
+    )
+    source_file = temp_dir / "poem.txt"
+    source_file.write_text("ærþling\n", encoding="utf-8")
+
+    with patch(
+        "wyrdcraeft.cli.source.DiacriticRestorer",
+        lambda: DiacriticRestorer(macron_index_path=index_path),
+    ):
+        result = runner.invoke(cli, ["source", "mark-diacritics", str(source_file)])
+
+    assert result.exit_code == 0, result.output
+    unaligned = json.loads(
+        (temp_dir / "poem.unaligned.txt").read_text(encoding="utf-8")
+    )
+    assert unaligned[0]["word"] == "ærþling"
+    assert unaligned[0]["index_form"] == "ǣrst"
+    assert (temp_dir / "poem.fixed.txt").read_text(encoding="utf-8") == "ærþling\n"
