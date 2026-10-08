@@ -9,7 +9,7 @@ Follows [ADR 0015](0015-mark-diacritics-is-additive-transfer.md). The goal of
 leave as little manual work as possible. Today any token whose key is in the
 index's `ambiguous` list is left completely unchanged and reported, and 889 of
 the 967 ambiguous keys are still undecided. This ADR records how to shrink that
-list without new data. Decisions 2 and 5, and the queue skip of decision 7, are implemented; decisions 3, 4, 6 and 8 are not.
+list without new data. Decisions 2 to 8 are implemented; see Implementation notes.
 
 ## Facts (measured on the packaged index and its git history)
 
@@ -159,14 +159,11 @@ list without new data. Decisions 2 and 5, and the queue skip of decision 7, are 
 - **Per-text decisions and corpus or context resolution.** Not rejected, only out
   of scope; a separate ADR.
 
-## Open questions
-
-- Where the standard-element file lives and its format. Proposed: a hand-edited
-  data file under `wyrdcraeft/etc/diacritic/`, like the existing `c` and `g`
-  exception lists, with no CLI to edit it.
-
 ## Resolved questions
 
+- The standard-element list is a hand-edited data file,
+  `wyrdcraeft/etc/diacritic/standard_elements.txt`, like the `c` and `g`
+  exception lists, with no CLI to edit it.
 - Undecided keys with other (non-standard) prefix or first-element differences
   are left for review: `auto` leaves the token unchanged and reported, and the
   user decides them with `diacritic-disambiguate`.
@@ -196,4 +193,28 @@ list without new data. Decisions 2 and 5, and the queue skip of decision 7, are 
   two of them completed). The ADR's 142 counts a slightly different set.
 - `diacritic-disambiguate` with no argument prints how many keys it skipped;
   `diacritic-disambiguate KEY` still opens a collapsing key.
-- Decision 3 (standard elements) will extend both the collapse and the skip.
+- Standard elements (decision 3): `StandardElements` (`services/standard_elements.py`)
+  reads the file; a trailing hyphen marks a prefix (first segment only), an
+  entry without hyphens a compound element (any hyphen-bounded segment). A form
+  needs two segments, so an unhyphenated `gēan` is never touched. It is applied
+  to every reference form (unique or ambiguous) before the transfer, and
+  `DiacriticTransfer.same_marks(forms, elements)` uses it for the collapse and
+  the `diacritic-disambiguate` queue skip. On the packaged index 143 of the 889
+  undecided keys collapse on marks alone, 238 with standard elements.
+- When options collapse, the form transferred is the one with the most diphthongs
+  (ties: first), so `stē-ap`/`stēap` on a source `steāp` is not double-marked.
+- Policy (decisions 4 to 6): `MacronApplicator(policy=...)` defaults to `leave`;
+  the CLI default is `auto`. `union_form` keeps every mark any option puts on a
+  letter, except where two of macron, breve and diaeresis meet (no mark then).
+  `auto` leaves a key when marks differ only before a BT hyphen even if the
+  element is on the list (`ge-an`/`gēan`): the literal ADR wording would guess
+  it, but decision 3 says that `gē` is a different word on purpose. A guessed
+  token keeps its ambiguity row with `applied_form` and `policy`. Guessed keys
+  stay in the `diacritic-disambiguate` queue; only collapsing keys are skipped.
+- Acceptance (decision 8): `scripts/diacritic/extract_ambiguity_labels.py`
+  recovers labels from the index's git history into
+  `tests/fixtures/ambiguity_labels.json` (137 same-word keys, 78 homographs; the
+  ADR's 86/77 were hand counts). Measured: `auto` marks 29 of the 137 and wrongly
+  marks 10 of the 78 homographs (74% precision; `union` 52%). The test pins those
+  numbers as a regression floor. "Same word" includes keys where the user chose
+  one option, so coverage is slightly optimistic.

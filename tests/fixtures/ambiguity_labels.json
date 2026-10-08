@@ -1,0 +1,1524 @@
+{
+ "labels": {
+  "ac": {
+   "label": "homograph",
+   "options": [
+    "ac",
+    "āc"
+   ]
+  },
+  "acen": {
+   "label": "homograph",
+   "options": [
+    "acen",
+    "ācen"
+   ]
+  },
+  "agen": {
+   "label": "homograph",
+   "options": [
+    "a-gēn",
+    "āgen"
+   ]
+  },
+  "ah": {
+   "label": "homograph",
+   "options": [
+    "ah",
+    "āh"
+   ]
+  },
+  "al": {
+   "label": "homograph",
+   "options": [
+    "al",
+    "āl"
+   ]
+  },
+  "alet": {
+   "label": "homograph",
+   "options": [
+    "a-lēt",
+    "alet",
+    "ā-lēt"
+   ]
+  },
+  "am": {
+   "label": "homograph",
+   "options": [
+    "am",
+    "ām"
+   ]
+  },
+  "an": {
+   "label": "homograph",
+   "options": [
+    "an",
+    "ān"
+   ]
+  },
+  "anbid": {
+   "label": "same_word",
+   "options": [
+    "an-bid",
+    "an-bīd"
+   ]
+  },
+  "anbidian": {
+   "label": "same_word",
+   "options": [
+    "an-bidian",
+    "an-bīdian"
+   ]
+  },
+  "ancleow": {
+   "label": "same_word",
+   "options": [
+    "ancleow",
+    "anclēow"
+   ]
+  },
+  "ancor": {
+   "label": "same_word",
+   "options": [
+    "ancor",
+    "āncor"
+   ]
+  },
+  "ancorlic": {
+   "label": "same_word",
+   "options": [
+    "ancor-lic",
+    "āncor-līc"
+   ]
+  },
+  "ancorlif": {
+   "label": "same_word",
+   "options": [
+    "ancor-līf",
+    "āncor-līf"
+   ]
+  },
+  "ancra": {
+   "label": "same_word",
+   "options": [
+    "ancra",
+    "āncra"
+   ]
+  },
+  "andetnes": {
+   "label": "same_word",
+   "options": [
+    "andet-nes",
+    "andetnes"
+   ]
+  },
+  "andgitfullice": {
+   "label": "same_word",
+   "options": [
+    "andgit-fullīce",
+    "andgitfullīce"
+   ]
+  },
+  "andgitol": {
+   "label": "same_word",
+   "options": [
+    "and-gitol",
+    "andgitol"
+   ]
+  },
+  "anfealdnes": {
+   "label": "same_word",
+   "options": [
+    "ānfeald-nes",
+    "ānfealdnes"
+   ]
+  },
+  "anfenge": {
+   "label": "homograph",
+   "options": [
+    "an-fenge",
+    "an-fēnge"
+   ]
+  },
+  "anforlætan": {
+   "label": "same_word",
+   "options": [
+    "an-forlǣtan",
+    "ān-for-lǣtan"
+   ]
+  },
+  "anga": {
+   "label": "homograph",
+   "options": [
+    "anga",
+    "ānga"
+   ]
+  },
+  "angsumian": {
+   "label": "same_word",
+   "options": [
+    "ang-sumian",
+    "angsumian"
+   ]
+  },
+  "angsumlice": {
+   "label": "same_word",
+   "options": [
+    "ang-sum-līce",
+    "angsumlīce"
+   ]
+  },
+  "anlic": {
+   "label": "same_word",
+   "options": [
+    "an-līc",
+    "ān-lic",
+    "ān-līc"
+   ]
+  },
+  "anlice": {
+   "label": "same_word",
+   "options": [
+    "an-līce",
+    "ān-līce"
+   ]
+  },
+  "anlician": {
+   "label": "same_word",
+   "options": [
+    "an-līce",
+    "ān-līce"
+   ]
+  },
+  "anmod": {
+   "label": "same_word",
+   "options": [
+    "an-mōd",
+    "ān-mōd"
+   ]
+  },
+  "anmodlice": {
+   "label": "same_word",
+   "options": [
+    "an-mōdlīce",
+    "ān-mōdlīce"
+   ]
+  },
+  "anmodnes": {
+   "label": "same_word",
+   "options": [
+    "an-mōdnes",
+    "ān-mōdnes"
+   ]
+  },
+  "anrædnes": {
+   "label": "same_word",
+   "options": [
+    "an-rǣdnes",
+    "ān-rædnes",
+    "ān-rǣdnes"
+   ]
+  },
+  "anunga": {
+   "label": "homograph",
+   "options": [
+    "anunga",
+    "ānunga"
+   ]
+  },
+  "anweald": {
+   "label": "same_word",
+   "options": [
+    "an-weald",
+    "ān-weald"
+   ]
+  },
+  "anwealda": {
+   "label": "same_word",
+   "options": [
+    "an-wealda",
+    "ān-wealda"
+   ]
+  },
+  "apflod": {
+   "label": "same_word",
+   "options": [
+    "ap-flōd",
+    "āp-flod"
+   ]
+  },
+  "aras": {
+   "label": "homograph",
+   "options": [
+    "a-rās",
+    "āras"
+   ]
+  },
+  "are": {
+   "label": "homograph",
+   "options": [
+    "are",
+    "āre"
+   ]
+  },
+  "ared": {
+   "label": "same_word",
+   "options": [
+    "a-rēd",
+    "ared"
+   ]
+  },
+  "arfæstlice": {
+   "label": "same_word",
+   "options": [
+    "ār-fæstlīce",
+    "ārfæstlīce"
+   ]
+  },
+  "arfæstnes": {
+   "label": "same_word",
+   "options": [
+    "ār-fæstnes",
+    "ārfæstnes"
+   ]
+  },
+  "arlic": {
+   "label": "same_word",
+   "options": [
+    "ar-līc",
+    "ār-lic"
+   ]
+  },
+  "arod": {
+   "label": "homograph",
+   "options": [
+    "arod",
+    "ārod"
+   ]
+  },
+  "arwela": {
+   "label": "same_word",
+   "options": [
+    "ār-wela",
+    "ār-wēla"
+   ]
+  },
+  "ascian": {
+   "label": "same_word",
+   "options": [
+    "ascian",
+    "āscian"
+   ]
+  },
+  "ascung": {
+   "label": "same_word",
+   "options": [
+    "ascung",
+    "āscung"
+   ]
+  },
+  "asicyd": {
+   "label": "same_word",
+   "options": [
+    "a-sicyd",
+    "asicyd"
+   ]
+  },
+  "awegadrifan": {
+   "label": "same_word",
+   "options": [
+    "aweg-adrīfan",
+    "āweg-ādrīfan"
+   ]
+  },
+  "awriþan": {
+   "label": "same_word",
+   "options": [
+    "a-wrīðan",
+    "āwrīþan"
+   ]
+  },
+  "aþenung": {
+   "label": "same_word",
+   "options": [
+    "a-þenung",
+    "āþenung"
+   ]
+  },
+  "balzam": {
+   "label": "same_word",
+   "options": [
+    "balsam",
+    "balzam"
+   ]
+  },
+  "ban": {
+   "label": "homograph",
+   "options": [
+    "ban",
+    "bān"
+   ]
+  },
+  "bar": {
+   "label": "homograph",
+   "options": [
+    "bar",
+    "bār"
+   ]
+  },
+  "bat": {
+   "label": "homograph",
+   "options": [
+    "bat",
+    "bāt"
+   ]
+  },
+  "batian": {
+   "label": "homograph",
+   "options": [
+    "batian",
+    "bātian"
+   ]
+  },
+  "beacenstan": {
+   "label": "same_word",
+   "options": [
+    "beacen-stān",
+    "bēacen-stān"
+   ]
+  },
+  "bearn": {
+   "label": "homograph",
+   "options": [
+    "be-arn",
+    "bearn"
+   ]
+  },
+  "bec": {
+   "label": "homograph",
+   "options": [
+    "bec",
+    "bēc"
+   ]
+  },
+  "bece": {
+   "label": "homograph",
+   "options": [
+    "bece",
+    "bēce"
+   ]
+  },
+  "bed": {
+   "label": "homograph",
+   "options": [
+    "bed",
+    "bēd"
+   ]
+  },
+  "bedu": {
+   "label": "homograph",
+   "options": [
+    "bedu",
+    "bēdu"
+   ]
+  },
+  "befættian": {
+   "label": "same_word",
+   "options": [
+    "be-fættian",
+    "be-fǣttian"
+   ]
+  },
+  "began": {
+   "label": "homograph",
+   "options": [
+    "be-gan",
+    "be-gān",
+    "bēgan"
+   ]
+  },
+  "begeat": {
+   "label": "homograph",
+   "options": [
+    "be-geat",
+    "be-gēat"
+   ]
+  },
+  "behat": {
+   "label": "same_word",
+   "options": [
+    "be-hāt",
+    "behāt"
+   ]
+  },
+  "behoflic": {
+   "label": "same_word",
+   "options": [
+    "be-hōf-līc",
+    "be-hōflic"
+   ]
+  },
+  "behrumod": {
+   "label": "same_word",
+   "options": [
+    "be-hrumod",
+    "be-hrūmod"
+   ]
+  },
+  "beinnan": {
+   "label": "homograph",
+   "options": [
+    "be-innan",
+    "binnan"
+   ]
+  },
+  "ben": {
+   "label": "homograph",
+   "options": [
+    "ben",
+    "bēn"
+   ]
+  },
+  "beorhtnes": {
+   "label": "same_word",
+   "options": [
+    "beorht-nes",
+    "beorhtnes"
+   ]
+  },
+  "beost": {
+   "label": "same_word",
+   "options": [
+    "beost",
+    "bēost"
+   ]
+  },
+  "bere": {
+   "label": "homograph",
+   "options": [
+    "bere",
+    "bēre"
+   ]
+  },
+  "betrymian": {
+   "label": "same_word",
+   "options": [
+    "be-trymian",
+    "betrymian"
+   ]
+  },
+  "betæcan": {
+   "label": "same_word",
+   "options": [
+    "be-tǣcan",
+    "betǣcan"
+   ]
+  },
+  "beþearf": {
+   "label": "same_word",
+   "options": [
+    "be-þearf",
+    "beþ"
+   ]
+  },
+  "beþearfaþ": {
+   "label": "same_word",
+   "options": [
+    "be-þearfaþ",
+    "beþearfaþ"
+   ]
+  },
+  "bi": {
+   "label": "same_word",
+   "options": [
+    "bi",
+    "bī"
+   ]
+  },
+  "bidan": {
+   "label": "same_word",
+   "options": [
+    "bidan",
+    "bīdan"
+   ]
+  },
+  "bigan": {
+   "label": "homograph",
+   "options": [
+    "bi-gān",
+    "bīgan"
+   ]
+  },
+  "bige": {
+   "label": "same_word",
+   "options": [
+    "bige",
+    "bīge"
+   ]
+  },
+  "bigenga": {
+   "label": "same_word",
+   "options": [
+    "bi-genga",
+    "bī-genga"
+   ]
+  },
+  "bile": {
+   "label": "homograph",
+   "options": [
+    "bile",
+    "bīle"
+   ]
+  },
+  "biswic": {
+   "label": "same_word",
+   "options": [
+    "bī-swic",
+    "bī-swīc"
+   ]
+  },
+  "bitan": {
+   "label": "same_word",
+   "options": [
+    "bitan",
+    "bītan"
+   ]
+  },
+  "bitst": {
+   "label": "homograph",
+   "options": [
+    "bitst",
+    "bītst"
+   ]
+  },
+  "blac": {
+   "label": "homograph",
+   "options": [
+    "bixen",
+    "blæc",
+    "blāc",
+    "blǣc"
+   ]
+  },
+  "bled": {
+   "label": "homograph",
+   "options": [
+    "bled",
+    "blēd"
+   ]
+  },
+  "blican": {
+   "label": "same_word",
+   "options": [
+    "blican",
+    "blīcan"
+   ]
+  },
+  "bliþe": {
+   "label": "same_word",
+   "options": [
+    "bliðe",
+    "blīðe",
+    "blīþe"
+   ]
+  },
+  "blodgyte": {
+   "label": "same_word",
+   "options": [
+    "blōd-gyte",
+    "blōd-gȳte"
+   ]
+  },
+  "blæc": {
+   "label": "homograph",
+   "options": [
+    "blæc",
+    "blǣc"
+   ]
+  },
+  "blæcern": {
+   "label": "same_word",
+   "options": [
+    "blæc-ern",
+    "blǣc-ern"
+   ]
+  },
+  "blæd": {
+   "label": "homograph",
+   "options": [
+    "blæd",
+    "blǣd"
+   ]
+  },
+  "blæst": {
+   "label": "same_word",
+   "options": [
+    "blæst",
+    "blǣst"
+   ]
+  },
+  "bocung": {
+   "label": "same_word",
+   "options": [
+    "bōc-ung",
+    "bōcung"
+   ]
+  },
+  "bondeland": {
+   "label": "same_word",
+   "options": [
+    "bonde-land",
+    "bōnde-land"
+   ]
+  },
+  "borian": {
+   "label": "same_word",
+   "options": [
+    "borian",
+    "bōrian"
+   ]
+  },
+  "brec": {
+   "label": "homograph",
+   "options": [
+    "brec",
+    "brēc"
+   ]
+  },
+  "bred": {
+   "label": "homograph",
+   "options": [
+    "bred",
+    "brēd"
+   ]
+  },
+  "bredan": {
+   "label": "homograph",
+   "options": [
+    "bredan",
+    "brēdan"
+   ]
+  },
+  "bregd": {
+   "label": "homograph",
+   "options": [
+    "bregd",
+    "brēgd"
+   ]
+  },
+  "breme": {
+   "label": "same_word",
+   "options": [
+    "breme",
+    "brēme"
+   ]
+  },
+  "bremen": {
+   "label": "same_word",
+   "options": [
+    "bremen",
+    "brēmen"
+   ]
+  },
+  "breostlin": {
+   "label": "same_word",
+   "options": [
+    "brēost-lin",
+    "brēost-līn"
+   ]
+  },
+  "brice": {
+   "label": "same_word",
+   "options": [
+    "brice",
+    "brīce"
+   ]
+  },
+  "brid": {
+   "label": "same_word",
+   "options": [
+    "brid",
+    "brīd"
+   ]
+  },
+  "briw": {
+   "label": "same_word",
+   "options": [
+    "briw",
+    "brīw"
+   ]
+  },
+  "broc": {
+   "label": "homograph",
+   "options": [
+    "broc",
+    "brōc"
+   ]
+  },
+  "bryce": {
+   "label": "homograph",
+   "options": [
+    "bryce",
+    "brȳce"
+   ]
+  },
+  "bryd": {
+   "label": "homograph",
+   "options": [
+    "bryd",
+    "brȳd"
+   ]
+  },
+  "brymme": {
+   "label": "homograph",
+   "options": [
+    "brymme",
+    "brȳmme"
+   ]
+  },
+  "brytian": {
+   "label": "homograph",
+   "options": [
+    "brytian",
+    "brȳtian"
+   ]
+  },
+  "bryttian": {
+   "label": "same_word",
+   "options": [
+    "bryttian",
+    "brȳttian"
+   ]
+  },
+  "bræc": {
+   "label": "homograph",
+   "options": [
+    "bræc",
+    "brǣc"
+   ]
+  },
+  "bræd": {
+   "label": "homograph",
+   "options": [
+    "bræd",
+    "brǣd"
+   ]
+  },
+  "buc": {
+   "label": "homograph",
+   "options": [
+    "buc",
+    "būc"
+   ]
+  },
+  "bude": {
+   "label": "homograph",
+   "options": [
+    "bude",
+    "būde"
+   ]
+  },
+  "bufan": {
+   "label": "same_word",
+   "options": [
+    "bufan",
+    "būfan"
+   ]
+  },
+  "bur": {
+   "label": "same_word",
+   "options": [
+    "bur",
+    "būr"
+   ]
+  },
+  "buta": {
+   "label": "homograph",
+   "options": [
+    "būta",
+    "būtā"
+   ]
+  },
+  "byd": {
+   "label": "same_word",
+   "options": [
+    "byd",
+    "bȳd"
+   ]
+  },
+  "byre": {
+   "label": "homograph",
+   "options": [
+    "byre",
+    "bȳre"
+   ]
+  },
+  "byreþ": {
+   "label": "homograph",
+   "options": [
+    "byreþ",
+    "bȳreþ"
+   ]
+  },
+  "byrgan": {
+   "label": "homograph",
+   "options": [
+    "byrgan",
+    "bȳrgan"
+   ]
+  },
+  "byrging": {
+   "label": "homograph",
+   "options": [
+    "byrging",
+    "bȳrging"
+   ]
+  },
+  "byrian": {
+   "label": "homograph",
+   "options": [
+    "byrian",
+    "bȳrian"
+   ]
+  },
+  "byrigan": {
+   "label": "homograph",
+   "options": [
+    "byrigan",
+    "bȳrigan"
+   ]
+  },
+  "byrigean": {
+   "label": "homograph",
+   "options": [
+    "byrigean",
+    "bȳrigean"
+   ]
+  },
+  "byrignes": {
+   "label": "homograph",
+   "options": [
+    "byrignes",
+    "bȳrignes"
+   ]
+  },
+  "byrle": {
+   "label": "same_word",
+   "options": [
+    "byris",
+    "byrle"
+   ]
+  },
+  "byrþling": {
+   "label": "homograph",
+   "options": [
+    "byrþ-ling",
+    "byrþling"
+   ]
+  },
+  "byst": {
+   "label": "homograph",
+   "options": [
+    "byst",
+    "bȳst"
+   ]
+  },
+  "byt": {
+   "label": "homograph",
+   "options": [
+    "byt",
+    "bȳt"
+   ]
+  },
+  "bytlung": {
+   "label": "same_word",
+   "options": [
+    "bytlung",
+    "bȳtlung"
+   ]
+  },
+  "bytt": {
+   "label": "homograph",
+   "options": [
+    "bytt",
+    "bȳtt"
+   ]
+  },
+  "byþ": {
+   "label": "homograph",
+   "options": [
+    "byþ",
+    "bȳþ"
+   ]
+  },
+  "bæce": {
+   "label": "homograph",
+   "options": [
+    "bæce",
+    "bǣce"
+   ]
+  },
+  "bæddel": {
+   "label": "same_word",
+   "options": [
+    "bæddel",
+    "bǣddel"
+   ]
+  },
+  "bædling": {
+   "label": "homograph",
+   "options": [
+    "bædling",
+    "bǣdling"
+   ]
+  },
+  "bær": {
+   "label": "homograph",
+   "options": [
+    "bær",
+    "bǣr"
+   ]
+  },
+  "bærlic": {
+   "label": "homograph",
+   "options": [
+    "bær-lic",
+    "bær-līc",
+    "bærlīc"
+   ]
+  },
+  "bærning": {
+   "label": "homograph",
+   "options": [
+    "bærning",
+    "bǣrning"
+   ]
+  },
+  "carcern": {
+   "label": "same_word",
+   "options": [
+    "carc-ern",
+    "carcern"
+   ]
+  },
+  "ceace": {
+   "label": "homograph",
+   "options": [
+    "ceace",
+    "cēace"
+   ]
+  },
+  "cecil": {
+   "label": "homograph",
+   "options": [
+    "cecil",
+    "cēcil"
+   ]
+  },
+  "cele": {
+   "label": "homograph",
+   "options": [
+    "cele",
+    "cēle"
+   ]
+  },
+  "ceol": {
+   "label": "homograph",
+   "options": [
+    "ceol",
+    "cēol"
+   ]
+  },
+  "cest": {
+   "label": "same_word",
+   "options": [
+    "cest",
+    "cēse"
+   ]
+  },
+  "cete": {
+   "label": "same_word",
+   "options": [
+    "cete",
+    "cēse"
+   ]
+  },
+  "cetel": {
+   "label": "same_word",
+   "options": [
+    "cetel",
+    "cēse"
+   ]
+  },
+  "cidan": {
+   "label": "same_word",
+   "options": [
+    "cidan",
+    "cīdan"
+   ]
+  },
+  "cigan": {
+   "label": "same_word",
+   "options": [
+    "cigan",
+    "cīgan"
+   ]
+  },
+  "cildclaþ": {
+   "label": "same_word",
+   "options": [
+    "cild-claþ",
+    "cild-clāþ"
+   ]
+  },
+  "cildiungwif": {
+   "label": "same_word",
+   "options": [
+    "cildiung-wif",
+    "cildiung-wīf"
+   ]
+  },
+  "cildsung": {
+   "label": "same_word",
+   "options": [
+    "cild-sung",
+    "cildsung"
+   ]
+  },
+  "ciltern": {
+   "label": "same_word",
+   "options": [
+    "cilt-ern",
+    "ciltern"
+   ]
+  },
+  "cine": {
+   "label": "homograph",
+   "options": [
+    "cine",
+    "cīne"
+   ]
+  },
+  "cinn": {
+   "label": "homograph",
+   "options": [
+    "cin",
+    "cinn"
+   ]
+  },
+  "cipe": {
+   "label": "same_word",
+   "options": [
+    "cipe",
+    "cīpe"
+   ]
+  },
+  "ciriclec": {
+   "label": "same_word",
+   "options": [
+    "ciric-lec",
+    "ciriclec"
+   ]
+  },
+  "cist": {
+   "label": "homograph",
+   "options": [
+    "cist",
+    "cīst"
+   ]
+  },
+  "cistmælum": {
+   "label": "same_word",
+   "options": [
+    "cist-mǣlum",
+    "cīst-mǣlum"
+   ]
+  },
+  "ciþ": {
+   "label": "same_word",
+   "options": [
+    "ciþ",
+    "cīþ"
+   ]
+  },
+  "clam": {
+   "label": "homograph",
+   "options": [
+    "clam",
+    "clām"
+   ]
+  },
+  "cleowen": {
+   "label": "same_word",
+   "options": [
+    "cleowen",
+    "cliwen"
+   ]
+  },
+  "clifan": {
+   "label": "same_word",
+   "options": [
+    "clifan",
+    "clīfan"
+   ]
+  },
+  "cnafa": {
+   "label": "same_word",
+   "options": [
+    "cnafa",
+    "cnapa"
+   ]
+  },
+  "cneodan": {
+   "label": "same_word",
+   "options": [
+    "cnēodan",
+    "cnōdan"
+   ]
+  },
+  "cneordnys": {
+   "label": "same_word",
+   "options": [
+    "cneord-nys",
+    "cneordnys"
+   ]
+  },
+  "cnif": {
+   "label": "same_word",
+   "options": [
+    "cnif",
+    "cnīf"
+   ]
+  },
+  "cnocian": {
+   "label": "same_word",
+   "options": [
+    "cnocian",
+    "cnucian"
+   ]
+  },
+  "coc": {
+   "label": "homograph",
+   "options": [
+    "coc",
+    "cōc"
+   ]
+  },
+  "cofa": {
+   "label": "same_word",
+   "options": [
+    "cofa",
+    "cōfa"
+   ]
+  },
+  "con": {
+   "label": "homograph",
+   "options": [
+    "con",
+    "cōn"
+   ]
+  },
+  "cop": {
+   "label": "homograph",
+   "options": [
+    "cop",
+    "cōp"
+   ]
+  },
+  "cæd": {
+   "label": "same_word",
+   "options": [
+    "cac",
+    "cæd"
+   ]
+  },
+  "dræf": {
+   "label": "same_word",
+   "options": [
+    "drāf",
+    "drǣf"
+   ]
+  },
+  "eacen": {
+   "label": "same_word",
+   "options": [
+    "ēacan",
+    "ēacen"
+   ]
+  },
+  "eatolware": {
+   "label": "same_word",
+   "options": [
+    "eatol-ware",
+    "eatole"
+   ]
+  },
+  "egsung": {
+   "label": "same_word",
+   "options": [
+    "egsian",
+    "egsung"
+   ]
+  },
+  "eowre": {
+   "label": "same_word",
+   "options": [
+    "ēower",
+    "ēowre"
+   ]
+  },
+  "fedesl": {
+   "label": "same_word",
+   "options": [
+    "fēdels",
+    "fēdesl"
+   ]
+  },
+  "fliete": {
+   "label": "same_word",
+   "options": [
+    "flēote",
+    "flīete"
+   ]
+  },
+  "floege": {
+   "label": "same_word",
+   "options": [
+    "floege",
+    "flēge"
+   ]
+  },
+  "foraþ": {
+   "label": "same_word",
+   "options": [
+    "fōr-āþ",
+    "fōre-āþ"
+   ]
+  },
+  "forbryttan": {
+   "label": "same_word",
+   "options": [
+    "for-brittan",
+    "for-bryttan"
+   ]
+  },
+  "forhyrdan": {
+   "label": "same_word",
+   "options": [
+    "for-hyrdan",
+    "for-hȳnan"
+   ]
+  },
+  "frofernis": {
+   "label": "same_word",
+   "options": [
+    "frōferian",
+    "frōfernis"
+   ]
+  },
+  "frohtian": {
+   "label": "same_word",
+   "options": [
+    "forhtian",
+    "frohtian"
+   ]
+  },
+  "fæmig": {
+   "label": "same_word",
+   "options": [
+    "fāmig",
+    "fǣmig"
+   ]
+  },
+  "gabere": {
+   "label": "same_word",
+   "options": [
+    "gabban",
+    "gabere"
+   ]
+  },
+  "geaglisc": {
+   "label": "same_word",
+   "options": [
+    "gagolisc",
+    "geaglisc"
+   ]
+  },
+  "gearfoþe": {
+   "label": "same_word",
+   "options": [
+    "ge-arfoðe",
+    "ge-arfoþ"
+   ]
+  },
+  "gefremman": {
+   "label": "same_word",
+   "options": [
+    "ge-fremian",
+    "ge-fremman"
+   ]
+  },
+  "gemodsumnes": {
+   "label": "same_word",
+   "options": [
+    "ge-mōdsumian",
+    "ge-mōdsumnes"
+   ]
+  },
+  "gryn": {
+   "label": "same_word",
+   "options": [
+    "grin",
+    "gryn"
+   ]
+  },
+  "gyrman": {
+   "label": "same_word",
+   "options": [
+    "gyrman",
+    "gīmran"
+   ]
+  },
+  "hadswape": {
+   "label": "same_word",
+   "options": [
+    "hād-swāpe",
+    "hād-swǣpa"
+   ]
+  },
+  "healsian": {
+   "label": "same_word",
+   "options": [
+    "hēalsian",
+    "hālsian"
+   ]
+  },
+  "himming": {
+   "label": "same_word",
+   "options": [
+    "hemming",
+    "himming"
+   ]
+  },
+  "horian": {
+   "label": "same_word",
+   "options": [
+    "harian",
+    "horian",
+    "hārian"
+   ]
+  },
+  "hraen": {
+   "label": "same_word",
+   "options": [
+    "hraen",
+    "hrǣn"
+   ]
+  },
+  "hringsete": {
+   "label": "same_word",
+   "options": [
+    "hring-seta",
+    "hring-sete"
+   ]
+  },
+  "hyse": {
+   "label": "same_word",
+   "options": [
+    "hese",
+    "hyse"
+   ]
+  },
+  "hæl": {
+   "label": "same_word",
+   "options": [
+    "hel",
+    "hǣl"
+   ]
+  },
+  "maran": {
+   "label": "same_word",
+   "options": [
+    "māran",
+    "mǣran"
+   ]
+  },
+  "myrt": {
+   "label": "same_word",
+   "options": [
+    "mirt",
+    "myrt"
+   ]
+  },
+  "mægeþ": {
+   "label": "same_word",
+   "options": [
+    "mægeþ",
+    "mǣgþ"
+   ]
+  },
+  "neodian": {
+   "label": "same_word",
+   "options": [
+    "nēadian",
+    "nēodian"
+   ]
+  },
+  "saeflod": {
+   "label": "same_word",
+   "options": [
+    "sāe-flōd",
+    "sǣ-flōd"
+   ]
+  },
+  "scyn": {
+   "label": "same_word",
+   "options": [
+    "scīn",
+    "scȳn"
+   ]
+  },
+  "sled": {
+   "label": "same_word",
+   "options": [
+    "slēd",
+    "slǣd"
+   ]
+  },
+  "wirnan": {
+   "label": "same_word",
+   "options": [
+    "wirnan",
+    "wyrn"
+   ]
+  },
+  "wohdaed": {
+   "label": "same_word",
+   "options": [
+    "wōh-dāed",
+    "wōh-dǣd"
+   ]
+  },
+  "ælcra": {
+   "label": "same_word",
+   "options": [
+    "ælcor",
+    "ælcra"
+   ]
+  },
+  "ælmysse": {
+   "label": "same_word",
+   "options": [
+    "ælmesse",
+    "ælmysse"
+   ]
+  }
+ },
+ "meta": {
+  "homograph": 78,
+  "revisions": 6,
+  "same_word": 137,
+  "source": "wyrdcraeft/etc/diacritic/oe_bt_macron_index.json"
+ }
+}
