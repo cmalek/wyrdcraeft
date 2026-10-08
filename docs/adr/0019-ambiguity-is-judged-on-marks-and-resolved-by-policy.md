@@ -9,7 +9,7 @@ Follows [ADR 0015](0015-mark-diacritics-is-additive-transfer.md). The goal of
 leave as little manual work as possible. Today any token whose key is in the
 index's `ambiguous` list is left completely unchanged and reported, and 889 of
 the 967 ambiguous keys are still undecided. This ADR records how to shrink that
-list without new data. Nothing here is implemented yet.
+list without new data. Decisions 2 and 5, and the queue skip of decision 7, are implemented; decisions 3, 4, 6 and 8 are not.
 
 ## Facts (measured on the packaged index and its git history)
 
@@ -182,3 +182,18 @@ list without new data. Nothing here is implemented yet.
 - `MacronIndex` must carry `ambiguous_completed`.
 - Tests need fixtures for each policy, the collapse rule, the standard-element
   rule, and a curated key.
+
+## Implementation notes
+
+- `DiacriticTransfer.same_marks` is the one predicate; `MacronApplicator` and
+  the `diacritic-disambiguate` queue both call it. `MacronIndex` carries
+  `ambiguous_completed`.
+- A completed key never collapses, even when its options agree on marks (two
+  completed keys would otherwise). The ADR only says `auto` and `union` skip
+  them; this is the stricter reading.
+- The first option is the one transferred; all share letters and marks.
+- On the packaged index 143 of the 889 undecided keys collapse (145 in all,
+  two of them completed). The ADR's 142 counts a slightly different set.
+- `diacritic-disambiguate` with no argument prints how many keys it skipped;
+  `diacritic-disambiguate KEY` still opens a collapsing key.
+- Decision 3 (standard elements) will extend both the collapse and the skip.

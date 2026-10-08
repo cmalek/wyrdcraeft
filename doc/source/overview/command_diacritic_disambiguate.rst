@@ -241,3 +241,11 @@ The command writes to the macron index payload with these top-level fields:
 
 All writes are immediate and atomic so curation progress is preserved even if
 you close mid-session.
+
+Skipped entries
+---------------
+
+Without a ``NORMALIZED`` argument the queue skips ambiguous keys whose options
+all have the same letters and marks, because ``mark-diacritics`` applies them
+without a decision (see :doc:`command_convert_mark_diacritics`). The command
+prints how many it skipped. Passing the key explicitly still opens it.

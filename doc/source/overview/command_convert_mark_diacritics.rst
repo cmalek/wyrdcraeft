@@ -51,7 +51,7 @@ even when they disagree with the index. It adds:
 
 It also emits:
 
-- an **ambiguity report** when a token has multiple valid macron candidates (with part-of-speech and definitions per option when available in the index);
+- an **ambiguity report** when a token has multiple valid macron candidates that differ in their marks (with part-of-speech and definitions per option when available in the index);
 - an **unknown-words report** listing lexical tokens that were not found in the macron index;
 - an **unaligned-words report** listing tokens that are in the index but whose index form cannot be matched letter-for-letter to the source (``ð``/``þ``, case, and hyphens/dashes are ignored when matching). These tokens are left unchanged. The usual cause is an index entry that maps a variant spelling to a different headword.
 
@@ -84,7 +84,11 @@ For each lexical token:
      separated by a hyphen in the index form) is treated as one unit whose macron
      goes on the first vowel; a source that already marks either vowel gets
      nothing added to it.
-   - if key in ``ambiguous``: keep source token, emit ambiguity row with options
+   - if key in ``ambiguous`` and every option has the same letters and marks
+     (hyphens, case, ``ð``/``þ`` and diphthong style ignored): apply it like a
+     unique entry and emit no ambiguity row. A key the user marked completed
+     is never treated this way
+   - if key in ``ambiguous`` otherwise: keep source token, emit ambiguity row with options
 
 3. Apply ``g`` palatalization rules (a ``g`` before a back vowel stays velar,
    e.g. *stīgan*, *wiga*).

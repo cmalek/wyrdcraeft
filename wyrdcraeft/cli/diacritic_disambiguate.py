@@ -22,7 +22,7 @@ from ..services.bosworthtoller import (
     fetch_bt_search_entries,
     filter_bt_entries_by_normalized_form,
 )
-from ..services.markup import DEFAULT_MACRON_INDEX_PATH
+from ..services.markup import DEFAULT_MACRON_INDEX_PATH, DiacriticTransfer
 from .diacritic import (
     _confirm_form_matches_key,
     _load_macron_index_payload,
@@ -469,9 +469,19 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
             )
             raise click.ClickException(msg)
     else:
-        target_keys = sorted(
+        pending = sorted(
             key for key in payload.ambiguous if key not in payload.ambiguous_completed
         )
+        target_keys = [
+            key
+            for key in pending
+            if not DiacriticTransfer.same_marks(payload.ambiguous[key])
+        ]
+        if len(pending) > len(target_keys):
+            print_info(
+                f"Skipped {len(pending) - len(target_keys)} entries whose options "
+                "differ only in hyphens, case, eth/thorn or diphthong marking."
+            )
         if not target_keys:
             print_info(
                 "No unresolved ambiguous entries found "

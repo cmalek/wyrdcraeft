@@ -386,8 +386,8 @@ def _collapsing_index(path, *, completed=()):
             "meta": {"unique_count": 0, "ambiguous_count": 2},
             "unique": {},
             "ambiguous": {
-                "ac": ["ac", "āc"],
                 "cuslyppe": ["cū-slyppe", "cūslyppe"],
+                "þa": ["þa", "þā"],
             },
             "ambiguous_completed": list(completed),
             "ambiguous_metadata": {},
@@ -448,7 +448,7 @@ def test_diacritic_disambiguate_explicit_collapsing_key_still_opens(
 - [ ] **Step 2: Run the tests to verify they fail**
 
 Run: `.venv/bin/python -m pytest tests/test_cli_diacritic_disambiguate.py -k "queue_skips or completed_key_as_skipped or explicit_collapsing" -v`
-Expected: `queue_skips` FAILS (the queue shows `cuslyppe`, no "Skipped" message). `not_count_a_completed_key` and `explicit_collapsing` PASS already (they pin behavior that must not change).
+Expected: `queue_skips` FAILS (the queue opens on `cuslyppe`, which sorts before `þa`, and there is no "Skipped" message). `not_count_a_completed_key` and `explicit_collapsing` PASS already (they pin behavior that must not change).
 
 - [ ] **Step 3: Write the implementation**
 

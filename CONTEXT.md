@@ -113,6 +113,10 @@ Out of scope:
 - unaligned token: source token found in the macron index whose display form
   cannot be matched to the source letters (ð≡þ and hyphens ignored); left
   unchanged and reported separately from ambiguous and unknown tokens
+- collapsing ambiguity: an ambiguous key whose options all share one mark
+  pattern (differing only in hyphens, case, eth/thorn or diphthong style);
+  applied like a unique entry, never reported as ambiguous, unless the key is
+  completed
 - sc exception: a `c` immediately preceded by `s` never receives a palatal
   dot; absolute, overriding the forced-palatalize list, but a `ċ` already in
   the source is kept

@@ -1214,3 +1214,69 @@ def test_diacritic_disambiguate_choose_mismatch_confirmed_commits(runner, temp_d
     assert "does not match its key" in result.output
     payload = json.loads(index_path.read_text(encoding="utf-8"))
     assert payload["unique"]["blac"] == "blæc"
+
+
+def _collapsing_index(path, *, completed=()):
+    _write_index(
+        path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {
+                "cuslyppe": ["cū-slyppe", "cūslyppe"],
+                "þa": ["þa", "þā"],
+            },
+            "ambiguous_completed": list(completed),
+            "ambiguous_metadata": {},
+        },
+    )
+
+
+def _run_queue(runner, index_path, monkeypatch, *args):
+    # ``print_info`` writes to a stderr console bound at import time, which
+    # CliRunner does not capture, so record the messages directly.
+    messages: list[str] = []
+    monkeypatch.setattr(diacritic_disambiguate_module, "print_info", messages.append)
+    result = runner.invoke(
+        cli,
+        ["diacritic", "disambiguate", *args, "--index-path", str(index_path)],
+        input="q\n",
+    )
+    return result, messages
+
+
+def test_diacritic_disambiguate_queue_skips_keys_that_collapse(
+    runner, temp_dir, monkeypatch
+):
+    index_path = temp_dir / "index.json"
+    _collapsing_index(index_path)
+
+    result, messages = _run_queue(runner, index_path, monkeypatch)
+
+    assert result.exit_code == 0, result.output
+    assert "cū-slyppe" not in result.output
+    assert any(m.startswith("Skipped 1 entries") for m in messages)
+
+
+def test_diacritic_disambiguate_queue_does_not_count_a_completed_key_as_skipped(
+    runner, temp_dir, monkeypatch
+):
+    index_path = temp_dir / "index.json"
+    _collapsing_index(index_path, completed=["cuslyppe"])
+
+    result, messages = _run_queue(runner, index_path, monkeypatch)
+
+    assert result.exit_code == 0, result.output
+    assert not any(m.startswith("Skipped") for m in messages)
+
+
+def test_diacritic_disambiguate_explicit_collapsing_key_still_opens(
+    runner, temp_dir, monkeypatch
+):
+    index_path = temp_dir / "index.json"
+    _collapsing_index(index_path)
+
+    result, _ = _run_queue(runner, index_path, monkeypatch, "cuslyppe")
+
+    assert result.exit_code == 0, result.output
+    assert "cū-slyppe" in result.output
