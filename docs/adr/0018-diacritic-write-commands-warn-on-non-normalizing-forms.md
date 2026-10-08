@@ -11,8 +11,8 @@ and `diacritic-disambiguate`. Nothing checks that a stored form actually
 belongs to its key. Entries such as `acmuman` → `ā-cuman` came from the index
 builder's variant mapping (ADR 0016), not from these commands, but the commands
 can store the same kind of inconsistent entry, so the same guard belongs here. The
-user confirmed this must be fixed. Nothing
-here is implemented yet.
+user confirmed this must be fixed. Implemented
+(see Implementation notes below).
 
 ## Decisions
 
@@ -45,3 +45,18 @@ here is implemented yet.
 
 - Interactive commands gain one confirmation in the rare mismatch case.
 - Scripts must pass `--yes`.
+
+## Implementation notes
+
+- `diacritic add` gained `--yes/-y`. `disambiguate` is interactive and has no
+  `--yes`; a decline there returns to the action menu.
+- The check also runs on the "choose a candidate" action, not only on "replace
+  unique" and "add attested form". The packaged index has ambiguous candidates
+  that do not normalize to their key (`blac`→`blæc`/`blǣc`, `beinnan`→`binnan`,
+  `cinn`→`cin`), so choosing one would otherwise promote a non-aligning entry
+  to `unique` silently.
+- The prompt and notice escape the form and key as Rich markup, so a typed
+  form such as `[bold]x` is shown as typed and cannot crash the prompt. The
+  "Added pair" and `delete` messages are escaped the same way.
+- Not done: running `add` without `--yes` and without a terminal fails with an
+  end-of-input error rather than a clean message.
