@@ -11,13 +11,12 @@ and `diacritic-disambiguate`. Nothing checks that a stored form actually
 belongs to its key. Entries such as `acmuman` → `ā-cuman` came from the index
 builder's variant mapping (ADR 0016), not from these commands, but the commands
 can store the same kind of inconsistent entry, so the same guard belongs here. The
-user confirmed this must be fixed. Implemented
-(see Implementation notes below).
+user confirmed this must be fixed. Implemented; see Implementation notes below.
 
 ## Decisions
 
 1. **Warn and confirm.** When the form stored by `diacritic add`, or by the
-   disambiguate prompts "replace unique" and "add attested form", does not
+   disambiguate prompts "replace unique", "add attested form" and "choose a candidate", does not
    normalize to its own key, the command warns and asks for confirmation:
    the entry cannot be applied to text and will only appear in the `.unaligned`
    report. `--yes` skips the prompt.
@@ -44,7 +43,7 @@ user confirmed this must be fixed. Implemented
 ## Consequences
 
 - Interactive commands gain one confirmation in the rare mismatch case.
-- Scripts must pass `--yes`.
+- Scripts must pass `--yes` to `add`. `disambiguate` is interactive only and has no `--yes`.
 
 ## Implementation notes
 
