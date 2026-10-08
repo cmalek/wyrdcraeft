@@ -107,31 +107,31 @@ command and are deliberate; do not revert them as scope creep.
 ## Follow-up (implemented): `GPalatalizer` reads `g/frontal.txt`
 
 `g/frontal.txt` is a hand-maintained list of `g` exceptions, like the two `c`
-lists, but nothing reads it: `GPalatalizer` uses the hardcoded
-`FRONTAL_G_EXCEPTIONS`, so the user's edits to the file have no effect.
+lists. Before this change nothing read it: `GPalatalizer` used a hardcoded
+`FRONTAL_G_EXCEPTIONS`, so the user's edits to the file had no effect.
 
-Decision: `GPalatalizer` loads its frontal exceptions from this file instead of
-the hardcoded list, the way `CPalatalizer` loads its lists, and the hardcoded
-list is removed. The file stays the single hand-edited source of truth.
+Decision (implemented): `GPalatalizer` loads its frontal exceptions from this
+file, the way `CPalatalizer` loads its lists, and the hardcoded list is removed.
+The file is the single hand-edited source of truth.
 
-Facts to respect when implementing:
+How it was done, and why:
 
-- The two lists barely overlap. The file has 22 entries and the hardcoded list
-  44; only `gēs` is in both. Switching without migrating would drop protection
-  for 43 words (for example `gēar`, `gēat`, `gǣt`, `gēn`, `gǣl`), so `g` would
-  start getting a dot in them; an existing test expects `gēar` to stay velar. The
-  file also has 21 entries the code does not (`gigant`, `genesis`, `gylden`,
-  `girwan`, `Gildas`, `gegnum`, …) that would start to apply.
-- So the migration should first add the 43 missing entries to the file (a union),
-  so no existing protection is lost, and the user can then prune it. Some of the
-  43 are redundant because `g` before a back vowel is never dotted (`gaf`,
-  `gār`, `gangan`).
-- The file has no comment lines today; the loader should skip blank and `#`
-  lines like the `c` loader, fold entries with `_fold` (NFC, lowercase, ð≡þ, so
-  `Gildas` matches), and drop a trailing hyphen (`gǣst-` becomes `gǣst`), because
-  the palatalizer compares one dash-free segment at a time.
-- `ENDING_G_EXCEPTIONS` (`plǣg`, `sweg`, `tǣghrēg`) has no file and is out of
-  scope of this change.
+- The two lists barely overlapped. The file had 22 entries and the hardcoded
+  list 44; only `gēs` was in both. Switching without migrating would have dropped
+  protection for 43 words (for example `gēar`, `gēat`, `gǣt`, `gēn`, `gǣl`), so `g`
+  would have started getting a dot in them; an existing test expects `gēar` to
+  stay velar. The file also had 21 entries the code did not (`gigant`, `genesis`,
+  `gylden`, `girwan`, `Gildas`, `gegnum`, …), which now take effect.
+- The 43 missing entries were first appended to the file (a union), so no
+  existing protection was lost; the user can now prune it. Some of the 43 are
+  redundant because `g` before a back vowel is never dotted (`gaf`, `gār`,
+  `gangan`).
+- The loader (`_load_folded_word_list`) skips blank and `#` lines, ignores a
+  UTF-8 byte-order mark, folds entries with `_fold` (NFC, lowercase, ð≡þ, so
+  `Gildas` matches) and drops a trailing hyphen (`gǣst-` becomes `gǣst`), because
+  the palatalizer compares one dash-free segment at a time. Inline comments are
+  not supported.
+- `ENDING_G_EXCEPTIONS` (`plǣg`, `sweg`, `tǣghrēg`) has no file and stays in code.
 
 ## Refined by
 
