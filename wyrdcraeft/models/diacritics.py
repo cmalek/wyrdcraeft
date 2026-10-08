@@ -40,6 +40,10 @@ POSCodeLiteral = Literal[
 ]
 
 
+#: How ``mark-diacritics`` treats ambiguous keys that do not collapse (ADR 0019).
+AmbiguityPolicy = Literal["auto", "leave", "union"]
+
+
 class AmbiguityOption(BaseModel):
     """
     One candidate form for an ambiguous token, with POS and definitions when available.
@@ -70,6 +74,10 @@ class MacronAmbiguity(BaseModel):
     word: str = Field(..., min_length=1)
     #: Candidate forms with POS and definitions attached to each option.
     options: list[AmbiguityOption] = Field(default_factory=list)
+    #: Form written to the output when a policy resolved this token, else None.
+    applied_form: str | None = None
+    #: Policy that wrote ``applied_form``, else None (token left unchanged).
+    policy: Literal["auto", "union"] | None = None
 
 
 class UnknownToken(BaseModel):

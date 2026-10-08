@@ -6,13 +6,14 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, Literal
 
 from pydantic import ValidationError
 
 from ..models.diacritics import (
     POS_CODE_LABELS,
     AmbiguityOption,
+    AmbiguityPolicy,
     DiacriticRestorationResult,
     MacronAmbiguity,
     MacronIndexPayload,
@@ -69,6 +70,10 @@ DIPHTHONGS: Final[frozenset[tuple[str, str]]] = frozenset(
 )
 #: Combining macron, the only mark that is shared between a diphthong's vowels.
 MACRON: Final[str] = "\u0304"
+#: Marks that exclude each other on one letter: macron, breve, diaeresis.
+EXCLUSIVE_MARKS: Final[frozenset[str]] = frozenset({MACRON, "\u0306", "\u0308"})
+#: Keys of at least this many letters are guessed by the ``auto`` policy.
+AUTO_MIN_KEY_LENGTH: Final[int] = 8
 #: Regex for extracting first bold headword from Bosworth-Toller lines.
 BOLD_HEADWORD_RE: Final[re.Pattern[str]] = re.compile(r"<B>(.*?)</B>")
 #: Trailing punctuation to trim from extracted headwords.
@@ -418,6 +423,72 @@ class DiacriticTransfer:
         return len(patterns) == 1
 
     @classmethod
+    def union_form(cls, forms: Iterable[str]) -> str | None:
+        """
+        Combine the marks of several forms of one word.
+
+        A letter gets every mark any form puts on it, unless the forms put two
+        of macron, breve and diaeresis on it, in which case it gets none.
+
+        Args:
+            forms: Index display forms for one key.
+
+        Returns:
+            A hyphen-free form carrying the union, or ``None`` when the forms
+            do not have the same number of letters.
+
+        """
+        patterns = [cls.mark_pattern(form) for form in forms]
+        if not patterns or len({len(p) for p in patterns}) != 1:
+            return None
+        out: list[str] = []
+        for column in zip(*patterns, strict=True):
+            marks: frozenset[str] = frozenset().union(*(m for _, m in column))
+            if len(marks & EXCLUSIVE_MARKS) > 1:
+                marks = frozenset()
+            out.append(
+                unicodedata.normalize("NFC", column[0][0] + "".join(sorted(marks)))
+            )
+        return "".join(out)
+
+    @classmethod
+    def differs_only_before_hyphen(cls, forms: Iterable[str]) -> bool:
+        """
+        Tell whether every mark difference sits before a hyphen of some form.
+
+        Such a difference is on a prefix or first compound element
+        (``an-weald``/``ānweald``), which may be a real lexical distinction.
+
+        Args:
+            forms: Index display forms for one key.
+
+        Returns:
+            ``True`` when the forms differ in marks and all differing letters
+            come before the first hyphen of at least one form.
+
+        """
+        forms = list(forms)
+        patterns = [cls.mark_pattern(form) for form in forms]
+        if len({len(p) for p in patterns}) != 1:
+            return False
+        differing = [
+            n
+            for n, column in enumerate(zip(*patterns, strict=True))
+            if len({marks for _, marks in column}) > 1
+        ]
+        if not differing:
+            return False
+        for form in forms:
+            letters = cls._parse(form)
+            cut = next(
+                (n for n, letter in enumerate(letters) if n and not letter.joined),
+                None,
+            )
+            if cut is not None and max(differing) < cut:
+                return True
+        return False
+
+    @classmethod
     def transfer(cls, source: str, marked: str) -> str | None:
         """
         Add the index form's marks to the matching letters of ``source``.
@@ -474,6 +545,7 @@ class MacronApplicator:
         index_path: Path = DEFAULT_MACRON_INDEX_PATH,
         *,
         standard_elements: StandardElements | None = None,
+        policy: AmbiguityPolicy = "leave",
     ):
         """
         Initialize applicator from a prebuilt index.
@@ -484,6 +556,7 @@ class MacronApplicator:
         Keyword Args:
             standard_elements: Standard element spellings; the packaged list
                 when omitted.
+            policy: How ambiguous keys that do not collapse are treated.
 
         """
         #: Path to the prebuilt macron index.
@@ -492,6 +565,8 @@ class MacronApplicator:
         self.index = self.load_index(index_path)
         #: Standard element spellings applied to reference forms.
         self.standard_elements = standard_elements or StandardElements.load()
+        #: How ambiguous keys that do not collapse are treated.
+        self.policy = policy
 
     @classmethod
     def load_index(cls, index_path: Path) -> MacronIndex:
@@ -792,6 +867,30 @@ class MacronApplicator:
         # source that put the macron on the second vowel; ties go to the first.
         return max(options, key=DiacriticTransfer.diphthong_count)
 
+    def _policy_form(self, normalized: str) -> str | None:
+        """
+        Pick the form to write for an ambiguous key under the active policy.
+
+        Args:
+            normalized: Normalized key, present in ``index.ambiguous``.
+
+        Returns:
+            A hyphen-free form carrying the union of the options' marks, or
+            ``None`` when the policy is ``leave``, the key is completed, the
+            ``auto`` rule does not apply, or the options cannot be lined up.
+
+        """
+        if self.policy == "leave" or normalized in self.index.ambiguous_completed:
+            return None
+        options = self._standardized_options(normalized)
+        if self.policy == "auto":
+            guessable = len(normalized) >= AUTO_MIN_KEY_LENGTH or any(
+                "-" in option for option in options
+            )
+            if not guessable or DiacriticTransfer.differs_only_before_hyphen(options):
+                return None
+        return DiacriticTransfer.union_form(options)
+
     def apply(
         self, word: str, line_number: int, word_number: int
     ) -> tuple[str, MacronAmbiguity | None, bool, str | None]:
@@ -802,6 +901,10 @@ class MacronApplicator:
         elements are applied, ADR 0019) is applied like a unique key and writes
         no ambiguity row. Reference forms have their standard elements spelled
         as listed before the transfer.
+
+        An ambiguous key that does not collapse is resolved by :attr:`policy`.
+        A token it writes still gets an ambiguity row, with ``applied_form`` and
+        ``policy`` set, so the guess can be reviewed.
 
         Args:
             word: Verbatim lexical token.
@@ -828,13 +931,16 @@ class MacronApplicator:
             return word, None, False, None
 
         marked = self.index.unique.get(normalized)
+        guessed: Literal["auto", "union"] | None = None
         if normalized in self.index.ambiguous:
             marked = self._collapsed_form(normalized)
             if marked is None:
-                ambiguity = self._ambiguity_row(
-                    word, normalized, line_number, word_number
-                )
-                return word, ambiguity, False, None
+                marked = self._policy_form(normalized)
+                if marked is not None:
+                    guessed = "auto" if self.policy == "auto" else "union"
+            if marked is None:
+                row = self._ambiguity_row(word, normalized, line_number, word_number)
+                return word, row, False, None
         if marked is None:
             LOGGER.debug(
                 "Macron no-match token='%s' line=%d word=%d",
@@ -844,25 +950,52 @@ class MacronApplicator:
             )
             return word, None, True, None
 
+        return self._transfer_token(
+            word, marked, guessed, (normalized, line_number, word_number)
+        )
+
+    def _transfer_token(
+        self,
+        word: str,
+        marked: str,
+        guessed: Literal["auto", "union"] | None,
+        where: tuple[str, int, int],
+    ) -> tuple[str, MacronAmbiguity | None, bool, str | None]:
+        """
+        Copy the marks of a chosen index form onto a token.
+
+        Args:
+            word: Verbatim lexical token.
+            marked: Index form (or policy union) chosen for the token.
+            guessed: Policy that chose ``marked`` for an ambiguous key, else ``None``.
+            where: Normalized key, 1-based line number and word number.
+
+        Returns:
+            The same tuple as :meth:`apply`. A guessed token carries its ambiguity
+            row with ``applied_form`` and ``policy`` set, or the plain row when
+            the form cannot be aligned.
+
+        """
+        normalized, line_number, word_number = where
         marked = self.standard_elements.standardize(marked)
         transformed = DiacriticTransfer.transfer(word, marked)
-        if transformed is None:
-            LOGGER.debug(
-                "Macron unaligned token='%s' index_form='%s' line=%d word=%d",
-                word,
-                marked,
-                line_number,
-                word_number,
-            )
-            return word, None, False, marked
         LOGGER.debug(
-            "Macron applied token='%s' -> '%s' line=%d word=%d",
+            "Macron transfer token='%s' index_form='%s' -> %r line=%d word=%d",
             word,
+            marked,
             transformed,
             line_number,
             word_number,
         )
-        return transformed, None, False, None
+        if guessed is None:
+            if transformed is None:
+                return word, None, False, marked
+            return transformed, None, False, None
+        row = self._ambiguity_row(word, normalized, line_number, word_number)
+        if transformed is None:
+            return word, row, False, None
+        row = row.model_copy(update={"applied_form": transformed, "policy": guessed})
+        return transformed, row, False, None
 
 
 class GPalatalizer:

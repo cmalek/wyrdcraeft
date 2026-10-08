@@ -72,6 +72,8 @@ def test_source_mark_diacritics_writes_text_and_ambiguities(
                 {"form": "wegas", "part_of_speech": "noun", "definitions": ["way"]},
                 {"form": "wēgas", "part_of_speech": "noun", "definitions": ["ways"]},
             ],
+            "applied_form": None,
+            "policy": None,
         }
     ]
 
@@ -138,7 +140,7 @@ def test_source_mark_diacritics_writes_unknowns_file(
 
 
 def test_source_mark_diacritics_writes_unaligned_report(runner, temp_dir):
-    from wyrdcraeft.services.markup import DiacriticRestorer
+    from wyrdcraeft.services.markup import MacronApplicator
 
     index_path = temp_dir / "index.json"
     index_path.write_text(
@@ -148,8 +150,8 @@ def test_source_mark_diacritics_writes_unaligned_report(runner, temp_dir):
     source_file.write_text("ærþling\n", encoding="utf-8")
 
     with patch(
-        "wyrdcraeft.cli.source.DiacriticRestorer",
-        lambda: DiacriticRestorer(macron_index_path=index_path),
+        "wyrdcraeft.cli.source.MacronApplicator",
+        lambda policy: MacronApplicator(index_path, policy=policy),
     ):
         result = runner.invoke(cli, ["source", "mark-diacritics", str(source_file)])
 
@@ -160,3 +162,61 @@ def test_source_mark_diacritics_writes_unaligned_report(runner, temp_dir):
     assert unaligned[0]["word"] == "ærþling"
     assert unaligned[0]["index_form"] == "ǣrst"
     assert (temp_dir / "poem.fixed.txt").read_text(encoding="utf-8") == "ærþling\n"
+
+
+@patch("wyrdcraeft.cli.source.MacronApplicator")
+@patch("wyrdcraeft.cli.source.DiacriticRestorer")
+def test_source_mark_diacritics_passes_ambiguity_policy(
+    mock_restorer_cls, mock_applicator_cls, runner, temp_dir
+):
+    source_file = temp_dir / "source.txt"
+    source_file.write_text("raw", encoding="utf-8")
+    mock_restorer_cls.return_value.restore_text.return_value = (
+        DiacriticRestorationResult(marked_text="raw")
+    )
+
+    default = runner.invoke(cli, ["source", "mark-diacritics", str(source_file)])
+    chosen = runner.invoke(
+        cli,
+        ["source", "mark-diacritics", str(source_file), "--ambiguity-policy", "union"],
+    )
+    bad = runner.invoke(
+        cli,
+        ["source", "mark-diacritics", str(source_file), "--ambiguity-policy", "maybe"],
+    )
+
+    assert default.exit_code == 0, default.output
+    assert chosen.exit_code == 0, chosen.output
+    policies = [c.kwargs["policy"] for c in mock_applicator_cls.call_args_list]
+    assert policies == ["auto", "union"]
+    assert bad.exit_code == 2
+
+
+@patch("wyrdcraeft.cli.source.MacronApplicator", new=MagicMock())
+@patch("wyrdcraeft.cli.source.DiacriticRestorer")
+def test_source_mark_diacritics_counts_guessed_tokens(
+    mock_restorer_cls, runner, temp_dir, monkeypatch
+):
+    import wyrdcraeft.cli.source as source_module
+
+    source_file = temp_dir / "source.txt"
+    source_file.write_text("ac", encoding="utf-8")
+    guessed = MacronAmbiguity(
+        line_number=1,
+        word_number=1,
+        word="ac",
+        options=[AmbiguityOption(form="ac"), AmbiguityOption(form="āc")],
+        applied_form="āc",
+        policy="union",
+    )
+    mock_restorer_cls.return_value.restore_text.return_value = (
+        DiacriticRestorationResult(marked_text="āc", ambiguities=[guessed])
+    )
+    # print_info writes to a stderr console CliRunner does not capture.
+    messages: list[str] = []
+    monkeypatch.setattr(source_module, "print_info", messages.append)
+
+    result = runner.invoke(cli, ["source", "mark-diacritics", str(source_file)])
+
+    assert result.exit_code == 0, result.output
+    assert any("Guessed: 1" in m for m in messages)

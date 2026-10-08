@@ -76,6 +76,26 @@ ambiguous keys whose options then agree are applied without an ambiguity row.
 A source that already writes ``ā-`` or ``fōr-`` keeps it: the command only adds
 marks.
 
+Ambiguity policy
+----------------
+
+An ambiguous key that does not collapse is handled by ``--ambiguity-policy``:
+
+- ``auto`` (default): apply the union of the options' marks when some option
+  is hyphenated or the key has 8 or more letters. Not when the marks differ only
+  before a hyphen (``an-``/``ān-``, ``ge-an``/``gēan``): that may be a real
+  difference in meaning, so the token is left unchanged and reported.
+- ``leave``: change nothing; report every ambiguous token.
+- ``union``: apply the union of the marks everywhere. It is a guess. A letter
+  where the options put two of macron, breve and diaeresis gets no mark.
+
+A key that was marked completed with ``diacritic-disambiguate`` is never
+guessed. A token written by ``auto`` or ``union`` still appears in the ambiguity
+report, with ``applied_form`` (what was written) and ``policy`` set, so you can
+review exactly the guesses. Tokens left unchanged have both ``null``. To veto a
+key, edit the index file directly. The command's summary line counts them as
+``Guessed``.
+
 Normalization rules
 -------------------
 

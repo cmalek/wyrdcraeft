@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from rich.progress import (
@@ -15,8 +16,11 @@ from rich.progress import (
 
 from ..models import TextMetadata
 from ..services.ingest.pipeline import DocumentIngestor
-from ..services.markup import DiacriticRestorer
+from ..services.markup import DiacriticRestorer, MacronApplicator
 from .utils import console, print_error, print_info
+
+if TYPE_CHECKING:
+    from ..models.diacritics import AmbiguityPolicy
 
 
 @click.group(name="source")
@@ -165,12 +169,24 @@ def _mark_diacritics_derived_path(source: Path, infix: str) -> Path:
         "source; token left unchanged). Default: stem.unaligned + input extension."
     ),
 )
-def reading_mark_diacritics(
+@click.option(
+    "--ambiguity-policy",
+    type=click.Choice(["auto", "leave", "union"]),
+    default="auto",
+    show_default=True,
+    help=(
+        "How to treat ambiguous words. auto: mark the likely ones (hyphenated or "
+        "long words) and report them; leave: change nothing; union: mark every "
+        "one with all the marks its options have (a guess)."
+    ),
+)
+def reading_mark_diacritics(  # noqa: PLR0913, PLR0917
     source: Path,
     output: Path | None,
     ambiguities_output: Path | None,
     unknown_output: Path | None,
     unaligned_output: Path | None,
+    ambiguity_policy: AmbiguityPolicy,
 ) -> None:
     """
     Restore diacritics in a source text and emit ambiguity and unknown-word reports.
@@ -185,6 +201,8 @@ def reading_mark_diacritics(
         ambiguities_output: Output path for ambiguity report JSON.
         unknown_output: Output path for unrecognized-words report JSON.
         unaligned_output: Output path for unaligned-words report JSON.
+        ambiguity_policy: ``auto``, ``leave`` or ``union``; guessed tokens stay in
+            the ambiguity report with the form written and the policy.
 
     """
     resolved_output = (
@@ -215,7 +233,9 @@ def reading_mark_diacritics(
         msg = f"Failed to read source file {source}: {e}"
         raise click.ClickException(msg) from e
 
-    restorer = DiacriticRestorer()
+    restorer = DiacriticRestorer(
+        macron_applicator=MacronApplicator(policy=ambiguity_policy)
+    )
     result = restorer.restore_text(text)
 
     resolved_output.parent.mkdir(parents=True, exist_ok=True)
@@ -254,5 +274,6 @@ def reading_mark_diacritics(
     print_info(
         f"Successfully marked diacritics for {source} -> {resolved_output}. "
         f"Ambiguities: {len(result.ambiguities)}, Unknowns: {len(result.unknowns)}, "
-        f"Unaligned: {len(result.unaligned)}"
+        f"Unaligned: {len(result.unaligned)}, "
+        f"Guessed: {sum(1 for a in result.ambiguities if a.policy)}"
     )

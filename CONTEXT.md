@@ -117,6 +117,9 @@ Out of scope:
   pattern (differing only in hyphens, case, eth/thorn or diphthong style);
   applied like a unique entry, never reported as ambiguous, unless the key is
   completed
+- ambiguity policy: how `mark-diacritics` treats an ambiguous key that does not
+  collapse (`auto`, `leave`, `union`); a token it guesses stays in the ambiguity
+  report with the form written and the policy
 - standard element: a prefix or compound element (`a-`, `for-`, `fore-`, `ge-`,
   `bonde`, `hīrēd-`, `bēacen-`, `ōþ-`) with one editorial spelling, listed in a
   hand-edited data file; applied to index forms only where BT writes a hyphen

@@ -61,6 +61,10 @@ Outputs:
 - An ambiguous key whose options all share one mark pattern is applied like a
   unique entry by `mark-diacritics` (unless completed), and the
   `diacritic-disambiguate` queue skips it; an explicit key still opens it.
+- `--ambiguity-policy auto|leave|union` (CLI default `auto`, `MacronApplicator`
+  default `leave`) resolves ambiguous keys that do not collapse; completed keys
+  are never guessed; guessed tokens stay in the report with `applied_form` and
+  `policy`.
 - Standard elements (`wyrdcraeft/etc/diacritic/standard_elements.txt`, hand-edited)
   are spelled as listed in every index form before the transfer and the
   comparison. They count only where BT writes a hyphen after (prefix) or around

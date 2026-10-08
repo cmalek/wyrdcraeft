@@ -815,3 +815,143 @@ def test_apply_never_collapses_a_completed_key_even_through_elements(tmp_path: P
     _, ambiguity, _, _ = MacronApplicator(index_path).apply("foreberan", 1, 1)
 
     assert ambiguity is not None
+
+
+@pytest.mark.parametrize(
+    ("forms", "expected"),
+    [
+        (["ac", "āc"], "āc"),
+        (["lufigende", "lūfigende"], "lūfigende"),
+        # macron vs breve on one letter conflict: no mark on that letter
+        (["lŭfigende", "lūfigende", "lufigende"], "lufigende"),
+        # dot-above does not conflict with a macron
+        (["ġē", "ge", "gē"], "ġē"),
+        # letters that cannot be lined up: no union
+        (["ac", "acc"], None),
+    ],
+)
+def test_union_form(forms: list[str], expected: str | None):
+    assert DiacriticTransfer.union_form(forms) == expected
+
+
+@pytest.mark.parametrize(
+    ("forms", "expected"),
+    [
+        (["weg-fara", "wēg-fara"], True),
+        (["an-weald", "ānweald"], True),
+        (["ge-an", "gēan"], True),
+        (["gold-hord", "gold-hōrd"], False),
+        (["ac", "āc"], False),
+        (["ac", "ac"], False),
+    ],
+)
+def test_differs_only_before_hyphen(forms: list[str], expected: bool):
+    assert DiacriticTransfer.differs_only_before_hyphen(forms) is expected
+
+
+def _policy_index(tmp_path: Path, completed: list[str] | None = None) -> Path:
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={
+            "ac": ["ac", "āc"],
+            "wundorlic": ["wundorlic", "wundōrlic"],
+            "goldhord": ["gold-hord", "gold-hōrd"],
+            "wegfara": ["weg-fara", "wēg-fara"],
+            "gean": ["ge-an", "gēan"],
+        },
+        ambiguous_completed=completed,
+    )
+    return index_path
+
+
+@pytest.mark.parametrize(
+    ("policy", "word", "written", "guessed"),
+    [
+        ("leave", "ac", "ac", None),
+        ("leave", "goldhord", "goldhord", None),
+        ("auto", "ac", "ac", None),  # short, no hyphen
+        ("auto", "wundorlic", "wundōrlic", "auto"),  # 8+ letters
+        ("auto", "goldhord", "goldhōrd", "auto"),  # hyphenated
+        ("auto", "wegfara", "wegfara", None),  # differs only before the hyphen
+        ("auto", "gean", "gean", None),  # ge-an / gēan stay apart (Review Focus)
+        ("union", "ac", "āc", "union"),
+        ("union", "wegfara", "wēgfara", "union"),
+    ],
+)
+def test_apply_policy(
+    tmp_path: Path, policy: str, word: str, written: str, guessed: str | None
+):
+    applicator = MacronApplicator(_policy_index(tmp_path), policy=policy)
+
+    transformed, ambiguity, is_unknown, unaligned = applicator.apply(word, 1, 1)
+
+    assert transformed == written
+    assert ambiguity is not None  # guessed tokens stay in the report (decision 6)
+    assert ambiguity.policy == guessed
+    assert ambiguity.applied_form == (transformed if guessed else None)
+    assert not is_unknown
+    assert unaligned is None
+
+
+def test_apply_policy_never_touches_a_completed_key(tmp_path: Path):
+    applicator = MacronApplicator(
+        _policy_index(tmp_path, completed=["ac"]), policy="union"
+    )
+
+    transformed, ambiguity, _, _ = applicator.apply("ac", 1, 1)
+
+    assert transformed == "ac"
+    assert ambiguity is not None
+    assert ambiguity.policy is None
+
+
+def test_apply_union_keeps_decomposed_source_letters(tmp_path: Path):
+    applicator = MacronApplicator(_policy_index(tmp_path), policy="union")
+    source = unicodedata.normalize("NFD", "wundorlic")
+
+    transformed, _, _, _ = applicator.apply(source, 1, 1)
+
+    assert unicodedata.normalize("NFD", transformed).replace("̄", "") == source
+
+
+def test_apply_union_with_unalignable_options_leaves_token_reported(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    # Hand-edited bad data: same key, different letter counts.
+    _write_index(index_path, unique={}, ambiguous={"acc": ["ac", "ācc"]})
+
+    transformed, ambiguity, _, _ = MacronApplicator(index_path, policy="union").apply(
+        "acc", 1, 1
+    )
+
+    assert transformed == "acc"
+    assert ambiguity is not None
+    assert ambiguity.policy is None
+
+
+def test_apply_policy_applies_to_a_key_that_is_also_unique(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={"ac": "ac"}, ambiguous={"ac": ["ac", "āc"]})
+
+    transformed, ambiguity, _, _ = MacronApplicator(index_path, policy="union").apply(
+        "ac", 1, 1
+    )
+
+    assert transformed == "āc"
+    assert ambiguity is not None
+    assert ambiguity.policy == "union"
+
+
+def test_restorer_reports_guessed_tokens_with_policy(tmp_path: Path):
+    restorer = DiacriticRestorer(
+        macron_applicator=MacronApplicator(_policy_index(tmp_path), policy="union")
+    )
+
+    result = restorer.restore_text("ac goldhord\n")
+
+    assert result.marked_text == "āc goldhōrd\n"
+    assert [(a.word, a.applied_form, a.policy) for a in result.ambiguities] == [
+        ("ac", "āc", "union"),
+        ("goldhord", "goldhōrd", "union"),
+    ]
