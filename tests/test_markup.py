@@ -9,6 +9,7 @@ from wyrdcraeft.services.markup import (
     DEFAULT_MACRON_INDEX_PATH,
     CPalatalizer,
     DiacriticRestorer,
+    DiacriticTransfer,
     GPalatalizer,
     MacronApplicator,
     normalize_morphology_title,
@@ -263,8 +264,6 @@ def test_macron_applicator_rejects_invalid_pos_code_metadata(tmp_path: Path):
 
 
 def test_diacritic_transfer_preserves_source_letters_hyphens_and_case():
-    from wyrdcraeft.services.markup import DiacriticTransfer
-
     t = DiacriticTransfer.transfer
     # eth/thorn stay as written, in both directions
     assert t("ðā", "þā") == "ðā"
@@ -284,8 +283,6 @@ def test_diacritic_transfer_preserves_source_letters_hyphens_and_case():
 
 
 def test_diacritic_transfer_unalignable_returns_none():
-    from wyrdcraeft.services.markup import DiacriticTransfer
-
     assert DiacriticTransfer.transfer("ærþling", "ǣrst") is None
     assert DiacriticTransfer.transfer("barr", "bār") is None
     assert DiacriticTransfer.transfer("aet", "æt") is None
@@ -365,3 +362,40 @@ def test_g_palatalizer_velar_before_back_vowel_and_folded_exceptions():
     # exception list compares with ð≡þ folded
     assert palatalizer.palatalize("gēoguð") == "gēoguð"
     assert palatalizer.palatalize("gēoguþ") == "gēoguþ"
+
+
+def test_mark_pattern_shape_for_a_diphthong():
+    macron = "\u0304"
+    assert DiacriticTransfer.mark_pattern("lēast") == (
+        ("l", frozenset()),
+        ("e", frozenset({macron})),
+        ("a", frozenset()),
+        ("s", frozenset()),
+        ("t", frozenset()),
+    )
+
+
+def test_mark_pattern_moves_a_second_vowel_macron_to_the_first():
+    assert DiacriticTransfer.mark_pattern("leāst") == DiacriticTransfer.mark_pattern(
+        "lēast"
+    )
+
+
+def test_mark_pattern_ignores_case_hyphens_and_eth_thorn():
+    pattern = DiacriticTransfer.mark_pattern
+    assert pattern("Hlāford") == pattern("hlā-ford")
+    assert pattern("ðā") == pattern("þā")
+    assert pattern("a\u2014ælan") == pattern("aælan")
+
+
+def test_mark_pattern_does_not_join_vowels_separated_by_a_hyphen():
+    pattern = DiacriticTransfer.mark_pattern
+    assert pattern("be-ōdrian") != pattern("bēodrian")
+    assert pattern("beōdrian") == pattern("bēodrian")
+
+
+def test_mark_pattern_leaves_a_breve_on_its_own_letter():
+    breve = "\u0306"
+    pattern = DiacriticTransfer.mark_pattern("ēliŏtrŏpus")
+    assert pattern[3] == ("o", frozenset({breve}))
+    assert pattern[2] == ("i", frozenset())

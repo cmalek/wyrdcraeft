@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
@@ -56,6 +57,12 @@ DASH_CHARS: Final[str] = "-\u2013\u2014"
 DASH_SPLIT_RE: Final[re.Pattern[str]] = re.compile(r"([-\u2013\u2014])")
 #: Combining dot above, used for ``ġ``/``ċ``.
 DOT_ABOVE: Final[str] = "\u0307"
+#: Adjacent vowel pairs (first, second) that count as one diphthong.
+DIPHTHONGS: Final[frozenset[tuple[str, str]]] = frozenset(
+    {("e", "a"), ("e", "o"), ("i", "e"), ("i", "o")}
+)
+#: Combining macron, the only mark that is shared between a diphthong's vowels.
+MACRON: Final[str] = "\u0304"
 #: Regex for extracting first bold headword from Bosworth-Toller lines.
 BOLD_HEADWORD_RE: Final[re.Pattern[str]] = re.compile(r"<B>(.*?)</B>")
 #: Trailing punctuation to trim from extracted headwords.
@@ -201,6 +208,22 @@ def _graft_dots(clusters: list[str], lows: list[str], after: str) -> str:
     return "".join(out)
 
 
+@dataclass(frozen=True)
+class _Letter:
+    """
+    One letter of a token together with its combining marks.
+    """
+
+    #: Letter plus combining marks, exactly as written.
+    cluster: str
+    #: Case-folded base letter, with ``ð`` as ``þ``.
+    base: str
+    #: Combining marks on the letter, as decomposed characters.
+    marks: frozenset[str]
+    #: Whether no hyphen or dash separates this letter from the previous one.
+    joined: bool
+
+
 class DiacriticTransfer:
     """
     Copy combining marks from a macron-index form onto a source token.
@@ -237,6 +260,113 @@ class DiacriticTransfer:
 
         """
         return unicodedata.normalize("NFD", cluster)[0].lower().replace("ð", "þ")
+
+    @staticmethod
+    def _parse(text: str) -> list[_Letter]:
+        """
+        Split text into letters, dropping hyphens and dashes.
+
+        Args:
+            text: Token text.
+
+        Returns:
+            The letters in order, each noting whether it is joined to the
+            previous letter without a hyphen or dash between them.
+
+        """
+        letters: list[_Letter] = []
+        joined = False
+        for cluster in CLUSTER_RE.findall(text):
+            if cluster in DASH_CHARS:
+                joined = False
+                continue
+            decomposed = unicodedata.normalize("NFD", cluster)
+            letters.append(
+                _Letter(
+                    cluster=cluster,
+                    base=decomposed[0].lower().replace("ð", "þ"),
+                    marks=frozenset(decomposed[1:]),
+                    joined=joined,
+                )
+            )
+            joined = True
+        return letters
+
+    @staticmethod
+    def _diphthong_starts(letters: list[_Letter]) -> list[int]:
+        """
+        Find the diphthongs of a form.
+
+        A diphthong is an adjacent pair from :data:`DIPHTHONGS` with no hyphen
+        between the vowels and no mark other than a macron on either (a breve in
+        a loanword such as ``ēliŏtrŏpus`` marks a hiatus, not a diphthong).
+        Pairs do not overlap; the first one wins.
+
+        Args:
+            letters: Letters of the form that defines the word, the index form.
+
+        Returns:
+            The index of the first vowel of each diphthong, in order.
+
+        """
+        starts: list[int] = []
+        i = 0
+        while i + 1 < len(letters):
+            first, second = letters[i], letters[i + 1]
+            if (
+                second.joined
+                and (first.base, second.base) in DIPHTHONGS
+                and (first.marks | second.marks) <= {MACRON}
+            ):
+                starts.append(i)
+                i += 2
+            else:
+                i += 1
+        return starts
+
+    @staticmethod
+    def _merge_diphthongs(
+        letters: list[_Letter], starts: list[int]
+    ) -> list[frozenset[str]]:
+        """
+        Return each letter's marks with diphthong marks moved to the first vowel.
+
+        Args:
+            letters: Letters of one form.
+            starts: First-vowel indexes of the diphthongs, from the index form.
+
+        Returns:
+            One mark set per letter; the second vowel of a diphthong has none.
+
+        """
+        marks = [letter.marks for letter in letters]
+        for i in starts:
+            marks[i] = marks[i] | marks[i + 1]
+            marks[i + 1] = frozenset()
+        return marks
+
+    @classmethod
+    def mark_pattern(cls, form: str) -> tuple[tuple[str, frozenset[str]], ...]:
+        """
+        Describe a form as its letters and marks, independent of spelling noise.
+
+        Case, hyphens, dashes and ``ð``/``þ`` do not matter, and a diphthong's
+        macron is always on its first vowel, so ``leāst`` and ``lēast`` have the
+        same pattern.
+
+        Args:
+            form: A source word or an index display form.
+
+        Returns:
+            One ``(base letter, marks)`` pair per letter.
+
+        """
+        letters = cls._parse(form)
+        marks = cls._merge_diphthongs(letters, cls._diphthong_starts(letters))
+        return tuple(
+            (letter.base, mark_set)
+            for letter, mark_set in zip(letters, marks, strict=True)
+        )
 
     @classmethod
     def transfer(cls, source: str, marked: str) -> str | None:
