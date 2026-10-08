@@ -75,8 +75,8 @@ command and are deliberate; do not revert them as scope creep.
   front vowel and not followed by a back vowel (`hiġe`, `þeġn`, `weġ`); initial
   `g` before a front vowel is unchanged. Consequence: `wegas` stays `wegas`
   (previously `weġas`), and the test that asserted `weġas` was updated.
-- **Exception lists are folded, not normalized.** `FRONTAL_G_EXCEPTIONS` and
-  `ENDING_G_EXCEPTIONS` compare with NFC, lowercase and ð≡þ. Full
+- **Exception lists are folded, not normalized.** The frontal exceptions (read from
+  `g/frontal.txt`) and `ENDING_G_EXCEPTIONS` compare with NFC, lowercase and ð≡þ. Full
   normalization (`normalize_old_english`) was rejected because it strips
   macrons and would conflate `gēar` with `ġear`. The `c` lists already used
   normalization and are unchanged.
@@ -103,10 +103,8 @@ command and are deliberate; do not revert them as scope creep.
   (93 reported vs 95 baseline keys); `mypy` has one pre-existing error at
   `wyrdcraeft/cli/cli.py:107`. Neither was caused by this work except one new
   `model_config` `#:` comment gap on `UnalignedToken`, matching the other models.
-- `wyrdcraeft/etc/diacritic/g/frontal.txt` is not read by any code (see the
-  proposed follow-up below).
 
-## Proposed follow-up (not implemented): `GPalatalizer` reads `g/frontal.txt`
+## Follow-up (implemented): `GPalatalizer` reads `g/frontal.txt`
 
 `g/frontal.txt` is a hand-maintained list of `g` exceptions, like the two `c`
 lists, but nothing reads it: `GPalatalizer` uses the hardcoded

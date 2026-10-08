@@ -37,6 +37,8 @@ Inputs:
 
 - source text files for restoration
 - macron index JSON payload
+- hand-edited palatalization exception lists under `wyrdcraeft/etc/diacritic/`
+  (`c_palatalization_*.txt` and `g/frontal.txt`)
 - Bosworth-Toller assist lookups during interactive disambiguation
 
 Outputs:

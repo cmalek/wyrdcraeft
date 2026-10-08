@@ -745,55 +745,12 @@ class MacronApplicator:
 class GPalatalizer:
     """
     Palatalize ``g`` in a single lexical token.
-    """
 
-    #: Words that seem like they should have a palatalized ``g``, but do not.
-    FRONTAL_G_EXCEPTIONS: Final[list[str]] = [
-        "gǣl",
-        "gǣf",
-        "gǣfon",
-        "gǣlscipe",
-        "gǣng",
-        "gǣnge",
-        "gǣr",
-        "gǣrlicgǣst",
-        "gǣstas",
-        "gǣsthus",
-        "gǣstlic",
-        "gǣstlīce",
-        "gǣt",
-        "gǣten",
-        "gaf",
-        "gafol",
-        "gafolrǣden",
-        "gafolgyld",
-        "galan",
-        "gangan",
-        "gār",
-        "gāt",
-        "gēar",
-        "gēara",
-        "gēoguð",
-        "geōguþ",
-        "gēn",
-        "gēna",
-        "gēola",
-        "gēol",
-        "gēomor",
-        "gēong",
-        "gēongra",
-        "gēs",  # "geese"; ē from i-mutation of ō, g stays velar (see c blocklist)
-        "gēsne",
-        "gēsnian",
-        "gēsting",
-        "gēstlīc",
-        "gēsthus",
-        "gēat",
-        "gēatlic",
-        "gēard",
-        "gēatas",
-        "gēatland",
-    ]
+    Args:
+        frontal_path: File of words whose initial ``g`` stays velar before a
+            front vowel, one per line (``#`` comments allowed).
+
+    """
 
     #: Ending palatalized-g exceptions.
     ENDING_G_EXCEPTIONS: Final[list[str]] = ["plǣg", "sweg", "tǣghrēg"]
@@ -823,6 +780,22 @@ class GPalatalizer:
 
     #: Back vowels; a ``g`` before one stays velar.
     BACK_VOWELS: Final[frozenset[str]] = frozenset({"a", "ā", "o", "ō", "u", "ū"})
+
+    def __init__(self, frontal_path: Path = DEFAULT_G_FRONTAL_PATH) -> None:
+        """
+        Load the frontal exception list.
+
+        Args:
+            frontal_path: File of words whose initial ``g`` stays velar before
+                a front vowel, one per line (``#`` comments allowed).
+
+        """
+        #: Folded words whose initial ``g`` stays velar before a front vowel.
+        self.frontal_exceptions: frozenset[str] = _load_folded_word_list(frontal_path)
+        #: Folded words whose final ``g`` stays velar after a front vowel.
+        self.ending_exceptions: frozenset[str] = frozenset(
+            _fold(word) for word in self.ENDING_G_EXCEPTIONS
+        )
 
     def palatalize(self, word: str) -> str:
         """
@@ -884,34 +857,11 @@ class GPalatalizer:
         following = chars[i + 1] if i < last else ""
         if i == 0:
             return (
-                following in self.FRONT_VOWELS
-                and folded not in self._frontal_exceptions
+                following in self.FRONT_VOWELS and folded not in self.frontal_exceptions
             )
         if chars[i - 1] not in self.FRONT_VOWELS or following in self.BACK_VOWELS:
             return False
-        return not (i == last and folded in self._ending_exceptions)
-
-    @property
-    def _frontal_exceptions(self) -> frozenset[str]:
-        """
-        Fold :attr:`FRONTAL_G_EXCEPTIONS` for comparison.
-
-        Returns:
-            Folded exception words.
-
-        """
-        return frozenset(_fold(w) for w in self.FRONTAL_G_EXCEPTIONS)
-
-    @property
-    def _ending_exceptions(self) -> frozenset[str]:
-        """
-        Fold :attr:`ENDING_G_EXCEPTIONS` for comparison.
-
-        Returns:
-            Folded exception words.
-
-        """
-        return frozenset(_fold(w) for w in self.ENDING_G_EXCEPTIONS)
+        return not (i == last and folded in self.ending_exceptions)
 
 
 def _possible_pre_iumlaut_sources(vowel: str) -> frozenset[str]:

@@ -486,11 +486,17 @@ def test_load_folded_word_list_ignores_a_byte_order_mark(tmp_path: Path):
     assert _load_folded_word_list(words) == frozenset({"gildas", "gigant"})
 
 
-def test_load_folded_word_list_missing_file_is_empty_and_warns(tmp_path: Path, caplog):
-    result = _load_folded_word_list(tmp_path / "nope.txt")
+def test_load_folded_word_list_missing_file_is_empty_and_warns(tmp_path: Path):
+    from unittest.mock import patch
+
+    missing = tmp_path / "nope.txt"
+    # patch the module logger: caplog depends on logging config other tests change
+    with patch("wyrdcraeft.services.markup.LOGGER") as logger:
+        result = _load_folded_word_list(missing)
 
     assert result == frozenset()
-    assert "nope.txt" in caplog.text
+    logger.warning.assert_called_once()
+    assert missing in logger.warning.call_args.args
 
 
 def test_load_folded_word_list_empty_file_is_empty(tmp_path: Path):
@@ -531,3 +537,51 @@ def test_default_frontal_file_keeps_the_users_own_entries():
     in_file = _load_folded_word_list(DEFAULT_G_FRONTAL_PATH)
 
     assert {"gigant", "genesis", "gylden", "girwan", "gildas", "gǣst"} <= in_file
+
+
+def test_g_palatalizer_reads_its_exceptions_from_the_given_file(tmp_path: Path):
+    words = tmp_path / "frontal.txt"
+    words.write_text("# comment\nGildas\ngǣst-\n", encoding="utf-8")
+    palatalizer = GPalatalizer(frontal_path=words)
+
+    assert palatalizer.palatalize("Gildas") == "Gildas"
+    assert palatalizer.palatalize("gǣst") == "gǣst"
+    # an entry exempts only that exact word, not longer words
+    assert palatalizer.palatalize("gǣstas") == "ġǣstas"
+    # a hyphenated token is exempted through its dash-free segment
+    assert palatalizer.palatalize("gǣst-hūs") == "gǣst-hūs"
+    # words not in this file lose the protection the old list gave
+    assert palatalizer.palatalize("gēar") == "ġēar"
+
+
+def test_g_palatalizer_with_an_empty_file_has_no_frontal_exceptions(tmp_path: Path):
+    words = tmp_path / "empty.txt"
+    words.write_text("", encoding="utf-8")
+
+    assert GPalatalizer(frontal_path=words).palatalize("gēar") == "ġēar"
+
+
+def test_g_palatalizer_default_file_applies_the_users_own_entries():
+    palatalizer = GPalatalizer()
+
+    assert palatalizer.palatalize("gigant") == "gigant"
+    assert palatalizer.palatalize("Gildas") == "Gildas"
+    assert palatalizer.palatalize("gylden") == "gylden"
+
+
+def test_g_palatalizer_default_file_keeps_the_old_protection():
+    palatalizer = GPalatalizer()
+
+    for word in ("gēar", "gēat", "gǣt", "gēn", "gǣl", "gēs"):
+        assert palatalizer.palatalize(word) == word
+
+
+def test_g_palatalizer_ending_exceptions_still_apply():
+    palatalizer = GPalatalizer()
+
+    assert palatalizer.palatalize("plǣg") == "plǣg"
+    assert palatalizer.palatalize("sweg") == "sweg"
+
+
+def test_g_palatalizer_no_longer_has_a_hardcoded_frontal_list():
+    assert not hasattr(GPalatalizer, "FRONTAL_G_EXCEPTIONS")
