@@ -37,6 +37,17 @@ Options
 - ``--force``: Overwrite an existing unique entry if the normalized key already
   exists. Does not apply when the key is in the **ambiguous** list; resolve
   those via ``wyrdcraeft diacritic disambiguate`` first.
+- ``--yes``, ``-y``: Store a form that does not match its key without asking.
+
+Forms that do not match their key
+---------------------------------
+
+A form belongs to its key when it normalizes to it (see above). If it does not,
+for example ``blac`` stored as ``blǣc``, the command warns that the entry cannot
+be applied to text and will only appear in the ``.unaligned`` report, and asks
+for confirmation. Pass ``--yes`` to skip the prompt. The same check runs for the
+"replace unique" and "add attested form" actions of
+``wyrdcraeft diacritic disambiguate``.
 
 Examples
 --------

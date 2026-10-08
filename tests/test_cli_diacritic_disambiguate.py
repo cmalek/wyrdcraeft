@@ -381,7 +381,7 @@ def test_diacritic_disambiguate_add_entry_and_annotate_all_forms(runner, temp_di
             "--index-path",
             str(index_path),
         ],
-        input="a\nax\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nq\n",
+        input="a\nax\ny\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -416,7 +416,7 @@ def test_diacritic_disambiguate_add_stays_on_same_key_after_save(runner, temp_di
             "--index-path",
             str(index_path),
         ],
-        input="a\nax\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nc\n3\ny\nq\n",
+        input="a\nax\ny\n2\nadded gloss\nn\n6\nbut\nn\n1\noak\nn\nc\n3\ny\nq\n",
     )
 
     assert result.exit_code == 0
@@ -448,7 +448,7 @@ def test_diacritic_disambiguate_add_entry_accepts_unicode_form(runner, temp_dir)
             "--index-path",
             str(index_path),
         ],
-        input=f"a\n{combining_a_macron}\n2\nlong a\nn\n6\nbut\nn\n1\noak\nn\nq\n",
+        input=f"a\n{combining_a_macron}\ny\n2\nlong a\nn\n6\nbut\nn\n1\noak\nn\nq\n",
     )
 
     assert result.exit_code == 0
@@ -1097,3 +1097,76 @@ def test_diacritic_delete_fails_when_key_missing(runner, temp_dir):
     assert "not found" in result.output
     payload = json.loads(index_path.read_text(encoding="utf-8"))
     assert payload["unique"]["ac"] == "āc"
+
+
+def _ac_index(path):
+    _write_index(
+        path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 1},
+            "unique": {},
+            "ambiguous": {"ac": ["ac", "āc"]},
+            "ambiguous_metadata": {},
+        },
+    )
+
+
+def _disambiguate(runner, index_path, text):
+    return runner.invoke(
+        cli,
+        ["diacritic", "disambiguate", "ac", "--index-path", str(index_path)],
+        input=text,
+    )
+
+
+def test_diacritic_disambiguate_replace_mismatch_declined_keeps_state(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _ac_index(index_path)
+    before = index_path.read_text(encoding="utf-8")
+
+    result = _disambiguate(runner, index_path, "r\nax\nn\nq\n")
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    assert index_path.read_text(encoding="utf-8") == before
+
+
+def test_diacritic_disambiguate_replace_mismatch_confirmed_commits(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _ac_index(index_path)
+
+    result = _disambiguate(runner, index_path, "r\nax\ny\ny\n")
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["unique"]["ac"] == "ax"
+    assert "ac" not in payload["ambiguous"]
+
+
+def test_diacritic_disambiguate_add_mismatch_declined_starts_no_annotation(
+    runner, temp_dir
+):
+    index_path = temp_dir / "index.json"
+    _ac_index(index_path)
+    before = index_path.read_text(encoding="utf-8")
+
+    result = _disambiguate(runner, index_path, "a\nax\nn\nq\n")
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    assert index_path.read_text(encoding="utf-8") == before
+
+
+def test_diacritic_disambiguate_add_matching_form_does_not_warn(runner, temp_dir):
+    index_path = temp_dir / "index.json"
+    _ac_index(index_path)
+
+    result = _disambiguate(
+        runner, index_path, "a\n\u0101\u010b\n2\ngloss\nn\n6\nbut\nn\n1\noak\nn\nq\n"
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" not in result.output
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    assert payload["ambiguous"]["ac"] == ["ac", "\u0101c", "\u0101\u010b"]

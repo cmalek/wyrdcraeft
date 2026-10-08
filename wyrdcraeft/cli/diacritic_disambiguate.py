@@ -23,7 +23,11 @@ from ..services.bosworthtoller import (
     filter_bt_entries_by_normalized_form,
 )
 from ..services.markup import DEFAULT_MACRON_INDEX_PATH
-from .diacritic import _load_macron_index_payload, _write_macron_index_payload
+from .diacritic import (
+    _confirm_form_matches_key,
+    _load_macron_index_payload,
+    _write_macron_index_payload,
+)
 from .utils import console, print_error, print_info
 
 if TYPE_CHECKING:
@@ -488,9 +492,7 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
             try:
                 cached = bt_cache.get(key)
                 if cached is not None:
-                    bt_entries_list = filter_bt_entries_by_normalized_form(
-                        cached, key
-                    )
+                    bt_entries_list = filter_bt_entries_by_normalized_form(cached, key)
                 else:
                     raw_entries = fetch_bt_search_entries(key)
                     bt_cache[key] = raw_entries
@@ -498,10 +500,7 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                         raw_entries, key
                     )
             except Exception:  # noqa: BLE001
-                bt_warning = (
-                    "Bosworth-Toller lookup unavailable for query "
-                    f"'{key}'."
-                )
+                bt_warning = f"Bosworth-Toller lookup unavailable for query '{key}'."
 
             console.print(
                 _render_disambiguation_layout(
@@ -559,6 +558,8 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 replacement_form = _prompt_unique_replacement()
                 if replacement_form is None:
                     continue
+                if not _confirm_form_matches_key(key, replacement_form):
+                    continue
                 confirm_commit = Prompt.ask(
                     "Commit "
                     f"unique[{key}] = {replacement_form} and remove ambiguous "
@@ -610,6 +611,8 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
             if action == "a":
                 new_form = _prompt_attested_form(options)
                 if new_form is None:
+                    continue
+                if not _confirm_form_matches_key(key, new_form):
                     continue
                 new_annotation = _prompt_form_annotation(new_form)
                 if new_annotation is None:
