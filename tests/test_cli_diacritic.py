@@ -157,3 +157,57 @@ def test_delete_ambiguous_key_is_not_in_unique_list(runner, index_path):
 
     assert result.exit_code != 0
     assert _read(index_path)["ambiguous"]["ac"] == ["ac", "āc"]
+
+
+def test_add_mismatching_form_prompts_and_declines_by_default(runner, index_path):
+    before = index_path.read_text(encoding="utf-8")
+
+    result = runner.invoke(
+        cli,
+        ["diacritic", "add", "blac", "blǣc", "--index-path", str(index_path)],
+        input="\n",
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    assert index_path.read_text(encoding="utf-8") == before
+
+
+def test_add_mismatching_form_is_stored_when_confirmed(runner, index_path):
+    result = runner.invoke(
+        cli,
+        ["diacritic", "add", "blac", "blǣc", "--index-path", str(index_path)],
+        input="y\n",
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" in result.output
+    assert _read(index_path)["unique"]["blac"] == "blǣc"
+
+
+def test_add_mismatching_form_with_yes_skips_the_prompt(runner, index_path):
+    result = _run(
+        runner, "add", "blac", "blǣc", "--yes", "--index-path", str(index_path)
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Store it anyway" not in result.output
+    assert _read(index_path)["unique"]["blac"] == "blǣc"
+
+
+@pytest.mark.parametrize(
+    ("key", "form"),
+    [
+        ("þætsum", "ðæt-sum"),
+        ("lac", "l\u0101\u010b"),
+        ("lac", "la\u0304c"),
+        ("hlaford", "Hlāford"),
+    ],
+)
+def test_add_form_that_normalizes_to_its_key_does_not_prompt(
+    runner, index_path, key, form
+):
+    result = _run(runner, "add", key, form, "--index-path", str(index_path))
+
+    assert result.exit_code == 0, result.output
+    assert "does not match its key" not in result.output

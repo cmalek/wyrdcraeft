@@ -82,6 +82,44 @@ def _write_macron_index_payload(index_path: Path, payload: MacronIndexPayload) -
         raise click.ClickException(msg) from e
 
 
+def _confirm_form_matches_key(key: str, form: str, *, yes: bool = False) -> bool:
+    """
+    Check that a form to be stored belongs to its key, asking when it does not.
+
+    A form belongs to its key when it normalizes to it (case, ``ð``/``þ``,
+    marks and internal hyphens ignored). A mismatch is allowed, for example a
+    curated variant such as ``blac`` stored as ``blǣc``, but the entry cannot
+    be applied to text and only appears in the ``.unaligned`` report.
+
+    Side Effects:
+        Prints a notice when ``yes`` is set; otherwise reads one answer.
+
+    Args:
+        key: Normalized index key.
+        form: Display form about to be stored under the key.
+
+    Keyword Args:
+        yes: If True, accept a mismatch without prompting.
+
+    Returns:
+        True when the form matches the key or the mismatch is accepted.
+
+    """
+    normalized = normalize_old_english(form)
+    if normalized == key:
+        return True
+    message = (
+        f"Form {form!r} does not match its key {key!r}: it normalizes to "
+        f"{normalized!r}. Text matching {key!r} cannot be aligned to it, so it "
+        "will only appear in the .unaligned report."
+    )
+    if yes:
+        print_info(message)
+        return True
+    answer = Prompt.ask(f"{message} Store it anyway?", choices=["y", "n"], default="n")
+    return answer == "y"
+
+
 @click.group(name="diacritic")
 def diacritic_group() -> None:
     """
@@ -107,11 +145,18 @@ def diacritic_group() -> None:
     is_flag=True,
     help="Overwrite existing unique entry if the normalized key already exists.",
 )
+@click.option(
+    "--yes",
+    "-y",
+    is_flag=True,
+    help="Store a form that does not match its key without asking.",
+)
 def diacritic_add(
     normalized: str,
     macron_form: str,
     index_path: Path,
     force: bool,
+    yes: bool,
 ) -> None:
     """
     Add a normalized/macron-ed pair to the unique list of the macron index.
@@ -124,6 +169,7 @@ def diacritic_add(
         macron_form: Display form with macrons; stored as-is in unique.
         index_path: Path to macron index JSON file.
         force: If True, overwrite when key already exists in unique.
+        yes: If True, skip the prompt for a form that does not match its key.
 
     Raises:
         click.ClickException: If key is invalid, key is in ambiguous (--force
@@ -148,6 +194,9 @@ def diacritic_add(
             f"(macron={existing!r}). Use --force to overwrite."
         )
         raise click.ClickException(msg)
+    if not _confirm_form_matches_key(key, macron_form, yes=yes):
+        print_info("Add cancelled.")
+        return
     payload.unique[key] = macron_form
     _write_macron_index_payload(index_path, payload)
     print_info(f"Added pair: normalized={key!r} macron={macron_form!r}.")
