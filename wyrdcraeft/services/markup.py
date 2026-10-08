@@ -6,7 +6,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from pydantic import ValidationError
 
@@ -20,6 +20,9 @@ from ..models.diacritics import (
     UnknownToken,
 )
 from ..models.macron_index import MacronIndex
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 #: Module logger.
 LOGGER = logging.getLogger(__name__)
@@ -376,6 +379,24 @@ class DiacriticTransfer:
         )
 
     @classmethod
+    def same_marks(cls, forms: Iterable[str]) -> bool:
+        """
+        Tell whether every form has the same letters and marks.
+
+        Hyphens, case, ``ð``/``þ`` and diphthong marking style do not count
+        (see :meth:`mark_pattern`).
+
+        Args:
+            forms: Index display forms for one key.
+
+        Returns:
+            ``True`` when ``forms`` is non-empty and all share one mark pattern.
+
+        """
+        patterns = {cls.mark_pattern(form) for form in forms}
+        return len(patterns) == 1
+
+    @classmethod
     def transfer(cls, source: str, marked: str) -> str | None:
         """
         Add the index form's marks to the matching letters of ``source``.
@@ -485,6 +506,7 @@ class MacronApplicator:
             unique=payload.unique,
             ambiguous=payload.ambiguous,
             ambiguous_metadata=payload.ambiguous_metadata,
+            ambiguous_completed=frozenset(payload.ambiguous_completed),
         )
 
     @staticmethod
@@ -634,11 +656,98 @@ class MacronApplicator:
         )
         return index
 
+    def _ambiguity_row(
+        self, word: str, normalized: str, line_number: int, word_number: int
+    ) -> MacronAmbiguity:
+        """
+        Build the ambiguity report row for a token whose key is ambiguous.
+
+        Args:
+            word: Verbatim lexical token.
+            normalized: Normalized key, present in ``index.ambiguous``.
+            line_number: 1-based line number.
+            word_number: 1-based lexical token number within line.
+
+        Returns:
+            Row listing every option with its part of speech and meanings.
+
+        """
+        raw_options = self.index.ambiguous[normalized]
+        metadata_by_form = self.index.ambiguous_metadata.get(normalized, {})
+        options_list: list[AmbiguityOption] = []
+        for opt in raw_options:
+            cased_form = _apply_case_pattern(word, opt)
+            annotation = metadata_by_form.get(opt)
+            if annotation and annotation.senses:
+                pos_labels = sorted(
+                    dict.fromkeys(
+                        POS_CODE_LABELS.get(
+                            s.part_of_speech_code, s.part_of_speech_code
+                        )
+                        for s in annotation.senses
+                    )
+                )
+                part_of_speech = ", ".join(pos_labels) if pos_labels else None
+                definitions = [s.modern_english_meaning for s in annotation.senses]
+                options_list.append(
+                    AmbiguityOption(
+                        form=cased_form,
+                        part_of_speech=part_of_speech,
+                        definitions=definitions,
+                    )
+                )
+            else:
+                options_list.append(
+                    AmbiguityOption(
+                        form=cased_form,
+                        part_of_speech=None,
+                        definitions=[],
+                    )
+                )
+        ambiguity = MacronAmbiguity(
+            line_number=line_number,
+            word_number=word_number,
+            word=word,
+            options=options_list,
+        )
+        LOGGER.debug(
+            "Macron ambiguous token='%s' line=%d word=%d options=%s",
+            word,
+            line_number,
+            word_number,
+            [o.form for o in options_list],
+        )
+        return ambiguity
+
+    def _collapsed_form(self, normalized: str) -> str | None:
+        """
+        Pick the form to apply when an ambiguous key is not really ambiguous.
+
+        A key collapses when every option has the same letters and marks
+        (ADR 0019). A key the user marked completed never collapses.
+
+        Args:
+            normalized: Normalized key, present in ``index.ambiguous``.
+
+        Returns:
+            The first option when the options agree on marks, else ``None``.
+
+        """
+        options = self.index.ambiguous[normalized]
+        if normalized in self.index.ambiguous_completed:
+            return None
+        if not DiacriticTransfer.same_marks(options):
+            return None
+        return options[0]
+
     def apply(
         self, word: str, line_number: int, word_number: int
     ) -> tuple[str, MacronAmbiguity | None, bool, str | None]:
         """
         Add index diacritics to a single lexical token, preserving its letters.
+
+        An ambiguous key whose options all share one mark pattern is applied
+        like a unique key and writes no ambiguity row.
 
         Args:
             word: Verbatim lexical token.
@@ -664,55 +773,14 @@ class MacronApplicator:
         if not normalized:
             return word, None, False, None
 
-        if normalized in self.index.ambiguous:
-            raw_options = self.index.ambiguous[normalized]
-            metadata_by_form = self.index.ambiguous_metadata.get(normalized, {})
-            options_list: list[AmbiguityOption] = []
-            for opt in raw_options:
-                cased_form = _apply_case_pattern(word, opt)
-                annotation = metadata_by_form.get(opt)
-                if annotation and annotation.senses:
-                    pos_labels = sorted(
-                        dict.fromkeys(
-                            POS_CODE_LABELS.get(
-                                s.part_of_speech_code, s.part_of_speech_code
-                            )
-                            for s in annotation.senses
-                        )
-                    )
-                    part_of_speech = ", ".join(pos_labels) if pos_labels else None
-                    definitions = [s.modern_english_meaning for s in annotation.senses]
-                    options_list.append(
-                        AmbiguityOption(
-                            form=cased_form,
-                            part_of_speech=part_of_speech,
-                            definitions=definitions,
-                        )
-                    )
-                else:
-                    options_list.append(
-                        AmbiguityOption(
-                            form=cased_form,
-                            part_of_speech=None,
-                            definitions=[],
-                        )
-                    )
-            ambiguity = MacronAmbiguity(
-                line_number=line_number,
-                word_number=word_number,
-                word=word,
-                options=options_list,
-            )
-            LOGGER.debug(
-                "Macron ambiguous token='%s' line=%d word=%d options=%s",
-                word,
-                line_number,
-                word_number,
-                [o.form for o in options_list],
-            )
-            return word, ambiguity, False, None
-
         marked = self.index.unique.get(normalized)
+        if normalized in self.index.ambiguous:
+            marked = self._collapsed_form(normalized)
+            if marked is None:
+                ambiguity = self._ambiguity_row(
+                    word, normalized, line_number, word_number
+                )
+                return word, ambiguity, False, None
         if marked is None:
             LOGGER.debug(
                 "Macron no-match token='%s' line=%d word=%d",

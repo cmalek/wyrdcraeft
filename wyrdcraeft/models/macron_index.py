@@ -17,3 +17,5 @@ class MacronIndex:
     ambiguous: dict[str, list[str]]
     #: Optional per-form metadata for ambiguous entries.
     ambiguous_metadata: dict[str, dict[str, MacronFormAnnotation]]
+    #: Ambiguous keys the user decided are genuinely ambiguous; never auto-resolved.
+    ambiguous_completed: frozenset[str] = frozenset()

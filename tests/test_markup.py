@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from typing import TYPE_CHECKING
 
 import pytest
@@ -35,10 +36,12 @@ def _write_index(
     unique: dict[str, str],
     ambiguous: dict[str, list[str]],
     ambiguous_metadata: dict[str, dict[str, dict[str, str]]] | None = None,
+    ambiguous_completed: list[str] | None = None,
 ) -> None:
     payload = {
         "unique": unique,
         "ambiguous": ambiguous,
+        "ambiguous_completed": ambiguous_completed or [],
         "ambiguous_metadata": ambiguous_metadata or {},
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -585,3 +588,134 @@ def test_g_palatalizer_ending_exceptions_still_apply():
 
 def test_g_palatalizer_no_longer_has_a_hardcoded_frontal_list():
     assert not hasattr(GPalatalizer, "FRONTAL_G_EXCEPTIONS")
+
+
+@pytest.mark.parametrize(
+    ("forms", "expected"),
+    [
+        (["ǣwisc-nys", "ǣwiscnys"], True),
+        (["leāst", "lēast"], True),
+        (["þēod-ne", "ðēodne"], True),
+        (["cū-slyppe", "Cūslyppe"], True),
+        (["ac", "āc"], False),
+        (["wegas", "wēgas"], False),
+        (["ǣwiscnys"], True),
+        ([], False),
+    ],
+)
+def test_same_marks(forms, expected):
+    assert DiacriticTransfer.same_marks(forms) is expected
+
+
+def test_macron_index_carries_completed_keys(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"ac": ["ac", "āc"]},
+        ambiguous_completed=["ac"],
+    )
+
+    assert MacronApplicator(index_path).index.ambiguous_completed == frozenset({"ac"})
+
+
+@pytest.mark.parametrize(
+    ("options", "word", "expected"),
+    [
+        (["ǣwisc-nys", "ǣwiscnys"], "æwiscnys", "ǣwiscnys"),
+        (["cū-slyppe", "cūslyppe"], "Cuslyppe", "Cūslyppe"),
+        (["þēod-ne", "ðēodne"], "ðeodne", "ðēodne"),
+        (["leāst", "lēast"], "least", "lēast"),
+        (["cū-slyppe", "cūslyppe"], "cūslyppe", "cūslyppe"),
+    ],
+)
+def test_apply_collapses_options_that_agree_on_marks(
+    tmp_path: Path, options, word, expected
+):
+    index_path = tmp_path / "index.json"
+    key = normalize_old_english(options[0])
+    _write_index(index_path, unique={}, ambiguous={key: options})
+
+    marked, ambiguity, is_unknown, unaligned = MacronApplicator(index_path).apply(
+        word, line_number=1, word_number=1
+    )
+
+    assert marked == expected
+    assert ambiguity is None
+    assert is_unknown is False
+    assert unaligned is None
+
+
+def test_apply_collapse_keeps_decomposed_source_letters(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path, unique={}, ambiguous={"cuslyppe": ["cū-slyppe", "cūslyppe"]}
+    )
+    # The source already has a dot on the c, written as c + combining dot.
+    source = unicodedata.normalize("NFD", "ċuslyppe")
+
+    marked, ambiguity, _, _ = MacronApplicator(index_path).apply(
+        source, line_number=1, word_number=1
+    )
+
+    assert ambiguity is None
+    assert unicodedata.normalize("NFC", marked) == "ċūslyppe"
+
+
+def test_apply_keeps_ambiguity_when_options_differ_in_marks(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={}, ambiguous={"ac": ["ac", "āc"]})
+
+    marked, ambiguity, _, _ = MacronApplicator(index_path).apply(
+        "ac", line_number=1, word_number=1
+    )
+
+    assert marked == "ac"
+    assert ambiguity is not None
+
+
+def test_apply_never_collapses_a_completed_key(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"cuslyppe": ["cū-slyppe", "cūslyppe"]},
+        ambiguous_completed=["cuslyppe"],
+    )
+
+    marked, ambiguity, _, _ = MacronApplicator(index_path).apply(
+        "cuslyppe", line_number=1, word_number=1
+    )
+
+    assert marked == "cuslyppe"
+    assert ambiguity is not None
+
+
+def test_apply_single_option_ambiguous_key_marks_it(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={}, ambiguous={"cild": ["cīld"]})
+
+    marked, ambiguity, _, _ = MacronApplicator(index_path).apply(
+        "cild", line_number=1, word_number=1
+    )
+
+    assert marked == "cīld"
+    assert ambiguity is None
+
+
+def test_restorer_marks_collapsed_token_and_reports_nothing(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"cuslyppe": ["cū-slyppe", "cūslyppe"], "ac": ["ac", "āc"]},
+    )
+
+    result = DiacriticRestorer(macron_index_path=index_path).restore_text(
+        "Cuslyppe ac\n"
+    )
+
+    assert result.marked_text == "Cūslyppe ac\n"
+    assert [a.word for a in result.ambiguities] == ["ac"]
+    assert result.unknowns == []
+    assert result.unaligned == []
