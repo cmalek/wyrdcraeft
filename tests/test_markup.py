@@ -504,3 +504,30 @@ def test_default_g_frontal_path_points_to_the_packaged_file():
     assert DEFAULT_G_FRONTAL_PATH.name == "frontal.txt"
     assert DEFAULT_G_FRONTAL_PATH.parent.name == "g"
     assert DEFAULT_G_FRONTAL_PATH.exists()
+
+
+#: Every word in ``GPalatalizer.FRONTAL_G_EXCEPTIONS`` before it moved to a file.
+OLD_FRONTAL_G_EXCEPTIONS = [
+    "gǣl", "gǣf", "gǣfon", "gǣlscipe", "gǣng", "gǣnge", "gǣr", "gǣrlicgǣst",
+    "gǣstas", "gǣsthus", "gǣstlic", "gǣstlīce", "gǣt", "gǣten", "gaf", "gafol",
+    "gafolrǣden", "gafolgyld", "galan", "gangan", "gār", "gāt", "gēar", "gēara",
+    "gēoguð", "geōguþ", "gēn", "gēna", "gēola", "gēol", "gēomor", "gēong",
+    "gēongra", "gēs", "gēsne", "gēsnian", "gēsting", "gēstlīc", "gēsthus",
+    "gēat", "gēatlic", "gēard", "gēatas", "gēatland",
+]  # fmt: skip
+
+
+def test_default_frontal_file_keeps_every_old_hardcoded_exception():
+    from wyrdcraeft.services.markup import _fold
+
+    in_file = _load_folded_word_list(DEFAULT_G_FRONTAL_PATH)
+
+    missing = [w for w in OLD_FRONTAL_G_EXCEPTIONS if _fold(w) not in in_file]
+    assert missing == []
+    assert len(OLD_FRONTAL_G_EXCEPTIONS) == 44
+
+
+def test_default_frontal_file_keeps_the_users_own_entries():
+    in_file = _load_folded_word_list(DEFAULT_G_FRONTAL_PATH)
+
+    assert {"gigant", "genesis", "gylden", "girwan", "gildas", "gǣst"} <= in_file
