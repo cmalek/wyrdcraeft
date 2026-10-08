@@ -40,6 +40,8 @@ DEFAULT_C_FORCE_PALATALIZE_PATH: Final[Path] = (
 DEFAULT_C_FORCE_NON_PALATALIZE_PATH: Final[Path] = (
     DEFAULT_DIACRITIC_DIR / "c_palatalization_force_non_palatalize.txt"
 )
+#: Default list of words whose initial ``g`` stays velar before a front vowel.
+DEFAULT_G_FRONTAL_PATH: Final[Path] = DEFAULT_DIACRITIC_DIR / "g" / "frontal.txt"
 
 #: Regex used to split lexical tokens while preserving separators.
 LEXICAL_TOKEN_RE: Final[re.Pattern[str]] = re.compile(
@@ -177,6 +179,36 @@ def _fold(text: str) -> str:
 
     """
     return unicodedata.normalize("NFC", text).lower().replace("ð", "þ")
+
+
+def _load_folded_word_list(path: Path) -> frozenset[str]:
+    """
+    Load a one-word-per-line exception list, folded for comparison.
+
+    Blank lines and ``#`` comment lines are skipped, a leading byte-order mark
+    is ignored, and a trailing hyphen is dropped (``gǣst-`` means ``gǣst``)
+    because palatalizers compare one dash-free segment at a time. A missing file
+    logs a warning and gives an empty set.
+
+    Args:
+        path: Word list file.
+
+    Returns:
+        The folded words (see :func:`_fold`).
+
+    """
+    if not path.exists():
+        LOGGER.warning("Exception list missing: %s", path)
+        return frozenset()
+    words: set[str] = set()
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        word = _fold(line.rstrip("-").strip())
+        if word:
+            words.add(word)
+    return frozenset(words)
 
 
 def _graft_dots(clusters: list[str], lows: list[str], after: str) -> str:

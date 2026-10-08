@@ -6,12 +6,14 @@ from typing import TYPE_CHECKING
 import pytest
 
 from wyrdcraeft.services.markup import (
+    DEFAULT_G_FRONTAL_PATH,
     DEFAULT_MACRON_INDEX_PATH,
     CPalatalizer,
     DiacriticRestorer,
     DiacriticTransfer,
     GPalatalizer,
     MacronApplicator,
+    _load_folded_word_list,
     normalize_morphology_title,
     normalize_old_english,
 )
@@ -463,3 +465,42 @@ def test_restorer_does_not_double_mark_a_bt_style_diphthong(tmp_path: Path):
 
     assert result.marked_text == "lēast leāst lēast LĒAST\n"
     assert result.unaligned == []
+
+
+def test_load_folded_word_list_skips_comments_blanks_and_folds(tmp_path: Path):
+    words = tmp_path / "frontal.txt"
+    words.write_text(
+        "# a comment\n\n  Gildas  \ngǣst-\ngǣlsa -\ngēoguð\n-\n#-\n",
+        encoding="utf-8",
+    )
+
+    assert _load_folded_word_list(words) == frozenset(
+        {"gildas", "gǣst", "gǣlsa", "gēoguþ"}
+    )
+
+
+def test_load_folded_word_list_ignores_a_byte_order_mark(tmp_path: Path):
+    words = tmp_path / "bom.txt"
+    words.write_bytes(b"\xef\xbb\xbfGildas\ngigant\n")
+
+    assert _load_folded_word_list(words) == frozenset({"gildas", "gigant"})
+
+
+def test_load_folded_word_list_missing_file_is_empty_and_warns(tmp_path: Path, caplog):
+    result = _load_folded_word_list(tmp_path / "nope.txt")
+
+    assert result == frozenset()
+    assert "nope.txt" in caplog.text
+
+
+def test_load_folded_word_list_empty_file_is_empty(tmp_path: Path):
+    words = tmp_path / "empty.txt"
+    words.write_text("", encoding="utf-8")
+
+    assert _load_folded_word_list(words) == frozenset()
+
+
+def test_default_g_frontal_path_points_to_the_packaged_file():
+    assert DEFAULT_G_FRONTAL_PATH.name == "frontal.txt"
+    assert DEFAULT_G_FRONTAL_PATH.parent.name == "g"
+    assert DEFAULT_G_FRONTAL_PATH.exists()
