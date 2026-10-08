@@ -139,6 +139,5 @@ Facts to respect when implementing:
 
 [ADR 0020](0020-diacritic-transfer-treats-a-diphthong-as-one-unit.md)
 (proposed) makes the transfer treat a diphthong as one unit and fixes source
-capitalization. As implemented today, alignment ignores only case, ð≡þ and
-hyphens, so a source already marked in BT's diphthong style is double-marked
-(`leāst` → `lēāst`).
+capitalization; it is implemented in `DiacriticTransfer`, so a source already
+marked in BT's diphthong style is no longer double-marked.

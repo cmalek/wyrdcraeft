@@ -80,7 +80,10 @@ For each lexical token:
    - if key in ``unique``: align the index form with the source token and
      copy its marks onto the source letters (the index form never replaces the
      source token); if the letters cannot be aligned, keep the source token and
-     emit an unaligned row
+     emit an unaligned row. A diphthong (``ea``, ``eo``, ``ie``, ``io``, not
+     separated by a hyphen in the index form) is treated as one unit whose macron
+     goes on the first vowel; a source that already marks either vowel gets
+     nothing added to it.
    - if key in ``ambiguous``: keep source token, emit ambiguity row with options
 
 3. Apply ``g`` palatalization rules (a ``g`` before a back vowel stays velar,

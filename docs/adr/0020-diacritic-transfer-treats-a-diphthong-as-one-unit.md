@@ -31,11 +31,19 @@ double-marked against a reference in the other: today
    for matching or for the transfer. It rewrites whole strings, it is blind to
    hyphens, and it belongs to the dictionary-parsing pipeline; the transfer
    already works letter by letter and is the right place to handle diphthongs.
-2. **`DiacriticTransfer` treats a diphthong as one unit.** For a pair of adjacent
-   vowels `ea`, `eo`, `ie` or `io` (in the reference, with no hyphen between them):
+2. **`DiacriticTransfer` treats a diphthong as one unit.** A diphthong is an
+   adjacent pair `ea`, `eo`, `ie` or `io` in the reference, with no hyphen
+   between the vowels and no mark other than a macron on either of them. For it:
    - if the source already marks either vowel of the pair, nothing is added to it;
-   - if the source marks neither, the reference's mark for the pair is added to
-     the **first** vowel (the normal style), whichever vowel the reference marked.
+   - if the source marks neither, the reference's macron for the pair is added to
+     the **first** vowel (the normal style), whichever vowel the reference marked;
+   - a macron on both reference vowels merges onto the first.
+
+   A pair carrying any other mark is not a diphthong: in the index, `ēliŏtrŏpus`
+   (a Latin loan where `io` is a hiatus) has a breve on the second vowel, and that
+   breve stays on its own letter. (Found when the implementation plan was checked
+   against the index: of 41,630 forms only `ēliŏtrŏpus` would have been wrongly
+   changed by a rule that moved every kind of mark.)
 3. **Hyphens in the reference are honored.** Vowels separated by a hyphen in the
    reference are never one diphthong, so `be-ōdrian` is not `bēodrian`. The
    source's own hyphens are irrelevant, as before.
@@ -67,7 +75,10 @@ An unhyphenated reference cannot show a prefix boundary, so a reference such as
 
 ## Consequences
 
-- Fixes the double-marking above, which exists in the code today.
+- Fixes the double-marking above (implemented in `DiacriticTransfer`, with
+  `DiacriticTransfer.mark_pattern` as the shared helper ADR 0019 reuses). Of
+  41,630 index forms only two (`īē-scēada`, `fēōnd-sēocnes`, a macron on both
+  vowels) change under the merge, so existing output is otherwise unaffected.
 - BT-style references no longer damage output, so the importer in
   [ADR 0017](0017-diacritic-cli-imports-bt-variants.md) can store variants as BT
   prints them without reintroducing the problem that produced the 28 outliers in

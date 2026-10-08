@@ -116,6 +116,9 @@ Out of scope:
 - sc exception: a `c` immediately preceded by `s` never receives a palatal
   dot; absolute, overriding the forced-palatalize list, but a `ċ` already in
   the source is kept
+- mark pattern: a form reduced to its letters and combining marks, ignoring case,
+  hyphens/dashes and eth/thorn, with a diphthong's macron on its first vowel;
+  `DiacriticTransfer.mark_pattern` computes it
 - morphology generation: SQLite lookup index production workflow for inflected
   forms (optional TSV via `--output`); typically triggered by
   `dictionary build --with-morphology` or automatically when `forms` is empty
