@@ -399,3 +399,67 @@ def test_mark_pattern_leaves_a_breve_on_its_own_letter():
     pattern = DiacriticTransfer.mark_pattern("ēliŏtrŏpus")
     assert pattern[3] == ("o", frozenset({breve}))
     assert pattern[2] == ("i", frozenset())
+
+
+@pytest.mark.parametrize(
+    ("source", "reference", "expected"),
+    [
+        # source already marks the second vowel: nothing is added (the bug)
+        ("leāst", "lēast", "leāst"),
+        ("lēast", "lēast", "lēast"),
+        # unmarked source gets the macron on the FIRST vowel, from either style
+        ("least", "lēast", "lēast"),
+        ("least", "leāst", "lēast"),
+        # source case wins
+        ("LEAST", "lēast", "LĒAST"),
+        ("Least", "leāst", "Lēast"),
+        # ie and io are diphthongs too
+        ("driefan", "driēfan", "drīefan"),
+        ("driēfan", "drīefan", "driēfan"),
+        ("hio", "hīo", "hīo"),
+        # a hyphen in the REFERENCE keeps the vowels apart
+        ("beodrian", "be-ōdrian", "beōdrian"),
+        ("beodrian", "beōdrian", "bēodrian"),
+        # a hyphen in the SOURCE does not matter
+        ("e-a", "ēa", "ē-a"),
+        # a different mark on the source is kept, nothing is added to the pair
+        ("leăst", "lēast", "leăst"),
+        # macrons on both reference vowels merge onto the first
+        ("feond", "fēōnd", "fēond"),
+        ("lēast", "lēāst", "lēast"),
+        # a breve in the reference marks a hiatus: each mark stays on its letter
+        ("eliotropus", "ēliŏtrŏpus", "ēliŏtrŏpus"),
+        # not a diphthong: per-letter behavior
+        ("hia", "hiā", "hiā"),
+        ("hae", "hāe", "hāe"),
+        # pairs do not overlap: the first pair wins
+        ("beoa", "beōa", "bēoa"),
+    ],
+)
+def test_transfer_treats_a_diphthong_as_one_unit(source, reference, expected):
+    assert DiacriticTransfer.transfer(source, reference) == expected
+
+
+def test_transfer_diphthong_in_decomposed_source_is_not_double_marked():
+    import unicodedata
+
+    source = unicodedata.normalize("NFD", "leāst")
+    assert DiacriticTransfer.transfer(source, "lēast") == source
+
+
+def test_transfer_adds_marks_to_a_decomposed_source_letter_as_composed():
+    import unicodedata
+
+    result = DiacriticTransfer.transfer(unicodedata.normalize("NFD", "least"), "lēast")
+    assert result == unicodedata.normalize("NFC", "lēast")
+
+
+def test_restorer_does_not_double_mark_a_bt_style_diphthong(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={"least": "leāst"}, ambiguous={})
+    restorer = DiacriticRestorer(macron_index_path=index_path)
+
+    result = restorer.restore_text("least leāst lēast LEAST\n")
+
+    assert result.marked_text == "lēast leāst lēast LĒAST\n"
+    assert result.unaligned == []

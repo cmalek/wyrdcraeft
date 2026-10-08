@@ -230,36 +230,11 @@ class DiacriticTransfer:
 
     The index form never replaces the source token: its letters are aligned
     one-to-one with the source letters (case, ``ð``≡``þ`` and hyphens/dashes
-    ignored) and only marks missing from the source are added.
+    ignored) and only marks missing from the source are added. A diphthong
+    (``ea``, ``eo``, ``ie``, ``io``, with no hyphen between the vowels in the
+    index form and only macrons on them) is one unit whose macron always sits on
+    the first vowel, whichever vowel the index form or the source marked.
     """
-
-    @staticmethod
-    def _letters(text: str) -> list[str]:
-        """
-        Split text into letter clusters, dropping hyphens and dashes.
-
-        Args:
-            text: Token text.
-
-        Returns:
-            Letter+combining-mark clusters in order.
-
-        """
-        return [c for c in CLUSTER_RE.findall(text) if c not in DASH_CHARS]
-
-    @staticmethod
-    def _base(cluster: str) -> str:
-        """
-        Return the case-folded base letter of a cluster, with ``ð`` as ``þ``.
-
-        Args:
-            cluster: Letter plus optional combining marks.
-
-        Returns:
-            Single folded base letter.
-
-        """
-        return unicodedata.normalize("NFD", cluster)[0].lower().replace("ð", "þ")
 
     @staticmethod
     def _parse(text: str) -> list[_Letter]:
@@ -382,23 +357,32 @@ class DiacriticTransfer:
             letters of the two forms cannot be aligned.
 
         """
-        index_letters = cls._letters(marked)
-        if len(index_letters) != len(cls._letters(source)):
+        source_letters = cls._parse(source)
+        index_letters = cls._parse(marked)
+        if len(source_letters) != len(index_letters) or any(
+            s.base != i.base for s, i in zip(source_letters, index_letters, strict=True)
+        ):
             return None
-        pending = iter(index_letters)
+        starts = cls._diphthong_starts(index_letters)
+        source_marks = cls._merge_diphthongs(source_letters, starts)
+        index_marks = cls._merge_diphthongs(index_letters, starts)
+        additions = {
+            n: index_marks[n]
+            for n in range(len(source_letters))
+            if index_marks[n] and not source_marks[n]
+        }
         out: list[str] = []
+        letter_index = 0
         for cluster in CLUSTER_RE.findall(source):
             if cluster in DASH_CHARS:
                 out.append(cluster)
                 continue
-            index_cluster = next(pending)
-            if cls._base(cluster) != cls._base(index_cluster):
-                return None
-            has_marks = len(unicodedata.normalize("NFD", cluster)) > 1
-            index_marks = unicodedata.normalize("NFD", index_cluster)[1:]
-            if index_marks and not has_marks:
-                cluster = unicodedata.normalize("NFC", cluster + index_marks)  # noqa: PLW2901
-            out.append(cluster)
+            if letter_index in additions:
+                marks = "".join(sorted(additions[letter_index]))
+                out.append(unicodedata.normalize("NFC", cluster + marks))
+            else:
+                out.append(cluster)
+            letter_index += 1
         return "".join(out)
 
 
