@@ -246,6 +246,7 @@ Skipped entries
 ---------------
 
 Without a ``NORMALIZED`` argument the queue skips ambiguous keys whose options
-all have the same letters and marks, because ``mark-diacritics`` applies them
+all have the same letters and marks (after the standard prefixes and
+compound elements are spelled as listed), because ``mark-diacritics`` applies them
 without a decision (see :doc:`command_convert_mark_diacritics`). The command
 prints how many it skipped. Passing the key explicitly still opens it.

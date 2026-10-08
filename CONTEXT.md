@@ -117,6 +117,10 @@ Out of scope:
   pattern (differing only in hyphens, case, eth/thorn or diphthong style);
   applied like a unique entry, never reported as ambiguous, unless the key is
   completed
+- standard element: a prefix or compound element (`a-`, `for-`, `fore-`, `ge-`,
+  `bonde`, `hīrēd-`, `bēacen-`, `ōþ-`) with one editorial spelling, listed in a
+  hand-edited data file; applied to index forms only where BT writes a hyphen
+  next to it
 - sc exception: a `c` immediately preceded by `s` never receives a palatal
   dot; absolute, overriding the forced-palatalize list, but a `ċ` already in
   the source is kept

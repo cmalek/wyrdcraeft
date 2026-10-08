@@ -18,6 +18,7 @@ from wyrdcraeft.services.markup import (
     normalize_morphology_title,
     normalize_old_english,
 )
+from wyrdcraeft.services.standard_elements import StandardElements
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -311,14 +312,14 @@ def test_restorer_unaligned_report_and_no_source_changes(tmp_path: Path):
     index_path = tmp_path / "index.json"
     _write_index(
         index_path,
-        unique={"ærþling": "ǣrst", "aælan": "ā-ǣlan", "hlaford": "hlāford"},
+        unique={"ærþling": "ǣrst", "oælan": "ō-ǣlan", "hlaford": "hlāford"},
         ambiguous={},
     )
     restorer = DiacriticRestorer(macron_index_path=index_path)
 
-    result = restorer.restore_text("ærþling aælan HLaford\n")
+    result = restorer.restore_text("ærþling oælan HLaford\n")
 
-    assert result.marked_text == "ærþling āǣlan HLāford\n"
+    assert result.marked_text == "ærþling ōǣlan HLāford\n"
     assert [(u.word, u.index_form) for u in result.unaligned] == [("ærþling", "ǣrst")]
 
 
@@ -743,3 +744,74 @@ def test_apply_keeps_ambiguity_when_key_is_in_unique_and_ambiguous(tmp_path: Pat
     assert transformed == "ac"
     assert ambiguity is not None
     assert not is_unknown
+
+
+def test_same_marks_standardizes_elements_first():
+    elements = StandardElements(["hīrēd-", "for-"])
+
+    assert not DiacriticTransfer.same_marks(["hīred-mann", "hīrēd-mann"])
+    assert DiacriticTransfer.same_marks(["hīred-mann", "hīrēd-mann"], elements)
+    assert DiacriticTransfer.same_marks(["for-beran", "fōr-beran"], elements)
+    # No BT hyphen in one option, so the pair stays ambiguous.
+    assert not DiacriticTransfer.same_marks(["ge-an", "gēan"], StandardElements(["ge-"]))
+
+
+@pytest.mark.parametrize(
+    ("ambiguous", "word", "expected"),
+    [
+        ({"hiredmann": ["hīred-mann", "hīrēd-mann"]}, "hiredmann", "hīrēdmann"),
+        ({"foreberan": ["fore-beran", "fōre-beran"]}, "foreberan", "foreberan"),
+    ],
+)
+def test_apply_collapses_options_that_differ_only_in_a_standard_element(
+    tmp_path: Path, ambiguous: dict[str, list[str]], word: str, expected: str
+):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={}, ambiguous=ambiguous)
+
+    transformed, ambiguity, _, _ = MacronApplicator(index_path).apply(word, 1, 1)
+
+    assert ambiguity is None
+    assert transformed == expected
+
+
+def test_apply_keeps_ge_an_and_gean_apart(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique={}, ambiguous={"gean": ["ge-an", "gēan"]})
+
+    transformed, ambiguity, _, _ = MacronApplicator(index_path).apply("gean", 1, 1)
+
+    assert transformed == "gean"
+    assert ambiguity is not None
+
+
+@pytest.mark.parametrize(
+    ("unique", "word", "expected"),
+    [
+        ({"abacan": "ā-bacan"}, "abacan", "abacan"),
+        ({"oþfeolan": "oþ-feolan"}, "oþfeolan", "ōþfeolan"),
+        # Source keeps its own marks (additive, ADR 0015).
+        ({"abacan": "ā-bacan"}, "ābacan", "ābacan"),
+    ],
+)
+def test_apply_standardizes_unique_forms_too(
+    tmp_path: Path, unique: dict[str, str], word: str, expected: str
+):
+    index_path = tmp_path / "index.json"
+    _write_index(index_path, unique=unique, ambiguous={})
+
+    assert MacronApplicator(index_path).apply(word, 1, 1)[0] == expected
+
+
+def test_apply_never_collapses_a_completed_key_even_through_elements(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"foreberan": ["fore-beran", "fōre-beran"]},
+        ambiguous_completed=["foreberan"],
+    )
+
+    _, ambiguity, _, _ = MacronApplicator(index_path).apply("foreberan", 1, 1)
+
+    assert ambiguity is not None

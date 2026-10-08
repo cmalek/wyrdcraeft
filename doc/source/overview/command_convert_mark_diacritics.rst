@@ -55,6 +55,27 @@ It also emits:
 - an **unknown-words report** listing lexical tokens that were not found in the macron index;
 - an **unaligned-words report** listing tokens that are in the index but whose index form cannot be matched letter-for-letter to the source (``ð``/``þ``, case, and hyphens/dashes are ignored when matching). These tokens are left unchanged. The usual cause is an index entry that maps a variant spelling to a different headword.
 
+Standard element forms
+----------------------
+
+Some prefixes and compound elements have one standard spelling, because
+Bosworth-Toller's mark variants (``ā-``/``a-``, ``fōr-``/``for-``) are an
+editorial or scribal choice and not a difference in meaning. The list lives in
+``wyrdcraeft/etc/diacritic/standard_elements.txt`` and is edited by hand:
+
+- spelled plain: ``a-``, ``for-``, ``fore-``, ``ge-``, ``bonde``
+- spelled marked: ``hīrēd-``, ``bēacen-``, ``ōþ-``
+
+An element counts only where the Bosworth-Toller form writes a hyphen after it
+(a prefix such as ``for-beran``) or around it (a compound element such as
+``hūs-bonde``). Forms with no such hyphen (``fōr``, ``fōrþ``, ``gēon``,
+``gēan``) are never changed, so ``ge-an`` and ``gēan`` stay apart. Before the
+marks are copied, the listed elements in the index form are replaced by their
+standard spelling. This applies to every index form, unique or ambiguous, and
+ambiguous keys whose options then agree are applied without an ambiguity row.
+A source that already writes ``ā-`` or ``fōr-`` keeps it: the command only adds
+marks.
+
 Normalization rules
 -------------------
 

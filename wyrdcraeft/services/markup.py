@@ -20,6 +20,7 @@ from ..models.diacritics import (
     UnknownToken,
 )
 from ..models.macron_index import MacronIndex
+from .standard_elements import StandardElements
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -393,7 +394,9 @@ class DiacriticTransfer:
         return len(cls._diphthong_starts(cls._parse(form)))
 
     @classmethod
-    def same_marks(cls, forms: Iterable[str]) -> bool:
+    def same_marks(
+        cls, forms: Iterable[str], elements: StandardElements | None = None
+    ) -> bool:
         """
         Tell whether every form has the same letters and marks.
 
@@ -402,11 +405,15 @@ class DiacriticTransfer:
 
         Args:
             forms: Index display forms for one key.
+            elements: Standard element list applied to each form first, or
+                ``None`` to compare the forms as they are.
 
         Returns:
             ``True`` when ``forms`` is non-empty and all share one mark pattern.
 
         """
+        if elements is not None:
+            forms = [elements.standardize(form) for form in forms]
         patterns = {cls.mark_pattern(form) for form in forms}
         return len(patterns) == 1
 
@@ -462,18 +469,29 @@ class MacronApplicator:
 
     """
 
-    def __init__(self, index_path: Path = DEFAULT_MACRON_INDEX_PATH):
+    def __init__(
+        self,
+        index_path: Path = DEFAULT_MACRON_INDEX_PATH,
+        *,
+        standard_elements: StandardElements | None = None,
+    ):
         """
         Initialize applicator from a prebuilt index.
 
         Args:
             index_path: Path to macron index JSON.
 
+        Keyword Args:
+            standard_elements: Standard element spellings; the packaged list
+                when omitted.
+
         """
         #: Path to the prebuilt macron index.
         self.index_path = index_path
         #: Parsed in-memory index.
         self.index = self.load_index(index_path)
+        #: Standard element spellings applied to reference forms.
+        self.standard_elements = standard_elements or StandardElements.load()
 
     @classmethod
     def load_index(cls, index_path: Path) -> MacronIndex:
@@ -733,6 +751,23 @@ class MacronApplicator:
         )
         return ambiguity
 
+    def _standardized_options(self, normalized: str) -> list[str]:
+        """
+        Return an ambiguous key's options with standard elements applied.
+
+        Args:
+            normalized: Normalized key, present in ``index.ambiguous``.
+
+        Returns:
+            The options, in index order, each passed through
+            :meth:`StandardElements.standardize`.
+
+        """
+        return [
+            self.standard_elements.standardize(option)
+            for option in self.index.ambiguous[normalized]
+        ]
+
     def _collapsed_form(self, normalized: str) -> str | None:
         """
         Pick the form to apply when an ambiguous key is not really ambiguous.
@@ -748,7 +783,7 @@ class MacronApplicator:
             agree on marks, else ``None``.
 
         """
-        options = self.index.ambiguous[normalized]
+        options = self._standardized_options(normalized)
         if normalized in self.index.ambiguous_completed:
             return None
         if not DiacriticTransfer.same_marks(options):
@@ -763,8 +798,10 @@ class MacronApplicator:
         """
         Add index diacritics to a single lexical token, preserving its letters.
 
-        An ambiguous key whose options all share one mark pattern is applied
-        like a unique key and writes no ambiguity row.
+        An ambiguous key whose options all share one mark pattern (after standard
+        elements are applied, ADR 0019) is applied like a unique key and writes
+        no ambiguity row. Reference forms have their standard elements spelled
+        as listed before the transfer.
 
         Args:
             word: Verbatim lexical token.
@@ -807,6 +844,7 @@ class MacronApplicator:
             )
             return word, None, True, None
 
+        marked = self.standard_elements.standardize(marked)
         transformed = DiacriticTransfer.transfer(word, marked)
         if transformed is None:
             LOGGER.debug(

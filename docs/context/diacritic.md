@@ -61,6 +61,11 @@ Outputs:
 - An ambiguous key whose options all share one mark pattern is applied like a
   unique entry by `mark-diacritics` (unless completed), and the
   `diacritic-disambiguate` queue skips it; an explicit key still opens it.
+- Standard elements (`wyrdcraeft/etc/diacritic/standard_elements.txt`, hand-edited)
+  are spelled as listed in every index form before the transfer and the
+  comparison. They count only where BT writes a hyphen after (prefix) or around
+  (compound) the element, so `ge-an` and `gēan` stay apart. A source keeps its
+  own marks.
 - Restoration and curation are related but not same thing: restoration consumes
   index data, curation mutates it.
 - Macron-index curation is a separate extract from dictionary SQLite access.

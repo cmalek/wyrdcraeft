@@ -1303,3 +1303,28 @@ def test_diacritic_disambiguate_queue_says_nothing_is_left_when_all_collapse(
     assert any(m.startswith("Skipped 1 entries") for m in messages)
     assert any(m.startswith("No ambiguous entries need a decision") for m in messages)
     assert not any(m.startswith("No unresolved") for m in messages)
+
+
+def test_diacritic_disambiguate_queue_skips_keys_that_differ_only_in_a_standard_element(
+    runner, temp_dir, monkeypatch
+):
+    index_path = temp_dir / "index.json"
+    _write_index(
+        index_path,
+        {
+            "meta": {"unique_count": 0, "ambiguous_count": 2},
+            "unique": {},
+            "ambiguous": {
+                "foreberan": ["fore-beran", "fōre-beran"],
+                "þa": ["þa", "þā"],
+            },
+            "ambiguous_completed": [],
+            "ambiguous_metadata": {},
+        },
+    )
+
+    result, messages = _run_queue(runner, index_path, monkeypatch)
+
+    assert result.exit_code == 0, result.output
+    assert "fore-beran" not in result.output
+    assert any(m.startswith("Skipped 1 entries") for m in messages)
