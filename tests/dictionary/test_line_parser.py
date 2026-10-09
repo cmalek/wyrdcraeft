@@ -231,3 +231,43 @@ class TestCompoundHeadwords:
         assert parsed.raw_line is not None
         assert parsed.raw_line.kind == BTLineKind.ADD
         assert parsed.raw_line.headword_raw == "mǣgþ"
+
+
+RAW_VARIANT_LINES = [
+    "tilung@<B>tilung,</B> teolung, tiolung; <I>f.</I> striving.@tilung",
+    "bar@<B>bār,</B> v. Cf. Ps. Rdr; <I>m.</I> a boar.@bar",
+    "maegth@<B>mægþ, mægeþ;</B> <I>f.</I> maid.@maegth",
+    "aa@<B>ā,</B> aa; <I>adv.</I> ever.@a",
+]
+
+
+@pytest.mark.parametrize(
+    ("line", "headword", "variants"),
+    [
+        (RAW_VARIANT_LINES[0], "tilung", ("teolung", "tiolung")),
+        (RAW_VARIANT_LINES[1], "bār", ("v", "Cf", "Ps", "Rdr")),
+        (RAW_VARIANT_LINES[2], "mægþ", ("mægeþ",)),
+        (RAW_VARIANT_LINES[3], "ā", ("aa",)),
+    ],
+)
+def test_raw_variants_returns_unnormalized_spellings(line, headword, variants):
+    assert BTLineParser().raw_variants(line) == (headword, variants)
+
+
+@pytest.mark.parametrize(
+    "line",
+    ["", "no at signs", "a@b", "x@no bold headword here@x", "x@<B>12</B> text@x"],
+)
+def test_raw_variants_returns_none_for_lines_parse_skips(line):
+    parser = BTLineParser()
+
+    assert parser.raw_variants(line) is None
+    assert parser.parse(1, line).raw_line is None
+
+
+@pytest.mark.parametrize("line", RAW_VARIANT_LINES)
+def test_raw_variants_agree_with_parse(line):
+    parser = BTLineParser()
+    _headword, variants = parser.raw_variants(line)  # type: ignore[misc]
+
+    assert parser.parse(1, line).variants == parser._normalize_variants(variants)

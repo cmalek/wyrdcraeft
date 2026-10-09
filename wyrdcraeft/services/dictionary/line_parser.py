@@ -231,6 +231,37 @@ class BTLineParser:
             skip_reason=None,
         )
 
+    def raw_variants(self, line: str) -> tuple[str, tuple[str, ...]] | None:
+        """
+        Extract the headword and its variants exactly as Bosworth-Toller prints them.
+
+        Unlike :meth:`parse` this does not run the spelling normalizer, so BT's
+        acute-to-macron and diphthong rewriting never touches the spellings.
+
+        Args:
+            line: Raw line from ``oe_bt.txt``.
+
+        Returns:
+            The canonical headword and its variants (bold-tag extras first, then
+            pre-POS variants), or ``None`` when :meth:`parse` would skip the line.
+
+        """
+        split_line = self.splitter.split(line)
+        if split_line is None:
+            return None
+        headword_match = BOLD_HEADWORD_RE.search(split_line.body)
+        if headword_match is None:
+            return None
+        headword_forms = _split_headword_forms(headword_match.group(1))
+        if headword_forms is None:
+            return None
+        headword_raw, bold_variants = headword_forms
+        pos_fragment = self._extract_pos_fragment(split_line, headword_match.end())
+        prefix_variants = self._extract_variants(
+            headword_raw=headword_raw, pos_fragment=pos_fragment
+        )
+        return headword_raw, bold_variants + prefix_variants
+
     def _classify_kind(self, body: str) -> BTLineKind:
         """
         Classify one line into ``BTLineKind``.

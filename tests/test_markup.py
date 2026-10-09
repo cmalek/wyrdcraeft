@@ -995,3 +995,27 @@ def test_apply_guess_that_cannot_be_aligned_is_also_reported_as_unaligned(
     result = DiacriticRestorer(macron_applicator=applicator).restore_text("ab\n")
     assert [(u.word, u.index_form) for u in result.unaligned] == [("ab", "āc")]
     assert len(result.ambiguities) == 1
+
+
+@pytest.mark.parametrize(
+    ("existing", "candidate", "expected"),
+    [
+        ("weg", "weg", "same"),
+        ("wēg", "wēg", "same"),
+        ("ǣ-ge", "ǣge", "same"),  # hyphens do not count
+        ("wēg", "weg", "fewer"),
+        ("weg", "wēg", "more"),
+        ("wĕg", "wēg", "conflict"),  # breve against macron
+        ("weg", "wēge", "conflict"),  # different letters
+        ("leāst", "lēast", "same"),  # diphthong style does not count
+    ],
+)
+def test_mark_relation(existing: str, candidate: str, expected: str):
+    assert DiacriticTransfer.mark_relation(existing, candidate) == expected
+
+
+def test_mark_relation_standardizes_elements_first():
+    elements = StandardElements(["for-"])
+
+    assert DiacriticTransfer.mark_relation("fōr-beran", "for-beran", elements) == "same"
+    assert DiacriticTransfer.mark_relation("fōr-beran", "for-beran") == "fewer"

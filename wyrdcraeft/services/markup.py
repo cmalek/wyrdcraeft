@@ -423,6 +423,47 @@ class DiacriticTransfer:
         return len(patterns) == 1
 
     @classmethod
+    def mark_relation(
+        cls,
+        existing: str,
+        candidate: str,
+        elements: StandardElements | None = None,
+    ) -> Literal["same", "fewer", "more", "conflict"]:
+        """
+        Compare the marks of a candidate form with an existing form of one key.
+
+        Hyphens, case, ``ð``/``þ`` and diphthong style do not count, and standard
+        elements are applied first when ``elements`` is given.
+
+        Args:
+            existing: The form already in the index.
+            candidate: The form being considered.
+            elements: Standard element list, or ``None``.
+
+        Returns:
+            ``same``; ``fewer`` when every mark of the candidate is in the
+            existing form; ``more`` when every mark of the existing form is in the
+            candidate; else ``conflict`` (also when the letters differ).
+
+        """
+        if elements is not None:
+            existing = elements.standardize(existing)
+            candidate = elements.standardize(candidate)
+        old = cls.mark_pattern(existing)
+        new = cls.mark_pattern(candidate)
+        if old == new:
+            return "same"
+        if [base for base, _ in old] != [base for base, _ in new]:
+            return "conflict"
+        old_marks = [marks for _, marks in old]
+        new_marks = [marks for _, marks in new]
+        if all(n <= o for n, o in zip(new_marks, old_marks, strict=True)):
+            return "fewer"
+        if all(o <= n for o, n in zip(old_marks, new_marks, strict=True)):
+            return "more"
+        return "conflict"
+
+    @classmethod
     def union_form(cls, forms: Iterable[str]) -> str | None:
         """
         Combine the marks of several forms of one word.
