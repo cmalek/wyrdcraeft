@@ -412,7 +412,10 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 #: Packaged, hand-edited list of citation sigla and numerals to reject.
 DEFAULT_VARIANT_STOPLIST_PATH: Final[Path] = (
-    Path(__file__).resolve().parents[1] / "etc" / "diacritic" / "bt_variant_stoplist.txt"
+    Path(__file__).resolve().parents[1]
+    / "etc"
+    / "diacritic"
+    / "bt_variant_stoplist.txt"
 )
 #: A key listed as a variant under this many headwords is a siglum, not a word.
 FREQUENT_HEADWORD_COUNT: Final[int] = 3
@@ -588,7 +591,7 @@ def _report(
     completed: set[str] | None = None,
 ) -> VariantImportReport:
     source = tmp_path / "oe_bt.txt"
-    source.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    source.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
     payload = MacronIndexPayload(
         unique=unique or {},
         ambiguous=ambiguous or {},
@@ -759,10 +762,9 @@ def test_hyphen_and_case_differences_do_not_conflict(tmp_path: Path):
 def test_blank_unparseable_crlf_and_nfd_lines_do_not_crash(tmp_path: Path):
     source = tmp_path / "oe_bt.txt"
     nfd = unicodedata.normalize("NFD", _line("tilung", "tīolung"))
+    lines = ["", "no at signs", "a@b", "x@<B>12</B> text@x", nfd]
     source.write_text(
-        "\r\n".join(["", "no at signs", "a@b", "x@<B>12</B> text@x", nfd]) + "\r\n",
-        encoding="utf-8",
-        newline="",
+        "".join(f"{line}\r\n" for line in lines), encoding="utf-8", newline=""
     )
 
     report = _importer().build_report(source, MacronIndexPayload())
@@ -773,7 +775,7 @@ def test_blank_unparseable_crlf_and_nfd_lines_do_not_crash(tmp_path: Path):
 def test_apply_adds_only_new_keys_and_is_idempotent(tmp_path: Path):
     lines = [_line("tilung", "teolung", "tiolung")]
     source = tmp_path / "oe_bt.txt"
-    source.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    source.write_text("".join(f"{line}\n" for line in lines), encoding="utf-8")
     payload = MacronIndexPayload(unique={"tilung": "tilung"})
     importer = _importer()
 
@@ -790,6 +792,18 @@ def test_apply_adds_only_new_keys_and_is_idempotent(tmp_path: Path):
     assert second.additions == {}
     assert second.counts["skipped_same_marks"] == 2
     assert importer.apply(second, payload) == 0
+
+
+def test_apply_never_replaces_a_key_that_now_exists(tmp_path: Path):
+    source = tmp_path / "oe_bt.txt"
+    source.write_text(_line("tilung", "tiolung") + "\n", encoding="utf-8")
+    importer = _importer()
+    report = importer.build_report(source, MacronIndexPayload())
+    # The index gained the key (by hand) after the report was built.
+    payload = MacronIndexPayload(unique={"tiolung": "tīolung"})
+
+    assert importer.apply(report, payload) == 0
+    assert payload.unique == {"tiolung": "tīolung"}
 ```
 
 - [ ] **Step 2: Run to verify they fail**
@@ -1130,7 +1144,8 @@ class BTVariantImporter:
             for form in existing
         ]
         if "same" in relations:
-            counts["skipped_same_marks" if len(existing) == 1 else "skipped_matches_option"] += 1
+            outcome = "same_marks" if len(existing) == 1 else "matches_option"
+            counts[f"skipped_{outcome}"] += 1
         elif len(existing) == 1 and relations[0] == "fewer":
             counts["skipped_fewer_marks"] += 1
         else:
@@ -1177,7 +1192,7 @@ class BTVariantImporter:
                 report.conflicting_new.append(ConflictingNewKey(key=key, variants=rows))
 ```
 
-Fix the over-long `counts[...]` line in `_compare` to fit 88 columns (assign the counter name to a local first). `reason` needs a `Literal` annotation for mypy: annotate `reason: Literal["more_marks", "conflicting_marks", "new_pattern"]` before the branches (import `Literal`).
+If mypy objects to `reason` being inferred as `str`, annotate it `Literal["more_marks", "conflicting_marks", "new_pattern"]` before the branches (import `Literal`). Keep every line within 88 columns (ruff E501).
 
 - [ ] **Step 5: Run to verify they pass; gate; commit**
 
@@ -1334,7 +1349,7 @@ Expected: FAIL: `No such command 'import-variants'` (exit code 2), so the report
 
 - [ ] **Step 3: Implement the command**
 
-In `wyrdcraeft/cli/diacritic.py` add imports `from ..services.dictionary.resources import default_bt_source_path` and `from ..services.variant_importer import BTVariantImporter`, then after `diacritic_delete`:
+In `wyrdcraeft/cli/diacritic.py` add imports `from ..services.dictionary.resources import default_bt_source_path` and `from ..services.variant_importer import BTVariantImporter` (in sorted position, so ruff I001 stays quiet), then after `diacritic_delete`:
 
 ```python
 @diacritic_group.command(
@@ -1426,13 +1441,13 @@ Expected: PASS.
 
 - [ ] **Step 5: Dry run on the real source (no `--apply`)**
 
-Run from the scratchpad so no report lands in the repo:
+Write the report outside the repo so none lands in the working tree:
 
 ```bash
-.venv/bin/wyrdcraeft diacritic import-variants --report-output "$SCRATCH/bt-variant-import-report.json"
+.venv/bin/wyrdcraeft diacritic import-variants --report-output "$(mktemp -d)/bt-variant-import-report.json"
 ```
 
-Expected, within about 5% (measured while planning on the current index): about **2,439 would be added**, **80 collisions** (75 `more_marks`, 4 `conflicting_marks`, 1 `new_pattern`), **10 conflicting new keys**, about **1,622** below-gate keys (a few more rows), and the packaged index file unchanged (`git diff --stat wyrdcraeft/etc/diacritic/oe_bt_macron_index.json` empty). If a figure is far off, stop and investigate before documenting; ledger the finding. Skim the report: `additions` should look like real spellings (`tiolung`, `teolung`), `below_gate` should be mostly inflected forms and English words, `collisions` should read like the ADR's examples (`bide`/`bīde`).
+Expected, within about 5% (measured while planning on the current index): about **2,439 would be added**, **80 collisions** (75 `more_marks`, 4 `conflicting_marks`, 1 `new_pattern`), **10 conflicting new keys**, about **1,622** below-gate keys (a few more rows), and the packaged index file unchanged (`git diff --stat wyrdcraeft/etc/diacritic/oe_bt_macron_index.json` empty). If a figure is far off, stop and investigate before documenting; ledger the finding. Measured while planning with the plan's own code: 2,439 additions, 80 collisions (75/4/1), 10 conflicting new keys, 1,622 below-gate keys, counts `rejected_frequent` 3,309, `rejected_stoplist` 4,568, `rejected_fragment` 267, `rejected_all_caps` 160, `skipped_same_marks` 4,081, `skipped_fewer_marks` 138, `skipped_completed` 34, `skipped_matches_option` 202. Known residue: about 66 of the additions have keys of 3 letters or fewer and roughly a fifth of those are noise (`acl`, `axa`, `afn`, `ami`, a runic `ᛁ`), because the gate allows an edit distance of 2, which is a whole short word. Lowering the minimum distance to 1 would lose 277 mostly genuine dialect spellings (`hire`, `donne`, `walde`), so the gate stays; list the short noise in the ADR notes and let the user extend the stoplist. Skim the report: `additions` should look like real spellings (`tiolung`, `teolung`), `below_gate` should be mostly inflected forms and English words, `collisions` should read like the ADR's examples (`bide`/`bīde`).
 
 - [ ] **Step 6: Docs and ADR notes**
 
