@@ -54,6 +54,12 @@ from .source_text import (
     TextMetadata,
 )
 from .syllable import Syllable
+from .variant_import import (
+    CollisionRow,
+    ConflictingNewKey,
+    VariantImportReport,
+    VariantRow,
+)
 
 __all__ = [
     "POS_CODES",
@@ -68,7 +74,9 @@ __all__ = [
     "BTPos",
     "BTSearchEntry",
     "BTSense",
+    "CollisionRow",
     "Confidence",
+    "ConflictingNewKey",
     "DiacriticRestorationResult",
     "DictionaryBuildCounters",
     "DictionaryBuildEvent",
@@ -101,6 +109,8 @@ __all__ = [
     "TextMetadata",
     "UnalignedToken",
     "UnknownToken",
+    "VariantImportReport",
+    "VariantRow",
     "VerbParadigm",
     "Word",
     "morph_catalog",
