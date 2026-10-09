@@ -16,6 +16,10 @@
 - ADR statuses (0018, 0019, 0020) stay `proposed`; accepting them is the user's call.
 - No CLI to edit the standard-element file (ADR 0019 Open question: hand-edited, like the `c` and `g` lists).
 
+## Addendum: Task 5
+
+Task 5 was added after the final review of Tasks 1 to 4 (commits 7e95069..cc022bd). It fixes five minors the review deferred: a guessed token that cannot be aligned loses its unaligned diagnostic; `standard_elements.txt` fails silently on conflicting duplicates and inline comments; a missing list file raises instead of warning like the `c`/`g` lists; the `MacronApplicator` class docstring lacks the new keyword arguments; the `.rst` overstates `union` and `auto`. Three further review minors stay deferred (see the end of Task 5).
+
 ## Global Constraints
 
 - Additive only (ADR 0015): nothing is removed or replaced in the source. A source that writes `ā-`, `fōr-`, `gē-` or `oþ-` keeps it.
@@ -1183,3 +1187,183 @@ git commit -m "test: acceptance fixture for the auto ambiguity policy; ADR 0019 
 ```
 
 (If `scripts/diacritic/` needs an `__init__.py` to match `scripts/morphology`, add one; check first.)
+
+---
+
+### Task 5: Fixes for deferred review minors 1 to 5
+
+**Files:**
+- Modify: `wyrdcraeft/services/standard_elements.py` (`__init__`, `load`; new `_add`, `LOGGER`)
+- Modify: `wyrdcraeft/etc/diacritic/standard_elements.txt` (header comment)
+- Modify: `wyrdcraeft/services/markup.py` (`MacronApplicator._transfer_token`, class docstring)
+- Modify: `doc/source/overview/command_convert_mark_diacritics.rst` (the "Ambiguity policy" section), `docs/context/diacritic.md` (one line on inline comments)
+- Test: `tests/test_markup.py`, `tests/test_standard_elements.py`
+
+**Interfaces:**
+- Consumes: Task 2's `StandardElements`, Task 3's `_transfer_token` and `apply` 4-tuple.
+- Produces: no new public names. Behavior changes: `apply` returns the ambiguity row **and** the unaligned index form for a guess it cannot align; `StandardElements.load` of a missing file returns an empty list and logs a warning; `StandardElements` logs a warning for a conflicting duplicate; `load` strips `#` inline comments.
+
+The five fixes (numbers match the review):
+
+1. A guess whose union form cannot be transferred (source letters differ from the options, i.e. a hand-edited bad index) returns the plain ambiguity row but dropped the unaligned diagnostic that a non-guessed unaligned key gets. Return both: the row and the unaligned form.
+2. `standard_elements.txt` is hand-edited. A conflicting duplicate (`for-` then `fōr-`) is silently last-wins, and an inline comment (`ge-  # note`) turns the entry into a compound that never matches. Warn on a conflicting duplicate (keep last-wins) and accept inline comments.
+3. A missing `standard_elements.txt` raised `FileNotFoundError`; the `c`/`g` lists log a warning and continue. Match them.
+4. The `MacronApplicator` class docstring omits `standard_elements` and `policy`.
+5. The `.rst` says `union` applies "everywhere" (it leaves keys whose options cannot be lined up) and that `auto` leaves keys whose marks "differ only before a hyphen" (the code means before the first hyphen of at least one option).
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `tests/test_markup.py`:
+
+```python
+def test_apply_guess_that_cannot_be_aligned_is_also_reported_as_unaligned(
+    tmp_path: Path,
+):
+    index_path = tmp_path / "index.json"
+    # Hand-edited bad data: the options do not spell the key.
+    _write_index(index_path, unique={}, ambiguous={"ab": ["ac", "āc"]})
+    applicator = MacronApplicator(index_path, policy="union")
+
+    transformed, ambiguity, is_unknown, unaligned = applicator.apply("ab", 1, 1)
+
+    assert transformed == "ab"
+    assert ambiguity is not None
+    assert ambiguity.policy is None
+    assert not is_unknown
+    assert unaligned == "āc"
+
+    result = DiacriticRestorer(macron_applicator=applicator).restore_text("ab\n")
+    assert [(u.word, u.index_form) for u in result.unaligned] == [("ab", "āc")]
+    assert len(result.ambiguities) == 1
+```
+
+Append to `tests/test_standard_elements.py`:
+
+```python
+def test_load_accepts_inline_comments(tmp_path: Path):
+    path = tmp_path / "elements.txt"
+    path.write_text("ge-  # always plain\nbonde#compound\n", encoding="utf-8")
+
+    elements = StandardElements.load(path)
+
+    assert elements.standardize("gē-bindan") == "ge-bindan"
+    assert elements.standardize("hūs-bōnde") == "hūs-bonde"
+
+
+def test_conflicting_duplicate_entries_log_a_warning(caplog: pytest.LogCaptureFixture):
+    with caplog.at_level("WARNING"):
+        elements = StandardElements(["for-", "fōr-"])
+
+    assert any("fōr-" in record.message for record in caplog.records)
+    # The later entry wins, as documented.
+    assert elements.standardize("for-beran") == "fōr-beran"
+
+
+def test_identical_duplicate_entries_do_not_warn(caplog: pytest.LogCaptureFixture):
+    with caplog.at_level("WARNING"):
+        StandardElements(["for-", "for-"])
+
+    assert not caplog.records
+
+
+def test_missing_file_logs_a_warning_and_standardizes_nothing(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
+    with caplog.at_level("WARNING"):
+        elements = StandardElements.load(tmp_path / "missing.txt")
+
+    assert any("missing.txt" in record.message for record in caplog.records)
+    assert elements.standardize("ā-bacan") == "ā-bacan"
+```
+
+- [ ] **Step 2: Run to verify they fail**
+
+Run: `.venv/bin/python -m pytest tests/test_markup.py tests/test_standard_elements.py -q`
+Expected: 4 FAIL, the rest PASS. The failures: `assert None == 'āc'` (fix 1); `FileNotFoundError` (fix 3); `assert False` on the conflicting-duplicate warning and `'gē-bindan' == 'ge-bindan'` (fix 2). `test_identical_duplicate_entries_do_not_warn` passes already (it guards against over-warning).
+
+- [ ] **Step 3: Fix 1, in `MacronApplicator._transfer_token`**
+
+Replace the tail that returns for a guess with an unaligned result:
+
+```python
+        if guessed is None:
+            if transformed is None:
+                return word, None, False, marked
+            return transformed, None, False, None
+        row = self._ambiguity_row(word, normalized, line_number, word_number)
+        if transformed is None:
+            # Report the row and why the guess could not be written.
+            return word, row, False, marked
+        row = row.model_copy(update={"applied_form": transformed, "policy": guessed})
+        return transformed, row, False, None
+```
+
+Update the `Returns:` of `_transfer_token` and `apply` ("a guess that cannot be aligned returns its plain ambiguity row and the unaligned index form"). `_restore_line` already appends both a row and an unaligned entry when both are present; confirm with the restorer assertion in the test.
+
+- [ ] **Step 4: Fixes 2 and 3, in `standard_elements.py`**
+
+Add `import logging` and, next to `DEFAULT_STANDARD_ELEMENTS_PATH`, a module logger written the way `markup.py` writes its `LOGGER` (copy its form and `#:` comment). Replace the entry loop in `__init__` and the body of `load`:
+
+```python
+        for entry in entries:
+            text = unicodedata.normalize("NFC", entry.strip())
+            if text.endswith("-"):
+                self._add(self.prefixes, text[:-1], text)
+            elif text:
+                self._add(self.compounds, text, text)
+
+    def _add(self, table: dict[str, str], spelling: str, entry: str) -> None:
+        """
+        Record one standard spelling, warning when it replaces a different one.
+
+        Side Effects:
+            Logs a warning on a conflicting duplicate; the later entry wins.
+
+        Args:
+            table: ``prefixes`` or ``compounds``.
+            spelling: The standard spelling without a trailing hyphen.
+            entry: The entry as written, for the warning.
+
+        """
+        key = self._key(spelling)
+        if table.get(key, spelling) != spelling:
+            LOGGER.warning(
+                "Standard element %r conflicts with %r; using the later one",
+                entry,
+                table[key],
+            )
+        table[key] = spelling
+```
+
+```python
+        if not path.exists():
+            LOGGER.warning("Standard element list missing: %s", path)
+            return cls([])
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+        entries = (line.split("#", maxsplit=1)[0] for line in lines)
+        return cls(entry for entry in entries if entry.strip())
+```
+
+Update the `load` docstring (`#` starts a comment anywhere on a line; a missing file logs a warning and gives an empty list) and the header of `wyrdcraeft/etc/diacritic/standard_elements.txt` ("A `#` starts a comment, also after an entry."). Add one line to `docs/context/diacritic.md` next to the standard-element note: inline `#` comments are allowed, a conflicting duplicate logs a warning and the later entry wins.
+
+- [ ] **Step 5: Fixes 4 and 5, docstring and docs**
+
+`MacronApplicator` class docstring: add under `Args:` `index_path`, then a `Keyword Args:` block for `standard_elements` ("Standard element spellings; the packaged list when omitted.") and `policy` ("How ambiguous keys that do not collapse are treated: ``leave`` (default), ``auto`` or ``union``.").
+
+`command_convert_mark_diacritics.rst`, "Ambiguity policy": change the `union` bullet to "apply the union of the marks to every key it can; a key whose options cannot be lined up letter for letter stays reported and unchanged", and the `auto` exception to "when the marks differ only before the first hyphen of at least one option".
+
+- [ ] **Step 6: Run to verify they pass, then the full suite**
+
+Run: `.venv/bin/python -m pytest tests/test_markup.py tests/test_standard_elements.py tests/test_cli_mark_diacritics.py -q` then `.venv/bin/python -m pytest -q`
+Expected: all PASS (1252 before this task plus 5 new).
+
+- [ ] **Step 7: Quality gate and commit**
+
+`ruff check` and `.venv/bin/mypy` on the touched Python files, `make napoleon-gate` (94), `graphify update .`, then:
+
+```bash
+git add wyrdcraeft/services/standard_elements.py wyrdcraeft/etc/diacritic/standard_elements.txt wyrdcraeft/services/markup.py tests/test_markup.py tests/test_standard_elements.py doc/source/overview/command_convert_mark_diacritics.rst docs/context/diacritic.md
+git commit -m "fix: guessed-but-unalignable tokens stay unaligned; harden the standard-element file; doc wording"
+```
+
+**Still deferred after this task (not in scope):** the acceptance test counts collapses through standard elements as `auto` hits (so 74% precision is slightly generous and the ADR wording claims a little more than is measured); `auto`'s "hyphenated" check tests ASCII `-` only, not en/em dashes (no effect on the packaged index).
