@@ -1,0 +1,38 @@
+# Citation sigla and Roman numerals that Bosworth-Toller entries contain but
+# that are not Old English words (ADR 0017). One entry per line, matched
+# ignoring case. A # starts a comment, also after an entry. The importer also
+# rejects any key listed as a variant under 3 or more headwords; this list
+# catches the rest, and everything on a source too small for that rule.
+i
+ii
+iii
+iv
+v
+vi
+vii
+viii
+ix
+x
+xi
+xii
+xiii
+xiv
+cf
+ps
+rdr
+gl
+wrt
+voc
+kmbl
+lchdm
+hpt
+mk
+mt
+sat
+bd
+bt
+hml
+homl
+angl
+exon
+lch
