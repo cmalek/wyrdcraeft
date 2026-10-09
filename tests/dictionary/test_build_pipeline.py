@@ -10,6 +10,11 @@ import pytest
 
 from wyrdcraeft.db.runtime import upgrade_canonical_db
 from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTPos, legacy_bt_sense
+from wyrdcraeft.models.dictionary_build import (
+    DictionaryBuildStage,
+    DictionaryBuildStageProgress,
+    DictionaryBuildStageStarted,
+)
 from wyrdcraeft.services.dictionary.pipeline import IndexReport
 
 _SAMPLE_LINES = (
@@ -365,6 +370,53 @@ def test_dictionary_build_pipeline_writes_parse_warnings(
     ]
     assert report.bt_entries_written > 0
     assert any(row["failure_reason"] == "modifier_only_fragment" for row in warnings)
+
+
+def test_dictionary_build_finish_event_uses_stage_total(
+    build_pipeline_db: Path,
+) -> None:
+    from wyrdcraeft.services.dictionary.build_pipeline import (
+        DictionaryBuildPipeline,
+        MorphBuildOptions,
+    )
+
+    with sqlite3.connect(build_pipeline_db) as connection:
+        _insert_form(
+            connection,
+            normalized_title="abbad",
+            wordclass_code="noun",
+        )
+        _insert_form(
+            connection,
+            normalized_title="abbod",
+            wordclass_code="noun",
+        )
+        connection.commit()
+
+    events: list[object] = []
+    DictionaryBuildPipeline(build_pipeline_db, event_sink=events.append).run(
+        source=_SAMPLE_LINES,
+        with_morphology=False,
+        morph_options=MorphBuildOptions(limit=1),
+    )
+
+    started = next(
+        event
+        for event in events
+        if isinstance(event, DictionaryBuildStageStarted)
+        and event.stage is DictionaryBuildStage.RELINK_FORMS
+    )
+    finished = [
+        event
+        for event in events
+        if isinstance(event, DictionaryBuildStageProgress)
+        and event.stage is DictionaryBuildStage.RELINK_FORMS
+        and event.detail == ""
+    ]
+    assert started.total == 2
+    assert len(finished) == 1
+    assert finished[0].completed == started.total
+    assert finished[0].total == started.total
 
 
 def _write_warning_fixture(tmp_path: Path, lines: list[str]) -> Path:

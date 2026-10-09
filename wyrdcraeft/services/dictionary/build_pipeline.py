@@ -199,6 +199,8 @@ class DictionaryBuildPipeline:
     _event_seq: int
     #: Currently active top-level stage.
     _active_stage: DictionaryBuildStage | None
+    #: Total work units announced when the active stage started.
+    _active_stage_total: int
     #: Accumulated counters captured in terminal events.
     _counters: DictionaryBuildCounters
 
@@ -234,6 +236,8 @@ class DictionaryBuildPipeline:
         self._event_seq = 0
         #: Currently active top-level stage.
         self._active_stage = None
+        #: Total work units announced when the active stage started.
+        self._active_stage_total = 1
         #: Accumulated counters captured in terminal events.
         self._counters = DictionaryBuildCounters()
 
@@ -576,15 +580,17 @@ class DictionaryBuildPipeline:
 
         """
         self._check_cancel()
+        announced_total = max(total, 1)
         self._active_stage = stage
+        self._active_stage_total = announced_total
         if self._progress is not None:
-            self._progress.begin_stage(stage, total=total)
+            self._progress.begin_stage(stage, total=announced_total)
         self._emit_event(
             DictionaryBuildStageStarted(
                 seq=self._next_event_seq(),
                 at=self._now(),
                 stage=stage,
-                total=max(total, 1),
+                total=announced_total,
             )
         )
         self._emit_log(stage=stage, message=f"stage started: {stage.value}")
@@ -640,6 +646,7 @@ class DictionaryBuildPipeline:
             stage: Stage that has completed.
 
         """
+        announced_total = self._active_stage_total
         if self._progress is not None:
             self._progress.finish_stage(stage)
         self._emit_event(
@@ -647,8 +654,8 @@ class DictionaryBuildPipeline:
                 seq=self._next_event_seq(),
                 at=self._now(),
                 stage=stage,
-                completed=1,
-                total=1,
+                completed=announced_total,
+                total=announced_total,
             )
         )
         self._emit_log(stage=stage, message=f"stage finished: {stage.value}")
