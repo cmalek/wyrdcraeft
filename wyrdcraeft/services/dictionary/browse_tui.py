@@ -34,11 +34,13 @@ from wyrdcraeft.services.dictionary.etymology_display import (
     parse_etymology_text,
 )
 from wyrdcraeft.services.dictionary.form_decode import (
+    format_bt_gender_label,
+    morphology_row_matches_pos,
+)
+from wyrdcraeft.services.dictionary.paradigm_sidebar import (
     MorphologyRowPayload,
     ParadigmSidebarSpec,
     build_paradigm_sidebar,
-    format_bt_gender_label,
-    morphology_row_matches_pos,
 )
 from wyrdcraeft.services.markup import normalize_old_english
 
