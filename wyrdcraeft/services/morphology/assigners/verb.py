@@ -260,17 +260,17 @@ def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
                 post_vowel_length = len(post_vowel)
                 assigned_id = None
 
-                if vowel in ["\u00ed", "\u00fd"] and post_vowel_length == 1:
+                if vowel in ["ī", "ȳ"] and post_vowel_length == 1:
                     assigned_id = "1"
-                    if post_vowel.startswith("\u00fe"):
+                    if post_vowel.startswith("þ"):
                         assigned_id = "2"
                     elif post_vowel.startswith("s"):
                         assigned_id = "3"
-                elif vowel == "\u00e9o" and post_vowel_length == 1:
+                elif vowel == "ēo" and post_vowel_length == 1:
                     assigned_id = "5"
                     if post_vowel.startswith("s"):
                         assigned_id = "6"
-                elif vowel == "\u00fa" and post_vowel_length == 1:
+                elif vowel == "ū" and post_vowel_length == 1:
                     assigned_id = "9"
                 elif vowel == "e" and re.match(r"^l.", post_vowel):
                     assigned_id = "13"
@@ -288,9 +288,9 @@ def _assign_verb_heuristics(  # noqa: PLR0912, PLR0915
                     assigned_id = "63"
                 elif vowel in ["i", "y", "ie"] and re.match(r"^[nm].", post_vowel):
                     assigned_id = "10"
-                elif vowel == "\u00e1" and post_vowel_length == 1:
+                elif vowel == "ā" and post_vowel_length == 1:
                     assigned_id = "40"
-                elif vowel == "\u00f3" and post_vowel_length == 1:
+                elif vowel == "ō" and post_vowel_length == 1:
                     assigned_id = "48"
 
                 if assigned_id:

@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from wyrdcraeft.models.morphology import VerbParadigm, Word
 from wyrdcraeft.services.morphology.assigners.adj import set_adj_paradigm
 from wyrdcraeft.services.morphology.assigners.noun import set_noun_paradigm
-from wyrdcraeft.services.morphology.assigners.verb import set_verb_paradigm
-from wyrdcraeft.services.morphology.session import GeneratorSession
+from wyrdcraeft.services.morphology.assigners.verb import (
+    _assign_verb_heuristics,
+    set_verb_paradigm,
+)
+from wyrdcraeft.services.morphology.session import GeneratorSession, WordPool
 
 
 def _make_word(**overrides: object) -> Word:
@@ -85,7 +90,9 @@ def test_set_noun_paradigm_r_stem_opt_in() -> None:
     word = _make_word(noun=1, n_masc=1, stem="fæder")
     session.nouns = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["fæder"]
 
@@ -97,7 +104,9 @@ def test_set_noun_paradigm_simple_stem_propagation() -> None:
     session.nouns = [source, derived]
     session.words = [source, derived]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert source.noun_paradigm == ["cynn"]
     assert derived.noun_paradigm == ["cynn"]
@@ -110,7 +119,9 @@ def test_set_noun_paradigm_advanced_stem_propagation() -> None:
     session.nouns = [source, derived]
     session.words = [source, derived]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert source.noun_paradigm == ["cynn"]
     assert derived.noun_paradigm == ["cynn"]
@@ -122,7 +133,9 @@ def test_set_noun_paradigm_heuristic_incel_suffix() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["hof"]
 
@@ -133,7 +146,9 @@ def test_set_noun_paradigm_heuristic_terminal_e_gender_order() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["tunge", "stán", "hof"]
 
@@ -144,7 +159,9 @@ def test_set_noun_paradigm_heuristic_short_syllable_front_vowel() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["dæg", "fæt"]
 
@@ -155,7 +172,9 @@ def test_set_noun_paradigm_heuristic_nd_stem_masculine() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["wígend"]
 
@@ -166,7 +185,9 @@ def test_set_noun_paradigm_final_fallback_neuter_long_stem() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["word"]
 
@@ -177,7 +198,9 @@ def test_set_noun_paradigm_final_fallback_neuter_short_stem() -> None:
     session.nouns = [word]
     session.words = [word]
 
-    set_noun_paradigm(session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns)
+    set_noun_paradigm(
+        session.word_pool, enable_r_stem_nouns=session.enable_r_stem_nouns
+    )
 
     assert word.noun_paradigm == ["hof"]
 
@@ -208,3 +231,130 @@ def test_set_verb_paradigm_fallback_for_weak_verbs() -> None:
     set_verb_paradigm(session.word_pool)
 
     assert [vp.ID for vp in word.vb_paradigm] == ["76"]
+
+
+# Strong-verb Mitchell arms compare the macron spellings OENormalizer.VOWEL
+# captures (ī ȳ ēo ū ā ō). Acute literals never occur in those stems.
+_HEURISTIC_IDS = (
+    "1",
+    "2",
+    "3",
+    "5",
+    "6",
+    "9",
+    "10",
+    "13",
+    "14",
+    "16",
+    "19",
+    "22",
+    "31",
+    "40",
+    "48",
+    "63",
+    "73",
+    "74",
+    "76",
+    "87",
+)
+
+
+def _heuristic_ids(stem: str, *, strong: int, weak: int) -> list[str]:
+    word = _make_word(verb=1, vb_strong=strong, vb_weak=weak, stem=stem)
+    pool = WordPool()
+    for paradigm_id in _HEURISTIC_IDS:
+        pool.verb_paradigms[paradigm_id] = _make_verb_paradigm(
+            paradigm_id=paradigm_id,
+            title="other",
+            verb_type="s",
+        )
+    _assign_verb_heuristics([word], pool)
+    return [paradigm.ID for paradigm in word.vb_paradigm]
+
+
+@pytest.mark.parametrize(
+    ("stem", "strong", "weak", "expected"),
+    [
+        ("helpan", 1, 0, "13"),
+        ("restan", 1, 0, "16"),
+        ("beran", 1, 0, "19"),
+        ("belan", 1, 0, "19"),
+        ("metan", 1, 0, "22"),
+        ("weþan", 1, 0, "22"),
+        ("faran", 1, 0, "31"),
+        ("weorpan", 1, 0, "14"),
+        ("feohtan", 1, 0, "14"),
+        ("gieldan", 1, 0, "63"),
+        ("bindan", 1, 0, "10"),
+        ("byndan", 1, 0, "10"),
+        ("niendan", 1, 0, "10"),
+        ("nerian", 0, 1, "73"),
+        ("ferigan", 0, 1, "73"),
+        ("byrgan", 0, 1, "73"),
+        ("swarian", 0, 1, "87"),
+        ("gadrian", 0, 1, "87"),
+        ("timbrian", 0, 1, "87"),
+        ("lufian", 0, 1, "87"),
+        ("hebban", 0, 1, "74"),
+        ("cyssan", 0, 1, "74"),
+        ("fyllan", 0, 1, "76"),
+        ("fillan", 0, 1, "76"),
+        ("zzzz", 1, 0, None),
+        ("zzzz", 0, 1, None),
+        ("bocan", 1, 0, None),
+        ("bocan", 0, 1, None),
+        ("faran", 0, 0, None),
+        ("glīdan", 1, 0, "1"),
+        ("līþan", 1, 0, "2"),
+        ("grīsan", 1, 0, "3"),
+        ("mȳdan", 1, 0, "1"),
+        ("rēofan", 1, 0, "5"),
+        ("rēosan", 1, 0, "6"),
+        ("brūcan", 1, 0, "9"),
+        ("hātan", 1, 0, "40"),
+        ("blōtan", 1, 0, "48"),
+    ],
+)
+def test_assign_verb_heuristics_arms(
+    stem: str,
+    strong: int,
+    weak: int,
+    expected: str | None,
+) -> None:
+    ids = _heuristic_ids(stem, strong=strong, weak=weak)
+    assert ids == ([] if expected is None else [expected])
+
+
+def test_set_verb_paradigm_macron_heuristic_keeps_earlier_assignment() -> None:
+    session = GeneratorSession()
+    example = _make_word(verb=1, vb_strong=1, stem="snīdan", title="snīdan")
+    leftover = _make_word(verb=1, vb_strong=1, stem="glīdan", title="glīdan")
+    session.words = [example, leftover]
+    session.verbs = [example, leftover]
+    session.verb_paradigms = {
+        "77": _make_verb_paradigm(paradigm_id="77", title="snīdan", verb_type="s"),
+        "1": _make_verb_paradigm(paradigm_id="1", title="bīdan", verb_type="s"),
+        "13": _make_verb_paradigm(paradigm_id="13", title="helpan", verb_type="s"),
+    }
+
+    set_verb_paradigm(session.word_pool)
+
+    assert [vp.ID for vp in example.vb_paradigm] == ["77"]
+    assert [vp.ID for vp in leftover.vb_paradigm] == ["1"]
+
+
+def test_assign_verb_heuristics_skips_missing_or_existing_paradigm() -> None:
+    word = _make_word(verb=1, vb_strong=1, stem="helpan")
+    assert _assign_verb_heuristics([word], WordPool()) == []
+    assert word.vb_paradigm == []
+
+    existing = _make_verb_paradigm(paradigm_id="9", title="kept", verb_type="s")
+    word.vb_paradigm = [existing]
+    pool = WordPool()
+    pool.verb_paradigms["13"] = _make_verb_paradigm(
+        paradigm_id="13",
+        title="other",
+        verb_type="s",
+    )
+    assert _assign_verb_heuristics([word], pool) == []
+    assert word.vb_paradigm == [existing]
