@@ -15,6 +15,7 @@ from .diacritics import (
 from .dictionary import (
     BTConsolidatedEntry,
     BTEditorialOp,
+    BTEditRecord,
     BTGender,
     BTLineKind,
     BTParseWarning,
@@ -67,6 +68,7 @@ __all__ = [
     "AmbiguityOption",
     "AnyDictionaryBuildEvent",
     "BTConsolidatedEntry",
+    "BTEditRecord",
     "BTEditorialOp",
     "BTGender",
     "BTLineKind",

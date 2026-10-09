@@ -23,8 +23,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import Engine
     from sqlalchemy.orm import Session
 
-    from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTGender
-    from wyrdcraeft.services.dictionary.editorial_merger import BTEditRecord
+    from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTEditRecord, BTGender
 
 
 class BTSqliteSink:

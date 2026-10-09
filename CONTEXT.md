@@ -282,6 +282,16 @@ Out of scope:
   inserts æ/þ/ð, macrons, and dotted letters when the terminal cannot type them
 - dictionary query: CLI name for consolidated Bosworth-Toller lookup by lemma
   or variant; `dictionary lookup` remains a hidden deprecated alias
+- editorial operation: Add, Dele, Substitute, or Dele-and-add applied while
+  consolidating a dictionary source block
+  _Avoid_: naming the Python `apply_*` methods as the domain concept
+- edit record: audit of one editorial operation applied or skipped during
+  consolidation, including target, sense-path or whole-entry scope, and whether
+  it took effect. A substitute may target a different dictionary source block
+  than the one that carried the line
+  _Avoid_: treating the merger class as the audit type; a second models module
+  for this one record; a services-package alias as a second home
+  _See_: ADR 0021
 - editorial target warning: build-time diagnostic emitted when an Add / Dele /
   Substitute line cannot be attached to one unique dictionary source block; the
   product should write the miss to `parse_warnings.jsonl` and `bt_edit_log`
@@ -544,6 +554,10 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
   — proposed; not implemented.
 - [0020: `DiacriticTransfer` treats a diphthong as one unit](docs/adr/0020-diacritic-transfer-treats-a-diphthong-as-one-unit.md)
   — proposed; not implemented; split out of 0015.
+- [0021: Editorial merger stays a facade; edit records live with dictionary models](docs/adr/0021-editorial-merger-ops-and-edit-record.md)
+  — Trello Gwr8hysN. Overrides the card on
+  injection, Add-as-class, services re-export, and a separate models module.
+  Edit-record canonical import is `wyrdcraeft.models.dictionary`.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.

@@ -87,6 +87,47 @@ class BTEditorialOp(StrEnum):
     DELE_AND_ADD = "dele_and_add"
 
 
+@dataclass
+class BTEditRecord:
+    """
+    Audit record for one editorial operation applied during entry consolidation.
+
+    Suitable for storage in a ``bt_edit_log`` SQLite table in later phases.
+
+    Attributes:
+        op: The editorial operation kind.
+        source_line_no: One-based source line number that triggered this operation.
+        target_norm_key: Normalised lookup key of the entry being modified.
+        target_pos: Part of speech of the entry being modified.
+        scope: Human-readable description of what was affected (``all_senses``,
+            ``sense_path:1``, ``for_X_in_Dict``, etc.).
+        applied: Whether the operation was actually applied or skipped.
+        note: Additional diagnostic text.
+        entry_order: Stable source-block ordering for homograph disambiguation.
+        source_block_index: Zero-based source block index for audit joins.
+
+    """
+
+    #: Editorial operation kind.
+    op: BTEditorialOp
+    #: Source file line number.
+    source_line_no: int
+    #: Norm key of the modified entry.
+    target_norm_key: str
+    #: POS of the modified entry.
+    target_pos: BTPos
+    #: Scope description for audit.
+    scope: str
+    #: Whether the op was applied.
+    applied: bool
+    #: Diagnostic note.
+    note: str = ""
+    #: Stable source-block ordering for homograph disambiguation.
+    entry_order: int = 0
+    #: Zero-based source block index for audit joins.
+    source_block_index: int = 0
+
+
 def format_sense_display_label(sense_path: str) -> str:
     """
     Convert canonical ``sense_path`` to Arabic display text.

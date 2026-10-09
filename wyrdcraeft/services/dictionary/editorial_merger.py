@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from typing import TYPE_CHECKING, Final
 
 from ...models.dictionary import (
     BTConsolidatedEntry,
     BTEditorialOp,
+    BTEditRecord,
     BTLineKind,
     BTParseWarning,
     BTPos,
@@ -16,6 +17,12 @@ from ...models.dictionary import (
 )
 from ..dictionary.attestation_stripper import _substantive_html_content
 from ..markup import normalize_morphology_title, normalize_old_english
+from .editorial_ops import (
+    BTDeleAndAddOp,
+    BTDeleOp,
+    BTSubstituteOp,
+    append_senses,
+)
 from .sense_metadata import promote_entry_gender_from_senses
 from .source_blocks import BTSourceBlock, BTSourceBlockBuilder
 from .target_resolver import BTTargetResolver
@@ -32,114 +39,11 @@ _EDITORIAL_LINE_KINDS: Final[frozenset[BTLineKind]] = frozenset(
     }
 )
 
-#: Strips all HTML tags.
-_TAG_RE: Final[re.Pattern[str]] = re.compile(r"<[^>]+>")
-
-#: Collapses whitespace.
-_WS_RE: Final[re.Pattern[str]] = re.compile(r"\s+")
-
-#: ``for all but X`` pattern in Substitute lines.
-_FOR_ALL_BUT_RE: Final[re.Pattern[str]] = re.compile(
-    r"for all but\s+(.+?)(?:\s*$|:)",
-    re.IGNORECASE,
-)
-
-#: ``Substitute the following for X in Dict`` full pattern.
-_SUBSTITUTE_FOR_X_RE: Final[re.Pattern[str]] = re.compile(
-    r"substitute the following for\s+(.+?)\s+in\s+Dict",
-    re.IGNORECASE,
-)
-
-#: ``Substitute the following:`` whole-entry replacement.
-_SUBSTITUTE_FOLLOWING_RE: Final[re.Pattern[str]] = re.compile(
-    r"substitute the following[:\s]",
-    re.IGNORECASE,
-)
-
 #: ``v.`` / ``vide`` cross-reference target extractor.
 _CROSS_REF_TARGET_RE: Final[re.Pattern[str]] = re.compile(
     r"(?:v\.|vide)\s+<B>(.*?)</B>|(?:v\.|vide)\s+([\w\-ā-ū]+)",
     re.IGNORECASE,
 )
-
-#: ``Dele last passage`` or ``Dele bracket`` pattern (scoped dele).
-_DELE_SCOPE_RE: Final[re.Pattern[str]] = re.compile(
-    r"<I>\s*Dele\b([^<]*)</I>",
-    re.IGNORECASE,
-)
-
-
-@dataclass
-class BTEditRecord:
-    """
-    Audit record for one editorial operation applied during entry consolidation.
-
-    Suitable for storage in a ``bt_edit_log`` SQLite table in later phases.
-
-    Attributes:
-        op: The editorial operation kind.
-        source_line_no: One-based source line number that triggered this operation.
-        target_norm_key: Normalised lookup key of the entry being modified.
-        target_pos: Part of speech of the entry being modified.
-        scope: Human-readable description of what was affected (``all_senses``,
-            ``sense_path:1``, ``for_X_in_Dict``, etc.).
-        applied: Whether the operation was actually applied or skipped.
-        note: Additional diagnostic text.
-        entry_order: Stable source-block ordering for homograph disambiguation.
-        source_block_index: Zero-based source block index for audit joins.
-
-    """
-
-    #: Editorial operation kind.
-    op: BTEditorialOp
-    #: Source file line number.
-    source_line_no: int
-    #: Norm key of the modified entry.
-    target_norm_key: str
-    #: POS of the modified entry.
-    target_pos: BTPos
-    #: Scope description for audit.
-    scope: str
-    #: Whether the op was applied.
-    applied: bool
-    #: Diagnostic note.
-    note: str = ""
-    #: Stable source-block ordering for homograph disambiguation.
-    entry_order: int = 0
-    #: Zero-based source block index for audit joins.
-    source_block_index: int = 0
-
-
-def _plain(text: str) -> str:
-    """
-    Strip HTML tags and collapse whitespace from *text*.
-
-    Args:
-        text: Input HTML string.
-
-    Returns:
-        Plain-text string with normalised whitespace.
-
-    """
-    return _WS_RE.sub(" ", _TAG_RE.sub(" ", text)).strip()
-
-
-def _target_note(reason: str, detail: str) -> str:
-    """
-    Format one standardized edit-log note with human context.
-
-    Args:
-        reason: Machine-readable note code such as ``target_missing``.
-        detail: Human-readable diagnostic context.
-
-    Returns:
-        Combined note string for ``bt_edit_log``.
-
-    """
-    detail = detail.strip()
-    if detail:
-        return f"{reason}: {detail}"
-    return reason
 
 
 def _edit_note_reason(note: str) -> str | None:
@@ -211,6 +115,12 @@ class BTEditorialMerger:
         self.block_builder: BTSourceBlockBuilder = (
             block_builder or BTSourceBlockBuilder(self.resolver)
         )
+        #: Substitute collaborator.
+        self._substitute_op: BTSubstituteOp = BTSubstituteOp(self.resolver)
+        #: Dele collaborator.
+        self._dele_op: BTDeleOp = BTDeleOp(self.resolver)
+        #: Dele-and-add collaborator.
+        self._dele_and_add_op: BTDeleAndAddOp = BTDeleAndAddOp(self.resolver)
 
     def merge(
         self, parsed_lines: list[ParsedBTLine]
@@ -323,7 +233,7 @@ class BTEditorialMerger:
             )
         return warnings
 
-    def _merge_block(  # noqa: PLR0912
+    def _merge_block(
         self,
         block: BTSourceBlock,
         all_blocks: list[BTSourceBlock],
@@ -336,44 +246,121 @@ class BTEditorialMerger:
             all_blocks: Full block list for cross-entry substitute resolution.
 
         Returns:
-            A pair ``(entry, audit_records)`` where *entry* may be ``None`` when the
-            block contains no usable seed line.
+            A pair ``(entry, audit_records)`` where *entry* may be ``None`` when
+            the block contains no usable seed line.
 
         """
         sorted_lines = sorted(
             block.lines,
             key=lambda ln: ln.raw_line.line_no if ln.raw_line else 0,
         )
+        mains = self._of_kind(sorted_lines, BTLineKind.MAIN)
+        substitutes = self._of_kind(sorted_lines, BTLineKind.SUBSTITUTE)
+        deles = self._of_kind(sorted_lines, BTLineKind.DELE)
+        dele_and_adds = self._of_kind(sorted_lines, BTLineKind.DELE_AND_ADD)
+        adds = self._of_kind(sorted_lines, BTLineKind.ADD)
+        seed, substitute_seed, substitutes, adds = self._pick_seed(
+            mains, substitutes, adds
+        )
+        if seed is None or seed.raw_line is None:
+            return None, []
+        entry = self._new_entry(block, seed)
+        self._absorb_main_follow_ons(entry, mains[1:])
+        audit: list[BTEditRecord] = []
+        if substitute_seed:
+            audit.extend(
+                self._substitute_op.apply(entry, seed, all_blocks, block)
+            )
+        for ln in substitutes:
+            if ln.raw_line is not None:
+                audit.extend(self._substitute_op.apply(entry, ln, all_blocks, block))
+        for ln in deles:
+            if ln.raw_line is not None:
+                audit.extend(self._dele_op.apply(entry, ln, block))
+        for ln in dele_and_adds:
+            if ln.raw_line is not None:
+                audit.extend(self._dele_and_add_op.apply(entry, ln, block))
+        for ln in adds:
+            if ln.raw_line is not None:
+                audit.extend(self._apply_add(entry, ln, block))
+        entry.genders = list(
+            promote_entry_gender_from_senses(
+                tuple(entry.genders),
+                tuple(entry.senses),
+            )
+        )
+        return entry, audit
 
-        def _of_kind(kind: BTLineKind) -> list[ParsedBTLine]:
-            return [
-                ln for ln in sorted_lines
-                if ln.raw_line and ln.raw_line.kind == kind
-            ]
+    @staticmethod
+    def _of_kind(
+        sorted_lines: list[ParsedBTLine], kind: BTLineKind
+    ) -> list[ParsedBTLine]:
+        """
+        Return lines whose raw kind is *kind*.
 
-        mains = _of_kind(BTLineKind.MAIN)
-        substitutes = _of_kind(BTLineKind.SUBSTITUTE)
-        deles = _of_kind(BTLineKind.DELE)
-        dele_and_adds = _of_kind(BTLineKind.DELE_AND_ADD)
-        adds = _of_kind(BTLineKind.ADD)
+        Args:
+            sorted_lines: Block lines in source order.
+            kind: Line kind to keep.
 
-        substitute_seed = False
-        if not mains and substitutes:
+        Returns:
+            Matching parsed lines.
+
+        """
+        return [
+            ln for ln in sorted_lines if ln.raw_line and ln.raw_line.kind == kind
+        ]
+
+    @staticmethod
+    def _pick_seed(
+        mains: list[ParsedBTLine],
+        substitutes: list[ParsedBTLine],
+        adds: list[ParsedBTLine],
+    ) -> tuple[ParsedBTLine | None, bool, list[ParsedBTLine], list[ParsedBTLine]]:
+        """
+        Choose the seed line and remaining editorial lists.
+
+        Pops the chosen substitute or add from the corresponding list when there
+        is no MAIN line.
+
+        Args:
+            mains: MAIN lines in the block.
+            substitutes: SUBSTITUTE lines; may be mutated.
+            adds: ADD lines; may be mutated.
+
+        Returns:
+            ``(seed, substitute_seed, remaining_substitutes, remaining_adds)``.
+
+        """
+        if mains:
+            return mains[0], False, substitutes, adds
+        if substitutes:
             seed = substitutes.pop(0)
-            substitute_seed = True
-        elif not mains and adds and adds[0].senses:
+            return seed, True, substitutes, adds
+        if adds and adds[0].senses:
             seed = adds.pop(0)
-            substitute_seed = False
-        elif not mains:
-            return None, []
-        else:
-            seed = mains[0]
-            substitute_seed = False
-        if seed.raw_line is None:
-            return None, []
+            return seed, False, substitutes, adds
+        return None, False, substitutes, adds
 
+    @staticmethod
+    def _new_entry(
+        block: BTSourceBlock, seed: ParsedBTLine
+    ) -> BTConsolidatedEntry:
+        """
+        Construct the consolidated entry from the seed line and block.
+
+        Args:
+            block: Source block supplying identity and POS fallback.
+            seed: Seed line; caller guarantees ``raw_line`` is set.
+
+        Returns:
+            New consolidated entry.
+
+        """
+        if seed.raw_line is None:
+            msg = "seed line is missing raw_line"
+            raise ValueError(msg)
         pos = block.pos if block.pos != BTPos.UNKNOWN else seed.pos
-        entry = BTConsolidatedEntry(
+        return BTConsolidatedEntry(
             norm_key=block.norm_key,
             headword_raw=seed.raw_line.headword_raw,
             headword_macronized=seed.headword_macronized,
@@ -388,7 +375,18 @@ class BTEditorialMerger:
             entry_order=block.entry_order,
         )
 
-        for ln in mains[1:]:
+    def _absorb_main_follow_ons(
+        self, entry: BTConsolidatedEntry, follow_ons: list[ParsedBTLine]
+    ) -> None:
+        """
+        Merge later MAIN lines into *entry*.
+
+        Args:
+            entry: Seed entry being built.
+            follow_ons: MAIN lines after the seed.
+
+        """
+        for ln in follow_ons:
             if ln.raw_line is None:
                 continue
             entry.source_line_nos.append(ln.raw_line.line_no)
@@ -398,41 +396,6 @@ class BTEditorialMerger:
                     entry.variants.append(variant)
             if not entry.etymology and ln.etymology_blocks:
                 entry.etymology = " ".join(ln.etymology_blocks)
-
-        audit: list[BTEditRecord] = []
-
-        if substitute_seed:
-            audit.extend(self._apply_substitute(entry, seed, all_blocks, block))
-
-        for ln in substitutes:
-            if ln.raw_line is None:
-                continue
-            audit.extend(
-                self._apply_substitute(entry, ln, all_blocks, block)
-            )
-
-        for ln in deles:
-            if ln.raw_line is None:
-                continue
-            audit.extend(self._apply_dele(entry, ln, block))
-
-        for ln in dele_and_adds:
-            if ln.raw_line is None:
-                continue
-            audit.extend(self._apply_dele_and_add(entry, ln, block))
-
-        for ln in adds:
-            if ln.raw_line is None:
-                continue
-            audit.extend(self._apply_add(entry, ln, block))
-
-        entry.genders = list(
-            promote_entry_gender_from_senses(
-                tuple(entry.genders),
-                tuple(entry.senses),
-            )
-        )
-        return entry, audit
 
     def _extend_senses(
         self,
@@ -461,37 +424,6 @@ class BTEditorialMerger:
             entry.senses.append(sense)
             existing_paths.add(sense.sense_path)
 
-    def _append_senses(
-        self,
-        entry: BTConsolidatedEntry,
-        new_senses: tuple[BTSense, ...],
-    ) -> int:
-        """
-        Append supplemental senses using label-aware deduplication.
-
-        Unlabelled senses always append.  Labelled senses append only when their
-        ``sense_label`` is not already present on the entry.
-
-        Args:
-            entry: Entry being augmented.
-            new_senses: Candidate senses from one ADD or DELE_AND_ADD line.
-
-        Returns:
-            Number of senses appended.
-
-        """
-        existing_labels = {
-            sense.source_label_raw.rstrip(".") for sense in entry.senses
-        }
-        appended = 0
-        for sense in new_senses:
-            raw_label = sense.source_label_raw.rstrip(".")
-            if raw_label not in existing_labels or not raw_label:
-                entry.senses.append(sense)
-                existing_labels.add(raw_label)
-                appended += 1
-        return appended
-
     @staticmethod
     def _next_top_level_path(existing_paths: set[str]) -> int:
         """
@@ -511,371 +443,8 @@ class BTEditorialMerger:
         ]
         return max(top_levels, default=0) + 1
 
-    def _audit_context(self, block: BTSourceBlock) -> tuple[int, int]:
-        """
-        Return audit metadata shared by edit records for one block.
-
-        Args:
-            block: Source block whose edits are being recorded.
-
-        Returns:
-            ``(entry_order, source_block_index)`` pair for :class:`BTEditRecord`.
-
-        """
-        return block.entry_order, block.source_block_index
-
-    def _apply_substitute(  # noqa: PLR0912
-        self,
-        entry: BTConsolidatedEntry,
-        line: ParsedBTLine,
-        all_blocks: list[BTSourceBlock],
-        block: BTSourceBlock,
-    ) -> list[BTEditRecord]:
-        """
-        Apply one SUBSTITUTE line to an entry or to a cross-entry target.
-
-        Args:
-            entry: The entry currently being built for this source block.
-            line: The parsed SUBSTITUTE line.
-            all_blocks: Full block list for cross-entry resolution.
-            block: Current source block for audit metadata.
-
-        Returns:
-            Audit records describing what was changed.
-
-        """
-        if line.raw_line is None:
-            return []
-        body = line.raw_line.raw_text
-        plain_body = _plain(body)
-        records: list[BTEditRecord] = []
-        audit_entry_order, audit_block_index = self._audit_context(block)
-
-        for_x_match = _SUBSTITUTE_FOR_X_RE.search(plain_body)
-        if for_x_match:
-            target_text = for_x_match.group(1).strip()
-            target_norm = normalize_old_english(target_text) or ""
-            target_blocks = [
-                candidate
-                for candidate in all_blocks
-                if candidate.norm_key == target_norm
-            ]
-            if len(target_blocks) == 1:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.SUBSTITUTE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=target_norm,
-                        target_pos=target_blocks[0].pos,
-                        scope=f"for_X_in_Dict:{target_text}",
-                        applied=False,
-                        note=(
-                            "cross-entry substitute deferred;"
-                            " target in different block"
-                        ),
-                        entry_order=target_blocks[0].entry_order,
-                        source_block_index=target_blocks[0].source_block_index,
-                    )
-                )
-            elif not target_blocks:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.SUBSTITUTE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=target_norm,
-                        target_pos=entry.pos,
-                        scope=f"for_X_in_Dict:{target_text}",
-                        applied=False,
-                        note=_target_note(
-                            "target_missing",
-                            f"cross-entry target {target_text!r} not found",
-                        ),
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-            else:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.SUBSTITUTE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=target_norm,
-                        target_pos=entry.pos,
-                        scope=f"for_X_in_Dict:{target_text}",
-                        applied=False,
-                        note=_target_note(
-                            "target_ambiguous",
-                            f"multiple blocks match {target_text!r}",
-                        ),
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-            return records
-
-        if _SUBSTITUTE_FOLLOWING_RE.search(plain_body):
-            if line.senses:
-                entry.senses = list(line.senses)
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.SUBSTITUTE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=entry.norm_key,
-                        target_pos=entry.pos,
-                        scope="all_senses",
-                        applied=True,
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-            else:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.SUBSTITUTE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=entry.norm_key,
-                        target_pos=entry.pos,
-                        scope="all_senses",
-                        applied=False,
-                        note="substitute line has no parsed senses",
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-            return records
-
-        for_all_but = _FOR_ALL_BUT_RE.search(plain_body)
-        if for_all_but:
-            pinned_raw = for_all_but.group(1).strip()
-            pinned_paths = set()
-            for label in re.split(r"[,;]", pinned_raw):
-                cleaned = label.strip().rstrip(".")
-                if not cleaned:
-                    continue
-                path = self.resolver.resolve_sense_path(cleaned, entry.senses)
-                if path is not None:
-                    pinned_paths.add(path)
-            kept = [
-                sense for sense in entry.senses
-                if sense.sense_path in pinned_paths
-            ]
-            entry.senses = kept + list(line.senses)
-            records.append(
-                BTEditRecord(
-                    op=BTEditorialOp.SUBSTITUTE,
-                    source_line_no=line.raw_line.line_no,
-                    target_norm_key=entry.norm_key,
-                    target_pos=entry.pos,
-                    scope=f"for_all_but:{pinned_raw}",
-                    applied=True,
-                    entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                )
-            )
-            return records
-
-        if line.senses:
-            entry.senses = list(line.senses)
-            records.append(
-                BTEditRecord(
-                    op=BTEditorialOp.SUBSTITUTE,
-                    source_line_no=line.raw_line.line_no,
-                    target_norm_key=entry.norm_key,
-                    target_pos=entry.pos,
-                    scope="all_senses_fallback",
-                    applied=True,
-                    entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                )
-            )
-        return records
-
-    def _apply_dele(
-        self,
-        entry: BTConsolidatedEntry,
-        line: ParsedBTLine,
-        block: BTSourceBlock,
-    ) -> list[BTEditRecord]:
-        """
-        Apply one DELE line to an entry.
-
-        Args:
-            entry: The entry to modify.
-            line: The parsed DELE line.
-            block: Current source block for audit metadata.
-
-        Returns:
-            Audit records describing what was removed.
-
-        """
-        if line.raw_line is None:
-            return []
-        body = line.raw_line.raw_text
-        records: list[BTEditRecord] = []
-        audit_entry_order, audit_block_index = self._audit_context(block)
-
-        dele_scope_match = _DELE_SCOPE_RE.search(body)
-        if dele_scope_match and not line.dele_refs:
-            scope_text = dele_scope_match.group(1).strip()
-            if not scope_text:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.DELE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=entry.norm_key,
-                        target_pos=entry.pos,
-                        scope="bare_dele",
-                        applied=True,
-                        note="bare Dele; entry marked deprecated",
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-                entry.senses = []
-                return records
-
-        if line.dele_refs:
-            paths, note = self.resolver.resolve_sense_paths_for_refs(
-                list(line.dele_refs),
-                entry.senses,
-            )
-            if not paths:
-                records.append(
-                    BTEditRecord(
-                        op=BTEditorialOp.DELE,
-                        source_line_no=line.raw_line.line_no,
-                        target_norm_key=entry.norm_key,
-                        target_pos=entry.pos,
-                        scope="sense_paths:none",
-                        applied=False,
-                        note=_target_note(
-                            note or "target_missing",
-                            "dele_refs did not match any sense paths",
-                        ),
-                        entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                    )
-                )
-                return records
-            removed = [
-                path for path in paths
-                if any(sense.sense_path == path for sense in entry.senses)
-            ]
-            entry.senses = [
-                sense for sense in entry.senses
-                if sense.sense_path not in set(paths)
-            ]
-            scope = "sense_paths:" + ",".join(removed) if removed else "no_match"
-            records.append(
-                BTEditRecord(
-                    op=BTEditorialOp.DELE,
-                    source_line_no=line.raw_line.line_no,
-                    target_norm_key=entry.norm_key,
-                    target_pos=entry.pos,
-                    scope=scope,
-                    applied=bool(removed),
-                    note=(
-                        ""
-                        if removed
-                        else _target_note(
-                            note or "target_missing",
-                            "dele_refs did not match",
-                        )
-                    ),
-                    entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                )
-            )
-            return records
-
-        records.append(
-            BTEditRecord(
-                op=BTEditorialOp.DELE,
-                source_line_no=line.raw_line.line_no,
-                target_norm_key=entry.norm_key,
-                target_pos=entry.pos,
-                scope="unknown",
-                applied=False,
-                note="dele line had no recognisable scope",
-                entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-            )
-        )
-        return records
-
-    def _apply_dele_and_add(
-        self,
-        entry: BTConsolidatedEntry,
-        line: ParsedBTLine,
-        block: BTSourceBlock,
-    ) -> list[BTEditRecord]:
-        """
-        Apply one DELE_AND_ADD line — first remove, then append.
-
-        Args:
-            entry: The entry to modify.
-            line: The parsed DELE_AND_ADD line.
-            block: Current source block for audit metadata.
-
-        Returns:
-            Audit records for both the delete and add passes.
-
-        """
-        if line.raw_line is None:
-            return []
-        records: list[BTEditRecord] = []
-        audit_entry_order, audit_block_index = self._audit_context(block)
-
-        if line.dele_refs:
-            paths, note = self.resolver.resolve_sense_paths_for_refs(
-                list(line.dele_refs),
-                entry.senses,
-            )
-            removed = [
-                path for path in paths
-                if any(sense.sense_path == path for sense in entry.senses)
-            ]
-            if paths:
-                entry.senses = [
-                    sense for sense in entry.senses
-                    if sense.sense_path not in set(paths)
-                ]
-            scope = "dele_pass:" + (",".join(removed) if removed else "no_match")
-            records.append(
-                BTEditRecord(
-                    op=BTEditorialOp.DELE_AND_ADD,
-                    source_line_no=line.raw_line.line_no,
-                    target_norm_key=entry.norm_key,
-                    target_pos=entry.pos,
-                    scope=scope,
-                    applied=bool(removed),
-                    note=note or "dele pass of dele_and_add",
-                    entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                )
-            )
-
-        if line.senses:
-            appended = self._append_senses(entry, line.senses)
-            records.append(
-                BTEditRecord(
-                    op=BTEditorialOp.DELE_AND_ADD,
-                    source_line_no=line.raw_line.line_no,
-                    target_norm_key=entry.norm_key,
-                    target_pos=entry.pos,
-                    scope=f"add_pass:{appended}_senses",
-                    applied=appended > 0,
-                    note="add pass of dele_and_add",
-                    entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
-                )
-            )
-
-        entry.source_line_nos.append(line.raw_line.line_no)
-        return records
-
+    @staticmethod
     def _apply_add(
-        self,
         entry: BTConsolidatedEntry,
         line: ParsedBTLine,
         block: BTSourceBlock,
@@ -895,10 +464,7 @@ class BTEditorialMerger:
         if line.raw_line is None:
             return []
         records: list[BTEditRecord] = []
-        audit_entry_order, audit_block_index = self._audit_context(block)
-
-        appended = self._append_senses(entry, line.senses)
-
+        appended = append_senses(entry, line.senses)
         entry.source_line_nos.append(line.raw_line.line_no)
         records.append(
             BTEditRecord(
@@ -909,8 +475,8 @@ class BTEditorialMerger:
                 scope=f"append:{appended}_senses",
                 applied=appended > 0,
                 note="" if appended else "add line had no parseable senses",
-                entry_order=audit_entry_order,
-                        source_block_index=audit_block_index,
+                entry_order=block.entry_order,
+                source_block_index=block.source_block_index,
             )
         )
         return records

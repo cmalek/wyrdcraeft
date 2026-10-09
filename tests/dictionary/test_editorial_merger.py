@@ -8,11 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from wyrdcraeft.models.dictionary import BTConsolidatedEntry, BTLineKind, BTPos
-from wyrdcraeft.services.dictionary.editorial_merger import (
-    BTEditorialMerger,
+from wyrdcraeft.models.dictionary import (
+    BTConsolidatedEntry,
     BTEditRecord,
+    BTLineKind,
+    BTPos,
 )
+from wyrdcraeft.services.dictionary.editorial_merger import BTEditorialMerger
 from wyrdcraeft.services.dictionary.line_parser import BTLineParser, ParsedBTLine
 from wyrdcraeft.services.dictionary.resources import default_bt_source_path
 from wyrdcraeft.services.dictionary.sense_segmenter import BTSenseSegmenter

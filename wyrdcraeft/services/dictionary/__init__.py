@@ -10,7 +10,7 @@ from .build_pipeline import (
     DictionaryBuildReport,
     MorphBuildOptions,
 )
-from .editorial_merger import BTEditorialMerger, BTEditRecord
+from .editorial_merger import BTEditorialMerger
 from .forms_entry_relinker import FormsEntryRelinker
 from .line_parser import BTLineParser, ParsedBTLine
 from .line_splitter import BTLineSplitter, BTSplitLine
@@ -24,7 +24,6 @@ from .target_resolver import BTTargetResolver
 
 __all__ = [
     "BTAttestationStripper",
-    "BTEditRecord",
     "BTEditorialMerger",
     "BTIndexPipeline",
     "BTLineParser",
