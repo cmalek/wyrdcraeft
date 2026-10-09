@@ -77,6 +77,8 @@ class OENormalizer:
     EA_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([eE])([āáĀÁ])")
     #: Regex for BT ``iē``/``ié`` long-mark-on-second-vowel diphthongs.
     IE_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([iI])([ēéĒÉ])")
+    #: Regex for BT ``iō``/``ió`` long-mark-on-second-vowel diphthongs.
+    IO_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([iI])([ōóŌÓ])")
     #: Regex for BT ``eī``/``eí`` long-mark-on-second-vowel diphthongs.
     EI_WRONG_LONG_RE: Final[re.Pattern[str]] = re.compile(r"([eE])([īíĪÍ])")
 
@@ -175,8 +177,8 @@ class OENormalizer:
         Convert raw BT-style acute diphthongs to macron diphthongs.
 
         Bosworth-Toller data may have the long-vowel mark on the wrong vowel
-        (e.g. eó, eá, ié). This function accepts that acute input and outputs
-        macron diphthongs (ēo, ēa, īe) so the rest of the pipeline is macron-only.
+        (e.g. eó, eá, ié, ió). This function accepts that acute input and outputs
+        macron diphthongs (ēo, ēa, īe, īo) so the rest of the pipeline is macron-only.
         We're doing it this way so we don't have to modify the BT source data.
 
         Args:
@@ -191,7 +193,8 @@ class OENormalizer:
         # Acute input -> macron output (ē U+0113, ī U+012B)
         text = text.replace("e\u00f3", "\u0113o")  # eó -> ēo
         text = text.replace("e\u00e1", "\u0113a")  # eá -> ēa
-        return text.replace("i\u00e9", "\u012be")  # ié -> īe
+        text = text.replace("i\u00e9", "\u012be")  # ié -> īe
+        return text.replace("i\u00f3", "\u012bo")  # ió -> īo
 
     @classmethod
     def normalize_bt_display_spelling(cls, spelling: str) -> str:
@@ -201,8 +204,8 @@ class OENormalizer:
         Note:
             Bosworth-Toller long diphthongs often mark the second vowel in line
             with ``data/OldEnglishGrammar.pdf`` and ``data/Ondej_Tich_40-54-1.pdf``.
-            In plain terms, this rewrites ``eā``/``eō``/``eī``/``iē`` to ``ēa``,
-            ``ēo``, ``ēi``, and ``īe`` for cross-PoS morphology and dictionary
+            In plain terms, this rewrites ``eā``/``eō``/``eī``/``iē``/``iō`` to ``ēa``,
+            ``ēo``, ``ēi``, ``īe`` and ``īo`` for cross-PoS morphology and dictionary
             display text.
 
         Args:
@@ -252,6 +255,13 @@ class OENormalizer:
             lambda match: cls._replace_diphthong_with_first_long(
                 match,
                 corrected_pair="īe",
+            ),
+            swapped,
+        )
+        swapped = cls.IO_WRONG_LONG_RE.sub(
+            lambda match: cls._replace_diphthong_with_first_long(
+                match,
+                corrected_pair="īo",
             ),
             swapped,
         )

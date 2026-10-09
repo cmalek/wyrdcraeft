@@ -53,6 +53,8 @@ def test_remove_diacritics_reference(input_text: str | None, expected: str) -> N
         ("eó", "ēo"),  # acute input -> macron output
         ("eá", "ēa"),
         ("ié", "īe"),
+        ("ió", "īo"),
+        ("īo", "īo"),
         ("ēo", "ēo"),  # already macron unchanged
         ("ēa", "ēa"),
         ("īe", "īe"),
@@ -97,6 +99,9 @@ def test_swap_bt_diphthong_long_marks_reference(input_text: str, expected: str) 
         ("eō", "ēo"),
         ("eī", "ēi"),
         ("iē", "īe"),
+        ("iō", "īo"),
+        ("fiōnd", "fīond"),
+        ("Iō", "Īo"),
         ("a-beātan", "a-bēatan"),
         ("a-beōdan", "a-bēodan"),
         ("eīg-land", "ēig-land"),
@@ -116,7 +121,7 @@ def test_normalize_bt_display_spelling_reference(input_text: str, expected: str)
 
 @pytest.mark.parametrize(
     "value",
-    ["ēa", "ēo", "ēi", "īe", "a-bēodan", "ælf-scīene"],
+    ["ēa", "ēo", "ēi", "īe", "īo", "a-bēodan", "ælf-scīene"],
 )
 def test_normalize_bt_display_spelling_is_idempotent(value: str) -> None:
     normalized = OENormalizer.normalize_bt_display_spelling(value)
