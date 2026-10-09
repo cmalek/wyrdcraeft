@@ -117,6 +117,13 @@ Out of scope:
   pattern (differing only in hyphens, case, eth/thorn or diphthong style);
   applied like a unique entry, never reported as ambiguous, unless the key is
   completed
+- completed ambiguous key: an ambiguous macron-index key the operator has
+  finished reviewing; it stays in `ambiguous`, is listed in
+  `ambiguous_completed`, and is excluded from the default
+  `diacritic disambiguate` queue. Completion does not require POS/meaning
+  annotations, and `mark-diacritics` never guesses a completed key
+  _Avoid_: treating completion as unique resolution; requiring annotations
+  before `m`; using skip (`s`) as a durable hide
 - ambiguity policy: how `mark-diacritics` treats an ambiguous key that does not
   collapse (`auto`, `leave`, `union`); a token it guesses stays in the ambiguity
   report with the form written and the policy

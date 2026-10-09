@@ -145,12 +145,12 @@ Mark Completed flow
 
 When you choose ``m``:
 
-1. The command verifies every attested form has at least one POS/meaning sense.
-2. Confirm completion (``y``/``n``/``q``).
-3. On ``y``, the key is added to ``ambiguous_completed`` and written immediately.
+1. Confirm completion (``y``/``n``/``q``).
+2. On ``y``, the key is added to ``ambiguous_completed`` and written immediately.
 
 Completed entries remain in ``ambiguous`` but are excluded from default
-``wyrdcraeft diacritic disambiguate`` iteration.
+``wyrdcraeft diacritic disambiguate`` iteration. POS/meaning annotations are
+optional; use ``d`` if you want them.
 
 Add flow
 ~~~~~~~~

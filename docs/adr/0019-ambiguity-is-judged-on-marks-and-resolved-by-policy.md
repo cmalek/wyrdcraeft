@@ -131,10 +131,9 @@ list without new data. Decisions 2 to 8 are implemented; see Implementation note
    the user to be genuinely ambiguous; neither `auto` nor `union` applies to it.
 6. **Guesses are visible.** A token resolved by `auto` or `union` still appears
    in the ambiguity report, with the form actually written and the policy that
-   wrote it, so the user can review exactly the guessed tokens. To veto a key the
-   user edits the index file directly (marking it completed through
-   `diacritic-disambiguate` needs every form annotated with a sense, which the
-   current BT parsing makes hard; improving that parsing is separate work).
+   wrote it, so the user can review exactly the guessed tokens. To veto a key,
+   mark it completed with `diacritic-disambiguate` (`m`) or add it to
+   `ambiguous_completed` in the index.
 7. **Review queue.** Keys that collapse under decisions 2 and 3 are skipped by
    `diacritic-disambiguate`; keys left unresolved by `auto` stay in it.
 8. **Acceptance test.** The labeled decisions recovered from the index's git

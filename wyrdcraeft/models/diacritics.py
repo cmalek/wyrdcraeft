@@ -199,7 +199,7 @@ class MacronIndexPayload(BaseModel):
     unique: dict[str, str] = Field(default_factory=dict)
     #: Ambiguous normalized -> attested display forms mapping.
     ambiguous: dict[str, list[str]] = Field(default_factory=dict)
-    #: Ambiguous keys that are fully annotated and excluded from default iteration.
+    #: Ambiguous keys excluded from the default disambiguate queue.
     ambiguous_completed: set[str] = Field(default_factory=set)
     #: Optional per-form annotations for ambiguous entries.
     ambiguous_metadata: dict[str, dict[str, MacronFormAnnotation]] = Field(

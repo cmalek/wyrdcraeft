@@ -401,32 +401,6 @@ def _prompt_form_annotation(attested_form: str) -> MacronFormAnnotation | None:
     return MacronFormAnnotation(senses=senses)
 
 
-def _can_mark_completed(
-    *,
-    key: str,
-    options: list[str],
-    metadata: dict[str, dict[str, MacronFormAnnotation]],
-) -> bool:
-    """
-    Check whether an ambiguous key has complete per-form annotations.
-
-    Args:
-        key: Ambiguous normalized key.
-        options: Attested forms for the key.
-        metadata: Full ambiguous metadata mapping.
-
-    Returns:
-        ``True`` when every form has at least one recorded sense.
-
-    """
-    form_annotations = metadata.get(key, {})
-    for form in options:
-        annotation = form_annotations.get(form)
-        if annotation is None or not annotation.senses:
-            return False
-    return True
-
-
 @click.command(
     name="disambiguate",
     help="Interactively resolve or annotate ambiguous macron index entries.",
@@ -601,16 +575,6 @@ def diacritic_disambiguate(  # noqa: PLR0912, PLR0915
                 break
 
             if action == "m":
-                if not _can_mark_completed(
-                    key=key,
-                    options=options,
-                    metadata=payload.ambiguous_metadata,
-                ):
-                    print_error(
-                        "Cannot mark completed: each attested form must have at least "
-                        "one POS/meaning annotation."
-                    )
-                    continue
                 confirm_completed = Prompt.ask(
                     "Mark "
                     f"ambiguous[{key}] as completed and hide from default iteration? "

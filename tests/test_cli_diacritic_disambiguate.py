@@ -295,7 +295,7 @@ def test_diacritic_disambiguate_mark_completed_commits(runner, temp_dir):
     assert "ac" in payload["ambiguous_completed"]
 
 
-def test_diacritic_disambiguate_mark_completed_requires_annotations(runner, temp_dir):
+def test_diacritic_disambiguate_mark_completed_without_annotations(runner, temp_dir):
     index_path = temp_dir / "index.json"
     _write_index(
         index_path,
@@ -303,14 +303,7 @@ def test_diacritic_disambiguate_mark_completed_requires_annotations(runner, temp
             "meta": {"unique_count": 0, "ambiguous_count": 1},
             "unique": {},
             "ambiguous": {"ac": ["ac", "āc"]},
-            "ambiguous_metadata": {
-                "ac": {
-                    "ac": {
-                        "part_of_speech_code": "CONJ",
-                        "modern_english_meaning": "but",
-                    }
-                }
-            },
+            "ambiguous_metadata": {},
         },
     )
 
@@ -323,12 +316,13 @@ def test_diacritic_disambiguate_mark_completed_requires_annotations(runner, temp
             "--index-path",
             str(index_path),
         ],
-        input="m\nq\n",
+        input="m\ny\n",
     )
 
     assert result.exit_code == 0
     payload = json.loads(index_path.read_text(encoding="utf-8"))
-    assert "ac" not in payload.get("ambiguous_completed", [])
+    assert payload["ambiguous"]["ac"] == ["ac", "āc"]
+    assert "ac" in payload["ambiguous_completed"]
 
 
 def test_diacritic_disambiguate_default_iteration_skips_completed(runner, temp_dir):
