@@ -84,7 +84,20 @@ def test_missing_stoplist_logs_a_warning(tmp_path: Path):
 def test_packaged_stoplist_has_the_sigla_and_numerals():
     loaded = BTVariantFilter.load(DEFAULT_VARIANT_STOPLIST_PATH)
 
-    for token in ["v", "Cf", "ii", "Ps", "Rdr", "Wrt", "Voc", "Gl", "xiv", "axa", "acl"]:
+    for token in [
+        "v",
+        "Cf",
+        "ii",
+        "Ps",
+        "Rdr",
+        "Wrt",
+        "Voc",
+        "Gl",
+        "xiv",
+        "axa",
+        "acl",
+        "afn",
+    ]:
         assert loaded.reject_reason(token, 1) in {"stoplist", "all_caps"}, token
     assert loaded.reject_reason("aa", 1) is None
     assert loaded.reject_reason("tiolung", 1) is None
