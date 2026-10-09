@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 
@@ -78,27 +79,29 @@ def test_load_accepts_inline_comments(tmp_path: Path):
     assert elements.standardize("hūs-bōnde") == "hūs-bonde"
 
 
-def test_conflicting_duplicate_entries_log_a_warning(caplog: pytest.LogCaptureFixture):
-    with caplog.at_level("WARNING"):
+def test_conflicting_duplicate_entries_log_a_warning():
+    # Patch the module logger: caplog depends on logging config other tests change.
+    with patch("wyrdcraeft.services.standard_elements.LOGGER") as logger:
         elements = StandardElements(["for-", "fōr-"])
 
-    assert any("fōr-" in record.message for record in caplog.records)
+    logger.warning.assert_called_once()
+    assert "fōr-" in logger.warning.call_args.args
     # The later entry wins, as documented.
     assert elements.standardize("for-beran") == "fōr-beran"
 
 
-def test_identical_duplicate_entries_do_not_warn(caplog: pytest.LogCaptureFixture):
-    with caplog.at_level("WARNING"):
+def test_identical_duplicate_entries_do_not_warn():
+    with patch("wyrdcraeft.services.standard_elements.LOGGER") as logger:
         StandardElements(["for-", "for-"])
 
-    assert not caplog.records
+    logger.warning.assert_not_called()
 
 
-def test_missing_file_logs_a_warning_and_standardizes_nothing(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-):
-    with caplog.at_level("WARNING"):
-        elements = StandardElements.load(tmp_path / "missing.txt")
+def test_missing_file_logs_a_warning_and_standardizes_nothing(tmp_path: Path):
+    missing = tmp_path / "missing.txt"
+    with patch("wyrdcraeft.services.standard_elements.LOGGER") as logger:
+        elements = StandardElements.load(missing)
 
-    assert any("missing.txt" in record.message for record in caplog.records)
+    logger.warning.assert_called_once()
+    assert missing in logger.warning.call_args.args
     assert elements.standardize("ā-bacan") == "ā-bacan"
