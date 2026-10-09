@@ -242,3 +242,22 @@ def test_apply_never_replaces_a_key_that_now_exists(tmp_path: Path):
 
     assert importer.apply(report, payload) == 0
     assert payload.unique == {"tiolung": "tīolung"}
+
+
+@pytest.mark.parametrize(
+    ("printed", "stored"),
+    [
+        ("dreōganne", "drēoganne"),  # BT marks the second vowel; the index the first
+        ("biēn", "bīen"),
+        ("be-geāton", "be-gēaton"),
+        ("ge-ān", "ge-ān"),  # a hyphen between the vowels is not a diphthong
+        ("drēoganne", "drēoganne"),
+    ],
+)
+def test_diphthong_marks_are_stored_on_the_first_vowel(
+    tmp_path: Path, printed: str, stored: str
+):
+    # The headword is one letter off, so the variant passes the similarity gate.
+    report = _report(tmp_path, [_line(normalize_old_english(printed) + "x", printed)])
+
+    assert list(report.additions.values()) == [stored]

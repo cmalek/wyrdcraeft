@@ -14,6 +14,7 @@ from ..models.variant_import import (
 )
 from .dictionary.line_parser import BTLineParser
 from .markup import DiacriticTransfer, normalize_old_english
+from .morphology.text_utils import OENormalizer
 from .standard_elements import StandardElements
 from .variant_filter import BTVariantFilter
 
@@ -129,13 +130,29 @@ class BTVariantImporter:
                     if key:
                         rows.append(
                             VariantRow(
-                                spelling=unicodedata.normalize("NFC", spelling),
+                                spelling=self._index_style(spelling),
                                 key=key,
                                 headword=headword,
                                 line_no=line_no,
                             )
                         )
         return rows
+
+    @staticmethod
+    def _index_style(spelling: str) -> str:
+        """
+        Put a diphthong's macron on its first vowel, as the index writes it.
+
+        Args:
+            spelling: Variant as BT prints it (``dreōganne``).
+
+        Returns:
+            The NFC spelling in index style (``drēoganne``).
+
+        """
+        return unicodedata.normalize(
+            "NFC", OENormalizer.normalize_bt_display_spelling(spelling)
+        )
 
     def _screen(
         self,
