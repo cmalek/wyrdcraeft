@@ -66,3 +66,39 @@ def test_packaged_file_lists_the_adr_elements():
     assert elements.standardize("hīred-mann") == "hīrēd-mann"
     assert elements.standardize("ōþ-feolan") == "ōþ-feolan"
     assert elements.standardize("gebed-tīd") == "gebed-tīd"
+
+
+def test_load_accepts_inline_comments(tmp_path: Path):
+    path = tmp_path / "elements.txt"
+    path.write_text("ge-  # always plain\nbonde#compound\n", encoding="utf-8")
+
+    elements = StandardElements.load(path)
+
+    assert elements.standardize("gē-bindan") == "ge-bindan"
+    assert elements.standardize("hūs-bōnde") == "hūs-bonde"
+
+
+def test_conflicting_duplicate_entries_log_a_warning(caplog: pytest.LogCaptureFixture):
+    with caplog.at_level("WARNING"):
+        elements = StandardElements(["for-", "fōr-"])
+
+    assert any("fōr-" in record.message for record in caplog.records)
+    # The later entry wins, as documented.
+    assert elements.standardize("for-beran") == "fōr-beran"
+
+
+def test_identical_duplicate_entries_do_not_warn(caplog: pytest.LogCaptureFixture):
+    with caplog.at_level("WARNING"):
+        StandardElements(["for-", "for-"])
+
+    assert not caplog.records
+
+
+def test_missing_file_logs_a_warning_and_standardizes_nothing(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+):
+    with caplog.at_level("WARNING"):
+        elements = StandardElements.load(tmp_path / "missing.txt")
+
+    assert any("missing.txt" in record.message for record in caplog.records)
+    assert elements.standardize("ā-bacan") == "ā-bacan"

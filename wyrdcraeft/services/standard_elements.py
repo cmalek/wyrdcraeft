@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 import unicodedata
 from pathlib import Path
 from typing import TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+#: Module logger.
+LOGGER = logging.getLogger(__name__)
 
 #: Packaged, hand-edited list of standard element spellings.
 DEFAULT_STANDARD_ELEMENTS_PATH: Final[Path] = (
@@ -46,9 +50,31 @@ class StandardElements:
         for entry in entries:
             text = unicodedata.normalize("NFC", entry.strip())
             if text.endswith("-"):
-                self.prefixes[self._key(text[:-1])] = text[:-1]
+                self._add(self.prefixes, text[:-1], text)
             elif text:
-                self.compounds[self._key(text)] = text
+                self._add(self.compounds, text, text)
+
+    def _add(self, table: dict[str, str], spelling: str, entry: str) -> None:
+        """
+        Record one standard spelling, warning when it replaces a different one.
+
+        Side Effects:
+            Logs a warning on a conflicting duplicate; the later entry wins.
+
+        Args:
+            table: ``prefixes`` or ``compounds``.
+            spelling: The standard spelling without a trailing hyphen.
+            entry: The entry as written, for the warning.
+
+        """
+        key = self._key(spelling)
+        if table.get(key, spelling) != spelling:
+            LOGGER.warning(
+                "Standard element %r conflicts with %r; using the later one",
+                entry,
+                table[key],
+            )
+        table[key] = spelling
 
     @staticmethod
     def _key(text: str) -> str:
@@ -71,17 +97,23 @@ class StandardElements:
         """
         Read a standard-element file.
 
+        Side Effects:
+            Logs a warning when the file is missing.
+
         Args:
-            path: File with one entry per line; blank lines and ``#`` lines skipped.
+            path: File with one entry per line; ``#`` starts a comment anywhere
+                on a line.
 
         Returns:
-            The loaded elements.
+            The loaded elements; empty when the file is missing.
 
         """
+        if not path.exists():
+            LOGGER.warning("Standard element list missing: %s", path)
+            return cls([])
         lines = path.read_text(encoding="utf-8-sig").splitlines()
-        return cls(
-            line for line in lines if line.strip() and not line.lstrip().startswith("#")
-        )
+        entries = (line.split("#", maxsplit=1)[0] for line in lines)
+        return cls(entry for entry in entries if entry.strip())
 
     def standardize(self, form: str) -> str:
         """

@@ -69,7 +69,8 @@ Outputs:
   are spelled as listed in every index form before the transfer and the
   comparison. They count only where BT writes a hyphen after (prefix) or around
   (compound) the element, so `ge-an` and `gēan` stay apart. A source keeps its
-  own marks.
+  own marks. The file allows inline `#` comments; a conflicting duplicate entry
+  logs a warning and the later one wins.
 - Restoration and curation are related but not same thing: restoration consumes
   index data, curation mutates it.
 - Macron-index curation is a separate extract from dictionary SQLite access.

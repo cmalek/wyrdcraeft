@@ -2,6 +2,7 @@
 # A trailing hyphen marks a prefix; no hyphen marks a compound element.
 # Write each entry as it should be spelled; marks are matched ignoring case,
 # eth/thorn and diacritics. BT's mark variants of these are an editorial choice.
+# A `#` starts a comment, also after an entry.
 a-
 for-
 fore-

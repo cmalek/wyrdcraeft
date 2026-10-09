@@ -538,6 +538,12 @@ class MacronApplicator:
     Args:
         index_path: Path to macron index JSON.
 
+    Keyword Args:
+        standard_elements: Standard element spellings; the packaged list when
+            omitted.
+        policy: How ambiguous keys that do not collapse are treated: ``leave``
+            (default), ``auto`` or ``union``.
+
     """
 
     def __init__(
@@ -916,7 +922,8 @@ class MacronApplicator:
             unaligned index form). is_unknown is True when the token normalized
             but was not in the index. The last item is the index display form
             when it could not be aligned to the source (token returned
-            unchanged), else ``None``.
+            unchanged, also for a guess, which then keeps its plain ambiguity
+            row), else ``None``.
 
         """
         normalized = normalize_old_english(word)
@@ -972,8 +979,8 @@ class MacronApplicator:
 
         Returns:
             The same tuple as :meth:`apply`. A guessed token carries its ambiguity
-            row with ``applied_form`` and ``policy`` set, or the plain row when
-            the form cannot be aligned.
+            row with ``applied_form`` and ``policy`` set; when the form cannot be
+            aligned it returns the plain row and the unaligned index form.
 
         """
         normalized, line_number, word_number = where
@@ -993,7 +1000,8 @@ class MacronApplicator:
             return transformed, None, False, None
         row = self._ambiguity_row(word, normalized, line_number, word_number)
         if transformed is None:
-            return word, row, False, None
+            # Report the row and why the guess could not be written.
+            return word, row, False, marked
         row = row.model_copy(update={"applied_form": transformed, "policy": guessed})
         return transformed, row, False, None
 

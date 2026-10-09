@@ -974,3 +974,24 @@ def test_restorer_applied_form_is_the_text_actually_written(tmp_path: Path):
     assert result.ambiguities[0].policy == "union"
     # The palatalizers run after the macron step; the report must show their result.
     assert result.ambiguities[0].applied_form == result.marked_text.strip()
+
+
+def test_apply_guess_that_cannot_be_aligned_is_also_reported_as_unaligned(
+    tmp_path: Path,
+):
+    index_path = tmp_path / "index.json"
+    # Hand-edited bad data: the options do not spell the key.
+    _write_index(index_path, unique={}, ambiguous={"ab": ["ac", "āc"]})
+    applicator = MacronApplicator(index_path, policy="union")
+
+    transformed, ambiguity, is_unknown, unaligned = applicator.apply("ab", 1, 1)
+
+    assert transformed == "ab"
+    assert ambiguity is not None
+    assert ambiguity.policy is None
+    assert not is_unknown
+    assert unaligned == "āc"
+
+    result = DiacriticRestorer(macron_applicator=applicator).restore_text("ab\n")
+    assert [(u.word, u.index_form) for u in result.unaligned] == [("ab", "āc")]
+    assert len(result.ambiguities) == 1

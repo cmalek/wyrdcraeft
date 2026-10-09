@@ -83,10 +83,12 @@ An ambiguous key that does not collapse is handled by ``--ambiguity-policy``:
 
 - ``auto`` (default): apply the union of the options' marks when some option
   is hyphenated or the key has 8 or more letters. Not when the marks differ only
-  before a hyphen (``an-``/``ān-``, ``ge-an``/``gēan``): that may be a real
+  before the first hyphen of at least one option (``an-``/``ān-``, ``ge-an``/``gēan``): that may be a real
   difference in meaning, so the token is left unchanged and reported.
 - ``leave``: change nothing; report every ambiguous token.
-- ``union``: apply the union of the marks everywhere. It is a guess. A letter
+- ``union``: apply the union of the marks to every key it can; a key whose
+  options cannot be lined up letter for letter stays reported and unchanged. It
+  is a guess. A letter
   where the options put two of macron, breve and diaeresis gets no mark.
 
 A key that was marked completed with ``diacritic-disambiguate`` is never
