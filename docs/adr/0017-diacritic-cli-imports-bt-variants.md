@@ -9,7 +9,7 @@ Follows [ADR 0015](0015-mark-diacritics-is-additive-transfer.md) and
 After ADR 0016 nothing repeatable adds BT variants to the packaged macron index;
 the 462 variants added so far came from a throwaway script that read only the
 third `@` field of `oe_bt.txt`. This ADR records the importer the user wants.
-Nothing here is implemented yet. Hand-editing commands are in
+Implemented; the packaged index has not been imported yet. Hand-editing commands are in
 [ADR 0018](0018-diacritic-write-commands-warn-on-non-normalizing-forms.md).
 
 ## Decisions
@@ -119,8 +119,8 @@ Nothing here is implemented yet. Hand-editing commands are in
 
 - Ordering is resolved: ADR 0020 is implemented, so the importer may store BT's
   diphthong style as printed.
-- The review report's file name and format, and the command name
-  (`diacritic import-variants` is a working name).
+- Resolved: the command is `diacritic import-variants`; the report is JSON, written
+  to `bt-variant-import-report.json` by default.
 
 ## Consequences
 
@@ -128,3 +128,26 @@ Nothing here is implemented yet. Hand-editing commands are in
 - The first real run adds roughly 2,450 keys and lists about 90 collisions plus
   the rejected-by-gate variants (roughly 1,900 keys) for review, so it produces
   both a real change and a review report.
+
+## Implementation notes
+
+- Classes: `BTLineParser.raw_variants` (un-normalized headword and variants),
+  `DiacriticTransfer.mark_relation` (`same`/`fewer`/`more`/`conflict`),
+  `BTVariantFilter` and `BTVariantImporter` (`wyrdcraeft/services`), report
+  models in `wyrdcraeft/models/variant_import.py`, command in
+  `wyrdcraeft/cli/diacritic.py`.
+- Stoplist: `wyrdcraeft/etc/diacritic/bt_variant_stoplist.txt`, hand-edited. No
+  affix rule. `below_gate` lists only keys absent from the index. Added forms are
+  BT's spelling, lowercased.
+- Dry run on the packaged source (index unchanged): 2,439 would be added; 80
+  collisions (75 `more_marks`, 4 `conflicting_marks`, 1 `new_pattern`); 10
+  conflicting new keys; 1,721 below-gate rows. Rejected: frequent 3,309, stoplist
+  4,568, fragment 267, all caps 160. Skipped: same marks 4,081, fewer marks 138,
+  completed 34, matches an option 202.
+- Known residue: about 66 additions have keys of three letters or fewer and
+  roughly a fifth of those are noise (`acl`, `axa`, `afn`, `ami`, a runic `ᛁ`),
+  because the gate allows an edit distance of 2. Lowering it to 1 would lose 277
+  mostly genuine dialect spellings (`hire`, `donne`, `walde`). Extend the
+  stoplist after reviewing the report.
+- The packaged index has not been changed. Run
+  `wyrdcraeft diacritic import-variants --apply` and review the diff.

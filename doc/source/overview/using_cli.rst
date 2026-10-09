@@ -106,6 +106,7 @@ The following pages document the CLI commands in detail:
    command_source_convert
    command_diacritic_disambiguate
    command_diacritic_add
+   command_diacritic_import_variants
    command_diacritic_delete
    command_settings
    command_morphology_generate

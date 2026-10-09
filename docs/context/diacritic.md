@@ -12,6 +12,7 @@ This capability spans both text restoration and index maintenance.
 - `wyrdcraeft source mark-diacritics`
 - `wyrdcraeft diacritic add`
 - `wyrdcraeft diacritic delete`
+- `wyrdcraeft diacritic import-variants`
 - `wyrdcraeft diacritic-disambiguate`
 
 ## Primary Python Entrypoints
@@ -71,6 +72,10 @@ Outputs:
   (compound) the element, so `ge-an` and `gēan` stay apart. A source keeps its
   own marks. The file allows inline `#` comments; a conflicting duplicate entry
   logs a warning and the later one wins.
+- `diacritic import-variants` (`BTVariantImporter`, `BTVariantFilter`) adds BT
+  variants as unique entries, dry run by default. It never changes an existing
+  key; collisions, conflicting new keys and below-gate variants go to a review
+  report (`bt-variant-import-report.json`).
 - Restoration and curation are related but not same thing: restoration consumes
   index data, curation mutates it.
 - Macron-index curation is a separate extract from dictionary SQLite access.

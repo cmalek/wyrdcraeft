@@ -9,10 +9,12 @@ from rich.markup import escape
 from rich.prompt import Prompt
 
 from ..models import MacronIndexPayload
+from ..services.dictionary.resources import default_bt_source_path
 from ..services.markup import (
     DEFAULT_MACRON_INDEX_PATH,
     normalize_old_english,
 )
+from ..services.variant_importer import BTVariantImporter
 from .utils import print_info
 
 
@@ -265,3 +267,83 @@ def diacritic_delete(
     del payload.unique[key]
     _write_macron_index_payload(index_path, payload)
     print_info(escape(f"Deleted pair: normalized={key!r} macron={macron_form!r}."))
+
+
+@diacritic_group.command(
+    name="import-variants",
+    help=(
+        "Add Bosworth-Toller variant spellings to the macron index as their own "
+        "entries. Dry run unless --apply is given."
+    ),
+)
+@click.option(
+    "--source-path",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Bosworth-Toller oe_bt.txt. Default: the packaged source.",
+)
+@click.option(
+    "--index-path",
+    type=click.Path(path_type=Path),
+    default=DEFAULT_MACRON_INDEX_PATH,
+    show_default=True,
+    help="Macron index JSON path.",
+)
+@click.option(
+    "--apply",
+    "apply_changes",
+    is_flag=True,
+    help="Write the new entries to the index (default: dry run).",
+)
+@click.option(
+    "--report-output",
+    type=click.Path(path_type=Path),
+    default=Path("bt-variant-import-report.json"),
+    show_default=True,
+    help="Review report JSON: collisions, conflicting keys, below-gate variants.",
+)
+def diacritic_import_variants(
+    source_path: Path | None,
+    index_path: Path,
+    apply_changes: bool,
+    report_output: Path,
+) -> None:
+    """
+    Import Bosworth-Toller variants into the unique list of the macron index.
+
+    A variant becomes its own entry, spelled as BT prints it (lowercased). An
+    existing key is never changed; collisions, conflicting new keys and
+    variants that are not spellings of their headword go to the report.
+
+    Side Effects:
+        Writes the report; with ``--apply`` also writes the index.
+
+    Args:
+        source_path: Bosworth-Toller source; packaged source when omitted.
+        index_path: Path to macron index JSON file.
+        apply_changes: If True, write the new entries to the index.
+        report_output: Where to write the review report.
+
+    """
+    payload = _load_macron_index_payload(index_path)
+    importer = BTVariantImporter()
+    report = importer.build_report(source_path or default_bt_source_path(), payload)
+
+    report_output.parent.mkdir(parents=True, exist_ok=True)
+    report_output.write_text(
+        json.dumps(report.model_dump(mode="json"), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    if apply_changes:
+        added = importer.apply(report, payload)
+        if added:
+            _write_macron_index_payload(index_path, payload)
+        verb, count = "Added", added
+    else:
+        verb, count = "Would add", len(report.additions)
+    print_info(
+        f"{verb} {count} new keys. For review in {report_output}: "
+        f"{len(report.collisions)} collisions, "
+        f"{len(report.conflicting_new)} conflicting new keys, "
+        f"{len(report.below_gate)} variants below the similarity gate."
+    )
