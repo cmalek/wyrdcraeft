@@ -229,6 +229,100 @@ def test_build_verb_sidebar_places_ps_su_sg_on_subjunctive_sing_row() -> None:
     assert subjunctive_pl_row[3] == "-"
 
 
+def _row(form: str, function: str, wordclass: str) -> MorphologyRowPayload:
+    return MorphologyRowPayload(
+        form=form,
+        formi=form,
+        function=function,
+        wordclass=wordclass,
+        class1="",
+        class2="",
+        class3="",
+    )
+
+
+def test_build_pronoun_sidebar_lays_out_case_gender_and_instrumental() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            _row("ic", "SgMaNo", "pronoun"),
+            _row("mec", "SgFeAc", "pronoun"),
+            _row("hit", "SgNeGe", "pronoun"),
+            _row("we", "PlMaNo", "pronoun"),
+            _row("þy", "SgNeIs", "pronoun"),
+            _row("", "SgMaDa", "pronoun"),
+            _row("junk", "nope", "pronoun"),
+        ],
+        wordclass="pronoun",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Pronoun"
+    assert section.columns == ("", "Masc sg", "Fem sg", "Neut sg", "Plural")
+    assert next(row for row in section.rows if row[0] == "Nom") == (
+        "Nom",
+        "ic",
+        "-",
+        "-",
+        "we",
+    )
+    assert next(row for row in section.rows if row[0] == "Acc") == (
+        "Acc",
+        "-",
+        "mec",
+        "-",
+        "-",
+    )
+    assert next(row for row in section.rows if row[0] == "Inst") == (
+        "Inst",
+        "-",
+        "-",
+        "þy",
+        "-",
+    )
+    assert all("junk" not in cell for row in section.rows for cell in row)
+
+
+def test_blank_pronoun_surface_keeps_flat_pronoun_table() -> None:
+    sidebar = build_paradigm_sidebar(
+        [_row("", "SgMaNo", "pronoun")],
+        wordclass="pronoun",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Pronoun"
+    assert section.columns[0] == "form"
+    assert "nominative" in section.rows[0]
+
+
+def test_unparsed_pronoun_code_falls_back_to_forms() -> None:
+    sidebar = build_paradigm_sidebar(
+        [_row("hwā", "nope", "pronoun")],
+        wordclass="pronoun",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Forms"
+    assert section.rows[0][0] == "hwā"
+
+
+def test_unparsed_verb_code_stays_on_verb_grid_as_dashes() -> None:
+    sidebar = build_paradigm_sidebar(
+        [_row("wesan", "???", "verb")],
+        wordclass="verb",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Verb"
+    assert all("wesan" not in cell for row in section.rows for cell in row)
+    assert any(cell == "-" for row in section.rows for cell in row)
+
+
+def test_adverb_without_degree_falls_back_to_forms() -> None:
+    sidebar = build_paradigm_sidebar(
+        [_row("wel", "???", "adverb")],
+        wordclass="adverb",
+    )
+    section = sidebar.sections[0]
+    assert section.title == "Forms"
+    assert section.rows[0][0] == "wel"
+
+
 def test_build_adverb_sidebar_decodes_superlative_su_code() -> None:
     sidebar = build_paradigm_sidebar(
         [
