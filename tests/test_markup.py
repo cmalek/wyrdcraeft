@@ -955,3 +955,22 @@ def test_restorer_reports_guessed_tokens_with_policy(tmp_path: Path):
         ("ac", "āc", "union"),
         ("goldhord", "goldhōrd", "union"),
     ]
+
+
+def test_restorer_applied_form_is_the_text_actually_written(tmp_path: Path):
+    index_path = tmp_path / "index.json"
+    _write_index(
+        index_path,
+        unique={},
+        ambiguous={"geceosan": ["ge-ceosan", "ge-cēosan"]},
+    )
+    restorer = DiacriticRestorer(
+        macron_applicator=MacronApplicator(index_path, policy="union")
+    )
+
+    result = restorer.restore_text("geceosan\n")
+
+    assert len(result.ambiguities) == 1
+    assert result.ambiguities[0].policy == "union"
+    # The palatalizers run after the macron step; the report must show their result.
+    assert result.ambiguities[0].applied_form == result.marked_text.strip()

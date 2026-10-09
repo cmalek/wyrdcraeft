@@ -1474,9 +1474,13 @@ class DiacriticRestorer:
                     UnalignedToken(word=token, index_form=index_form, **position)
                 )
 
-            segments.append(
-                self.c_palatalizer.palatalize(self.g_palatalizer.palatalize(macroned))
+            written = self.c_palatalizer.palatalize(
+                self.g_palatalizer.palatalize(macroned)
             )
+            if ambiguity is not None and ambiguity.applied_form is not None:
+                # Report the text actually written, after the palatalizers.
+                ambiguity.applied_form = written
+            segments.append(written)
             last_end = end
         segments.append(line[last_end:])
         return "".join(segments)
