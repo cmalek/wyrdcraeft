@@ -53,6 +53,14 @@ def test_reject_reason(spelling: str, headword_count: int, expected: str | None)
         ("classes", "stregdan", False),
         ("bacest", "bacan", False),  # a real inflected form: reported, not imported
         ("seotu", "seoþþan", False),
+        # Dialect and scribal spellings: the same word with other vowel digraphs.
+        ("wirþe", "weorþ", True),
+        ("byric", "beorc", True),
+        ("gylpe", "gilpan", True),
+        ("trywþ", "treowþe", True),
+        ("tihian", "teohhian", True),
+        ("ys", "eom", True),  # Anglian "is" under the verb "to be"
+        ("mean", "stregdan", False),
     ],
 )
 def test_within_gate(key: str, headword_key: str, expected: bool):

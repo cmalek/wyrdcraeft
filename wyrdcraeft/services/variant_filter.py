@@ -28,6 +28,16 @@ FRAGMENT_RE: Final[re.Pattern[str]] = re.compile(r"-\w$")
 MIN_GATE_DISTANCE: Final[int] = 2
 #: The gate also allows one edit per this many letters of the headword key.
 GATE_LENGTH_DIVISOR: Final[int] = 3
+#: Spellings Old English dialects and scribes interchange, folded before comparing.
+DIALECT_DIGRAPH_RE: Final[re.Pattern[str]] = re.compile(r"ea|eo|ie|io|ia|ei|ey|iu|eu")
+#: Single-letter correspondences folded before comparing (``y`` as ``i``, ...).
+DIALECT_LETTERS: Final[dict[str, str]] = {
+    "æ": "e",
+    "y": "i",
+    "k": "c",
+    "v": "f",
+    "w": "u",
+}
 #: Fewest letters for a token to count as ALL-CAPS text.
 MIN_ALL_CAPS_LETTERS: Final[int] = 2
 
@@ -104,20 +114,60 @@ class BTVariantFilter:
         """
         Tell whether a variant is a spelling of its own headword.
 
+        The test runs on the keys as written, then again after the dialect
+        correspondences are folded together (``wirþe`` against ``weorþ``).
+
         Args:
             key: Normalized key of the variant.
             headword_key: Normalized key of the headword it is listed under.
 
         Returns:
-            ``True`` when the edit distance is at most
+            ``True`` when the edit distance, plain or dialect-folded, is at most
             ``max(2, len(headword_key) // 3)``.
 
         """
-        limit = max(MIN_GATE_DISTANCE, len(headword_key) // GATE_LENGTH_DIVISOR)
-        previous = list(range(len(headword_key) + 1))
-        for i, char in enumerate(key, start=1):
+        folded_key = BTVariantFilter._fold_dialects(key)
+        folded_headword = BTVariantFilter._fold_dialects(headword_key)
+        return any(
+            BTVariantFilter._edit_distance(a, b)
+            <= max(MIN_GATE_DISTANCE, len(b) // GATE_LENGTH_DIVISOR)
+            for a, b in ((key, headword_key), (folded_key, folded_headword))
+        )
+
+    @staticmethod
+    def _fold_dialects(key: str) -> str:
+        """
+        Collapse spellings that dialects and scribes interchange.
+
+        Args:
+            key: Normalized key.
+
+        Returns:
+            The key with diphthong digraphs reduced to ``e``, ``y`` read as
+            ``i`` and so on, and doubled letters collapsed.
+
+        """
+        folded = DIALECT_DIGRAPH_RE.sub("e", key)
+        folded = "".join(DIALECT_LETTERS.get(char, char) for char in folded)
+        return re.sub(r"(.)\1+", r"\1", folded)
+
+    @staticmethod
+    def _edit_distance(left: str, right: str) -> int:
+        """
+        Count the single-letter edits between two strings.
+
+        Args:
+            left: One string.
+            right: The other string.
+
+        Returns:
+            The Levenshtein distance.
+
+        """
+        previous = list(range(len(right) + 1))
+        for i, char in enumerate(left, start=1):
             current = [i]
-            for j, other in enumerate(headword_key, start=1):
+            for j, other in enumerate(right, start=1):
                 current.append(
                     min(
                         previous[j] + 1,
@@ -126,4 +176,4 @@ class BTVariantFilter:
                     )
                 )
             previous = current
-        return previous[-1] <= limit
+        return previous[-1]
