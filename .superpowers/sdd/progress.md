@@ -1,43 +1,21 @@
-# SDD Progress — ADR 0010 LLM/unstructured leave source convert
+# SDD Progress — ADR 0021 editorial merger ops and edit record
 
-Branch: feat/adr-0010-llm-unstructured-leave
-Plan: docs/superpowers/plans/2026-08-31-llm-unstructured-leave-source-convert.md
-Spec: docs/adr/0010-llm-and-unstructured-leave-source-convert.md
-Models: implementer=cursor-grok-4.6-medium-fast, reviewer=composer-2.5-fast
-Workspace: /Users/cmalek/src/workspace/wyrdcraeft (in-place branch; dirty ADR/docs stay uncommitted)
+Branch: feat/adr-0021-editorial-merger-ops
+Base: f557e6f888adb77aac4a627e1663bfc67fae827a
+Plan: docs/superpowers/plans/2026-10-09-editorial-merger-ops-and-edit-record.md
+Spec: docs/adr/0021-editorial-merger-ops-and-edit-record.md
+Workspace: /Users/cmalek/src/personal/wyrdcraeft (in-place branch; do not commit unless user asks)
+Models: implementer=composer-2.5-fast (mechanical), reviewer=composer-2.5-fast; Task 3 implementer=cursor-grok-4.6-medium
 
-Task 1: complete (commits 373ac7c..4f8b032, review clean)
-Task 2: complete (commits 4f8b032..8a49d05, review clean)
-Task 3: complete (commits 8a49d05..7f69d34, review clean; Task 5 folded into this commit)
-Task 4: complete (commits 7f69d34..0b16f1b, review clean)
-Task 5: complete (no new commit; work in 7f69d34, review clean)
-Task 6: complete (commits 0b16f1b..1e1d611, review clean)
-Task 7: complete (commits 1e1d611..2987772, review clean)
-Task 8: complete (commits 2987772..81a07cd, review clean)
+Task 1: complete (no commit; unstaged tests; review clean. ⚠️ pytest/__all__/constructor resolved from report + codegraph: BTEditRecord still at editorial_merger.py:73)
+Task 2: complete (no commit; review spec ✅; Important gate noise adjudicated as pre-existing characterization/baseline, not fixed; isort import order Minor)
+Task 2 notes: ruff I001 ordered BTEditorialOp before BTEditRecord in imports; __all__ matches brief
+Task 3: pending
 
-Whole-branch review: ready to merge (373ac7c..81a07cd, 9 commits; no Critical/Important)
+Minor findings (roll up for final review):
+- Task 2: isort import order (BTEditorialOp before BTEditRecord) vs brief snippet order; __all__ matches brief
+- Task 2: exact brief ruff/mypy include characterization tests with pre-existing ISC004/mypy; napoleon-gate 93 unrelated baseline hits
 
----
-
-# Prior ledger (Phase A — do not treat as ADR 0010)
-
-# Phase A SDD Progress
-
-Base: 8f0a2bf663c95f52bbb469251c000bcb0aad263d (master)
-
-Task 1: complete (a25001c, spec + code review clean)
-Task 2: complete (1b76616, spec + code review clean)
-Task 3: complete (1939307, spec + code review clean after bugbot fixes)
-Task 4: complete (b528f50, spec fix applied pre-commit; bugbot clean)
-Task 5: complete (a71ab14, spec + code review clean)
-Task 6: complete (no code changes — satisfied by Task 3; report at .superpowers/sdd/task-6-report.md)
-Task 7: complete (7123d96, spec + code review clean)
-Task 8: complete (phase commit, spec + code review clean; lexicon build aligned to pos_id)
-
-Phase A gate: complete
-- Validation: ruff/mypy/napoleon on Phase A targets; morphology (65), dictionary (359), lexicon (102); refactor_baseline unchanged
-- Gate A spec review: pass (schema + docs checklist)
-- Gate B code review: pass after lexicon/build.py pos_id alignment and lexicon test updates
-- Manual smoke: parts_of_speech seeded (12 rows) after migration; plan `--limit` flag not on dictionary CLI
-
-Next: Phase B — forms FK columns (`phase-b-forms-foreign-keys.md`)
+Task 3: complete (no commit; spec ✅; quality Approved; ADR wording fix after whole-branch Important)
+Whole-branch review: ready to merge after ADR wording fix (re-review ✅)
+Gauntlet: Tier 2 — full pytest 1355 passed; product ruff/mypy clean; napoleon 93 unrelated baseline

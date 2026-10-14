@@ -106,7 +106,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-addopts = ["--randomly-seed=0"]
+addopts = ["--randomly-seed=0", "-m", "not morphology_full"]
 markers = [
     "morphology: Morphology generator tests and reference contracts",
     "morphology_full: Optional full-dataset morphology smoke checks",

@@ -39,9 +39,9 @@ Implement the correct product code directly. Do not add runtime patching, indire
 
 ## Project Structure (Mandatory)
 
-1. Data models (Pydantic, `@dataclass`) → semantically named files in `regis_inspector.models`; mostly bare models plus validation
-2. Business logic → service classes in `regis_inspector.services`; inject `click`/`rich`/`textual` from CLI when needed
-3. CLI/user interaction/display → `regis_inspector.cli` only; no business logic there
+1. Data models (Pydantic, `@dataclass`) → semantically named files in `wyrdcraeft.models`; mostly bare models plus validation
+2. Business logic → service classes in `wyrdcraeft.services`; inject `click`/`rich`/`textual` from CLI when needed
+3. CLI/user interaction/display → `wyrdcraeft.cli` only; no business logic there
 
 ## AWS Interaction
 
@@ -62,8 +62,6 @@ Prefer cohesive, human-comprehensible classes over loose function collections, e
 - Keep the public service a thin facade with a small entry-point API
 - Put per-run orchestration and mutable run state in a dedicated execution/orchestrator class
 - Prefer stateless collaborators; isolate per-run mutable state in one accumulator/orchestrator
-
-Reference: `ExtractionOrchestrator` in `regis_inspector/services/orchestrator.py` (per-run orchestration + `RunStats` accumulator, driving stateless collaborators like `DdlExtractor`).
 
 ## Documentation Contract (Required)
 
