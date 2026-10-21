@@ -218,6 +218,7 @@ class OldEnglishSearchInput(Input):
             else:
                 self.replace(line, *selection)
         event.stop()
+        event.prevent_default()
 
 
 class _MainResultItem(ListItem):

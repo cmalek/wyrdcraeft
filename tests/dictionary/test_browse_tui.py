@@ -710,6 +710,21 @@ async def test_browse_search_accepts_keyboard_unicode_characters(
 
 
 @pytest.mark.anyio
+async def test_browse_search_paste_inserts_once_in_nfc(
+    lexicon_source_db: Path,
+) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            search = app.query_one("#search-input", Input)
+            search.post_message(events.Paste("a\u0304word"))
+            await pilot.pause()
+            assert search.value == "āword"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
 async def test_browse_oe_character_buttons_use_light_text_on_dark_background(
     lexicon_source_db: Path,
 ) -> None:
