@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from textual import events
 from textual.containers import Horizontal, Vertical
+from textual.selection import Selection
 from textual.widgets import Button, DataTable, Input, ListView, Static
 
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
@@ -486,8 +487,9 @@ async def test_browse_single_main_result_auto_shows_details(
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "browseonly")
 
+            title = _static_text(app.query_one("#details-title", Static))
+            assert "Details: browseonly" in title
             details_text = _details_text(app)
-            assert "browseonly" in details_text
             assert "POS: noun" in details_text
             assert "unique browse-only gloss" in details_text
 
@@ -896,6 +898,12 @@ async def test_browse_shows_connect_message_before_search(
             details_text = _static_text(app.query_one("#details-content", Static))
             assert "Connected to" in details_text
             assert "Search and select a result to view details." in details_text
+            copy_button = app.query_one("#copy-definition", Button)
+            assert copy_button.disabled is True
+            assert "Details" in _static_text(app.query_one("#details-title", Static))
+            ancestor_ids = {node.id for node in copy_button.ancestors}
+            assert "details-title-bar" in ancestor_ids
+            assert "details-content-scroll" not in ancestor_ids
     finally:
         app.query_service.close()
 
@@ -911,9 +919,153 @@ async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> N
             main_list = app.query_one("#results-list", ListView)
             assert isinstance(main_list.children[0], _MainResultItem)
 
+            title = _static_text(app.query_one("#details-title", Static))
+            assert "Details: abbad" in title
             details_text = _details_text(app)
-            assert "abbad" in details_text
             assert "POS: noun" in details_text
+    finally:
+        app.query_service.close()
+
+
+def _insert_two_senses_out_of_path_order(db_path: Path, *, headword: str) -> None:
+    """Insert one entry whose ``order_index`` disagrees with ``sense_path``."""
+    _insert_entry(db_path, headword=headword, pos="noun", summary_sense="placeholder")
+    norm_key = normalize_old_english(headword)
+    with sqlite3.connect(db_path) as connection:
+        row = connection.execute(
+            "SELECT id FROM bt_entries WHERE norm_key = ?",
+            (norm_key,),
+        ).fetchone()
+        assert row is not None
+        entry_id = int(row[0])
+        connection.execute("DELETE FROM bt_senses WHERE entry_id = ?", (entry_id,))
+        for order_index, sense_path, gloss in ((0, "2", "second"), (1, "1", "first")):
+            connection.execute(
+                """
+                INSERT INTO bt_senses (
+                    entry_id, sense_label, gloss_en, order_index, sense_path,
+                    parent_path, source_label_raw, source_fragment_raw,
+                    prefix_fragment_raw, modifiers_json,
+                    grammatical_context_json, usage_note
+                ) VALUES (?, '', ?, ?, ?, NULL, '', ?, '', '[]', '[]', '')
+                """,
+                (entry_id, gloss, order_index, sense_path, gloss),
+            )
+        connection.commit()
+
+
+@pytest.mark.anyio
+async def test_copy_definition_button_copies_selected_entry(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="copyme",
+        pos="noun",
+        summary_sense="time; time; date",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.pause()
+            assert app.query_one("#copy-definition", Button).disabled is False
+            await pilot.click("#copy-definition")
+            await pilot.pause()
+            assert app.clipboard == "time, date"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_definition_super_c_copies_the_same_line(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="copyme",
+        pos="noun",
+        summary_sense="time; time; date",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.pause()
+            await pilot.press("super+c")
+            await pilot.pause()
+            assert app.clipboard == "time, date"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_definition_follows_order_index_not_sense_path(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_two_senses_out_of_path_order(lexicon_source_db, headword="ordered")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "ordered")
+            await pilot.pause()
+            assert app.clipboard == ""
+            await pilot.click("#copy-definition")
+            await pilot.pause()
+            assert app.clipboard == "second; first"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_definition_stays_disabled_without_a_gloss(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="emptygloss",
+        pos="noun",
+        summary_sense="",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "emptygloss")
+            await pilot.pause()
+            title = _static_text(app.query_one("#details-title", Static))
+            assert "Details: emptygloss" in title
+            assert app.query_one("#copy-definition", Button).disabled is True
+            await pilot.press("ctrl+c")
+            await pilot.pause()
+            assert app.clipboard == ""
+            assert any(
+                "quit" in notification.message.casefold()
+                for notification in app._notifications
+            )
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_ctrl_c_in_search_selection_does_not_copy_the_definition(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="copyme",
+        pos="noun",
+        summary_sense="time; time; date",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.pause()
+            search = app.query_one("#search-input", Input)
+            search.selection = Selection(0, len(search.value))
+            await pilot.press("ctrl+c")
+            await pilot.pause()
+            assert app.clipboard == search.value
     finally:
         app.query_service.close()
 

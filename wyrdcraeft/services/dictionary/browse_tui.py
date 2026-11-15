@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from textual import events
     from textual.binding import BindingType
 
+from textual.actions import SkipAction
 from textual.app import App, ComposeResult
+from textual.binding import Binding
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
@@ -29,6 +31,7 @@ from wyrdcraeft.services.dictionary.browse_query import (
     MorphologyRow,
     filter_display_variants,
 )
+from wyrdcraeft.services.dictionary.definition_line import definition_line
 from wyrdcraeft.services.dictionary.etymology_display import (
     format_etymology_display,
     parse_etymology_text,
@@ -622,11 +625,10 @@ def _format_entry_header_text(details: _EntryDetailsLike) -> str:
         details: Entry details payload from the query service.
 
     Returns:
-        Multi-line header text with headword, POS, morph class, and metadata.
+        Multi-line header text with POS, morph class, and metadata.
 
     """
     lines = [
-        details.headword,
         f"POS: {_format_pos_label(details.pos)}",
     ]
     variants = _join_labels(filter_display_variants(details.variants))
@@ -729,6 +731,20 @@ class DictionaryBrowseApp(App[None]):
 
   #results-title,
   #details-title {
+      height: auto;
+  }
+
+  #details-title-bar {
+      height: auto;
+  }
+
+  #details-title {
+      width: 1fr;
+  }
+
+  #copy-definition {
+      dock: right;
+      min-width: 8;
       height: auto;
   }
 
@@ -890,6 +906,20 @@ class DictionaryBrowseApp(App[None]):
     _morphology_table: DataTable
     #: Initial details-pane message shown before the first search.
     _initial_details_message: str
+    #: Definition line copied by the Copy control for the current entry.
+    _definition_line: str
+    #: Title widget above the details pane.
+    _details_title: Static
+    #: Button that copies the current definition line.
+    _copy_button: Button
+
+    #: Key bindings. Copy runs after focused widgets decline ``ctrl+c``; the second
+    #: ``ctrl+c`` binding restores Textual's quit hint, which a subclass binding
+    #: for the same key would otherwise replace.
+    BINDINGS: ClassVar[list[BindingType]] = [
+        Binding("ctrl+c,super+c", "copy_definition", "Copy definition", show=False),
+        Binding("ctrl+c", "help_quit", show=False, system=True),
+    ]
 
     def __init__(
         self,
@@ -915,6 +945,8 @@ class DictionaryBrowseApp(App[None]):
         self.db_path = db_path
         #: Last main-result hits shown in the results pane.
         self._main_hits = []
+        #: Definition line copied by the Copy control for the current entry.
+        self._definition_line = ""
         default_message = (
             f"Connected to {db_path}. Search and select a result to view details."
         )
@@ -946,7 +978,9 @@ class DictionaryBrowseApp(App[None]):
                 yield Static("Results", id="results-title")
                 yield ListView(id="results-list")
             with Vertical(id="details-pane"):
-                yield Static("Details", id="details-title")
+                with Horizontal(id="details-title-bar"):
+                    yield Static("Details", id="details-title")
+                    yield Button("Copy", id="copy-definition", disabled=True)
                 with Vertical(id="details-body"):
                     with ScrollableContainer(id="details-content-scroll"):
                         yield Static(
@@ -973,6 +1007,8 @@ class DictionaryBrowseApp(App[None]):
 
         """
         self._main_results_list = self.query_one("#results-list", ListView)
+        self._details_title = self.query_one("#details-title", Static)
+        self._copy_button = self.query_one("#copy-definition", Button)
         self._details_content = self.query_one("#details-content", Static)
         self._wright_sections_title = self.query_one("#wright-sections-title", Static)
         self._wright_sections_list = self.query_one("#wright-sections-list", ListView)
@@ -982,6 +1018,22 @@ class DictionaryBrowseApp(App[None]):
         self.focus_search()
         for button in self.query(".oe-char-button"):
             button.can_focus = False
+
+    def action_copy_definition(self) -> None:
+        """
+        Copy the current entry's definition line to the clipboard.
+
+        Raises:
+            SkipAction: When no definition line is available, so other
+                bindings such as Textual's ``ctrl+c`` quit hint can run.
+
+        Side Effects:
+            Writes the definition line to the app clipboard.
+
+        """
+        if not self._definition_line:
+            raise SkipAction
+        self.copy_to_clipboard(self._definition_line)
 
     def focus_search(self) -> None:
         """Return keyboard focus to the search input field."""
@@ -995,9 +1047,14 @@ class DictionaryBrowseApp(App[None]):
             event: Textual button press event.
 
         Side Effects:
-            Inserts the pressed character into the search input.
+            Inserts the pressed character into the search input, or copies the
+            current definition line for the Copy button.
 
         """
+        if event.button.id == "copy-definition":
+            self.action_copy_definition()
+            event.stop()
+            return
         if event.button.has_class("oe-char-button"):
             search = self.query_one("#search-input", Input)
             character = event.button.name
@@ -1138,13 +1195,21 @@ class DictionaryBrowseApp(App[None]):
             entry_id: Dictionary entry identifier from search results.
 
         Side Effects:
-            Updates details and morphology sidebar widgets.
+            Updates the title, definition line, Copy button, and details and
+            morphology sidebar widgets.
 
         """
         details = self.query_service.get_details(entry_id)
         if details is None:
             self._show_idle_details(f"Entry {entry_id} is unavailable.")
             return
+        self._details_title.update(f"Details: {details.headword}")
+        ordered_senses = sorted(details.senses, key=lambda sense: sense.order_index)
+        self._definition_line = definition_line(
+            details.pos,
+            [sense.gloss_en for sense in ordered_senses],
+        )
+        self._copy_button.disabled = not self._definition_line
         self._details_content.update(self._format_entry_header(details))
         self._details_body_content.update(self._format_entry_body(details))
         self._populate_wright_sections(details)
@@ -1174,9 +1239,13 @@ class DictionaryBrowseApp(App[None]):
             message: Idle-state message for the details pane.
 
         Side Effects:
-            Updates details and morphology sidebar widgets.
+            Resets the title, definition line, Copy button, and details and
+            morphology sidebar widgets.
 
         """
+        self._details_title.update("Details")
+        self._definition_line = ""
+        self._copy_button.disabled = True
         self._details_content.update(message)
         self._details_body_content.update("")
         self._clear_wright_sections()
@@ -1190,7 +1259,7 @@ class DictionaryBrowseApp(App[None]):
             details: Entry details payload from the query service.
 
         Returns:
-            Multi-line header text with headword, POS, morph class, and metadata.
+            Multi-line header text with POS, morph class, and metadata.
 
         """
         return _format_entry_header_text(cast("_EntryDetailsLike", details))
