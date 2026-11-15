@@ -46,6 +46,8 @@ _ABBREVIATION_WORDS = frozenset({"pp", "pl", "fut", "t", "p"})
 _LIST_PREFIXES = ("to ", "a ", "an ", "the ")
 #: Leading infinitive markers stripped from verb sense parts.
 _INFINITIVE_PREFIXES = ("to ", "To ")
+#: Fewest words a right-hand piece needs to carry a head word and a complement.
+_MIN_COMPLEMENT_WORDS = 2
 #: Join used when a semicolon is a complement boundary.
 _OR_JOIN = " or "
 #: Join used when a semicolon is a list boundary.
@@ -109,16 +111,14 @@ def _is_or_boundary(left: str, right: str) -> bool:
     stripped = right.strip()
     folded = stripped.casefold()
     words = stripped.split()
+    if len(words) < _MIN_COMPLEMENT_WORDS:
+        return False
     if (
         any(folded.startswith(prefix) for prefix in _LIST_PREFIXES)
-        or not words
         or _word_key(words[0]) in _ABBREVIATION_WORDS
     ):
         return False
-    try:
-        head, complement_token, *_rest = words
-    except ValueError:
-        return False
+    head, complement_token = words[0], words[1]
     complement = _word_key(complement_token)
     if head.endswith(",") or complement not in _COMPLEMENT_WORDS:
         return False
@@ -153,7 +153,7 @@ def _strip_leading_to(part: str) -> str:
     """
     for prefix in _INFINITIVE_PREFIXES:
         if part.startswith(prefix):
-            return part.removeprefix(prefix)
+            return part.removeprefix(prefix).lstrip()
     return part
 
 

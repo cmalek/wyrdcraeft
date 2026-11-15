@@ -36,5 +36,5 @@ Dictionary browse keeps a title row pinned above the scrolling entry text: `Deta
 
 - A broken clause that is not the same comma-separated item is copied through until the gloss text is replaced.
 - The toolkit glossary splits this field on `;` and `,`. Each sense becomes its own glossary meaning, and so does each comma inside a sense. ` or ` stays inside one meaning.
-- While one entry with a definition line is selected, `ctrl+c` / `super+c` copy that line, so Textual's mouse-selection copy and its Ctrl-C quit hint wait. With no entry selected, or with an entry that has no gloss, the copy action skips and the quit hint remains. Quit stays Ctrl-Q.
+- While one entry with a definition line is selected, `ctrl+c` / `super+c` copy that line, and Textual's Ctrl-C quit hint does not appear. A mouse selection still wins: Textual's screen binding copies the selection before the app binding runs. With no entry selected, or with an entry that has no gloss, the copy action skips and the quit hint remains. Quit stays Ctrl-Q.
 - The clipboard write is Textual's OSC 52 sequence. Apple's Terminal.app ignores that sequence, and many terminals consume Cmd-C before the TUI sees `super+c`. The button uses the same clipboard write.

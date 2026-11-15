@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import unicodedata
 from typing import TYPE_CHECKING, ClassVar, Protocol, cast
 
@@ -743,9 +744,10 @@ class DictionaryBrowseApp(App[None]):
   }
 
   #copy-definition {
-      dock: right;
       min-width: 8;
-      height: auto;
+      height: 1;
+      border: none;
+      padding: 0 1;
   }
 
   #oe-char-bar {
@@ -1018,17 +1020,18 @@ class DictionaryBrowseApp(App[None]):
         self.focus_search()
         for button in self.query(".oe-char-button"):
             button.can_focus = False
+        self._copy_button.can_focus = False
 
     def action_copy_definition(self) -> None:
         """
         Copy the current entry's definition line to the clipboard.
 
+        Side Effects:
+            Writes the definition line to the app clipboard.
+
         Raises:
             SkipAction: When no definition line is available, so other
                 bindings such as Textual's ``ctrl+c`` quit hint can run.
-
-        Side Effects:
-            Writes the definition line to the app clipboard.
 
         """
         if not self._definition_line:
@@ -1041,18 +1044,19 @@ class DictionaryBrowseApp(App[None]):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
-        Insert one Old English character at the search input cursor.
+        Handle Old English character buttons and the Copy button.
 
         Args:
             event: Textual button press event.
 
         Side Effects:
-            Inserts the pressed character into the search input, or copies the
-            current definition line for the Copy button.
+            Inserts the pressed character into the search input and refocuses
+            it, or copies the current definition line for the Copy button.
 
         """
         if event.button.id == "copy-definition":
-            self.action_copy_definition()
+            with contextlib.suppress(SkipAction):
+                self.action_copy_definition()
             event.stop()
             return
         if event.button.has_class("oe-char-button"):

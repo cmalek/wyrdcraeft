@@ -41,6 +41,15 @@ from wyrdcraeft.services.dictionary.definition_line import definition_line
             ["state of mind; dignity; rank of king"],
             "state of mind, dignity or rank of king",
         ),
+        ("verb", ["to  guard; to save"], "guard, save"),
+        ("noun", ["gift; an offering of grain"], "gift, an offering of grain"),
+        ("noun", ["feet; pl. of foot"], "feet, pl. of foot"),
+        ("verb", ["will go; fut. of go"], "will go, fut. of go"),
+        ("verb", ["went; t. of go"], "went, t. of go"),
+        ("verb", ["gone; p. of go"], "gone, p. of go"),
+        (" Verb ", ["to guard; to save"], "guard, save"),
+        ("verb", ["can; ought to be done"], "can or ought to be done"),
+        ("verb", ["To can; ought to be done"], "can, ought to be done"),
     ],
 )
 def test_definition_line(pos: str, glosses: list[str], expected: str) -> None:

@@ -973,6 +973,62 @@ async def test_copy_definition_button_copies_selected_entry(
             await pilot.click("#copy-definition")
             await pilot.pause()
             assert app.clipboard == "time, date"
+            assert app.focused is not None
+            assert app.focused.id == "search-input"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_definition_button_label_is_fully_visible(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="copyme",
+        pos="noun",
+        summary_sense="time; time; date",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.pause()
+            button = app.query_one("#copy-definition", Button)
+            visible = app.screen.find_widget(button).visible_region
+            assert visible.height == button.region.height
+            assert button.region.height >= 1
+            assert "Copy" in str(button.render())
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_no_results_search_resets_title_and_disables_copy(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="copyme",
+        pos="noun",
+        summary_sense="time; time; date",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.pause()
+            copy_button = app.query_one("#copy-definition", Button)
+            assert copy_button.disabled is False
+            assert "Details: copyme" in _static_text(
+                app.query_one("#details-title", Static)
+            )
+            await _submit_search(app, pilot, "orphan-form")
+            await pilot.pause()
+            assert (
+                _static_text(app.query_one("#details-title", Static)) == "Details"
+            )
+            assert copy_button.disabled is True
     finally:
         app.query_service.close()
 
