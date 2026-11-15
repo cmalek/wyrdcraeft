@@ -345,3 +345,14 @@ WrightSectionTextScreen {
 #wright-modal-close {
     width: 16;
 }
+
+/* Footer (ADR 0026 "Layout", ADR 0028): keys in the ADR accent ($primary),
+   descriptions muted. Only live keys are bound, so only they appear. */
+Footer FooterKey .footer-key--key {
+    color: $primary;
+}
+
+Footer FooterKey .footer-key--description,
+Footer FooterLabel {
+    color: $text-muted;
+}

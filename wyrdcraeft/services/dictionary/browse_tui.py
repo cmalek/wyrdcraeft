@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import contextlib
 import threading
 import unicodedata
 from dataclasses import replace
@@ -18,12 +17,10 @@ if TYPE_CHECKING:
     from wyrdcraeft.services.dictionary.definition_cache import DefinitionLineCache
 
 from textual import work
-from textual.actions import SkipAction
 from textual.app import App, ComposeResult
-from textual.binding import Binding
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, Input, ListItem, ListView, Static
+from textual.widgets import Button, Footer, Input, ListItem, ListView, Static
 from textual.worker import get_current_worker
 
 from wyrdcraeft.services.dictionary.browse_entry import (
@@ -36,6 +33,13 @@ from wyrdcraeft.services.dictionary.browse_forms import (
     EntryColumn,
     FormsSection,
     FormsSelection,
+)
+from wyrdcraeft.services.dictionary.browse_keys import (
+    APP_BINDINGS,
+    SEARCH_BINDINGS,
+    SEARCH_INPUT_ID,
+    ResultsList,
+    focus_action_allowed,
 )
 from wyrdcraeft.services.dictionary.browse_progress import (
     DictionaryBrowseStartupStage,
@@ -56,7 +60,6 @@ from wyrdcraeft.services.dictionary.browse_results import (
     pos_tag_class,
 )
 from wyrdcraeft.services.dictionary.browse_theme import WYRDCRAEFT_THEME
-from wyrdcraeft.services.dictionary.definition_line import definition_line
 from wyrdcraeft.services.dictionary.form_decode import morphology_row_matches_pos
 from wyrdcraeft.services.dictionary.paradigm_sidebar import (
     MorphologyRowPayload,
@@ -133,6 +136,9 @@ _OE_KEY_ALIASES = {
 
 class OldEnglishSearchInput(Input):
     """Search input that accepts OE key aliases and paste-driven compose paths."""
+
+    #: ``up``/``down`` move the results selection without leaving the input.
+    BINDINGS: ClassVar[list[BindingType]] = SEARCH_BINDINGS
 
     #: Pending combining mark from a macOS dead-key event.
     _pending_dead_key: str | None = None
@@ -556,16 +562,14 @@ class DictionaryBrowseApp(App[None]):
     _copy_button: Button
     #: Definition-line cache used only by the row-fill worker thread.
     _row_definition_cache: DefinitionLineCache | None
+    #: Definition-line cache for the open entry, used only on the UI thread.
+    _entry_definition_cache: DefinitionLineCache | None
     #: Serializes row-fill workers so one thread uses the cache at a time.
     _row_definition_lock: threading.Lock
 
-    #: Key bindings. Copy runs after focused widgets decline ``ctrl+c``; the second
-    #: ``ctrl+c`` binding restores Textual's quit hint, which a subclass binding
-    #: for the same key would otherwise replace.
-    BINDINGS: ClassVar[list[BindingType]] = [
-        Binding("ctrl+c,super+c", "copy_definition", "Copy definition", show=False),
-        Binding("ctrl+c", "help_quit", show=False, system=True),
-    ]
+    #: Copy, focus and pane-switch keys (ADR 0028). ``ctrl+c`` is left to
+    #: Textual, which shows its quit notice; quit is ``ctrl+q``.
+    BINDINGS: ClassVar[list[BindingType]] = APP_BINDINGS
 
     def __init__(
         self,
@@ -592,6 +596,8 @@ class DictionaryBrowseApp(App[None]):
         self.query_service = query_service
         #: Definition-line cache used only by the row-fill worker thread.
         self._row_definition_cache = None
+        #: Definition-line cache for the open entry, used only on the UI thread.
+        self._entry_definition_cache = None
         #: Serializes row-fill workers so one thread uses the cache at a time.
         self._row_definition_lock = threading.Lock()
         #: Database path displayed in shell placeholders.
@@ -618,7 +624,7 @@ class DictionaryBrowseApp(App[None]):
         """
         yield OldEnglishSearchInput(
             placeholder="Search dictionary (press Enter)",
-            id="search-input",
+            id=SEARCH_INPUT_ID,
         )
         with Horizontal(id="oe-char-bar"):
             for insert_character, display_text in _OE_BUTTONS:
@@ -630,7 +636,7 @@ class DictionaryBrowseApp(App[None]):
                 )
         with Horizontal(id="body"):
             with Vertical(id="results-pane", classes="pane"):
-                yield ListView(id="results-list")
+                yield ResultsList(id="results-list")
             with Vertical(id="details-pane", classes="pane"):
                 with Horizontal(id="entry-banner", classes="banner"):
                     yield Static("", id="entry-headword")
@@ -644,6 +650,7 @@ class DictionaryBrowseApp(App[None]):
                         classes="hidden",
                     )
                     yield ListView(id="wright-sections-list", classes="hidden")
+        yield Footer(show_command_palette=False)
 
     def on_mount(self) -> None:
         """
@@ -690,25 +697,67 @@ class DictionaryBrowseApp(App[None]):
             )
             pane.set_class(holds_focus, "pane-focused")
 
+    def check_action(
+        self,
+        action: str,
+        _parameters: tuple[object, ...],
+    ) -> bool | None:
+        """
+        Allow copy and focus keys only where they act, so the footer shows them.
+
+        Args:
+            action: Action name.
+            _parameters: Action parameters; none of these actions takes any.
+
+        Returns:
+            Whether the action is live in the current focus (ADR 0028).
+
+        """
+        focused = self.focused
+        return focus_action_allowed(
+            action,
+            search_focused=focused is not None and focused.id == SEARCH_INPUT_ID,
+            has_definition_line=bool(self._definition_line),
+        )
+
     def action_copy_definition(self) -> None:
         """
-        Copy the current entry's definition line to the clipboard.
+        Copy the open entry's definition line to the clipboard.
 
         Side Effects:
-            Writes the definition line to the app clipboard.
-
-        Raises:
-            SkipAction: When no definition line is available, so other
-                bindings such as Textual's ``ctrl+c`` quit hint can run.
+            Writes the definition line to the app clipboard when there is one.
 
         """
-        if not self._definition_line:
-            raise SkipAction
-        self.copy_to_clipboard(self._definition_line)
+        if self._definition_line:
+            self.copy_to_clipboard(self._definition_line)
+
+    def action_focus_search(self) -> None:
+        """Move keyboard focus to the search input (the ``/`` key)."""
+        self.focus_search()
+
+    def action_focus_results(self) -> None:
+        """Move keyboard focus to the results list (``escape`` in the search)."""
+        self._main_results_list.focus()
+
+    def action_move_results(self, step: int) -> None:
+        """
+        Move the results selection while focus stays in the search input.
+
+        Args:
+            step: ``1`` moves down, ``-1`` moves up.
+
+        Side Effects:
+            Changes the results list's highlighted row.
+
+        """
+        if step > 0:
+            self._main_results_list.action_cursor_down()
+        else:
+            self._main_results_list.action_cursor_up()
 
     def focus_search(self) -> None:
         """Return keyboard focus to the search input field."""
-        self.query_one("#search-input", Input).focus()
+        self.query_one(f"#{SEARCH_INPUT_ID}", Input).focus()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -723,8 +772,7 @@ class DictionaryBrowseApp(App[None]):
 
         """
         if event.button.id == "copy-definition":
-            with contextlib.suppress(SkipAction):
-                self.action_copy_definition()
+            self.action_copy_definition()
             event.stop()
             return
         if event.button.has_class("oe-char-button"):
@@ -959,7 +1007,9 @@ class DictionaryBrowseApp(App[None]):
             return
         row.set_definition_line(line)
         self._main_hits = [
-            row.hit if hit.entry_id == row.hit.entry_id else hit
+            replace(hit, definition_line=line)
+            if hit.entry_id == row.hit.entry_id
+            else hit
             for hit in self._main_hits
         ]
 
@@ -980,16 +1030,49 @@ class DictionaryBrowseApp(App[None]):
             await self._show_idle_details(f"Entry {entry_id} is unavailable.")
             return
         self._show_banner(details)
-        ordered_senses = sorted(details.senses, key=lambda sense: sense.order_index)
-        self._definition_line = definition_line(
-            details.pos,
-            [sense.gloss_en for sense in ordered_senses],
-        )
-        self._copy_button.disabled = not self._definition_line
+        self._set_definition_line(self._entry_definition_line(entry_id))
         self._entry_message.display = False
         await self._replace_entry_sections(details)
         self._populate_wright_sections(details)
         self._entry_column.scroll_home(animate=False)
+
+    def _entry_definition_line(self, entry_id: int) -> str:
+        """
+        Read the entry's definition line through the shared cache.
+
+        The results preview reads the same :meth:`DefinitionLineCache.get`,
+        so the copied line and the preview cannot disagree (ADR 0028).
+
+        Args:
+            entry_id: Dictionary entry identifier.
+
+        Returns:
+            The definition line; empty when the entry has none.
+
+        Side Effects:
+            Opens the UI-thread cache on first use; may store a computed line.
+
+        """
+        if self._entry_definition_cache is None:
+            self._entry_definition_cache = (
+                self.query_service.open_definition_line_cache()
+            )
+        return self._entry_definition_cache.get(entry_id)
+
+    def _set_definition_line(self, line: str) -> None:
+        """
+        Make ``line`` the open entry's definition line for copying.
+
+        Args:
+            line: Definition line; empty disables copying.
+
+        Side Effects:
+            Enables or disables the Copy button and refreshes the footer keys.
+
+        """
+        self._definition_line = line
+        self._copy_button.disabled = not line
+        self.refresh_bindings()
 
     def _show_banner(self, details: EntryDetails) -> None:
         """
@@ -1109,8 +1192,7 @@ class DictionaryBrowseApp(App[None]):
         """
         self._entry_banner.display = False
         self._entry_headword.update("")
-        self._definition_line = ""
-        self._copy_button.disabled = True
+        self._set_definition_line("")
         self._entry_message.update(message)
         self._entry_message.display = True
         self._clear_wright_sections()

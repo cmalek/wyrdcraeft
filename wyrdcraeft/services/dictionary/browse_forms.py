@@ -24,6 +24,7 @@ from textual.message import Message
 from textual.widgets import DataTable, Static
 
 from wyrdcraeft.services.dictionary.browse_entry import SECTION_CLASS, SectionLabel
+from wyrdcraeft.services.dictionary.browse_keys import DEGREE_GROUP, TABLE_GROUP
 from wyrdcraeft.services.dictionary.browse_results import DIM_STYLE
 
 if TYPE_CHECKING:
@@ -529,21 +530,36 @@ class EntryColumn(VerticalScroll):
     """
 
     #: Switch keys. They live here because a focused ``VerticalScroll`` uses
-    #: ``left``/``right`` for scrolling before app-level bindings run.
+    #: ``left``/``right`` for scrolling before app-level bindings run. Each
+    #: pair shows in the footer as one group (``←→ Table``, ``[] Degree``).
     BINDINGS: ClassVar[list[BindingType]] = [
-        Binding("left", "switch('primary', -1)", "Previous table", key_display="←"),
-        Binding("right", "switch('primary', 1)", "Next table", key_display="→"),
+        Binding(
+            "left",
+            "switch('primary', -1)",
+            "Previous table",
+            key_display="←",
+            group=TABLE_GROUP,
+        ),
+        Binding(
+            "right",
+            "switch('primary', 1)",
+            "Next table",
+            key_display="→",
+            group=TABLE_GROUP,
+        ),
         Binding(
             "left_square_bracket",
             "switch('secondary', -1)",
             "Previous degree",
             key_display="[",
+            group=DEGREE_GROUP,
         ),
         Binding(
             "right_square_bracket",
             "switch('secondary', 1)",
             "Next degree",
             key_display="]",
+            group=DEGREE_GROUP,
         ),
     ]
 

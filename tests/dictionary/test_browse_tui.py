@@ -13,10 +13,12 @@ from rich.style import Style
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from textual import events
+from textual.binding import Binding
 from textual.containers import Horizontal, VerticalScroll
 from textual.content import Content
 from textual.selection import Selection
-from textual.widgets import Button, DataTable, Input, ListView, Static
+from textual.widgets import Button, DataTable, Footer, Input, ListView, Static
+from textual.widgets._footer import FooterKey, FooterLabel, KeyGroup
 
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
@@ -1255,75 +1257,6 @@ async def test_no_results_search_resets_title_and_disables_copy(
 
 
 @pytest.mark.anyio
-async def test_copy_definition_super_c_copies_the_same_line(
-    lexicon_source_db: Path,
-) -> None:
-    _insert_entry(
-        lexicon_source_db,
-        headword="copyme",
-        pos="noun",
-        summary_sense="time; time; date",
-    )
-    app = create_dictionary_browse_app(lexicon_source_db)
-    try:
-        async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "copyme")
-            await pilot.pause()
-            await pilot.press("super+c")
-            await pilot.pause()
-            assert app.clipboard == "time, date"
-    finally:
-        app.query_service.close()
-
-
-@pytest.mark.anyio
-async def test_copy_definition_follows_order_index_not_sense_path(
-    lexicon_source_db: Path,
-) -> None:
-    _insert_two_senses_out_of_path_order(lexicon_source_db, headword="ordered")
-    app = create_dictionary_browse_app(lexicon_source_db)
-    try:
-        async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "ordered")
-            await pilot.pause()
-            assert app.clipboard == ""
-            await pilot.click("#copy-definition")
-            await pilot.pause()
-            assert app.clipboard == "second; first"
-    finally:
-        app.query_service.close()
-
-
-@pytest.mark.anyio
-async def test_copy_definition_stays_disabled_without_a_gloss(
-    lexicon_source_db: Path,
-) -> None:
-    _insert_entry(
-        lexicon_source_db,
-        headword="emptygloss",
-        pos="noun",
-        summary_sense="",
-    )
-    app = create_dictionary_browse_app(lexicon_source_db)
-    try:
-        async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "emptygloss")
-            await pilot.pause()
-            headword = _static_text(app.query_one("#entry-headword", Static))
-            assert headword == "emptygloss"
-            assert app.query_one("#copy-definition", Button).disabled is True
-            await pilot.press("ctrl+c")
-            await pilot.pause()
-            assert app.clipboard == ""
-            assert any(
-                "quit" in notification.message.casefold()
-                for notification in app._notifications
-            )
-    finally:
-        app.query_service.close()
-
-
-@pytest.mark.anyio
 async def test_ctrl_c_in_search_selection_does_not_copy_the_definition(
     lexicon_source_db: Path,
 ) -> None:
@@ -2414,5 +2347,404 @@ async def test_pronoun_singular_plural_switch(lexicon_source_db: Path) -> None:
             await _press(pilot, "left")
             assert _active_tabs(app) == ["Singular"]
             assert _shown_forms(app).split() == ["Nom", "hesg", "heosg"]
+    finally:
+        app.query_service.close()
+
+
+# --- Copy key, focus model and results preview (ADR 0028) -------------------
+
+
+def _insert_copyme(db_path: Path) -> None:
+    """Insert ``copyme``, whose definition line is ``time, date``."""
+    _insert_entry(db_path, headword="copyme", pos="noun", summary_sense="time; time; date")
+
+
+def _insert_twins(db_path: Path) -> None:
+    """Insert two ``twin`` entries with different glosses, so a search has 2 hits."""
+    _insert_entry(db_path, headword="twin", pos="noun", summary_sense="a pair")
+    _insert_entry(db_path, headword="twin", pos="verb", summary_sense="to join")
+
+
+def _search_input(app: DictionaryBrowseApp) -> Input:
+    """Return the search input."""
+    return app.query_one("#search-input", Input)
+
+
+def _focused_id(app: DictionaryBrowseApp) -> str | None:
+    """Return the id of the focused widget, if any."""
+    return None if app.focused is None else app.focused.id
+
+
+async def _footer_items(app: DictionaryBrowseApp, pilot) -> list[str]:
+    """
+    Read the rendered footer as ``"<keys> <description>"`` items, sorted.
+
+    A binding group renders as a ``KeyGroup`` of keys followed by a sibling
+    ``FooterLabel``; it reads as the joined keys and that label.
+    """
+    await pilot.pause()
+    await pilot.pause()
+    footer = app.query_one(Footer)
+    items: list[str] = []
+    group_keys = ""
+    for child in footer.children:
+        if isinstance(child, FooterKey):
+            items.append(f"{child.key_display} {child.description}")
+        elif isinstance(child, KeyGroup):
+            group_keys = "".join(key.key_display for key in child.query(FooterKey))
+        elif isinstance(child, FooterLabel):
+            items.append(f"{group_keys} {child.render()}")
+    return sorted(items)
+
+
+def _row_preview(row: _MainResultItem) -> str:
+    """Return the dim definition-line text of one results row."""
+    return _static_text(row.query_one(".result-definition", Static))
+
+
+def _result_rows(app: DictionaryBrowseApp) -> list[_MainResultItem]:
+    """Return the results rows in order."""
+    main_list = app.query_one("#results-list", ListView)
+    return [child for child in main_list.children if isinstance(child, _MainResultItem)]
+
+
+@pytest.mark.anyio
+async def test_c_copies_definition_line_from_results_list(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_copyme(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.press("escape")
+            assert _focused_id(app) == "results-list"
+            await pilot.press("c")
+            await pilot.pause()
+            assert app.clipboard == "time, date"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_c_in_search_input_types_the_letter_and_copies_nothing(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_copyme(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            search = _search_input(app)
+            search.value = ""
+            assert app.check_action("copy_definition", ()) is False
+            await pilot.press("c")
+            await pilot.pause()
+            assert search.value == "c"
+            assert search.has_focus
+            assert app.clipboard == ""
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_slash_in_search_input_types_a_slash(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await pilot.press("slash")
+            await pilot.pause()
+            assert _search_input(app).value == "/"
+            assert _focused_id(app) == "search-input"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_ctrl_c_shows_textual_default_notice(lexicon_source_db: Path) -> None:
+    own_bindings = [
+        binding for binding in DictionaryBrowseApp.BINDINGS if isinstance(binding, Binding)
+    ]
+    assert not any(binding.action == "help_quit" for binding in own_bindings)
+    assert not any("ctrl+c" in binding.key for binding in own_bindings)
+    _insert_copyme(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.press("escape")
+            await pilot.press("ctrl+c")
+            await pilot.pause()
+            assert app.clipboard == ""
+            assert any(
+                "quit" in notification.message.casefold()
+                for notification in app._notifications
+            )
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_button_copies_the_same_line(lexicon_source_db: Path) -> None:
+    _insert_copyme(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.press("escape", "c")
+            await pilot.pause()
+            from_key = app.clipboard
+            assert from_key == "time, date"
+            app.copy_to_clipboard("")
+            button = app.query_one("#copy-definition", Button)
+            assert button.can_focus is False
+            await pilot.click("#copy-definition")
+            await pilot.pause()
+            assert app.clipboard == from_key
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_disabled_without_definition_line(lexicon_source_db: Path) -> None:
+    _insert_entry(lexicon_source_db, headword="emptygloss", pos="noun", summary_sense="")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "emptygloss")
+            await pilot.pause()
+            headword = _static_text(app.query_one("#entry-headword", Static))
+            assert headword == "emptygloss"
+            assert app.query_one("#copy-definition", Button).disabled is True
+            await pilot.press("escape")
+            assert _focused_id(app) == "results-list"
+            assert app.check_action("copy_definition", ()) is False
+            assert "c Copy" not in await _footer_items(app, pilot)
+            await pilot.press("c")
+            await pilot.pause()
+            assert app.clipboard == ""
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_ctrl_c_and_super_c_do_not_copy(lexicon_source_db: Path) -> None:
+    _insert_copyme(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "copyme")
+            await pilot.press("escape")
+            for focus_id in ("results-list", "entry-column"):
+                app.query_one(f"#{focus_id}").focus()
+                await pilot.pause()
+                await pilot.press("ctrl+c", "super+c")
+                await pilot.pause()
+                assert app.clipboard == ""
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_escape_in_search_moves_focus_to_results(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "abbad")
+            assert _focused_id(app) == "search-input"
+            await pilot.press("escape")
+            await pilot.pause()
+            assert _focused_id(app) == "results-list"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_escape_elsewhere_does_nothing(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "abbad")
+            await pilot.press("escape")
+            await pilot.press("escape")
+            await pilot.pause()
+            assert _focused_id(app) == "results-list"
+            await pilot.press("tab")
+            assert _focused_id(app) == "entry-column"
+            await pilot.press("escape")
+            await pilot.pause()
+            assert _focused_id(app) == "entry-column"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_slash_returns_to_search(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "abbad")
+            for focus_id in ("results-list", "entry-column"):
+                app.query_one(f"#{focus_id}").focus()
+                await pilot.pause()
+                await pilot.press("slash")
+                await pilot.pause()
+                assert _focused_id(app) == "search-input"
+                assert _search_input(app).value == "abbad"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_tab_order_search_results_entry(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "abbad")
+            seen = [_focused_id(app)]
+            for _ in range(3):
+                await pilot.press("tab")
+                await pilot.pause()
+                seen.append(_focused_id(app))
+            assert seen == [
+                "search-input",
+                "results-list",
+                "entry-column",
+                "search-input",
+            ]
+            backwards = []
+            for _ in range(3):
+                await pilot.press("shift+tab")
+                await pilot.pause()
+                backwards.append(_focused_id(app))
+            assert backwards == ["entry-column", "results-list", "search-input"]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_down_in_search_moves_selection_without_leaving_input(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_twins(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "twin")
+            await pilot.pause()
+            assert len(_result_rows(app)) == 2
+            main_list = app.query_one("#results-list", ListView)
+            main_list.index = 0
+            await pilot.pause()
+            await pilot.press("down")
+            await pilot.pause()
+            assert main_list.index == 1
+            assert _focused_id(app) == "search-input"
+            assert _search_input(app).value == "twin"
+            await pilot.press("up")
+            await pilot.pause()
+            assert main_list.index == 0
+            assert _focused_id(app) == "search-input"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_results_preview_equals_copied_line(lexicon_source_db: Path) -> None:
+    _insert_twins(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 40)) as pilot:
+            await _submit_search(app, pilot, "twin")
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            rows = _result_rows(app)
+            assert len(rows) == 2
+            app.query_one("#results-list", ListView).index = 0
+            await pilot.press("escape")
+            copied = []
+            for position, row in enumerate(rows):
+                if position:
+                    await pilot.press("down")
+                await pilot.press("enter")
+                await pilot.pause()
+                await pilot.press("c")
+                await pilot.pause()
+                assert _row_preview(row)
+                assert _row_preview(row) == app.clipboard
+                copied.append(app.clipboard)
+            assert sorted(copied) == ["a pair", "join"]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_copy_uses_definition_line_cache_order(lexicon_source_db: Path) -> None:
+    _insert_two_senses_out_of_path_order(lexicon_source_db, headword="ordered")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 40)) as pilot:
+            await _submit_search(app, pilot, "ordered")
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            await pilot.press("escape", "c")
+            await pilot.pause()
+            assert app.clipboard == "first; second"
+            (row,) = _result_rows(app)
+            assert _row_preview(row) == app.clipboard
+            cache = app.query_service.open_definition_line_cache()
+            assert cache.get(row.hit.entry_id) == app.clipboard
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_filled_line_does_not_restore_a_stale_hit(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "abbad")
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+            row = _result_rows(app)[0]
+            current = dataclass_replace(row.hit, headword="fresh", definition_line=None)
+            app._main_hits = [current]
+            app._apply_definition_line(row, "filled")
+            assert app._main_hits == [dataclass_replace(current, definition_line="filled")]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_footer_lists_only_live_keys(lexicon_source_db: Path) -> None:
+    _seed_adjective(lexicon_source_db)
+    _seed_verb(lexicon_source_db, "testhealdan", (("psinsg1", "testhealde"),))
+    app = create_dictionary_browse_app(lexicon_source_db)
+    in_search = ["tab Switch pane", "↑↓ Move"]
+    try:
+        async with app.run_test(size=(140, 40)) as pilot:
+            assert await _footer_items(app, pilot) == in_search
+            await _open_entry(app, pilot, "testgod")
+            assert _focused_id(app) == "search-input"
+            assert await _footer_items(app, pilot) == in_search
+            await pilot.press("escape")
+            assert await _footer_items(app, pilot) == sorted(
+                ["↑↓ Move", "⏎ Open", "/ Search", "tab Switch pane", "c Copy"]
+            )
+            await pilot.press("tab")
+            assert _focused_id(app) == "entry-column"
+            assert await _footer_items(app, pilot) == sorted(
+                ["←→ Table", "[] Degree", "/ Search", "tab Switch pane", "c Copy"]
+            )
+            active = app.screen.active_bindings
+            assert active["c"].binding.action == "copy_definition"
+            assert "escape" not in active
+            await pilot.press("slash")
+            await _open_entry(app, pilot, "testhealdan")
+            await pilot.press("escape", "tab")
+            assert _focused_id(app) == "entry-column"
+            assert await _footer_items(app, pilot) == sorted(
+                ["/ Search", "tab Switch pane", "c Copy"]
+            )
     finally:
         app.query_service.close()
