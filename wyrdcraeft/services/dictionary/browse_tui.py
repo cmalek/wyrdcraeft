@@ -247,6 +247,11 @@ class _MainResultItem(ListItem):
         self.hit = hit
 
 
+# ponytail: False until Wright & Wright 1925 OCR is corrected; flip this constant.
+#: Show the Wright § list and its section-text modal in dictionary browse.
+SHOW_WRIGHT_SECTION_LISTINGS = False
+
+
 class _WrightSectionItem(ListItem):
     """
     Selectable list row for one Wright section citation.
@@ -1290,8 +1295,12 @@ class DictionaryBrowseApp(App[None]):
 
         Side Effects:
             Clears and repopulates the Wright section list in the details pane.
+            ``SHOW_WRIGHT_SECTION_LISTINGS`` false hides the list instead.
 
         """
+        if not SHOW_WRIGHT_SECTION_LISTINGS:
+            self._clear_wright_sections()
+            return
         self._wright_sections_list.clear()
         section_numbers: tuple[int, ...] = ()
         if details.morph_class is not None and not details.morph_class.is_unclassified:

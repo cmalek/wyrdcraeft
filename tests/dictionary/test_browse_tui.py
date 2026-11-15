@@ -500,9 +500,37 @@ async def test_browse_single_main_result_auto_shows_details(
 
 
 @pytest.mark.anyio
-async def test_browse_wright_section_selection_opens_ingested_text_modal(
+async def test_browse_hides_wright_section_list_by_default(
     lexicon_source_db: Path,
 ) -> None:
+    _seed_catalog_assignment(
+        lexicon_source_db,
+        normalized_title="abbad",
+        catalog_pos="noun",
+        class_key="noun.masculine.a_stem",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "ABBOD")
+            await _select_abbad_hit(app, pilot)
+
+            sections_title = app.query_one("#wright-sections-title", Static)
+            sections_list = app.query_one("#wright-sections-list", ListView)
+            assert "hidden" in sections_title.classes
+            assert "hidden" in sections_list.classes
+            assert len(list(sections_list.children)) == 0
+            assert "Morph class:" in _details_text(app)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_browse_wright_section_selection_opens_ingested_text_modal(
+    lexicon_source_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(browse_tui_module, "SHOW_WRIGHT_SECTION_LISTINGS", True)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="abbad",
@@ -544,7 +572,9 @@ async def test_browse_wright_section_selection_opens_ingested_text_modal(
 @pytest.mark.anyio
 async def test_browse_wright_section_selection_shows_not_ingested_message(
     lexicon_source_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr(browse_tui_module, "SHOW_WRIGHT_SECTION_LISTINGS", True)
     _seed_catalog_assignment(
         lexicon_source_db,
         normalized_title="abbad",
