@@ -173,6 +173,22 @@ Out of scope:
 - dictionary browse: Textual UI for query-time dictionary search plus
   morphology sidebar details for the selected entry
   _Avoid_: dictionary browse TUI as the SQL or ranking owner
+- dictionary gloss: the modern-English text of one sense from the initial
+  Bosworth-Toller import. These glosses are unclean. The clean reading of
+  `oe_bt.txt` belongs to `boslexicon`
+  _Avoid_: rewriting the stored gloss. A definition line is a separate reading
+- definition line: one dictionary entry's dictionary glosses on a single line,
+  copied to the clipboard for paste into an Ænglisc Toolkit annotation.
+  Dictionary browse copies it from a `Copy` button at the top right of the
+  details pane, and from the platform copy keys, only while one dictionary
+  entry is selected and that entry has a definition line. The lemma and the
+  button stay pinned above the scrolling details.
+  Senses stay in stored order and are joined with a semicolon. Inside a sense,
+  a semicolon before a shared complement is " or "; every other internal
+  semicolon is a comma. On a verb, each sense part loses a leading "to " or "To ".
+  Within one sense, a repeated comma-separated word or phrase collapses to
+  its first copy
+  _Avoid_: numbering the senses, writing the line into the toolkit database
 - dictionary browse search: 12-tier headword-and-variant ranking ladder
   implemented by `DictionaryBrowseQueryService` querying `bt_entries` and
   `bt_variants` directly; no derived search-index tables
@@ -523,6 +539,9 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
   — Trello Gwr8hysN. Overrides the card on
   injection, Add-as-class, services re-export, and a separate models module.
   Edit-record canonical import is `wyrdcraeft.models.dictionary`.
+- [0025: Definition lines join senses with semicolons](docs/adr/0025-definition-lines-join-senses-with-semicolons.md)
+  — Trello K6lah6MZ. A definition line is a reading of the stored glosses.
+  The browse pane copies that line; it does not rewrite `bt_senses`.
 
 Additional architecture decision records live under `docs/adr/` when this repo
 captures durable design decisions that should not be rediscovered from code.
