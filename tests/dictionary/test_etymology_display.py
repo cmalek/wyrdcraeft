@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from wyrdcraeft.models.dictionary import BTPos
 from wyrdcraeft.services.dictionary.etymology_display import (
+    _split_leading_label,
     format_etymology_display,
     parse_etymology_text,
     partition_etymology_blocks,
@@ -134,3 +135,26 @@ def test_format_etymology_display_renders_table_headers() -> None:
     assert "Lang/Source" in formatted
     assert "O. H. Ger." in formatted
     assert "ezzen" in formatted
+
+
+def test_for_entry_puts_source_labels_in_lang_column() -> None:
+    display = parse_etymology_text(
+        "[<I>Piers P. Chauc.</I> for: <I>Laym. for,</I> uor: <I>Orm.</I> forr: "
+        "<I>Plat,</I> för, vör: <I>O. Frs.</I> fori, fore, for: <I>Dut.</I> voor: "
+        "<I>Ger.</I> für.]"
+    )
+    triples = [(r.lang_source, r.word, r.meaning) for r in display.references[:5]]
+    assert triples == [
+        ("Piers P. Chauc.", "for", ""),
+        ("Laym.", "for, uor", ""),
+        ("Orm.", "forr", ""),
+        ("Plat.", "för, vör", ""),
+        ("O. Frs.", "fori, fore, for", ""),
+    ]
+    assert display.unparsed == ()
+
+
+def test_split_leading_label_longest_run() -> None:
+    assert _split_leading_label("Piers P. Chauc.") == ("Piers P. Chauc.", "")
+    assert _split_leading_label("Laym. for,") == ("Laym.", "for")
+    assert _split_leading_label("for") is None

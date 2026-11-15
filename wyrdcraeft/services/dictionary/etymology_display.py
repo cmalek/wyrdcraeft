@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import dataclasses
+import json
 import re
 from dataclasses import dataclass
+from functools import cache
+from importlib import resources
 from typing import TYPE_CHECKING, Final
 
 if TYPE_CHECKING:
@@ -460,9 +463,12 @@ def _parse_reference_block(text: str) -> tuple[list[EtymologyTableRow], str]:  #
     pending_meaning = ""
     pending_source = ""
     residual_parts: list[str] = []
+    word_open = False
 
     def flush_row() -> None:
         nonlocal pending_lang, pending_word, pending_meaning, pending_source
+        nonlocal word_open
+        word_open = False
         if not any((pending_lang, pending_word, pending_meaning, pending_source)):
             return
         rows.append(
@@ -486,9 +492,14 @@ def _parse_reference_block(text: str) -> tuple[list[EtymologyTableRow], str]:  #
             continue
         if index % 2 == 1:
             label = _normalize_lang_label(chunk)
+            split = _split_leading_label(chunk)
             if label in _LANG_SOURCE_LABELS or _looks_like_lang_label(label):
                 flush_row()
                 pending_lang = chunk.strip()
+            elif split is not None:
+                flush_row()
+                pending_lang, pending_word = split
+                word_open = bool(pending_word)
             elif (pending_word and not pending_meaning) or pending_meaning:
                 pending_meaning = _join_unique(pending_meaning, chunk.strip())
             elif not pending_meaning:
@@ -499,7 +510,12 @@ def _parse_reference_block(text: str) -> tuple[list[EtymologyTableRow], str]:  #
         chunk, chunk_citations = _extract_chunk_citations(chunk)
         if chunk_citations:
             pending_source = _join_unique(pending_source, chunk_citations)
-        if ":" in chunk and pending_lang and not pending_word:
+        if word_open:
+            word_open = False
+            before, _, after = chunk.partition(":")
+            pending_word = f"{pending_word}, {before.strip(' ,;.')}"
+            chunk = after
+        elif ":" in chunk and pending_lang and not pending_word:
             before, after = chunk.split(":", 1)
             pending_word = before.strip(" ,;.")
             chunk = after
@@ -607,6 +623,83 @@ def _normalize_lang_label(label: str) -> str:
     """
     collapsed = re.sub(r"\s+", " ", label.strip().casefold())
     return collapsed.replace(". ", ".").replace(" .", ".")
+
+
+@cache
+def _source_label_spellings() -> frozenset[str]:
+    """
+    Load every Bosworth-Toller abbreviation spelling, normalized.
+
+    Returns:
+        Normalized spellings from ``bosworth_and_toller_abbreviations.json``.
+
+    """
+    path = resources.files("wyrdcraeft").joinpath(
+        "etc/dictionary", "bosworth_and_toller_abbreviations.json"
+    )
+    entries = json.loads(path.read_text(encoding="utf-8"))
+    return frozenset(
+        _normalize_lang_label(spelling)
+        for entry in entries
+        for spelling in entry["spellings"]
+    )
+
+
+def _match_label(tokens: list[str]) -> str | None:
+    """
+    Return the known spelling that the given tokens form, if any.
+
+    Args:
+        tokens: Whitespace-separated tokens of one candidate label.
+
+    Returns:
+        The label (a trailing comma dropped, a comma-lost period restored), or
+        ``None`` when no spelling matches.
+
+    """
+    joined = " ".join(tokens)
+    bare = joined.rstrip(",")
+    candidates = [joined, bare]
+    if bare != joined:
+        candidates.append(f"{bare}.")
+    for candidate in candidates:
+        if (
+            candidate.endswith(".")
+            and _normalize_lang_label(candidate) in _source_label_spellings()
+        ):
+            return candidate
+    return None
+
+
+def _split_leading_label(span: str) -> tuple[str, str] | None:
+    """
+    Split a leading run of source abbreviations off an italic span.
+
+    Args:
+        span: Text of one italic span, such as ``Laym. for,``.
+
+    Returns:
+        ``(label, remainder)`` with the longest run of consecutive known
+        spellings as the label, or ``None`` when the span starts with none or
+        the remainder holds another abbreviation.
+
+    """
+    tokens = span.split()
+    labels: list[str] = []
+    position = 0
+    while position < len(tokens):
+        for end in range(len(tokens), position, -1):
+            label = _match_label(tokens[position:end])
+            if label is not None:
+                labels.append(label)
+                position = end
+                break
+        else:
+            break
+    rest = tokens[position:]
+    if not labels or any(token.rstrip(",").endswith(".") for token in rest):
+        return None
+    return " ".join(labels), " ".join(rest).strip(", ")
 
 
 def _looks_like_lang_label(label: str) -> bool:
