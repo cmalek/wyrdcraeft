@@ -21,15 +21,21 @@ from textual import work
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, ScrollableContainer, Vertical, VerticalScroll
+from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
+from textual.widgets import Button, Input, ListItem, ListView, Static
 from textual.worker import get_current_worker
 
 from wyrdcraeft.services.dictionary.browse_entry import (
     SECTION_CLASS,
-    build_forms,
     build_text_sections,
+)
+from wyrdcraeft.services.dictionary.browse_forms import (
+    PRIMARY,
+    SECONDARY,
+    EntryColumn,
+    FormsSection,
+    FormsSelection,
 )
 from wyrdcraeft.services.dictionary.browse_progress import (
     DictionaryBrowseStartupStage,
@@ -473,50 +479,6 @@ def _morphology_payloads(rows: list[MorphologyRow]) -> list[MorphologyRowPayload
     ]
 
 
-def _populate_morphology_table(
-    table: DataTable,
-    sidebar: ParadigmSidebarSpec,
-) -> None:
-    """
-    Render paradigm sidebar sections into one scrollable data table.
-
-    Args:
-        table: Target morphology sidebar table widget.
-        sidebar: POS-aware paradigm sidebar specification.
-
-    Side Effects:
-        Clears and repopulates ``table`` columns and rows.
-
-    """
-    table.clear(columns=True)
-    if not sidebar.sections:
-        table.add_column("form")
-        table.add_row("No morphology rows linked.")
-        return
-
-    first = True
-    for section in sidebar.sections:
-        if not first:
-            table.add_row(*([""] * len(table.columns)))
-        first = False
-        if section.title:
-            if not table.columns:
-                table.add_column(section.title)
-                for column in section.columns[1:]:
-                    table.add_column(column)
-            elif len(table.columns) != len(section.columns):
-                table.clear(columns=True)
-                for column in section.columns:
-                    table.add_column(column)
-            else:
-                table.add_row(section.title, *([""] * (len(section.columns) - 1)))
-        elif not table.columns:
-            for column in section.columns:
-                table.add_column(column)
-        for row in section.rows:
-            table.add_row(*row)
-
-
 def _forms_sidebar(details: EntryDetails) -> ParadigmSidebarSpec | None:
     """
     Build the paradigm sidebar for an entry's Forms section.
@@ -575,8 +537,11 @@ class DictionaryBrowseApp(App[None]):
     _wright_sections_title: Static
     #: Selectable Wright section citations for the current entry.
     _wright_sections_list: ListView
-    #: The entry pane's one scrolling column of sections (ADR 0026).
-    _entry_column: VerticalScroll
+    #: The entry pane's one scrolling column of sections (ADR 0026); it owns
+    #: the forms switch keys (ADR 0027).
+    _entry_column: EntryColumn
+    #: Tab selection over the open entry's paradigm sections, if it has forms.
+    _forms_selection: FormsSelection | None
     #: Pinned banner above the column: headword, POS tag, Copy button.
     _entry_banner: Horizontal
     #: Initial details-pane message shown before the first search.
@@ -635,6 +600,8 @@ class DictionaryBrowseApp(App[None]):
         self._main_hits = []
         #: Definition line copied by the Copy control for the current entry.
         self._definition_line = ""
+        #: Tab selection over the open entry's paradigm sections, if it has forms.
+        self._forms_selection = None
         default_message = (
             f"Connected to {db_path}. Search and select a result to view details."
         )
@@ -669,7 +636,7 @@ class DictionaryBrowseApp(App[None]):
                     yield Static("", id="entry-headword")
                     yield Static("", id="entry-pos-tag", classes="pos-tag")
                     yield Button("Copy", id="copy-definition", disabled=True)
-                with VerticalScroll(id="entry-column"):
+                with EntryColumn(id="entry-column"):
                     yield Static(self._initial_details_message, id="entry-message")
                     yield Static(
                         "Wright Sections",
@@ -693,7 +660,7 @@ class DictionaryBrowseApp(App[None]):
         self._entry_headword = self.query_one("#entry-headword", Static)
         self._entry_pos_tag = self.query_one("#entry-pos-tag", Static)
         self._copy_button = self.query_one("#copy-definition", Button)
-        self._entry_column = self.query_one("#entry-column", VerticalScroll)
+        self._entry_column = self.query_one("#entry-column", EntryColumn)
         self._entry_message = self.query_one("#entry-message", Static)
         self._wright_sections_title = self.query_one("#wright-sections-title", Static)
         self._wright_sections_list = self.query_one("#wright-sections-list", ListView)
@@ -1055,11 +1022,14 @@ class DictionaryBrowseApp(App[None]):
             details: Entry to draw, or ``None`` to leave the column empty.
 
         Side Effects:
-            Removes and mounts section widgets; fills ``#morphology-table``.
+            Removes and mounts section widgets, resets the forms tab
+            selection and draws the selected paradigm section.
 
         """
         await self._entry_column.query(f".{SECTION_CLASS}").remove()
+        self._forms_selection = None
         if details is None:
+            self._render_forms()
             return
         sections = build_text_sections(details)
         if sections and sections[0].id == "entry-keyvalues":
@@ -1068,12 +1038,62 @@ class DictionaryBrowseApp(App[None]):
             )
         sidebar = _forms_sidebar(details)
         if sidebar is not None:
-            sections.append(build_forms())
+            sections.append(FormsSection())
+            self._forms_selection = FormsSelection(sidebar.sections)
         if sections:
             await self._entry_column.mount_all(sections)
-        if sidebar is not None:
-            table = self._entry_column.query_one("#morphology-table", DataTable)
-            _populate_morphology_table(table, sidebar)
+        self._render_forms()
+
+    def _render_forms(self) -> None:
+        """
+        Draw the selected paradigm section at the column's current width.
+
+        Side Effects:
+            Updates the column's switch axis sizes and redraws ``#entry-forms``.
+
+        """
+        selection = self._forms_selection
+        if selection is None:
+            self._entry_column.set_axis_sizes(0, 0)
+            return
+        self._entry_column.set_axis_sizes(
+            selection.axis_size(PRIMARY), selection.axis_size(SECONDARY)
+        )
+        forms = self._entry_column.query(FormsSection)
+        if forms:
+            width = self._entry_column.scrollable_content_region.width
+            forms.first().show(selection, width)
+
+    def on_entry_column_switch(self, event: EntryColumn.Switch) -> None:
+        """
+        Move the forms tab selection and redraw the table.
+
+        Args:
+            event: Switch request from the entry column's keys.
+
+        Side Effects:
+            Changes the selection and redraws ``#entry-forms`` when it moved.
+
+        """
+        event.stop()
+        if self._forms_selection is not None and self._forms_selection.step(
+            event.axis, event.step
+        ):
+            self._render_forms()
+
+    def on_entry_column_resized(self, event: EntryColumn.Resized) -> None:
+        """
+        Re-fit the forms column to the new pane width.
+
+        Args:
+            event: Resize notice from the entry column.
+
+        Side Effects:
+            Redraws ``#entry-forms``.
+
+        """
+        event.stop()
+        self._render_forms()
 
     async def _show_idle_details(self, message: str) -> None:
         """

@@ -1902,3 +1902,498 @@ async def test_etymology_note_line_under_table(lexicon_source_db: Path) -> None:
             assert rows[0] == ["Glouc. Orm.", "ac"]
     finally:
         app.query_service.close()
+
+
+# --- Task 6: wrapping forms and switching (ADR 0027) -------------------------
+
+#: Present indicative 1sg variants long enough to wrap at 60 columns.
+_LONG_PRESENT_FORMS = (
+    "testhealde",
+    "testhealdu",
+    "testhealdo",
+    "testhealdæ",
+    "testhaldee",
+    "testhaldeo",
+    "testheladu",
+    "testhieldo",
+    "testhealdige",
+    "testhealdie",
+)
+#: Adjective forms per (strength morph class, function), all distinct.
+_FULL_ADJECTIVE_FORMS = (
+    ("adj.strong.a_o_stem", "PoSgMaNo", "strpos"),
+    ("adj.strong.a_o_stem", "CoSgMaNo", "strcomp"),
+    ("adj.strong.a_o_stem", "SpSgMaNo", "strsup"),
+    ("adj.weak", "PoSgMaNo", "wkpos"),
+    ("adj.weak", "CoSgMaNo", "wkcomp"),
+    ("adj.weak", "SpSgMaNo", "wksup"),
+)
+#: Every forms-table key that can act on a switch.
+_SWITCH_KEYS = ("right", "left", "right_square_bracket", "left_square_bracket")
+
+
+def _seed_classed_forms(
+    db_path: Path,
+    *,
+    headword: str,
+    pos: str,
+    forms: tuple[tuple[str, str, str], ...],
+) -> None:
+    """Link ``(morph class key, function, form)`` rows; loads the catalog."""
+    engine = create_engine(db_path)
+    try:
+        MorphologyCatalogLoader(engine).load_fixture(FIXTURE)
+    finally:
+        engine.dispose()
+    _seed_forms(
+        db_path,
+        headword=headword,
+        pos=pos,
+        forms=tuple((function, form) for _key, function, form in forms),
+    )
+    with sqlite3.connect(db_path) as connection:
+        for class_key, _function, form in forms:
+            connection.execute(
+                """
+                UPDATE forms SET morph_class_id = (
+                    SELECT id FROM morph_classes WHERE class_key = ?
+                ) WHERE form = ?
+                """,
+                (class_key, form),
+            )
+        connection.commit()
+
+
+def _seed_verb(db_path: Path, headword: str, forms: tuple[tuple[str, str], ...]) -> None:
+    """Insert one verb entry with one sense and the given linked forms."""
+    _insert_entry(db_path, headword=headword, pos="verb", summary_sense="to hold")
+    _seed_forms(db_path, headword=headword, pos="verb", forms=forms)
+
+
+def _seed_adjective(
+    db_path: Path,
+    forms: tuple[tuple[str, str, str], ...] = _FULL_ADJECTIVE_FORMS,
+) -> None:
+    """Insert the ``testgod`` adjective with strong and weak linked forms."""
+    _insert_entry(db_path, headword="testgod", pos="adjective", summary_sense="good")
+    _seed_classed_forms(db_path, headword="testgod", pos="adjective", forms=forms)
+
+
+def _forms_table(app: DictionaryBrowseApp) -> DataTable:
+    """Return the single forms table."""
+    return app.query_one("#entry-forms #morphology-table", DataTable)
+
+
+def _rendered_lines(table: DataTable) -> list[str]:
+    """Return the table's painted lines as plain text."""
+    return [table.render_line(y).text for y in range(table.size.height)]
+
+
+def _active_tabs(app: DictionaryBrowseApp) -> list[str]:
+    """Return the bold (selected) labels of every displayed tab strip."""
+    labels: list[str] = []
+    for strip in app.query("#entry-forms .forms-tabs").results(Static):
+        if not strip.display:
+            continue
+        content = strip.render()
+        assert isinstance(content, Content)
+        labels.extend(
+            content.plain[span.start : span.end]
+            for span in content.spans
+            if "bold" in str(span.style)
+        )
+    return labels
+
+
+def _shown_forms(app: DictionaryBrowseApp) -> str:
+    """Return the visible forms table text, or ``""`` while it is hidden."""
+    table = _forms_table(app)
+    return _table_text(table) if table.display else ""
+
+
+async def _focus_entry_column(app: DictionaryBrowseApp, pilot) -> None:
+    """Give the entry column keyboard focus."""
+    app.query_one("#entry-column").focus()
+    await pilot.pause()
+
+
+async def _press(pilot, *keys: str) -> None:
+    """Press keys and let the forms table repaint."""
+    await pilot.press(*keys)
+    await pilot.pause()
+    await pilot.pause()
+
+
+@pytest.mark.anyio
+async def test_long_verb_forms_wrap_without_ellipsis(lexicon_source_db: Path) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        (
+            ("if", "testhealdan"),
+            *(("psinsg1", form) for form in _LONG_PRESENT_FORMS),
+        ),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(60, 40)) as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            table = _forms_table(app)
+            painted = "\n".join(_rendered_lines(table))
+            assert "…" not in painted
+            assert "…" not in _table_text(table)
+            for form in (*_LONG_PRESENT_FORMS, "testhealdan"):
+                assert form in painted
+                assert form in _table_text(table)
+            assert any(row.height > 1 for row in table.rows.values())
+            assert not table.show_horizontal_scrollbar
+            assert table.virtual_size.width <= table.size.width
+            column = app.query_one("#entry-column")
+            assert not column.show_horizontal_scrollbar
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_forms_column_width_follows_pane_resize(lexicon_source_db: Path) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        tuple(("psinsg1", form) for form in _LONG_PRESENT_FORMS),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 40)) as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            wide = _forms_table(app).ordered_columns[-1].width
+            await pilot.resize_terminal(60, 40)
+            await pilot.pause()
+            await pilot.pause()
+            table = _forms_table(app)
+            assert table.ordered_columns[-1].width < wide
+            assert table.virtual_size.width <= table.size.width
+            assert not table.show_horizontal_scrollbar
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_citation_form_is_bold(lexicon_source_db: Path) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        tuple(("psinsg1", form) for form in _LONG_PRESENT_FORMS),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            cell = _forms_table(app).get_row_at(0)[-1]
+            first = cell.plain.split(", ")[0]
+            bold = [span for span in cell.spans if "bold" in str(span.style)]
+            assert [(span.start, span.end) for span in bold] == [(0, len(first))]
+            accent = app.theme_variables["accent"].casefold()
+            assert cell.spans
+            for span in cell.spans:
+                color = span.style.color
+                assert color is not None
+                assert color.triplet is not None
+                assert color.triplet.hex.casefold() == accent
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_present_past_switch_with_arrow_keys(lexicon_source_db: Path) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        (("psinsg1", "testhealde"), ("painsg1", "testheold")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            await _focus_entry_column(app, pilot)
+            assert _active_tabs(app) == ["Present"]
+            assert "testhealde" in _shown_forms(app)
+            assert "testheold" not in _shown_forms(app)
+            await _press(pilot, "right")
+            assert _active_tabs(app) == ["Past"]
+            assert "testheold" in _shown_forms(app)
+            assert "testhealde" not in _shown_forms(app)
+            await _press(pilot, "left")
+            assert _active_tabs(app) == ["Present"]
+            assert "testhealde" in _shown_forms(app)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_present_and_past_with_different_column_counts(
+    lexicon_source_db: Path,
+) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        (("psinsg1", "testhealde"), ("PaPt", "testhealden")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            await _focus_entry_column(app, pilot)
+            table = _forms_table(app)
+            labels = [str(column.label) for column in table.ordered_columns]
+            assert labels == ["", "Person", "Forms"]
+            await _press(pilot, "right")
+            table = _forms_table(app)
+            labels = [str(column.label) for column in table.ordered_columns]
+            assert labels == ["", "Forms"]
+            assert table.row_count == 1
+            row = [str(cell) for cell in table.get_row_at(0)]
+            assert row == ["Participles", "testhealden"]
+            await _press(pilot, "left")
+            table = _forms_table(app)
+            assert len(table.ordered_columns) == 3
+            assert "testhealden" not in _table_text(table)
+            assert "testhealde" in _table_text(table)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_adjective_degree_switch_with_brackets(lexicon_source_db: Path) -> None:
+    _seed_adjective(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testgod")
+            await _focus_entry_column(app, pilot)
+            assert _active_tabs(app) == ["Strong", "Positive"]
+            assert _shown_forms(app).split() == ["Nom", "strpos"]
+            await _press(pilot, "right_square_bracket")
+            assert _active_tabs(app) == ["Strong", "Comparative"]
+            assert _shown_forms(app).split() == ["Nom", "strcomp"]
+            await _press(pilot, "left_square_bracket")
+            assert _active_tabs(app) == ["Strong", "Positive"]
+            assert _shown_forms(app).split() == ["Nom", "strpos"]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_adjective_two_axis_selection(lexicon_source_db: Path) -> None:
+    _seed_adjective(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testgod")
+            await _focus_entry_column(app, pilot)
+            await _press(pilot, "right", "right_square_bracket")
+            assert _active_tabs(app) == ["Weak", "Comparative"]
+            assert _shown_forms(app).split() == ["Nom", "wkcomp"]
+            steps = (
+                ("right_square_bracket", ("Weak", "Superlative"), "wksup"),
+                ("left", ("Strong", "Superlative"), "strsup"),
+                ("left_square_bracket", ("Strong", "Comparative"), "strcomp"),
+                ("left_square_bracket", ("Strong", "Positive"), "strpos"),
+                ("right", ("Weak", "Positive"), "wkpos"),
+            )
+            for key, tabs, form in steps:
+                await _press(pilot, key)
+                assert tuple(_active_tabs(app)) == tabs
+                assert _shown_forms(app).split() == ["Nom", form]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_adjective_primary_missing_a_secondary_shows_empty_state(
+    lexicon_source_db: Path,
+) -> None:
+    _seed_adjective(
+        lexicon_source_db,
+        tuple(row for row in _FULL_ADJECTIVE_FORMS if row[2] != "strcomp"),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testgod")
+            await _focus_entry_column(app, pilot)
+            empty = app.query_one("#entry-forms #forms-empty", Static)
+            assert not empty.display
+            await _press(pilot, "right_square_bracket")
+            assert _active_tabs(app) == ["Strong", "Comparative"]
+            assert not _forms_table(app).display
+            assert empty.display
+            assert _static_text(empty) == "No Strong · Comparative forms."
+            await _press(pilot, "right")
+            assert _active_tabs(app) == ["Weak", "Comparative"]
+            assert not empty.display
+            assert _shown_forms(app).split() == ["Nom", "wkcomp"]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_switch_keys_inert_in_search_input_and_results_list(
+    lexicon_source_db: Path,
+) -> None:
+    _seed_adjective(lexicon_source_db)
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testgod")
+            before = _shown_forms(app)
+            assert "strpos" in before
+            app.query_one("#results-list", ListView).focus()
+            await pilot.pause()
+            for key in _SWITCH_KEYS:
+                await _press(pilot, key)
+                assert _shown_forms(app) == before
+                assert _active_tabs(app) == ["Strong", "Positive"]
+            app.focus_search()
+            await pilot.pause()
+            for key in _SWITCH_KEYS:
+                await _press(pilot, key)
+                assert _shown_forms(app) == before
+                assert _active_tabs(app) == ["Strong", "Positive"]
+            assert app.query_one("#search-input", Input).has_focus
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_switch_keys_act_only_when_axis_has_two_values(
+    lexicon_source_db: Path,
+) -> None:
+    _seed_verb(lexicon_source_db, "testhealdan", (("psinsg1", "testhealde"),))
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            await _focus_entry_column(app, pilot)
+            column = app.query_one("#entry-column")
+            assert column.check_action("switch", ("primary", 1)) is False
+            assert column.check_action("switch", ("secondary", 1)) is False
+            await _press(pilot, "right", "right_square_bracket")
+            assert _active_tabs(app) == ["Present"]
+            assert "testhealde" in _shown_forms(app)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_reselecting_an_entry_resets_the_selection(lexicon_source_db: Path) -> None:
+    _seed_adjective(lexicon_source_db)
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        (("psinsg1", "testhealde"), ("painsg1", "testheold")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testgod")
+            await _focus_entry_column(app, pilot)
+            await _press(pilot, "right", "right_square_bracket")
+            assert _active_tabs(app) == ["Weak", "Comparative"]
+            app.focus_search()
+            await _open_entry(app, pilot, "testhealdan")
+            assert _active_tabs(app) == ["Present"]
+            app.focus_search()
+            await _open_entry(app, pilot, "testgod")
+            assert _active_tabs(app) == ["Strong", "Positive"]
+            assert _shown_forms(app).split() == ["Nom", "strpos"]
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_forms_table_is_not_a_tab_stop(lexicon_source_db: Path) -> None:
+    _seed_verb(
+        lexicon_source_db,
+        "testhealdan",
+        (("psinsg1", "testhealde"), ("painsg1", "testheold")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            table = _forms_table(app)
+            assert table.can_focus is False
+            seen = []
+            for _ in range(8):
+                await pilot.press("tab")
+                await pilot.pause()
+                seen.append(app.focused)
+            assert table not in seen
+            assert app.query_one("#entry-column") in seen
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_flat_section_shows_one_wrapped_list_and_no_headers(
+    lexicon_source_db: Path,
+) -> None:
+    forms = tuple(f"testhwa{index:02d}" for index in range(15))
+    _insert_entry(lexicon_source_db, headword="testhwa", pos="pronoun", summary_sense="who")
+    _seed_forms(
+        lexicon_source_db,
+        headword="testhwa",
+        pos="pronoun",
+        forms=tuple(("nope", form) for form in forms),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(60, 40)) as pilot:
+            await _open_entry(app, pilot, "testhwa")
+            table = _forms_table(app)
+            assert table.show_header is False
+            assert len(table.ordered_columns) == 1
+            assert table.row_count == 1
+            assert _table_text(table) == ", ".join(forms)
+            assert next(iter(table.rows.values())).height > 1
+            painted = "\n".join(_rendered_lines(table))
+            assert "Forms" not in painted
+            assert "…" not in painted
+            for form in forms:
+                assert form in painted
+            assert not table.show_horizontal_scrollbar
+            assert _active_tabs(app) == []
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_pronoun_singular_plural_switch(lexicon_source_db: Path) -> None:
+    _insert_entry(lexicon_source_db, headword="testhe", pos="pronoun", summary_sense="he")
+    _seed_forms(
+        lexicon_source_db,
+        headword="testhe",
+        pos="pronoun",
+        forms=(("SgMaNo", "hesg"), ("SgFeNo", "heosg"), ("PlMaNo", "hiepl")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testhe")
+            await _focus_entry_column(app, pilot)
+            table = _forms_table(app)
+            assert _active_tabs(app) == ["Singular"]
+            labels = [str(column.label) for column in table.ordered_columns]
+            assert labels == ["", "Masc.", "Fem."]
+            assert _shown_forms(app).split() == ["Nom", "hesg", "heosg"]
+            await _press(pilot, "right")
+            table = _forms_table(app)
+            assert _active_tabs(app) == ["Plural"]
+            labels = [str(column.label) for column in table.ordered_columns]
+            assert labels == ["", "Plural"]
+            assert _shown_forms(app).split() == ["Nom", "hiepl"]
+            await _press(pilot, "left")
+            assert _active_tabs(app) == ["Singular"]
+            assert _shown_forms(app).split() == ["Nom", "hesg", "heosg"]
+    finally:
+        app.query_service.close()

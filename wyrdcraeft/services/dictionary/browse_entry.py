@@ -2,7 +2,8 @@
 Section widgets for the dictionary browse entry column (ADR 0026).
 
 The entry pane is one scrolling column: a key/value block, then ``Senses``,
-``Etymology`` and ``Forms``. Each builder here returns ``None`` when its
+``Etymology`` and ``Forms`` (``Forms`` is built in ``browse_forms``). Each
+builder here returns ``None`` when its
 section has no content, so the caller never mounts an empty section or its
 label. Styling lives in ``browse.tcss``; inline spans use theme variables.
 """
@@ -14,7 +15,7 @@ from typing import TYPE_CHECKING
 
 from textual.containers import Grid, Horizontal, Vertical
 from textual.content import Content
-from textual.widgets import DataTable, Rule, Static
+from textual.widgets import Rule, Static
 
 from wyrdcraeft.services.dictionary.browse_results import DIM_STYLE
 from wyrdcraeft.services.dictionary.entry_view import (
@@ -296,27 +297,6 @@ def build_etymology(details: EntryDetails) -> Widget | None:
     )
 
 
-def build_forms() -> Widget:
-    """
-    Build the Forms section around the single morphology table.
-
-    The caller mounts it only when the paradigm sidebar has sections, then
-    fills ``#morphology-table``.
-
-    Returns:
-        The ``#entry-forms`` section.
-
-    """
-    table: DataTable = DataTable(id="morphology-table", zebra_stripes=True)
-    table.cursor_type = "none"
-    return Vertical(
-        SectionLabel("Forms"),
-        table,
-        id="entry-forms",
-        classes=SECTION_CLASS,
-    )
-
-
 def build_text_sections(details: EntryDetails) -> list[Widget]:
     """
     Build the key/value block, Senses and Etymology, skipping empty ones.
@@ -340,7 +320,6 @@ __all__ = [
     "SECTION_CLASS",
     "SectionLabel",
     "build_etymology",
-    "build_forms",
     "build_key_values",
     "build_senses",
     "build_text_sections",
