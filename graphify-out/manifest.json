@@ -54,10 +54,10 @@
     "semantic_hash": "472eab07da6fbd7c030b5b313decf25a"
   },
   "tests/dictionary/test_browse_tui.py": {
-    "mtime": 1791255641.5575855,
-    "seen": 1791577755.891108,
-    "ast_hash": "b89bb854d65f0337d45f23422eed256d",
-    "semantic_hash": "b89bb854d65f0337d45f23422eed256d"
+    "mtime": 1792553016.7781012,
+    "seen": 1792553050.9734101,
+    "ast_hash": "a1e23dd3ae4d43d78321c99dd6e35401",
+    "semantic_hash": ""
   },
   "tests/dictionary/test_bt_spelling.py": {
     "mtime": 1783533428.1558878,
@@ -758,14 +758,14 @@
   "wyrdcraeft/etc/diacritic/oe_bt_macron_index.json": {
     "mtime": 1791570967.67542,
     "seen": 1791577755.892492,
-    "ast_hash": "65ae5a31c9f7f1e93d2d8b0dd69eb8f1",
-    "semantic_hash": "65ae5a31c9f7f1e93d2d8b0dd69eb8f1"
+    "ast_hash": "",
+    "semantic_hash": ""
   },
   "wyrdcraeft/etc/dictionary/bosworth_and_toller_abbreviations.json": {
-    "mtime": 1783464641.6761181,
-    "seen": 1788240582.3278232,
-    "ast_hash": "27206b526c216d47800a2df97ae89dd8",
-    "semantic_hash": "27206b526c216d47800a2df97ae89dd8"
+    "mtime": 1791771010.1330626,
+    "seen": 1792549975.822634,
+    "ast_hash": "b663a5e4937907b9e44a280c61c93d1c",
+    "semantic_hash": ""
   },
   "wyrdcraeft/etc/morphology/inflection_codes_seed.json": {
     "mtime": 1783373247.2398458,
@@ -954,10 +954,10 @@
     "semantic_hash": "00d7dca08d5ab85caffad523973afa37"
   },
   "wyrdcraeft/services/dictionary/browse_tui.py": {
-    "mtime": 1791572405.0167687,
-    "seen": 1791577755.892948,
-    "ast_hash": "ee6ab4376d4bcaf90716f26bb74507f8",
-    "semantic_hash": "ee6ab4376d4bcaf90716f26bb74507f8"
+    "mtime": 1792553024.9812794,
+    "seen": 1792553050.97647,
+    "ast_hash": "56bc9391188f3fc03b3bf512d3490eb3",
+    "semantic_hash": ""
   },
   "wyrdcraeft/services/dictionary/bt_spelling.py": {
     "mtime": 1783533352.3632476,
@@ -1782,10 +1782,10 @@
     "semantic_hash": "c2f6274588dea946f4e1952b927257bf"
   },
   "wyrdcraeft/etc/dictionary/oe_bt.txt": {
-    "mtime": 1783530455.5463672,
-    "seen": 1788240582.3279622,
-    "ast_hash": "0060a3e827a8e6ed0dd5f920ad2effbf",
-    "semantic_hash": "0060a3e827a8e6ed0dd5f920ad2effbf"
+    "mtime": 1791688613.3035285,
+    "seen": 1792549975.827363,
+    "ast_hash": "644a5e0c3777a6a67d3ad33e3c60aa83",
+    "semantic_hash": ""
   },
   "wyrdcraeft/etc/dictionary/wright.md": {
     "mtime": 1783615677.2025015,
@@ -1884,10 +1884,10 @@
     "semantic_hash": "7b9183eb0cf57513c0ac71eb59e11212"
   },
   "pyproject.toml": {
-    "mtime": 1791567291.6946785,
-    "seen": 1791577755.8910232,
-    "ast_hash": "ef786e7353c81b9cbf8565e848ab8bc0",
-    "semantic_hash": "ef786e7353c81b9cbf8565e848ab8bc0"
+    "mtime": 1791949326.9947312,
+    "seen": 1792549975.8201349,
+    "ast_hash": "741903d61e3ea23d663047601a23c524",
+    "semantic_hash": ""
   },
   "scripts/__init__.py": {
     "mtime": 1772561484.4338078,
@@ -1962,10 +1962,10 @@
     "semantic_hash": "90da982ff202b4353ccf42d348361fb5"
   },
   "AGENTS.md": {
-    "mtime": 1791001536.402198,
-    "seen": 1791577755.8937988,
-    "ast_hash": "f0f0aebda51b9bfc8538cdd82127001b",
-    "semantic_hash": "f0f0aebda51b9bfc8538cdd82127001b"
+    "mtime": 1791935940.426824,
+    "seen": 1792549975.824644,
+    "ast_hash": "5b463953f830f3732c08b40b4d23e0d5",
+    "semantic_hash": ""
   },
   "AUTHORS.txt": {
     "mtime": 1768699578.7496696,
@@ -1974,10 +1974,10 @@
     "semantic_hash": "c983e71b4734baeb33e1dc58fb337390"
   },
   "CLAUDE.md": {
-    "mtime": 1791001536.402198,
-    "seen": 1791577755.893801,
-    "ast_hash": "f0f0aebda51b9bfc8538cdd82127001b",
-    "semantic_hash": "f0f0aebda51b9bfc8538cdd82127001b"
+    "mtime": 1791935940.426824,
+    "seen": 1792549975.824658,
+    "ast_hash": "5b463953f830f3732c08b40b4d23e0d5",
+    "semantic_hash": ""
   },
   "CODE_OF_CONDUCT.md": {
     "mtime": 1768699578.734551,
@@ -1986,10 +1986,10 @@
     "semantic_hash": "cd12493c22d10ec270568f5e9791aec2"
   },
   "CONTEXT.md": {
-    "mtime": 1791566642.32904,
-    "seen": 1791577755.893802,
-    "ast_hash": "a661a3b8b87e147c01ef61cc2397d77c",
-    "semantic_hash": "a661a3b8b87e147c01ef61cc2397d77c"
+    "mtime": 1792551190.242959,
+    "seen": 1792553050.978938,
+    "ast_hash": "9aaf812f9a2e58adfd034f6527426ae0",
+    "semantic_hash": ""
   },
   "LICENSE.txt": {
     "mtime": 1768699769.256183,
@@ -2369,12 +2369,6 @@
     "ast_hash": "7efe1cf5097abce4beb7c7a364788939",
     "semantic_hash": "7efe1cf5097abce4beb7c7a364788939"
   },
-  ".claude/settings.local.json": {
-    "mtime": 1787695614.391317,
-    "seen": 1791577755.890969,
-    "ast_hash": "e5da282a04bdb04e7cdbab574f010ced",
-    "semantic_hash": "e5da282a04bdb04e7cdbab574f010ced"
-  },
   "tests/morphology/test_generation_package_imports.py": {
     "mtime": 1785858458.5564744,
     "seen": 1791577755.8917701,
@@ -2554,12 +2548,6 @@
     "seen": 1791577755.893846,
     "ast_hash": "56d2a1afeb7ef1a34573d850040579a0",
     "semantic_hash": "56d2a1afeb7ef1a34573d850040579a0"
-  },
-  "wyrdcraeft/etc/dictionary/oe_bt.json": {
-    "mtime": 1791217535.6454177,
-    "seen": 1791577755.892513,
-    "ast_hash": "56568481591c8017e15b7e86cdbfe3b4",
-    "semantic_hash": "56568481591c8017e15b7e86cdbfe3b4"
   },
   "docs/adr/0015-mark-diacritics-is-additive-transfer.md": {
     "mtime": 1791496686.2878072,
@@ -2777,34 +2765,346 @@
     "ast_hash": "a908af4da34b9c221acc84a7da946c48",
     "semantic_hash": "a908af4da34b9c221acc84a7da946c48"
   },
-  "cltk-ang.md": {
-    "mtime": 1791570239.5192347,
-    "seen": 1791577755.893805,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/benchmark.json": {
+    "mtime": 1791938991.730145,
+    "seen": 1792549975.819823,
+    "ast_hash": "84014ff904a01f6e53efa43e85085658",
+    "semantic_hash": ""
   },
-  "hf-lem.md": {
-    "mtime": 1791570239.009314,
-    "seen": 1791577755.8938591,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/eval_metadata.json": {
+    "mtime": 1791937811.1751244,
+    "seen": 1792549975.8198268,
+    "ast_hash": "a7d2177f1f79c9e0aa16df7c5e39801d",
+    "semantic_hash": ""
   },
-  "nerthus-prev.md": {
-    "mtime": 1791570238.8376758,
-    "seen": 1791577755.8938591,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/grading.json": {
+    "mtime": 1791938747.6230474,
+    "seen": 1792549975.819829,
+    "ast_hash": "5bf98c48cae272aee2e56045b7c214e5",
+    "semantic_hash": ""
   },
-  "oedt.md": {
-    "mtime": 1791570239.6934278,
-    "seen": 1791577755.89386,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/validation.json": {
+    "mtime": 1791938545.5107243,
+    "seen": 1792549975.81983,
+    "ast_hash": "3ca9172a5867b5246472a68440ea9885",
+    "semantic_hash": ""
   },
-  "ud-ang.md": {
-    "mtime": 1791570239.1765106,
-    "seen": 1791577755.893874,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/without_skill/grading.json": {
+    "mtime": 1791938747.5612397,
+    "seen": 1792549975.8198311,
+    "ast_hash": "a34d3b5c850ca40f35c845519fb080e6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/without_skill/outputs/vault/provenance/acquisition.json": {
+    "mtime": 1791937947.5149126,
+    "seen": 1792549975.819832,
+    "ast_hash": "3d0c6b0049345467d0d3297c7e506deb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/eval_metadata.json": {
+    "mtime": 1791937811.2310581,
+    "seen": 1792549975.819833,
+    "ast_hash": "1852b0ba04f6d1f54fef83e89a8b9366",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/grading.json": {
+    "mtime": 1791938743.5012736,
+    "seen": 1792549975.819833,
+    "ast_hash": "8650c500781d962c3a8ae7e528e1065f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/grading.json": {
+    "mtime": 1791938743.4338665,
+    "seen": 1792549975.819834,
+    "ast_hash": "099d0dd6c9249129f2b05cf3d09e7af9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/outputs/corpus-vault/manifest.json": {
+    "mtime": 1791937887.9896455,
+    "seen": 1792549975.819835,
+    "ast_hash": "fc3ae48b2cd07dec3388a729115f4f3a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/outputs/corpus-vault/quarantine/composite-edition/record.json": {
+    "mtime": 1791937888.049502,
+    "seen": 1792549975.819836,
+    "ast_hash": "82a3c2590f5a3723bab75cbb9c02c39a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-1/eval_metadata.json": {
+    "mtime": 1791938870.9409616,
+    "seen": 1792549975.8198369,
+    "ast_hash": "a7d2177f1f79c9e0aa16df7c5e39801d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-1/with_skill/run-1/grading.json": {
+    "mtime": 1791938870.9839072,
+    "seen": 1792549975.819838,
+    "ast_hash": "5bf98c48cae272aee2e56045b7c214e5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-1/without_skill/run-1/grading.json": {
+    "mtime": 1791938871.0253427,
+    "seen": 1792549975.819838,
+    "ast_hash": "a34d3b5c850ca40f35c845519fb080e6",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-2/eval_metadata.json": {
+    "mtime": 1791938871.072218,
+    "seen": 1792549975.819839,
+    "ast_hash": "1852b0ba04f6d1f54fef83e89a8b9366",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-2/with_skill/run-1/grading.json": {
+    "mtime": 1791938871.1131382,
+    "seen": 1792549975.81984,
+    "ast_hash": "8650c500781d962c3a8ae7e528e1065f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-2/without_skill/run-1/grading.json": {
+    "mtime": 1791938871.1830132,
+    "seen": 1792549975.81984,
+    "ast_hash": "099d0dd6c9249129f2b05cf3d09e7af9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-3/eval_metadata.json": {
+    "mtime": 1791938871.2259011,
+    "seen": 1792549975.819841,
+    "ast_hash": "c744171552199da0c4727f3948a5b316",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-3/with_skill/run-1/grading.json": {
+    "mtime": 1791938913.3222702,
+    "seen": 1792549975.819842,
+    "ast_hash": "21f9a2dc6ea487ac2c1c30db6cbb966c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/runs/eval-3/without_skill/run-1/grading.json": {
+    "mtime": 1791938913.385844,
+    "seen": 1792549975.819842,
+    "ast_hash": "a1744f3fdc6f883b894beee7a4af3d9f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/eval_metadata.json": {
+    "mtime": 1791937811.2869642,
+    "seen": 1792549975.819843,
+    "ast_hash": "c744171552199da0c4727f3948a5b316",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/with_skill/grading.json": {
+    "mtime": 1791938764.9150407,
+    "seen": 1792549975.819844,
+    "ast_hash": "681cb4ec1226531c92806b7f4dcef3be",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/with_skill/outputs/decisions.json": {
+    "mtime": 1791938393.5695117,
+    "seen": 1792549975.819844,
+    "ast_hash": "0660d751ab011936f27395e57cb084a0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/without_skill/grading.json": {
+    "mtime": 1791938764.8476362,
+    "seen": 1792549975.8198452,
+    "ast_hash": "5d90584f73e70b3a816ab3eb8b473004",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/without_skill/outputs/decisions.json": {
+    "mtime": 1791937894.6802964,
+    "seen": 1792549975.8198452,
+    "ast_hash": "1a0cecd157bd780295304a7d2b8c79b1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus/evals/evals.json": {
+    "mtime": 1791937811.114656,
+    "seen": 1792549975.819846,
+    "ast_hash": "022fd1225b8d8a2d12235dc28fbfe9be",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus/evals/files/scan-metadata.json": {
+    "mtime": 1791937727.8961868,
+    "seen": 1792549975.8198469,
+    "ast_hash": "47ebb205c118b9a6e4df498e6f98581e",
+    "semantic_hash": ""
+  },
+  "wyrdcraeft/etc/oe_corpus/cameron-catalogue.sources.json": {
+    "mtime": 1791949335.9383178,
+    "seen": 1792549975.822796,
+    "ast_hash": "b09b7142dafca70a2fb62dcfcbf40ae8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/baseline-findings.md": {
+    "mtime": 1791938106.5687647,
+    "seen": 1792549975.8245618,
+    "ast_hash": "102addd52982d46daf2e1d9062667a3b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/benchmark.md": {
+    "mtime": 1791938991.7981007,
+    "seen": 1792549975.824563,
+    "ast_hash": "c2d663d3491781e5e6e8558db15a5495",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/00 Indexes/Acquisition batch - clean TEI promotion.md": {
+    "mtime": 1791938396.4591818,
+    "seen": 1792549975.824563,
+    "ast_hash": "e174cff04e50563a15b73087ba77832b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Acquisition Events/OE-ACQ-20261013-0001 - Public TEI fixture retrieval.md": {
+    "mtime": 1791938396.3417368,
+    "seen": 1792549975.824564,
+    "ast_hash": "e66138e7d46faa0c26a9a37b413e5fe7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Acquisition Report.md": {
+    "mtime": 1791938545.579064,
+    "seen": 1792549975.824565,
+    "ast_hash": "d1e9c37f27145ba637386fa406543ce4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Source Artifacts/OE-SRC-88626182acfc - Homily TEI source.md": {
+    "mtime": 1791938396.280369,
+    "seen": 1792549975.8245661,
+    "ast_hash": "6139f80f597d9057f28b8428d31060e7",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Transcriptions/OE-TR-0001 - Homily for the First Sunday in Lent, MS 42.md": {
+    "mtime": 1791938396.3997736,
+    "seen": 1792549975.8245661,
+    "ast_hash": "d93c8b7ecf8cd44517c622617ccddd78",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Witnesses/OE-WIT-0001 - Example University Library MS 42.md": {
+    "mtime": 1791938396.2141554,
+    "seen": 1792549975.824567,
+    "ast_hash": "b55b8348f17a0e38bad55061732e52e9",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/clean-tei-promotion/with_skill/outputs/Works/OE-WORK-0001 - Homily for the First Sunday in Lent.md": {
+    "mtime": 1791938396.139658,
+    "seen": 1792549975.824568,
+    "ast_hash": "a031ff5cbdd445fa402d6b3fc7b44204",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/00 Indexes/Acquisition Report.md": {
+    "mtime": 1791938409.9897559,
+    "seen": 1792549975.824568,
+    "ast_hash": "62cc65da621fb15642d004c1e6773884",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/Acquisition Events/acq-20261013-25c5447cda27 - Public HTML retrieval.md": {
+    "mtime": 1791938410.1213355,
+    "seen": 1792549975.824569,
+    "ast_hash": "40bab9f58f84869a32033592a5bbef7d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/Corpus Files/Quarantine/sha256-25c5447cda27c2cd47525a6dc9871bdb4b229e78ba7ef8b9920e262aa935dbe3.html": {
+    "mtime": 1791938311.2517145,
+    "seen": 1792549975.8245702,
+    "ast_hash": "d9191cd944f86adbb20857f9e8983c13",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/Curation Decisions/cur-20261013-25c5447cda27 - Quarantine composite homily.md": {
+    "mtime": 1791938410.2431602,
+    "seen": 1792549975.8245702,
+    "ast_hash": "80e214716e498a313c9178f16ddf088f",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/README.md": {
+    "mtime": 1791938409.9103875,
+    "seen": 1792549975.824571,
+    "ast_hash": "7b364e02e85fd931a2aa1a0aef7eb9fd",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/Source Artifacts/src-25c5447cda27 - A Composite Old English Homily HTML.md": {
+    "mtime": 1791938410.058519,
+    "seen": 1792549975.8245718,
+    "ast_hash": "930b8dff16a44789a82e89885d1607e0",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/Transcriptions/tr-25c5447cda27-composite - A Composite Old English Homily.md": {
+    "mtime": 1791938435.3180542,
+    "seen": 1792549975.824573,
+    "ast_hash": "1226ee3fffd128451db91e5f9a052f18",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/with_skill/outputs/validation-report.md": {
+    "mtime": 1791938476.5949247,
+    "seen": 1792549975.824573,
+    "ast_hash": "e446ac9e92b9f3efa3937f0be42d0873",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/outputs/corpus-vault/README.md": {
+    "mtime": 1791937887.913525,
+    "seen": 1792549975.824574,
+    "ast_hash": "10de931124668abe1e96375ad32011c8",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/outputs/corpus-vault/quarantine/composite-edition/assessment.md": {
+    "mtime": 1791937888.1062589,
+    "seen": 1792549975.824575,
+    "ast_hash": "3b5fd056bb548c6ff3fccdaffacec59b",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/composite-edition-quarantine/without_skill/outputs/corpus-vault/quarantine/composite-edition/source.html": {
+    "mtime": 1791937837.592084,
+    "seen": 1792549975.824575,
+    "ast_hash": "d9191cd944f86adbb20857f9e8983c13",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/review.html": {
+    "mtime": 1791939010.9314704,
+    "seen": 1792549975.824576,
+    "ast_hash": "b8463ba37615151c308fd3c6abb4ed9d",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/with_skill/outputs/decision-report.md": {
+    "mtime": 1791938393.6359885,
+    "seen": 1792549975.824577,
+    "ast_hash": "72422df92bfd6da9181b8ebe5ad97b50",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/with_skill/outputs/retained-evidence/community-ocr.txt": {
+    "mtime": 1791938273.9843485,
+    "seen": 1792549975.824577,
+    "ast_hash": "34f8076211b38111cb5a6769a8cbc229",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus-workspace/iteration-1/scan-and-suspect-ocr/without_skill/outputs/decision-report.md": {
+    "mtime": 1791937894.6119719,
+    "seen": 1792549975.824578,
+    "ast_hash": "37e9365e0f1b81c70170ee891e80ca7c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus/SKILL.md": {
+    "mtime": 1791938106.6315112,
+    "seen": 1792549975.824578,
+    "ast_hash": "d53328970c6cfbd949f451270527b3eb",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus/evals/files/community-ocr.txt": {
+    "mtime": 1791937727.9584727,
+    "seen": 1792549975.824579,
+    "ast_hash": "34f8076211b38111cb5a6769a8cbc229",
+    "semantic_hash": ""
+  },
+  ".agents/skills/acquire-old-english-corpus/evals/files/composite-edition.html": {
+    "mtime": 1791937727.8292246,
+    "seen": 1792549975.8245802,
+    "ast_hash": "d9191cd944f86adbb20857f9e8983c13",
+    "semantic_hash": ""
+  },
+  "docs/adr/0022-old-english-corpus-is-a-canonical-obsidian-vault.md": {
+    "mtime": 1792348855.7095509,
+    "seen": 1792549975.8260071,
+    "ast_hash": "5dd13545bb7e6ac83b9ed04fd7b7886d",
+    "semantic_hash": ""
+  },
+  "docs/adr/0024-the-old-english-corpus-belongs-to-another-project.md": {
+    "mtime": 1792348858.85355,
+    "seen": 1792549975.826008,
+    "ast_hash": "71b86b15519ec1eb1fa8717678bb2bc4",
+    "semantic_hash": ""
   }
 }

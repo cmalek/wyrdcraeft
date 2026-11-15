@@ -33,6 +33,7 @@ Out of scope:
 - OCR pipeline work and LLM/messy-document ingest (moved to `wordwending`, formerly `bochord`; see ADR 0007 and ADR 0010)
 - broad lexicography tooling beyond Bosworth-Toller integration
 - arbitrary document-conversion support with no Old English focus
+- corpus acquisition, the Cameron checklist, and the corpus vault. Those belong to a separate project. `wyrdcraeft` receives an already acquired text as ordinary source text when translation work begins
 
 ## Capability Map
 
@@ -46,7 +47,9 @@ Out of scope:
 
 ## Canonical Terms
 
-- source text: raw input text as a local TEI/XML or `.txt` file
+- source text: raw input text as a local TEI/XML or `.txt` file. An acquired
+  corpus text enters the same way, as a file, when translation work begins.
+  _Avoid_: corpus vault, catalogue database
 - lossless source-grounded AST: first-pass Bosworth-Toller parse output that
   preserves source order, source text, and fragment boundaries before any
   normalization or cleanup; later views may derive normalized dictionary data
@@ -201,7 +204,7 @@ Out of scope:
 - dictionary build: primary unified build command that rebuilds `bt_*`
   tables, relinks `forms.entry_id`, and optionally regenerates morphology
   when requested or when the `forms` table is empty
-- Bosworth-Toller lexicon: the glossary for turning `oe_bt.txt` into structured dictionary records lives in the `boslexicon` project, at `~/src/personal/boslexicon/CONTEXT.md`. That glossary holds the dictionary entry, the editorial entry, the spelling note, the headword variant, the see-also, the editorial operation, and the edit record
+- Bosworth-Toller lexicon: the glossary for turning `oe_bt.txt` into structured dictionary records lives in the `boslexicon` project, at `~/src/personal/boslexicon/CONTEXT.md`. That glossary holds the dictionary entry, the editorial entry, the spelling note, the headword variant, the see-also, the editorial operation, and the edit record. The accepted readings through 18 October 2026 are boslexicon ADR 0001, `doc/source/adr/0001-bt-readings-lock-one-printed-shape-at-a-time.rst`
 - entry_id relink: post-build step in the unified dictionary pipeline that
   populates `forms.entry_id` foreign keys by joining morphology lemmas to
   newly indexed dictionary entries
@@ -258,9 +261,13 @@ Out of scope:
 - Wright legacy audit: report-only `dictionary audit-wright` command comparing
   bundled source `wright` fields to deterministic `lemma_morph_classes`
   assignments; optional `--json`; never rewrites source files
-- browse morph-class block: dictionary detail pane shows catalog class label,
-  assignment provenance, and selectable Wright § citations via join-at-read-time
-  lookup
+- Wright § list: selectable Wright & Wright paragraph citations in the
+  dictionary browse details pane. Choosing one shows that paragraph's stored
+  text. Separate from the morph-class label, provenance, and paradigm table.
+  _Avoid_: section listings, Wright section listings
+- browse morph-class block: dictionary detail pane lines for catalog class
+  label and assignment provenance, from join-at-read-time lookup
+  _Avoid_: treating the Wright § list as part of this block
 - morphology table: browse sidebar view that expands function codes into
   POS-aware paradigm grids (verb/noun/adjective/pronoun) filtered to the
   headword's part of speech; falls back to a flat table when no grid applies
@@ -539,6 +546,10 @@ Prerequisite: canonical `wyrdcraeft.sqlite3` at Alembic head with populated
   — Trello Gwr8hysN. Overrides the card on
   injection, Add-as-class, services re-export, and a separate models module.
   Edit-record canonical import is `wyrdcraeft.models.dictionary`.
+- [0024: The Old English corpus belongs to another project](docs/adr/0024-the-old-english-corpus-belongs-to-another-project.md)
+  — supersedes ADR 0022 for this repository. Corpus acquisition and the vault
+  move to a separate project. An acquired text enters here as an ordinary
+  source file.
 - [0025: Definition lines join senses with semicolons](docs/adr/0025-definition-lines-join-senses-with-semicolons.md)
   — Trello K6lah6MZ. A definition line is a reading of the stored glosses.
   The browse pane copies that line; it does not rewrite `bt_senses`.

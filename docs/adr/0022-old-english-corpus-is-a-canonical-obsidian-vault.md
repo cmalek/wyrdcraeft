@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR 0024
 ---
 
 # The Old English corpus is a canonical Obsidian vault
@@ -21,7 +21,7 @@ transcription, distinguish manuscript readings from editorial reconstruction,
 and remain browsable by a human.  It must also accommodate lost witnesses
 known only through later copies or editions, such as *The Battle of Maldon*.
 
-**Status:** accepted.
+**Status:** superseded by ADR 0024. The corpus design in this document moves to the separate corpus project. `wyrdcraeft` does not implement it.
 
 ## Decision
 
