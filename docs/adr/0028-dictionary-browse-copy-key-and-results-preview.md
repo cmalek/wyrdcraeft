@@ -31,12 +31,15 @@ The dim text after the headword in a results row is the entry's definition line,
 Computing the line for every row of a long result list is the open cost, and ADR 0014 already defers loading every entry per search.
 
 - `bt_entries` gains a nullable text column `definition_line_cache`. Null means "not computed".
-- Browse reads the column. On null it computes the line with `definition_line`, writes it back, and returns it. A row with no senses caches the empty string, so it is not recomputed on every query.
-- Anything that changes an entry's senses, variants or part of speech sets the column to null in the same transaction: the editorial merger and edit-record operations (ADR 0021), and any build step that rewrites senses. A full `dictionary build` creates rows with the column null.
+- Browse reads the column in its search query (`e.definition_line_cache AS cached_line`), so a cached line costs nothing. A hit whose column is null carries no line (`BrowseSearchHit.definition_line` is `None`).
+- `DefinitionLineCache` shares the browse service's connection. `get` returns the stored line, or on null computes it with `definition_line`, writes it back, commits, and returns it. A row with no senses caches the empty string, so it is not recomputed on every query. `peek` returns the stored value without computing.
+- If the write fails, for example `database is locked` while a build holds the database, `get` rolls back and returns the computed line without caching. Browse never raises on a cache write.
+- Browse computes missing lines only for the rows the results list draws (the visible window plus one screen), not for every hit, and asks for more as the list scrolls. Copy reads the same line through `get`, so preview and copy cannot disagree.
+- The migration that adds the column also adds SQLite triggers that set it to null when a `bt_senses` or `bt_variants` row is inserted, updated or deleted (an update clears both the old and the new entry, so moving a sense clears both), and when `bt_entries.pos_id` changes (`AFTER UPDATE OF pos_id`, guarded by `OLD.pos_id IS NOT NEW.pos_id`, so writing the cache itself does not fire it). The triggers catch every write path, including the editorial merger, edit-record operations (ADR 0021), build steps that rewrite senses, and paths nobody remembered. A full `dictionary build` creates rows with the column null.
 - A change to the ADR 0025 reading rules ships with a migration that nulls the column.
 - The column is derived data and never an input. Nothing but browse reads it, and it is not exported. The stored gloss is untouched (ADR 0025).
-- The schema change is an Alembic migration under ADR 0002.
-- Start by computing lazily for the rows the list actually draws. If the first page is slow, populate the column for a result set in one batch before painting.
+- The schema change is an Alembic migration under ADR 0002. Only databases upgraded through Alembic carry the triggers; a table created directly from the models (`BTSqliteSink` without attach mode) has the column but not the triggers, and browse does not run against such a database.
+- If drawing the first page is slow, populate the column for a result set in one batch before painting.
 
 ## Considered Options
 
@@ -52,4 +55,4 @@ Computing the line for every row of a long result list is the open cost, and ADR
 - A user who has typed a query presses `escape` or `tab` before `c`. The footer and the banner button remain the discoverable paths.
 - `browse_tui.py`'s `BINDINGS` loses the two `ctrl+c` entries. The tests that pressed `ctrl+c` or `super+c` press `c` after moving focus.
 - The first browse after an edit that clears a row pays one compute for that row.
-- A stale cache is possible if a write path forgets to clear it. A test lists every write path to `bt_senses`, `bt_variants` and `bt_entries` and asserts each clears the column.
+- A stale cache would need a write that bypasses the triggers, which only a direct schema change could do. Tests assert that inserting, updating and deleting senses and variants, changing the part of speech, and moving a sense between entries each clear the column, and that writing the cache does not. The cost is one extra `UPDATE` per sense or variant insert during a full build.

@@ -235,6 +235,40 @@ def test_search_returns_exact_headword_hit(lexicon_source_db: Path) -> None:
     assert hit.summary_sense == "an abbot; abbot"
 
 
+def test_search_hits_carry_cached_line(lexicon_source_db: Path) -> None:
+    entry_id = _bt_entry_id(lexicon_source_db, norm_key="abbad")
+    with sqlite3.connect(lexicon_source_db) as connection:
+        connection.execute(
+            "UPDATE bt_entries SET definition_line_cache = ? WHERE id = ?",
+            ("a stored line", entry_id),
+        )
+        connection.commit()
+    service = DictionaryBrowseQueryService(lexicon_source_db)
+    try:
+        hits = service.search("abbad")
+    finally:
+        service.close()
+
+    hit = next(hit for hit in hits if hit.entry_id == entry_id)
+    assert hit.definition_line == "a stored line"
+
+
+def test_search_leaves_uncached_hits_unset(lexicon_source_db: Path) -> None:
+    service = DictionaryBrowseQueryService(lexicon_source_db)
+    try:
+        hits = service.search("abbad")
+    finally:
+        service.close()
+
+    assert hits
+    assert all(hit.definition_line is None for hit in hits)
+    with sqlite3.connect(lexicon_source_db) as connection:
+        stored = connection.execute(
+            "SELECT COUNT(*) FROM bt_entries WHERE definition_line_cache IS NOT NULL"
+        ).fetchone()
+    assert stored == (0,)
+
+
 def test_search_returns_exact_variant_hit_case_insensitive(
     lexicon_source_db: Path,
 ) -> None:

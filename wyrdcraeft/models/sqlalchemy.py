@@ -133,6 +133,8 @@ class BTEntry(Base):
     source_line_nos_json: Mapped[str] = mapped_column(Text, nullable=False)
     #: Stable source-block ordering within the dictionary build.
     entry_order: Mapped[int] = mapped_column(nullable=False)
+    #: Cached browse definition line; ``None`` means not yet computed (ADR 0028).
+    definition_line_cache: Mapped[str | None] = mapped_column(Text, nullable=True)
     #: Referenced canonical part-of-speech row.
     part_of_speech: Mapped[PartOfSpeech] = relationship()
 

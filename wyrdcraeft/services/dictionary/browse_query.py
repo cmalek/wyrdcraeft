@@ -42,6 +42,8 @@ class BrowseSearchHit:
         summary_sense: First non-empty gloss summary for the entry.
         rank_tier: Best locked ranking tier matched by the query.
         matched_text: Headword or variant spelling responsible for the match.
+        definition_line: Cached ADR 0025 definition line, or ``None`` when not
+            yet computed (ADR 0028).
 
     """
 
@@ -57,6 +59,8 @@ class BrowseSearchHit:
     rank_tier: int
     #: Headword or variant spelling responsible for the match.
     matched_text: str
+    #: Cached definition line; ``None`` means not yet computed (ADR 0028).
+    definition_line: str | None = None
 
 
 @dataclass(frozen=True)
@@ -749,7 +753,8 @@ class DictionaryBrowseQueryService:
                     e.norm_key AS norm_key,
                     e.pos_id AS pos_id,
                     p.code AS pos,
-                    COALESCE(fs.gloss_en, '') AS summary_sense
+                    COALESCE(fs.gloss_en, '') AS summary_sense,
+                    e.definition_line_cache AS cached_line
                 FROM bt_entries e
                 JOIN parts_of_speech p ON p.id = e.pos_id
                 LEFT JOIN first_senses fs ON fs.entry_id = e.id
@@ -783,6 +788,8 @@ class DictionaryBrowseQueryService:
             headword = str(row["headword"])
             pos = str(row["pos"])
             summary_sense = str(row["summary_sense"]).strip()
+            cached_line = row["cached_line"]
+            line = None if cached_line is None else str(cached_line)
             best_for_entry: BrowseSearchHit | None = None
 
             headword_tier = _rank_candidate(
@@ -805,6 +812,7 @@ class DictionaryBrowseQueryService:
                     summary_sense=summary_sense,
                     rank_tier=headword_tier,
                     matched_text=headword,
+                    definition_line=line,
                 )
 
             for spelling_macronized, normalized_title in variants_by_entry.get(
@@ -835,6 +843,7 @@ class DictionaryBrowseQueryService:
                         summary_sense=summary_sense,
                         rank_tier=variant_tier,
                         matched_text=spelling_macronized,
+                        definition_line=line,
                     ),
                 )
 
