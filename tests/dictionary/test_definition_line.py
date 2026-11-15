@@ -36,6 +36,11 @@ from wyrdcraeft.services.dictionary.definition_line import definition_line
         ("noun", [" time ; date "], "time, date"),
         ("noun", ["", "  "], ""),
         ("noun", [], ""),
+        (
+            "noun",
+            ["state of mind; dignity; rank of king"],
+            "state of mind, dignity or rank of king",
+        ),
     ],
 )
 def test_definition_line(pos: str, glosses: list[str], expected: str) -> None:

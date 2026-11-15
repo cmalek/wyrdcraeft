@@ -84,8 +84,8 @@ def _format_gloss(pos: str, gloss: str) -> str:
     if not pieces:
         return ""
     accumulated = pieces[0]
-    for right in pieces[1:]:
-        joiner = _OR_JOIN if _is_or_boundary(accumulated, right) else _COMMA_JOIN
+    for index, right in enumerate(pieces[1:], start=1):
+        joiner = _OR_JOIN if _is_or_boundary(pieces[index - 1], right) else _COMMA_JOIN
         accumulated = f"{accumulated}{joiner}{right}"
     parts = [part.strip() for part in accumulated.split(",") if part.strip()]
     if pos.strip().casefold() == "verb":
@@ -99,7 +99,7 @@ def _is_or_boundary(left: str, right: str) -> bool:
     Return whether *right* should join *left* with `` or ``.
 
     Args:
-        left: Accumulated left-hand text.
+        left: Semicolon piece immediately before this boundary.
         right: Next semicolon piece.
 
     Returns:
