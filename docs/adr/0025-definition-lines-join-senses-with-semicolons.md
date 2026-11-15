@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: accepted; the Copying section and the ctrl+c / super+c consequence are superseded by ADR 0028
 ---
 
 # Definition lines join senses with semicolons
