@@ -19,7 +19,7 @@ The search input has focus at start and takes plain letters, so `c` types a lett
 - Search input, results list and entry pane are focusable in that order. `tab` and `shift+tab` move between them.
 - `escape` in the search input moves focus to the results list. `escape` anywhere else does nothing. `/` from the results list or entry pane returns to the search input.
 - `up` and `down` in the search input move the results selection without leaving the input, as typing a query and arrowing down is the common path. In the results list, `down` and `up` move the selection.
-- `c` and `←` `→` act in the results list and entry pane and are inert in the search input. The footer shows `c Copy` only when the binding is live.
+- `c` acts in the results list and entry pane and is inert in the search input. `←` `→` and `[` `]` act only in the entry pane (ADR 0027). The footer shows `c Copy` only when the binding is live.
 - The Copy button stays unfocusable and mouse-clickable.
 
 ## Results preview
