@@ -10,7 +10,7 @@ Today the paradigm table clips long form lists at the right edge and puts the Pa
 
 - Every form for a tense, number, person, case or degree is shown. No cell is cut off, and no `…` or "show all" stands in for omitted forms.
 - Paradigms stay in a Textual `DataTable`. The clipping is our own call, not a `DataTable` limit. `add_row` is called with its default `height=1`, which turns wrapping off, and columns size to their longest content. The fix is `height=None` on every row and a fixed width on the forms column, set from the pane width. A cell wraps inside its column and the pane scrolls vertically. There is no horizontal scrollbar. The table cursor stays off (`cursor_type = "none"`).
-- The citation form in a cell is bold; variants are regular weight. All forms use the Old English form colour.
+- All forms use the Old English form colour at regular weight until the model carries a citation marker. A cell's forms are sorted alphabetically, and `forms.probability` is an undocumented generator score (empty on about 30% of rows, tied across variants), so no form can be marked as the citation spelling yet.
 - A row with no form is dropped, so a verb's Past table omits Infinitive. A feature column with no value in any row is dropped. A row with no features at all shows its forms as one wrapped list, deduplicated, with no empty column headers.
 - A table with no rows, or only empty feature columns and no forms, is not drawn and neither is its section.
 

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
+from rich.style import Style
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from textual import events
@@ -1989,6 +1990,24 @@ def _rendered_lines(table: DataTable) -> list[str]:
     return [table.render_line(y).text for y in range(table.size.height)]
 
 
+def _assert_table_fits_and_paints(table: DataTable, forms: tuple[str, ...]) -> None:
+    """
+    Assert the real no-clipping invariants of the forms table.
+
+    The overflow guard in ``browse.tcss`` keeps scrollbars off, so the
+    scrollbar flags prove nothing; check widths and painted text instead.
+    """
+    assert table.virtual_size.width <= table.size.width
+    columns_right = table.region.x + sum(
+        column.get_render_width(table) for column in table.ordered_columns
+    )
+    assert columns_right <= table.region.right
+    painted = "\n".join(_rendered_lines(table))
+    assert "…" not in painted
+    for form in forms:
+        assert form in painted
+
+
 def _active_tabs(app: DictionaryBrowseApp) -> list[str]:
     """Return the bold (selected) labels of every displayed tab strip."""
     labels: list[str] = []
@@ -2039,17 +2058,15 @@ async def test_long_verb_forms_wrap_without_ellipsis(lexicon_source_db: Path) ->
         async with app.run_test(size=(60, 40)) as pilot:
             await _open_entry(app, pilot, "testhealdan")
             table = _forms_table(app)
-            painted = "\n".join(_rendered_lines(table))
-            assert "…" not in painted
+            forms = (*_LONG_PRESENT_FORMS, "testhealdan")
+            _assert_table_fits_and_paints(table, forms)
             assert "…" not in _table_text(table)
-            for form in (*_LONG_PRESENT_FORMS, "testhealdan"):
-                assert form in painted
+            for form in forms:
                 assert form in _table_text(table)
             assert any(row.height > 1 for row in table.rows.values())
-            assert not table.show_horizontal_scrollbar
-            assert table.virtual_size.width <= table.size.width
             column = app.query_one("#entry-column")
-            assert not column.show_horizontal_scrollbar
+            assert column.virtual_size.width <= column.scrollable_content_region.width
+            assert table.region.right <= column.scrollable_content_region.right
     finally:
         app.query_service.close()
 
@@ -2071,14 +2088,16 @@ async def test_forms_column_width_follows_pane_resize(lexicon_source_db: Path) -
             await pilot.pause()
             table = _forms_table(app)
             assert table.ordered_columns[-1].width < wide
-            assert table.virtual_size.width <= table.size.width
-            assert not table.show_horizontal_scrollbar
+            _assert_table_fits_and_paints(table, _LONG_PRESENT_FORMS)
     finally:
         app.query_service.close()
 
 
 @pytest.mark.anyio
-async def test_citation_form_is_bold(lexicon_source_db: Path) -> None:
+async def test_forms_are_regular_weight_in_the_form_colour(
+    lexicon_source_db: Path,
+) -> None:
+    # No citation marker in the model yet (ADR 0027), so no form is bold.
     _seed_verb(
         lexicon_source_db,
         "testhealdan",
@@ -2089,12 +2108,15 @@ async def test_citation_form_is_bold(lexicon_source_db: Path) -> None:
         async with app.run_test() as pilot:
             await _open_entry(app, pilot, "testhealdan")
             cell = _forms_table(app).get_row_at(0)[-1]
-            first = cell.plain.split(", ")[0]
-            bold = [span for span in cell.spans if "bold" in str(span.style)]
-            assert [(span.start, span.end) for span in bold] == [(0, len(first))]
+            assert cell.plain == ", ".join(sorted(_LONG_PRESENT_FORMS))
+            assert not cell.style
             accent = app.theme_variables["accent"].casefold()
-            assert cell.spans
+            assert [(span.start, span.end) for span in cell.spans] == [
+                (0, len(cell.plain))
+            ]
             for span in cell.spans:
+                assert isinstance(span.style, Style)
+                assert not span.style.bold
                 color = span.style.color
                 assert color is not None
                 assert color.triplet is not None
@@ -2358,10 +2380,7 @@ async def test_flat_section_shows_one_wrapped_list_and_no_headers(
             assert next(iter(table.rows.values())).height > 1
             painted = "\n".join(_rendered_lines(table))
             assert "Forms" not in painted
-            assert "…" not in painted
-            for form in forms:
-                assert form in painted
-            assert not table.show_horizontal_scrollbar
+            _assert_table_fits_and_paints(table, forms)
             assert _active_tabs(app) == []
     finally:
         app.query_service.close()

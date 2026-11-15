@@ -45,8 +45,6 @@ MIN_FORMS_WIDTH = 8
 _FEATURE_HEADERS = frozenset({"", "Person", "Degree"})
 #: First heading of the generic decoded table, whose first column is the form.
 _GENERIC_FORM_HEADER = "form"
-#: Separator between the forms joined into one cell.
-_FORM_SEPARATOR = ", "
 #: Cell values that mean "no form" (switchable grids use ``""``, nouns ``-``).
 _NO_FORM_CELLS = frozenset({"", "-"})
 #: Theme style of the selected tab label.
@@ -370,10 +368,12 @@ def _share_room(natural: dict[int, int], room: int) -> dict[int, int]:
 
 def forms_cell(cell: str, color: str) -> Text:
     """
-    Style one forms cell: every form in ``color``, the citation form bold.
+    Style one forms cell: every form in ``color`` at regular weight.
 
-    The citation form is the first form in the cell; variants follow in
-    regular weight.
+    No form is bold. The sidebar orders a cell's forms alphabetically and
+    the model carries no citation marker (``forms.probability`` is an
+    undocumented generator score, empty for many rows), so no form can
+    honestly be marked as the citation spelling (ADR 0027).
 
     Args:
         cell: Forms joined by ``", "``, or a no-form placeholder.
@@ -386,11 +386,7 @@ def forms_cell(cell: str, color: str) -> Text:
     if cell.strip() in _NO_FORM_CELLS:
         return Text(cell, end="")
     text = Text(end="")
-    plain = Style(color=color)
-    for index, form in enumerate(cell.split(_FORM_SEPARATOR)):
-        if index:
-            text.append(_FORM_SEPARATOR, style=plain)
-        text.append(form, style=Style(color=color, bold=True) if index == 0 else plain)
+    text.append(cell, style=Style(color=color))
     return text
 
 

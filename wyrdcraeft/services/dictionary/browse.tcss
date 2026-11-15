@@ -269,7 +269,10 @@ Rule.section-rule {
    TCSS cannot unset it, so the cap is set far beyond any paradigm.
    ``browse_forms.fit_columns`` sizes the columns to the pane, so the table
    is never wider than its region; ``overflow-x: hidden`` also stops a stale
-   scrollbar flag from a transient layout width being painted. */
+   scrollbar flag from a transient layout width being painted. The guard
+   trades a scrollbar for clipping: a table wider than its region would be
+   cut off silently, so the tests assert the column widths and painted forms
+   directly rather than trusting the scrollbar flags. */
 #morphology-table {
     height: auto;
     min-height: 0;
