@@ -439,3 +439,29 @@ def test_glosses_follow_details_sense_path_order(
     assert DefinitionLineCache(connection).get(entry_id) == definition_line(
         details.pos, details_order
     )
+
+
+def test_read_only_cache_never_writes(lexicon_source_db: Path) -> None:
+    entry_id = _entry_with_senses(lexicon_source_db)
+    empty_id = _new_entry_without_senses(lexicon_source_db)
+    engine = sqlalchemy_create_engine(f"sqlite:///{lexicon_source_db}")
+    updates: list[str] = []
+
+    @event.listens_for(engine, "before_cursor_execute")
+    def _count_updates(*args: object) -> None:
+        statement = str(args[2])
+        if statement.lstrip().upper().startswith("UPDATE"):
+            updates.append(statement)
+
+    conn = engine.connect()
+    try:
+        cache = DefinitionLineCache(conn, write=False)
+        assert cache.get(entry_id) == _expected_line(lexicon_source_db, entry_id)
+        assert cache.get(empty_id) == ""
+        assert cache.get(entry_id) == _expected_line(lexicon_source_db, entry_id)
+        assert updates == []
+        assert _raw_cache(lexicon_source_db, entry_id) is None
+        assert _raw_cache(lexicon_source_db, empty_id) is None
+    finally:
+        conn.close()
+        engine.dispose()

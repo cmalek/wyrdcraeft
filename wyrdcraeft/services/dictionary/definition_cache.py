@@ -27,28 +27,39 @@ class DefinitionLineCache:
     not each wait out SQLite's busy timeout; they still compute and return
     the line. A new instance writes again.
 
+    A cache built with ``write=False`` never writes: ``get`` returns the
+    stored line or computes it, so a caller on the UI thread never waits on
+    a database lock. Browse's row-fill worker is the only writer.
+
     Args:
-        connection: Writable connection shared with the browse query service.
+        connection: Connection to the canonical database.
+
+    Keyword Args:
+        write: Whether ``get`` stores computed lines (``True``) or only reads
+            and computes them (``False``).
 
     """
 
-    #: Writable connection shared with the browse query service.
+    #: Connection to the canonical database.
     _connection: Connection
     #: Whether cache writes are still attempted; cleared after a failed write.
     _writes_enabled: bool
 
-    def __init__(self, connection: Connection) -> None:
+    def __init__(self, connection: Connection, *, write: bool = True) -> None:
         """
         Bind the cache to one long-lived connection.
 
         Args:
-            connection: Writable connection shared with the browse query service.
+            connection: Connection to the canonical database.
+
+        Keyword Args:
+            write: Whether ``get`` stores computed lines.
 
         """
-        #: Writable connection shared with the browse query service.
+        #: Connection to the canonical database.
         self._connection = connection
         #: Whether cache writes are still attempted; cleared after a failed write.
-        self._writes_enabled = True
+        self._writes_enabled = write
 
     def peek(self, entry_id: int) -> str | None:
         """
@@ -74,8 +85,9 @@ class DefinitionLineCache:
 
         Side Effects:
             On a miss, writes the computed line to
-            ``bt_entries.definition_line_cache`` and commits. A failed write
-            (for example a locked database) is rolled back and ignored.
+            ``bt_entries.definition_line_cache`` and commits, unless the
+            cache was built with ``write=False``. A failed write (for example
+            a locked database) is rolled back and ignored.
 
         Args:
             entry_id: Dictionary entry identifier.

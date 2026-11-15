@@ -1104,7 +1104,7 @@ class DictionaryBrowseQueryService:
         )
         raise DictionaryBrowseDataError(msg)
 
-    def open_definition_line_cache(self) -> DefinitionLineCache:
+    def open_definition_line_cache(self, *, write: bool = True) -> DefinitionLineCache:
         """
         Open a definition-line cache on its own connection to this database.
 
@@ -1113,6 +1113,10 @@ class DictionaryBrowseQueryService:
         threads, so the cache gets a second connection from the same engine.
         The browse connection only reads and holds no open write transaction,
         so the cache's short writes do not contend with it.
+
+        Keyword Args:
+            write: Whether the cache stores computed lines. The UI thread
+                passes ``False`` so it never waits on a database lock.
 
         Side Effects:
             Opens a connection that :meth:`close` releases.
@@ -1123,7 +1127,7 @@ class DictionaryBrowseQueryService:
         """
         connection = self._engine.connect()
         self._cache_connections.append(connection)
-        return DefinitionLineCache(connection)
+        return DefinitionLineCache(connection, write=write)
 
     def close(self) -> None:
         """

@@ -562,7 +562,7 @@ class DictionaryBrowseApp(App[None]):
     _copy_button: Button
     #: Definition-line cache used only by the row-fill worker thread.
     _row_definition_cache: DefinitionLineCache | None
-    #: Definition-line cache for the open entry, used only on the UI thread.
+    #: Read-only definition-line cache for the open entry (UI thread only).
     _entry_definition_cache: DefinitionLineCache | None
     #: Serializes row-fill workers so one thread uses the cache at a time.
     _row_definition_lock: threading.Lock
@@ -596,7 +596,7 @@ class DictionaryBrowseApp(App[None]):
         self.query_service = query_service
         #: Definition-line cache used only by the row-fill worker thread.
         self._row_definition_cache = None
-        #: Definition-line cache for the open entry, used only on the UI thread.
+        #: Read-only definition-line cache for the open entry (UI thread only).
         self._entry_definition_cache = None
         #: Serializes row-fill workers so one thread uses the cache at a time.
         self._row_definition_lock = threading.Lock()
@@ -1049,13 +1049,17 @@ class DictionaryBrowseApp(App[None]):
         Returns:
             The definition line; empty when the entry has none.
 
+        The UI-thread cache never writes, so opening an entry never waits on
+        a database lock (for example while a build runs); the row-fill
+        worker is the only writer.
+
         Side Effects:
-            Opens the UI-thread cache on first use; may store a computed line.
+            Opens the read-only UI-thread cache on first use.
 
         """
         if self._entry_definition_cache is None:
             self._entry_definition_cache = (
-                self.query_service.open_definition_line_cache()
+                self.query_service.open_definition_line_cache(write=False)
             )
         return self._entry_definition_cache.get(entry_id)
 

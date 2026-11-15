@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+import time
 from dataclasses import replace as dataclass_replace
 from importlib.resources import files
 from pathlib import Path
@@ -2597,10 +2598,13 @@ async def test_slash_returns_to_search(lexicon_source_db: Path) -> None:
 
 @pytest.mark.anyio
 async def test_tab_order_search_results_entry(lexicon_source_db: Path) -> None:
+    _seed_adjective(lexicon_source_db)
     app = create_dictionary_browse_app(lexicon_source_db)
     try:
-        async with app.run_test() as pilot:
-            await _submit_search(app, pilot, "abbad")
+        async with app.run_test(size=(140, 40)) as pilot:
+            await _open_entry(app, pilot, "testgod")
+            assert _forms_table(app).display
+            assert not app.query_one("#copy-definition", Button).disabled
             seen = [_focused_id(app)]
             for _ in range(3):
                 await pilot.press("tab")
@@ -2747,4 +2751,32 @@ async def test_footer_lists_only_live_keys(lexicon_source_db: Path) -> None:
                 ["/ Search", "tab Switch pane", "c Copy"]
             )
     finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_opening_an_entry_does_not_wait_on_a_locked_database(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_two_senses_out_of_path_order(lexicon_source_db, headword="ordered")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    locker = sqlite3.connect(lexicon_source_db, isolation_level=None)
+    try:
+        async with app.run_test() as pilot:
+            locker.execute("BEGIN IMMEDIATE")
+            try:
+                started = time.monotonic()
+                await _submit_search(app, pilot, "ordered")
+                await pilot.pause()
+                elapsed = time.monotonic() - started
+                assert elapsed < 2.0
+                assert app._definition_line == "first; second"
+                await pilot.press("escape", "c")
+                await pilot.pause()
+                assert app.clipboard == "first; second"
+            finally:
+                locker.execute("ROLLBACK")
+            await app.workers.wait_for_complete()
+    finally:
+        locker.close()
         app.query_service.close()
