@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import contextlib
+import threading
 import unicodedata
+from dataclasses import replace
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Protocol, cast
 
 if TYPE_CHECKING:
@@ -11,13 +14,18 @@ if TYPE_CHECKING:
 
     from textual import events
     from textual.binding import BindingType
+    from textual.widget import Widget
 
+    from wyrdcraeft.services.dictionary.definition_cache import DefinitionLineCache
+
+from textual import work
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, ScrollableContainer, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
+from textual.worker import get_current_worker
 
 from wyrdcraeft.services.dictionary.browse_progress import (
     DictionaryBrowseStartupStage,
@@ -32,6 +40,13 @@ from wyrdcraeft.services.dictionary.browse_query import (
     MorphologyRow,
     filter_display_variants,
 )
+from wyrdcraeft.services.dictionary.browse_results import (
+    definition_text,
+    headword_content,
+    pos_label,
+    pos_tag_class,
+)
+from wyrdcraeft.services.dictionary.browse_theme import WYRDCRAEFT_THEME
 from wyrdcraeft.services.dictionary.definition_line import definition_line
 from wyrdcraeft.services.dictionary.etymology_display import (
     format_etymology_display,
@@ -47,9 +62,6 @@ from wyrdcraeft.services.dictionary.paradigm_sidebar import (
     build_paradigm_sidebar,
 )
 from wyrdcraeft.services.markup import normalize_old_english
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class _MorphClassLike(Protocol):
@@ -227,7 +239,9 @@ class OldEnglishSearchInput(Input):
 
 class _MainResultItem(ListItem):
     """
-    List row for one dictionary-backed search hit.
+    Results row for one dictionary-backed search hit (ADR 0026, ADR 0028).
+
+    Left to right: the headword, the dim definition line, the POS tag.
 
     Args:
         hit: Search hit rendered in the main results list.
@@ -236,15 +250,42 @@ class _MainResultItem(ListItem):
 
     def __init__(self, hit: BrowseSearchHit) -> None:
         """
-        Build one main-result list row with headword and POS labels.
+        Build one results row from a search hit.
 
         Args:
             hit: Dictionary-backed search hit to display.
 
         """
-        super().__init__(Static(_format_main_result_label(hit)))
+        #: Dim definition-line cell, updated when a missing line is filled.
+        self._definition = Static(definition_text(hit), classes="result-definition")
+        tag = Static(pos_label(hit), classes=f"pos-tag {pos_tag_class(hit)}")
+        super().__init__(
+            Static(headword_content(hit), classes="result-headword"),
+            self._definition,
+            tag,
+            classes="result-row",
+        )
         #: Search hit rendered in the main results list.
         self.hit = hit
+
+    def set_definition_line(self, line: str) -> None:
+        """
+        Show a definition line filled after the row was built.
+
+        Args:
+            line: Definition line for this row's entry; empty shows nothing.
+
+        Side Effects:
+            Replaces :attr:`hit` with a copy carrying ``line`` and redraws the
+            definition cell.
+
+        """
+        self.hit = replace(self.hit, definition_line=line)
+        self._definition.update(line)
+
+
+#: Fallback results-row height before layout (one line plus padding).
+_RESULT_ROW_HEIGHT = 3
 
 
 # ponytail: False until Wright & Wright 1925 OCR is corrected; flip this constant.
@@ -343,25 +384,6 @@ class WrightSectionTextScreen(ModalScreen[None]):
 
         """
         self.app.pop_screen()
-
-
-def _format_main_result_label(hit: BrowseSearchHit) -> str:
-    """
-    Format a main results row with headword and POS for homograph disambiguation.
-
-    Args:
-        hit: Dictionary-backed search hit.
-
-    Returns:
-        Single-line label for a main results list row.
-
-    """
-    pos = hit.pos.strip() or "unknown"
-    headword_norm = normalize_old_english(hit.headword) or ""
-    matched_norm = normalize_old_english(hit.matched_text) or ""
-    if hit.rank_tier > 1 and matched_norm and matched_norm != headword_norm:
-        return f"{hit.matched_text} ({hit.headword}, {pos})"
-    return f"{hit.headword} ({pos})"
 
 
 def _join_labels(labels: Iterable[str]) -> str:
@@ -724,174 +746,8 @@ class DictionaryBrowseApp(App[None]):
 
     """
 
-    #: Textual stylesheet for the browse layout.
-    CSS = """
-  Screen {
-      layout: vertical;
-      overflow: hidden;
-  }
-
-  #search-input {
-      margin: 1 1 0 1;
-  }
-
-  #results-title,
-  #details-title {
-      height: auto;
-  }
-
-  #details-title-bar {
-      height: auto;
-  }
-
-  #details-title {
-      width: 1fr;
-  }
-
-  #copy-definition {
-      min-width: 8;
-      height: 1;
-      border: none;
-      padding: 0 1;
-  }
-
-  #oe-char-bar {
-      height: auto;
-      margin: 0 1 1 1;
-  }
-
-  .oe-char-button {
-      min-width: 4;
-      height: auto;
-      margin: 0 1 0 0;
-      padding: 0 1;
-      text-style: bold;
-      color: #f6f7f9;
-      background: #28313a;
-  }
-
-  #body {
-      layout: horizontal;
-      height: 1fr;
-      min-height: 0;
-      overflow: hidden;
-  }
-
-  #results-pane {
-      width: 1fr;
-      height: 1fr;
-      min-height: 0;
-      layout: vertical;
-      overflow: hidden;
-      margin: 0 1 1 1;
-      border: solid $accent;
-  }
-
-  #results-list {
-      height: 1fr;
-      min-height: 0;
-  }
-
-  #details-pane {
-      width: 2fr;
-      height: 1fr;
-      min-height: 0;
-      layout: vertical;
-      overflow: hidden;
-      margin: 0 1 1 0;
-      border: solid $accent;
-  }
-
-  #details-body {
-      layout: vertical;
-      height: 1fr;
-      min-height: 0;
-      overflow: hidden;
-  }
-
-  #details-content-scroll {
-      height: 1fr;
-      min-height: 0;
-      width: 100%;
-  }
-
-  #details-content {
-      width: 100%;
-      height: auto;
-      padding: 0 1;
-  }
-
-  #wright-sections-title {
-      height: auto;
-      margin: 0 1;
-      text-style: bold;
-  }
-
-  #wright-sections-list {
-      height: auto;
-      max-height: 10;
-      margin: 0 1 1 1;
-  }
-
-  #details-body-content {
-      width: 100%;
-      height: auto;
-      padding: 0 1 1 1;
-  }
-
-  #morphology-sidebar {
-      width: 100%;
-      height: 1fr;
-      min-height: 0;
-      border-top: solid $accent;
-  }
-
-  #morphology-table {
-      height: auto;
-      min-height: 0;
-  }
-
-  #wright-sections-title.hidden,
-  #wright-sections-list.hidden {
-      display: none;
-  }
-
-  WrightSectionTextScreen {
-      align: center middle;
-  }
-
-  #wright-modal {
-      width: 80%;
-      height: 80%;
-      border: solid $accent;
-      background: $surface;
-      padding: 1;
-  }
-
-  #wright-modal-title {
-      height: auto;
-      margin: 0 0 1 0;
-      text-style: bold;
-  }
-
-  #wright-modal-scroll {
-      height: 1fr;
-      min-height: 0;
-      width: 100%;
-      border: solid $accent-darken-1;
-      padding: 0 1;
-      margin: 0 0 1 0;
-  }
-
-  #wright-modal-text {
-      width: 100%;
-      height: auto;
-  }
-
-  #wright-modal-close {
-      width: 16;
-  }
-  """
+    #: Textual stylesheet for the browse layout; colours come from the theme.
+    CSS_PATH = Path(__file__).with_name("browse.tcss")
 
     #: Query service used by the shell and browse interactions.
     query_service: DictionaryBrowseQueryService
@@ -919,6 +775,10 @@ class DictionaryBrowseApp(App[None]):
     _details_title: Static
     #: Button that copies the current definition line.
     _copy_button: Button
+    #: Definition-line cache used only by the row-fill worker thread.
+    _row_definition_cache: DefinitionLineCache | None
+    #: Serializes row-fill workers so one thread uses the cache at a time.
+    _row_definition_lock: threading.Lock
 
     #: Key bindings. Copy runs after focused widgets decline ``ctrl+c``; the second
     #: ``ctrl+c`` binding restores Textual's quit hint, which a subclass binding
@@ -946,8 +806,15 @@ class DictionaryBrowseApp(App[None]):
 
         """
         super().__init__()
+        self.register_theme(WYRDCRAEFT_THEME)
+        #: Active Textual theme: the ``wyrdcraeft`` browse palette (ADR 0026).
+        self.theme = WYRDCRAEFT_THEME.name
         #: Query service used by the shell and browse interactions.
         self.query_service = query_service
+        #: Definition-line cache used only by the row-fill worker thread.
+        self._row_definition_cache = None
+        #: Serializes row-fill workers so one thread uses the cache at a time.
+        self._row_definition_lock = threading.Lock()
         #: Database path displayed in shell placeholders.
         self.db_path = db_path
         #: Last main-result hits shown in the results pane.
@@ -981,10 +848,9 @@ class DictionaryBrowseApp(App[None]):
                     flat=True,
                 )
         with Horizontal(id="body"):
-            with Vertical(id="results-pane"):
-                yield Static("Results", id="results-title")
+            with Vertical(id="results-pane", classes="pane"):
                 yield ListView(id="results-list")
-            with Vertical(id="details-pane"):
+            with Vertical(id="details-pane", classes="pane"):
                 with Horizontal(id="details-title-bar"):
                     yield Static("Details", id="details-title")
                     yield Button("Copy", id="copy-definition", disabled=True)
@@ -1022,10 +888,31 @@ class DictionaryBrowseApp(App[None]):
         self._details_body_content = self.query_one("#details-body-content", Static)
         self._morphology_table = self.query_one("#morphology-table", DataTable)
         self._morphology_table.cursor_type = "none"
+        self.query_one("#results-pane").border_title = "Results"
+        self.query_one("#details-pane").border_title = "Entry"
+        self.watch(self.screen, "focused", self._mark_focused_pane)
+        self.watch(self._main_results_list, "scroll_y", self._on_results_scrolled)
         self.focus_search()
         for button in self.query(".oe-char-button"):
             button.can_focus = False
         self._copy_button.can_focus = False
+
+    def _mark_focused_pane(self, focused: Widget | None) -> None:
+        """
+        Give the pane holding keyboard focus the accent border and title.
+
+        Args:
+            focused: Widget that now has focus, or ``None``.
+
+        Side Effects:
+            Toggles the ``pane-focused`` class on each ``.pane`` container.
+
+        """
+        for pane in self.query(".pane"):
+            holds_focus = focused is not None and (
+                focused is pane or pane in focused.ancestors
+            )
+            pane.set_class(holds_focus, "pane-focused")
 
     def action_copy_definition(self) -> None:
         """
@@ -1193,8 +1080,112 @@ class DictionaryBrowseApp(App[None]):
         if self._main_hits:
             for hit in self._main_hits:
                 self._main_results_list.append(_MainResultItem(hit))
+            self.call_after_refresh(self._fill_drawn_definition_lines)
             return
         self._main_results_list.append(ListItem(Static("No results.")))
+
+    def _on_results_scrolled(self, _scroll_y: float) -> None:
+        """
+        Fill definition lines for rows that scrolling brought into view.
+
+        Args:
+            _scroll_y: New vertical scroll offset of the results list.
+
+        Side Effects:
+            May start a row-fill worker.
+
+        """
+        self._fill_drawn_definition_lines()
+
+    def _drawn_rows_missing_lines(self) -> list[_MainResultItem]:
+        """
+        Find drawn results rows whose definition line is not computed yet.
+
+        "Drawn" is the visible window plus one screen below it (ADR 0028).
+
+        Returns:
+            Rows in that window whose hit has ``definition_line`` ``None``.
+
+        """
+        results = self._main_results_list
+        rows = [
+            child for child in results.children if isinstance(child, _MainResultItem)
+        ]
+        row_height = rows[0].outer_size.height if rows else 0
+        row_height = row_height or _RESULT_ROW_HEIGHT
+        screen_rows = max(results.size.height // row_height, 1)
+        first = int(results.scroll_y) // row_height
+        window = rows[first : first + 2 * screen_rows]
+        return [row for row in window if row.hit.definition_line is None]
+
+    def _fill_drawn_definition_lines(self) -> None:
+        """
+        Start filling missing definition lines for the drawn results rows.
+
+        Side Effects:
+            Starts a thread worker when any drawn row lacks its line.
+
+        """
+        missing = self._drawn_rows_missing_lines()
+        if not missing:
+            return
+        if self._row_definition_cache is None:
+            self._row_definition_cache = self.query_service.open_definition_line_cache()
+        self._fill_definition_lines(self._row_definition_cache, missing)
+
+    @work(
+        thread=True,
+        exclusive=True,
+        group="row-definition-lines",
+        exit_on_error=False,
+    )
+    def _fill_definition_lines(
+        self,
+        cache: DefinitionLineCache,
+        rows: list[_MainResultItem],
+    ) -> None:
+        """
+        Compute missing row definition lines off the UI thread.
+
+        A cache write can wait out SQLite's busy timeout while a build holds
+        the database lock, so this never runs on the UI thread.
+
+        Args:
+            cache: Definition-line cache on the worker's own connection.
+            rows: Drawn rows whose line is not computed yet.
+
+        Side Effects:
+            May write ``bt_entries.definition_line_cache``; updates each row on
+            the UI thread as its line arrives.
+
+        """
+        worker = get_current_worker()
+        with self._row_definition_lock:
+            for row in rows:
+                if worker.is_cancelled:
+                    return
+                line = cache.get(row.hit.entry_id)
+                self.call_from_thread(self._apply_definition_line, row, line)
+
+    def _apply_definition_line(self, row: _MainResultItem, line: str) -> None:
+        """
+        Show one filled definition line if its row is still in the results.
+
+        Args:
+            row: Results row the line was computed for.
+            line: Definition line for the row's entry.
+
+        Side Effects:
+            Updates the row and the matching entry in the last search's hits.
+
+        """
+        if row.parent is not self._main_results_list:
+            return
+        row.set_definition_line(line)
+        self._main_hits = [
+            row.hit if hit.entry_id == row.hit.entry_id else hit
+            for hit in self._main_hits
+        ]
 
     def _show_entry_details(self, entry_id: int) -> None:
         """

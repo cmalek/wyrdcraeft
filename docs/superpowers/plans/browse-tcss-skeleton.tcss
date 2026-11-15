@@ -1,0 +1,41 @@
+/* TCSS skeleton copied verbatim from the design canvas Spec board
+   ("TCSS skeleton" block of Spec.dc.html), so it survives the scratch directory.
+
+   Theme sketch from the same board, for reference:
+
+   Theme(
+     name="wyrdcraeft",
+     dark=True,
+     background="#101319",
+     surface="#151922",
+     panel="#232a38",
+     primary="#e6b36a",
+     accent="#8fd0c4",
+     foreground="#dbe0ea",
+     variables={
+       "block-cursor-background": "#232a38",
+       "border": "#2a3140",
+       "footer-background": "#151922",
+     },
+   )
+*/
+Screen { padding: 1 2; }
+.pane {
+  border: round $border;
+  background: $surface;
+}
+.pane:focus-within {
+  border: round $primary;
+}
+#results { width: 44; padding: 1 0; }
+ListItem { height: 2; padding: 0 2; }
+ListItem.-highlight {
+  background: $panel;
+  border-left: thick $primary;
+}
+.banner {
+  background: $panel;
+  border-left: thick $primary;
+  padding: 1 2;
+}
+.section-rule { margin-top: 2; color: $text-muted; }

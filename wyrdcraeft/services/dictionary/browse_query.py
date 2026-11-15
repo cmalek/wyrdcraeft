@@ -12,6 +12,7 @@ from sqlalchemy.exc import OperationalError as SQLAlchemyOperationalError
 from wyrdcraeft.db.runtime import create_engine as create_sqlalchemy_engine
 from wyrdcraeft.models.dictionary import format_sense_display_label, sense_path_sort_key
 from wyrdcraeft.services.dictionary.bt_spelling import BTSpellingNormalizer
+from wyrdcraeft.services.dictionary.definition_cache import DefinitionLineCache
 from wyrdcraeft.services.dictionary.form_decode import (
     inflection_strength_from_morph_class,
 )
@@ -695,6 +696,8 @@ class DictionaryBrowseQueryService:
     _spelling_normalizer: BTSpellingNormalizer
     #: Read-only Wright catalog query service sharing the same engine.
     _catalog_query_service: MorphologyCatalogQueryService
+    #: Extra connections handed out for definition-line caches; closed on close.
+    _cache_connections: list[Connection]
 
     def __init__(self, db_path: Path) -> None:
         """
@@ -713,6 +716,8 @@ class DictionaryBrowseQueryService:
         self._spelling_normalizer = BTSpellingNormalizer()
         #: Read-only Wright catalog query service sharing the same engine.
         self._catalog_query_service = MorphologyCatalogQueryService(self._engine)
+        #: Extra connections handed out for definition-line caches; closed on close.
+        self._cache_connections = []
 
     def search(self, query: str) -> list[BrowseSearchHit]:
         """
@@ -1099,14 +1104,38 @@ class DictionaryBrowseQueryService:
         )
         raise DictionaryBrowseDataError(msg)
 
-    def close(self) -> None:
+    def open_definition_line_cache(self) -> DefinitionLineCache:
         """
-        Close the SQLAlchemy query connection.
+        Open a definition-line cache on its own connection to this database.
+
+        The browse app fills results-row definition lines off the UI thread
+        (ADR 0028). A SQLAlchemy ``Connection`` is not safe to share between
+        threads, so the cache gets a second connection from the same engine.
+        The browse connection only reads and holds no open write transaction,
+        so the cache's short writes do not contend with it.
 
         Side Effects:
-            Releases the underlying SQLAlchemy connection and engine.
+            Opens a connection that :meth:`close` releases.
+
+        Returns:
+            Cache bound to the new connection.
 
         """
+        connection = self._engine.connect()
+        self._cache_connections.append(connection)
+        return DefinitionLineCache(connection)
+
+    def close(self) -> None:
+        """
+        Close the SQLAlchemy query connections.
+
+        Side Effects:
+            Releases the underlying SQLAlchemy connections and engine.
+
+        """
+        for connection in self._cache_connections:
+            connection.close()
+        self._cache_connections.clear()
         self._connection.close()
         self._engine.dispose()
 

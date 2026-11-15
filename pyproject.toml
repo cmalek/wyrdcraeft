@@ -96,6 +96,7 @@ wyrdcraeft = [
     "etc/dictionary/*.txt",
     "etc/dictionary/*.md",
     "etc/dictionary/*.json",
+    "services/dictionary/*.tcss",
 ]
 
 [build-system]

@@ -1,0 +1,250 @@
+/* Dictionary browse stylesheet (ADR 0026 "Layout" and "Results rows").
+   Colours come from the ``wyrdcraeft`` theme (browse_theme.py); never hex here.
+   Started from docs/superpowers/plans/browse-tcss-skeleton.tcss. */
+
+Screen {
+    layout: vertical;
+    overflow: hidden;
+    background: $background;
+}
+
+#search-input {
+    margin: 1 1 0 1;
+}
+
+#details-title {
+    height: auto;
+}
+
+#details-title-bar {
+    height: auto;
+}
+
+#details-title {
+    width: 1fr;
+}
+
+#copy-definition {
+    min-width: 8;
+    height: 1;
+    border: none;
+    padding: 0 1;
+}
+
+#oe-char-bar {
+    height: auto;
+    margin: 0 1 1 1;
+}
+
+.oe-char-button {
+    min-width: 4;
+    height: auto;
+    margin: 0 1 0 0;
+    padding: 0 1;
+    text-style: bold;
+    color: $foreground;
+    background: $panel;
+}
+
+#body {
+    layout: horizontal;
+    height: 1fr;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Panes: rounded titled borders. Focus takes the accent border AND an
+   accent title, so it is never carried by colour alone. */
+.pane {
+    height: 1fr;
+    min-height: 0;
+    layout: vertical;
+    overflow: hidden;
+    background: $surface;
+    border: round $border-blurred;
+    border-title-color: $text-muted;
+    border-title-align: left;
+}
+
+.pane.pane-focused {
+    border: round $border;
+    border-title-color: $primary;
+    border-title-style: bold;
+}
+
+#results-pane {
+    width: 1fr;
+    margin: 0 1 1 1;
+}
+
+#results-list {
+    height: 1fr;
+    min-height: 0;
+    background: $surface;
+    scrollbar-size-vertical: 1;
+    scrollbar-background: $surface;
+    scrollbar-background-hover: $surface;
+    scrollbar-background-active: $surface;
+    scrollbar-color: $border-blurred;
+    scrollbar-color-hover: $text-muted;
+    scrollbar-color-active: $primary;
+}
+
+/* Focus is carried by the pane border and title, not a list tint. */
+#results-list:focus {
+    background-tint: transparent;
+}
+
+#details-pane {
+    width: 2fr;
+    margin: 0 1 1 0;
+}
+
+/* Results rows: one cell of padding above and below, so a row is three
+   cells tall; headword, dim definition line, then the POS tag. */
+ListItem.result-row {
+    layout: horizontal;
+    height: 3;
+    padding: 1 1 1 2;
+    background: $surface;
+}
+
+ListItem.result-row.-highlight {
+    background: $wyrd-selected-row;
+}
+
+#results-list:focus > ListItem.result-row.-highlight {
+    background: $wyrd-selected-row;
+    border-left: outer $primary;
+    /* Full shorthand: a lone padding-left here resets the other edges. */
+    padding: 1 1 1 1;
+}
+
+.result-headword {
+    width: auto;
+    max-width: 50%;
+    height: 1;
+    text-style: bold;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    color: $foreground;
+}
+
+.result-definition {
+    width: 1fr;
+    height: 1;
+    margin: 0 1;
+    color: $text-muted;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+}
+
+.pos-tag {
+    width: auto;
+    height: 1;
+    padding: 0 1;
+    color: $pos-unknown-text;
+    background: $pos-unknown-tint;
+}
+
+.pos-tag.pos-noun { color: $pos-noun-text; background: $pos-noun-tint; }
+.pos-tag.pos-verb { color: $pos-verb-text; background: $pos-verb-tint; }
+.pos-tag.pos-adjective { color: $pos-adjective-text; background: $pos-adjective-tint; }
+.pos-tag.pos-adverb { color: $pos-adverb-text; background: $pos-adverb-tint; }
+.pos-tag.pos-pronoun { color: $pos-pronoun-text; background: $pos-pronoun-tint; }
+.pos-tag.pos-numeral { color: $pos-numeral-text; background: $pos-numeral-tint; }
+.pos-tag.pos-preposition { color: $pos-preposition-text; background: $pos-preposition-tint; }
+.pos-tag.pos-conjunction { color: $pos-conjunction-text; background: $pos-conjunction-tint; }
+.pos-tag.pos-interjection { color: $pos-interjection-text; background: $pos-interjection-tint; }
+.pos-tag.pos-indeclinable { color: $pos-indeclinable-text; background: $pos-indeclinable-tint; }
+.pos-tag.pos-unknown { color: $pos-unknown-text; background: $pos-unknown-tint; }
+
+#details-body {
+    layout: vertical;
+    height: 1fr;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#details-content-scroll {
+    height: 1fr;
+    min-height: 0;
+    width: 100%;
+}
+
+#details-content {
+    width: 100%;
+    height: auto;
+    padding: 0 1;
+}
+
+#wright-sections-title {
+    height: auto;
+    margin: 0 1;
+    text-style: bold;
+}
+
+#wright-sections-list {
+    height: auto;
+    max-height: 10;
+    margin: 0 1 1 1;
+}
+
+#details-body-content {
+    width: 100%;
+    height: auto;
+    padding: 0 1 1 1;
+}
+
+#morphology-sidebar {
+    width: 100%;
+    height: 1fr;
+    min-height: 0;
+    border-top: solid $border-blurred;
+}
+
+#morphology-table {
+    height: auto;
+    min-height: 0;
+}
+
+#wright-sections-title.hidden,
+#wright-sections-list.hidden {
+    display: none;
+}
+
+WrightSectionTextScreen {
+    align: center middle;
+}
+
+#wright-modal {
+    width: 80%;
+    height: 80%;
+    border: round $border;
+    background: $surface;
+    padding: 1;
+}
+
+#wright-modal-title {
+    height: auto;
+    margin: 0 0 1 0;
+    text-style: bold;
+}
+
+#wright-modal-scroll {
+    height: 1fr;
+    min-height: 0;
+    width: 100%;
+    border: round $border-blurred;
+    padding: 0 1;
+    margin: 0 0 1 0;
+}
+
+#wright-modal-text {
+    width: 100%;
+    height: auto;
+}
+
+#wright-modal-close {
+    width: 16;
+}

@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from textual import events
 from textual.containers import Horizontal, Vertical
+from textual.content import Content
 from textual.selection import Selection
 from textual.widgets import Button, DataTable, Input, ListView, Static
 
@@ -27,6 +28,7 @@ from wyrdcraeft.services.dictionary.browse_tui import (
     create_dictionary_browse_app,
     run_dictionary_browse,
 )
+from wyrdcraeft.services.dictionary.definition_line import definition_line
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
 from wyrdcraeft.services.dictionary.sinks import BTSqliteSink
 from wyrdcraeft.services.markup import normalize_morphology_title, normalize_old_english
@@ -380,6 +382,21 @@ def _static_text(widget: Static) -> str:
     return str(widget.render())
 
 
+def _result_row_text(item: _MainResultItem) -> str:
+    """
+    Render one results row to plain text, left to right.
+
+    Args:
+        item: Results list row from the browse TUI.
+
+    Returns:
+        Space-joined text of the row's non-empty cells.
+
+    """
+    parts = [_static_text(widget) for widget in item.query(Static)]
+    return " ".join(part for part in parts if part)
+
+
 def _details_text(app: DictionaryBrowseApp) -> str:
     """
     Read both details widgets as one plain-text assertion target.
@@ -428,16 +445,18 @@ async def test_browse_search_on_enter_populates_main_results_with_pos(
             assert isinstance(first_item, _MainResultItem)
             assert first_item.hit.headword == "abbad"
             assert first_item.hit.pos == "noun"
-            label_widget = first_item.children[0]
-            assert isinstance(label_widget, Static)
-            label = _static_text(label_widget)
-            assert label == "abbad (noun)"
+            headword = first_item.query_one(".result-headword", Static)
+            assert _static_text(headword) == "abbad"
+            tag = first_item.query_one(".pos-tag", Static)
+            assert _static_text(tag) == "noun"
+            assert tag.has_class("pos-noun")
+            assert "(noun)" not in _result_row_text(first_item)
     finally:
         app.query_service.close()
 
 
 @pytest.mark.anyio
-async def test_browse_variant_search_label_shows_headword_in_parentheses(
+async def test_results_row_shows_arrow_headword_when_variant_matched(
     lexicon_source_db: Path,
 ) -> None:
     app = create_dictionary_browse_app(lexicon_source_db)
@@ -448,10 +467,148 @@ async def test_browse_variant_search_label_shows_headword_in_parentheses(
             main_list = app.query_one("#results-list", ListView)
             first_item = main_list.children[0]
             assert isinstance(first_item, _MainResultItem)
-            label_widget = first_item.children[0]
-            assert isinstance(label_widget, Static)
-            label = _static_text(label_widget)
-            assert label == "abbod (abbad, noun)"
+            headword = first_item.query_one(".result-headword", Static)
+            label = _static_text(headword)
+            assert label == "abbod → abbad"
+            assert _result_row_text(first_item).startswith("abbod")
+            assert "(abbad, noun)" not in _result_row_text(first_item)
+            arrow_start = label.index("→")
+            content = headword.render()
+            assert isinstance(content, Content)
+            assert any(
+                span.start <= arrow_start and span.end == len(label)
+                for span in content.spans
+            ), "the '→ headword' part is drawn dim"
+            assert not any(span.start == 0 for span in content.spans)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_theme_wyrdcraeft_is_active(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test():
+            assert app.theme == "wyrdcraeft"
+            theme = app.current_theme
+            assert theme.background == "#101319"
+            assert theme.surface == "#151922"
+            assert theme.primary == "#e6b36a"
+            assert theme.foreground == "#dbe0ea"
+            assert app.CSS_PATH is not None
+            assert Path(str(app.CSS_PATH)).name == "browse.tcss"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_results_row_dims_headword_hyphen(lexicon_source_db: Path) -> None:
+    _insert_entry(
+        lexicon_source_db,
+        headword="for-sceamian",
+        pos="verb",
+        summary_sense="to be greatly ashamed",
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _submit_search(app, pilot, "for-sceamian")
+
+            main_list = app.query_one("#results-list", ListView)
+            item = next(
+                child
+                for child in main_list.children
+                if isinstance(child, _MainResultItem)
+                and child.hit.headword == "for-sceamian"
+            )
+            headword = item.query_one(".result-headword", Static)
+            assert _static_text(headword) == "for-sceamian"
+            content = headword.render()
+            assert isinstance(content, Content)
+            hyphen = 3
+            assert any(
+                span.start <= hyphen < span.end for span in content.spans
+            ), "hyphen inside the headword is drawn dim"
+            assert not any(span.start <= 0 < span.end for span in content.spans)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_results_row_is_three_cells_tall(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(120, 40)) as pilot:
+            await _submit_search(app, pilot, "abbad")
+            await pilot.pause()
+
+            main_list = app.query_one("#results-list", ListView)
+            first_item = main_list.children[0]
+            assert isinstance(first_item, _MainResultItem)
+            assert first_item.outer_size.height == 3
+            headword = first_item.query_one(".result-headword", Static)
+            assert headword.region.y == first_item.region.y + 1
+
+            main_list.focus()
+            main_list.index = 0
+            await pilot.pause()
+            assert first_item.has_class("-highlight")
+            assert first_item.outer_size.height == 3
+            assert headword.region.y == first_item.region.y + 1
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_results_row_shows_definition_line(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 40)) as pilot:
+            await _submit_search(app, pilot, "abbad")
+            await app.workers.wait_for_complete()
+            await pilot.pause()
+
+            main_list = app.query_one("#results-list", ListView)
+            first_item = main_list.children[0]
+            assert isinstance(first_item, _MainResultItem)
+            details = app.query_service.get_details(first_item.hit.entry_id)
+            assert details is not None
+            ordered = sorted(details.senses, key=lambda sense: sense.order_index)
+            expected = definition_line(
+                details.pos, [sense.gloss_en for sense in ordered]
+            )
+            assert expected
+            gloss = first_item.query_one(".result-definition", Static)
+            assert _static_text(gloss) == expected
+            assert first_item.hit.definition_line == expected
+            row_text = _result_row_text(first_item)
+            assert row_text.index("abbad") < row_text.index(expected)
+            assert row_text.index(expected) < row_text.rindex("noun")
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_focused_pane_has_accent_title_class(lexicon_source_db: Path) -> None:
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            results_pane = app.query_one("#results-pane")
+            details_pane = app.query_one("#details-pane")
+            assert results_pane.border_title
+            assert details_pane.border_title
+            assert not results_pane.has_class("pane-focused")
+            assert not details_pane.has_class("pane-focused")
+
+            await _submit_search(app, pilot, "abbad")
+            app.query_one("#results-list", ListView).focus()
+            await pilot.pause()
+            assert results_pane.has_class("pane-focused")
+            assert not details_pane.has_class("pane-focused")
+
+            app.focus_search()
+            await pilot.pause()
+            assert not results_pane.has_class("pane-focused")
     finally:
         app.query_service.close()
 
