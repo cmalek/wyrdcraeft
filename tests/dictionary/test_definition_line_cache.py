@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import sqlite3
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 from sqlalchemy import create_engine as sqlalchemy_create_engine
+from sqlalchemy import event
 
 from wyrdcraeft.db.runtime import create_engine, upgrade_canonical_db
 from wyrdcraeft.services.dictionary import definition_cache as definition_cache_module
+from wyrdcraeft.services.dictionary.browse_query import DictionaryBrowseQueryService
 from wyrdcraeft.services.dictionary.definition_cache import DefinitionLineCache
 from wyrdcraeft.services.dictionary.definition_line import definition_line
 from wyrdcraeft.services.dictionary.pipeline import BTIndexPipeline
@@ -359,8 +362,80 @@ def test_failed_cache_write_returns_computed_line(lexicon_source_db: Path) -> No
 
         locker.execute("ROLLBACK")
         assert cache.get(entry_id) == expected
+        assert cache.peek(entry_id) is None
+        assert DefinitionLineCache(conn).get(entry_id) == expected
         assert cache.peek(entry_id) == expected
     finally:
         conn.close()
         engine.dispose()
         locker.close()
+
+
+def test_failed_write_is_not_retried_while_locked(lexicon_source_db: Path) -> None:
+    first_id, second_id = _entries_with_senses(lexicon_source_db)
+    engine = sqlalchemy_create_engine(
+        f"sqlite:///{lexicon_source_db}",
+        connect_args={"timeout": 0.5},
+    )
+    updates: list[str] = []
+
+    @event.listens_for(engine, "before_cursor_execute")
+    def _count_updates(*args: object) -> None:
+        statement = str(args[2])
+        if statement.lstrip().upper().startswith("UPDATE BT_ENTRIES"):
+            updates.append(statement)
+
+    locker = sqlite3.connect(lexicon_source_db, isolation_level=None)
+    conn = engine.connect()
+    try:
+        locker.execute("BEGIN IMMEDIATE")
+        cache = DefinitionLineCache(conn)
+        assert cache.get(first_id) == _expected_line(lexicon_source_db, first_id)
+
+        started = time.monotonic()
+        line = cache.get(second_id)
+        elapsed = time.monotonic() - started
+
+        assert line == _expected_line(lexicon_source_db, second_id)
+        assert elapsed < 0.25
+        assert len(updates) == 1
+        assert cache.peek(second_id) is None
+    finally:
+        conn.close()
+        engine.dispose()
+        locker.close()
+
+
+def test_glosses_follow_details_sense_path_order(
+    lexicon_source_db: Path, connection: Connection
+) -> None:
+    entry_id = _new_entry_without_senses(lexicon_source_db)
+    for gloss, order_index, path in (
+        ("first", 0, "1"),
+        ("second", 1, "2"),
+        ("first sub", 2, "1.1"),
+    ):
+        _execute(
+            lexicon_source_db,
+            """
+            INSERT INTO bt_senses (
+                entry_id, sense_label, gloss_en, order_index, sense_path,
+                parent_path, source_label_raw, source_fragment_raw,
+                prefix_fragment_raw, modifiers_json, grammatical_context_json,
+                usage_note
+            ) VALUES (?, '', ?, ?, ?, NULL, '', ?, '', '[]', '[]', '')
+            """,
+            (entry_id, gloss, order_index, path, gloss),
+        )
+    service = DictionaryBrowseQueryService(lexicon_source_db)
+    try:
+        details = service.get_details(entry_id)
+    finally:
+        service.close()
+    assert details is not None
+    details_order = [sense.gloss_en for sense in details.senses]
+    assert details_order == ["first", "first sub", "second"]
+
+    assert DefinitionLineCache(connection).get(entry_id) == definition_line(
+        details.pos, details_order
+    )

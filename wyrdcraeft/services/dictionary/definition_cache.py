@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
+from wyrdcraeft.models.dictionary import sense_path_sort_key
 from wyrdcraeft.services.dictionary.definition_line import definition_line
 
 if TYPE_CHECKING:
@@ -21,6 +22,11 @@ class DefinitionLineCache:
     SQLite triggers null it again whenever the entry's senses, variants or
     part of speech change, so a stored value is always current.
 
+    After the first failed write (for example ``database is locked`` while a
+    build holds the database) the instance stops writing, so later misses do
+    not each wait out SQLite's busy timeout; they still compute and return
+    the line. A new instance writes again.
+
     Args:
         connection: Writable connection shared with the browse query service.
 
@@ -28,6 +34,8 @@ class DefinitionLineCache:
 
     #: Writable connection shared with the browse query service.
     _connection: Connection
+    #: Whether cache writes are still attempted; cleared after a failed write.
+    _writes_enabled: bool
 
     def __init__(self, connection: Connection) -> None:
         """
@@ -39,6 +47,8 @@ class DefinitionLineCache:
         """
         #: Writable connection shared with the browse query service.
         self._connection = connection
+        #: Whether cache writes are still attempted; cleared after a failed write.
+        self._writes_enabled = True
 
     def peek(self, entry_id: int) -> str | None:
         """
@@ -102,20 +112,24 @@ class DefinitionLineCache:
             entry_id: Dictionary entry identifier.
 
         Returns:
-            Stripped glosses ordered by ``order_index`` then ``id``.
+            Stripped glosses in the details view's order: by ``sense_path``,
+            then ``order_index`` and ``id``.
 
         """
         rows = self._connection.execute(
             text(
                 """
-                SELECT gloss_en FROM bt_senses
+                SELECT gloss_en, sense_path FROM bt_senses
                 WHERE entry_id = :entry_id
                 ORDER BY order_index ASC, id ASC
                 """
             ),
             {"entry_id": entry_id},
-        ).scalars().all()
-        return [str(gloss).strip() for gloss in rows]
+        ).mappings().all()
+        ordered = sorted(
+            rows, key=lambda row: sense_path_sort_key(str(row["sense_path"]))
+        )
+        return [str(row["gloss_en"]).strip() for row in ordered]
 
     def _store(self, entry_id: int, line: str) -> None:
         """
@@ -123,13 +137,16 @@ class DefinitionLineCache:
 
         Side Effects:
             Updates ``bt_entries.definition_line_cache`` and commits; on an
-            ``OperationalError`` rolls back and leaves the column null.
+            ``OperationalError`` rolls back, leaves the column null and
+            disables further writes on this instance.
 
         Args:
             entry_id: Dictionary entry identifier.
             line: Computed definition line to store.
 
         """
+        if not self._writes_enabled:
+            return
         try:
             self._connection.execute(
                 text(
@@ -141,3 +158,4 @@ class DefinitionLineCache:
             self._connection.commit()
         except OperationalError:
             self._connection.rollback()
+            self._writes_enabled = False
