@@ -7,10 +7,9 @@ import threading
 import unicodedata
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Protocol, cast
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
 
     from textual import events
     from textual.binding import BindingType
@@ -22,11 +21,16 @@ from textual import work
 from textual.actions import SkipAction
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, ScrollableContainer, Vertical
+from textual.containers import Horizontal, ScrollableContainer, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, DataTable, Input, ListItem, ListView, Static
 from textual.worker import get_current_worker
 
+from wyrdcraeft.services.dictionary.browse_entry import (
+    SECTION_CLASS,
+    build_forms,
+    build_text_sections,
+)
 from wyrdcraeft.services.dictionary.browse_progress import (
     DictionaryBrowseStartupStage,
     run_browse_startup_progress,
@@ -38,7 +42,6 @@ from wyrdcraeft.services.dictionary.browse_query import (
     EntryDetails,
     MorphologyGroup,
     MorphologyRow,
-    filter_display_variants,
 )
 from wyrdcraeft.services.dictionary.browse_results import (
     definition_text,
@@ -48,65 +51,13 @@ from wyrdcraeft.services.dictionary.browse_results import (
 )
 from wyrdcraeft.services.dictionary.browse_theme import WYRDCRAEFT_THEME
 from wyrdcraeft.services.dictionary.definition_line import definition_line
-from wyrdcraeft.services.dictionary.etymology_display import (
-    format_etymology_display,
-    parse_etymology_text,
-)
-from wyrdcraeft.services.dictionary.form_decode import (
-    format_bt_gender_label,
-    morphology_row_matches_pos,
-)
+from wyrdcraeft.services.dictionary.form_decode import morphology_row_matches_pos
 from wyrdcraeft.services.dictionary.paradigm_sidebar import (
     MorphologyRowPayload,
     ParadigmSidebarSpec,
     build_paradigm_sidebar,
 )
 from wyrdcraeft.services.markup import normalize_old_english
-
-
-class _MorphClassLike(Protocol):
-    """Structural morph-class payload used by browse detail formatters."""
-
-    #: Display label for the assigned morphology class.
-    display_label: str
-    #: Provenance label describing how the class was assigned.
-    assignment_source: str
-    #: Whether the entry remains unclassified in the catalog.
-    is_unclassified: bool
-
-
-class _SenseLike(Protocol):
-    """Structural dictionary sense payload used by browse detail formatters."""
-
-    #: Source sense label such as ``I`` or ``II``.
-    sense_label: str
-    #: English gloss text for the sense.
-    gloss_en: str
-
-
-class _EntryDetailsLike(Protocol):
-    """Structural detail payload accepted by shared browse text formatters."""
-
-    #: Dictionary headword for the selected entry.
-    headword: str
-    #: Part-of-speech label stored on the dictionary entry.
-    pos: str
-    #: Display variant spellings linked to the entry.
-    variants: list[str]
-    #: Gender markers stored on the dictionary entry.
-    genders: list[str]
-    #: Person markers inferred from morphology rows.
-    persons: list[str]
-    #: Number markers inferred from morphology rows.
-    numbers: list[str]
-    #: First non-empty gloss summary for the entry.
-    summary_sense: str
-    #: Ordered dictionary senses for the entry.
-    senses: list[_SenseLike]
-    #: Etymology text stored on the dictionary entry.
-    etymology: str
-    #: Catalog morph-class summary for the entry, when present.
-    morph_class: _MorphClassLike | None
 
 #: Dictionary POS codes whose entries omit the morphology sidebar.
 _POS_WITHOUT_MORPHOLOGY: frozenset[str] = frozenset(
@@ -386,21 +337,6 @@ class WrightSectionTextScreen(ModalScreen[None]):
         self.app.pop_screen()
 
 
-def _join_labels(labels: Iterable[str]) -> str:
-    """
-    Join non-empty labels for compact metadata display.
-
-    Args:
-        labels: Candidate label strings.
-
-    Returns:
-        Comma-separated labels, or an empty string when none are present.
-
-    """
-    values = [label.strip() for label in labels if label.strip()]
-    return ", ".join(values)
-
-
 def _filter_morphology_rows(
     rows: list[MorphologyRow],
     *,
@@ -581,159 +517,35 @@ def _populate_morphology_table(
             table.add_row(*row)
 
 
-def _populate_morphology_table_for_rows(
-    table: DataTable,
-    rows: list[MorphologyRow],
-    *,
-    wordclass: str,
-    entry_genders: tuple[str, ...] = (),
-) -> None:
+def _forms_sidebar(details: EntryDetails) -> ParadigmSidebarSpec | None:
     """
-    Build and render POS-aware paradigm grids for morphology rows.
+    Build the paradigm sidebar for an entry's Forms section.
 
     Args:
-        table: Target morphology sidebar table widget.
-        rows: Morphology rows to display.
+        details: Entry details payload from the query service.
 
-    Keyword Args:
-        wordclass: Dominant morphology wordclass label.
-        entry_genders: Gender markers stored on the dictionary entry.
-
-    Side Effects:
-        Clears and repopulates ``table`` columns and rows.
+    Returns:
+        The sidebar spec, or ``None`` when the entry's part of speech has no
+        forms or no sidebar section has a row.
 
     """
-    sidebar = build_paradigm_sidebar(
-        _morphology_payloads(rows),
-        wordclass=wordclass,
-        entry_genders=entry_genders,
+    if details.pos in _POS_WITHOUT_MORPHOLOGY:
+        return None
+    morphology_rows = _dedupe_morphology_rows(
+        _filter_morphology_rows_for_entry(
+            _morphology_rows_from_groups(details.morphology_groups),
+            headword=details.headword,
+            entry_pos=details.pos,
+        )
     )
-    _populate_morphology_table(table, sidebar)
-
-
-def _format_pos_label(pos: str) -> str:
-    """
-    Format one dictionary POS label for the details pane.
-
-    Args:
-        pos: Part-of-speech label stored on the dictionary entry.
-
-    Returns:
-        Display POS label.
-
-    """
-    return pos.strip() or "unknown"
-
-
-def _format_class_lines(details: _EntryDetailsLike) -> list[str]:
-    """
-    Build catalog morph-class lines for the details pane.
-
-    Args:
-        details: Entry details payload from the query service.
-
-    Returns:
-        Metadata lines describing catalog class and provenance.
-
-    """
-    morph_class = details.morph_class
-    if morph_class is None or morph_class.is_unclassified:
-        return ["Morph class: Unclassified"]
-    lines = [f"Morph class: {morph_class.display_label}"]
-    if morph_class.assignment_source.strip():
-        lines.append(f"Provenance: {morph_class.assignment_source}")
-    return lines
-
-
-def _format_entry_header_text(details: _EntryDetailsLike) -> str:
-    """
-    Build the metadata header block for one entry's details pane.
-
-    Args:
-        details: Entry details payload from the query service.
-
-    Returns:
-        Multi-line header text with POS, morph class, and metadata.
-
-    """
-    lines = [
-        f"POS: {_format_pos_label(details.pos)}",
-    ]
-    variants = _join_labels(filter_display_variants(details.variants))
-    if variants:
-        lines.append(f"Variants: {variants}")
-    lines.extend(_format_class_lines(details))
-    genders = _join_labels(format_bt_gender_label(gender) for gender in details.genders)
-    if genders:
-        lines.append(f"Gender: {genders}")
-    if details.pos.strip().casefold() == "verb":
-        persons = _join_labels(details.persons)
-        if persons:
-            lines.append(f"Person: {persons}")
-        numbers = _join_labels(details.numbers)
-        if numbers:
-            lines.append(f"Number: {numbers}")
-    return "\n".join(lines)
-
-
-def _format_entry_body_text(details: _EntryDetailsLike) -> str:
-    """
-    Build the narrative body block for one entry's details pane.
-
-    Args:
-        details: Entry details payload from the query service.
-
-    Returns:
-        Summary, senses, and etymology text rendered below citation widgets.
-
-    """
-    lines: list[str] = []
-    summary = details.summary_sense.strip()
-    if summary:
-        lines.append("Summary")
-        lines.append(summary)
-    if details.senses:
-        if lines:
-            lines.append("")
-        lines.append("Senses")
-        for sense in details.senses:
-            gloss = sense.gloss_en.strip()
-            if not gloss:
-                continue
-            label = sense.sense_label.strip()
-            if label:
-                lines.append(f"{label}. {gloss}")
-            else:
-                lines.append(gloss)
-    etymology = details.etymology.strip()
-    if etymology:
-        if lines:
-            lines.append("")
-        formatted = format_etymology_display(parse_etymology_text(etymology))
-        if formatted:
-            lines.append(formatted)
-        else:
-            lines.append("Etymology")
-            lines.append(etymology)
-    return "\n".join(lines)
-
-
-def _format_entry_details(details: _EntryDetailsLike) -> str:
-    """
-    Format dictionary entry details with summary sense before the full sense list.
-
-    Args:
-        details: Entry details payload from the query service.
-
-    Returns:
-        Multi-line details pane text.
-
-    """
-    header = _format_entry_header_text(details)
-    body = _format_entry_body_text(details)
-    if not body:
-        return header
-    return f"{header}\n\n{body}"
+    wordclass = morphology_rows[0].wordclass if morphology_rows else details.pos
+    sidebar = build_paradigm_sidebar(
+        _morphology_payloads(morphology_rows),
+        wordclass=wordclass,
+        entry_genders=tuple(details.genders),
+    )
+    has_rows = any(section.rows for section in sidebar.sections)
+    return sidebar if has_rows else None
 
 
 class DictionaryBrowseApp(App[None]):
@@ -757,22 +569,24 @@ class DictionaryBrowseApp(App[None]):
     _main_hits: list[BrowseSearchHit]
     #: Main dictionary-entry results list widget.
     _main_results_list: ListView
-    #: Primary details header widget.
-    _details_content: Static
+    #: Idle message shown in the entry column when no entry is open.
+    _entry_message: Static
     #: Title shown above the Wright section citation list.
     _wright_sections_title: Static
     #: Selectable Wright section citations for the current entry.
     _wright_sections_list: ListView
-    #: Narrative details widget rendered below Wright section citations.
-    _details_body_content: Static
-    #: Scrollable morphology sidebar table widget.
-    _morphology_table: DataTable
+    #: The entry pane's one scrolling column of sections (ADR 0026).
+    _entry_column: VerticalScroll
+    #: Pinned banner above the column: headword, POS tag, Copy button.
+    _entry_banner: Horizontal
     #: Initial details-pane message shown before the first search.
     _initial_details_message: str
     #: Definition line copied by the Copy control for the current entry.
     _definition_line: str
-    #: Title widget above the details pane.
-    _details_title: Static
+    #: Banner headword widget.
+    _entry_headword: Static
+    #: Banner part-of-speech tag widget.
+    _entry_pos_tag: Static
     #: Button that copies the current definition line.
     _copy_button: Button
     #: Definition-line cache used only by the row-fill worker thread.
@@ -851,24 +665,18 @@ class DictionaryBrowseApp(App[None]):
             with Vertical(id="results-pane", classes="pane"):
                 yield ListView(id="results-list")
             with Vertical(id="details-pane", classes="pane"):
-                with Horizontal(id="details-title-bar"):
-                    yield Static("Details", id="details-title")
+                with Horizontal(id="entry-banner", classes="banner"):
+                    yield Static("", id="entry-headword")
+                    yield Static("", id="entry-pos-tag", classes="pos-tag")
                     yield Button("Copy", id="copy-definition", disabled=True)
-                with Vertical(id="details-body"):
-                    with ScrollableContainer(id="details-content-scroll"):
-                        yield Static(
-                            self._initial_details_message,
-                            id="details-content",
-                        )
-                        yield Static(
-                            "Wright Sections",
-                            id="wright-sections-title",
-                            classes="hidden",
-                        )
-                        yield ListView(id="wright-sections-list", classes="hidden")
-                        yield Static("", id="details-body-content")
-                    with ScrollableContainer(id="morphology-sidebar"):
-                        yield DataTable(id="morphology-table", zebra_stripes=True)
+                with VerticalScroll(id="entry-column"):
+                    yield Static(self._initial_details_message, id="entry-message")
+                    yield Static(
+                        "Wright Sections",
+                        id="wright-sections-title",
+                        classes="hidden",
+                    )
+                    yield ListView(id="wright-sections-list", classes="hidden")
 
     def on_mount(self) -> None:
         """
@@ -880,14 +688,15 @@ class DictionaryBrowseApp(App[None]):
 
         """
         self._main_results_list = self.query_one("#results-list", ListView)
-        self._details_title = self.query_one("#details-title", Static)
+        self._entry_banner = self.query_one("#entry-banner", Horizontal)
+        self._entry_banner.display = False
+        self._entry_headword = self.query_one("#entry-headword", Static)
+        self._entry_pos_tag = self.query_one("#entry-pos-tag", Static)
         self._copy_button = self.query_one("#copy-definition", Button)
-        self._details_content = self.query_one("#details-content", Static)
+        self._entry_column = self.query_one("#entry-column", VerticalScroll)
+        self._entry_message = self.query_one("#entry-message", Static)
         self._wright_sections_title = self.query_one("#wright-sections-title", Static)
         self._wright_sections_list = self.query_one("#wright-sections-list", ListView)
-        self._details_body_content = self.query_one("#details-body-content", Static)
-        self._morphology_table = self.query_one("#morphology-table", DataTable)
-        self._morphology_table.cursor_type = "none"
         self.query_one("#results-pane").border_title = "Results"
         self.query_one("#details-pane").border_title = "Entry"
         self.watch(self.screen, "focused", self._mark_focused_pane)
@@ -1005,7 +814,7 @@ class DictionaryBrowseApp(App[None]):
         event.input.value = normalized
         event.input.cursor_position = len(prefix)
 
-    def on_input_submitted(self, event: Input.Submitted) -> None:
+    async def on_input_submitted(self, event: Input.Submitted) -> None:
         """
         Run browse search when the user submits the search box.
 
@@ -1018,10 +827,10 @@ class DictionaryBrowseApp(App[None]):
         """
         if event.input.id != "search-input":
             return
-        self._run_search(event.value)
+        await self._run_search(event.value)
         self.focus_search()
 
-    def on_list_view_selected(self, event: ListView.Selected) -> None:
+    async def on_list_view_selected(self, event: ListView.Selected) -> None:
         """
         Show details for a selected search result or Wright section.
 
@@ -1029,13 +838,13 @@ class DictionaryBrowseApp(App[None]):
             event: Textual list selection event.
 
         Side Effects:
-            Updates the details and morphology sidebar panes.
+            Redraws the entry banner and column.
 
         """
         if event.list_view.id == "results-list":
             item = event.item
             if isinstance(item, _MainResultItem):
-                self._show_entry_details(item.hit.entry_id)
+                await self._show_entry_details(item.hit.entry_id)
             return
 
         if event.list_view.id == "wright-sections-list":
@@ -1043,7 +852,7 @@ class DictionaryBrowseApp(App[None]):
             if isinstance(item, _WrightSectionItem):
                 self._show_wright_section_text(item.section_no)
 
-    def _run_search(self, query: str) -> None:
+    async def _run_search(self, query: str) -> None:
         """
         Execute search and refresh browse panes from query results.
 
@@ -1059,14 +868,14 @@ class DictionaryBrowseApp(App[None]):
 
         if len(self._main_hits) == 1:
             self._main_results_list.index = 0
-            self._show_entry_details(self._main_hits[0].entry_id)
+            await self._show_entry_details(self._main_hits[0].entry_id)
             return
 
         if not self._main_hits:
-            self._show_idle_details("No results.")
+            await self._show_idle_details("No results.")
             return
 
-        self._show_idle_details("Select a result to view details.")
+        await self._show_idle_details("Select a result to view details.")
 
     def _populate_results_list(self) -> None:
         """
@@ -1187,95 +996,105 @@ class DictionaryBrowseApp(App[None]):
             for hit in self._main_hits
         ]
 
-    def _show_entry_details(self, entry_id: int) -> None:
+    async def _show_entry_details(self, entry_id: int) -> None:
         """
-        Load and render dictionary entry details in the details pane.
+        Load one dictionary entry and draw it as a sectioned column.
 
         Args:
             entry_id: Dictionary entry identifier from search results.
 
         Side Effects:
-            Updates the title, definition line, Copy button, and details and
-            morphology sidebar widgets.
+            Updates the banner, definition line and Copy button, and replaces
+            the entry column's sections.
 
         """
         details = self.query_service.get_details(entry_id)
         if details is None:
-            self._show_idle_details(f"Entry {entry_id} is unavailable.")
+            await self._show_idle_details(f"Entry {entry_id} is unavailable.")
             return
-        self._details_title.update(f"Details: {details.headword}")
+        self._show_banner(details)
         ordered_senses = sorted(details.senses, key=lambda sense: sense.order_index)
         self._definition_line = definition_line(
             details.pos,
             [sense.gloss_en for sense in ordered_senses],
         )
         self._copy_button.disabled = not self._definition_line
-        self._details_content.update(self._format_entry_header(details))
-        self._details_body_content.update(self._format_entry_body(details))
+        self._entry_message.display = False
+        await self._replace_entry_sections(details)
         self._populate_wright_sections(details)
-        if details.pos in _POS_WITHOUT_MORPHOLOGY:
-            self._morphology_table.clear(columns=True)
-            return
-        morphology_rows = _dedupe_morphology_rows(
-            _filter_morphology_rows_for_entry(
-                _morphology_rows_from_groups(details.morphology_groups),
-                headword=details.headword,
-                entry_pos=details.pos,
-            )
-        )
-        wordclass = morphology_rows[0].wordclass if morphology_rows else details.pos
-        _populate_morphology_table_for_rows(
-            self._morphology_table,
-            morphology_rows,
-            wordclass=wordclass,
-            entry_genders=tuple(details.genders),
-        )
+        self._entry_column.scroll_home(animate=False)
 
-    def _show_idle_details(self, message: str) -> None:
+    def _show_banner(self, details: EntryDetails) -> None:
         """
-        Show a neutral details placeholder and clear the morphology sidebar.
+        Show the pinned banner for one entry.
 
         Args:
-            message: Idle-state message for the details pane.
+            details: Entry details payload from the query service.
 
         Side Effects:
-            Resets the title, definition line, Copy button, and details and
-            morphology sidebar widgets.
+            Sets the headword and POS tag text and class, and shows the banner.
 
         """
-        self._details_title.update("Details")
+        self._entry_headword.update(details.headword)
+        self._entry_pos_tag.update(pos_label(details))
+        for name in list(self._entry_pos_tag.classes):
+            if name.startswith("pos-") and name != "pos-tag":
+                self._entry_pos_tag.remove_class(name)
+        self._entry_pos_tag.add_class(pos_tag_class(details))
+        self._entry_banner.display = True
+
+    async def _replace_entry_sections(self, details: EntryDetails | None) -> None:
+        """
+        Remove the drawn sections and mount the ones that have content.
+
+        The key/value block goes above the Wright widgets; Senses, Etymology
+        and Forms go below them. Forms is mounted only when the paradigm
+        sidebar has sections.
+
+        Args:
+            details: Entry to draw, or ``None`` to leave the column empty.
+
+        Side Effects:
+            Removes and mounts section widgets; fills ``#morphology-table``.
+
+        """
+        await self._entry_column.query(f".{SECTION_CLASS}").remove()
+        if details is None:
+            return
+        sections = build_text_sections(details)
+        if sections and sections[0].id == "entry-keyvalues":
+            await self._entry_column.mount(
+                sections.pop(0), before=self._wright_sections_title
+            )
+        sidebar = _forms_sidebar(details)
+        if sidebar is not None:
+            sections.append(build_forms())
+        if sections:
+            await self._entry_column.mount_all(sections)
+        if sidebar is not None:
+            table = self._entry_column.query_one("#morphology-table", DataTable)
+            _populate_morphology_table(table, sidebar)
+
+    async def _show_idle_details(self, message: str) -> None:
+        """
+        Show a neutral message in the entry column and hide the banner.
+
+        Args:
+            message: Idle-state message for the entry pane.
+
+        Side Effects:
+            Hides the banner, clears the definition line, disables Copy and
+            removes every section.
+
+        """
+        self._entry_banner.display = False
+        self._entry_headword.update("")
         self._definition_line = ""
         self._copy_button.disabled = True
-        self._details_content.update(message)
-        self._details_body_content.update("")
+        self._entry_message.update(message)
+        self._entry_message.display = True
         self._clear_wright_sections()
-        self._morphology_table.clear(columns=True)
-
-    def _format_entry_header(self, details: EntryDetails) -> str:
-        """
-        Build the non-scroll-breaking header block for one entry's details pane.
-
-        Args:
-            details: Entry details payload from the query service.
-
-        Returns:
-            Multi-line header text with POS, morph class, and metadata.
-
-        """
-        return _format_entry_header_text(cast("_EntryDetailsLike", details))
-
-    def _format_entry_body(self, details: EntryDetails) -> str:
-        """
-        Build the narrative body block for one entry's details pane.
-
-        Args:
-            details: Entry details payload from the query service.
-
-        Returns:
-            Summary, senses, and etymology text rendered below citation widgets.
-
-        """
-        return _format_entry_body_text(cast("_EntryDetailsLike", details))
+        await self._replace_entry_sections(None)
 
     def _populate_wright_sections(self, details: EntryDetails) -> None:
         """
@@ -1424,7 +1243,6 @@ __all__ = [
     "DictionaryBrowseApp",
     "DictionaryBrowseDataError",
     "_MainResultItem",
-    "_format_entry_details",
     "create_dictionary_browse_app",
     "run_dictionary_browse",
 ]

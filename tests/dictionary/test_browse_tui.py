@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import replace as dataclass_replace
 from importlib.resources import files
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -11,7 +12,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from textual import events
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, VerticalScroll
 from textual.content import Content
 from textual.selection import Selection
 from textual.widgets import Button, DataTable, Input, ListView, Static
@@ -307,13 +308,17 @@ async def test_shell_layout_exposes_search_and_two_panes(lexicon_source_db: Path
             assert "results-pane" in ids
             assert "details-pane" in ids
             assert "results-list" in ids
-            assert "details-content" in ids
-            assert "details-content-scroll" in ids
-            assert "morphology-sidebar" in ids
+            assert "entry-banner" in ids
+            assert "entry-column" in ids
+            assert "entry-message" in ids
             assert "orphans-header" not in ids
             assert "orphans-list" not in ids
-            details_body = app.query_one("#details-body")
-            assert isinstance(details_body, Vertical)
+            # ADR 0026: one scrolling column; the old second scroll is gone.
+            assert "details-content-scroll" not in ids
+            assert "morphology-sidebar" not in ids
+            column = app.query_one("#entry-column")
+            assert isinstance(column, VerticalScroll)
+            assert column.parent is app.query_one("#details-pane")
             char_buttons = list(oe_char_bar.children)
             assert char_buttons
             assert all(isinstance(button, Button) for button in char_buttons)
@@ -397,20 +402,39 @@ def _result_row_text(item: _MainResultItem) -> str:
     return " ".join(part for part in parts if part)
 
 
-def _details_text(app: DictionaryBrowseApp) -> str:
+def _entry_column_text(app: DictionaryBrowseApp) -> str:
     """
-    Read both details widgets as one plain-text assertion target.
+    Read every drawn Static in the entry column as one plain-text target.
 
     Args:
         app: Running lexicon browse app under test.
 
     Returns:
-        Combined plain text from the details header and body widgets.
+        Newline-joined text of the displayed, non-empty Statics in
+        ``#entry-column``, in document order.
 
     """
-    header = _static_text(app.query_one("#details-content", Static))
-    body = _static_text(app.query_one("#details-body-content", Static))
-    return "\n".join(part for part in (header, body) if part)
+    column = app.query_one("#entry-column")
+    parts = [
+        _static_text(widget)
+        for widget in column.query(Static)
+        if widget.display and not widget.has_class("hidden")
+    ]
+    return "\n".join(part for part in parts if part)
+
+
+def _entry_message_text(app: DictionaryBrowseApp) -> str:
+    """
+    Read the entry column's idle message.
+
+    Args:
+        app: Running lexicon browse app under test.
+
+    Returns:
+        Plain text of ``#entry-message``.
+
+    """
+    return _static_text(app.query_one("#entry-message", Static))
 
 
 async def _submit_search(app: DictionaryBrowseApp, pilot, query: str) -> None:
@@ -620,8 +644,7 @@ async def test_browse_does_not_search_until_enter(lexicon_source_db: Path) -> No
         async with app.run_test():
             search = app.query_one("#search-input", Input)
             search.value = "ABBOD"
-            details = app.query_one("#details-content", Static)
-            assert "Connected to" in _static_text(details)
+            assert "Connected to" in _entry_message_text(app)
 
             main_list = app.query_one("#results-list", ListView)
             assert not main_list.children
@@ -644,11 +667,16 @@ async def test_browse_single_main_result_auto_shows_details(
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "browseonly")
 
-            title = _static_text(app.query_one("#details-title", Static))
-            assert "Details: browseonly" in title
-            details_text = _details_text(app)
-            assert "POS: noun" in details_text
-            assert "unique browse-only gloss" in details_text
+            headword = _static_text(app.query_one("#entry-headword", Static))
+            assert headword == "browseonly"
+            tag = app.query_one("#entry-pos-tag", Static)
+            assert _static_text(tag) == "noun"
+            assert tag.has_class("pos-noun")
+            senses = app.query_one("#entry-senses")
+            assert "unique browse-only gloss" in [
+                _static_text(widget) for widget in senses.query(Static)
+            ]
+            assert not app.query_one("#entry-message", Static).display
 
             main_list = app.query_one("#results-list", ListView)
             assert main_list.index == 0
@@ -677,7 +705,9 @@ async def test_browse_hides_wright_section_list_by_default(
             assert "hidden" in sections_title.classes
             assert "hidden" in sections_list.classes
             assert len(list(sections_list.children)) == 0
-            assert "Morph class:" in _details_text(app)
+            rows = _key_value_rows(app)
+            assert _static_text(rows["Class"]) not in {"", "unclassified"}
+            assert _static_text(rows["Source"]) == "paradigm"
     finally:
         app.query_service.close()
 
@@ -771,8 +801,9 @@ async def test_browse_no_match_shows_empty_state(lexicon_source_db: Path) -> Non
             assert len(main_list.children) == 1
             assert not isinstance(main_list.children[0], _MainResultItem)
 
-            details_text = _details_text(app)
-            assert details_text == "No results."
+            assert _entry_column_text(app) == "No results."
+            assert not app.query(".entry-section")
+            assert not app.query_one("#entry-banner").display
     finally:
         app.query_service.close()
 
@@ -796,7 +827,7 @@ async def test_browse_morphology_sidebar_groups_by_wordclass_and_function(
 
 
 @pytest.mark.anyio
-async def test_browse_prep_entry_leaves_morphology_table_empty(
+async def test_browse_prep_entry_has_no_forms_table(
     lexicon_source_db: Path,
 ) -> None:
     _insert_entry(
@@ -836,12 +867,14 @@ async def test_browse_prep_entry_leaves_morphology_table_empty(
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "to")
 
-            morphology_table = app.query_one("#morphology-table", DataTable)
-            assert _table_text(morphology_table) == ""
-            assert "No morphology rows linked." not in _table_text(morphology_table)
+            # ADR 0026: no Forms section, so no table, even with linked forms.
+            assert not app.query("#morphology-table")
+            assert not app.query("#entry-forms")
+            assert "No morphology rows linked." not in _entry_column_text(app)
 
-            details_text = _details_text(app)
-            assert "POS: preposition" in details_text
+            tag = app.query_one("#entry-pos-tag", Static)
+            assert _static_text(tag) == "preposition"
+            assert tag.has_class("pos-preposition")
     finally:
         app.query_service.close()
 
@@ -1082,15 +1115,16 @@ async def test_browse_shows_connect_message_before_search(
     app = create_dictionary_browse_app(lexicon_source_db)
     try:
         async with app.run_test():
-            details_text = _static_text(app.query_one("#details-content", Static))
+            details_text = _entry_message_text(app)
             assert "Connected to" in details_text
             assert "Search and select a result to view details." in details_text
             copy_button = app.query_one("#copy-definition", Button)
             assert copy_button.disabled is True
-            assert "Details" in _static_text(app.query_one("#details-title", Static))
+            assert not app.query_one("#entry-banner").display
+            assert _static_text(app.query_one("#entry-headword", Static)) == ""
             ancestor_ids = {node.id for node in copy_button.ancestors}
-            assert "details-title-bar" in ancestor_ids
-            assert "details-content-scroll" not in ancestor_ids
+            assert "entry-banner" in ancestor_ids
+            assert "entry-column" not in ancestor_ids
     finally:
         app.query_service.close()
 
@@ -1106,10 +1140,9 @@ async def test_build_then_browse_integration_smoke(lexicon_source_db: Path) -> N
             main_list = app.query_one("#results-list", ListView)
             assert isinstance(main_list.children[0], _MainResultItem)
 
-            title = _static_text(app.query_one("#details-title", Static))
-            assert "Details: abbad" in title
-            details_text = _details_text(app)
-            assert "POS: noun" in details_text
+            assert _static_text(app.query_one("#entry-headword", Static)) == "abbad"
+            assert _static_text(app.query_one("#entry-pos-tag", Static)) == "noun"
+            assert app.query_one("#entry-banner").display
     finally:
         app.query_service.close()
 
@@ -1207,14 +1240,14 @@ async def test_no_results_search_resets_title_and_disables_copy(
             await pilot.pause()
             copy_button = app.query_one("#copy-definition", Button)
             assert copy_button.disabled is False
-            assert "Details: copyme" in _static_text(
-                app.query_one("#details-title", Static)
-            )
+            assert _static_text(app.query_one("#entry-headword", Static)) == "copyme"
+            assert app.query_one("#entry-banner").display
             await _submit_search(app, pilot, "orphan-form")
             await pilot.pause()
-            assert (
-                _static_text(app.query_one("#details-title", Static)) == "Details"
-            )
+            assert _static_text(app.query_one("#entry-headword", Static)) == ""
+            assert not app.query_one("#entry-banner").display
+            assert not app.query(".entry-section")
+            assert _entry_message_text(app) == "No results."
             assert copy_button.disabled is True
     finally:
         app.query_service.close()
@@ -1275,8 +1308,8 @@ async def test_copy_definition_stays_disabled_without_a_gloss(
         async with app.run_test() as pilot:
             await _submit_search(app, pilot, "emptygloss")
             await pilot.pause()
-            title = _static_text(app.query_one("#details-title", Static))
-            assert "Details: emptygloss" in title
+            headword = _static_text(app.query_one("#entry-headword", Static))
+            assert headword == "emptygloss"
             assert app.query_one("#copy-definition", Button).disabled is True
             await pilot.press("ctrl+c")
             await pilot.pause()
@@ -1336,3 +1369,536 @@ def test_create_app_closes_service_when_unready(
     with pytest.raises(DictionaryBrowseDataError):
         create_dictionary_browse_app(empty_browse_db)
     assert closed
+
+
+# --- Task 5b: sectioned entry column (ADR 0026) ---------------------------------
+
+#: Real Bosworth-Toller etymology of the preposition ``for``.
+_FOR_ETYMOLOGY = (
+    "[<I>Piers P. Chauc.</I> for: <I>Laym. for,</I> uor: <I>Orm.</I> forr: "
+    "<I>Plat,</I> för, vör: <I>O. Frs.</I> fori, fore, for: <I>Dut.</I> voor: "
+    "<I>Ger.</I> für: <I>M. H. Ger.</I> vür, vüre: <I>O. H. Ger.</I> fora, furi: "
+    "<I>Goth.</I> faur, faura: <I>Dan.</I> for: <I>Swed.</I> för: "
+    "<I>Icel.</I> fyrir: <I>Lat.</I> pro.]"
+)
+#: Real etymology whose stray leading ``R.`` parses as a note fragment.
+_AC_ETYMOLOGY = (
+    "[R. <I>Glouc. Orm.</I> ac: <I>Laym.</I> ac, æc, ah: <I>Scot.</I> ac: "
+    "<I>O. Sax.</I> ak: <I>O. H. Ger.</I> oh; <I>Goth,</I> ak.]"
+)
+
+
+def _insert_rich_entry(
+    db_path: Path,
+    *,
+    headword: str,
+    pos: str,
+    senses: tuple[tuple[str, str, str], ...],
+    etymology: str = "",
+) -> None:
+    """Insert one entry with labelled senses ``(sense_path, raw_label, gloss)``."""
+    norm_key = normalize_old_english(headword)
+    assert norm_key is not None
+    pos_id = _pos_id(db_path, code=pos)
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            """
+            INSERT INTO bt_entries (
+                norm_key, headword, normalized_title, pos_id, genders_json,
+                etymology, see_also_json, source_line_nos_json, entry_order
+            ) VALUES (?, ?, ?, ?, '[]', ?, '[]', '[]', 1)
+            """,
+            (
+                norm_key,
+                headword,
+                normalize_morphology_title(headword),
+                pos_id,
+                etymology,
+            ),
+        )
+        row = connection.execute(
+            "SELECT id FROM bt_entries WHERE norm_key = ? AND pos_id = ?",
+            (norm_key, pos_id),
+        ).fetchone()
+        assert row is not None
+        for order_index, (sense_path, raw_label, gloss) in enumerate(senses):
+            connection.execute(
+                """
+                INSERT INTO bt_senses (
+                    entry_id, sense_label, gloss_en, order_index, sense_path,
+                    parent_path, source_label_raw, source_fragment_raw,
+                    prefix_fragment_raw, modifiers_json,
+                    grammatical_context_json, usage_note
+                ) VALUES (?, ?, ?, ?, ?, NULL, ?, ?, '', '[]', '[]', '')
+                """,
+                (
+                    int(row[0]),
+                    raw_label,
+                    gloss,
+                    order_index,
+                    sense_path,
+                    raw_label,
+                    gloss,
+                ),
+            )
+        connection.commit()
+
+
+def _seed_forms(
+    db_path: Path,
+    *,
+    headword: str,
+    pos: str,
+    forms: tuple[tuple[str, str], ...],
+) -> None:
+    """Link ``(function, form)`` morphology rows to one entry."""
+    norm_key = normalize_old_english(headword)
+    assert norm_key is not None
+    entry_id = _bt_entry_id(db_path, norm_key=norm_key)
+    pos_id = _pos_id(db_path, code=pos)
+    with sqlite3.connect(db_path) as connection:
+        for function, form in forms:
+            existing = connection.execute(
+                "SELECT id FROM inflection_codes WHERE code = ?",
+                (function,),
+            ).fetchone()
+            code_id = (
+                int(existing[0])
+                if existing is not None
+                else _insert_inflection_code(connection, code=function, pos_id=pos_id)
+            )
+            connection.execute(
+                """
+                INSERT INTO forms (
+                    counter, formi, BT, title, normalized_title, stem, form,
+                    formParts, var, probability, comment,
+                    bt_key, title_key, stem_key, form_key, formi_key,
+                    entry_id, wordclass_id, inflection_code_id
+                ) VALUES (
+                    0, ?, ?, ?, ?, ?, ?, '0', '0', '0', '',
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )
+                """,
+                (
+                    form,
+                    headword,
+                    headword,
+                    norm_key,
+                    norm_key,
+                    form,
+                    norm_key,
+                    norm_key,
+                    norm_key,
+                    form,
+                    form,
+                    entry_id,
+                    pos_id,
+                    code_id,
+                ),
+            )
+        connection.commit()
+
+
+async def _open_entry(app: DictionaryBrowseApp, pilot, headword: str) -> None:
+    """Search for ``headword`` and open its results row."""
+    await _submit_search(app, pilot, headword)
+    await pilot.pause()
+    main_list = app.query_one("#results-list", ListView)
+    for index, child in enumerate(main_list.children):
+        if isinstance(child, _MainResultItem) and child.hit.headword == headword:
+            main_list.index = index
+            main_list.action_select_cursor()
+            await pilot.pause()
+            await pilot.pause()
+            return
+    pytest.fail(f"{headword} search hit not found in results list")
+
+
+def _column_section_ids(app: DictionaryBrowseApp) -> list[str]:
+    """Return the ids of the ``#entry-*`` sections in the column, in order."""
+    column = app.query_one("#entry-column")
+    return [
+        node.id
+        for node in column.walk_children()
+        if node.id is not None
+        and node.id.startswith("entry-")
+        and node.id != "entry-message"
+    ]
+
+
+def _section_label_texts(app: DictionaryBrowseApp) -> list[str]:
+    """Return the text of every section label drawn in the entry column."""
+    column = app.query_one("#entry-column")
+    labels = column.query(".section-label-text").results(Static)
+    return [_static_text(label) for label in labels]
+
+
+def _key_value_rows(app: DictionaryBrowseApp) -> dict[str, Static]:
+    """Map each key/value label to its value widget."""
+    labels = list(app.query("#entry-keyvalues .kv-label").results(Static))
+    values = list(app.query("#entry-keyvalues .kv-value").results(Static))
+    assert len(labels) == len(values)
+    return {
+        _static_text(label): value
+        for label, value in zip(labels, values, strict=True)
+    }
+
+
+def _spans_cover(content: Content, start: int, end: int, *needles: str) -> bool:
+    """Whether one span over ``[start, end)`` has every ``needles`` style part."""
+    return any(
+        span.start <= start
+        and span.end >= end
+        and all(needle in str(span.style) for needle in needles)
+        for span in content.spans
+    )
+
+
+@pytest.mark.anyio
+async def test_entry_column_sections_in_order(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="testsceamian",
+        pos="verb",
+        senses=(("1", "1", "to be greatly ashamed"), ("2", "2", "to make ashamed")),
+        etymology="[<I>Orm.</I> forrshamedd <I>much ashamed.</I>]",
+    )
+    _seed_forms(
+        lexicon_source_db,
+        headword="testsceamian",
+        pos="verb",
+        forms=(("if", "testsceamian"), ("psinsg1", "testsceame")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testsceamian")
+            assert _column_section_ids(app) == [
+                "entry-keyvalues",
+                "entry-senses",
+                "entry-etymology",
+                "entry-forms",
+            ]
+            assert _section_label_texts(app) == ["SENSES", "ETYMOLOGY", "FORMS"]
+            table = app.query_one("#entry-forms #morphology-table", DataTable)
+            assert "testsceame" in _table_text(table)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_entry_banner_is_pinned_outside_the_scrolling_column(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(lexicon_source_db, headword="bannerword", pos="noun", summary_sense="x")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "bannerword")
+            banner = app.query_one("#entry-banner")
+            column = app.query_one("#entry-column")
+            assert column not in banner.ancestors
+            assert banner not in column.ancestors
+            assert banner.region.bottom <= column.region.y
+            assert _static_text(app.query_one("#entry-headword", Static)) == "bannerword"
+            tag = app.query_one("#entry-pos-tag", Static)
+            assert _static_text(tag) == "noun"
+            assert tag.has_class("pos-tag")
+            assert tag.has_class("pos-noun")
+            copy_button = app.query_one("#copy-definition", Button)
+            assert banner in copy_button.ancestors
+            assert copy_button.can_focus is False
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_entry_without_etymology_has_no_etymology_section(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(lexicon_source_db, headword="noetym", pos="noun", summary_sense="x")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "noetym")
+            assert not app.query("#entry-etymology")
+            assert "ETYMOLOGY" not in _section_label_texts(app)
+            assert "entry-senses" in _column_section_ids(app)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_unknown_pos_entry_has_no_class_row_and_no_forms_section(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_entry(lexicon_source_db, headword="wāwā", pos="unknown", summary_sense="woe!")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "wāwā")
+            assert "entry-senses" in _column_section_ids(app)
+            assert "Class" not in _key_value_rows(app)
+            assert not app.query("#entry-forms")
+            assert not app.query("#morphology-table")
+            assert "FORMS" not in _section_label_texts(app)
+            assert _static_text(app.query_one("#entry-pos-tag", Static)) == "unknown"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_preposition_has_no_forms_section_or_label(
+    lexicon_source_db: Path,
+) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="for",
+        pos="preposition",
+        senses=(("1", "1", "for, on account of"),),
+        etymology=_FOR_ETYMOLOGY,
+    )
+    _seed_forms(
+        lexicon_source_db,
+        headword="for",
+        pos="preposition",
+        forms=(("dative singular", "for"),),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "for")
+            assert not app.query("#entry-forms")
+            assert not app.query("#morphology-table")
+            assert "FORMS" not in _section_label_texts(app)
+            assert "Class" not in _key_value_rows(app)
+            assert _column_section_ids(app)[-1] == "entry-etymology"
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_unclassified_class_row_is_dim(lexicon_source_db: Path) -> None:
+    _insert_entry(lexicon_source_db, headword="unclassed", pos="noun", summary_sense="x")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "unclassed")
+            value = _key_value_rows(app)["Class"]
+            assert _static_text(value) == "unclassified"
+            content = value.render()
+            assert isinstance(content, Content)
+            assert _spans_cover(content, 0, len("unclassified"), "$text-muted")
+    finally:
+        app.query_service.close()
+
+
+def _sense_rows(app: DictionaryBrowseApp) -> dict[str, Widget]:
+    """Map each drawn sense number (``5.``, ``5a.``) to its sense row."""
+    rows: dict[str, Widget] = {}
+    for row in app.query("#entry-senses .sense-row"):
+        number = row.query_one(".sense-number", Static)
+        rows[_static_text(number)] = row
+    return rows
+
+
+#: ``healdan``-like senses with sub-senses ``5a`` and ``10c``.
+_HEALDAN_SENSES = (
+    ("4", "IV", "to behave, conduct"),
+    ("5", "V", "to guard, defend, keep, preserve"),
+    ("5.1", "V a", "to hold, bear; conduct"),
+    ("10", "X", "to keep; keep in store"),
+    ("10.3", "X c", "to continue to occupy, not to leave"),
+)
+
+
+@pytest.mark.anyio
+async def test_sub_senses_are_indented_with_dim_number(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db, headword="testhealdan", pos="verb", senses=_HEALDAN_SENSES
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 60)) as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            rows = _sense_rows(app)
+            assert list(rows) == ["4.", "5.", "5a.", "10.", "10c."]
+            for main, sub in (("5.", "5a."), ("10.", "10c.")):
+                main_number = rows[main].query_one(".sense-number", Static)
+                sub_number = rows[sub].query_one(".sense-number", Static)
+                assert sub_number.region.x > main_number.region.x
+                content = sub_number.render()
+                assert isinstance(content, Content)
+                assert _spans_cover(content, 0, len(sub), "$text-muted")
+                assert not _spans_cover(content, 0, len(sub), "bold")
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_main_sense_number_is_accent_bold(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db, headword="testhealdan", pos="verb", senses=_HEALDAN_SENSES
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 60)) as pilot:
+            await _open_entry(app, pilot, "testhealdan")
+            rows = _sense_rows(app)
+            for main in ("4.", "5.", "10."):
+                number = rows[main].query_one(".sense-number", Static)
+                content = number.render()
+                assert isinstance(content, Content)
+                assert _spans_cover(content, 0, len(main), "bold", "$primary")
+            gloss = rows["5a."].query_one(".sense-gloss", Static)
+            assert _static_text(gloss) == "to hold, bear; conduct"
+    finally:
+        app.query_service.close()
+
+
+def _patch_details(
+    app: DictionaryBrowseApp,
+    monkeypatch: pytest.MonkeyPatch,
+    **changes: object,
+) -> None:
+    """Make ``get_details`` return its payload with ``changes`` applied."""
+    real_get_details = app.query_service.get_details
+
+    def _get_details(entry_id: int) -> object:
+        details = real_get_details(entry_id)
+        if details is None:
+            return None
+        return dataclass_replace(details, **changes)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(app.query_service, "get_details", _get_details)
+
+
+def _senses_children_texts(app: DictionaryBrowseApp) -> list[str]:
+    """Plain text of each line in the Senses section after its label."""
+    section = app.query_one("#entry-senses")
+    texts: list[str] = []
+    for child in section.children:
+        if child.has_class("section-label"):
+            continue
+        if child.has_class("sense-row"):
+            cells = [_static_text(cell) for cell in child.query(Static)]
+            texts.append(" ".join(cell for cell in cells if cell))
+        elif isinstance(child, Static):
+            texts.append(_static_text(child))
+    return texts
+
+
+@pytest.mark.anyio
+async def test_summary_is_first_senses_line_when_it_differs_from_sense_one(
+    lexicon_source_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="testsumma",
+        pos="noun",
+        senses=(("1", "1", "a shield"), ("2", "2", "a protector")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    _patch_details(app, monkeypatch, summary_sense="a defence of any kind")
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testsumma")
+            texts = _senses_children_texts(app)
+            assert texts == ["a defence of any kind", "1. a shield", "2. a protector"]
+            assert app.query_one("#entry-senses .senses-summary", Static)
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_summary_dropped_when_equal_to_sense_one(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="testsumma",
+        pos="noun",
+        senses=(("1", "1", "a shield"), ("2", "2", "a protector")),
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testsumma")
+            assert _senses_children_texts(app) == ["1. a shield", "2. a protector"]
+            assert not app.query("#entry-senses .senses-summary")
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_summary_shown_when_entry_has_no_senses(
+    lexicon_source_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _insert_entry(lexicon_source_db, headword="testlone", pos="noun", summary_sense="x")
+    app = create_dictionary_browse_app(lexicon_source_db)
+    _patch_details(app, monkeypatch, senses=[], summary_sense="a lone summary")
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "testlone")
+            assert _senses_children_texts(app) == ["a lone summary"]
+            assert not app.query("#entry-senses .sense-row")
+    finally:
+        app.query_service.close()
+
+
+def _etymology_grid(app: DictionaryBrowseApp) -> tuple[list[str], list[list[str]]]:
+    """Read the etymology table as ``(headers, rows)`` of plain text."""
+    table = app.query_one("#entry-etymology .ety-table")
+    columns = table.styles.grid_size_columns
+    cells = [_static_text(cell) for cell in table.query(Static)]
+    headers = cells[:columns]
+    body = cells[columns:]
+    return headers, [body[i : i + columns] for i in range(0, len(body), columns)]
+
+
+@pytest.mark.anyio
+async def test_etymology_table_drops_empty_columns(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="for",
+        pos="preposition",
+        senses=(("1", "1", "for, on account of"),),
+        etymology=_FOR_ETYMOLOGY,
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test() as pilot:
+            await _open_entry(app, pilot, "for")
+            headers, rows = _etymology_grid(app)
+            assert headers == ["LANGUAGE", "WORD"]
+            assert rows[0] == ["Piers P. Chauc.", "for"]
+            assert rows[1] == ["Laym.", "for, uor"]
+            assert rows[-1] == ["Lat.", "pro"]
+            assert len(rows) == 14
+            assert not app.query("#entry-etymology .ety-note")
+    finally:
+        app.query_service.close()
+
+
+@pytest.mark.anyio
+async def test_etymology_note_line_under_table(lexicon_source_db: Path) -> None:
+    _insert_rich_entry(
+        lexicon_source_db,
+        headword="testac",
+        pos="conjunction",
+        senses=(("1", "1", "but"),),
+        etymology=_AC_ETYMOLOGY,
+    )
+    app = create_dictionary_browse_app(lexicon_source_db)
+    try:
+        async with app.run_test(size=(140, 60)) as pilot:
+            await _open_entry(app, pilot, "testac")
+            table = app.query_one("#entry-etymology .ety-table")
+            note = app.query_one("#entry-etymology .ety-note", Static)
+            assert _static_text(note) == "Note: R"
+            assert note.region.y >= table.region.bottom
+            headers, rows = _etymology_grid(app)
+            assert headers == ["LANGUAGE", "WORD"]
+            assert rows[0] == ["Glouc. Orm.", "ac"]
+    finally:
+        app.query_service.close()

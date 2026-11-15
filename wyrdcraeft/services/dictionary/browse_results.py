@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 from textual.content import Content
 
@@ -22,12 +22,21 @@ UNKNOWN_POS = "unknown"
 _CLASS_UNSAFE = re.compile(r"[^a-z0-9_-]+")
 
 
-def pos_label(hit: BrowseSearchHit) -> str:
+class HasPos(Protocol):
+    """Anything carrying a dictionary part of speech (a hit or entry details)."""
+
+    @property
+    def pos(self) -> str:
+        """Part of speech stored on the dictionary entry."""
+        ...
+
+
+def pos_label(hit: HasPos) -> str:
     """
-    Return the part-of-speech text shown in a results row tag.
+    Return the part-of-speech text shown in a results row or banner tag.
 
     Args:
-        hit: Dictionary-backed search hit.
+        hit: Search hit or entry details carrying a part of speech.
 
     Returns:
         The hit's part of speech, or ``unknown`` when it has none.
@@ -36,12 +45,12 @@ def pos_label(hit: BrowseSearchHit) -> str:
     return hit.pos.strip() or UNKNOWN_POS
 
 
-def pos_tag_class(hit: BrowseSearchHit) -> str:
+def pos_tag_class(hit: HasPos) -> str:
     """
-    Return the ``pos-<code>`` CSS class that tints a results row tag.
+    Return the ``pos-<code>`` CSS class that tints a part-of-speech tag.
 
     Args:
-        hit: Dictionary-backed search hit.
+        hit: Search hit or entry details carrying a part of speech.
 
     Returns:
         CSS class name such as ``pos-noun``.

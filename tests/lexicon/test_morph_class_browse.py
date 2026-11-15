@@ -12,11 +12,11 @@ from wyrdcraeft.db.runtime import create_engine
 from wyrdcraeft.models.morph_catalog import LemmaMorphClass, MorphClass
 from wyrdcraeft.models.reference import PartOfSpeech
 from wyrdcraeft.models.sqlalchemy import BTEntry
+from wyrdcraeft.services.dictionary.browse_entry import key_value_cells
 from wyrdcraeft.services.dictionary.browse_query import (
     DictionaryBrowseQueryService,
     EntryDetails,
 )
-from wyrdcraeft.services.dictionary.browse_tui import _format_entry_details
 from wyrdcraeft.services.morphology.catalog.loader import MorphologyCatalogLoader
 from wyrdcraeft.services.morphology.catalog.query import LemmaMorphClassSummary
 
@@ -198,7 +198,7 @@ def _bt_entry_id(db_path: Path, *, norm_key: str) -> int:
         engine.dispose()
 
 
-def test_format_entry_details_shows_unclassified_for_unmappable_pos() -> None:
+def test_key_values_have_no_class_row_for_unmappable_pos() -> None:
     details = EntryDetails(
         entry_id=1,
         headword="and",
@@ -216,14 +216,13 @@ def test_format_entry_details_shows_unclassified_for_unmappable_pos() -> None:
         morph_class=None,
     )
 
-    rendered = _format_entry_details(details)
+    rows = {label: value.plain for label, value in key_value_cells(details)}
 
-    assert "Morph class: Unclassified" in rendered
-    assert "Provenance:" not in rendered
-    assert "Wright \u00a7:" not in rendered
+    # ADR 0026: a conjunction has no Class row and no Source row.
+    assert rows == {}
 
 
-def test_format_entry_details_shows_unclassified_for_missing_assignment() -> None:
+def test_key_values_show_dim_unclassified_for_missing_assignment() -> None:
     details = EntryDetails(
         entry_id=1,
         headword="uncataloged",
@@ -246,14 +245,15 @@ def test_format_entry_details_shows_unclassified_for_missing_assignment() -> Non
         ),
     )
 
-    rendered = _format_entry_details(details)
+    cells = dict(key_value_cells(details))
 
-    assert "Morph class: Unclassified" in rendered
-    assert "Provenance:" not in rendered
-    assert "Wright \u00a7:" not in rendered
+    assert list(cells) == ["Class"]
+    assert cells["Class"].plain == "unclassified"
+    assert [span.style for span in cells["Class"].spans] == ["$text-muted"]
+    assert "Source" not in cells
 
 
-def test_format_entry_details_omits_plain_wright_line_for_selectable_sections() -> None:
+def test_key_values_show_class_and_source_without_wright_line() -> None:
     details = EntryDetails(
         entry_id=1,
         headword="abbad",
@@ -276,8 +276,11 @@ def test_format_entry_details_omits_plain_wright_line_for_selectable_sections() 
         ),
     )
 
-    rendered = _format_entry_details(details)
+    rows = {label: value.plain for label, value in key_value_cells(details)}
 
-    assert "Morph class: noun, a-stem" in rendered
-    assert "Provenance: paradigm" in rendered
-    assert "Wright \u00a7:" not in rendered
+    assert rows == {
+        "Class": "noun, a-stem",
+        "Gender": "masculine",
+        "Source": "paradigm",
+    }
+    assert not any("Wright" in value for value in rows.values())

@@ -12,23 +12,12 @@ Screen {
     margin: 1 1 0 1;
 }
 
-#details-title {
-    height: auto;
-}
-
-#details-title-bar {
-    height: auto;
-}
-
-#details-title {
-    width: 1fr;
-}
-
 #copy-definition {
     min-width: 8;
     height: 1;
     border: none;
     padding: 0 1;
+    margin: 0 0 0 2;
 }
 
 #oe-char-bar {
@@ -159,23 +148,120 @@ ListItem.result-row.-highlight {
 .pos-tag.pos-indeclinable { color: $pos-indeclinable-text; background: $pos-indeclinable-tint; }
 .pos-tag.pos-unknown { color: $pos-unknown-text; background: $pos-unknown-tint; }
 
-#details-body {
-    layout: vertical;
-    height: 1fr;
-    min-height: 0;
-    overflow: hidden;
+/* Entry pane (ADR 0026): a pinned banner, then one scrolling column of
+   sections. A section with no content is never mounted. */
+.banner {
+    height: auto;
+    margin: 1 2 0 2;
+    padding: 1 2;
+    background: $panel;
+    border-left: thick $primary;
 }
 
-#details-content-scroll {
-    height: 1fr;
-    min-height: 0;
-    width: 100%;
+#entry-headword {
+    width: 1fr;
+    height: 1;
+    text-style: bold;
+    color: $primary-lighten-2;
 }
 
-#details-content {
+#entry-column {
+    height: 1fr;
+    min-height: 0;
+    padding: 0 2 1 2;
+    scrollbar-size-vertical: 1;
+    scrollbar-background: $surface;
+    scrollbar-background-hover: $surface;
+    scrollbar-background-active: $surface;
+    scrollbar-color: $border-blurred;
+    scrollbar-color-hover: $text-muted;
+    scrollbar-color-active: $primary;
+}
+
+#entry-message {
     width: 100%;
     height: auto;
-    padding: 0 1;
+    margin: 1 0 0 0;
+    color: $text-muted;
+}
+
+.entry-section {
+    width: 100%;
+    height: auto;
+    margin: 1 0 0 0;
+}
+
+/* Section label: dim caps and a hairline rule to the right edge. */
+.section-label {
+    height: 1;
+    margin: 0 0 1 0;
+}
+
+.section-label-text {
+    width: auto;
+    color: $text-muted;
+}
+
+Rule.section-rule {
+    width: 1fr;
+    margin: 0 0 0 2;
+    color: $border-blurred;
+}
+
+#entry-keyvalues {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: auto 1fr;
+    grid-rows: auto;
+    grid-gutter: 0 3;
+}
+
+.kv-label {
+    color: $text-muted;
+}
+
+.sense-row {
+    height: auto;
+}
+
+.sense-number {
+    width: 5;
+}
+
+.sense-gloss {
+    width: 1fr;
+}
+
+/* Sub-senses (5a, 10c) indent by one number column. */
+.sense-row.sub-sense {
+    padding: 0 0 0 5;
+}
+
+.senses-summary {
+    margin: 0 0 1 0;
+}
+
+.ety-table {
+    height: auto;
+    grid-rows: auto;
+    grid-gutter: 0 3;
+}
+
+.ety-head {
+    color: $text-muted;
+}
+
+.ety-word {
+    color: $accent;
+}
+
+.ety-note {
+    margin: 1 0 0 0;
+}
+
+#morphology-table {
+    height: auto;
+    min-height: 0;
 }
 
 #wright-sections-title {
@@ -188,24 +274,6 @@ ListItem.result-row.-highlight {
     height: auto;
     max-height: 10;
     margin: 0 1 1 1;
-}
-
-#details-body-content {
-    width: 100%;
-    height: auto;
-    padding: 0 1 1 1;
-}
-
-#morphology-sidebar {
-    width: 100%;
-    height: 1fr;
-    min-height: 0;
-    border-top: solid $border-blurred;
-}
-
-#morphology-table {
-    height: auto;
-    min-height: 0;
 }
 
 #wright-sections-title.hidden,
