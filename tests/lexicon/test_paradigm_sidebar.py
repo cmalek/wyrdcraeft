@@ -285,7 +285,6 @@ def _featured_pronoun_rows() -> list[MorphologyRowPayload]:
         _row("we", "PlMaNo", "pronoun"),
         _row("þy", "SgNeIs", "pronoun"),
         _row("", "SgMaDa", "pronoun"),
-        _row("junk", "nope", "pronoun"),
     ]
 
 
@@ -309,12 +308,59 @@ def test_pronoun_with_features_splits_singular_and_plural() -> None:
         ("Inst", "", "", "þy"),
     )
     assert plural.rows == (("Nom", "we"),)
-    assert all(
-        "junk" not in cell
-        for section in sidebar.sections
-        for row in section.rows
-        for cell in row
+
+
+def test_pronoun_unplaceable_form_beside_featured_rows_makes_entry_flat() -> None:
+    sidebar = build_paradigm_sidebar(
+        [*_featured_pronoun_rows(), _row("junk", "nope", "pronoun")],
+        wordclass="pronoun",
     )
+    (section,) = sidebar.sections
+    assert section.flat is True
+    assert section.rows == (("ic, mec, hit, we, þy, junk",),)
+
+
+def test_pronoun_dual_and_partial_forms_make_entry_flat() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            _row("ic", "SgMaNo", "pronoun"),
+            _row("wit", "DuMaNo", "pronoun"),
+            _row("hwæs", "MaGe", "pronoun"),
+        ],
+        wordclass="pronoun",
+    )
+    (section,) = sidebar.sections
+    assert section.flat is True
+    assert section.rows == (("ic, wit, hwæs",),)
+
+
+def test_pronoun_featureless_forms_around_one_featured_form_make_entry_flat() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            _row("a", "", "pronoun"),
+            _row("b", "SgNeDa", "pronoun"),
+            _row("c", "", "pronoun"),
+        ],
+        wordclass="pronoun",
+    )
+    (section,) = sidebar.sections
+    assert section.flat is True
+    assert section.rows == (("a, b, c",),)
+
+
+def test_pronoun_dual_only_entry_is_flat_with_every_form() -> None:
+    sidebar = build_paradigm_sidebar(
+        [
+            _row("wit", "DuMaNo", "pronoun"),
+            _row("unc", "DuMaAc", "pronoun"),
+            _row("uncer", "DuMaGe", "pronoun"),
+            _row("wit", "DuFeNo", "pronoun"),
+        ],
+        wordclass="pronoun",
+    )
+    (section,) = sidebar.sections
+    assert section.flat is True
+    assert section.rows == (("wit, unc, uncer",),)
 
 
 def test_pronoun_without_instrumental_has_no_inst_row() -> None:

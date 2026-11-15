@@ -713,13 +713,14 @@ def _build_pronoun_sidebar(rows: list[MorphologyRowPayload]) -> ParadigmSidebarS
         rows: Pronoun morphology rows.
 
     Returns:
-        Pronoun sidebar specification. When no row carries full case, gender
-        and number data, one flat section lists the forms instead.
+        Pronoun sidebar specification. Unless every form places in a
+        singular or plural grid cell, one flat section lists all forms.
 
     Note:
         Per ADR 0027, singular forms vary by gender (Masc., Fem., Neut.
-        columns) and plural forms do not (one Plural column). Rows whose
-        function lacks any of case, gender or number are left out of the grid.
+        columns) and plural forms do not (one Plural column). Every form is
+        shown, so one unplaceable form (dual, partial or missing features)
+        turns the whole entry into the flat list.
 
     """
     cells = _collect_pronoun_cells(rows)
@@ -753,27 +754,50 @@ def _collect_pronoun_cells(
         rows: Pronoun morphology rows.
 
     Returns:
-        Cell map keyed by ``(case, column)``; rows lacking case, gender or
-        number data, or with no surface spelling, contribute nothing.
+        Cell map keyed by ``(case, column)``. Rows with no surface spelling
+        contribute nothing. When any row with a surface cannot be placed
+        (dual number, partial or missing case/gender/number), the map is
+        empty so the caller shows every form in the flat fallback instead.
 
     """
     cells: dict[tuple[str, ...], set[str]] = {}
     for row in rows:
-        match = _NOUN_LIKE_PATTERN.fullmatch(row.function.strip())
-        if match is None:
+        surface = _surface_form(row.form, row.formi)
+        if not surface:
             continue
-        case_label = _paradigm_grid_case_label(match.group("case"))
-        number = match.group("number")
-        if number == "Pl":
-            column = "Plural"
-        elif number == "Sg":
-            column = _PRONOUN_SG_COLUMNS.get(match.group("gender"), "")
-        else:
-            column = ""
-        if case_label is None or not column:
-            continue
-        _append_surface(cells, (case_label, column), _surface_form(row.form, row.formi))
+        key = _pronoun_cell_key(row.function)
+        if key is None:
+            return {}
+        _append_surface(cells, key, surface)
     return cells
+
+
+def _pronoun_cell_key(function: str) -> tuple[str, str] | None:
+    """
+    Map one pronoun function code to its ``(case, column)`` grid cell.
+
+    Args:
+        function: Morphology function code such as ``SgMaNo``.
+
+    Returns:
+        The cell key, or ``None`` when the code is not a singular or plural
+        form with case and gender.
+
+    """
+    match = _NOUN_LIKE_PATTERN.fullmatch(function.strip())
+    if match is None:
+        return None
+    case_label = _paradigm_grid_case_label(match.group("case"))
+    number = match.group("number")
+    if number == "Pl":
+        column = "Plural"
+    elif number == "Sg":
+        column = _PRONOUN_SG_COLUMNS.get(match.group("gender"), "")
+    else:
+        column = ""
+    if case_label is None or not column:
+        return None
+    return (case_label, column)
 
 
 def _flat_forms_section(
