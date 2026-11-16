@@ -10,7 +10,7 @@ The browse TUI draws every part of an entry in one font, one foreground, one bac
 
 A terminal draws one cell size, so rank comes from weight, colour role, caps, rules and blocks, never from font size.
 
-- Header row, search input, one row of diacritic insert chips, results pane on the left, entry pane on the right, footer that lists only the keys that are live.
+- Search input, one row of diacritic insert chips, results pane on the left, entry pane on the right, footer that lists only the keys that are live.
 - Panes use rounded titled borders. The focused pane takes the accent border **and** an accent title, so focus is never carried by colour alone (unfocused borders are 1.35:1 against the panel on purpose).
 - The entry pane is one scrolling column. A banner (tinted block, accent edge, part-of-speech tag, Copy button) stays pinned. Below it scroll a key/value block, then `Senses`, `Etymology` and `Forms`. Each section has a dim caps label with a hairline rule.
 - A section with no content is not drawn, label included. A preposition, conjunction or interjection has no `Forms` section.

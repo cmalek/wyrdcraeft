@@ -1043,15 +1043,15 @@ class DictionaryBrowseApp(App[None]):
         The results preview reads the same :meth:`DefinitionLineCache.get`,
         so the copied line and the preview cannot disagree (ADR 0028).
 
+        The UI-thread cache never writes, so opening an entry never waits on
+        a database lock (for example while a build runs); the row-fill
+        worker is the only writer.
+
         Args:
             entry_id: Dictionary entry identifier.
 
         Returns:
             The definition line; empty when the entry has none.
-
-        The UI-thread cache never writes, so opening an entry never waits on
-        a database lock (for example while a build runs); the row-fill
-        worker is the only writer.
 
         Side Effects:
             Opens the read-only UI-thread cache on first use.
@@ -1103,7 +1103,7 @@ class DictionaryBrowseApp(App[None]):
 
         The key/value block goes above the Wright widgets; Senses, Etymology
         and Forms go below them. Forms is mounted only when the paradigm
-        sidebar has sections.
+        sidebar has at least one row.
 
         Args:
             details: Entry to draw, or ``None`` to leave the column empty.
