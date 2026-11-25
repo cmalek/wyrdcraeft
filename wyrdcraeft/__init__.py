@@ -3,7 +3,7 @@ from .models import TextMetadata
 from .services.ingest import DocumentIngestor
 from .settings import Settings
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 __all__ = [
     "Base",
